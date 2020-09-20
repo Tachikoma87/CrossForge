@@ -1,4 +1,0 @@
-C:/Projects/CrossForge/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
-C:/Projects/CrossForge/out/build/x64-Debug/CMakeFiles/crossforgecore.dir
-C:/Projects/CrossForge/out/build/x64-Debug/CMakeFiles/CForgeSandbox.dir
-C:/Projects/CrossForge/out/build/x64-Debug/CMakeFiles/edit_cache.dir
