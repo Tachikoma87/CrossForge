@@ -1,6 +1,6 @@
 # Folders
 .vs/
-.out/
+out/
 
 # Prerequisites
 *.d
