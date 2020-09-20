@@ -1,0 +1,6 @@
+Exception occurred at CForge::SGPIO::pinMode(L 75): GPIO not available on windows!
+Exception occurred at CForge::SGPIO::pinMode(L 75): GPIO not available on windows!
+Exception occurred at eigenTest(L 88): An intentionally created exception
+Exception occurred at eigenTest(L 94): An intentionally created exception
+Exception occurred at CForge::SGPIO::pinMode(L 75): GPIO not available on windows!
+Exception occurred at CForge::I2C::begin(L 103): I2C not available on Windows systems!

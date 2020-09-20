@@ -1,0 +1,56 @@
+\hypertarget{class_c_forge_1_1_c_i2_c}{}\doxysection{C\+Forge\+::C\+I2C Class Reference}
+\label{class_c_forge_1_1_c_i2_c}\index{CForge::CI2C@{CForge::CI2C}}
+
+
+{\ttfamily \#include $<$C\+I2\+C.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_c_i2_c_aae5c3e9b433811eaf7c974e9d63352a7}\label{class_c_forge_1_1_c_i2_c_aae5c3e9b433811eaf7c974e9d63352a7}} 
+void {\bfseries begin} (const std\+::string Device=\char`\"{}/dev/i2c-\/1\char`\"{})
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_c_i2_c_a60689f886ed97be8748a4a6ea0869043}\label{class_c_forge_1_1_c_i2_c_a60689f886ed97be8748a4a6ea0869043}} 
+void {\bfseries end} (void)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_c_i2_c_a47ee87efde22d36bfaeabe840d3e949b}\label{class_c_forge_1_1_c_i2_c_a47ee87efde22d36bfaeabe840d3e949b}} 
+void {\bfseries read} (int16\+\_\+t Slave\+Adr, void $\ast$p\+Buffer, int32\+\_\+t Byte\+Count)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_c_i2_c_a12b69538225d64bc8dc1e6cbeb2d92c0}\label{class_c_forge_1_1_c_i2_c_a12b69538225d64bc8dc1e6cbeb2d92c0}} 
+void {\bfseries write} (int16\+\_\+t Slave\+Adr, const void $\ast$p\+Buffer, int32\+\_\+t Byte\+Count)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_c_i2_c_a56697b824e98bf52048de29ec6bb5b63}\label{class_c_forge_1_1_c_i2_c_a56697b824e98bf52048de29ec6bb5b63}} 
+void {\bfseries write\+Read} (int16\+\_\+t Slave\+Adr, const void $\ast$p\+Write, const int16\+\_\+t Write\+Byte\+Count, void $\ast$p\+Read, int16\+\_\+t Read\+Byte\+Count)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_c_i2_c_a53fae0b31a85b1d9a15e180b25b797f5}\label{class_c_forge_1_1_c_i2_c_a53fae0b31a85b1d9a15e180b25b797f5}} 
+int8\+\_\+t {\bfseries register\+Read} (int16\+\_\+t Slave\+Adr, int8\+\_\+t Register)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_c_i2_c_a6404e2c8da5beb7be45989137f078949}\label{class_c_forge_1_1_c_i2_c_a6404e2c8da5beb7be45989137f078949}} 
+void {\bfseries register\+Write} (int16\+\_\+t Slave\+Adr, int8\+\_\+t Reg\+Adr, int8\+\_\+t Value)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_c_i2_c_ace84c5a31a0be21e83880c42ee8edfa7}\label{class_c_forge_1_1_c_i2_c_ace84c5a31a0be21e83880c42ee8edfa7}} 
+{\footnotesize template$<$typename T $>$ }\\void {\bfseries write} (int16\+\_\+t Slave\+Adr, T Value)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_c_i2_c_a9330965dd588fab8be8403746d54b2f0}\label{class_c_forge_1_1_c_i2_c_a9330965dd588fab8be8403746d54b2f0}} 
+{\footnotesize template$<$typename T $>$ }\\void {\bfseries read} (int16\+\_\+t Slave\+Adr, T $\ast$p\+Value)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_c_i2_c_aad8d5a8d976731ff4c16607d2c675902}\label{class_c_forge_1_1_c_i2_c_aad8d5a8d976731ff4c16607d2c675902}} 
+{\footnotesize template$<$typename T , typename U $>$ }\\void {\bfseries write\+Read} (int16\+\_\+t Slave\+Adr, const T Write, U $\ast$p\+Read)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_c_i2_c_aaa8d8a5bcafc501d10acc34add2336a2}\label{class_c_forge_1_1_c_i2_c_aaa8d8a5bcafc501d10acc34add2336a2}} 
+int32\+\_\+t {\bfseries m\+\_\+\+Bus\+Device}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyRefDesc}{Todo}
+\item[\mbox{\hyperlink{todo__todo000002}{Todo}}]Documentation \end{DoxyRefDesc}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Projects/\+Cross\+Forge/\+Prototypes/C\+I2\+C.\+h\item 
+C\+:/\+Projects/\+Cross\+Forge/\+Prototypes/C\+I2\+C.\+cpp\end{DoxyCompactItemize}

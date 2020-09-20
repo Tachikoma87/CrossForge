@@ -1,0 +1,98 @@
+\hypertarget{class_c_forge_1_1_m_p_u6050}{}\doxysection{C\+Forge\+::M\+P\+U6050 Class Reference}
+\label{class_c_forge_1_1_m_p_u6050}\index{CForge::MPU6050@{CForge::MPU6050}}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{struct_c_forge_1_1_m_p_u6050_1_1_raw_sensor_data}{Raw\+Sensor\+Data}}
+\item 
+struct \mbox{\hyperlink{struct_c_forge_1_1_m_p_u6050_1_1_sensor_data}{Sensor\+Data}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a6ccd28854fc0af1ab13887a620ced30a}\label{class_c_forge_1_1_m_p_u6050_a6ccd28854fc0af1ab13887a620ced30a}} 
+enum {\bfseries Gyro\+Config} \+: int8\+\_\+t \{ {\bfseries S\+C\+A\+L\+E\+\_\+250} = 0, 
+{\bfseries S\+C\+A\+L\+E\+\_\+500}, 
+{\bfseries S\+C\+A\+L\+E\+\_\+1000}, 
+{\bfseries S\+C\+A\+L\+E\+\_\+2000}
+ \}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_afcde10b2297e172c58ac55af0f81e25d}\label{class_c_forge_1_1_m_p_u6050_afcde10b2297e172c58ac55af0f81e25d}} 
+enum {\bfseries Accel\+Config} \+: int8\+\_\+t \{ {\bfseries S\+C\+A\+L\+E\+\_\+2G} = 0, 
+{\bfseries S\+C\+A\+L\+E\+\_\+4G}, 
+{\bfseries S\+C\+A\+L\+E\+\_\+8G}, 
+{\bfseries S\+C\+A\+L\+E\+\_\+16G}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a728e3b51dc5521ff6947adaa12efc7c5}\label{class_c_forge_1_1_m_p_u6050_a728e3b51dc5521ff6947adaa12efc7c5}} 
+void {\bfseries begin} (\mbox{\hyperlink{class_c_forge_1_1_i2_c}{I2C}} $\ast$p\+I2C, int16\+\_\+t Adr=0x68, Accel\+Config=Accel\+Config\+::\+S\+C\+A\+L\+E\+\_\+2G, Gyro\+Config GC=Gyro\+Config\+::\+S\+C\+A\+L\+E\+\_\+250)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a67307a8fbc07bfa05d27ff8d15743e0d}\label{class_c_forge_1_1_m_p_u6050_a67307a8fbc07bfa05d27ff8d15743e0d}} 
+void {\bfseries end} (void)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_ae6739d8364ccb9cc292bdd9a067c67df}\label{class_c_forge_1_1_m_p_u6050_ae6739d8364ccb9cc292bdd9a067c67df}} 
+void {\bfseries sleep} (void)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a25bccefe56100cb7541b28d30b004fa6}\label{class_c_forge_1_1_m_p_u6050_a25bccefe56100cb7541b28d30b004fa6}} 
+void {\bfseries wake} (uint32\+\_\+t Wait\+After\+Wake=50)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_ae9c8bbd0788638cc7739694e1c1eb830}\label{class_c_forge_1_1_m_p_u6050_ae9c8bbd0788638cc7739694e1c1eb830}} 
+void {\bfseries config\+Accel} (Accel\+Config Value, bool Recalibrate=true)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a3aa5574bd4f00c0f595d50d9583ede5b}\label{class_c_forge_1_1_m_p_u6050_a3aa5574bd4f00c0f595d50d9583ede5b}} 
+void {\bfseries config\+Gyro} (Gyro\+Config Value, bool Recalibrate=true)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_aef4cd5cf487621ee525049ec22d45524}\label{class_c_forge_1_1_m_p_u6050_aef4cd5cf487621ee525049ec22d45524}} 
+void {\bfseries config\+Thermistor} (bool Enable)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a8e8ef7bfed942c2bd652a4520503d254}\label{class_c_forge_1_1_m_p_u6050_a8e8ef7bfed942c2bd652a4520503d254}} 
+\mbox{\hyperlink{struct_c_forge_1_1_m_p_u6050_1_1_raw_sensor_data}{Raw\+Sensor\+Data}} {\bfseries read\+Raw} (void)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a0b9fd6f2efb72a4d6c71933d93d60f75}\label{class_c_forge_1_1_m_p_u6050_a0b9fd6f2efb72a4d6c71933d93d60f75}} 
+\mbox{\hyperlink{struct_c_forge_1_1_m_p_u6050_1_1_sensor_data}{Sensor\+Data}} {\bfseries read} (void)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a5b4bb78b8e54cced4705080806c26906}\label{class_c_forge_1_1_m_p_u6050_a5b4bb78b8e54cced4705080806c26906}} 
+void {\bfseries reset} (uint32\+\_\+t Wait\+After\+Reset=100)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a9e725fb595d8489937fa8b09d587e2dd}\label{class_c_forge_1_1_m_p_u6050_a9e725fb595d8489937fa8b09d587e2dd}} 
+void {\bfseries calibrate} (void)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_aee294b2ccea115e497d36e0ef563f707}\label{class_c_forge_1_1_m_p_u6050_aee294b2ccea115e497d36e0ef563f707}} 
+void {\bfseries calibrate} (const \mbox{\hyperlink{struct_c_forge_1_1_m_p_u6050_1_1_raw_sensor_data}{Raw\+Sensor\+Data}} Calibration\+Data)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a933f9107801bf157e0308f4443171678}\label{class_c_forge_1_1_m_p_u6050_a933f9107801bf157e0308f4443171678}} 
+int16\+\_\+t {\bfseries accel\+Sensivity} (Accel\+Config Value)
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a44b05acbfca16a2bd0598adaf1c107ab}\label{class_c_forge_1_1_m_p_u6050_a44b05acbfca16a2bd0598adaf1c107ab}} 
+float {\bfseries gyro\+Sensivity} (Gyro\+Config Value)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_ae997c63ebb15492fce4f9942b3efbb54}\label{class_c_forge_1_1_m_p_u6050_ae997c63ebb15492fce4f9942b3efbb54}} 
+int16\+\_\+t {\bfseries m\+\_\+\+Sensor\+Adr}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a4562b393cf046f9a0d649390c7497efd}\label{class_c_forge_1_1_m_p_u6050_a4562b393cf046f9a0d649390c7497efd}} 
+\mbox{\hyperlink{class_c_forge_1_1_i2_c}{I2C}} $\ast$ {\bfseries m\+\_\+p\+Wire}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_aa4685a82123fc3936c30ecbf7d936850}\label{class_c_forge_1_1_m_p_u6050_aa4685a82123fc3936c30ecbf7d936850}} 
+Accel\+Config {\bfseries m\+\_\+\+Accel\+Config}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a7da9cccfb5b113fd78d9f79da58afde3}\label{class_c_forge_1_1_m_p_u6050_a7da9cccfb5b113fd78d9f79da58afde3}} 
+Gyro\+Config {\bfseries m\+\_\+\+Gyro\+Config}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_m_p_u6050_a21ff265133e255927f07e4652075fa84}\label{class_c_forge_1_1_m_p_u6050_a21ff265133e255927f07e4652075fa84}} 
+\mbox{\hyperlink{struct_c_forge_1_1_m_p_u6050_1_1_raw_sensor_data}{Raw\+Sensor\+Data}} {\bfseries m\+\_\+\+Calibration}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Projects/\+Cross\+Forge/\+Prototypes/M\+P\+U6050.\+h\item 
+C\+:/\+Projects/\+Cross\+Forge/\+Prototypes/M\+P\+U6050.\+cpp\end{DoxyCompactItemize}

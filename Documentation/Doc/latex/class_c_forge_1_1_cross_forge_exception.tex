@@ -1,0 +1,334 @@
+\hypertarget{class_c_forge_1_1_cross_forge_exception}{}\doxysection{C\+Forge\+::Cross\+Forge\+Exception Class Reference}
+\label{class_c_forge_1_1_cross_forge_exception}\index{CForge::CrossForgeException@{CForge::CrossForgeException}}
+
+
+Basic exception thrown by the Cross\+Forge library..  
+
+
+
+
+{\ttfamily \#include $<$Cross\+Forge\+Exception.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}\label{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}} 
+enum \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}{Type}} \+: int32\+\_\+t \{ \newline
+{\bfseries U\+N\+K\+N\+O\+WN} = -\/1, 
+{\bfseries G\+E\+N\+E\+R\+AL}, 
+{\bfseries N\+U\+L\+L\+P\+O\+I\+N\+T\+ER}, 
+{\bfseries I\+N\+D\+E\+X\+\_\+\+O\+U\+T\+\_\+\+O\+F\+\_\+\+B\+O\+U\+N\+DS}, 
+\newline
+{\bfseries N\+O\+T\+\_\+\+I\+N\+I\+T\+I\+A\+L\+I\+Z\+ED}
+ \}
+\begin{DoxyCompactList}\small\item\em Defines exception types. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a34f8e9ae772102f292dbd82c90fdea93}{Cross\+Forge\+Exception}} (\mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}{Type}} T, const std\+::string Message, const std\+::string Info01, const std\+::string Info02, const std\+::string File, const int32\+\_\+t Line, const std\+::string Function)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a218e9c249ac7f0507b366fb67cc79c7c}\label{class_c_forge_1_1_cross_forge_exception_a218e9c249ac7f0507b366fb67cc79c7c}} 
+\mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a218e9c249ac7f0507b366fb67cc79c7c}{$\sim$\+Cross\+Forge\+Exception}} (void)
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ac42b7ba3c383e9ea1c8e98f119907c52}{msg}} (void) const
+\begin{DoxyCompactList}\small\item\em Message getter. \end{DoxyCompactList}\item 
+int32\+\_\+t \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a0ba7301db32a751b1f8b54db89f2de03}{line}} (void) const
+\begin{DoxyCompactList}\small\item\em Line getter. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_adcab19aa17d8255c38b08522504dce8e}{file}} (void) const
+\begin{DoxyCompactList}\small\item\em File getter. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a67cdc0ce5082202e85a6202da502bb42}{function}} (void) const
+\begin{DoxyCompactList}\small\item\em Function getter. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}{Type}} \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_aff21c3abdb45f694cb6f7a40d6bfb2cd}{type}} (void) const
+\begin{DoxyCompactList}\small\item\em Type getter. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a88843fc516057fc8ad993e21433c3dc4}{info01}} (void) const
+\begin{DoxyCompactList}\small\item\em Info01 getter. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a397b345cd2093f528f3d845e44241b99}{info02}} (void) const
+\begin{DoxyCompactList}\small\item\em Info02 getter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a3d7947524ccbc073ef6521bf331309f8}{msg}} (const std\+::string Msg)
+\begin{DoxyCompactList}\small\item\em Message setter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a769cf62ecd31c5f560358992ac7a845d}{line}} (const int32\+\_\+t Line)
+\begin{DoxyCompactList}\small\item\em Line setter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ac334903455ade83bff5da2959ae522b9}{file}} (const std\+::string File)
+\begin{DoxyCompactList}\small\item\em File setter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_aa7027e650a0f6d78b9efa1294c6b4d06}{function}} (const std\+::string Function)
+\begin{DoxyCompactList}\small\item\em Function setter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a8aaf333a053b96b78874ed27f5025396}{type}} (const \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}{Type}} T)
+\begin{DoxyCompactList}\small\item\em Type setter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a2613f64f382055395be27690f8b1d89e}{info01}} (const std\+::string Info01)
+\begin{DoxyCompactList}\small\item\em Info01 setter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ad00bec6baef0949a174898aad3f3d93a}{info02}} (const std\+::string Info02)
+\begin{DoxyCompactList}\small\item\em Info02 setter. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a4a81cdfd24cef969768ef9c4b22f7916}\label{class_c_forge_1_1_cross_forge_exception_a4a81cdfd24cef969768ef9c4b22f7916}} 
+std\+::string \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a4a81cdfd24cef969768ef9c4b22f7916}{m\+\_\+\+Message}}
+\begin{DoxyCompactList}\small\item\em Message of this exception. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a3581e0ba4a2e218d9d30a57e3bec6246}\label{class_c_forge_1_1_cross_forge_exception_a3581e0ba4a2e218d9d30a57e3bec6246}} 
+std\+::string \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a3581e0ba4a2e218d9d30a57e3bec6246}{m\+\_\+\+File}}
+\begin{DoxyCompactList}\small\item\em File where the exception occurred. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_ab832663291e0a57c0f68a9d768508df5}\label{class_c_forge_1_1_cross_forge_exception_ab832663291e0a57c0f68a9d768508df5}} 
+std\+::string \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ab832663291e0a57c0f68a9d768508df5}{m\+\_\+\+Function}}
+\begin{DoxyCompactList}\small\item\em Function/method in which the exception occurred. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a1cd781a72daec087c39dafc7d4aff894}\label{class_c_forge_1_1_cross_forge_exception_a1cd781a72daec087c39dafc7d4aff894}} 
+int32\+\_\+t \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a1cd781a72daec087c39dafc7d4aff894}{m\+\_\+\+Line}}
+\begin{DoxyCompactList}\small\item\em Code line where the exception occurred. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a6a52a6ef32ec43f43ae784b227bf62a8}\label{class_c_forge_1_1_cross_forge_exception_a6a52a6ef32ec43f43ae784b227bf62a8}} 
+\mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}{Type}} \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_a6a52a6ef32ec43f43ae784b227bf62a8}{m\+\_\+\+Type}}
+\begin{DoxyCompactList}\small\item\em Type of the exception. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_aaa36f12b48e188c422c268212ad89d78}\label{class_c_forge_1_1_cross_forge_exception_aaa36f12b48e188c422c268212ad89d78}} 
+std\+::string \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_aaa36f12b48e188c422c268212ad89d78}{m\+\_\+\+Info01}}
+\begin{DoxyCompactList}\small\item\em Additional information 1. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_af22996e156496a54ba1183686dc39d79}\label{class_c_forge_1_1_cross_forge_exception_af22996e156496a54ba1183686dc39d79}} 
+std\+::string \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_af22996e156496a54ba1183686dc39d79}{m\+\_\+\+Info02}}
+\begin{DoxyCompactList}\small\item\em Additional information 2. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Basic exception thrown by the Cross\+Forge library.. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a34f8e9ae772102f292dbd82c90fdea93}\label{class_c_forge_1_1_cross_forge_exception_a34f8e9ae772102f292dbd82c90fdea93}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!CrossForgeException@{CrossForgeException}}
+\index{CrossForgeException@{CrossForgeException}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{CrossForgeException()}{CrossForgeException()}}
+{\footnotesize\ttfamily C\+Forge\+::\+Cross\+Forge\+Exception\+::\+Cross\+Forge\+Exception (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}{Type}}}]{T,  }\item[{const std\+::string}]{Message,  }\item[{const std\+::string}]{Info01,  }\item[{const std\+::string}]{Info02,  }\item[{const std\+::string}]{File,  }\item[{const int32\+\_\+t}]{Line,  }\item[{const std\+::string}]{Function }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em T} & Exception type. \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}{Cross\+Forge\+Exception\+::\+Type}} 
+\end{DoxySeeAlso}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em Message} & The general message to be logged. \\
+\hline
+\mbox{\texttt{ in}}  & {\em Info01} & Additional information 1 \\
+\hline
+\mbox{\texttt{ in}}  & {\em Info02} & Additional information 2 \\
+\hline
+\mbox{\texttt{ in}}  & {\em File} & The file in which the exception occurred. You can use {\bfseries{F\+I\+LE}} for this one. \\
+\hline
+\mbox{\texttt{ in}}  & {\em Line} & Code line where the exception occurred. You can use {\bfseries{L\+I\+NE}} for this one. \\
+\hline
+\mbox{\texttt{ in}}  & {\em Function} & Function in which the exception occurred. You can use {\bfseries{F\+U\+N\+C\+T\+I\+ON}} (Windows) or {\bfseries{P\+R\+E\+T\+T\+Y\+\_\+\+F\+U\+N\+C\+T\+I\+ON}} (Linux) for this one. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_ac334903455ade83bff5da2959ae522b9}\label{class_c_forge_1_1_cross_forge_exception_ac334903455ade83bff5da2959ae522b9}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!file@{file}}
+\index{file@{file}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{file()}{file()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void C\+Forge\+::\+Cross\+Forge\+Exception\+::file (\begin{DoxyParamCaption}\item[{const std\+::string}]{File }\end{DoxyParamCaption})}
+
+
+
+File setter. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em File} & New file attribute. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_adcab19aa17d8255c38b08522504dce8e}\label{class_c_forge_1_1_cross_forge_exception_adcab19aa17d8255c38b08522504dce8e}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!file@{file}}
+\index{file@{file}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{file()}{file()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily string C\+Forge\+::\+Cross\+Forge\+Exception\+::file (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const}
+
+
+
+File getter. 
+
+\begin{DoxyReturn}{Returns}
+File in which the exception was raised. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_aa7027e650a0f6d78b9efa1294c6b4d06}\label{class_c_forge_1_1_cross_forge_exception_aa7027e650a0f6d78b9efa1294c6b4d06}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!function@{function}}
+\index{function@{function}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{function()}{function()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void C\+Forge\+::\+Cross\+Forge\+Exception\+::function (\begin{DoxyParamCaption}\item[{const std\+::string}]{Function }\end{DoxyParamCaption})}
+
+
+
+Function setter. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em Function} & New function attribute. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a67cdc0ce5082202e85a6202da502bb42}\label{class_c_forge_1_1_cross_forge_exception_a67cdc0ce5082202e85a6202da502bb42}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!function@{function}}
+\index{function@{function}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{function()}{function()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily string C\+Forge\+::\+Cross\+Forge\+Exception\+::function (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const}
+
+
+
+Function getter. 
+
+\begin{DoxyReturn}{Returns}
+Function where the exception was raised. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a2613f64f382055395be27690f8b1d89e}\label{class_c_forge_1_1_cross_forge_exception_a2613f64f382055395be27690f8b1d89e}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!info01@{info01}}
+\index{info01@{info01}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{info01()}{info01()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void C\+Forge\+::\+Cross\+Forge\+Exception\+::info01 (\begin{DoxyParamCaption}\item[{const std\+::string}]{Info01 }\end{DoxyParamCaption})}
+
+
+
+Info01 setter. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em Info01} & New Info 1 attribute. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a88843fc516057fc8ad993e21433c3dc4}\label{class_c_forge_1_1_cross_forge_exception_a88843fc516057fc8ad993e21433c3dc4}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!info01@{info01}}
+\index{info01@{info01}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{info01()}{info01()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily std\+::string C\+Forge\+::\+Cross\+Forge\+Exception\+::info01 (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const}
+
+
+
+Info01 getter. 
+
+\begin{DoxyReturn}{Returns}
+Additional information 1 of this exception. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_ad00bec6baef0949a174898aad3f3d93a}\label{class_c_forge_1_1_cross_forge_exception_ad00bec6baef0949a174898aad3f3d93a}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!info02@{info02}}
+\index{info02@{info02}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{info02()}{info02()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void C\+Forge\+::\+Cross\+Forge\+Exception\+::info02 (\begin{DoxyParamCaption}\item[{const std\+::string}]{Info02 }\end{DoxyParamCaption})}
+
+
+
+Info02 setter. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em Info02} & New Info 2 attribute. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a397b345cd2093f528f3d845e44241b99}\label{class_c_forge_1_1_cross_forge_exception_a397b345cd2093f528f3d845e44241b99}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!info02@{info02}}
+\index{info02@{info02}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{info02()}{info02()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily std\+::string C\+Forge\+::\+Cross\+Forge\+Exception\+::info02 (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const}
+
+
+
+Info02 getter. 
+
+\begin{DoxyReturn}{Returns}
+Additional information 2 of this exception. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a769cf62ecd31c5f560358992ac7a845d}\label{class_c_forge_1_1_cross_forge_exception_a769cf62ecd31c5f560358992ac7a845d}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!line@{line}}
+\index{line@{line}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{line()}{line()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void C\+Forge\+::\+Cross\+Forge\+Exception\+::line (\begin{DoxyParamCaption}\item[{const int32\+\_\+t}]{Line }\end{DoxyParamCaption})}
+
+
+
+Line setter. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em Line} & New line attribute. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a0ba7301db32a751b1f8b54db89f2de03}\label{class_c_forge_1_1_cross_forge_exception_a0ba7301db32a751b1f8b54db89f2de03}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!line@{line}}
+\index{line@{line}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{line()}{line()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily int32\+\_\+t C\+Forge\+::\+Cross\+Forge\+Exception\+::line (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const}
+
+
+
+Line getter. 
+
+\begin{DoxyReturn}{Returns}
+Line where the exception was raised. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a3d7947524ccbc073ef6521bf331309f8}\label{class_c_forge_1_1_cross_forge_exception_a3d7947524ccbc073ef6521bf331309f8}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!msg@{msg}}
+\index{msg@{msg}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{msg()}{msg()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void C\+Forge\+::\+Cross\+Forge\+Exception\+::msg (\begin{DoxyParamCaption}\item[{const std\+::string}]{Msg }\end{DoxyParamCaption})}
+
+
+
+Message setter. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em Msg} & New message attribute. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_ac42b7ba3c383e9ea1c8e98f119907c52}\label{class_c_forge_1_1_cross_forge_exception_ac42b7ba3c383e9ea1c8e98f119907c52}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!msg@{msg}}
+\index{msg@{msg}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{msg()}{msg()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily std\+::string C\+Forge\+::\+Cross\+Forge\+Exception\+::msg (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const}
+
+
+
+Message getter. 
+
+\begin{DoxyReturn}{Returns}
+Exception message. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_a8aaf333a053b96b78874ed27f5025396}\label{class_c_forge_1_1_cross_forge_exception_a8aaf333a053b96b78874ed27f5025396}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!type@{type}}
+\index{type@{type}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{type()}{type()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void C\+Forge\+::\+Cross\+Forge\+Exception\+::type (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}{Type}}}]{T }\end{DoxyParamCaption})}
+
+
+
+Type setter. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em T} & New type attribute. \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}{Cross\+Forge\+Exception\+::\+Type}} 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{class_c_forge_1_1_cross_forge_exception_aff21c3abdb45f694cb6f7a40d6bfb2cd}\label{class_c_forge_1_1_cross_forge_exception_aff21c3abdb45f694cb6f7a40d6bfb2cd}} 
+\index{CForge::CrossForgeException@{CForge::CrossForgeException}!type@{type}}
+\index{type@{type}!CForge::CrossForgeException@{CForge::CrossForgeException}}
+\doxysubsubsection{\texorpdfstring{type()}{type()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}{Cross\+Forge\+Exception\+::\+Type}} C\+Forge\+::\+Cross\+Forge\+Exception\+::type (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const}
+
+
+
+Type getter. 
+
+\begin{DoxyReturn}{Returns}
+Exception type. 
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{class_c_forge_1_1_cross_forge_exception_ad8b4524f546fa7422ee7ee9493123b98}{Cross\+Forge\+Exception\+::\+Type}} 
+\end{DoxySeeAlso}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Projects/\+Cross\+Forge/\+Core/Cross\+Forge\+Exception.\+h\item 
+C\+:/\+Projects/\+Cross\+Forge/\+Core/Cross\+Forge\+Exception.\+cpp\end{DoxyCompactItemize}

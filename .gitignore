@@ -1,3 +1,7 @@
+# Folders
+.vs/
+.out/
+
 # Prerequisites
 *.d
 
