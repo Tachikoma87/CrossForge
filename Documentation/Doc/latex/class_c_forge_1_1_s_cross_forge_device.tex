@@ -1,0 +1,76 @@
+\hypertarget{class_c_forge_1_1_s_cross_forge_device}{}\doxysection{C\+Forge\+::S\+Cross\+Forge\+Device Class Reference}
+\label{class_c_forge_1_1_s_cross_forge_device}\index{CForge::SCrossForgeDevice@{CForge::SCrossForgeDevice}}
+
+
+The main device of Cross\+Forge. It keeps one instance of the Logger and G\+P\+IO class active during its lifetime.  
+
+
+
+
+{\ttfamily \#include $<$S\+Cross\+Forge\+Device.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_s_cross_forge_device_aebf36323a6dfbbfa8019953f80e4a448}\label{class_c_forge_1_1_s_cross_forge_device_aebf36323a6dfbbfa8019953f80e4a448}} 
+void \mbox{\hyperlink{class_c_forge_1_1_s_cross_forge_device_aebf36323a6dfbbfa8019953f80e4a448}{release}} (void)
+\begin{DoxyCompactList}\small\item\em Release an instance. For every instance call a release call must be made. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{class_c_forge_1_1_s_cross_forge_device}{S\+Cross\+Forge\+Device}} $\ast$ \mbox{\hyperlink{class_c_forge_1_1_s_cross_forge_device_a01524064b1d9693924c4bce32720d90a}{instance}} (void)
+\begin{DoxyCompactList}\small\item\em Instantiation method. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_s_cross_forge_device_ad1bab966794ff8c52995291025fe4570}\label{class_c_forge_1_1_s_cross_forge_device_ad1bab966794ff8c52995291025fe4570}} 
+\mbox{\hyperlink{class_c_forge_1_1_s_cross_forge_device_ad1bab966794ff8c52995291025fe4570}{S\+Cross\+Forge\+Device}} (void)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_forge_1_1_s_cross_forge_device_ad0ab7f50b6b2845fe32b3b4e3b81b935}\label{class_c_forge_1_1_s_cross_forge_device_ad0ab7f50b6b2845fe32b3b4e3b81b935}} 
+\mbox{\hyperlink{class_c_forge_1_1_s_cross_forge_device_ad0ab7f50b6b2845fe32b3b4e3b81b935}{$\sim$\+S\+Cross\+Forge\+Device}} (void)
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_s_cross_forge_device_af701416b5576c39e61061e76fc9c590e}\label{class_c_forge_1_1_s_cross_forge_device_af701416b5576c39e61061e76fc9c590e}} 
+class \mbox{\hyperlink{class_c_forge_1_1_s_logger}{S\+Logger}} $\ast$ \mbox{\hyperlink{class_c_forge_1_1_s_cross_forge_device_af701416b5576c39e61061e76fc9c590e}{m\+\_\+p\+Logger}}
+\begin{DoxyCompactList}\small\item\em Logger instance. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_forge_1_1_s_cross_forge_device_a1fdff3c3fc0ce75f1f86ee9d12c46843}\label{class_c_forge_1_1_s_cross_forge_device_a1fdff3c3fc0ce75f1f86ee9d12c46843}} 
+class S\+G\+P\+IO $\ast$ \mbox{\hyperlink{class_c_forge_1_1_s_cross_forge_device_a1fdff3c3fc0ce75f1f86ee9d12c46843}{m\+\_\+p\+G\+P\+IO}}
+\begin{DoxyCompactList}\small\item\em G\+P\+IO instance. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_forge_1_1_s_cross_forge_device_a81e8695c4b486f4e54d8a83a480e921e}\label{class_c_forge_1_1_s_cross_forge_device_a81e8695c4b486f4e54d8a83a480e921e}} 
+static \mbox{\hyperlink{class_c_forge_1_1_s_cross_forge_device}{S\+Cross\+Forge\+Device}} $\ast$ \mbox{\hyperlink{class_c_forge_1_1_s_cross_forge_device_a81e8695c4b486f4e54d8a83a480e921e}{m\+\_\+p\+Instance}} = nullptr
+\begin{DoxyCompactList}\small\item\em Unique instance pointer. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_forge_1_1_s_cross_forge_device_a6a03eeddcf2d1e991f05f940ada30ede}\label{class_c_forge_1_1_s_cross_forge_device_a6a03eeddcf2d1e991f05f940ada30ede}} 
+static int16\+\_\+t \mbox{\hyperlink{class_c_forge_1_1_s_cross_forge_device_a6a03eeddcf2d1e991f05f940ada30ede}{m\+\_\+\+Instance\+Count}} = 0
+\begin{DoxyCompactList}\small\item\em Number of instantiation calls. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The main device of Cross\+Forge. It keeps one instance of the Logger and G\+P\+IO class active during its lifetime. 
+
+It is recommended to always have one instance of this class active to ensure the library works correctly. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_c_forge_1_1_s_cross_forge_device_a01524064b1d9693924c4bce32720d90a}\label{class_c_forge_1_1_s_cross_forge_device_a01524064b1d9693924c4bce32720d90a}} 
+\index{CForge::SCrossForgeDevice@{CForge::SCrossForgeDevice}!instance@{instance}}
+\index{instance@{instance}!CForge::SCrossForgeDevice@{CForge::SCrossForgeDevice}}
+\doxysubsubsection{\texorpdfstring{instance()}{instance()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_c_forge_1_1_s_cross_forge_device}{S\+Cross\+Forge\+Device}} $\ast$ C\+Forge\+::\+S\+Cross\+Forge\+Device\+::instance (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Instantiation method. 
+
+\begin{DoxyReturn}{Returns}
+Pointer to the unique instance. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Projects/\+Cross\+Forge/\+Core/S\+Cross\+Forge\+Device.\+h\item 
+C\+:/\+Projects/\+Cross\+Forge/\+Core/S\+Cross\+Forge\+Device.\+cpp\end{DoxyCompactItemize}
