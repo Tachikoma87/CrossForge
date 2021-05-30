@@ -3,8 +3,6 @@
 #include <sys/ioctl.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
-#include <i2c/smbus.h>
-//#include <i2c/smbus.h>
 #include <unistd.h>
 #endif
 

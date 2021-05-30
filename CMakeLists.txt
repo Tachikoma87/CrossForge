@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
-include_directories(Libraries/eigen-master )
+include_directories(
+	Libraries/eigen-master
+	Libraries/opencv-4.5.1/include)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -20,10 +22,18 @@ add_executable(CForgeSandbox
 
 	Prototypes/SGPIO.cpp 
 	Prototypes/I2C.cpp 
-	Prototypes/MPU6050.cpp)
+	Prototypes/MPU6050.cpp
+	Prototypes/RotaryEncoder.cpp
+	Prototypes/PhotoFinish.cpp
+	Prototypes/StripPhoto.cpp 
+	Prototypes/StripPhotoCamera.cpp)
 
 if(WIN32)
-	target_link_libraries(CForgeSandbox crossforgecore)
+	target_link_libraries(CForgeSandbox crossforgecore 
+	${PROJECT_SOURCE_DIR}/Libraries/opencv-4.5.1/x64/vc16/lib/opencv_core451.lib
+	${PROJECT_SOURCE_DIR}/Libraries/opencv-4.5.1/x64/vc16/lib/opencv_video451.lib
+	${PROJECT_SOURCE_DIR}/Libraries/opencv-4.5.1/x64/vc16/lib/opencv_videoio451.lib
+	${PROJECT_SOURCE_DIR}/Libraries/opencv-4.5.1/x64/vc16/lib/opencv_highgui451.lib)
 endif (WIN32)
 
 if(UNIX)

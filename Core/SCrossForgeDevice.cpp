@@ -31,9 +31,9 @@ namespace CForge {
 		
 	}//Constructor
 
-	SCrossForgeDevice::~SCrossForgeDevice(void) {
-		m_pLogger->release();
+	SCrossForgeDevice::~SCrossForgeDevice(void) {	
 		if(nullptr != m_pGPIO) m_pGPIO->release();
+		m_pLogger->release();
 		m_pLogger = nullptr;
 		m_pGPIO = nullptr;
 	}//Destructor

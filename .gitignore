@@ -1,6 +1,8 @@
 # Folders
 .vs/
 out/
+Documentation/Doc/
+Libraries/
 
 # Prerequisites
 *.d

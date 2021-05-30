@@ -6,10 +6,12 @@ namespace CForge {
 
 	bool File::exists(const std::string Path) {
 		return std::filesystem::exists(Path);
+		return false;
 	}//exists
 
 	int64_t File::size(const std::string Path) {
 		return std::filesystem::file_size(Path);
+		return 0;
 	}//size
 
 	File::File(void) {
