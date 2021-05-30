@@ -7,9 +7,10 @@
 * \section To-Do List
 *
 * \todo Include TinyXML
-* \todo include libraries to load/store image data (jpeg, png) [Copy from hydra Graphics Engine]
-* \todo Add class for hardware modules: Steppeder Driver, C1101, Rotary Encoder
+* \todo include libraries to load/store image data (jpeg, png, ...) [Copy from hydra Graphics Engine]
+* \todo Add class for hardware modules: Stepper Driver, C1101
 * \todo Start GUI (open window and initialize OpenGL | XWindow and WindowsAPI)
+* \todo Change all pragma once to header guards
 *
 *
 *

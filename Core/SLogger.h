@@ -27,6 +27,7 @@ namespace CForge {
 	*
 	* \note The default error log file is "CForgeLog.txt"
 	* \todo Extend class with particular log files (program flow)
+	* \todo Extend to work with Android, Use same types as android, error, info, log, debug, etc...
 	* \ingroup Core
 	*/
 
