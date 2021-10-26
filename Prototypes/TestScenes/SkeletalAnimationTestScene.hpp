@@ -1,9 +1,9 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SUtilities.hpp                                  *
+* File(s): SkeletalAnimationTestScene.hpp                                            *
 *                                                                           *
-* Content:    *
-*                                                   *
+* Content: Class to interact with an MF52 NTC Thermistor by using a basic   *
+*          voltage divider circuit.                                         *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,42 +15,13 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
+#ifndef __CFORGE_SKELETALANIMATIONTESTSCENE_HPP__
+#define __CFORGE_SKELETALANIMATIONTESTSCENE_HPP__
 
-#ifndef __CFORGE_SUTILITIES_HPP__
-#define __CFORGE_SUTILITIES_HPP__
-
-#include <inttypes.h>
-
-#ifdef WIN32
-#include <Windows.h>
-#else
-#include <sys/time.h>
-#endif
-
-class Utilities {
-public:
-
-	static uint64_t timestampMilliseconds(void){
-#ifdef WIN32
-		return GetTickCount64();
-#else
-		/*struct timeval tv;
-		clock_gettime(CLOCK_MONOTONIC, &tv)
-		return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));*/
-
-		return 0;
-#endif
-	}//retriveUpTime
+namespace CForge {
 
 
-protected:
-	Utilities(void) {
 
-	}
+}//name space
 
-	~Utilities(void) {
-
-	}
-};//Utilities
-
-#endif //Header Guard
+#endif 

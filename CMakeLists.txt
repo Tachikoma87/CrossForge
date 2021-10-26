@@ -171,6 +171,13 @@ add_custom_command(
 	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 
+add_custom_command(
+	TARGET CForgeSandbox PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/Assets
+	${CMAKE_CURRENT_BINARY_DIR}/Assets
+)
+
 
 project(ExportLibrary)
 add_executable(ExportLibrary 

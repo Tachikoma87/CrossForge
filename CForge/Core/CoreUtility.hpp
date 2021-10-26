@@ -18,8 +18,10 @@
 #ifndef __CFORGE_SCOREUTILITY_H__
 #define __CFORGE_SCOREUTILITY_H__
 
+#include <inttypes.h>
 #include <math.h>
 #include <chrono>
+#include <limits>
 #include <Eigen/Eigen>
 #include "CrossForgeException.h"
 #include "CoreDefinitions.h"
