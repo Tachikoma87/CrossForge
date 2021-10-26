@@ -30,7 +30,7 @@ namespace CForge {
 			throw CForgeExcept("Camera does not support convert RGB");
 		}
 
-		m_LastFPSPrint = Utilities::timestampMilliseconds();
+		//m_LastFPSPrint = Utilities::timestampMilliseconds();
 
 		printf("w x h : %f x %f @ %f FPS\n", 
 			m_Camera.get(cv::VideoCaptureProperties::CAP_PROP_FRAME_WIDTH), 
@@ -69,12 +69,12 @@ namespace CForge {
 		m_LastFrame = CVLine;
 
 		// count FPS
-		m_FPSCounter++;
+		/*m_FPSCounter++;
 		if (Utilities::timestampMilliseconds() - m_LastFPSPrint > 1000) {
 			printf("FPS: %d\n", m_FPSCounter);
 			m_LastFPSPrint = Utilities::timestampMilliseconds();
 			m_FPSCounter = 0;
-		}
+		}*/
 
 		
 	}//update
