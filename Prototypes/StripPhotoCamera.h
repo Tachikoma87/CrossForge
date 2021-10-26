@@ -23,7 +23,6 @@
 #include <Eigen/Eigen>
 #include "../CForge/Core/CrossForgeException.h"
 #include "StripPhoto.h"
-#include "Utilities.hpp"
 
 namespace CForge {
 
