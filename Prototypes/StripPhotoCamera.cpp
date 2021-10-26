@@ -47,7 +47,8 @@ namespace CForge {
 		if (!m_Camera.read(m_ImageFrame)) return;
 
 		// extract line
-		Eigen::Matrix2X<Eigen::Vector3<uint8_t>> Line;
+		Eigen::Matrix<Eigen::Matrix<uint8_t, 3, 1>, 2, 2> Line;
+		
 		cv::Mat3b CVLine(m_ImageFrame.rows, 51);
 
 		uint32_t Mid = m_ImageFrame.cols / 2;
@@ -58,7 +59,7 @@ namespace CForge {
 		for (int x = Mid - 25; x < Mid + 25; x++) {
 			for (int y = 0; y < m_ImageFrame.rows; ++y) {
 				cv::Vec3b PixelData = m_ImageFrame.at<cv::Vec3b>(y, x);
-				Line.coeffRef(y, Col) = Eigen::Vector3<uint8_t>(PixelData[0], PixelData[1], PixelData[2]);
+				Line.coeffRef(y, Col) = Eigen::Matrix<uint8_t,3,1>(PixelData[0], PixelData[1], PixelData[2]);
 
 				CVLine.at<cv::Vec3b>(y, Col) = PixelData;
 			}

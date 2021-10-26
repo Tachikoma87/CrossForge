@@ -19,7 +19,7 @@
 #ifndef __CFORGE_TIMAGE2D_HPP__
 #define __CFORGE_TIMAGE2D_HPP__
 
-#include "../Core/CrossForgeException.h"
+#include "../CForge/Core/CrossForgeException.h"
 #include <string>
 
 namespace CForge {
@@ -151,7 +151,7 @@ namespace CForge {
 		const T* pixelAt(uint16_t x, uint16_t y) const {
 			if (x >= m_Width || y >= m_Height) throw IndexOutOfBoundsExcept("x or y");
 			uint32_t Index = ((y * m_Width) + x) * componentsPerPixel();
-			return m_pData[Index];
+			return &m_pData[Index];
 		}//pixel
 
 		void pixelAt(uint16_t x, uint16_t y, const T* pValues) {

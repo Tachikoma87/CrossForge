@@ -3,6 +3,7 @@
 out/
 Documentation/Doc/
 Libraries/
+Assets/
 
 # Prerequisites
 *.d

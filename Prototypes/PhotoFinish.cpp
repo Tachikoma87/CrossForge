@@ -1,5 +1,5 @@
 #include "PhotoFinish.h"
-#include "../Core/CrossForgeException.h"
+#include "../CForge/Core/CrossForgeException.h"
 
 namespace CrossForge {
 	PhotoFinish::PhotoFinish(void) {
@@ -40,9 +40,10 @@ namespace CrossForge {
 			for (uint16_t i = 0; i < m_LineHeight; ++i) {
 				// compute squared error
 				
-				Eigen::Vector3<uint8_t> VPrev = m_Lines[PreviousLineID].coeff(i, k);
-				Eigen::Vector3<uint8_t> VCur = m_Lines[CurrentLineID].coeff(i, k);
-				Eigen::Vector3<uint8_t> Dist = VPrev - VCur;
+				Eigen::Matrix<uint8_t, 3, 1> VPrev = m_Lines[PreviousLineID].coeff(i, k);
+				Eigen::Matrix<uint8_t, 3, 1> VCur = m_Lines[CurrentLineID].coeff(i, k);
+				Eigen::Matrix<uint8_t, 3, 1> Dist = VPrev - VCur;
+
 
 				float Error = Dist.dot(Dist);
 				if(Error > m_NoiseThreshold) Rval += Error;
