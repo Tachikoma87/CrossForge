@@ -21,7 +21,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <Eigen/Eigen>
-#include "../Core/CrossForgeException.h"
+#include "../CForge/Core/CrossForgeException.h"
 #include "StripPhoto.h"
 #include "Utilities.hpp"
 

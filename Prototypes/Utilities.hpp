@@ -34,9 +34,11 @@ public:
 #ifdef WIN32
 		return GetTickCount64();
 #else
-		struct timeval tv;
+		/*struct timeval tv;
 		clock_gettime(CLOCK_MONOTONIC, &tv)
-		return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+		return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));*/
+
+		return 0;
 #endif
 	}//retriveUpTime
 

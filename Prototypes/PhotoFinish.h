@@ -23,7 +23,8 @@
 namespace CrossForge {
 	class PhotoFinish {
 	public:
-		typedef Eigen::MatrixX<Eigen::Vector3<uint8_t>> FinishLine_t;
+		typedef Eigen::Matrix<Eigen::Matrix<uint8_t, 3, 1>, -1, -1> FinishLine_t;
+
 
 		PhotoFinish(void);
 		~PhotoFinish(void);
