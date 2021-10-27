@@ -130,7 +130,7 @@ target_link_libraries(ExportLibrary
 
 project (Terrain)
 add_executable(Terrain
-		Main.cpp
+	Main.cpp
 	Terrain/MapActor.cpp
 )
 

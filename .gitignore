@@ -2,7 +2,7 @@
 .vs/
 .idea/
 out/
-cmake-build-debug/
+cmake-build-debug/**/*
 Documentation/Doc/
 Libraries/
 Terrain/Assets/
