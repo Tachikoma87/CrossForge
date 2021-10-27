@@ -126,7 +126,6 @@ namespace CForge {
 		R = AngleAxisf(GraphicsUtility::degToRad(45.0f / 60.0f), Vector3f::UnitY());
 		CubeTransformSGN.rotationDelta(R);
 
-		int64_t LastFPSPrint = GetTickCount();
 		int32_t FPSCount = 0;
 
 		while (!RenderWin.shutdown()) {
@@ -145,11 +144,6 @@ namespace CForge {
 			}
 
 			FPSCount++;
-			if (GetTickCount() - LastFPSPrint > 1000) {
-				printf("FPS: %d\n", FPSCount);
-				FPSCount = 0;
-				LastFPSPrint = GetTickCount();
-			}
 		}//while[main loop]
 
 

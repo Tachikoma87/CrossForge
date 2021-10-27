@@ -115,7 +115,7 @@ if(UNIX)
 	PRIVATE gpiod 
 	PRIVATE stdc++fs
 	PRIVATE glfw 
-	PRIVATE assimp::assimp
+	PRIVATE assimp
 	${OpenCV_LIBS}
 )
 endif(UNIX)
@@ -156,7 +156,7 @@ if(UNIX)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
 		PRIVATE glfw 
-		PRIVATE assimp::assimp
+		PRIVATE assimp
 		${OpenCV_LIBS}
 		PRIVATE gpiod
 		PRIVATE dl
