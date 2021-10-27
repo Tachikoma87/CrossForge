@@ -2,30 +2,26 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
-#else 
-
 #endif
 
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
-
-
-#include "Examples/MinimumGraphicalSetup.hpp"
-#include "Examples/TerrainSetup.hpp"
+#include "Terrain/TerrainSetup.hpp"
 
 using namespace CForge;
 using namespace Eigen;
+using namespace Terrain;
 
-int main(int argc, char* argv[]) {
+int main() {
 #ifdef WIN32
 	_CrtMemState S1, S2, S3;
 	_CrtMemCheckpoint(&S1);
 #endif
 
-	SCrossForgeDevice* pDev = nullptr;
+	SCrossForgeDevice* crossForgeDevice = nullptr;
 
 	try {
-		 pDev = SCrossForgeDevice::instance();
+        crossForgeDevice = SCrossForgeDevice::instance();
 
 		 SLogger::logFile("Logs/ErrorLog.txt", SLogger::LOGTYPE_ERROR, true, true);
 		 SLogger::logFile("Logs/DebugLog.txt", SLogger::LOGTYPE_DEBUG, true, true);
@@ -34,28 +30,27 @@ int main(int argc, char* argv[]) {
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
-		printf("Exception occurred during init. See Log.");
-		if (nullptr != pDev) pDev->release();
-		pDev = nullptr;
+		printf("Exception occurred during init. See Log. ");
+
+		if (crossForgeDevice != nullptr) crossForgeDevice->release();
+
 		char c;
 		scanf("%c", &c);
 		return -1;
 	}
 
 	try {
-		// MinimumGraphicalSetup();
-        Terrain::TerrainSetup();
+        TerrainSetup();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
 		printf("Exception occurred. See Log.");
 	}
 	catch (...) {
-		printf("A not handled exception occurred!\n");
+		printf("An unhandled exception occurred!\n");
 	}
-	
 
-	if(nullptr != pDev) pDev->release();
+	if (crossForgeDevice != nullptr) crossForgeDevice->release();
 	
 #ifdef WIN32
 	// dump memory statics
@@ -68,4 +63,4 @@ int main(int argc, char* argv[]) {
 	Tmp &= ~_CRTDBG_LEAK_CHECK_DF;
 	_CrtSetDbgFlag(Tmp);
 #endif
-}//main
+}

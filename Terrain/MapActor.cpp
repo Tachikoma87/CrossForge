@@ -1,7 +1,8 @@
+#include "CForge/Graphics/RenderDevice.h"
+#include "CForge/Graphics/Shader/SShaderManager.h"
 #include <glad/glad.h>
-#include "../CForge/Graphics/RenderDevice.h"
+
 #include "MapActor.h"
-#include "../CForge/Graphics/Shader/SShaderManager.h"
 
 namespace Terrain {
     MapActor::MapActor() : IRenderableActor("MapActor", ATYPE_STATIC), m_pShader(nullptr) {}
@@ -46,15 +47,10 @@ namespace Terrain {
         delete this;
     }
 
-    void MapActor::render(RenderDevice *renderDevice) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glLineWidth(2);
-
+    void MapActor::render(RenderDevice* renderDevice) {
         m_VertexArray.bind();
         renderDevice->activeShader(m_pShader);
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_ElementBuffer.size()), GL_UNSIGNED_INT, nullptr);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
     void MapActor::setBufferData() {

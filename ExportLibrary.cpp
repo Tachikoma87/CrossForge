@@ -1,17 +1,16 @@
 #include "CForge/AssetIO/File.h"
 #ifdef WIN32
 #include <filesystem>
+using namespace std;
 #else
 #include <experimental/filesystem>
 using namespace std::experimental;
 #endif
 #include <vector>
 
-using namespace std;
-
-const string RootSrcDir = "../../../CForge/";
-const string RootBinDir = "../";
-const string RootExportDir = "../../";
+const std::string RootSrcDir = "../../../CForge/";
+const std::string RootBinDir = "../";
+const std::string RootExportDir = "../../";
 
 #ifdef WIN32
 void copyFile(filesystem::path From, filesystem::path To) {

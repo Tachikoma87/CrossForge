@@ -1,8 +1,6 @@
 #ifndef MAP_ACTOR_H
 #define MAP_ACTOR_H
 
-#include "../CForge/Graphics/Actors/IRenderableActor.h"
-
 using namespace CForge;
 using namespace Eigen;
 using namespace std;

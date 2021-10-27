@@ -1,23 +1,17 @@
-
 #ifndef TERRAIN_SETUP_HPP
 #define TERRAIN_SETUP_HPP
 
-#include "../CForge/AssetIO/SAssetIO.h"
-#include "../CForge/Graphics/Shader/SShaderManager.h"
-#include "../CForge/Graphics/STextureManager.h"
+#include "CForge/Graphics/Shader/SShaderManager.h"
+#include "CForge/Graphics/GLWindow.h"
+#include "CForge/Graphics/GraphicsUtility.h"
+#include "CForge/Graphics/RenderDevice.h"
+#include "CForge/Graphics/Lights/DirectionalLight.h"
+#include "CForge/Graphics/SceneGraph/SceneGraph.h"
+#include "CForge/Graphics/SceneGraph/SGNGeometry.h"
+#include "CForge/Graphics/SceneGraph/SGNTransformation.h"
+#include <glad/glad.h>
 
-#include "../CForge/Graphics/GLWindow.h"
-#include "../CForge/Graphics/GraphicsUtility.h"
-#include "../CForge/Graphics/RenderDevice.h"
-
-#include "../CForge/Graphics/Lights/DirectionalLight.h"
-
-#include "../CForge/Graphics/SceneGraph/SceneGraph.h"
-#include "../CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "../CForge/Graphics/SceneGraph/SGNTransformation.h"
-
-#include "../CForge/Graphics/Actors/StaticActor.h"
-#include "../Terrain/MapActor.h"
+#include "MapActor.h"
 
 using namespace CForge;
 using namespace Eigen;
@@ -70,6 +64,8 @@ namespace Terrain {
     }
 
 	void TerrainSetup() {
+        bool wireframe = true;
+
         GLWindow window;
         RenderDevice renderDevice;
         initCForge(&window, &renderDevice);
@@ -86,10 +82,20 @@ namespace Terrain {
 
 		while (!window.shutdown()) {
 			window.update();
+
 			sceneGraph.update(1.0f);
 
 			renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			sceneGraph.render(&renderDevice);
+
+            if (wireframe) {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glLineWidth(2);
+			    sceneGraph.render(&renderDevice);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            }
+            else {
+                sceneGraph.render(&renderDevice);
+            }
 
 			renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
 

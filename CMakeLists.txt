@@ -5,7 +5,6 @@ IF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
    MESSAGE(SEND_ERROR "In-source builds are not allowed. Use a different build directory.")
 ENDIF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
@@ -17,11 +16,10 @@ FIND_PACKAGE(assimp CONFIG REQUIRED)
 FIND_PACKAGE(glfw3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenCV CONFIG REQUIRED)
 
-
-
 include_directories(
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
 	"${CMAKE_SOURCE_DIR}/thirdparty/eigen-3.4.0"
+	"${CMAKE_SOURCE_DIR}" # include top level for easy access to CForge, probably suboptimal
 	"${OpenCV_INCLUDE_DIRS}"
 )
 
@@ -95,93 +93,80 @@ add_library(crossforge SHARED
 set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
 if(WIN32)
-add_compile_definitions(CFORGE_EXPORTS)
+	add_compile_definitions(CFORGE_EXPORTS)
 endif(WIN32)
 
 if(UNIX)
-add_compile_definitions(USE_SYSFS_GPIO)
+	add_compile_definitions(USE_SYSFS_GPIO)
 endif(UNIX)
 
 if(WIN32)
-target_link_libraries(crossforge 
-	PRIVATE glfw 
-	PRIVATE assimp::assimp
-	${OpenCV_LIBS}
+	target_link_libraries(crossforge
+		PRIVATE glfw
+		PRIVATE assimp::assimp
+		${OpenCV_LIBS}
 	)
 endif(WIN32)
 
 if(UNIX)
 	target_link_libraries(crossforge 
-	PRIVATE gpiod 
-	PRIVATE stdc++fs
-	PRIVATE glfw 
-	PRIVATE assimp
-	${OpenCV_LIBS}
-)
+		PRIVATE gpiod
+		PRIVATE stdc++fs
+		PRIVATE glfw
+		PRIVATE assimp
+		${OpenCV_LIBS}
+	)
 endif(UNIX)
 
-project (CForgeSandbox)
-add_executable(CForgeSandbox 
-	SandboxMain.cpp 
-	"thirdparty/glad/src/glad.c"
 
-	CForge/Core/SGPIO.cpp
-	Prototypes/I2C.cpp 
-	Prototypes/MPU6050.cpp
-	Prototypes/RotaryEncoder.cpp
-	Prototypes/PhotoFinish.cpp
-	Prototypes/StripPhoto.cpp 
-	Prototypes/StripPhotoCamera.cpp
+project(ExportLibrary)
+add_executable(ExportLibrary
+	ExportLibrary.cpp
+)
 
-	Prototypes/Actor/SkeletalActor.cpp
-	Prototypes/Actor/UBOBoneData.cpp
-	Prototypes/Actor/SkeletalAnimationController.cpp
-	Prototypes/Actor/MorphTargetActor.cpp 
-	Prototypes/Actor/MorphTargetAnimationController.cpp 
-	Prototypes/Actor/UBOMorphTargetData.cpp 
+target_link_libraries(ExportLibrary
+	PRIVATE crossforge
+)
 
-	Prototypes/Builder/MorphTargetBuilder.cpp
-	Terrain/MapActor.cpp)
+project (Terrain)
+add_executable(Terrain
+		Main.cpp
+	Terrain/MapActor.cpp
+)
 
 
 if(WIN32)
-	target_link_libraries(CForgeSandbox 
-	PRIVATE crossforge
-	PRIVATE glfw 
-	${OpenCV_LIBS}
+	target_link_libraries(Terrain
+		PRIVATE crossforge
 	)
 endif (WIN32)
 
 if(UNIX)
-	target_link_libraries(CForgeSandbox 
+	target_link_libraries(Terrain
 		PRIVATE crossforge
-		PRIVATE glfw 
-		PRIVATE assimp
-		${OpenCV_LIBS}
-		PRIVATE gpiod
-		PRIVATE dl
-		)
+	)
 endif(UNIX)
 
-#copy shaders
+# copy engine shaders
 add_custom_command(
-	TARGET CForgeSandbox PRE_BUILD 
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_SOURCE_DIR}/CForge/Shader
-	${CMAKE_CURRENT_BINARY_DIR}/Shader
+		TARGET Terrain PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${CMAKE_SOURCE_DIR}/CForge/Shader
+		${CMAKE_CURRENT_BINARY_DIR}/Shader
+)
+
+#Todo: copy on run
+# copy terrain shaders
+add_custom_command(
+		TARGET Terrain PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${CMAKE_SOURCE_DIR}/Terrain/Shader
+		${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 
 add_custom_command(
-	TARGET CForgeSandbox PRE_BUILD 
-	COMMAND ${CMAKE_COMMAND} -E copy_directory 
-	${CMAKE_SOURCE_DIR}/Assets
-	${CMAKE_CURRENT_BINARY_DIR}/Assets
+		TARGET Terrain PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${CMAKE_SOURCE_DIR}/Terrain/Assets
+		${CMAKE_CURRENT_BINARY_DIR}/Assets
 )
-
-
-project(ExportLibrary)
-add_executable(ExportLibrary 
-	ExportLibrary.cpp)
-
-target_link_libraries(ExportLibrary
-	PRIVATE crossforge)
