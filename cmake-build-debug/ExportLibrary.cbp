@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="ExportLibrary"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\;CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\;CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\assimp-5.0\;CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\glfw3\;CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\opencv4\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="crossforge">
+				<Option output="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/libcrossforge.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DUSE_SYSFS_GPIO"/>
+					<Add directory="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/glad/include"/>
+					<Add directory="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/eigen-3.4.0"/>
+					<Add directory="/usr/include/opencv4"/>
+					<Add directory="/usr/include/c++/10"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/10"/>
+					<Add directory="/usr/include/c++/10/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/10/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 crossforge"/>
+					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="crossforge/fast">
+				<Option output="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/libcrossforge.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DUSE_SYSFS_GPIO"/>
+					<Add directory="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/glad/include"/>
+					<Add directory="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/eigen-3.4.0"/>
+					<Add directory="/usr/include/opencv4"/>
+					<Add directory="/usr/include/c++/10"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/10"/>
+					<Add directory="/usr/include/c++/10/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/10/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 crossforge/fast"/>
+					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ExportLibrary">
+				<Option output="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/ExportLibrary" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DUSE_SYSFS_GPIO"/>
+					<Add directory="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/glad/include"/>
+					<Add directory="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/eigen-3.4.0"/>
+					<Add directory="/usr/include/opencv4"/>
+					<Add directory="/usr/include/c++/10"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/10"/>
+					<Add directory="/usr/include/c++/10/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/10/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 ExportLibrary"/>
+					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ExportLibrary/fast">
+				<Option output="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/ExportLibrary" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DUSE_SYSFS_GPIO"/>
+					<Add directory="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/glad/include"/>
+					<Add directory="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/eigen-3.4.0"/>
+					<Add directory="/usr/include/opencv4"/>
+					<Add directory="/usr/include/c++/10"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/10"/>
+					<Add directory="/usr/include/c++/10/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/10/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 ExportLibrary/fast"/>
+					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="CForgeSandbox">
+				<Option output="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CForgeSandbox" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DUSE_SYSFS_GPIO"/>
+					<Add directory="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/glad/include"/>
+					<Add directory="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/eigen-3.4.0"/>
+					<Add directory="/usr/include/opencv4"/>
+					<Add directory="/usr/include/c++/10"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/10"/>
+					<Add directory="/usr/include/c++/10/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/10/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 CForgeSandbox"/>
+					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="CForgeSandbox/fast">
+				<Option output="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CForgeSandbox" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DUSE_SYSFS_GPIO"/>
+					<Add directory="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/glad/include"/>
+					<Add directory="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/eigen-3.4.0"/>
+					<Add directory="/usr/include/opencv4"/>
+					<Add directory="/usr/include/c++/10"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/10"/>
+					<Add directory="/usr/include/c++/10/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/10/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 CForgeSandbox/fast"/>
+					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/AssetIO/AssimpMeshIO.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/AssetIO/AssimpMeshIO.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/AssetIO/File.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/AssetIO/File.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/AssetIO/I2DImageIO.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/AssetIO/I2DImageIO.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/AssetIO/I3DMeshIO.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/AssetIO/I3DMeshIO.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/AssetIO/OpenCVImageIO.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/AssetIO/OpenCVImageIO.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/AssetIO/SAssetIO.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/AssetIO/SAssetIO.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Core/CForgeObject.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Core/CForgeObject.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Core/CoreUtility.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Core/CoreUtility.hpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Core/CrossForgeException.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Core/CrossForgeException.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Core/SCrossForgeDevice.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Core/SCrossForgeDevice.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Core/SGPIO.cpp">
+			<Option target="crossforge"/>
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Core/SGPIO.h">
+			<Option target="crossforge"/>
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Core/SLogger.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Core/SLogger.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Actors/IRenderableActor.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Actors/IRenderableActor.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Actors/RenderGroupUtility.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Actors/RenderGroupUtility.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Actors/ScreenQuad.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Actors/ScreenQuad.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Actors/StaticActor.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Actors/StaticActor.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Actors/VertexUtility.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Actors/VertexUtility.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/GBuffer.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/GBuffer.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/GLBuffer.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/GLBuffer.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/GLTexture2D.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/GLTexture2D.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/GLVertexArray.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/GLVertexArray.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/GLWindow.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/GLWindow.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/GraphicsUtility.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/GraphicsUtility.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Lights/DirectionalLight.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Lights/DirectionalLight.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Lights/ILight.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Lights/ILight.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Lights/PointLight.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Lights/PointLight.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Lights/SpotLight.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Lights/SpotLight.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/RenderDevice.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/RenderDevice.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/RenderMaterial.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/RenderMaterial.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/STextureManager.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/STextureManager.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/SceneGraph/ISceneGraphNode.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/SceneGraph/ISceneGraphNode.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/SceneGraph/SGNGeometry.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/SceneGraph/SGNGeometry.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/SceneGraph/SGNTransformation.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/SceneGraph/SGNTransformation.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/SceneGraph/SceneGraph.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/SceneGraph/SceneGraph.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Shader/GLShader.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Shader/GLShader.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Shader/SShaderManager.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Shader/SShaderManager.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Shader/ShaderCode.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/Shader/ShaderCode.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/UniformBufferObjects/UBOCameraData.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/UniformBufferObjects/UBOCameraData.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/UniformBufferObjects/UBOLightData.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/UniformBufferObjects/UBOLightData.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/UniformBufferObjects/UBOMaterialData.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/UniformBufferObjects/UBOMaterialData.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/UniformBufferObjects/UBOModelData.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/UniformBufferObjects/UBOModelData.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/VirtualCamera.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Graphics/VirtualCamera.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Input/Keyboard.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Input/Keyboard.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Input/Mouse.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Input/Mouse.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Input/SInputManager.cpp">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CForge/Input/SInputManager.h">
+			<Option target="crossforge"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/ExportLibrary.cpp">
+			<Option target="ExportLibrary"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Actor/MorphTargetActor.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Actor/MorphTargetActor.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Actor/MorphTargetAnimationController.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Actor/MorphTargetAnimationController.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Actor/SkeletalActor.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Actor/SkeletalActor.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Actor/SkeletalAnimationController.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Actor/SkeletalAnimationController.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Actor/UBOBoneData.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Actor/UBOBoneData.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Actor/UBOMorphTargetData.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Actor/UBOMorphTargetData.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Builder/MorphTargetBuilder.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/Builder/MorphTargetBuilder.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/I2C.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/I2C.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/MPU6050.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/MPU6050.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/PhotoFinish.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/PhotoFinish.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/RotaryEncoder.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/RotaryEncoder.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/StripPhoto.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/StripPhoto.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/StripPhotoCamera.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Prototypes/StripPhotoCamera.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/SandboxMain.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/glad/src/glad.c">
+			<Option target="crossforge"/>
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/../../../../../../usr/lib/x86_64-linux-gnu/cmake/assimp-5.0/assimp-config-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\assimp-5.0\"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/../../../../../../usr/lib/x86_64-linux-gnu/cmake/assimp-5.0/assimp-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\assimp-5.0\"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/../../../../../../usr/lib/x86_64-linux-gnu/cmake/assimp-5.0/assimpTargets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\assimp-5.0\"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/../../../../../../usr/lib/x86_64-linux-gnu/cmake/assimp-5.0/assimpTargets.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\assimp-5.0\"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/../../../../../../usr/lib/x86_64-linux-gnu/cmake/glfw3/glfw3Config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\glfw3\"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/../../../../../../usr/lib/x86_64-linux-gnu/cmake/glfw3/glfw3ConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\glfw3\"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/../../../../../../usr/lib/x86_64-linux-gnu/cmake/glfw3/glfw3Targets-none.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\glfw3\"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/../../../../../../usr/lib/x86_64-linux-gnu/cmake/glfw3/glfw3Targets.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\glfw3\"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/../../../../../../usr/lib/x86_64-linux-gnu/cmake/opencv4/OpenCVConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/../../../../../../usr/lib/x86_64-linux-gnu/cmake/opencv4/OpenCVConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/../../../../../../usr/lib/x86_64-linux-gnu/cmake/opencv4/OpenCVModules-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/../../../../../../usr/lib/x86_64-linux-gnu/cmake/opencv4/OpenCVModules.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\opencv4\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

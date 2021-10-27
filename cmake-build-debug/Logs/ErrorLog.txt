@@ -1,0 +1,4 @@
+Exception:Exception occurred at virtual void CForge::AssimpMeshIO::load(std::string, CForge::T3DMesh<float>*)(L 33): Failed to load model from resource Assets/TexturedCube.fbx
+
+Exception:Exception occurred at void CForge::StaticActor::init(const CForge::T3DMesh<float>*)(L 19): Mesh contains no vertex data
+
