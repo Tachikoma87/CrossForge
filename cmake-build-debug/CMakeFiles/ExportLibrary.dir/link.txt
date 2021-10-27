@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/ExportLibrary.dir/ExportLibrary.cpp.o -o ExportLibrary  -Wl,-rpath,/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug libcrossforge.so.0.1 

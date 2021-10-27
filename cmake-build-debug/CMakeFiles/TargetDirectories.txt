@@ -1,5 +1,0 @@
-/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CMakeFiles/crossforge.dir
-/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CMakeFiles/ExportLibrary.dir
-/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CMakeFiles/CForgeSandbox.dir
-/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CMakeFiles/edit_cache.dir
