@@ -5,7 +5,7 @@ out/
 cmake-build-debug/
 Documentation/Doc/
 Libraries/
-Assets/
+Terrain/Assets/
 MyAssets/
 
 # Prerequisites
