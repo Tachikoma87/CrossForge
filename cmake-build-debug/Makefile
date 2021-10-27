@@ -1598,6 +1598,30 @@ SandboxMain.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/CForgeSandbox.dir/build.make CMakeFiles/CForgeSandbox.dir/SandboxMain.cpp.s
 .PHONY : SandboxMain.cpp.s
 
+Terrain/MapActor.o: Terrain/MapActor.cpp.o
+.PHONY : Terrain/MapActor.o
+
+# target to build an object file
+Terrain/MapActor.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CForgeSandbox.dir/build.make CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.o
+.PHONY : Terrain/MapActor.cpp.o
+
+Terrain/MapActor.i: Terrain/MapActor.cpp.i
+.PHONY : Terrain/MapActor.i
+
+# target to preprocess a source file
+Terrain/MapActor.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CForgeSandbox.dir/build.make CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.i
+.PHONY : Terrain/MapActor.cpp.i
+
+Terrain/MapActor.s: Terrain/MapActor.cpp.s
+.PHONY : Terrain/MapActor.s
+
+# target to generate assembly for a file
+Terrain/MapActor.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CForgeSandbox.dir/build.make CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.s
+.PHONY : Terrain/MapActor.cpp.s
+
 thirdparty/glad/src/glad.o: thirdparty/glad/src/glad.c.o
 .PHONY : thirdparty/glad/src/glad.o
 
@@ -1816,6 +1840,9 @@ help:
 	@echo "... SandboxMain.o"
 	@echo "... SandboxMain.i"
 	@echo "... SandboxMain.s"
+	@echo "... Terrain/MapActor.o"
+	@echo "... Terrain/MapActor.i"
+	@echo "... Terrain/MapActor.s"
 	@echo "... thirdparty/glad/src/glad.o"
 	@echo "... thirdparty/glad/src/glad.i"
 	@echo "... thirdparty/glad/src/glad.s"

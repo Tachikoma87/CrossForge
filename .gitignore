@@ -2,6 +2,7 @@
 .vs/
 .idea/
 out/
+cmake-build-debug/
 Documentation/Doc/
 Libraries/
 Assets/

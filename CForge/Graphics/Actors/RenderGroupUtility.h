@@ -7,7 +7,29 @@
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
-*                                                                           *
+*                                             vector<Vector3f> vertices = {
+            Vector3f(-1, 0, 0),
+            Vector3f(1, 0, 0),
+            Vector3f(0, 1, 0),
+        };
+
+        // face
+        T3DMesh<float>::Face face;
+        face.Material = 0;
+        face.Vertices[0] = 0;
+        face.Vertices[1] = 1;
+        face.Vertices[2] = 2;
+
+        // submesh
+        T3DMesh<float>::Submesh submesh;
+        submesh.Faces.push_back(face);
+
+        // material
+        T3DMesh<float>::Material material;
+        material.ID = 0;
+        material.Color = Vector4f(1, 0, 0, 1);
+        material.VertexShaderSources.emplace_back("Shader/BasicGeometryPass.vert");
+        material.FragmentShaderSources.emplace_back("Shader/BasicGeometryPass.frag");                              *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
 * FreeBSD License without any warranty or guaranty to work properly.        *

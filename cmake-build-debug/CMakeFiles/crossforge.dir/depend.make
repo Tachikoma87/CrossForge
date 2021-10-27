@@ -1451,8 +1451,171 @@ CMakeFiles/crossforge.dir/CForge/Core/SCrossForgeDevice.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -1567,11 +1730,15 @@ CMakeFiles/crossforge.dir/CForge/Core/SCrossForgeDevice.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
  ../CForge/AssetIO/File.h \
@@ -1614,8 +1781,171 @@ CMakeFiles/crossforge.dir/CForge/Core/SGPIO.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -1730,11 +2060,15 @@ CMakeFiles/crossforge.dir/CForge/Core/SGPIO.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
  ../CForge/Core/CForgeObject.h \
@@ -1763,8 +2097,171 @@ CMakeFiles/crossforge.dir/CForge/Core/SLogger.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -1879,11 +2376,15 @@ CMakeFiles/crossforge.dir/CForge/Core/SLogger.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
  ../CForge/AssetIO/File.h \
@@ -1895,6 +2396,7 @@ CMakeFiles/crossforge.dir/CForge/Core/SLogger.cpp.o: \
  ../CForge/Core/SLogger.h
 CMakeFiles/crossforge.dir/CForge/Graphics/Actors/IRenderableActor.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/Cholesky \
+ ../thirdparty/eigen-3.4.0/Eigen/Core \
  ../thirdparty/eigen-3.4.0/Eigen/Dense \
  ../thirdparty/eigen-3.4.0/Eigen/Eigen \
  ../thirdparty/eigen-3.4.0/Eigen/Eigenvalues \
@@ -1914,8 +2416,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/IRenderableActor.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -2030,13 +2695,18 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/IRenderableActor.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ReshapedMethods.h \
  ../thirdparty/glad/include/KHR/khrplatform.h \
  ../thirdparty/glad/include/glad/glad.h \
  ../CForge/AssetIO/File.h \
@@ -2071,6 +2741,7 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/IRenderableActor.cpp.o: \
  ../CForge/Input/Mouse.h
 CMakeFiles/crossforge.dir/CForge/Graphics/Actors/RenderGroupUtility.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/Cholesky \
+ ../thirdparty/eigen-3.4.0/Eigen/Core \
  ../thirdparty/eigen-3.4.0/Eigen/Dense \
  ../thirdparty/eigen-3.4.0/Eigen/Eigen \
  ../thirdparty/eigen-3.4.0/Eigen/Eigenvalues \
@@ -2090,8 +2761,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/RenderGroupUtility.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -2206,13 +3040,18 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/RenderGroupUtility.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ReshapedMethods.h \
  ../CForge/AssetIO/File.h \
  ../CForge/AssetIO/T2DImage.hpp \
  ../CForge/AssetIO/T3DMesh.hpp \
@@ -2230,6 +3069,7 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/RenderGroupUtility.cpp.o: \
  ../CForge/Graphics/Shader/ShaderCode.h
 CMakeFiles/crossforge.dir/CForge/Graphics/Actors/ScreenQuad.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/Cholesky \
+ ../thirdparty/eigen-3.4.0/Eigen/Core \
  ../thirdparty/eigen-3.4.0/Eigen/Dense \
  ../thirdparty/eigen-3.4.0/Eigen/Eigen \
  ../thirdparty/eigen-3.4.0/Eigen/Eigenvalues \
@@ -2249,8 +3089,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/ScreenQuad.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -2365,13 +3368,18 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/ScreenQuad.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ReshapedMethods.h \
  ../thirdparty/glad/include/KHR/khrplatform.h \
  ../thirdparty/glad/include/glad/glad.h \
  ../CForge/AssetIO/File.h \
@@ -2406,6 +3414,7 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/ScreenQuad.cpp.o: \
  ../CForge/Input/Mouse.h
 CMakeFiles/crossforge.dir/CForge/Graphics/Actors/StaticActor.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/Cholesky \
+ ../thirdparty/eigen-3.4.0/Eigen/Core \
  ../thirdparty/eigen-3.4.0/Eigen/Dense \
  ../thirdparty/eigen-3.4.0/Eigen/Eigen \
  ../thirdparty/eigen-3.4.0/Eigen/Eigenvalues \
@@ -2425,8 +3434,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/StaticActor.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -2541,13 +3713,18 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/StaticActor.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ReshapedMethods.h \
  ../thirdparty/glad/include/KHR/khrplatform.h \
  ../thirdparty/glad/include/glad/glad.h \
  ../CForge/AssetIO/File.h \
@@ -2604,8 +3781,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/VertexUtility.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -2720,11 +4060,15 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Actors/VertexUtility.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
  ../CForge/AssetIO/File.h \
@@ -3668,8 +5012,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Lights/DirectionalLight.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -3784,11 +5291,15 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Lights/DirectionalLight.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
  ../CForge/AssetIO/T2DImage.hpp \
@@ -3937,11 +5448,15 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Lights/ILight.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
  ../thirdparty/glad/include/KHR/khrplatform.h \
@@ -3976,8 +5491,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Lights/PointLight.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -4094,9 +5772,12 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Lights/PointLight.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
  ../CForge/AssetIO/T2DImage.hpp \
@@ -4110,6 +5791,7 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Lights/PointLight.cpp.o: \
  ../CForge/Graphics/Shader/GLShader.h
 CMakeFiles/crossforge.dir/CForge/Graphics/Lights/SpotLight.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/Cholesky \
+ ../thirdparty/eigen-3.4.0/Eigen/Core \
  ../thirdparty/eigen-3.4.0/Eigen/Dense \
  ../thirdparty/eigen-3.4.0/Eigen/Eigen \
  ../thirdparty/eigen-3.4.0/Eigen/Eigenvalues \
@@ -4129,8 +5811,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Lights/SpotLight.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -4245,11 +6090,15 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Lights/SpotLight.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
  ../CForge/AssetIO/T2DImage.hpp \
@@ -4263,6 +6112,7 @@ CMakeFiles/crossforge.dir/CForge/Graphics/Lights/SpotLight.cpp.o: \
  ../CForge/Graphics/Shader/GLShader.h
 CMakeFiles/crossforge.dir/CForge/Graphics/RenderDevice.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/Cholesky \
+ ../thirdparty/eigen-3.4.0/Eigen/Core \
  ../thirdparty/eigen-3.4.0/Eigen/Dense \
  ../thirdparty/eigen-3.4.0/Eigen/Eigen \
  ../thirdparty/eigen-3.4.0/Eigen/Eigenvalues \
@@ -4282,8 +6132,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/RenderDevice.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -4398,13 +6411,18 @@ CMakeFiles/crossforge.dir/CForge/Graphics/RenderDevice.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ReshapedMethods.h \
  ../thirdparty/glad/include/KHR/khrplatform.h \
  ../thirdparty/glad/include/glad/glad.h \
  ../CForge/AssetIO/File.h \
@@ -4443,6 +6461,7 @@ CMakeFiles/crossforge.dir/CForge/Graphics/RenderDevice.cpp.o: \
  ../CForge/Input/Mouse.h
 CMakeFiles/crossforge.dir/CForge/Graphics/RenderMaterial.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/Cholesky \
+ ../thirdparty/eigen-3.4.0/Eigen/Core \
  ../thirdparty/eigen-3.4.0/Eigen/Dense \
  ../thirdparty/eigen-3.4.0/Eigen/Eigen \
  ../thirdparty/eigen-3.4.0/Eigen/Eigenvalues \
@@ -4462,8 +6481,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/RenderMaterial.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -4578,13 +6760,17 @@ CMakeFiles/crossforge.dir/CForge/Graphics/RenderMaterial.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ReshapedMethods.h \
  ../CForge/AssetIO/File.h \
  ../CForge/AssetIO/T2DImage.hpp \
  ../CForge/AssetIO/T3DMesh.hpp \
@@ -4598,6 +6784,7 @@ CMakeFiles/crossforge.dir/CForge/Graphics/RenderMaterial.cpp.o: \
  ../CForge/Graphics/STextureManager.h
 CMakeFiles/crossforge.dir/CForge/Graphics/STextureManager.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/Cholesky \
+ ../thirdparty/eigen-3.4.0/Eigen/Core \
  ../thirdparty/eigen-3.4.0/Eigen/Dense \
  ../thirdparty/eigen-3.4.0/Eigen/Eigen \
  ../thirdparty/eigen-3.4.0/Eigen/Eigenvalues \
@@ -4617,8 +6804,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/STextureManager.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -4733,11 +7083,13 @@ CMakeFiles/crossforge.dir/CForge/Graphics/STextureManager.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
  ../CForge/AssetIO/File.h \
@@ -4756,6 +7108,7 @@ CMakeFiles/crossforge.dir/CForge/Graphics/STextureManager.cpp.o: \
  ../CForge/Graphics/STextureManager.h
 CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/ISceneGraphNode.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/Cholesky \
+ ../thirdparty/eigen-3.4.0/Eigen/Core \
  ../thirdparty/eigen-3.4.0/Eigen/Dense \
  ../thirdparty/eigen-3.4.0/Eigen/Eigen \
  ../thirdparty/eigen-3.4.0/Eigen/Eigenvalues \
@@ -4775,8 +7128,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/ISceneGraphNode.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -4891,13 +7407,18 @@ CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/ISceneGraphNode.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ReshapedMethods.h \
  ../CForge/AssetIO/File.h \
  ../CForge/AssetIO/T2DImage.hpp \
  ../CForge/AssetIO/T3DMesh.hpp \
@@ -4931,6 +7452,7 @@ CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/ISceneGraphNode.cpp.o: \
  ../CForge/Input/Mouse.h
 CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/SGNGeometry.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/Cholesky \
+ ../thirdparty/eigen-3.4.0/Eigen/Core \
  ../thirdparty/eigen-3.4.0/Eigen/Dense \
  ../thirdparty/eigen-3.4.0/Eigen/Eigen \
  ../thirdparty/eigen-3.4.0/Eigen/Eigenvalues \
@@ -4950,8 +7472,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/SGNGeometry.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -5066,13 +7751,18 @@ CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/SGNGeometry.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ReshapedMethods.h \
  ../CForge/AssetIO/File.h \
  ../CForge/AssetIO/T2DImage.hpp \
  ../CForge/AssetIO/T3DMesh.hpp \
@@ -5107,6 +7797,7 @@ CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/SGNGeometry.cpp.o: \
  ../CForge/Input/Mouse.h
 CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/SGNTransformation.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/Cholesky \
+ ../thirdparty/eigen-3.4.0/Eigen/Core \
  ../thirdparty/eigen-3.4.0/Eigen/Dense \
  ../thirdparty/eigen-3.4.0/Eigen/Eigen \
  ../thirdparty/eigen-3.4.0/Eigen/Eigenvalues \
@@ -5126,8 +7817,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/SGNTransformation.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -5242,13 +8096,18 @@ CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/SGNTransformation.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ReshapedMethods.h \
  ../CForge/AssetIO/File.h \
  ../CForge/AssetIO/T2DImage.hpp \
  ../CForge/AssetIO/T3DMesh.hpp \
@@ -5283,6 +8142,7 @@ CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/SGNTransformation.cpp.o: \
  ../CForge/Input/Mouse.h
 CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/SceneGraph.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/Cholesky \
+ ../thirdparty/eigen-3.4.0/Eigen/Core \
  ../thirdparty/eigen-3.4.0/Eigen/Dense \
  ../thirdparty/eigen-3.4.0/Eigen/Eigen \
  ../thirdparty/eigen-3.4.0/Eigen/Eigenvalues \
@@ -5302,8 +8162,171 @@ CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/SceneGraph.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LDLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Cholesky/LLT_LAPACKE.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArithmeticSequence.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Array.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ArrayWrapper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/AssignEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Assign_MKL.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BandMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Block.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/BooleanRedux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CommaInitializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ConditionEstimator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CoreIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseNullaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseTernaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/CwiseUnaryView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseCoeffsBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DenseStorage.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Diagonal.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/DiagonalProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Dot.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/EigenBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Fuzzy.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GeneralProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GenericPacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/GlobalFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IO.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/IndexedView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/InternalHeaderCheck.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Inverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Map.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MapBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MathFunctionsImpl.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Matrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/MatrixBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NestByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NoAlias.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/NumTraits.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PartialReduxEvaluator.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PermutationMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/PlainObjectBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Product.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ProductEvaluators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Random.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Redux.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Ref.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Replicate.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reshaped.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/ReturnByValue.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Reverse.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Select.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfAdjointView.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SelfCwiseBinaryOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Solve.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolveTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/SolverBase.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StableNorm.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/StlIterators.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Stride.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Swap.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpose.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Transpositions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/TriangularMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorBlock.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/VectorwiseOp.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/Visitor.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AVX512/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/AltiVec/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/BFloat16.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/ConjHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Half.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/Settings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/Default/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/GPU/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/HIP/hcc/math_constants.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/MSA/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/NEON/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SSE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SVE/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/InteropHeaders.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/SYCL/TypeCasting.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/Complex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/MathFunctions.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/arch/ZVector/PacketMath.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/AssignmentFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/BinaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/NullaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/StlFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/TernaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/functors/UnaryFunctors.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralBlockPanelKernel.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrixTriangular_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/GeneralMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/Parallelizer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointProduct.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/SelfadjointRank2Update.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularMatrixVector_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/products/TriangularSolverVector.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/BlasUtil.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ConfigureVectorization.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Constants.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/DisableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ForwardDeclarations.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IndexedViewHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/IntegralConstant.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/MKL_support.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Macros.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Memory.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Meta.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReenableStupidWarnings.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/ReshapedHelper.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/Serializer.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/StaticAssert.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/SymbolicIndex.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/Core/util/XprHelper.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/Eigenvalues/ComplexSchur_LAPACKE.h \
@@ -5418,13 +8441,18 @@ CMakeFiles/crossforge.dir/CForge/Graphics/SceneGraph/SceneGraph.cpp.o: \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Image.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/Kernel.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/RealSvd2x2.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/misc/blas.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/misc/lapacke_mangling.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseBinaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ArrayCwiseUnaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/BlockMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/CommonCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/IndexedViewMethods.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseBinaryOps.h \
  ../thirdparty/eigen-3.4.0/Eigen/src/plugins/MatrixCwiseUnaryOps.h \
+ ../thirdparty/eigen-3.4.0/Eigen/src/plugins/ReshapedMethods.h \
  ../CForge/AssetIO/File.h \
  ../CForge/AssetIO/T2DImage.hpp \
  ../CForge/AssetIO/T3DMesh.hpp \

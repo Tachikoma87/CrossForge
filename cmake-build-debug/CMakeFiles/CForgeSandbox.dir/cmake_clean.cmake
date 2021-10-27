@@ -16,6 +16,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/CForgeSandbox.dir/Prototypes/StripPhoto.cpp.o"
   "CMakeFiles/CForgeSandbox.dir/Prototypes/StripPhotoCamera.cpp.o"
   "CMakeFiles/CForgeSandbox.dir/SandboxMain.cpp.o"
+  "CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.o"
   "CMakeFiles/CForgeSandbox.dir/thirdparty/glad/src/glad.c.o"
 )
 
