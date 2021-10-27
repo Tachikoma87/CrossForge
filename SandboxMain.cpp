@@ -11,6 +11,7 @@
 
 
 #include "Examples/MinimumGraphicalSetup.hpp"
+#include "Examples/TerrainSetup.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -42,7 +43,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	try {
-		MinimumGraphicalSetup();
+		// MinimumGraphicalSetup();
+        Terrain::TerrainSetup();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

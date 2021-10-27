@@ -274,6 +274,19 @@ CMakeFiles/CForgeSandbox.dir/Prototypes/Builder/MorphTargetBuilder.cpp.s: cmake_
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/CForgeSandbox.dir/Prototypes/Builder/MorphTargetBuilder.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/kurt/Documents/Code/C++/CrossForge/Prototypes/Builder/MorphTargetBuilder.cpp -o CMakeFiles/CForgeSandbox.dir/Prototypes/Builder/MorphTargetBuilder.cpp.s
 
+CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.o: CMakeFiles/CForgeSandbox.dir/flags.make
+CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.o: ../Terrain/MapActor.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.o -c /home/kurt/Documents/Code/C++/CrossForge/Terrain/MapActor.cpp
+
+CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/kurt/Documents/Code/C++/CrossForge/Terrain/MapActor.cpp > CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.i
+
+CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/kurt/Documents/Code/C++/CrossForge/Terrain/MapActor.cpp -o CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.s
+
 # Object files for target CForgeSandbox
 CForgeSandbox_OBJECTS = \
 "CMakeFiles/CForgeSandbox.dir/SandboxMain.cpp.o" \
@@ -291,7 +304,8 @@ CForgeSandbox_OBJECTS = \
 "CMakeFiles/CForgeSandbox.dir/Prototypes/Actor/MorphTargetActor.cpp.o" \
 "CMakeFiles/CForgeSandbox.dir/Prototypes/Actor/MorphTargetAnimationController.cpp.o" \
 "CMakeFiles/CForgeSandbox.dir/Prototypes/Actor/UBOMorphTargetData.cpp.o" \
-"CMakeFiles/CForgeSandbox.dir/Prototypes/Builder/MorphTargetBuilder.cpp.o"
+"CMakeFiles/CForgeSandbox.dir/Prototypes/Builder/MorphTargetBuilder.cpp.o" \
+"CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.o"
 
 # External object files for target CForgeSandbox
 CForgeSandbox_EXTERNAL_OBJECTS =
@@ -312,6 +326,7 @@ CForgeSandbox: CMakeFiles/CForgeSandbox.dir/Prototypes/Actor/MorphTargetActor.cp
 CForgeSandbox: CMakeFiles/CForgeSandbox.dir/Prototypes/Actor/MorphTargetAnimationController.cpp.o
 CForgeSandbox: CMakeFiles/CForgeSandbox.dir/Prototypes/Actor/UBOMorphTargetData.cpp.o
 CForgeSandbox: CMakeFiles/CForgeSandbox.dir/Prototypes/Builder/MorphTargetBuilder.cpp.o
+CForgeSandbox: CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.o
 CForgeSandbox: CMakeFiles/CForgeSandbox.dir/build.make
 CForgeSandbox: libcrossforge.so.0.1
 CForgeSandbox: /usr/lib/x86_64-linux-gnu/libglfw.so.3.3
@@ -368,7 +383,7 @@ CForgeSandbox: /usr/lib/x86_64-linux-gnu/libopencv_photo.so.4.5.1
 CForgeSandbox: /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.5.1
 CForgeSandbox: /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.5.1
 CForgeSandbox: CMakeFiles/CForgeSandbox.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Linking CXX executable CForgeSandbox"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Linking CXX executable CForgeSandbox"
 	/home/kurt/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/212.5457.51/bin/cmake/linux/bin/cmake -E copy_directory /home/kurt/Documents/Code/C++/CrossForge/CForge/Shader /home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Shader
 	/home/kurt/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/212.5457.51/bin/cmake/linux/bin/cmake -E copy_directory /home/kurt/Documents/Code/C++/CrossForge/Assets /home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/Assets
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/CForgeSandbox.dir/link.txt --verbose=$(VERBOSE)

@@ -40,6 +40,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/kurt/Documents/Code/C++/CrossForge/Prototypes/StripPhoto.cpp" "/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CMakeFiles/CForgeSandbox.dir/Prototypes/StripPhoto.cpp.o"
   "/home/kurt/Documents/Code/C++/CrossForge/Prototypes/StripPhotoCamera.cpp" "/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CMakeFiles/CForgeSandbox.dir/Prototypes/StripPhotoCamera.cpp.o"
   "/home/kurt/Documents/Code/C++/CrossForge/SandboxMain.cpp" "/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CMakeFiles/CForgeSandbox.dir/SandboxMain.cpp.o"
+  "/home/kurt/Documents/Code/C++/CrossForge/Terrain/MapActor.cpp" "/home/kurt/Documents/Code/C++/CrossForge/cmake-build-debug/CMakeFiles/CForgeSandbox.dir/Terrain/MapActor.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

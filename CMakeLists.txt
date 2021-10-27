@@ -141,7 +141,7 @@ add_executable(CForgeSandbox
 	Prototypes/Actor/UBOMorphTargetData.cpp 
 
 	Prototypes/Builder/MorphTargetBuilder.cpp
-	)
+	Terrain/MapActor.cpp)
 
 
 if(WIN32)

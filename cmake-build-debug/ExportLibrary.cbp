@@ -550,6 +550,12 @@
 		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/SandboxMain.cpp">
 			<Option target="CForgeSandbox"/>
 		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Terrain/MapActor.cpp">
+			<Option target="CForgeSandbox"/>
+		</Unit>
+		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/Terrain/MapActor.h">
+			<Option target="CForgeSandbox"/>
+		</Unit>
 		<Unit filename="/home/kurt/Documents/Code/C++/CrossForge/thirdparty/glad/src/glad.c">
 			<Option target="crossforge"/>
 			<Option target="CForgeSandbox"/>
