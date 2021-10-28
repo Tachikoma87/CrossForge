@@ -42,8 +42,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	try {
-		//MinimumGraphicalSetup();
-		shadowTest();
+		MinimumGraphicalSetup();
+		//shadowTest();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
