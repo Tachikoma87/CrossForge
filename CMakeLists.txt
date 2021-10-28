@@ -21,7 +21,7 @@ FIND_PACKAGE(OpenCV CONFIG REQUIRED)
 
 include_directories(
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
-	"${CMAKE_SOURCE_DIR}/thirdparty/eigen-3.4.0"
+	"${CMAKE_SOURCE_DIR}/thirdparty/eigen"
 	"${OpenCV_INCLUDE_DIRS}"
 )
 
