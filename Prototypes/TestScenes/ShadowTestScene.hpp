@@ -18,7 +18,28 @@
 #ifndef __CFORGE_SHADOWTESTSCENE_HPP__
 #define __CFORGE_SHADOWTESTSCENE_HPP__
 
+#include "../../CForge/AssetIO/SAssetIO.h"
+#include "../../CForge/Graphics/Shader/SShaderManager.h"
+#include "../../CForge/Graphics/STextureManager.h"
+
+#include "../../CForge/Graphics/GLWindow.h"
+#include "../../CForge/Graphics/GraphicsUtility.h"
+#include "../../CForge/Graphics/RenderDevice.h"
+
+#include "../../CForge/Graphics/Lights/DirectionalLight.h"
+#include "../../CForge/Graphics/Lights/PointLight.h"
+#include "../../CForge/Graphics/Lights/SpotLight.h"
+
+#include "../../CForge/Graphics/SceneGraph/SceneGraph.h"
+#include "../../CForge/Graphics/SceneGraph/SGNGeometry.h"
+#include "../../CForge/Graphics/SceneGraph/SGNTransformation.h"
+
+#include "../../CForge/Graphics/Actors/StaticActor.h"
+
+#include "../Actor/SkeletalActor.h"
+
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 namespace CForge {
 
@@ -43,7 +64,6 @@ namespace CForge {
 
 		// we have to call this so we can use OpenGL Functions in this program too
 		gladLoadGL();
-
 
 		// create static actors
 		StaticActor Ground;
@@ -395,7 +415,7 @@ namespace CForge {
 
 
 			// handle input
-			GLFWwindow* pWin = (GLFWwindow*)RenderWin.handle();
+		/*	GLFWwindow* pWin = (GLFWwindow*)RenderWin.handle();
 
 			if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_1)) {
 				glfwSwapInterval(0);
@@ -405,7 +425,7 @@ namespace CForge {
 			}
 			if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_3)) {
 				glfwSwapInterval(2);
-			}
+			}*/
 
 			if (Keyboard::KEY_PRESSED == pKeyboard->keyPressed(Keyboard::KEY_4)) {
 				Wireframe = !Wireframe;
@@ -416,24 +436,24 @@ namespace CForge {
 				pKeyboard->keyState(Keyboard::KEY_5, Keyboard::KEY_RELEASED);
 			}
 
-			if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_ESCAPE)) {
-				RenderWin.closeWindow();
-				break;
-			}
-			if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_W)) {
-				Cam.forward(0.4f);
-			}
-			if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_S)) {
-				Cam.forward(-0.4f);
-			}
-			if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_D)) {
-				Cam.right(0.4f);
-			}
-			if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_A)) {
-				Cam.right(-0.4f);
-			}
+			//if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_ESCAPE)) {
+			//	RenderWin.closeWindow();
+			//	break;
+			//}
+			//if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_W)) {
+			//	Cam.forward(0.4f);
+			//}
+			//if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_S)) {
+			//	Cam.forward(-0.4f);
+			//}
+			//if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_D)) {
+			//	Cam.right(0.4f);
+			//}
+			//if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_A)) {
+			//	Cam.right(-0.4f);
+			//}
 			// rotation mode?
-			if (glfwGetMouseButton(pWin, GLFW_MOUSE_BUTTON_RIGHT)) {
+			/*if (glfwGetMouseButton(pWin, GLFW_MOUSE_BUTTON_RIGHT)) {
 				if (!RotationMode) {
 					MouseDelta = Eigen::Vector2f(0.0f, 0.0f);
 					double x, y;
@@ -454,7 +474,7 @@ namespace CForge {
 			}
 			else {
 				RotationMode = false;
-			}
+			}*/
 			//move objects
 			for (uint32_t i = 0; i < ObjCount; ++i) {
 				ObjPositions[i] += ObjMovements[i];
@@ -574,7 +594,7 @@ namespace CForge {
 			//RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 
 
-			if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_0)) {
+			/*if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_0)) {
 				T2DImage<uint8_t> Img;
 				RDev.gBuffer()->retrievePositionBuffer(&Img);
 				SAssetIO::store("Assets/Temp/PosBuffer.jpg", &Img);
@@ -599,7 +619,7 @@ namespace CForge {
 				GraphicsUtility::retrieveFrameBuffer(&ColorBuffer, &DepthBuffer, 0.1f, 1000.0f);
 				SAssetIO::store("Assets/Temp/ScreenshotColor.jpg", &ColorBuffer);
 				SAssetIO::store("Assets/Temp/ScreenshotDepth.jpg", &DepthBuffer);
-			}
+			}*/
 
 			RenderWin.swapBuffers();
 		}
