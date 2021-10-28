@@ -9,8 +9,8 @@
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
 
-
 #include "Examples/MinimumGraphicalSetup.hpp"
+#include "Prototypes/TestScenes/ShadowTestScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -42,7 +42,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	try {
-		MinimumGraphicalSetup();
+		//MinimumGraphicalSetup();
+		shadowTest();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
