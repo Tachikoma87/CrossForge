@@ -691,9 +691,9 @@ struct kernel_retval<FullPivLU<_MatrixType> >
       m.col(i).swap(m.col(pivots.coeff(i)));
 
     // see the negative sign in the next line, that's what we were talking about above.
-    for(Index i = 0; i < rank(); ++i) dst.row(dec().permutationQ().indices().coeff(i)) = -m.row(i).tail(dimker);
-    for(Index i = rank(); i < cols; ++i) dst.row(dec().permutationQ().indices().coeff(i)).setZero();
-    for(Index k = 0; k < dimker; ++k) dst.coeffRef(dec().permutationQ().indices().coeff(rank()+k), k) = Scalar(1);
+    for(Index i = 0; i < rank(); ++i) dst.row(dec().permutationQ().mIndices().coeff(i)) = -m.row(i).tail(dimker);
+    for(Index i = rank(); i < cols; ++i) dst.row(dec().permutationQ().mIndices().coeff(i)).setZero();
+    for(Index k = 0; k < dimker; ++k) dst.coeffRef(dec().permutationQ().mIndices().coeff(rank() + k), k) = Scalar(1);
   }
 };
 
@@ -731,7 +731,7 @@ struct image_retval<FullPivLU<_MatrixType> >
     eigen_internal_assert(p == rank());
 
     for(Index i = 0; i < rank(); ++i)
-      dst.col(i) = originalMatrix().col(dec().permutationQ().indices().coeff(pivots.coeff(i)));
+      dst.col(i) = originalMatrix().col(dec().permutationQ().mIndices().coeff(pivots.coeff(i)));
   }
 };
 
@@ -782,9 +782,9 @@ void FullPivLU<_MatrixType>::_solve_impl(const RhsType &rhs, DstType &dst) const
 
   // Step 4
   for(Index i = 0; i < nonzero_pivots; ++i)
-    dst.row(permutationQ().indices().coeff(i)) = c.row(i);
+    dst.row(permutationQ().mIndices().coeff(i)) = c.row(i);
   for(Index i = nonzero_pivots; i < m_lu.cols(); ++i)
-    dst.row(permutationQ().indices().coeff(i)).setZero();
+    dst.row(permutationQ().mIndices().coeff(i)).setZero();
 }
 
 template<typename _MatrixType>
@@ -834,9 +834,9 @@ void FullPivLU<_MatrixType>::_solve_impl_transposed(const RhsType &rhs, DstType 
   // Step 4
   PermutationPType invp = permutationP().inverse().eval();
   for(Index i = 0; i < smalldim; ++i)
-    dst.row(invp.indices().coeff(i)) = c.row(i);
+    dst.row(invp.mIndices().coeff(i)) = c.row(i);
   for(Index i = smalldim; i < rows; ++i)
-    dst.row(invp.indices().coeff(i)).setZero();
+    dst.row(invp.mIndices().coeff(i)).setZero();
 }
 
 #endif

@@ -1029,7 +1029,7 @@ struct permutation_matrix_product<ExpressionType, Side, Transposed, DenseShape>
           Index k0 = r++;
           Index kPrev = k0;
           mask.coeffRef(k0) = true;
-          for(Index k=perm.indices().coeff(k0); k!=k0; k=perm.indices().coeff(k))
+          for(Index k=perm.mIndices().coeff(k0); k != k0; k=perm.mIndices().coeff(k))
           {
                   Block<Dest, Side==OnTheLeft ? 1 : Dest::RowsAtCompileTime, Side==OnTheRight ? 1 : Dest::ColsAtCompileTime>(dst, k)
             .swap(Block<Dest, Side==OnTheLeft ? 1 : Dest::RowsAtCompileTime, Side==OnTheRight ? 1 : Dest::ColsAtCompileTime>
@@ -1045,12 +1045,12 @@ struct permutation_matrix_product<ExpressionType, Side, Transposed, DenseShape>
         for(Index i = 0; i < n; ++i)
         {
           Block<Dest, Side==OnTheLeft ? 1 : Dest::RowsAtCompileTime, Side==OnTheRight ? 1 : Dest::ColsAtCompileTime>
-               (dst, ((Side==OnTheLeft) ^ Transposed) ? perm.indices().coeff(i) : i)
+               (dst, ((Side==OnTheLeft) ^ Transposed) ? perm.mIndices().coeff(i) : i)
 
           =
 
           Block<const MatrixTypeCleaned,Side==OnTheLeft ? 1 : MatrixTypeCleaned::RowsAtCompileTime,Side==OnTheRight ? 1 : MatrixTypeCleaned::ColsAtCompileTime>
-               (mat, ((Side==OnTheRight) ^ Transposed) ? perm.indices().coeff(i) : i);
+               (mat, ((Side==OnTheRight) ^ Transposed) ? perm.mIndices().coeff(i) : i);
         }
       }
     }

@@ -602,8 +602,8 @@ void ColPivHouseholderQR<_MatrixType>::_solve_impl(const RhsType &rhs, DstType &
       .template triangularView<Upper>()
       .solveInPlace(c.topRows(nonzero_pivots));
 
-  for(Index i = 0; i < nonzero_pivots; ++i) dst.row(m_colsPermutation.indices().coeff(i)) = c.row(i);
-  for(Index i = nonzero_pivots; i < cols(); ++i) dst.row(m_colsPermutation.indices().coeff(i)).setZero();
+  for(Index i = 0; i < nonzero_pivots; ++i) dst.row(m_colsPermutation.mIndices().coeff(i)) = c.row(i);
+  for(Index i = nonzero_pivots; i < cols(); ++i) dst.row(m_colsPermutation.mIndices().coeff(i)).setZero();
 }
 
 template<typename _MatrixType>
