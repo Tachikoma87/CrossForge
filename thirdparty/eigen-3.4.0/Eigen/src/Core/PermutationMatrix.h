@@ -118,9 +118,9 @@ class PermutationBase : public EigenBase<Derived>
     }
 
     /** const version of indices(). */
-    const IndicesType& indices() const { return derived().indices(); }
+    const IndicesType& indices() const { return derived().mIndices(); }
     /** \returns a reference to the stored array representing the permutation. */
-    IndicesType& indices() { return derived().indices(); }
+    IndicesType& indices() { return derived().mIndices(); }
 
     /** Resizes to given size.
       */
@@ -207,7 +207,7 @@ class PermutationBase : public EigenBase<Derived>
     void assignProduct(const Lhs& lhs, const Rhs& rhs)
     {
       eigen_assert(lhs.cols() == rhs.rows());
-      for (Index i=0; i<rows();++i) indices().coeffRef(i) = lhs.indices().coeff(rhs.indices().coeff(i));
+      for (Index i=0; i<rows();++i) indices().coeffRef(i) = lhs.mIndices().coeff(rhs.mIndices().coeff(i));
     }
 #endif
 
@@ -374,11 +374,11 @@ class PermutationMatrix : public PermutationBase<PermutationMatrix<SizeAtCompile
       eigen_internal_assert(m_indices.size() <= NumTraits<StorageIndex>::highest());
       StorageIndex end = StorageIndex(m_indices.size());
       for (StorageIndex i=0; i<end;++i)
-        m_indices.coeffRef(other.derived().nestedExpression().indices().coeff(i)) = i;
+        m_indices.coeffRef(other.derived().nestedExpression().mIndices().coeff(i)) = i;
     }
     template<typename Lhs,typename Rhs>
     PermutationMatrix(internal::PermPermProduct_t, const Lhs& lhs, const Rhs& rhs)
-      : m_indices(lhs.indices().size())
+      : m_indices(lhs.mIndices().size())
     {
       Base::assignProduct(lhs,rhs);
     }
@@ -562,7 +562,7 @@ class InverseImpl<PermutationType, PermutationStorage>
     {
       other.setZero();
       for (Index i=0; i<derived().rows();++i)
-        other.coeffRef(i, derived().nestedExpression().indices().coeff(i)) = typename DenseDerived::Scalar(1);
+        other.coeffRef(i, derived().nestedExpression().mIndices().coeff(i)) = typename DenseDerived::Scalar(1);
     }
     #endif
 

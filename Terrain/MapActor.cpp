@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 #include "MapActor.h"
+#include "Tile.h"
 
 namespace Terrain {
     MapActor::MapActor() : IRenderableActor("MapActor", ATYPE_STATIC), m_pShader(nullptr) {}
@@ -14,19 +15,17 @@ namespace Terrain {
     void MapActor::init() {
         clear();
 
-        GLfloat vertices[] = {
-            -0.5f, -0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-             0.5f,  0.5f, 0.0f,
-            -0.5f,  0.5f, 0.0f,
-        };
+        Tile tile = Tile(16);
+        tile.calculateIndices(Tile::Corner);
 
-        GLuint indices[] = {
-            0, 1, 2, 0, 2, 3
-        };
+        GLfloat* vertices = tile.getVertices();
+        uint vertexBufferSize = tile.getVertexBufferSize();
 
-        m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, vertices, sizeof(vertices));
-        m_ElementBuffer.init(GLBuffer::BTYPE_INDEX, GLBuffer::BUSAGE_STATIC_DRAW, indices, sizeof(indices));
+        GLuint* indices = tile.getIndices();
+        uint indexBufferSize = tile.getIndexBufferSize();
+
+        m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, vertices, vertexBufferSize);
+        m_ElementBuffer.init(GLBuffer::BTYPE_INDEX, GLBuffer::BUSAGE_STATIC_DRAW, indices, indexBufferSize);
 
         m_VertexArray.init();
         m_VertexArray.bind();

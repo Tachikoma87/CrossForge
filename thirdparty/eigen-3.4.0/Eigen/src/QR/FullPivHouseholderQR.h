@@ -569,8 +569,8 @@ void FullPivHouseholderQR<_MatrixType>::_solve_impl(const RhsType &rhs, DstType 
       .template triangularView<Upper>()
       .solveInPlace(c.topRows(l_rank));
 
-  for(Index i = 0; i < l_rank; ++i) dst.row(m_cols_permutation.indices().coeff(i)) = c.row(i);
-  for(Index i = l_rank; i < cols(); ++i) dst.row(m_cols_permutation.indices().coeff(i)).setZero();
+  for(Index i = 0; i < l_rank; ++i) dst.row(m_cols_permutation.mIndices().coeff(i)) = c.row(i);
+  for(Index i = l_rank; i < cols(); ++i) dst.row(m_cols_permutation.mIndices().coeff(i)).setZero();
 }
 
 template<typename _MatrixType>

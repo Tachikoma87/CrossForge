@@ -20,7 +20,7 @@ using namespace std;
 namespace Terrain {
 
     void initCForge(GLWindow* window, RenderDevice* renderDevice) {
-        uint32_t winWidth = 1280;
+        uint32_t winWidth = 720;
         uint32_t winHeight = 720;
 
         window->init(Vector2i(100, 100), Vector2i(winWidth, winHeight), "Terrain Setup");

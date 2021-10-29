@@ -44,13 +44,13 @@ struct permutation_matrix_product<ExpressionType, Side, Transposed, SparseShape>
         Matrix<StorageIndex,Dynamic,1> sizes(mat.outerSize());
         for(Index j=0; j<mat.outerSize(); ++j)
         {
-          Index jp = perm.indices().coeff(j);
+          Index jp = perm.mIndices().coeff(j);
           sizes[((Side==OnTheLeft) ^ Transposed) ? jp : j] = StorageIndex(mat.innerVector(((Side==OnTheRight) ^ Transposed) ? jp : j).nonZeros());
         }
         tmp.reserve(sizes);
         for(Index j=0; j<mat.outerSize(); ++j)
         {
-          Index jp = perm.indices().coeff(j);
+          Index jp = perm.mIndices().coeff(j);
           Index jsrc = ((Side==OnTheRight) ^ Transposed) ? jp : j;
           Index jdst = ((Side==OnTheLeft) ^ Transposed) ? jp : j;
           for(typename MatrixTypeCleaned::InnerIterator it(mat,jsrc); it; ++it)

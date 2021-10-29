@@ -64,10 +64,10 @@ class TranspositionsBase
 
     /** const version of indices(). */
     EIGEN_DEVICE_FUNC
-    const IndicesType& indices() const { return derived().indices(); }
+    const IndicesType& indices() const { return derived().mIndices(); }
     /** \returns a reference to the stored array representing the transpositions. */
     EIGEN_DEVICE_FUNC
-    IndicesType& indices() { return derived().indices(); }
+    IndicesType& indices() { return derived().mIndices(); }
 
     /** Resizes to given size. */
     inline void resize(Index newSize)

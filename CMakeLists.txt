@@ -132,7 +132,7 @@ project (Terrain)
 add_executable(Terrain
 	Main.cpp
 	Terrain/MapActor.cpp
-)
+        Terrain/Tile.cpp Terrain/Tile.h)
 
 
 if(WIN32)
