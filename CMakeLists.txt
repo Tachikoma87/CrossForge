@@ -18,8 +18,8 @@ FIND_PACKAGE(OpenCV CONFIG REQUIRED)
 
 include_directories(
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
-	"${CMAKE_SOURCE_DIR}/thirdparty/eigen-3.4.0"
 	"${CMAKE_SOURCE_DIR}" # include top level for easy access to CForge, probably suboptimal
+	"${CMAKE_SOURCE_DIR}/thirdparty/eigen"
 	"${OpenCV_INCLUDE_DIRS}"
 )
 
@@ -142,31 +142,35 @@ if(WIN32)
 endif (WIN32)
 
 if(UNIX)
-	target_link_libraries(Terrain
+	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
-	)
+		PRIVATE glfw 
+		PRIVATE assimp::assimp
+		${OpenCV_LIBS}
+		PRIVATE gpiod
+		PRIVATE dl
+		)
 endif(UNIX)
 
-# copy engine shaders
+#copy shaders
 add_custom_command(
-		TARGET Terrain PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-		${CMAKE_SOURCE_DIR}/CForge/Shader
-		${CMAKE_CURRENT_BINARY_DIR}/Shader
-)
-
-#Todo: copy on run
-# copy terrain shaders
-add_custom_command(
-		TARGET Terrain PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-		${CMAKE_SOURCE_DIR}/Terrain/Shader
-		${CMAKE_CURRENT_BINARY_DIR}/Shader
+	TARGET CForgeSandbox PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${CMAKE_SOURCE_DIR}/CForge/Shader
+	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 
 add_custom_command(
-		TARGET Terrain PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-		${CMAKE_SOURCE_DIR}/Terrain/Assets
-		${CMAKE_CURRENT_BINARY_DIR}/Assets
+	TARGET CForgeSandbox PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/Assets
+	${CMAKE_CURRENT_BINARY_DIR}/Assets
 )
+
+
+project(ExportLibrary)
+add_executable(ExportLibrary 
+	ExportLibrary.cpp)
+
+target_link_libraries(ExportLibrary
+	PRIVATE crossforge)
