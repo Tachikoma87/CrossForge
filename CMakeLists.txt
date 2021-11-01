@@ -131,7 +131,7 @@ target_link_libraries(ExportLibrary
 project (Terrain)
 add_executable(Terrain
 		Main.cpp
-		Terrain/MapActor.cpp
+        Terrain/TileActor.cpp
 		Terrain/Tile.cpp
 		)
 
