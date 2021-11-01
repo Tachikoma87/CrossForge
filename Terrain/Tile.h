@@ -4,39 +4,46 @@
 #include <Eigen/Core>
 #include <glad/glad.h>
 #include <vector>
+#include <CForge/Graphics/GLVertexArray.h>
+#include "CForge/Graphics/GLBuffer.h"
 
-using namespace Eigen;
+using namespace CForge;
 using namespace std;
 
 namespace Terrain {
     class Tile {
     public:
         enum TileVariant {
-            Normal,
-            Edge,
-            Corner,
+            Normal = 0,
+            Edge = 1,
+            Corner = 2,
         };
 
-        Tile(uint sideLength);
+        explicit Tile(uint sideLength, GLTexture2D* heightMap);
         ~Tile();
 
-        void calculateIndices(TileVariant variant);
+        void init();
 
+        void render(RenderDevice *renderDevice, TileVariant variant);
 
-        GLuint* getIndices();
-        GLfloat* getVertices();
-
-        uint getIndexBufferSize();
-        uint getVertexBufferSize();
-
+        uint getSideLength() const;
 
     private:
-        void addTriangle(uint a, uint b, uint c);
+        vector<GLfloat> calculateVertices() const;
+        vector<GLuint> calculateIndices(TileVariant variant) const;
+        static void addTriangle(vector<GLuint>* indices, uint a, uint b, uint c);
+
+        void initVertexArray(GLBuffer *vertexBuffer, GLBuffer *indexBuffer, TileVariant variant);
+        void initShader();
 
         uint mSideLength;
         uint mVertexCount;
-        vector<GLfloat> mVertices;
-        vector<GLuint> mIndices;
+
+        GLsizei mIndexBufferSizes[3];
+        GLVertexArray mVertexArrays[3];
+
+        GLTexture2D* mHeightMap;
+        GLShader* mShader;
     };
 }
 
