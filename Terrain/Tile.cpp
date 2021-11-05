@@ -3,72 +3,57 @@
 #include "Tile.h"
 
 namespace Terrain {
-    Tile::Tile(uint sideLength, GLTexture2D* heightMap) : mSideLength(sideLength), mVertexCount(sideLength + 1), mHeightMap(heightMap) {}
+    Tile::Tile(uint sideLength, GLTexture2D* heightMap) : mSideLength(sideLength), mHeightMap(heightMap) {}
 
     Tile::~Tile() = default;
 
     void Tile::init() {
-        vector<GLfloat> vertices = calculateVertices();
-
-        GLBuffer vertexBuffer;
-        vertexBuffer.init(GLBuffer::BTYPE_VERTEX,
-                           GLBuffer::BUSAGE_STATIC_DRAW,
-                           vertices.data(),
-                           vertices.size() * sizeof(GLfloat));
-
-        for (int variant = Normal; variant <= Corner; variant++) {
-            vector<GLuint> indices = calculateIndices(static_cast<TileVariant>(variant));
-
-            mIndexBufferSizes[variant] = static_cast<GLsizei>(indices.size() * sizeof(GLuint));
-
-            GLBuffer indexBuffer;
-            indexBuffer.init(GLBuffer::BTYPE_INDEX,
-                             GLBuffer::BUSAGE_STATIC_DRAW,
-                             indices.data(),
-                             mIndexBufferSizes[variant]);
-
-            initVertexArray(&vertexBuffer, &indexBuffer, static_cast<TileVariant>(variant));
-        }
-
+        initTileVertexArrays();
+        initLineVertexArray();
         initShader();
     }
 
     void Tile::render(RenderDevice* renderDevice, TileVariant variant) {
         mVertexArrays[variant].bind();
         renderDevice->activeShader(mShader);
-        mShader->bindTexture(GLShader::DEFAULTTEX_ALBEDO, mHeightMap);
+        glActiveTexture(GL_TEXTURE0);
+        mHeightMap->bind();
+        glUniform1i(mShader->uniformLocation("HeightMap"), 0);
         glDrawElements(GL_TRIANGLES, mIndexBufferSizes[variant], GL_UNSIGNED_INT, nullptr);
     }
 
-    vector<GLfloat> Tile::calculateVertices() const {
+    vector<GLfloat> Tile::calculateVertices(uint width, uint height) const {
+        // width and height in triangle side count, vertex count one more
         vector<GLfloat> vertices;
 
-        for (int y = 0; y < mVertexCount; y++) {
-            for (int x = 0; x < mVertexCount; x++) {
-                float percentX = (float) x / (float) mSideLength;
-                float percentY = (float) y / (float) mSideLength;
-                vertices.push_back((percentX - 0.5f) * (float) mSideLength);
-                vertices.push_back((percentY - 0.5f) * (float) mSideLength);
+        for (uint y = 0; y <= height; y++) {
+            for (uint x = 0; x <= width; x++) {
+                float percentX = (float) x / (float) width;
+                float percentY = (float) y / (float) height;
+                vertices.push_back((percentX - 0.5f) * (float) width);
+                vertices.push_back((percentY - 0.5f) * (float) height);
             }
         }
 
         return vertices;
     }
 
-    vector<GLuint> Tile::calculateIndices(TileVariant variant) const {
+    vector<GLuint> Tile::calculateIndices(uint width, uint height, TileVariant variant) const {
         vector<GLuint> indices;
 
-        for (int y = 0; y < mSideLength; y += 2) {
-            for (int x = 0; x < mSideLength; x += 2) {
-                auto a = y * mVertexCount + x;
+        uint vertexCount = width + 1;
+
+        for (uint y = 0; y < height; y += 2) {
+            for (uint x = 0; x < width; x += 2) {
+                auto a = y * vertexCount + x;
                 auto b = a + 1;
                 auto c = a + 2;
-                auto d = a + mVertexCount;
-                auto e = a + mVertexCount + 1;
-                auto f = a + mVertexCount + 2;
-                auto g = a + 2 * mVertexCount;
-                auto h = a + 2 * mVertexCount + 1;
-                auto i = a + 2 * mVertexCount + 2;
+                auto d = a + vertexCount;
+                auto e = a + vertexCount + 1;
+                auto f = a + vertexCount + 2;
+                auto g = a + 2 * vertexCount;
+                auto h = a + 2 * vertexCount + 1;
+                auto i = a + 2 * vertexCount + 2;
 
                 if (x == 0 && variant != Normal) {
                     addTriangle(&indices, e, g, a);
@@ -116,6 +101,23 @@ namespace Terrain {
         mVertexArrays[variant].unbind();
     }
 
+    void Tile::initTileVertexArrays() {
+        vector<GLfloat> vertices = calculateVertices(mSideLength, mSideLength);
+
+        for (int variant = Normal; variant <= Corner; variant++) {
+            vector<GLuint> indices = calculateIndices(mSideLength, mSideLength, static_cast<TileVariant>(variant));
+
+            initBuffers(&vertices, &indices, static_cast<TileVariant>(variant));
+        }
+    }
+
+    void Tile::initLineVertexArray() {
+        vector<GLfloat> vertices = calculateVertices(mSideLength, 2);
+        vector<GLuint> indices = calculateIndices(mSideLength, 2, static_cast<TileVariant>(Edge));
+
+        initBuffers(&vertices, &indices, Line);
+    }
+
     void Tile::initShader() {
         SShaderManager* shaderManager = SShaderManager::instance();
 
@@ -141,4 +143,24 @@ namespace Terrain {
     uint Tile::getSideLength() const {
         return mSideLength;
     }
+
+    void Tile::initBuffers(vector<GLfloat> *vertices, vector<GLuint> *indices, TileVariant variant) {
+        GLBuffer vertexBuffer;
+        vertexBuffer.init(GLBuffer::BTYPE_VERTEX,
+                          GLBuffer::BUSAGE_STATIC_DRAW,
+                          vertices->data(),
+                          vertices->size() * sizeof(GLfloat));
+
+        mIndexBufferSizes[variant] = static_cast<GLsizei>(indices->size() * sizeof(GLuint));
+
+        GLBuffer indexBuffer;
+        indexBuffer.init(GLBuffer::BTYPE_INDEX,
+                         GLBuffer::BUSAGE_STATIC_DRAW,
+                         indices->data(),
+                         mIndexBufferSizes[variant]);
+
+        initVertexArray(&vertexBuffer, &indexBuffer, variant);
+    }
+
+
 }

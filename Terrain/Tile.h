@@ -17,6 +17,8 @@ namespace Terrain {
             Normal = 0,
             Edge = 1,
             Corner = 2,
+            Line = 3,
+            Trim = 4,
         };
 
         explicit Tile(uint sideLength, GLTexture2D* heightMap);
@@ -24,23 +26,25 @@ namespace Terrain {
 
         void init();
 
-        void render(RenderDevice *renderDevice, TileVariant variant);
+        void render(RenderDevice* renderDevice, TileVariant variant);
 
         uint getSideLength() const;
 
     private:
-        vector<GLfloat> calculateVertices() const;
-        vector<GLuint> calculateIndices(TileVariant variant) const;
+        vector<GLfloat> calculateVertices(uint width, uint height) const;
+        vector<GLuint> calculateIndices(uint width, uint height, TileVariant variant) const;
         static void addTriangle(vector<GLuint>* indices, uint a, uint b, uint c);
 
+        void initBuffers(vector<GLfloat> *vertices, vector<GLuint> *indices, TileVariant variant);
         void initVertexArray(GLBuffer *vertexBuffer, GLBuffer *indexBuffer, TileVariant variant);
+        void initTileVertexArrays();
+        void initLineVertexArray();
         void initShader();
 
         uint mSideLength;
-        uint mVertexCount;
 
-        GLsizei mIndexBufferSizes[3];
-        GLVertexArray mVertexArrays[3];
+        GLsizei mIndexBufferSizes[5];
+        GLVertexArray mVertexArrays[5];
 
         GLTexture2D* mHeightMap;
         GLShader* mShader;
