@@ -1,9 +1,6 @@
 #include "CForge/Graphics/RenderDevice.h"
 
-#include <glad/glad.h>
-
 #include "TileActor.h"
-#include "Tile.h"
 
 namespace Terrain {
     TileActor::TileActor() : IRenderableActor("MapActor", ATYPE_STATIC), mTile(nullptr), mVariant(Tile::Normal) {}
@@ -20,6 +17,4 @@ namespace Terrain {
     void TileActor::render(RenderDevice* renderDevice) {
         mTile->render(renderDevice, mVariant);
     }
-
-
 }

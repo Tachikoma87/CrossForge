@@ -58,8 +58,8 @@ namespace Terrain {
         camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 10000.0f);
         renderDevice->activeCamera(camera);
 
-        Vector3f sunPos = Vector3f(0.0f, 100.0f, 0.0f);
-        sun->init(sunPos, -sunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 100.0f);
+        Vector3f sunPos = Vector3f(10.0f, 100.0f, 0.0f);
+        sun->init(sunPos, -sunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 2.0f);
         renderDevice->addLight(sun);
     }
 
@@ -93,7 +93,7 @@ namespace Terrain {
 
     void spawnClipmapTiles(SGNTransformation* mapTransform, Tile& tile,
                            vector<SGNGeometry*>& geometry, vector<TileActor*>& actors) {
-        const uint LOD_LEVELS = 5;
+        const uint LOD_LEVELS = 6;
         const tuple<Tile::TileVariant, float> TILE_ALIGNMENTS[4][4] = {
             {
                 {Tile::Corner, 0.0},
@@ -123,24 +123,26 @@ namespace Terrain {
 
         for (int i = 0; i < LOD_LEVELS; i++) {
             float level = powf(2, static_cast<float>(i));
+            float sideLength = static_cast<float>(tile.getSideLength()) * level;
+            auto scale = Vector3f::Ones() * level;
 
             for (int y = 0; y < 4; y++) {
                 for (int x = 0; x < 4; x++) {
                     if (level == 1 || x == 0 || x == 3 || y == 0 || y == 3) {
-                        float sideLength = static_cast<float>(tile.getSideLength()) * level;
                         auto[variant, angle] = TILE_ALIGNMENTS[y][x];
 
-
-                        auto translation = Vector3f(
+                        auto position = Vector3f(
                             (static_cast<float>(x) - 1.5f) * sideLength,
-                            level * 2.0f,
+                            2 * level,
                             (static_cast<float>(y) - 1.5f) * sideLength
                         );
+
+                        // position -= Vector3f( x < 2 ? 1 : 0, 0, y < 2 ? 1 : 0 ) * 2 * level;
+
                         auto rotation =
                             AngleAxisf(0, Vector3f::UnitX()) *
                             AngleAxisf(GraphicsUtility::degToRad(angle), Vector3f::UnitY()) *
                             AngleAxisf(0, Vector3f::UnitZ());
-                        auto scale = Vector3f::Ones() * level;
 
                         auto tileActor = new TileActor();
                         tileActor->init(&tile, variant);
@@ -148,14 +150,38 @@ namespace Terrain {
                         actors.push_back(tileActor);
 
                         auto mapGeometry = new SGNGeometry();
-                        mapGeometry->init(mapTransform, tileActor);
-                        mapGeometry->position(translation);
-                        mapGeometry->rotation(rotation);
-                        mapGeometry->scale(scale);
+                        mapGeometry->init(mapTransform, tileActor, position, rotation, scale);
 
                         geometry.push_back(mapGeometry);
                     }
                 }
+            }
+
+            Vector3f POSITIONS[4] = {
+                Vector3f(-sideLength * 1.5f - level * 2, 0, -level),
+                Vector3f(-level, 0, sideLength * 1.5f),
+                Vector3f(sideLength * 1.5f, 0, -level),
+                Vector3f(-level, 0, -sideLength * 1.5f - level * 2),
+            };
+
+            for (int y = 0; y < 4; y++) {
+                Vector3f position = POSITIONS[y];
+                position.y() = 2 * level;
+
+                auto rotation =
+                    AngleAxisf(0, Vector3f::UnitX()) *
+                    AngleAxisf(GraphicsUtility::degToRad(static_cast<float>(y) * 90.0f), Vector3f::UnitY()) *
+                    AngleAxisf(0, Vector3f::UnitZ());
+
+                auto tileActor = new TileActor();
+                tileActor->init(&tile, Tile::Line);
+
+                actors.push_back(tileActor);
+
+                auto mapGeometry = new SGNGeometry();
+                mapGeometry->init(mapTransform, tileActor, position, rotation, scale);
+
+                geometry.push_back(mapGeometry);
             }
         }
     }
@@ -172,10 +198,9 @@ namespace Terrain {
         vector<SGNGeometry*> geometry;
         vector<TileActor*> actors;
 
-
         auto texture = STextureManager::create("Assets/height_map.jpg");
 
-        Tile tile = Tile(128, texture);
+        Tile tile = Tile(64, texture);
         tile.init();
 
         SGNTransformation rootTransform;
