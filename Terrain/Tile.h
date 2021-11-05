@@ -21,19 +21,19 @@ namespace Terrain {
             Trim = 4,
         };
 
-        explicit Tile(uint sideLength, GLTexture2D* heightMap);
+        explicit Tile(uint32_t sideLength, GLTexture2D* heightMap);
         ~Tile();
 
         void init();
 
         void render(RenderDevice* renderDevice, TileVariant variant);
 
-        uint getSideLength() const;
+        uint32_t getSideLength() const;
 
     private:
-        vector<GLfloat> calculateVertices(uint width, uint height) const;
-        vector<GLuint> calculateIndices(uint width, uint height, TileVariant variant) const;
-        static void addTriangle(vector<GLuint>* indices, uint a, uint b, uint c);
+        vector<GLfloat> calculateVertices(uint32_t width, uint32_t height) const;
+        vector<GLuint> calculateIndices(uint32_t width, uint32_t height, TileVariant variant) const;
+        static void addTriangle(vector<GLuint>* indices, uint32_t a, uint32_t b, uint32_t c);
 
         void initBuffers(vector<GLfloat> *vertices, vector<GLuint> *indices, TileVariant variant);
         void initVertexArray(GLBuffer *vertexBuffer, GLBuffer *indexBuffer, TileVariant variant);
@@ -41,7 +41,7 @@ namespace Terrain {
         void initLineVertexArray();
         void initShader();
 
-        uint mSideLength;
+        uint32_t mSideLength;
 
         GLsizei mIndexBufferSizes[5];
         GLVertexArray mVertexArrays[5];
