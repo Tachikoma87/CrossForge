@@ -93,7 +93,7 @@ namespace Terrain {
 
     void spawnClipmapTiles(SGNTransformation* mapTransform, Tile& tile,
                            vector<SGNGeometry*>& geometry, vector<TileActor*>& actors) {
-        const uint LOD_LEVELS = 6;
+        const uint32_t LOD_LEVELS = 6;
         const tuple<Tile::TileVariant, float> TILE_ALIGNMENTS[4][4] = {
             {
                 {Tile::Corner, 0.0},
