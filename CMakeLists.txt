@@ -133,6 +133,7 @@ add_executable(Terrain
 		Main.cpp
         Terrain/TileActor.cpp
 		Terrain/Tile.cpp
+		"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
 		)
 
 

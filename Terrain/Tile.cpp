@@ -3,7 +3,7 @@
 #include "Tile.h"
 
 namespace Terrain {
-    Tile::Tile(uint sideLength, GLTexture2D* heightMap) : mSideLength(sideLength), mHeightMap(heightMap) {}
+    Tile::Tile(uint32_t sideLength, GLTexture2D* heightMap) : mSideLength(sideLength), mHeightMap(heightMap) {}
 
     Tile::~Tile() = default;
 
@@ -22,12 +22,12 @@ namespace Terrain {
         glDrawElements(GL_TRIANGLES, mIndexBufferSizes[variant], GL_UNSIGNED_INT, nullptr);
     }
 
-    vector<GLfloat> Tile::calculateVertices(uint width, uint height) const {
+    vector<GLfloat> Tile::calculateVertices(uint32_t width, uint32_t height) const {
         // width and height in triangle side count, vertex count one more
         vector<GLfloat> vertices;
 
-        for (uint y = 0; y <= height; y++) {
-            for (uint x = 0; x <= width; x++) {
+        for (uint32_t y = 0; y <= height; y++) {
+            for (uint32_t x = 0; x <= width; x++) {
                 float percentX = (float) x / (float) width;
                 float percentY = (float) y / (float) height;
                 vertices.push_back((percentX - 0.5f) * (float) width);
@@ -38,13 +38,13 @@ namespace Terrain {
         return vertices;
     }
 
-    vector<GLuint> Tile::calculateIndices(uint width, uint height, TileVariant variant) const {
+    vector<GLuint> Tile::calculateIndices(uint32_t width, uint32_t height, TileVariant variant) const {
         vector<GLuint> indices;
 
-        uint vertexCount = width + 1;
+        uint32_t vertexCount = width + 1;
 
-        for (uint y = 0; y < height; y += 2) {
-            for (uint x = 0; x < width; x += 2) {
+        for (uint32_t y = 0; y < height; y += 2) {
+            for (uint32_t x = 0; x < width; x += 2) {
                 auto a = y * vertexCount + x;
                 auto b = a + 1;
                 auto c = a + 2;
@@ -79,7 +79,7 @@ namespace Terrain {
         return indices;
     }
 
-    void Tile::addTriangle(vector<GLuint>* indices, uint a, uint b, uint c) {
+    void Tile::addTriangle(vector<GLuint>* indices, uint32_t a, uint32_t b, uint32_t c) {
         indices->push_back(a);
         indices->push_back(c);
         indices->push_back(b);
@@ -95,8 +95,12 @@ namespace Terrain {
         indexBuffer->bind();
 
         glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION));
-        glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION), VertexSize,
-                              GL_FLOAT, GL_FALSE, VertexSize * sizeof(GLfloat), PositionOffset);
+        glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION),
+            VertexSize,
+            GL_FLOAT,
+            GL_FALSE,
+            VertexSize * sizeof(GLfloat),
+            0);
 
         mVertexArrays[variant].unbind();
     }
@@ -140,7 +144,7 @@ namespace Terrain {
         shaderManager->release();
     }
 
-    uint Tile::getSideLength() const {
+    uint32_t Tile::getSideLength() const {
         return mSideLength;
     }
 
