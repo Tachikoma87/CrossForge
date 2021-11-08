@@ -37,8 +37,9 @@ namespace Terrain {
 
         void initBuffers(vector<GLfloat> *vertices, vector<GLuint> *indices, TileVariant variant);
         void initVertexArray(GLBuffer *vertexBuffer, GLBuffer *indexBuffer, TileVariant variant);
-        void initTileVertexArrays();
-        void initLineVertexArray();
+        void initTiles();
+        void initLine();
+        void initTrim();
         void initShader();
 
         uint32_t mSideLength;

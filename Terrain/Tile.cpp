@@ -8,8 +8,9 @@ namespace Terrain {
     Tile::~Tile() = default;
 
     void Tile::init() {
-        initTileVertexArrays();
-        initLineVertexArray();
+        initTiles();
+        initLine();
+        initTrim();
         initShader();
     }
 
@@ -28,10 +29,10 @@ namespace Terrain {
 
         for (uint32_t y = 0; y <= height; y++) {
             for (uint32_t x = 0; x <= width; x++) {
-                float percentX = (float) x / (float) width;
-                float percentY = (float) y / (float) height;
-                vertices.push_back((percentX - 0.5f) * (float) width);
-                vertices.push_back((percentY - 0.5f) * (float) height);
+                float percentX = static_cast<float>(x) / static_cast<float>(width);
+                float percentY = static_cast<float>(y) / static_cast<float>(height);
+                vertices.push_back((percentX - 0.5f) * static_cast<float>(width));
+                vertices.push_back((percentY - 0.5f) * static_cast<float>(height));
             }
         }
 
@@ -43,6 +44,11 @@ namespace Terrain {
 
         uint32_t vertexCount = width + 1;
 
+        // a---b---c
+        // | \ | / |
+        // d---e---f
+        // | / | \ |
+        // g---h---i
         for (uint32_t y = 0; y < height; y += 2) {
             for (uint32_t x = 0; x < width; x += 2) {
                 auto a = y * vertexCount + x;
@@ -96,16 +102,12 @@ namespace Terrain {
 
         glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION));
         glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION),
-            VertexSize,
-            GL_FLOAT,
-            GL_FALSE,
-            VertexSize * sizeof(GLfloat),
-            0);
+                              VertexSize, GL_FLOAT, GL_FALSE, VertexSize * sizeof(GLfloat), PositionOffset);
 
         mVertexArrays[variant].unbind();
     }
 
-    void Tile::initTileVertexArrays() {
+    void Tile::initTiles() {
         vector<GLfloat> vertices = calculateVertices(mSideLength, mSideLength);
 
         for (int variant = Normal; variant <= Corner; variant++) {
@@ -115,7 +117,7 @@ namespace Terrain {
         }
     }
 
-    void Tile::initLineVertexArray() {
+    void Tile::initLine() {
         vector<GLfloat> vertices = calculateVertices(mSideLength, 2);
         vector<GLuint> indices = calculateIndices(mSideLength, 2, static_cast<TileVariant>(Edge));
 
@@ -166,5 +168,31 @@ namespace Terrain {
         initVertexArray(&vertexBuffer, &indexBuffer, variant);
     }
 
+    void Tile::initTrim() {
+        uint32_t height = mSideLength * 2 + 2;
+        vector<GLfloat> vertices = calculateVertices(1, height);
 
+        vector<GLuint> indices;
+
+        // a---b
+        // | \ |
+        // c---d
+        // | / |
+        // e---f
+        for (uint32_t y = 0; y < height; y += 2) {
+            auto a = y * 2;
+            auto b = a + 1;
+            auto c = a + 2;
+            auto d = a + 3;
+            auto e = a + 4;
+            auto f = a + 5;
+
+            addTriangle(&indices, a, b, d);
+            addTriangle(&indices, a, d, c);
+            addTriangle(&indices, c, d, e);
+            addTriangle(&indices, d, f, e);
+        }
+
+        initBuffers(&vertices, &indices, Trim);
+    }
 }
