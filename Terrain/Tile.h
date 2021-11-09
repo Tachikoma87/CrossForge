@@ -31,7 +31,7 @@ namespace Terrain {
         uint32_t getSideLength() const;
 
     private:
-        vector<GLfloat> calculateVertices(uint32_t width, uint32_t height) const;
+        vector<GLfloat> calculateVertices(uint32_t width, uint32_t height, float offsetX=0.0f, bool swapPos=false) const;
         vector<GLuint> calculateIndices(uint32_t width, uint32_t height, TileVariant variant) const;
         static void addTriangle(vector<GLuint>* indices, uint32_t a, uint32_t b, uint32_t c);
 
