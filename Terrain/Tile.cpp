@@ -23,7 +23,7 @@ namespace Terrain {
         glDrawElements(GL_TRIANGLES, mIndexBufferSizes[variant], GL_UNSIGNED_INT, nullptr);
     }
 
-    vector<GLfloat> Tile::calculateVertices(uint32_t width, uint32_t height) const {
+    vector<GLfloat> Tile::calculateVertices(uint32_t width, uint32_t height, float offsetX, bool swapPos) const {
         // width and height in triangle side count, vertex count one more
         vector<GLfloat> vertices;
 
@@ -31,8 +31,15 @@ namespace Terrain {
             for (uint32_t x = 0; x <= width; x++) {
                 float percentX = static_cast<float>(x) / static_cast<float>(width);
                 float percentY = static_cast<float>(y) / static_cast<float>(height);
-                vertices.push_back((percentX - 0.5f) * static_cast<float>(width));
-                vertices.push_back((percentY - 0.5f) * static_cast<float>(height));
+
+                if (swapPos) {
+                    vertices.push_back((percentY - 0.5f) * static_cast<float>(height));
+                    vertices.push_back((percentX - 0.5f) * static_cast<float>(width) + offsetX);
+                }
+                else {
+                    vertices.push_back((percentX - 0.5f) * static_cast<float>(width) + offsetX);
+                    vertices.push_back((percentY - 0.5f) * static_cast<float>(height));
+                }
             }
         }
 
@@ -169,28 +176,51 @@ namespace Terrain {
     }
 
     void Tile::initTrim() {
-        uint32_t height = mSideLength * 2 + 2;
-        vector<GLfloat> vertices = calculateVertices(1, height);
+        uint32_t sideLength = mSideLength * 2 + 1;
+        uint32_t cornerIndex = (sideLength + 1) * 2;
+        float offset = static_cast<float>(mSideLength) + 1.0f;
+
+        vector<GLfloat> vertices = calculateVertices(1, sideLength, -offset);
+        vector<GLfloat> otherVertices = calculateVertices(1, sideLength, -offset, true);
+
+        // add corner vertex
+        vertices.push_back(-offset - 0.5f);
+        vertices.push_back(-offset - 0.5f);
+        vertices.insert(vertices.end(), otherVertices.begin(), otherVertices.end());
 
         vector<GLuint> indices;
+        // add corner quad
+        addTriangle(&indices, cornerIndex, 1, 0);
+        addTriangle(&indices, cornerIndex, cornerIndex + 1, cornerIndex + 2);
 
-        // a---b
-        // | \ |
-        // c---d
-        // | / |
-        // e---f
-        for (uint32_t y = 0; y < height; y += 2) {
+        for (uint32_t y = 0; y < sideLength; y++) {
             auto a = y * 2;
             auto b = a + 1;
             auto c = a + 2;
             auto d = a + 3;
-            auto e = a + 4;
-            auto f = a + 5;
 
-            addTriangle(&indices, a, b, d);
-            addTriangle(&indices, a, d, c);
-            addTriangle(&indices, c, d, e);
-            addTriangle(&indices, d, f, e);
+            if (y % 2 == 0) {
+                addTriangle(&indices, a, b, c);
+                addTriangle(&indices, b, d, c);
+            } else {
+                addTriangle(&indices, a, b, d);
+                addTriangle(&indices, a, d, c);
+            }
+        }
+
+        for (uint32_t y = sideLength + 1; y < sideLength * 2 + 1; y++) {
+            auto a = y * 2 + 1;
+            auto b = a + 1;
+            auto c = a + 2;
+            auto d = a + 3;
+
+            if (y % 2 == 0) {
+                addTriangle(&indices, a, c, b);
+                addTriangle(&indices, b, c, d);
+            } else {
+                addTriangle(&indices, a, d, b);
+                addTriangle(&indices, a, c, d);
+            }
         }
 
         initBuffers(&vertices, &indices, Trim);

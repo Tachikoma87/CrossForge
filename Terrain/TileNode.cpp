@@ -17,45 +17,41 @@ namespace Terrain {
     TileNode::TileNode(ISceneGraphNode* parent, Tile* tile, const TileData& data)
         : SGNGeometry(), mTileActor(tile, data.variant), mData(data) {
         SGNGeometry::init(parent, &mTileActor,
-                          Vector3f::Zero(),
+                          Vector3f(mData.pos.x(), 0, mData.pos.y()),
                           AngleAxisf(0, Vector3f::UnitX()) *
                                   AngleAxisf(GraphicsUtility::degToRad(static_cast<float>(mData.orientation) * 90.0f), Vector3f::UnitY()) *
                                   AngleAxisf(0, Vector3f::UnitZ()),
-                          Vector3f::Ones() * mData.level * (data.variant == Tile::Trim ? 2 : 1));
+                          Vector3f::Ones() * mData.level * (mData.variant == Tile::Trim ? 2 : 1));
     }
 
     void TileNode::update(float cameraX , float cameraY) {
+        // snap the position of the tile to the camera
         auto scale = 2.0f * static_cast<float>(mData.level);
         float x = floorf(cameraX / scale) * scale;
         float y = floorf(cameraY / scale) * scale;
 
-        Vector3f pos =Vector3f(
-            x + mData.pos.x(),
-            0,
-            y + mData.pos.y());
+        position(Vector3f(x + mData.pos.x(), 0, y + mData.pos.y()));
 
         if (mData.variant == Tile::Trim) {
+            // compare the
             float nextScale = 2.0f * scale;
-            float nextX = floorf(cameraX / nextScale) * nextScale;
-            float nextY = floorf(cameraY / nextScale) * nextScale;
-            bool rot = false;
+            bool sameX = abs(x - floorf(cameraX / nextScale) * nextScale) < scale;
+            bool sameY = abs(y - floorf(cameraY / nextScale) * nextScale) < scale;
+            float rot;
 
-            // Todo generate trim as 1 mesh
-            if (x != nextX) {
-                pos.x() = x + -mData.pos.x() + scale;
-                rot = true;
-            }
-            if (y != nextY){
-                pos.z() = y + -mData.pos.y() + scale;
-                rot = true;
+            if (sameX && sameY) {
+                rot = 180.0f;
+            } else if (sameX) {
+                rot = 270.0f;
+            } else if (!sameY) {
+                rot = 0.0f;
+            } else {
+                rot = 90.0f;
             }
 
             rotation(AngleAxisf(0, Vector3f::UnitX()) *
-                     AngleAxisf(GraphicsUtility::degToRad(
-                         static_cast<float>(mData.orientation + (rot ? 2 : 0)) * 90.0f), Vector3f::UnitY()) *
+                     AngleAxisf(GraphicsUtility::degToRad(rot), Vector3f::UnitY()) *
                      AngleAxisf(0, Vector3f::UnitZ()));
         }
-
-        position(pos);
     }
 }
