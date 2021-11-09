@@ -120,7 +120,7 @@ namespace Terrain {
             },
         };
 
-        auto sideLength = static_cast<float>(tile.getSideLength());
+        float sideLength = static_cast<float>(tile.sideLength());
         float lineOffset = sideLength * 1.5f;
         Vector2f linePositions[4] = {
             Vector2f(-lineOffset, 1.0f),
@@ -129,29 +129,32 @@ namespace Terrain {
             Vector2f(1.0f, -lineOffset),
         };
 
-        for (int lod = 0; lod < LOD_LEVELS; lod++) {
-            int level = 2 << lod;
-            auto scale = static_cast<float>(level);
+        TileNode::TileData data = {Vector2f(2, 2), 0, 2, Tile::Cross};
+        tileNodes.push_back(new TileNode(mapTransform, &tile, data));
+
+        for (int level = 0; level < LOD_LEVELS; level++) {
+            int lod = 2 << level;
+            float scale = static_cast<float>(lod);
 
             for (int y = 0; y < 4; y++) {
                 for (int x = 0; x < 4; x++) {
-                    if (lod == 0 || x == 0 || x == 3 || y == 0 || y == 3) {
+                    if (level == 0 || x == 0 || x == 3 || y == 0 || y == 3) {
                         auto[variant, orientation] = TILE_ALIGNMENTS[y][x];
 
                         auto pos = Vector2f((static_cast<float>(x) - 1.5f) * sideLength * scale,
                                             (static_cast<float>(y) - 1.5f) * sideLength * scale) +
-                                   Vector2f(x < 2 ? 0 : 2, y < 2 ? 0 : 2) * level;
+                                   Vector2f(x < 2 ? 0 : 2, y < 2 ? 0 : 2) * lod;
 
-                        TileNode::TileData data = {pos, orientation, level, variant};
+                        data = {pos, orientation, lod, variant};
                         tileNodes.push_back(new TileNode(mapTransform, &tile, data));
                     }
                 }
 
-                TileNode::TileData data = {linePositions[y] * scale, y, level, Tile::Line};
+                data = {linePositions[y] * scale, y, lod, Tile::Line};
                 tileNodes.push_back(new TileNode(mapTransform, &tile, data));
             }
 
-            TileNode::TileData data = {Vector2f(scale, scale), 0, level, Tile::Trim};
+            data = {Vector2f(scale, scale), 0, lod, Tile::Trim};
             tileNodes.push_back(new TileNode(mapTransform, &tile, data));
         }
     }
@@ -169,8 +172,7 @@ namespace Terrain {
 
         auto texture = STextureManager::create("Assets/height_map1.jpg");
 
-        Tile tile = Tile(4, texture);
-        tile.init();
+        Tile tile = Tile(64, texture);
 
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);

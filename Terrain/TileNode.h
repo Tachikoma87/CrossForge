@@ -2,6 +2,7 @@
 #define TERRAIN_TILENODE_H
 
 #include <CForge/Graphics/SceneGraph/SGNGeometry.h>
+
 #include "Tile.h"
 
 using namespace std;
@@ -13,7 +14,7 @@ namespace Terrain {
         struct TileData {
             Vector2f pos;
             int orientation;
-            int level;
+            int lod;
             Tile::TileVariant variant;
         };
 

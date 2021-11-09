@@ -1,16 +1,15 @@
 #ifndef TERRAIN_TILE_H
 #define TERRAIN_TILE_H
 
-#include <Eigen/Core>
 #include <glad/glad.h>
-#include <vector>
 #include <CForge/Graphics/GLVertexArray.h>
-#include "CForge/Graphics/GLBuffer.h"
+#include <CForge/Graphics/GLBuffer.h>
 
 using namespace CForge;
 using namespace std;
 
 namespace Terrain {
+    // Todo: rename to ClipMap
     class Tile {
     public:
         enum TileVariant {
@@ -19,27 +18,25 @@ namespace Terrain {
             Corner = 2,
             Line = 3,
             Trim = 4,
+            Cross = 5,
         };
 
-        explicit Tile(uint32_t sideLength, GLTexture2D* heightMap);
-        ~Tile();
-
-        void init();
+        Tile(uint32_t sideLength, GLTexture2D* heightMap);
 
         void render(RenderDevice* renderDevice, TileVariant variant);
-
-        uint32_t getSideLength() const;
+        uint32_t sideLength() const;
 
     private:
-        vector<GLfloat> calculateVertices(uint32_t width, uint32_t height, float offsetX=0.0f, bool swapPos=false) const;
-        vector<GLuint> calculateIndices(uint32_t width, uint32_t height, TileVariant variant) const;
-        static void addTriangle(vector<GLuint>* indices, uint32_t a, uint32_t b, uint32_t c);
+        static void calculateVertices(vector<GLfloat>& vertices, uint32_t width, uint32_t height, float offsetX=0.0f, float offsetY=0.0f, bool swapPos=false);
+        static void calculateIndices(vector<GLuint>& indices, uint32_t width, uint32_t height, TileVariant variant, uint32_t offset=0);
+        static void addTriangle(vector<GLuint>& indices, uint32_t a, uint32_t b, uint32_t c);
 
-        void initBuffers(vector<GLfloat> *vertices, vector<GLuint> *indices, TileVariant variant);
-        void initVertexArray(GLBuffer *vertexBuffer, GLBuffer *indexBuffer, TileVariant variant);
+        void initBuffers(vector<GLfloat>& vertices, vector<GLuint>& indices, TileVariant variant);
+        void initVertexArray(GLBuffer& vertexBuffer, GLBuffer& indexBuffer, TileVariant variant);
         void initTiles();
         void initLine();
         void initTrim();
+        void initCross();
         void initShader();
 
         uint32_t mSideLength;
