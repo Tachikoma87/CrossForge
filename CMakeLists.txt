@@ -128,14 +128,24 @@ target_link_libraries(ExportLibrary
 		PRIVATE crossforge
 		)
 
-project (Terrain)
-add_executable(Terrain
+if(WIN32)
+	project (Terrain)
+	add_executable(Terrain
 		Main.cpp
         Terrain/TileActor.cpp
 		Terrain/Tile.cpp
-		"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
+		"thirdparty/glad/src/glad.c"
 		)
+endif (WIN32)
 
+if(UNIX)
+	project (Terrain)
+	add_executable(Terrain
+		Main.cpp
+        Terrain/TileActor.cpp
+		Terrain/Tile.cpp
+		)
+endif (UNIX)
 
 if(WIN32)
 	target_link_libraries(Terrain

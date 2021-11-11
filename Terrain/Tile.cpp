@@ -87,8 +87,7 @@ namespace Terrain {
 
     void Tile::initVertexArray(GLBuffer* vertexBuffer, GLBuffer* indexBuffer, TileVariant variant) {
         const GLint VertexSize = 2;
-        const void* PositionOffset = nullptr;
-
+        
         mVertexArrays[variant].init();
         mVertexArrays[variant].bind();
         vertexBuffer->bind();

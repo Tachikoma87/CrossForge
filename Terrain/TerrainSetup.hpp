@@ -25,6 +25,7 @@ namespace Terrain {
         uint32_t winHeight = 720;
 
         window->init(Vector2i(100, 100), Vector2i(winWidth, winHeight), "Terrain Setup");
+        gladLoadGL();
 
         string GLError;
         GraphicsUtility::checkGLError(&GLError);
