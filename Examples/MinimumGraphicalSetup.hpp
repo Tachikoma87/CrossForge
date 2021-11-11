@@ -45,12 +45,13 @@ namespace CForge {
 		for (uint32_t i = 0; i < pM->materialCount(); ++i) {
 			T3DMesh<float>::Material* pMat = pM->getMaterial(i);
 
-
-
-			pMat->TexAlbedo = "Assets/cobbles01.jpg";
+			pMat->TexAlbedo = "Assets/Rock_040_basecolor.jpg";
+			pMat->TexNormal = "Assets/Rock_040_normal.jpg";
+			pMat->TexDepth = "Assets/Rock_040_ambientOcclusion.jpg";
+		
 
 			pMat->VertexShaderSources.push_back("Shader/BasicGeometryPass.vert");
-			pMat->FragmentShaderSources.push_back("Shader/GrassShader.frag");
+			pMat->FragmentShaderSources.push_back("Shader/RockShader.frag");
 			pMat->Metallic = Metallic;
 			pMat->Roughness = Roughness;
 		}//for[materials]
@@ -120,7 +121,7 @@ namespace CForge {
 
 		RockMesh M;
 		setMeshShader(&M, 0.1f, 0.04f);
-		M.computePerVertexNormals();
+		//M.computePerVertexNormals();
 		Cube.init(&M);
 
 		CubeTransformSGN.init(nullptr);
@@ -140,13 +141,13 @@ namespace CForge {
 			SGTest.update(1.0f);
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			
+			SGTest.render(&RDev);
 
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 
-			SGTest.render(&RDev);
+			
 
 			RenderWin.swapBuffers();
 

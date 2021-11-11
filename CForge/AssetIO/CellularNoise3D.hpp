@@ -13,25 +13,21 @@ namespace CForge {
 
 	public:
 		std::vector<Vector3f> points;
-		float cellSize;
+		float numCells;
+		float maxDist;
 
-		CellularNoise3D(float cellSize, float width, float height, float depth) {
+		CellularNoise3D(int numCells, float width, float height, float depth) {
 
-			this->cellSize = cellSize;
+			this->numCells = numCells;
+			maxDist = std::max(std::max(width, height), depth) * 2;
 
 			//seed für randomF
 			srand(time(NULL));
 
 			// generate Points
-			for (float x = width / -2; x < width / 2; x += cellSize) {
-				for (float y = height / -2; y < height; y += cellSize) {
-					for (float z = depth / -2; z < depth; z += cellSize) {
-						points.push_back(Vector3f(randomF(x, x + cellSize),
-												  randomF(y, y + cellSize),
-												  randomF(z, z + cellSize)));
-					}
-				}
-			}		
+			for (float i = 0; i < numCells; i++) {
+				points.push_back(Vector3f(randomF(width / -2, width / 2), randomF(height / -2, height / 2), randomF(depth / -2, depth / 2)));
+			}
 		}
 
 		float getValue(Vector3f point) {
@@ -40,15 +36,23 @@ namespace CForge {
 
 		float getValue(Vector3f point, float min, float max) {
 
-			float minDist = cellSize;
+			std::vector<float> distances;
 			for (int i = 0; i < points.size(); i++) {
-				minDist = std::min(minDist, (point - points[i]).norm());
-				//printf("%f\n", (point - points[i]).norm());
-				//printf("(%f, %f, %f)\n", point.x(), point.y(), point.z());
-				//printf("(%f, %f, %f)\n", points[i].x(), points[i].y(), points[i].z());
+				
+				distances.push_back((points[i] - point).norm());
 			}
+			std::sort(distances.begin(), distances.end());
 			
-			return (minDist / cellSize * (max - min) + min);
+			
+			float ret = distances[0] / maxDist;
+			if (ret < maxDist / 100.0) {
+				ret = 0.2;
+			}
+			else if (ret > 1) {
+				ret = 1;
+			}
+
+			return (ret * (max - min) + min);
 		}
 
 	private:
