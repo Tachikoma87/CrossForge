@@ -29,12 +29,7 @@ float getHeight(vec4 sampledHeight) {
 void main(){
     vec4 worldPosition = ModelMatrix * vec4(VertPosition.x, 0.0, VertPosition.y, 1.0);
 
-    float scale = worldPosition.y;
-    scale = 64;
-
-    worldPosition.xz += round(Camera.Position.xz / scale) * scale;
-
-    SamplePosition = worldPosition.xz / vec2(2048, 2048) + 0.5; // the 0.5 centers the map texture
+    SamplePosition = (worldPosition.xz) / textureSize(HeightMap, 0) + 0.5; // the 0.5 centers the map texture
     Height = getHeight(texture(HeightMap, SamplePosition));
 
     worldPosition.y = Height;

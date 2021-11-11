@@ -12,7 +12,7 @@
 #include <glad/glad.h>
 #include <CForge/Graphics/STextureManager.h>
 
-#include "TileActor.h"
+#include "TileNode.h"
 
 using namespace CForge;
 using namespace Eigen;
@@ -92,98 +92,71 @@ namespace Terrain {
         }
     }
 
-    void spawnClipmapTiles(SGNTransformation* mapTransform, Tile& tile,
-                           vector<SGNGeometry*>& geometry, vector<TileActor*>& actors) {
-        const uint32_t LOD_LEVELS = 6;
-        const tuple<Tile::TileVariant, float> TILE_ALIGNMENTS[4][4] = {
+    void spawnClipmapTiles(SGNTransformation* mapTransform, Tile& tile, vector<TileNode*>& tileNodes) {
+        const uint32_t LOD_LEVELS = 6; // Todo: move into tile
+        const tuple<Tile::TileVariant, int> TILE_ALIGNMENTS[4][4] = {
             {
-                {Tile::Corner, 0.0},
-                {Tile::Edge, 270.0},
-                {Tile::Edge, 270.0},
-                {Tile::Corner, 270.0},
+                {Tile::Corner, 0},
+                {Tile::Edge, 3},
+                {Tile::Edge, 3},
+                {Tile::Corner, 3},
             },
             {
-                {Tile::Edge, 0.0},
-                {Tile::Normal, 0.0},
-                {Tile::Normal, 0.0},
-                {Tile::Edge, 180.0},
+                {Tile::Edge, 0},
+                {Tile::Normal, 0},
+                {Tile::Normal, 0},
+                {Tile::Edge, 2},
             },
             {
-                {Tile::Edge, 0.0},
-                {Tile::Normal, 0.0},
-                {Tile::Normal, 0.0},
-                {Tile::Edge, 180.0},
+                {Tile::Edge, 0},
+                {Tile::Normal, 0},
+                {Tile::Normal, 0},
+                {Tile::Edge, 2},
             },
             {
-                {Tile::Corner, 90.0},
-                {Tile::Edge, 90.0},
-                {Tile::Edge, 90.0},
-                {Tile::Corner, 180.0},
+                {Tile::Corner, 1},
+                {Tile::Edge, 1},
+                {Tile::Edge, 1},
+                {Tile::Corner, 2},
             },
         };
 
-        for (int i = 0; i < LOD_LEVELS; i++) {
-            float level = powf(2, static_cast<float>(i));
-            float sideLength = static_cast<float>(tile.getSideLength()) * level;
-            auto scale = Vector3f::Ones() * level;
+        float sideLength = static_cast<float>(tile.sideLength());
+        float lineOffset = sideLength * 1.5f;
+        Vector2f linePositions[4] = {
+            Vector2f(-lineOffset, 1.0f),
+            Vector2f(1.0f, lineOffset + 2.0f),
+            Vector2f(lineOffset + 2.0f, 1.0f),
+            Vector2f(1.0f, -lineOffset),
+        };
+
+        TileNode::TileData data = {Vector2f(2, 2), 0, 2, Tile::Cross};
+        tileNodes.push_back(new TileNode(mapTransform, &tile, data));
+
+        for (int level = 0; level < LOD_LEVELS; level++) {
+            int lod = 2 << level;
+            float scale = static_cast<float>(lod);
 
             for (int y = 0; y < 4; y++) {
                 for (int x = 0; x < 4; x++) {
-                    if (level == 1 || x == 0 || x == 3 || y == 0 || y == 3) {
-                        auto[variant, angle] = TILE_ALIGNMENTS[y][x];
+                    if (level == 0 || x == 0 || x == 3 || y == 0 || y == 3) {
+                        auto[variant, orientation] = TILE_ALIGNMENTS[y][x];
 
-                        auto position = Vector3f(
-                            (static_cast<float>(x) - 1.5f) * sideLength,
-                            2 * level,
-                            (static_cast<float>(y) - 1.5f) * sideLength
-                        );
+                        auto pos = Vector2f((static_cast<float>(x) - 1.5f) * sideLength * scale,
+                                            (static_cast<float>(y) - 1.5f) * sideLength * scale) +
+                                   Vector2f(x < 2 ? 0 : 2, y < 2 ? 0 : 2) * lod;
 
-                        // position -= Vector3f( x < 2 ? 1 : 0, 0, y < 2 ? 1 : 0 ) * 2 * level;
-
-                        auto rotation =
-                            AngleAxisf(0, Vector3f::UnitX()) *
-                            AngleAxisf(GraphicsUtility::degToRad(angle), Vector3f::UnitY()) *
-                            AngleAxisf(0, Vector3f::UnitZ());
-
-                        auto tileActor = new TileActor();
-                        tileActor->init(&tile, variant);
-
-                        actors.push_back(tileActor);
-
-                        auto mapGeometry = new SGNGeometry();
-                        mapGeometry->init(mapTransform, tileActor, position, rotation, scale);
-
-                        geometry.push_back(mapGeometry);
+                        data = {pos, orientation, lod, variant};
+                        tileNodes.push_back(new TileNode(mapTransform, &tile, data));
                     }
                 }
+
+                data = {linePositions[y] * scale, y, lod, Tile::Line};
+                tileNodes.push_back(new TileNode(mapTransform, &tile, data));
             }
 
-            Vector3f POSITIONS[4] = {
-                Vector3f(-sideLength * 1.5f - level * 2, 0, -level),
-                Vector3f(-level, 0, sideLength * 1.5f),
-                Vector3f(sideLength * 1.5f, 0, -level),
-                Vector3f(-level, 0, -sideLength * 1.5f - level * 2),
-            };
-
-            for (int y = 0; y < 4; y++) {
-                Vector3f position = POSITIONS[y];
-                position.y() = 2 * level;
-
-                auto rotation =
-                    AngleAxisf(0, Vector3f::UnitX()) *
-                    AngleAxisf(GraphicsUtility::degToRad(static_cast<float>(y) * 90.0f), Vector3f::UnitY()) *
-                    AngleAxisf(0, Vector3f::UnitZ());
-
-                auto tileActor = new TileActor();
-                tileActor->init(&tile, Tile::Line);
-
-                actors.push_back(tileActor);
-
-                auto mapGeometry = new SGNGeometry();
-                mapGeometry->init(mapTransform, tileActor, position, rotation, scale);
-
-                geometry.push_back(mapGeometry);
-            }
+            data = {Vector2f(scale, scale), 0, lod, Tile::Trim};
+            tileNodes.push_back(new TileNode(mapTransform, &tile, data));
         }
     }
 
@@ -196,17 +169,15 @@ namespace Terrain {
         DirectionalLight sun;
         initCForge(&window, &renderDevice, &camera, &sun);
 
-        vector<SGNGeometry*> geometry;
-        vector<TileActor*> actors;
+        vector<TileNode*> tileNodes;
 
-        auto texture = STextureManager::create("Assets/height_map.jpg");
+        auto texture = STextureManager::create("Assets/height_map1.jpg");
 
         Tile tile = Tile(64, texture);
-        tile.init();
 
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);
-        spawnClipmapTiles(&rootTransform, tile, geometry, actors);
+        spawnClipmapTiles(&rootTransform, tile, tileNodes);
         SceneGraph sceneGraph;
         sceneGraph.init(&rootTransform);
 
@@ -214,6 +185,10 @@ namespace Terrain {
 			window.update();
 
 			sceneGraph.update(1.0f);
+
+            for (auto node : tileNodes) {
+                node->update(camera.position().x(), camera.position().z());
+            }
 
 			renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 
@@ -233,21 +208,17 @@ namespace Terrain {
 
             updateCamera(window.mouse(), window.keyboard(), renderDevice.activeCamera());
 
-			if (window.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
-				window.closeWindow();
-			}
+            if (window.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
+                window.closeWindow();
+            }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F1)) {
                 window.keyboard()->keyState(Keyboard::KEY_F1, Keyboard::KEY_RELEASED);
                 wireframe = !wireframe;
             }
 		}
 
-        for (auto actor : actors) {
-            actor->release();
-        }
-
-        for (auto geo : geometry) {
-            delete geo;
+        for (auto node : tileNodes) {
+            delete node;
         }
 	}
 }

@@ -137,6 +137,8 @@ if(WIN32)
 		"thirdparty/glad/src/glad.c"
 		)
 endif (WIN32)
+    Terrain/Tile.cpp
+	Terrain/TileNode.cpp Terrain/TileNode.h)
 
 if(UNIX)
 	project (Terrain)
