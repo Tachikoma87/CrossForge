@@ -132,20 +132,18 @@ if(WIN32)
 	project (Terrain)
 	add_executable(Terrain
 		Main.cpp
-        Terrain/TileActor.cpp
 		Terrain/Tile.cpp
+		Terrain/TileNode.cpp
 		"thirdparty/glad/src/glad.c"
 		)
 endif (WIN32)
-    Terrain/Tile.cpp
-	Terrain/TileNode.cpp Terrain/TileNode.h)
 
 if(UNIX)
 	project (Terrain)
 	add_executable(Terrain
 		Main.cpp
-        Terrain/TileActor.cpp
 		Terrain/Tile.cpp
+		Terrain/TileNode.cpp
 		)
 endif (UNIX)
 
