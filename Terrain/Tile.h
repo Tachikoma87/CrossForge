@@ -41,8 +41,8 @@ namespace Terrain {
 
         uint32_t mSideLength;
 
-        GLsizei mIndexBufferSizes[5];
-        GLVertexArray mVertexArrays[5];
+        GLsizei mIndexBufferSizes[6];
+        GLVertexArray mVertexArrays[6];
 
         GLTexture2D* mHeightMap;
         GLShader* mShader;
