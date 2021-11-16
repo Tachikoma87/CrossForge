@@ -113,6 +113,39 @@ namespace CForge {
 		return pRval;
 	}//buildShader
 
+    GLShader *SShaderManager::buildComputeShader(std::vector<ShaderCode *> *pCSSources, std::string *pErrorLog) {
+        GLShader* pRval = nullptr;
+
+        // does this shader already exist?
+        for (auto i : m_Shader) {
+            if (i == nullptr) continue;
+            if (i->CSSources.size() != pCSSources->size()) continue;
+
+            pRval = i->pShader;
+
+            for (auto k : (*pCSSources)) {
+                if (!find(k, &i->CSSources)) {
+                    pRval = nullptr;
+                    break;
+                }
+            }//for[CSSources]
+
+            if (nullptr != pRval) break;
+
+        }//for[all known shader]
+
+        if (nullptr == pRval) {
+            Shader* pS = new Shader();
+            pS->CSSources = (*pCSSources);
+            configAndCompile(pS);
+            pRval = pS->pShader;
+
+            m_Shader.push_back(pS);
+        }//if[create new shader object]
+
+        return pRval;
+    }
+
 	//GLShader* SShaderManager::buildShader(const std::vector<std::string>* pVSSources, const std::vector<std::string>* pFSSources, std::string *pErrorLog) {
 	//	if (nullptr == pVSSources) throw NullpointerExcept("pVSrouces");
 	//	if (nullptr == pFSSources) throw NullpointerExcept("pFSSources");
@@ -287,6 +320,13 @@ namespace CForge {
 		}//for[FS sources]
 
 
+        // gather compute shader
+        for (auto i : pShader->CSSources) {
+            if (i->requiresConfig(ShaderCode::CONF_LIGHTING)) i->config(&m_LightConfig);
+            if (i->requiresConfig(ShaderCode::CONF_POSTPROCESSING)) i->config(&m_PostProcessingConfig);
+            pShader->pShader->addComputeShader(i->code());
+        }//for[FS sources]
+
 		try {
 			std::string ErrorLog;
 			pShader->pShader->build(&ErrorLog);
@@ -354,5 +394,4 @@ namespace CForge {
 			if (Rebuild) configAndCompile(i);
 		}
 	}//configShader
-
 }//name space
