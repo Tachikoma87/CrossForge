@@ -1,5 +1,4 @@
-#ifndef TERRAIN_CLIPMAP_H
-#define TERRAIN_CLIPMAP_H
+#pragma once
 
 #include <CForge/Graphics/GLBuffer.h>
 #include <CForge/Graphics/GLVertexArray.h>
@@ -57,5 +56,3 @@ namespace Terrain {
         GLVertexArray mVertexArrays[TILE_COUNT];
     };
 }
-
-#endif

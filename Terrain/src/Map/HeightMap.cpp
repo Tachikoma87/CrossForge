@@ -5,6 +5,10 @@
 
 using namespace std;
 
+float randf() {
+    return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+}
+
 namespace Terrain {
     HeightMap::HeightMap() : mTexture() {
         initShader();
@@ -17,6 +21,9 @@ namespace Terrain {
     void HeightMap::generate(HeightMapConfig config) {
         delete mTexture;
 
+        GLint internalFormat = GL_R16F;
+        GLint format = GL_RED; // seems to have no effect
+
         GLuint textureHandle;
         glGenTextures(1, &textureHandle);
         glActiveTexture(GL_TEXTURE0);
@@ -25,19 +32,34 @@ namespace Terrain {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, config.width, config.height, 0, GL_RGBA, GL_FLOAT, NULL);
-        glBindImageTexture(0, textureHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, config.width, config.height, 0, format, GL_FLOAT, NULL);
+        glBindImageTexture(0, textureHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, internalFormat);
 
         mTexture = STextureManager::fromHandle(textureHandle);
 
+
         mShader->bind();
         glActiveTexture(GL_TEXTURE0);
-        glBindImageTexture(0, mTexture->handle(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA);
+        glBindImageTexture(0, mTexture->handle(), 0, GL_FALSE, 0, GL_WRITE_ONLY, format);
+        bindNoiseData(config.noiseConfig);
         glDispatchCompute(config.width, config.height, 1);
     }
 
     void HeightMap::bindTexture() {
         mTexture->bind();
+    }
+
+    void HeightMap::bindNoiseData(NoiseConfig config) {
+        srand(config.seed);
+
+        glUniform1f(mShader->uniformLocation("Noise.scale"), config.scale);
+        glUniform1ui(mShader->uniformLocation("Noise.octaves"), config.octaves);
+        glUniform1f(mShader->uniformLocation("Noise.persistence"), config.persistence);
+        glUniform1f(mShader->uniformLocation("Noise.lacunarity"), config.lacunarity);
+
+        for (int i = 0; i < config.octaves; ++i) {
+            glUniform2f(mShader->uniformLocation("Noise.offsets[" + to_string(i) + "]"), randf(), randf());
+        }
     }
 
     void HeightMap::initShader() {
@@ -48,6 +70,7 @@ namespace Terrain {
         csSources.push_back(shaderManager->createShaderCode("Shader/HeightMapShader.comp", "430",
                                                             0, "", ""));
         mShader = shaderManager->buildComputeShader(&csSources, &errorLog);
+
         shaderManager->release();
     }
 }
