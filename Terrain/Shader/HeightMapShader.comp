@@ -13,23 +13,15 @@
 
 const uint MAX_OCTAVES = 8;
 
-struct noiseData {
-    vec2 offset;
+struct NoiseData {
     float scale;
     uint octaves;
     float persistence;
     float lacunarity;
-    vec2 ocatve_offsets[MAX_OCTAVES];
+    vec2 offsets[MAX_OCTAVES];
 };
 
-const noiseData NOISE_DATA = {
-    vec2(-200),
-    50,
-    7,
-    0.5,
-    3.0,
-    {vec2(0), vec2(2), vec2(8), vec2(27), vec2(-3), vec2(-26), vec2(-38), vec2(-87)}
-};
+uniform NoiseData Noise;
 
 vec3 mod289(vec3 x) {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -91,18 +83,18 @@ float snoise(vec2 v) {
     return 130.0 * dot(m, g);
 }
 
-float onoise(vec2 pos, noiseData data) {
+float onoise(vec2 pos) {
     float noise_height = 0.0;
     float amplitude = 1.0;
     float frequency = 1.0;
 
     // sum up the height at the position for all octaves
-    for (int i = 0; i < data.octaves; i++) {
-        vec2 sample_pos = pos / data.scale * frequency + data.ocatve_offsets[i];
+    for (int i = 0; i < Noise.octaves; i++) {
+        vec2 sample_pos = pos / Noise.scale * frequency + Noise.offsets[i];
         noise_height += snoise(sample_pos) * amplitude;
 
-        amplitude *= data.persistence;
-        frequency *= data.lacunarity;
+        amplitude *= Noise.persistence;
+        frequency *= Noise.lacunarity;
     }
 
     return noise_height;
@@ -110,26 +102,21 @@ float onoise(vec2 pos, noiseData data) {
 
 layout(local_size_x = 1, local_size_y = 1) in;
 
-layout(rgba32f, binding = 0) uniform image2D HeighMap;
+layout(r16, binding = 0) uniform image2D HeighMap;
 
 void main() {
-    // base pixel colour for image
-    vec4 pixel = vec4(1.0, 0.0, 1.0, 1.0);
     // get index in global work group i.e x,y position
-    ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-
-    // float val = float(gl_GlobalInvocationID.x) / float(gl_NumWorkGroups.x);
-
-    //pixel = vec4(snoise(vec2(gl_GlobalInvocationID.xy) / 300.0));
-
-    noiseData data = NOISE_DATA;
+    ivec2 textureCoords = ivec2(gl_GlobalInvocationID.xy);
+    vec2 uv = vec2(gl_GlobalInvocationID.xy) / vec2(gl_NumWorkGroups.xy);
 
     float adjustment = 1.0;
-    for (int i = 1; i < data.octaves; i++) {
-        adjustment += pow(data.persistence, i + 1);
+    for (int i = 1; i < Noise.octaves; i++) {
+        adjustment += pow(Noise.persistence, i + 1);
     }
 
-    pixel = vec4(onoise(vec2(gl_GlobalInvocationID.xy) / 300.0, data) / adjustment, 0, 0, 1);
+    float height = onoise(uv) / adjustment;
+
+    // float height = Noise.offset.x;
 
     // debug adjustment
 //    if (pixel.x > 1) {
@@ -147,5 +134,5 @@ void main() {
 //    }
 
     // output to a specific pixel in the image
-    imageStore(HeighMap, pixel_coords, pixel);
+    imageStore(HeighMap, textureCoords, vec4(height));
 }
