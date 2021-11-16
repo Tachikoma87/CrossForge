@@ -30,6 +30,7 @@ namespace CForge {
 	class CFORGE_IXPORT GLTexture2D: public CForgeObject {
 	public:
 		GLTexture2D(void);
+        GLTexture2D(uint32_t handle);
 		~GLTexture2D(void);
 
 		void init(const T2DImage<uint8_t>* pImage, bool GenerateMipmaps = false);
@@ -37,7 +38,6 @@ namespace CForge {
 
 		void bind(void);
 		uint32_t handle(void)const;
-
 	private:
 		uint32_t m_TexObj;
 	};//GLTexture2D
