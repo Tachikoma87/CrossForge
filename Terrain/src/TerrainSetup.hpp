@@ -1,22 +1,15 @@
 #ifndef TERRAIN_SETUP_HPP
 #define TERRAIN_SETUP_HPP
 
-#include "CForge/Graphics/Shader/SShaderManager.h"
-#include "CForge/Graphics/GLWindow.h"
-#include "CForge/Graphics/GraphicsUtility.h"
-#include "CForge/Graphics/RenderDevice.h"
-#include "CForge/Graphics/Lights/DirectionalLight.h"
-#include "CForge/Graphics/SceneGraph/SceneGraph.h"
-#include "CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "CForge/Graphics/SceneGraph/SGNTransformation.h"
 #include <glad/glad.h>
-#include <CForge/Graphics/STextureManager.h>
+#include <CForge/Graphics/Lights/DirectionalLight.h>
+#include <CForge/Graphics/GraphicsUtility.h>
+#include <CForge/Graphics/SceneGraph/SceneGraph.h>
+#include <CForge/Graphics/Shader/SShaderManager.h>
 
-#include "TileNode.h"
+#include "Terrain/src/Map/TerrainMap.h"
 
 using namespace CForge;
-using namespace Eigen;
-using namespace std;
 
 namespace Terrain {
 
@@ -54,8 +47,8 @@ namespace Terrain {
         shaderManager->configShader(lightConfig);
         shaderManager->release();
 
-        camera->init(Vector3f(.0f, 500.0f, 100.0f), Vector3f::UnitY());
-        camera->pitch(GraphicsUtility::degToRad(-75.0f));
+        camera->init(Vector3f(.0f, 800.0f, 100.0f), Vector3f::UnitY());
+        camera->pitch(GraphicsUtility::degToRad(-15.0f));
         camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 10000.0f);
         renderDevice->activeCamera(camera);
 
@@ -92,76 +85,25 @@ namespace Terrain {
         }
     }
 
-    void spawnClipmapTiles(SGNTransformation* mapTransform, Tile& tile, vector<TileNode*>& tileNodes) {
-        const uint32_t LOD_LEVELS = 6; // Todo: move into tile
-        const tuple<Tile::TileVariant, int> TILE_ALIGNMENTS[4][4] = {
-            {
-                {Tile::Corner, 0},
-                {Tile::Edge, 3},
-                {Tile::Edge, 3},
-                {Tile::Corner, 3},
-            },
-            {
-                {Tile::Edge, 0},
-                {Tile::Normal, 0},
-                {Tile::Normal, 0},
-                {Tile::Edge, 2},
-            },
-            {
-                {Tile::Edge, 0},
-                {Tile::Normal, 0},
-                {Tile::Normal, 0},
-                {Tile::Edge, 2},
-            },
-            {
-                {Tile::Corner, 1},
-                {Tile::Edge, 1},
-                {Tile::Edge, 1},
-                {Tile::Corner, 2},
-            },
-        };
+    void initDebugQuad(ScreenQuad* quad) {
+        vector<ShaderCode*> vsSources;
+        vector<ShaderCode*> fsSources;
+        string errorLog;
 
-        float sideLength = static_cast<float>(tile.sideLength());
-        float lineOffset = sideLength * 1.5f;
-        Vector2f linePositions[4] = {
-            Vector2f(-lineOffset, 1.0f),
-            Vector2f(1.0f, lineOffset + 2.0f),
-            Vector2f(lineOffset + 2.0f, 1.0f),
-            Vector2f(1.0f, -lineOffset),
-        };
+        SShaderManager* shaderManager = SShaderManager::instance();
+        vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "330 core",
+                                                            0, "", ""));
+        fsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.frag", "330 core",
+                                                            0, "", ""));
+        GLShader *quadShader  = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
+        shaderManager->release();
 
-        TileNode::TileData data = {Vector2f(2, 2), 0, 2, Tile::Cross};
-        tileNodes.push_back(new TileNode(mapTransform, &tile, data));
-
-        for (int level = 0; level < LOD_LEVELS; level++) {
-            int lod = 2 << level;
-            float scale = static_cast<float>(lod);
-
-            for (int y = 0; y < 4; y++) {
-                for (int x = 0; x < 4; x++) {
-                    if (level == 0 || x == 0 || x == 3 || y == 0 || y == 3) {
-                        auto[variant, orientation] = TILE_ALIGNMENTS[y][x];
-
-                        auto pos = Vector2f((static_cast<float>(x) - 1.5f) * sideLength * scale,
-                                            (static_cast<float>(y) - 1.5f) * sideLength * scale) +
-                                   Vector2f(x < 2 ? 0 : 2, y < 2 ? 0 : 2) * lod;
-
-                        data = {pos, orientation, lod, variant};
-                        tileNodes.push_back(new TileNode(mapTransform, &tile, data));
-                    }
-                }
-
-                data = {linePositions[y] * scale, y, lod, Tile::Line};
-                tileNodes.push_back(new TileNode(mapTransform, &tile, data));
-            }
-
-            data = {Vector2f(scale, scale), 0, lod, Tile::Trim};
-            tileNodes.push_back(new TileNode(mapTransform, &tile, data));
-        }
+        quad->init(0, 0, 1, 1, quadShader);
     }
 
 	void TerrainSetup() {
         bool wireframe = false;
+        bool debugTexture = false;
 
         GLWindow window;
         RenderDevice renderDevice;
@@ -169,26 +111,24 @@ namespace Terrain {
         DirectionalLight sun;
         initCForge(&window, &renderDevice, &camera, &sun);
 
-        vector<TileNode*> tileNodes;
-
-        auto texture = STextureManager::create("Assets/height_map1.jpg");
-
-        Tile tile = Tile(64, texture);
-
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);
-        spawnClipmapTiles(&rootTransform, tile, tileNodes);
+
+        TerrainMap map;
+        map.spawnClipmapTiles(&rootTransform);
+
         SceneGraph sceneGraph;
         sceneGraph.init(&rootTransform);
+
+        ScreenQuad quad;
+        initDebugQuad(&quad);
 
 		while (!window.shutdown()) {
 			window.update();
 
 			sceneGraph.update(1.0f);
 
-            for (auto node : tileNodes) {
-                node->update(camera.position().x(), camera.position().z());
-            }
+            map.update(camera.position().x(), camera.position().z());
 
 			renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 
@@ -204,6 +144,14 @@ namespace Terrain {
 
 			renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
+            renderDevice.activePass(RenderDevice::RENDERPASS_FORWARD);
+
+            if (debugTexture) {
+                glActiveTexture(GL_TEXTURE0);
+                map.getTexture()->bind();
+                quad.render(&renderDevice);
+            }
+
 			window.swapBuffers();
 
             updateCamera(window.mouse(), window.keyboard(), renderDevice.activeCamera());
@@ -215,11 +163,14 @@ namespace Terrain {
                 window.keyboard()->keyState(Keyboard::KEY_F1, Keyboard::KEY_RELEASED);
                 wireframe = !wireframe;
             }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_F2)) {
+                window.keyboard()->keyState(Keyboard::KEY_F2, Keyboard::KEY_RELEASED);
+                debugTexture = !debugTexture;
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_F3)) {
+                window.keyboard()->keyState(Keyboard::KEY_F3, Keyboard::KEY_RELEASED);
+            }
 		}
-
-        for (auto node : tileNodes) {
-            delete node;
-        }
 	}
 }
 

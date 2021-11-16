@@ -1,6 +1,6 @@
 #version 330 core
 
-const float MAP_HEIGHT = 100;
+const float MAP_HEIGHT = 1000;
 const ivec3 OFFSET = ivec3(-1, 0, 1);
 const int LOD_LEVELS = 4;
 const float SCALE = pow(2, LOD_LEVELS);
