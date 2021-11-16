@@ -1,16 +1,15 @@
-#ifndef TERRAIN_TILE_H
-#define TERRAIN_TILE_H
+#ifndef TERRAIN_CLIPMAP_H
+#define TERRAIN_CLIPMAP_H
 
-#include <glad/glad.h>
-#include <CForge/Graphics/GLVertexArray.h>
 #include <CForge/Graphics/GLBuffer.h>
+#include <CForge/Graphics/GLVertexArray.h>
+#include <glad/glad.h>
 
 using namespace CForge;
 using namespace std;
 
 namespace Terrain {
-    // Todo: rename to ClipMap
-    class Tile {
+    class ClipMap {
     public:
         enum TileVariant {
             Normal = 0,
@@ -21,11 +20,12 @@ namespace Terrain {
             Cross = 5,
         };
 
-        Tile(uint32_t sideLength, GLTexture2D* heightMap);
+        ClipMap(uint32_t sideLength);
 
-        void render(RenderDevice* renderDevice, TileVariant variant);
-        uint32_t sideLength() const;
+        void bindTile(TileVariant variant);
+        GLsizei getIndexCount(TileVariant variant);
 
+        uint32_t sideLength() const; // Todo: move this
     private:
         static void calculateVertices(vector<GLfloat>& vertices, uint32_t width, uint32_t height, float offsetX=0.0f, float offsetY=0.0f, bool swapPos=false);
         static void calculateIndices(vector<GLuint>& indices, uint32_t width, uint32_t height, TileVariant variant, uint32_t offset=0);
@@ -37,15 +37,11 @@ namespace Terrain {
         void initLine();
         void initTrim();
         void initCross();
-        void initShader();
 
         uint32_t mSideLength;
 
         GLsizei mIndexBufferSizes[6];
         GLVertexArray mVertexArrays[6];
-
-        GLTexture2D* mHeightMap;
-        GLShader* mShader;
     };
 }
 
