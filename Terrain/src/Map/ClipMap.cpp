@@ -1,31 +1,29 @@
 #include <CForge/Graphics/RenderDevice.h>
 #include <CForge/Graphics/Shader/SShaderManager.h>
 
-#include "Tile.h"
+#include "ClipMap.h"
 
 namespace Terrain {
-    Tile::Tile(uint32_t sideLength, GLTexture2D* heightMap) : mSideLength(sideLength), mHeightMap(heightMap) {
+    ClipMap::ClipMap(uint32_t sideLength) : mSideLength(sideLength) {
         initTiles();
         initLine();
         initTrim();
         initCross();
-        initShader();
     }
 
-    void Tile::render(RenderDevice* renderDevice, TileVariant variant) {
+    void ClipMap::bindTile(ClipMap::TileVariant variant) {
         mVertexArrays[variant].bind();
-        renderDevice->activeShader(mShader);
-        glActiveTexture(GL_TEXTURE0);
-        mHeightMap->bind();
-        glUniform1i(mShader->uniformLocation("HeightMap"), 0);
-        glDrawElements(GL_TRIANGLES, mIndexBufferSizes[variant], GL_UNSIGNED_INT, nullptr);
     }
 
-    uint32_t Tile::sideLength() const {
+    GLsizei ClipMap::getIndexCount(ClipMap::TileVariant variant) {
+        return mIndexBufferSizes[variant];
+    }
+
+    uint32_t ClipMap::sideLength() const {
         return mSideLength;
     }
 
-    void Tile::calculateVertices(vector<GLfloat>& vertices, uint32_t width, uint32_t height, float offsetX, float offsetY, bool swapPos) {
+    void ClipMap::calculateVertices(vector<GLfloat>& vertices, uint32_t width, uint32_t height, float offsetX, float offsetY, bool swapPos) {
         // width and height in triangle side count, vertex count one more
         for (uint32_t y = 0; y <= height; y++) {
             for (uint32_t x = 0; x <= width; x++) {
@@ -44,7 +42,7 @@ namespace Terrain {
         }
     }
 
-    void Tile::calculateIndices(vector<GLuint>& indices, uint32_t width, uint32_t height, TileVariant variant, uint32_t offset) {
+    void ClipMap::calculateIndices(vector<GLuint>& indices, uint32_t width, uint32_t height, TileVariant variant, uint32_t offset) {
         uint32_t vertexCount = width + 1;
 
         // a---b---c
@@ -86,13 +84,13 @@ namespace Terrain {
         }
     }
 
-    void Tile::addTriangle(vector<GLuint>& indices, uint32_t a, uint32_t b, uint32_t c) {
+    void ClipMap::addTriangle(vector<GLuint>& indices, uint32_t a, uint32_t b, uint32_t c) {
         indices.push_back(a);
         indices.push_back(c);
         indices.push_back(b);
     }
 
-    void Tile::initBuffers(vector<GLfloat>& vertices, vector<GLuint>& indices, TileVariant variant) {
+    void ClipMap::initBuffers(vector<GLfloat>& vertices, vector<GLuint>& indices, TileVariant variant) {
         GLBuffer vertexBuffer;
         vertexBuffer.init(GLBuffer::BTYPE_VERTEX,
                           GLBuffer::BUSAGE_STATIC_DRAW,
@@ -110,7 +108,7 @@ namespace Terrain {
         initVertexArray(vertexBuffer, indexBuffer, variant);
     }
 
-    void Tile::initVertexArray(GLBuffer& vertexBuffer, GLBuffer& indexBuffer, TileVariant variant) {
+    void ClipMap::initVertexArray(GLBuffer& vertexBuffer, GLBuffer& indexBuffer, TileVariant variant) {
         mVertexArrays[variant].init();
         mVertexArrays[variant].bind();
         vertexBuffer.bind();
@@ -123,7 +121,7 @@ namespace Terrain {
         mVertexArrays[variant].unbind();
     }
 
-    void Tile::initTiles() {
+    void ClipMap::initTiles() {
         vector<GLfloat> vertices;
         calculateVertices(vertices, mSideLength, mSideLength);
 
@@ -135,7 +133,7 @@ namespace Terrain {
         }
     }
 
-    void Tile::initLine() {
+    void ClipMap::initLine() {
         vector<GLfloat> vertices;
         vector<GLuint> indices;
         calculateVertices(vertices, mSideLength, 2);
@@ -144,7 +142,7 @@ namespace Terrain {
         initBuffers(vertices, indices, Line);
     }
 
-    void Tile::initTrim() {
+    void ClipMap::initTrim() {
         uint32_t sideLength = mSideLength * 2 + 1;
         uint32_t cornerIndex = (sideLength + 1) * 2;
         float positionOffset = static_cast<float>(mSideLength) + 1.0f;
@@ -193,7 +191,7 @@ namespace Terrain {
         initBuffers(vertices, indices, Trim);
     }
 
-    void Tile::initCross() {
+    void ClipMap::initCross() {
         float positionOffset = mSideLength / 2 + 1;
         uint32_t vertexOffset = 3 * (mSideLength + 1);
 
@@ -213,27 +211,5 @@ namespace Terrain {
         calculateIndices(indices, 2, 2, static_cast<TileVariant>(Normal), 4 * vertexOffset);
 
         initBuffers(vertices, indices, Cross);
-    }
-
-    void Tile::initShader() {
-        SShaderManager* shaderManager = SShaderManager::instance();
-
-        vector<ShaderCode*> vsSources;
-        vector<ShaderCode*> fsSources;
-        string errorLog;
-
-        ShaderCode* vertexShader =
-            shaderManager->createShaderCode("Shader/MapShader.vert", "330 core",
-                                            0, "", "");
-        ShaderCode* fragmentShader =
-            shaderManager->createShaderCode("Shader/MapShader.frag", "330 core",
-                                            0, "", "");
-
-        vsSources.push_back(vertexShader);
-        fsSources.push_back(fragmentShader);
-
-        mShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
-
-        shaderManager->release();
     }
 }

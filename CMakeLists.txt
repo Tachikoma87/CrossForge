@@ -132,8 +132,11 @@ if(WIN32)
 	project (Terrain)
 	add_executable(Terrain
 		Main.cpp
-		Terrain/Tile.cpp
-		Terrain/TileNode.cpp
+        Terrain/src/Map/ClipMap.cpp
+        Terrain/src/Map/TileNode.cpp
+        Terrain/src/Map/HeightMap.cpp
+        Terrain/src/Map/TerrainMap.cpp
+        Terrain/src/Map/TileActor.cpp
 		"thirdparty/glad/src/glad.c"
 		)
 endif (WIN32)
@@ -142,9 +145,11 @@ if(UNIX)
 	project (Terrain)
 	add_executable(Terrain
 		Main.cpp
-		Terrain/Tile.cpp
-		Terrain/TileNode.cpp
-		)
+        Terrain/src/Map/ClipMap.cpp
+        Terrain/src/Map/TileNode.cpp
+        Terrain/src/Map/HeightMap.cpp
+        Terrain/src/Map/TerrainMap.cpp
+        Terrain/src/Map/TileActor.cpp)
 endif (UNIX)
 
 if(WIN32)
