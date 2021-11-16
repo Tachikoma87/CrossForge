@@ -1,26 +1,29 @@
 #include <CForge/Graphics/RenderDevice.h>
-#include <CForge/Graphics/Shader/SShaderManager.h>
-
 #include "ClipMap.h"
 
 namespace Terrain {
-    ClipMap::ClipMap(uint32_t sideLength) : mSideLength(sideLength) {
-        initTiles();
-        initLine();
-        initTrim();
-        initCross();
+
+    ClipMap::ClipMap() : mVertexBuffers(), mIndexBuffers() {}
+
+    ClipMap::~ClipMap() {
+        clear();
+    }
+
+    void ClipMap::generate(ClipMapConfig config) {
+        clear();
+        initTiles(config.sideLength);
+        initCross(config.sideLength);
+        initLine(config.sideLength);
+        initTrim(config.sideLength * 2 + 1);
+        initVertexArrays();
+    }
+
+    GLsizei ClipMap::getIndexCount(ClipMap::TileVariant variant) {
+        return mIndexBuffers[variant]->size();
     }
 
     void ClipMap::bindTile(ClipMap::TileVariant variant) {
         mVertexArrays[variant].bind();
-    }
-
-    GLsizei ClipMap::getIndexCount(ClipMap::TileVariant variant) {
-        return mIndexBufferSizes[variant];
-    }
-
-    uint32_t ClipMap::sideLength() const {
-        return mSideLength;
     }
 
     void ClipMap::calculateVertices(vector<GLfloat>& vertices, uint32_t width, uint32_t height, float offsetX, float offsetY, bool swapPos) {
@@ -90,70 +93,115 @@ namespace Terrain {
         indices.push_back(b);
     }
 
-    void ClipMap::initBuffers(vector<GLfloat>& vertices, vector<GLuint>& indices, TileVariant variant) {
-        GLBuffer vertexBuffer;
-        vertexBuffer.init(GLBuffer::BTYPE_VERTEX,
+    void ClipMap::clear() {
+        for (auto vertexArray : mVertexArrays) {
+            vertexArray.clear();
+        }
+
+        // free the vertex buffer shared by Normal, Edge and Corner only once
+        for (uint32_t variant = Corner; variant < TILE_COUNT; variant++) {
+            delete mVertexBuffers[variant];
+        }
+
+        for (auto indexBuffer : mIndexBuffers) {
+            delete indexBuffer;
+        }
+    }
+
+    GLBuffer *ClipMap::initVertexBuffer(vector<GLfloat> &vertices) {
+        GLBuffer* vertexBuffer = new GLBuffer();
+        vertexBuffer->init(GLBuffer::BTYPE_VERTEX,
                           GLBuffer::BUSAGE_STATIC_DRAW,
                           vertices.data(),
                           vertices.size() * sizeof(GLfloat));
 
-        mIndexBufferSizes[variant] = indices.size() * sizeof(GLuint);
+        return vertexBuffer;
+    }
 
-        GLBuffer indexBuffer;
-        indexBuffer.init(GLBuffer::BTYPE_INDEX,
+    GLBuffer *ClipMap::initIndexBuffer(vector<GLuint>& indices) {
+        GLBuffer* indexBuffer = new GLBuffer();
+        indexBuffer->init(GLBuffer::BTYPE_INDEX,
                          GLBuffer::BUSAGE_STATIC_DRAW,
                          indices.data(),
-                         mIndexBufferSizes[variant]);
+                         indices.size() * sizeof(GLuint));
 
-        initVertexArray(vertexBuffer, indexBuffer, variant);
+        return indexBuffer;
     }
 
-    void ClipMap::initVertexArray(GLBuffer& vertexBuffer, GLBuffer& indexBuffer, TileVariant variant) {
-        mVertexArrays[variant].init();
-        mVertexArrays[variant].bind();
-        vertexBuffer.bind();
-        indexBuffer.bind();
+    void ClipMap::initVertexArrays() {
+        for (uint32_t variant = 0; variant < TILE_COUNT; variant++) {
+            mVertexArrays[variant].init();
+            mVertexArrays[variant].bind();
+            mVertexBuffers[variant]->bind();
+            mIndexBuffers[variant]->bind();
 
-        glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION));
-        glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION),
-                              2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), nullptr);
+            glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION));
+            glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION),
+                                  2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), nullptr);
 
-        mVertexArrays[variant].unbind();
-    }
-
-    void ClipMap::initTiles() {
-        vector<GLfloat> vertices;
-        calculateVertices(vertices, mSideLength, mSideLength);
-
-        for (int variant = Normal; variant <= Corner; variant++) {
-            vector<GLuint> indices;
-            calculateIndices(indices, mSideLength, mSideLength, static_cast<TileVariant>(variant));
-
-            initBuffers(vertices, indices, static_cast<TileVariant>(variant));
+            mVertexArrays[variant].unbind();
         }
     }
 
-    void ClipMap::initLine() {
+    void ClipMap::initTiles(uint32_t sideLength) {
         vector<GLfloat> vertices;
-        vector<GLuint> indices;
-        calculateVertices(vertices, mSideLength, 2);
-        calculateIndices(indices, mSideLength, 2, static_cast<TileVariant>(Edge));
+        calculateVertices(vertices, sideLength, sideLength);
 
-        initBuffers(vertices, indices, Line);
+        GLBuffer* vertexBuffer = initVertexBuffer(vertices);
+
+        for (uint32_t variant = Normal; variant <= Corner; variant++) {
+            vector<GLuint> indices;
+            calculateIndices(indices, sideLength, sideLength, static_cast<TileVariant>(variant));
+
+            mVertexBuffers[variant] = vertexBuffer;
+            mIndexBuffers[variant] = initIndexBuffer(indices);
+        }
     }
 
-    void ClipMap::initTrim() {
-        uint32_t sideLength = mSideLength * 2 + 1;
-        uint32_t cornerIndex = (sideLength + 1) * 2;
-        float positionOffset = static_cast<float>(mSideLength) + 1.0f;
+    void ClipMap::initCross(uint32_t sideLength) {
+        float positionOffset = sideLength / 2 + 1;
+        uint32_t vertexOffset = 3 * (sideLength + 1);
 
         vector<GLfloat> vertices;
         vector<GLuint> indices;
 
-        calculateVertices(vertices, 1, sideLength, -positionOffset);
-        vertices.push_back(-positionOffset - 0.5f);
-        vertices.push_back(-positionOffset - 0.5f);
-        calculateVertices(vertices, 1, sideLength, -positionOffset, 0, true);
+        calculateVertices(vertices, 2, sideLength, 0, positionOffset);
+        calculateVertices(vertices, 2, sideLength, 0, -positionOffset);
+        calculateVertices(vertices, sideLength, 2, positionOffset);
+        calculateVertices(vertices, sideLength, 2, -positionOffset);
+        calculateVertices(vertices, 2, 2);
+
+        calculateIndices(indices, 2,  sideLength, static_cast<TileVariant>(Normal));
+        calculateIndices(indices, 2, sideLength, static_cast<TileVariant>(Normal), vertexOffset);
+        calculateIndices(indices, sideLength, 2, static_cast<TileVariant>(Normal), 2 * vertexOffset);
+        calculateIndices(indices, sideLength, 2, static_cast<TileVariant>(Normal), 3 * vertexOffset);
+        calculateIndices(indices, 2, 2, static_cast<TileVariant>(Normal), 4 * vertexOffset);
+
+        mVertexBuffers[Cross] = initVertexBuffer(vertices);
+        mIndexBuffers[Cross] = initIndexBuffer(indices);
+    }
+
+    void ClipMap::initLine(uint32_t sideLength) {
+        vector<GLfloat> vertices;
+        vector<GLuint> indices;
+        calculateVertices(vertices, sideLength, 2);
+        calculateIndices(indices, sideLength, 2, static_cast<TileVariant>(Edge));
+
+        mVertexBuffers[Line] = initVertexBuffer(vertices);
+        mIndexBuffers[Line] = initIndexBuffer(indices);
+    }
+
+    void ClipMap::initTrim(uint32_t sideLength) {
+        uint32_t cornerIndex = (sideLength + 1) * 2;
+        float positionOffset = static_cast<float>(sideLength) / 2.0f;
+
+        vector<GLfloat> vertices;
+        vector<GLuint> indices;
+
+        calculateVertices(vertices, 1, sideLength, -positionOffset - 0.5f);
+        vertices.push_back(-positionOffset - 1.0f);
+        vertices.push_back(-positionOffset - 1.0f);
+        calculateVertices(vertices, 1, sideLength, -positionOffset - 0.5f, 0, true);
 
         addTriangle(indices, cornerIndex, 1, 0);
         addTriangle(indices, cornerIndex, cornerIndex + 1, cornerIndex + 2);
@@ -188,28 +236,7 @@ namespace Terrain {
             }
         }
 
-        initBuffers(vertices, indices, Trim);
-    }
-
-    void ClipMap::initCross() {
-        float positionOffset = mSideLength / 2 + 1;
-        uint32_t vertexOffset = 3 * (mSideLength + 1);
-
-        vector<GLfloat> vertices;
-        vector<GLuint> indices;
-
-        calculateVertices(vertices, 2, mSideLength, 0, positionOffset);
-        calculateVertices(vertices, 2, mSideLength, 0, -positionOffset);
-        calculateVertices(vertices, mSideLength, 2, positionOffset);
-        calculateVertices(vertices, mSideLength, 2, -positionOffset);
-        calculateVertices(vertices, 2, 2);
-
-        calculateIndices(indices, 2,  mSideLength, static_cast<TileVariant>(Normal));
-        calculateIndices(indices, 2, mSideLength, static_cast<TileVariant>(Normal), vertexOffset);
-        calculateIndices(indices, mSideLength, 2, static_cast<TileVariant>(Normal), 2 * vertexOffset);
-        calculateIndices(indices, mSideLength, 2, static_cast<TileVariant>(Normal), 3 * vertexOffset);
-        calculateIndices(indices, 2, 2, static_cast<TileVariant>(Normal), 4 * vertexOffset);
-
-        initBuffers(vertices, indices, Cross);
+        mVertexBuffers[Trim] = initVertexBuffer(vertices);
+        mIndexBuffers[Trim] = initIndexBuffer(indices);
     }
 }

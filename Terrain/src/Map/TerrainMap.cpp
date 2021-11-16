@@ -2,24 +2,77 @@
 #include "TerrainMap.h"
 
 namespace Terrain {
-    TerrainMap::TerrainMap() {
+    TerrainMap::TerrainMap(SGNTransformation *rootTransform) : mRootTransform(rootTransform) {
         initShader();
-        mHeightMap = new HeightMap();
-        mHeightMap->generate();
-        mClipMap = new ClipMap(64);
     }
 
     TerrainMap::~TerrainMap() {
-        delete mHeightMap;
-        delete mClipMap;
+        clear();
+    }
 
+    void TerrainMap::update(float cameraX, float cameraY) {
         for (auto node : mTileNodes) {
-            delete node;
+            node->update(cameraX, cameraY);
         }
     }
 
-    void TerrainMap::spawnClipmapTiles(SGNTransformation *rootTransform) {
-        const uint32_t LOD_LEVELS = 6; // Todo: move into tile
+    void TerrainMap::generateClipMap(ClipMap::ClipMapConfig clipMapConfig) {
+        mClipMapConfig = clipMapConfig;
+        mClipMap.generate(mClipMapConfig);
+        generateClipmapTiles();
+    }
+
+    void TerrainMap::generateHeightMap(HeightMap::HeightMapConfig heightMapConfig) {
+        mHeightMapConfig = heightMapConfig;
+        mHeightMap.generate(mHeightMapConfig);
+    }
+
+    void TerrainMap::render(RenderDevice *renderDevice, Terrain::ClipMap::TileVariant variant) {
+        mClipMap.bindTile(variant);
+        renderDevice->activeShader(mShader);
+        glActiveTexture(GL_TEXTURE0);
+        mHeightMap.bindTexture();
+        glUniform1i(mShader->uniformLocation("HeightMap"), 0);
+        glDrawElements(GL_TRIANGLES, mClipMap.getIndexCount(variant), GL_UNSIGNED_INT, nullptr);
+    }
+
+    void TerrainMap::bindTexture() {
+        mHeightMap.bindTexture();
+    }
+
+    void TerrainMap::clear() {
+        for (auto node : mTileNodes) {
+            delete node;
+        }
+
+        mTileNodes.clear();
+    }
+
+    void TerrainMap::initShader() {
+        SShaderManager* shaderManager = SShaderManager::instance();
+
+        vector<ShaderCode*> vsSources;
+        vector<ShaderCode*> fsSources;
+        string errorLog;
+
+        ShaderCode* vertexShader =
+            shaderManager->createShaderCode("Shader/MapShader.vert", "330 core",
+                                            0, "", "");
+        ShaderCode* fragmentShader =
+            shaderManager->createShaderCode("Shader/MapShader.frag", "330 core",
+                                            0, "", "");
+
+        vsSources.push_back(vertexShader);
+        fsSources.push_back(fragmentShader);
+
+        mShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
+
+        shaderManager->release();
+    }
+
+    void TerrainMap::generateClipmapTiles() {
+        clear();
+
         const tuple<ClipMap::TileVariant, int> TILE_ALIGNMENTS[4][4] = {
             {
                 {ClipMap::Corner, 0},
@@ -47,7 +100,7 @@ namespace Terrain {
             },
         };
 
-        float sideLength = static_cast<float>(mClipMap->sideLength());
+        float sideLength = static_cast<float>(mClipMapConfig.sideLength);
         float lineOffset = sideLength * 1.5f;
         Vector2f linePositions[4] = {
             Vector2f(-lineOffset, 1.0f),
@@ -57,9 +110,9 @@ namespace Terrain {
         };
 
         TileNode::TileData data = {Vector2f(2, 2), 0, 2, ClipMap::Cross};
-        mTileNodes.push_back(new TileNode(rootTransform, this, data));
+        mTileNodes.push_back(new TileNode(mRootTransform, this, data));
 
-        for (int level = 0; level < LOD_LEVELS; level++) {
+        for (int level = 0; level < mClipMapConfig.levelCount; level++) {
             int lod = 2 << level;
             float scale = static_cast<float>(lod);
 
@@ -73,57 +126,16 @@ namespace Terrain {
                                    Vector2f(x < 2 ? 0 : 2, y < 2 ? 0 : 2) * lod;
 
                         data = {pos, orientation, lod, variant};
-                        mTileNodes.push_back(new TileNode(rootTransform, this, data));
+                        mTileNodes.push_back(new TileNode(mRootTransform, this, data));
                     }
                 }
 
                 data = {linePositions[y] * scale, y, lod, ClipMap::Line};
-                mTileNodes.push_back(new TileNode(rootTransform, this, data));
+                mTileNodes.push_back(new TileNode(mRootTransform, this, data));
             }
 
             data = {Vector2f(scale, scale), 0, lod, ClipMap::Trim};
-            mTileNodes.push_back(new TileNode(rootTransform, this, data));
+            mTileNodes.push_back(new TileNode(mRootTransform, this, data));
         }
-    }
-
-    void TerrainMap::update(float cameraX, float cameraY) {
-        for (auto node : mTileNodes) {
-            node->update(cameraX, cameraY);
-        }
-    }
-
-    void TerrainMap::render(RenderDevice *renderDevice, Terrain::ClipMap::TileVariant variant) {
-        mClipMap->bindTile(variant);
-        renderDevice->activeShader(mShader);
-        glActiveTexture(GL_TEXTURE0);
-        mHeightMap->getTexture()->bind();
-        glUniform1i(mShader->uniformLocation("HeightMap"), 0);
-        glDrawElements(GL_TRIANGLES, mClipMap->getIndexCount(variant), GL_UNSIGNED_INT, nullptr);
-    }
-
-    GLTexture2D *TerrainMap::getTexture() const {
-        return mHeightMap->getTexture();
-    }
-
-    void TerrainMap::initShader() {
-        SShaderManager* shaderManager = SShaderManager::instance();
-
-        vector<ShaderCode*> vsSources;
-        vector<ShaderCode*> fsSources;
-        string errorLog;
-
-        ShaderCode* vertexShader =
-            shaderManager->createShaderCode("Shader/MapShader.vert", "330 core",
-                                            0, "", "");
-        ShaderCode* fragmentShader =
-            shaderManager->createShaderCode("Shader/MapShader.frag", "330 core",
-                                            0, "", "");
-
-        vsSources.push_back(vertexShader);
-        fsSources.push_back(fragmentShader);
-
-        mShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
-
-        shaderManager->release();
     }
 }
