@@ -17,14 +17,12 @@ namespace Terrain {
         HeightMap();
         ~HeightMap();
 
-        void generate();
+        void generate(HeightMapConfig config);
 
-        GLTexture2D *getTexture() const;
-        void setConfig(HeightMapConfig config);
+        void bindTexture();
     private:
         void initShader();
 
-        HeightMapConfig mConfig;
         GLTexture2D* mTexture;
         GLShader* mShader;
     };

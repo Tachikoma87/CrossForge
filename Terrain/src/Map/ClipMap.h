@@ -11,37 +11,50 @@ using namespace std;
 namespace Terrain {
     class ClipMap {
     public:
+        struct ClipMapConfig {
+            /// The side length of normal tile. The vertex count is one more. This value must be a multiple of two.
+            uint32_t sideLength;
+            /// The number of different level of details the clipmap consists of.
+            uint32_t levelCount;
+        };
+
+        static const uint32_t TILE_COUNT = 6;
         enum TileVariant {
             Normal = 0,
             Edge = 1,
             Corner = 2,
-            Line = 3,
-            Trim = 4,
-            Cross = 5,
+            Cross = 3,
+            Line = 4,
+            Trim = 5,
         };
 
-        ClipMap(uint32_t sideLength);
+        ClipMap();
+        ~ClipMap();
 
-        void bindTile(TileVariant variant);
+        void generate(ClipMapConfig config);
+
         GLsizei getIndexCount(TileVariant variant);
-
-        uint32_t sideLength() const; // Todo: move this
+        void bindTile(TileVariant variant);
     private:
         static void calculateVertices(vector<GLfloat>& vertices, uint32_t width, uint32_t height, float offsetX=0.0f, float offsetY=0.0f, bool swapPos=false);
         static void calculateIndices(vector<GLuint>& indices, uint32_t width, uint32_t height, TileVariant variant, uint32_t offset=0);
         static void addTriangle(vector<GLuint>& indices, uint32_t a, uint32_t b, uint32_t c);
 
-        void initBuffers(vector<GLfloat>& vertices, vector<GLuint>& indices, TileVariant variant);
-        void initVertexArray(GLBuffer& vertexBuffer, GLBuffer& indexBuffer, TileVariant variant);
-        void initTiles();
-        void initLine();
-        void initTrim();
-        void initCross();
+        void clear();
 
-        uint32_t mSideLength;
+        // the same vertex buffer is shared by Normal, Edge and Corner
+        GLBuffer* initVertexBuffer(vector<GLfloat>& vertices);
+        GLBuffer* initIndexBuffer(vector<GLuint>& indices);
+        void initVertexArrays();
 
-        GLsizei mIndexBufferSizes[6];
-        GLVertexArray mVertexArrays[6];
+        void initTiles(uint32_t sideLength);
+        void initCross(uint32_t sideLength);
+        void initLine(uint32_t sideLength);
+        void initTrim(uint32_t sideLength);
+
+        GLBuffer* mVertexBuffers[TILE_COUNT];
+        GLBuffer* mIndexBuffers[TILE_COUNT];
+        GLVertexArray mVertexArrays[TILE_COUNT];
     };
 }
 

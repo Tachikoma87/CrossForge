@@ -11,23 +11,31 @@ using namespace CForge;
 namespace Terrain {
     class TerrainMap {
     public:
-        TerrainMap();
+        TerrainMap(SGNTransformation *rootTransform);
         ~TerrainMap();
 
-        void spawnClipmapTiles(SGNTransformation* rootTransform);
+        void update(float cameraX , float cameraY); // Todo: these should live somewhere else
 
-        void update(float cameraX , float cameraY);
+        void generateClipMap(ClipMap::ClipMapConfig clipMapConfig);
+        void generateHeightMap(HeightMap::HeightMapConfig heightMapConfig);
+
         void render(RenderDevice* renderDevice, ClipMap::TileVariant variant);
-
-        GLTexture2D *getTexture() const;
-
+        void bindTexture();
     private:
+        void clear();
         void initShader();
+        void generateClipmapTiles(); // Todo: these should live somewhere else
 
-        HeightMap* mHeightMap;
-        ClipMap* mClipMap;
+        ClipMap::ClipMapConfig mClipMapConfig;
+        HeightMap::HeightMapConfig mHeightMapConfig;
+
+        ClipMap mClipMap;
+        HeightMap mHeightMap;
+
         GLShader* mShader;
-        vector<TileNode*> mTileNodes;
+        SGNTransformation* mRootTransform;
+
+        vector<TileNode*> mTileNodes; // Todo: these should live somewhere else
     };
 }
 

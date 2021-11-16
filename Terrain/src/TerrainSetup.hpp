@@ -114,8 +114,12 @@ namespace Terrain {
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);
 
-        TerrainMap map;
-        map.spawnClipmapTiles(&rootTransform);
+        ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 64, .levelCount = 4};
+        HeightMap::HeightMapConfig heightMapConfig = {.width = 1024, .height = 1024};
+
+        TerrainMap map = TerrainMap(&rootTransform);
+        map.generateClipMap(clipMapConfig);
+        map.generateHeightMap(heightMapConfig);
 
         SceneGraph sceneGraph;
         sceneGraph.init(&rootTransform);
@@ -148,7 +152,7 @@ namespace Terrain {
 
             if (debugTexture) {
                 glActiveTexture(GL_TEXTURE0);
-                map.getTexture()->bind();
+                map.bindTexture();
                 quad.render(&renderDevice);
             }
 
@@ -169,6 +173,15 @@ namespace Terrain {
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F3)) {
                 window.keyboard()->keyState(Keyboard::KEY_F3, Keyboard::KEY_RELEASED);
+                clipMapConfig = {.sideLength = 256, .levelCount = 5};
+
+                map.generateClipMap(clipMapConfig);
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_F4)) {
+                window.keyboard()->keyState(Keyboard::KEY_F4, Keyboard::KEY_RELEASED);
+                heightMapConfig = {.width = 1024 * 8, .height = 1024 * 8};
+
+                map.generateHeightMap(heightMapConfig);
             }
 		}
 	}
