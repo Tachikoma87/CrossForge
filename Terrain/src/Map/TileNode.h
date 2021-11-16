@@ -1,5 +1,4 @@
-#ifndef TERRAIN_TILENODE_H
-#define TERRAIN_TILENODE_H
+#pragma once
 
 #include <CForge/Graphics/SceneGraph/SGNGeometry.h>
 #include "TileActor.h"
@@ -14,19 +13,16 @@ namespace Terrain {
     public:
         struct TileData {
             Vector2f pos;
-            int orientation;
-            int lod;
+            uint32_t orientation;
+            uint32_t lod;
             ClipMap::TileVariant variant;
         };
 
         TileNode(ISceneGraphNode* parent, TerrainMap* map, TileData data);
 
         void update(float cameraX , float cameraY);
-
     private:
         TileData mData;
         TileActor mTileActor;
     };
 }
-
-#endif

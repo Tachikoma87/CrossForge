@@ -16,7 +16,7 @@ namespace Terrain {
     }
 
     void TileNode::update(float cameraX , float cameraY) { // Todo rename y to z?
-        auto scale = 2.0f * static_cast<float>(mData.lod);
+        float scale = 2.0f * static_cast<float>(mData.lod);
         float x = floorf(cameraX / scale) * scale;
         float y = floorf(cameraY / scale) * scale;
 

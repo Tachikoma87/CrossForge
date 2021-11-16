@@ -1,5 +1,4 @@
-#ifndef TERRAIN_TERRAINMAP_H
-#define TERRAIN_TERRAINMAP_H
+#pragma once
 
 #include <CForge/Graphics/RenderDevice.h>
 #include <CForge/Graphics/SceneGraph/SGNTransformation.h>
@@ -14,7 +13,7 @@ namespace Terrain {
         TerrainMap(SGNTransformation *rootTransform);
         ~TerrainMap();
 
-        void update(float cameraX , float cameraY); // Todo: these should live somewhere else
+        void update(float cameraX , float cameraY);
 
         void generateClipMap(ClipMap::ClipMapConfig clipMapConfig);
         void generateHeightMap(HeightMap::HeightMapConfig heightMapConfig);
@@ -24,7 +23,7 @@ namespace Terrain {
     private:
         void clear();
         void initShader();
-        void generateClipmapTiles(); // Todo: these should live somewhere else
+        void generateClipMapTiles();
 
         ClipMap::ClipMapConfig mClipMapConfig;
         HeightMap::HeightMapConfig mHeightMapConfig;
@@ -33,10 +32,8 @@ namespace Terrain {
         HeightMap mHeightMap;
 
         GLShader* mShader;
-        SGNTransformation* mRootTransform;
 
-        vector<TileNode*> mTileNodes; // Todo: these should live somewhere else
+        SGNTransformation* mRootTransform;
+        vector<TileNode*> mTileNodes;
     };
 }
-
-#endif

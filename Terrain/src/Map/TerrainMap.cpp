@@ -19,7 +19,7 @@ namespace Terrain {
     void TerrainMap::generateClipMap(ClipMap::ClipMapConfig clipMapConfig) {
         mClipMapConfig = clipMapConfig;
         mClipMap.generate(mClipMapConfig);
-        generateClipmapTiles();
+        generateClipMapTiles();
     }
 
     void TerrainMap::generateHeightMap(HeightMap::HeightMapConfig heightMapConfig) {
@@ -70,10 +70,10 @@ namespace Terrain {
         shaderManager->release();
     }
 
-    void TerrainMap::generateClipmapTiles() {
+    void TerrainMap::generateClipMapTiles() {
         clear();
 
-        const tuple<ClipMap::TileVariant, int> TILE_ALIGNMENTS[4][4] = {
+        const tuple<ClipMap::TileVariant, uint32_t> TILE_ALIGNMENTS[4][4] = {
             {
                 {ClipMap::Corner, 0},
                 {ClipMap::Edge, 3},
@@ -112,16 +112,16 @@ namespace Terrain {
         TileNode::TileData data = {Vector2f(2, 2), 0, 2, ClipMap::Cross};
         mTileNodes.push_back(new TileNode(mRootTransform, this, data));
 
-        for (int level = 0; level < mClipMapConfig.levelCount; level++) {
-            int lod = 2 << level;
+        for (uint32_t level = 0; level < mClipMapConfig.levelCount; level++) {
+            uint32_t lod = 2 << level;
             float scale = static_cast<float>(lod);
 
-            for (int y = 0; y < 4; y++) {
-                for (int x = 0; x < 4; x++) {
+            for (uint32_t y = 0; y < 4; y++) {
+                for (uint32_t x = 0; x < 4; x++) {
                     if (level == 0 || x == 0 || x == 3 || y == 0 || y == 3) {
                         auto[variant, orientation] = TILE_ALIGNMENTS[y][x];
 
-                        auto pos = Vector2f((static_cast<float>(x) - 1.5f) * sideLength * scale,
+                        Vector2f pos = Vector2f((static_cast<float>(x) - 1.5f) * sideLength * scale,
                                             (static_cast<float>(y) - 1.5f) * sideLength * scale) +
                                    Vector2f(x < 2 ? 0 : 2, y < 2 ? 0 : 2) * lod;
 

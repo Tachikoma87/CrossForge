@@ -1,5 +1,4 @@
-#ifndef TERRAIN_SETUP_HPP
-#define TERRAIN_SETUP_HPP
+#pragma once
 
 #include <glad/glad.h>
 #include <CForge/Graphics/Lights/DirectionalLight.h>
@@ -57,6 +56,22 @@ namespace Terrain {
         renderDevice->addLight(sun);
     }
 
+    void initDebugQuad(ScreenQuad* quad) {
+        vector<ShaderCode*> vsSources;
+        vector<ShaderCode*> fsSources;
+        string errorLog;
+
+        SShaderManager* shaderManager = SShaderManager::instance();
+        vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "330 core",
+                                                            0, "", ""));
+        fsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.frag", "330 core",
+                                                            0, "", ""));
+        GLShader *quadShader  = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
+        shaderManager->release();
+
+        quad->init(0, 0, 1, 1, quadShader);
+    }
+
     void updateCamera(Mouse* mouse, Keyboard* keyboard, VirtualCamera* camera) {
         if (nullptr == keyboard) return;
 
@@ -85,22 +100,6 @@ namespace Terrain {
         }
     }
 
-    void initDebugQuad(ScreenQuad* quad) {
-        vector<ShaderCode*> vsSources;
-        vector<ShaderCode*> fsSources;
-        string errorLog;
-
-        SShaderManager* shaderManager = SShaderManager::instance();
-        vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "330 core",
-                                                            0, "", ""));
-        fsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.frag", "330 core",
-                                                            0, "", ""));
-        GLShader *quadShader  = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
-        shaderManager->release();
-
-        quad->init(0, 0, 1, 1, quadShader);
-    }
-
 	void TerrainSetup() {
         bool wireframe = false;
         bool debugTexture = false;
@@ -114,8 +113,13 @@ namespace Terrain {
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);
 
-        ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 64, .levelCount = 4};
-        HeightMap::HeightMapConfig heightMapConfig = {.width = 1024, .height = 1024};
+        ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 64, .levelCount = 8};
+        HeightMap::NoiseConfig noiseConfig = {.seed = 0,
+                                              .scale = 1.0f,
+                                              .octaves = 8,
+                                              .persistence = 0.5f,
+                                              .lacunarity = 2.0f};
+        HeightMap::HeightMapConfig heightMapConfig = {.width = 1024 * 8, .height = 1024 * 8, .noiseConfig = noiseConfig};
 
         TerrainMap map = TerrainMap(&rootTransform);
         map.generateClipMap(clipMapConfig);
@@ -138,7 +142,7 @@ namespace Terrain {
 
             if (wireframe) {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                glLineWidth(2);
+                glLineWidth(1);
 			    sceneGraph.render(&renderDevice);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
@@ -179,12 +183,15 @@ namespace Terrain {
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F4)) {
                 window.keyboard()->keyState(Keyboard::KEY_F4, Keyboard::KEY_RELEASED);
-                heightMapConfig = {.width = 1024 * 8, .height = 1024 * 8};
+                noiseConfig = {.seed = static_cast<uint32_t>(rand()),
+                    .scale = 1.0f,
+                    .octaves = 8,
+                    .persistence = 0.5f,
+                    .lacunarity = 2.0f};
+                heightMapConfig = {.width = 1024 * 8, .height = 1024 * 8, .noiseConfig = noiseConfig};
 
                 map.generateHeightMap(heightMapConfig);
             }
 		}
 	}
 }
-
-#endif
