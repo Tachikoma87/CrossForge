@@ -5,6 +5,7 @@
 #include <CForge/Graphics/GraphicsUtility.h>
 #include <CForge/Graphics/SceneGraph/SceneGraph.h>
 #include <CForge/Graphics/Shader/SShaderManager.h>
+#include <CForge/Graphics/STextureManager.h>
 
 #include "Terrain/src/Map/TerrainMap.h"
 
@@ -46,9 +47,9 @@ namespace Terrain {
         shaderManager->configShader(lightConfig);
         shaderManager->release();
 
-        camera->init(Vector3f(.0f, 800.0f, 100.0f), Vector3f::UnitY());
+        camera->init(Vector3f(.0f, 1400.0f, 100.0f), Vector3f::UnitY());
         camera->pitch(GraphicsUtility::degToRad(-15.0f));
-        camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 10000.0f);
+        camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 1.0f, 100000.0f);
         renderDevice->activeCamera(camera);
 
         Vector3f sunPos = Vector3f(10.0f, 100.0f, 0.0f);
@@ -75,11 +76,11 @@ namespace Terrain {
     void updateCamera(Mouse* mouse, Keyboard* keyboard, VirtualCamera* camera) {
         if (nullptr == keyboard) return;
 
-        const float movementSpeed = 2;
+        const float movementSpeed = 4;
 
         float MovementScale = 1.0f;
         if (keyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) || keyboard->keyPressed(Keyboard::KEY_RIGHT_SHIFT)) {
-            MovementScale = 4.0f;
+            MovementScale = 6.0f;
         }
 
         if (keyboard->keyPressed(Keyboard::KEY_W) || keyboard->keyPressed(Keyboard::KEY_UP)) camera->forward(movementSpeed * MovementScale);
@@ -116,7 +117,7 @@ namespace Terrain {
         ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 64, .levelCount = 8};
         HeightMap::NoiseConfig noiseConfig = {.seed = 0,
                                               .scale = 1.0f,
-                                              .octaves = 8,
+                                              .octaves = 10,
                                               .persistence = 0.5f,
                                               .lacunarity = 2.0f};
         HeightMap::HeightMapConfig heightMapConfig = {.width = 1024 * 8, .height = 1024 * 8, .noiseConfig = noiseConfig};
@@ -189,8 +190,25 @@ namespace Terrain {
                     .persistence = 0.5f,
                     .lacunarity = 2.0f};
                 heightMapConfig = {.width = 1024 * 8, .height = 1024 * 8, .noiseConfig = noiseConfig};
+                map.setMapHeight(1000);
 
                 map.generateHeightMap(heightMapConfig);
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_F5)) {
+                window.keyboard()->keyState(Keyboard::KEY_F5, Keyboard::KEY_RELEASED);
+                map.heightMapFromTexture(STextureManager::create("Assets/height_map1.jpg"));
+                map.setMapHeight(100);
+            }
+            static float scale = 1.0f;
+            if (window.keyboard()->keyPressed(Keyboard::KEY_F8)) {
+                window.keyboard()->keyState(Keyboard::KEY_F8, Keyboard::KEY_RELEASED);
+                scale *= 1.1;
+                map.setMapScale(scale);
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_F9)) {
+                window.keyboard()->keyState(Keyboard::KEY_F9, Keyboard::KEY_RELEASED);
+                scale *= 0.9;
+                map.setMapScale(scale);
             }
 		}
 	}

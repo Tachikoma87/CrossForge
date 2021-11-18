@@ -18,6 +18,11 @@ namespace Terrain {
         void generateClipMap(ClipMap::ClipMapConfig clipMapConfig);
         void generateHeightMap(HeightMap::HeightMapConfig heightMapConfig);
 
+        void heightMapFromTexture(GLTexture2D* texture);
+
+        void setMapHeight(float mapHeight);
+        void setMapScale(float mapScale);
+
         void render(RenderDevice* renderDevice, ClipMap::TileVariant variant);
         void bindTexture();
     private:
@@ -26,7 +31,11 @@ namespace Terrain {
         void generateClipMapTiles();
 
         ClipMap::ClipMapConfig mClipMapConfig;
-        HeightMap::HeightMapConfig mHeightMapConfig;
+        HeightMap::HeightMapConfig mHeightMapConfig; // Todo: only store here if needed
+
+        // Todo: group those once more parameters are introduced
+        float mMapScale;
+        float mMapHeight;
 
         ClipMap mClipMap;
         HeightMap mHeightMap;

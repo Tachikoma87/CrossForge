@@ -2,7 +2,8 @@
 #include "TerrainMap.h"
 
 namespace Terrain {
-    TerrainMap::TerrainMap(SGNTransformation *rootTransform) : mRootTransform(rootTransform) {
+    TerrainMap::TerrainMap(SGNTransformation *rootTransform)
+        : mRootTransform(rootTransform), mMapScale(1.0f), mMapHeight(1000.0f){
         initShader();
     }
 
@@ -11,6 +12,9 @@ namespace Terrain {
     }
 
     void TerrainMap::update(float cameraX, float cameraY) {
+        cameraX /= mMapScale;
+        cameraY /= mMapScale;
+
         for (auto node : mTileNodes) {
             node->update(cameraX, cameraY);
         }
@@ -27,12 +31,28 @@ namespace Terrain {
         mHeightMap.generate(mHeightMapConfig);
     }
 
+    void TerrainMap::heightMapFromTexture(GLTexture2D *texture) {
+        mHeightMap.setTexture(texture);
+    }
+
+    void TerrainMap::setMapHeight(float mapHeight) {
+        mMapHeight = mapHeight;
+    }
+
+    void TerrainMap::setMapScale(float mapScale) {
+        mMapScale = mapScale;
+    }
+
     void TerrainMap::render(RenderDevice *renderDevice, Terrain::ClipMap::TileVariant variant) {
         mClipMap.bindTile(variant);
         renderDevice->activeShader(mShader);
         glActiveTexture(GL_TEXTURE0);
         mHeightMap.bindTexture();
+
         glUniform1i(mShader->uniformLocation("HeightMap"), 0);
+        glUniform1f(mShader->uniformLocation("MapScale"), mMapScale);
+        glUniform1f(mShader->uniformLocation("MapHeight"), mMapHeight);
+
         glDrawElements(GL_TRIANGLES, mClipMap.getIndexCount(variant), GL_UNSIGNED_INT, nullptr);
     }
 

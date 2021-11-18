@@ -1,23 +1,23 @@
 #version 330 core
 
-const float MAP_HEIGHT = 1000;
 const ivec3 OFFSET = ivec3(-1, 0, 1);
 
 const int LAYER_COUNT = 6;
 const vec3 COLORS[LAYER_COUNT] = vec3[](vec3(0, 0, 204) / 255, vec3(252, 208, 70) / 255, vec3(51, 205, 0) / 255,
-                                        vec3(32, 129, 0) / 255, vec3(68, 68, 68) / 255, vec3(	255, 250, 250) / 255);
-const float LAYER_HEIGHTS[LAYER_COUNT - 1] = float[](0.08, 0.22, 0.37, 0.52, 0.8);
-const float BLEND_VALUES[LAYER_COUNT - 1] = float[](0.1, 0.1, 0.1, 0.1, 0.2);
+                                        vec3(32, 129, 0) / 255, vec3(68, 68, 68) / 255, vec3(255, 250, 250) / 255);
+const float LAYER_HEIGHTS[LAYER_COUNT - 1] = float[](0, 0.15, 0.32, 0.46, 0.8);
+const float BLEND_VALUES[LAYER_COUNT - 1] = float[](0, 0.1, 0.1, 0.1, 0.2);
+
+uniform sampler2D HeightMap;
+uniform float MapHeight;
 
 in vec3 FragPosition;
 in vec2 SamplePosition;
 in float Height;
 
-layout(location = 0) out vec4 gPosition;
-layout(location = 1) out vec4 gNormal;
-layout(location = 2) out vec4 gAlbedoSpec;
-
-uniform sampler2D HeightMap;
+out vec4 gPosition;
+out vec4 gNormal;
+out vec4 gAlbedoSpec;
 
 vec3 calculateLayerColor(float height) {
     vec3 color = COLORS[0];
@@ -33,7 +33,7 @@ vec3 calculateLayerColor(float height) {
 }
 
 float getHeight(vec4 sampledHeight) {
-    return sampledHeight.x * MAP_HEIGHT;
+    return sampledHeight.x * MapHeight;
 }
 
 vec3 calculateNormal(vec2 samplePosition) {
@@ -54,9 +54,8 @@ vec3 calculateNormal(vec2 samplePosition) {
 
 void main(){
     vec3 normal = calculateNormal(SamplePosition);
-    vec3 color = mix(vec3(1, 0, 0), vec3(0, 0, 1),  Height / MAP_HEIGHT);
-    color = vec3(0, 0, Height / MAP_HEIGHT + 0.1);
-    color = calculateLayerColor(Height / MAP_HEIGHT);
+
+    vec3 color = calculateLayerColor(Height);
 
     gPosition = vec4(FragPosition, 0);
     gNormal = vec4(normal, 0);
