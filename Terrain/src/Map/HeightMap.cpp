@@ -14,13 +14,7 @@ namespace Terrain {
         initShader();
     }
 
-    HeightMap::~HeightMap() {
-        delete mTexture;
-    }
-
     void HeightMap::generate(HeightMapConfig config) {
-        delete mTexture;
-
         GLint internalFormat = GL_R16F;
         GLint format = GL_RED; // seems to have no effect
 
@@ -28,8 +22,12 @@ namespace Terrain {
         glGenTextures(1, &textureHandle);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureHandle);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        float borderColor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, config.width, config.height, 0, format, GL_FLOAT, NULL);
@@ -37,12 +35,15 @@ namespace Terrain {
 
         mTexture = STextureManager::fromHandle(textureHandle);
 
-
         mShader->bind();
         glActiveTexture(GL_TEXTURE0);
         glBindImageTexture(0, mTexture->handle(), 0, GL_FALSE, 0, GL_WRITE_ONLY, format);
         bindNoiseData(config.noiseConfig);
         glDispatchCompute(config.width, config.height, 1);
+    }
+
+    void HeightMap::setTexture(GLTexture2D* texture) {
+        mTexture = texture;
     }
 
     void HeightMap::bindTexture() {
