@@ -8,7 +8,7 @@ using namespace CForge;
 namespace Terrain {
     class HeightMap {
     public:
-        // Todo: refactor to class
+        // Todo: refactor to class once more noise parameters are supported
         struct NoiseConfig {
             uint32_t seed;
             float scale;
@@ -24,9 +24,10 @@ namespace Terrain {
         };
 
         HeightMap();
-        ~HeightMap();
 
+        // Todo: destroy old textures once all are properly stored in the texture manager
         void generate(HeightMapConfig config);
+        void setTexture(GLTexture2D* texture);
 
         void bindTexture();
     private:
