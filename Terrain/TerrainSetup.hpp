@@ -13,6 +13,9 @@
 #include <CForge/Graphics/STextureManager.h>
 
 #include "TileActor.h"
+#include "GUI/GUI.h"
+
+#include <stdio.h>
 
 using namespace CForge;
 using namespace Eigen;
@@ -208,6 +211,9 @@ namespace Terrain {
         spawnClipmapTiles(&rootTransform, tile, geometry, actors);
         SceneGraph sceneGraph;
         sceneGraph.init(&rootTransform);
+        
+        GUI gui = GUI(&renderDevice);
+        gui.testInit();
 
 		while (!window.shutdown()) {
 			window.update();
@@ -227,6 +233,14 @@ namespace Terrain {
             }
 
 			renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
+            
+			renderDevice.activePass(RenderDevice::RENDERPASS_FORWARD);
+            
+//             glActiveTexture(GL_TEXTURE0);
+//             texture->bind();
+//             glUniform1i(shader->uniformLocation("TexAlbedo"), 0);
+//             a.render(&renderDevice);
+            gui.testRender();
 
 			window.swapBuffers();
 
