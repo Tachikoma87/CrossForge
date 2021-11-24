@@ -12,6 +12,8 @@
 #include "Examples/MinimumGraphicalSetup.hpp"
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 
+#include <glad/glad.h>
+
 using namespace CForge;
 using namespace Eigen;
 
@@ -39,6 +41,8 @@ int main(int argc, char* argv[]) {
 		char c;
 		scanf("%c", &c);
 		return -1;
+
+		gladLoadGL();
 	}
 
 	try {
