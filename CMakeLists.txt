@@ -16,7 +16,7 @@ FIND_PACKAGE(OpenGL REQUIRED)
 FIND_PACKAGE(assimp CONFIG REQUIRED)
 FIND_PACKAGE(glfw3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenCV CONFIG REQUIRED)
-
+FIND_PACKAGE(libigl CONFIG REQUIRED)
 
 
 include_directories(
@@ -106,6 +106,8 @@ if(WIN32)
 target_link_libraries(crossforge 
 	PRIVATE glfw 
 	PRIVATE assimp::assimp
+	PRIVATE igl::core 
+	PRIVATE igl::common
 	${OpenCV_LIBS}
 	)
 endif(WIN32)
@@ -116,6 +118,8 @@ if(UNIX)
 	PRIVATE stdc++fs
 	PRIVATE glfw 
 	PRIVATE assimp::assimp
+	PRIVATE igl::core 
+	PRIVATE igl::common
 	${OpenCV_LIBS}
 )
 endif(UNIX)
