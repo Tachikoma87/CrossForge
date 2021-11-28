@@ -52,13 +52,19 @@ namespace CForge {
 		Keyboard* keyboard(void);
 		Mouse* mouse(void);
 
+		std::string title(void)const;
+		void title(const std::string Title);
+
 	private:
 		class GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
-		void* m_pHandle;
 
+		void* m_pHandle;
 		Keyboard m_Keyboard;
 		Mouse m_Mouse;
 		class SInputManager* m_pInputMan;
+
+		std::string m_Title; ///< The windows title
+
 	};//GLWindow
 
 }//name space

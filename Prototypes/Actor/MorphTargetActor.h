@@ -19,17 +19,30 @@
 #define __CFROGE_MORPHTARGETACTOR_H__
 
 #include "../../CForge/Graphics/Actors/IRenderableActor.h"
+#include "MorphTargetAnimationController.h"
+#include "../../CForge//Graphics/GLBuffer.h"
+#include "UBOMorphTargetData.h"
 
 namespace CForge {
 	class MorphTargetActor : public IRenderableActor {
 	public:
+		MorphTargetActor(void);
+		~MorphTargetActor(void);
+
 		void init(T3DMesh<float>* pMesh);
+		void clear(void);
+		void release(void);
 
 		void render(class RenderDevice* pRDev);
+		void update(float fpsScale = 1.0f);
 
 	protected:
+		void buildMorphTargetBuffer(T3DMesh<float>* pMesh);
 
+		GLBuffer m_MorphTargetBuffer;
+		UBOMorphTargetData m_MorphTargetUBO;
 	};//MorphTargetActor
+
 }//name-space
 
 #endif 
