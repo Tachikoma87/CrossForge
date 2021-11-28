@@ -1,16 +1,16 @@
-#include "MorphTargetBuilder.h"
+#include "MorphTargetModelBuilder.h"
 
 namespace CForge {
 
-	MorphTargetBuilder::MorphTargetBuilder(void) {
+	MorphTargetModelBuilder::MorphTargetModelBuilder(void) {
 
 	}//Constructor
 
-	MorphTargetBuilder::~MorphTargetBuilder(void) {
+	MorphTargetModelBuilder::~MorphTargetModelBuilder(void) {
 		clear();
 	}//Destructor
 
-	void MorphTargetBuilder::init(T3DMesh<float>* pBaseMesh) {
+	void MorphTargetModelBuilder::init(T3DMesh<float>* pBaseMesh) {
 		if (nullptr == pBaseMesh) throw NullpointerExcept("pBaseMesh");
 		if (pBaseMesh->vertexCount() == 0) throw CForgeExcept("Specified mesh contains no vertex data and is therefore unsuitable for morph target building!");
 		clear();
@@ -19,7 +19,7 @@ namespace CForge {
 
 	}//initialize
 
-	void MorphTargetBuilder::clear(void) {
+	void MorphTargetModelBuilder::clear(void) {
 		m_BaseMesh.clear();
 		for (auto& i : m_MorphTargets) delete i;
 		for (auto& i : m_Targets) delete i;
@@ -27,7 +27,7 @@ namespace CForge {
 		m_Targets.clear();
 	}//clear
 
-	void MorphTargetBuilder::addTarget(T3DMesh<float>* pTarget, std::string Name) {
+	void MorphTargetModelBuilder::addTarget(T3DMesh<float>* pTarget, std::string Name) {
 		if (nullptr == pTarget) throw NullpointerExcept("pTarget");
 		if (pTarget->vertexCount() != m_BaseMesh.vertexCount()) throw CForgeExcept("Number of mesh vertices differs from base mesh vertex count. Mesh is unsuited to be a morph target!");
 
@@ -38,7 +38,7 @@ namespace CForge {
 		m_Targets.push_back(pNewTarget);
 	}//addTarget
 
-	void MorphTargetBuilder::build(void) {
+	void MorphTargetModelBuilder::build(void) {
 		for (auto& i : m_MorphTargets) delete i;
 		m_MorphTargets.clear();
 
@@ -47,12 +47,14 @@ namespace CForge {
 
 			for (uint32_t k = 0; k < m_BaseMesh.vertexCount(); ++k) {
 				Eigen::Vector3f Offset = i->Positions[k] - m_BaseMesh.vertex(k);
-				pMT->VertexIDs.push_back(k);
-				pMT->VertexOffsets.push_back(Offset);
+				if (Offset.norm() > 0.01f) {
+					pMT->VertexIDs.push_back(k);
+					pMT->VertexOffsets.push_back(Offset);
 
-				if (m_BaseMesh.normalCount() > k && i->Normals.size() >= k) {
-					Offset = i->Normals[k] - m_BaseMesh.normal(k);
-					pMT->NormalOffsets.push_back(Offset);
+					if (m_BaseMesh.normalCount() > k && i->Normals.size() >= k) {
+						Offset = i->Normals[k] - m_BaseMesh.normal(k);
+						pMT->NormalOffsets.push_back(Offset);
+					}
 				}
 			}//for[all vertices (and normals)]
 
@@ -63,7 +65,7 @@ namespace CForge {
 		}//for[all targets]
 	}//build
 
-	void MorphTargetBuilder::retrieveMorphTargets(T3DMesh<float>* pMesh) {
+	void MorphTargetModelBuilder::retrieveMorphTargets(T3DMesh<float>* pMesh) {
 		for (auto i : m_MorphTargets) {
 			pMesh->addMorphTarget(i, true);
 		}//for[all morph targets]

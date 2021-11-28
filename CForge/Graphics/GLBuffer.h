@@ -34,6 +34,7 @@ namespace CForge {
 			BTYPE_INDEX,
 			BTYPE_SHADER_STORAGE,
 			BTYPE_UNIFORM,
+			BTYPE_TEXTURE,
 		};
 
 		enum BufferUsage : int32_t {
@@ -50,6 +51,7 @@ namespace CForge {
 
 		void bind(void);
 		void bindBufferBase(uint32_t BindingPoint);
+		void bindTextureBuffer(uint32_t ActiveTexture, uint32_t Format);
 		void unbind(void);
 
 		BufferType type(void)const;
@@ -65,6 +67,7 @@ namespace CForge {
 		uint32_t m_GLTarget;
 		uint32_t m_GLUsage;
 		uint32_t m_BufferSize; ///< Size in bytes
+		uint32_t m_TextureHandle; ///< In case of texture buffer
 
 	private:
 
