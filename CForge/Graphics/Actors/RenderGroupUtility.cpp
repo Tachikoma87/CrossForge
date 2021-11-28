@@ -92,6 +92,9 @@ namespace CForge {
 						if (pMesh->boneCount() > 0) {
 							ConfigOptions |= ShaderCode::CONF_SKELETALANIMATION;
 						}
+						if (pMesh->morphTargetCount() > 0) {
+							ConfigOptions |= ShaderCode::CONF_MORPHTARGETANIMATION;
+						}
 
 						ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
 
@@ -99,6 +102,12 @@ namespace CForge {
 							ShaderCode::SkeletalAnimationConfig SKConfig;
 							SKConfig.BoneCount = pMesh->boneCount();
 							pC->config(&SKConfig);
+						}
+
+						if (pMesh->morphTargetCount() > 0) {
+							ShaderCode::MorphTargetAnimationConfig MTConfig;
+
+							pC->config(&MTConfig);
 						}
 
 						VSSources.push_back(pC);

@@ -19,11 +19,12 @@
 #define __CFORGE_MORPHTARGETANIMATIONCONTROLLER_H__
 
 #include "../../CForge/AssetIO/T3DMesh.hpp"
-#include "../../CForge/Graphics/GLBuffer.h"
+
 
 namespace CForge {
 	class MorphTargetAnimationController {
 	public:
+
 		MorphTargetAnimationController(void);
 		~MorphTargetAnimationController(void);
 
@@ -31,8 +32,7 @@ namespace CForge {
 		void clear(void);
 
 	protected:
-		GLBuffer m_MorphTargetBuffer;
-		uint32_t m_MTOffset; ///< Offset from one morph target data to next
+
 	};//MorphTargetAnimationController
 }//name space
 

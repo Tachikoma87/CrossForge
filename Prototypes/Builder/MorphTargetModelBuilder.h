@@ -1,9 +1,9 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SceneUtilities.hpp                                            *
+* File(s): MorphTargetBuilder.h and MorphTargetBuilder.cpp                  *
 *                                                                           *
-* Content: Class to interact with an MF52 NTC Thermistor by using a basic   *
-*          voltage divider circuit.                                         *
+* Content:    *
+*          .                                         *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,20 +15,37 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SCENEUTILITIES_HPP__
-#define __CFORGE_SCENEUTILITIES_HPP__
+#ifndef __CFORGE_MORPHTARGETMODELBUILDER_H__
+#define __CFORGE_MORPHTARGETMODELBUILDER_H__
+
+#include "../../CForge/AssetIO/T3DMesh.hpp"
 
 namespace CForge {
+	class MorphTargetModelBuilder {
+	public: 
+		MorphTargetModelBuilder(void);
+		~MorphTargetModelBuilder(void);
 
-	void setMeshShader(T3DMesh<float>* pM, float Roughness, float Metallic) {
-		for (uint32_t i = 0; i < pM->materialCount(); ++i) {
-			T3DMesh<float>::Material* pMat = pM->getMaterial(i);
-			pMat->VertexShaderSources.push_back("Shader/BasicGeometryPass.vert");
-			pMat->FragmentShaderSources.push_back("Shader/BasicGeometryPass.frag");
-			pMat->Metallic = Metallic;
-			pMat->Roughness = Roughness;
-		}//for[materials]
-	}//setMeshShader
+		void init(T3DMesh<float>* pBaseMesh);
+		void clear(void);
+
+		void addTarget(T3DMesh<float>* pTarget, std::string Name);
+		void build(void);
+
+		void retrieveMorphTargets(T3DMesh<float>* pMesh);
+
+	protected:
+		struct Target {
+			std::string Name; ///< Name of the morph target
+			std::vector<Eigen::Vector3f> Positions; ///< Vertex positions
+			std::vector<Eigen::Vector3f> Normals; ///< per vertex Normals
+		};
+
+		T3DMesh<float> m_BaseMesh;
+		std::vector<Target*> m_Targets;
+		std::vector<T3DMesh<float>::MorphTarget*> m_MorphTargets; // the final morph targets
+
+	};//MorphTargetModelBuilder
 
 }//name space
 
