@@ -21,16 +21,29 @@
 #include "../../CForge/Graphics/GLBuffer.h"
 
 namespace CForge {
-	class UBOMorphTargetData {
+	class UBOMorphTargetData: public CForgeObject {
 	public:
 		UBOMorphTargetData(void);
 		~UBOMorphTargetData(void);
 
 		void init(void);
 		void clear(void);
+		void release(void);
+
+		void bind(uint32_t BindingPoint);
+		uint32_t size(void)const;
+
+		void setMorphTargetParam(uint32_t Index, uint32_t MorphTargetID, float Strength);
+		void activeMorphTargets(int32_t Count);
+		void dataOffset(int32_t DataOffset);
 
 	protected:
 		GLBuffer m_Buffer;
+
+		uint32_t m_DataOffset;
+		uint32_t m_ActivationIDsOffset;
+		uint32_t m_ActivationStrengthsOffset;
+
 	};//UBOMorphTargetData
 }//name space
 

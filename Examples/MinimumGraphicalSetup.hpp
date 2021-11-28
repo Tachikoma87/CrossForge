@@ -34,20 +34,22 @@
 
 #include "../CForge/Graphics/Actors/StaticActor.h"
 
+#include "SceneUtilities.hpp"
+
 using namespace Eigen;
 using namespace std;
 
 namespace CForge {
 
-	void setMeshShader(T3DMesh<float>* pM, float Roughness, float Metallic) {
-		for (uint32_t i = 0; i < pM->materialCount(); ++i) {
-			T3DMesh<float>::Material* pMat = pM->getMaterial(i);
-			pMat->VertexShaderSources.push_back("Shader/BasicGeometryPass.vert");
-			pMat->FragmentShaderSources.push_back("Shader/BasicGeometryPass.frag");
-			pMat->Metallic = Metallic;
-			pMat->Roughness = Roughness;
-		}//for[materials]
-	}//setMeshShader
+	//void setMeshShader(T3DMesh<float>* pM, float Roughness, float Metallic) {
+	//	for (uint32_t i = 0; i < pM->materialCount(); ++i) {
+	//		T3DMesh<float>::Material* pMat = pM->getMaterial(i);
+	//		pMat->VertexShaderSources.push_back("Shader/BasicGeometryPass.vert");
+	//		pMat->FragmentShaderSources.push_back("Shader/BasicGeometryPass.frag");
+	//		pMat->Metallic = Metallic;
+	//		pMat->Roughness = Roughness;
+	//	}//for[materials]
+	//}//setMeshShader
 
 	void MinimumGraphicalSetup(void) {
 		SAssetIO* pAssIO = SAssetIO::instance();
@@ -113,7 +115,7 @@ namespace CForge {
 
 		T3DMesh<float> M;
 		SAssetIO::load("Assets/TexturedCube.fbx", &M);
-		setMeshShader(&M, 0.1f, 0.04f);
+		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		M.computePerVertexNormals();
 		Cube.init(&M);
 

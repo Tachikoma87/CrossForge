@@ -144,7 +144,7 @@ add_executable(CForgeSandbox
 	Prototypes/Actor/MorphTargetAnimationController.cpp 
 	Prototypes/Actor/UBOMorphTargetData.cpp 
 
-	Prototypes/Builder/MorphTargetBuilder.cpp
+	"Prototypes/Builder/MorphTargetModelBuilder.cpp"
 	)
 
 
