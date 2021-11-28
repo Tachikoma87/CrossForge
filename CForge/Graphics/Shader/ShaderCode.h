@@ -70,10 +70,15 @@ namespace CForge {
 			}
 		};
 
+		struct MorphTargetAnimationConfig {
+			uint32_t Stub; // no configuration yet
+		};
+
 		enum ConfigOptions: uint8_t {
 			CONF_LIGHTING		= 0x01,
 			CONF_POSTPROCESSING = 0x02,
 			CONF_SKELETALANIMATION = 0x04,
+			CONF_MORPHTARGETANIMATION = 0x08,
 		};
 
 		ShaderCode(void);
@@ -85,6 +90,7 @@ namespace CForge {
 		void config(LightConfig* pConfig);
 		void config(PostProcessingConfig* pConfig);
 		void config(SkeletalAnimationConfig* pConfig);
+		void config(MorphTargetAnimationConfig* pConfig);
 		void config(uint8_t ConfigOptions);
 
 		std::string code(void)const;
@@ -104,6 +110,7 @@ namespace CForge {
 		LightConfig m_LightConfig;
 		PostProcessingConfig m_PostProcessingConfig;
 		SkeletalAnimationConfig m_SkeletalAnimationConfig;
+		MorphTargetAnimationConfig m_MorphTargetAnimationConfig;
 
 	private:
 

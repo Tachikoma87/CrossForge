@@ -25,7 +25,6 @@ namespace CForge {
 		m_Buffer.bindBufferBase(BindingPoint);
 	}//bind
 
-
 	uint32_t UBOBoneData::size(void)const {
 		return m_BoneCount * 16 * sizeof(float);
 	}//size

@@ -96,6 +96,7 @@ namespace CForge {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLMajorVersion);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLMinorVersion);
 		GLFWwindow* pRval = glfwCreateWindow(Width, Height, Title.c_str(), nullptr, nullptr);
+		m_Title = Title;
 		return pRval;
 	}//createGLWindow
 
@@ -151,5 +152,14 @@ namespace CForge {
 	Mouse* GLWindow::mouse(void) {
 		return &m_Mouse;
 	}//mouse
+
+	std::string GLWindow::title(void)const {
+		return m_Title;
+	}//title
+
+	void GLWindow::title(const std::string Title) {
+		m_Title = Title;
+		glfwSetWindowTitle((GLFWwindow*)m_pHandle, m_Title.c_str());
+	}//title
 
 }//name space

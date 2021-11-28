@@ -116,10 +116,20 @@ namespace CForge {
 		changeConst("const uint BoneCount", to_string(pConfig->BoneCount) + "U");
 	}//configure
 
+	void ShaderCode::config(MorphTargetAnimationConfig* pConfig) {
+		if (nullptr == pConfig) throw NullpointerExcept("pConfig");
+
+		m_MorphTargetAnimationConfig = (*pConfig);
+
+		addDefine("MORPHTARGET_ANIMATION");
+	}//config
+
 	void ShaderCode::config(uint8_t ConfigOptions) {
 		if (ConfigOptions & CONF_LIGHTING) config(&m_LightConfig);
 		if (ConfigOptions & CONF_POSTPROCESSING) config(&m_PostProcessingConfig);
 		if (ConfigOptions & CONF_SKELETALANIMATION) config(&m_SkeletalAnimationConfig);
+		if (ConfigOptions & CONF_MORPHTARGETANIMATION) config(&m_MorphTargetAnimationConfig);
+
 	}//config
 
 	std::string ShaderCode::code(void)const {

@@ -9,6 +9,20 @@ layout (std140) uniform BoneData{
 }Bones;
 #endif
 
+#ifdef MORPHTARGET_ANIMATION 
+
+uniform samplerBuffer MorphTargetDataBuffer;
+
+layout (std140) uniform MorphTargetData{
+	// 0 is offset in elements (float) to next morph target
+	// 1 is number of active animations 
+	ivec4 Data; 
+	ivec4 ActivationIDs[3];			///< Morph target IDs (capped at 12)
+	vec4 ActivationStrengths[3];	///< Morph target activation strengths (capped at 12)
+}MorphTargets;
+
+#endif
+
 layout (std140) uniform CameraData{
 	mat4 ViewMatrix;
 	mat4 ProjectionMatrix;
@@ -46,6 +60,18 @@ void main(){
 	Po = T * vec4(Position, 1.0);
 	No = transpose(inverse(T)) * vec4(Normal, 0.0);
 #endif 
+
+#ifdef MORPHTARGET_ANIMATION
+	vec3 Displ = vec3(0);
+	for(int i = 0; i < MorphTargets.Data[1]; ++i){
+		// compute Offset to fetch from 
+		int ID = MorphTargets.ActivationIDs[i/3][i%3];
+		int Offset = (ID * MorphTargets.Data[0]) + gl_VertexID;
+		Displ += MorphTargets.ActivationStrengths[i/3][i%3] * texelFetch(MorphTargetDataBuffer, Offset).rgb;
+	}//for[active morph targets]
+
+	Po += vec4(Displ, 0.0);
+#endif
 
 	N = mat3(transpose(inverse(ModelMatrix))) * No.xyz;
 	Pos = (ModelMatrix * Po).xyz;
