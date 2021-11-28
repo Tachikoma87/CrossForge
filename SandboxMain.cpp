@@ -11,6 +11,9 @@
 
 #include "Examples/MinimumGraphicalSetup.hpp"
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
+#include "Prototypes/TestScenes/MorphTargetAnimTestScene.hpp"
+
+#include <glad/glad.h>
 
 using namespace CForge;
 using namespace Eigen;
@@ -25,6 +28,7 @@ int main(int argc, char* argv[]) {
 
 	try {
 		 pDev = SCrossForgeDevice::instance();
+		 // to fetch OpenGL function points in main program
 
 		 SLogger::logFile("Logs/ErrorLog.txt", SLogger::LOGTYPE_ERROR, true, true);
 		 SLogger::logFile("Logs/DebugLog.txt", SLogger::LOGTYPE_DEBUG, true, true);
@@ -38,12 +42,13 @@ int main(int argc, char* argv[]) {
 		pDev = nullptr;
 		char c;
 		scanf("%c", &c);
-		return -1;
+		return -1;	
 	}
 
 	try {
-		MinimumGraphicalSetup();
+		//MinimumGraphicalSetup();
 		//shadowTest();
+		morphTargetAnimTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
@@ -52,7 +57,7 @@ int main(int argc, char* argv[]) {
 	catch (...) {
 		printf("A not handled exception occurred!\n");
 	}
-	
+
 
 	if(nullptr != pDev) pDev->release();
 	

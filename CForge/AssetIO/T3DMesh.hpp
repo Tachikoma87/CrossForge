@@ -218,6 +218,8 @@ namespace CForge {
 			for (auto& i : m_SkeletalAnimations) delete i;
 			m_SkeletalAnimations.clear();
 			
+			for (auto& i : m_MorphTargets) delete i;
+			m_MorphTargets.clear();
 
 		}//clear
 
