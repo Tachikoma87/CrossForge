@@ -22,6 +22,7 @@ FIND_PACKAGE(OpenCV CONFIG REQUIRED)
 include_directories(
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
 	"${CMAKE_SOURCE_DIR}/thirdparty/eigen"
+	"${CMAKE_SOURCE_DIR}/thirdparty/tinyxml2"
 	"${OpenCV_INCLUDE_DIRS}"
 )
 
