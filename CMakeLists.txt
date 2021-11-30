@@ -60,9 +60,15 @@ add_library(crossforge SHARED
 	# Actor related
 	CForge/Graphics/Actors/IRenderableActor.cpp 
 	CForge/Graphics/Actors/RenderGroupUtility.cpp 
+	CForge/Graphics/Actors/VertexUtility.cpp 
 	CForge/Graphics/Actors/ScreenQuad.cpp 
 	CForge/Graphics/Actors/StaticActor.cpp 
-	CForge/Graphics/Actors/VertexUtility.cpp 
+	CForge/Graphics/Actors/SkeletalActor.cpp 
+	CForge/Graphics/Actors/MorphTargetActor.cpp 
+
+	# Animation Controller 
+	CForge/Graphics/Controller/SkeletalAnimationController.cpp 
+	CForge/Graphics/Controller/MorphTargetAnimationController.cpp
 
 	# Shader
 	CForge/Graphics/Shader/GLShader.cpp 
@@ -74,6 +80,8 @@ add_library(crossforge SHARED
 	CForge/Graphics/UniformBufferObjects/UBOLightData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOMaterialData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOModelData.cpp
+	CForge/Graphics/UniformBufferObjects/UBOBoneData.cpp 
+	CForge/Graphics/UniformBufferObjects/UBOMorphTargetData.cpp
 
 	# Lights
 	CForge/Graphics/Lights/ILight.cpp 
@@ -91,6 +99,9 @@ add_library(crossforge SHARED
 	CForge/Input/Keyboard.cpp 
 	CForge/Input/Mouse.cpp
 	CForge/Input/SInputManager.cpp
+
+	# Mesh Processing
+	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
  )
 set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
@@ -137,14 +148,6 @@ add_executable(CForgeSandbox
 	Prototypes/StripPhoto.cpp 
 	Prototypes/StripPhotoCamera.cpp
 
-	Prototypes/Actor/SkeletalActor.cpp
-	Prototypes/Actor/UBOBoneData.cpp
-	Prototypes/Actor/SkeletalAnimationController.cpp
-	Prototypes/Actor/MorphTargetActor.cpp 
-	Prototypes/Actor/MorphTargetAnimationController.cpp 
-	Prototypes/Actor/UBOMorphTargetData.cpp 
-
-	"Prototypes/Builder/MorphTargetModelBuilder.cpp"
 	)
 
 

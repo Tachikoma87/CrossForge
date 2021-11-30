@@ -38,9 +38,9 @@
 
 #include "../../Examples/SceneUtilities.hpp"
 
-#include "../Actor/MorphTargetActor.h"
-#include "../Actor/MorphTargetAnimationController.h"
-#include "../Builder/MorphTargetModelBuilder.h"
+#include "../../CForge/Graphics/Actors/MorphTargetActor.h"
+#include "../../CForge/Graphics/Controller/MorphTargetAnimationController.h"
+#include "../../CForge/MeshProcessing/Builder/MorphTargetModelBuilder.h"
 
 using namespace Eigen;
 using namespace std;

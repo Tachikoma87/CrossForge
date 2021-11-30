@@ -1,4 +1,4 @@
-#include "../../CForge/Graphics/RenderDevice.h"
+#include "../RenderDevice.h"
 #include <glad/glad.h>
 #include "SkeletalActor.h"
 

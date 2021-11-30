@@ -67,6 +67,7 @@ namespace CForge {
 
 		pMesh->clear();
 
+
 		std::vector<Eigen::Vector3f> Positions;
 		std::vector<Eigen::Vector3f> Normals;
 		std::vector<Eigen::Vector3f> Tangents;
@@ -84,7 +85,7 @@ namespace CForge {
 
 		for (uint32_t i = 0; i < pScene->mNumMeshes; ++i) {
 			aiMesh* pM = pScene->mMeshes[i];
-		
+
 			for (uint32_t k = 0; k < pM->mNumVertices; ++k) {
 				// collect vertices
 				Positions.push_back(toEigenVec(pM->mVertices[k]));
@@ -136,7 +137,25 @@ namespace CForge {
 			if (nullptr != pM->mTextureCoords) UVWsOffset += pM->mNumVertices;
 		}//for[all meshes]
 
-	
+		// apply global transformation
+		Eigen::Matrix4f GlobalTransform = toEigenMat(pScene->mRootNode->mTransformation);
+		for (auto& i : Positions) {
+			Eigen::Vector4f p = GlobalTransform * Eigen::Vector4f(i.x(), i.y(), i.z(), 1.0f);
+			i = Eigen::Vector3f(p.x(), p.y(), p.z());
+		}
+		if (Normals.size() > 0) {
+			for (auto& i : Normals) {
+				Eigen::Vector4f p = GlobalTransform * Eigen::Vector4f(i.x(), i.y(), i.z(), 0.0f);
+				i = Eigen::Vector3f(p.x(), p.y(), p.y());
+			}
+		}
+		if (Tangents.size() > 0) {
+			for (auto& i : Tangents) {
+				Eigen::Vector4f p = GlobalTransform * Eigen::Vector4f(i.x(), i.y(), i.z(), 0.0f);
+				i = Eigen::Vector3f(p.x(), p.y(), p.z());
+			}
+		}
+
 		// set positions, normals, tangents
 		pMesh->vertices(&Positions);
 		if (Normals.size() > 0) pMesh->normals(&Normals);

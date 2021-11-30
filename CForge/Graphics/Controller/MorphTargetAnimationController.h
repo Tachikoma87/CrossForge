@@ -18,13 +18,11 @@
 #ifndef __CFORGE_MORPHTARGETANIMATIONCONTROLLER_H__
 #define __CFORGE_MORPHTARGETANIMATIONCONTROLLER_H__
 
-#include "../../CForge/AssetIO/T3DMesh.hpp"
-#include "UBOMorphTargetData.h"
-
-
+#include "../../AssetIO/T3DMesh.hpp"
+#include "../UniformBufferObjects/UBOMorphTargetData.h"
 
 namespace CForge {
-	class MorphTargetAnimationController: public CForgeObject {
+	class CFORGE_IXPORT MorphTargetAnimationController: public CForgeObject {
 	public:
 		struct MorphTarget {
 			int32_t ID;
