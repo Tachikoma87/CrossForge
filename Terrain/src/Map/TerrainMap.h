@@ -3,6 +3,7 @@
 #include <CForge/Graphics/RenderDevice.h>
 #include <CForge/Graphics/SceneGraph/SGNTransformation.h>
 #include "HeightMap.h"
+#include "../ArrayTexture.h"
 #include "TileNode.h"
 
 using namespace CForge;
@@ -40,7 +41,7 @@ namespace Terrain {
         ClipMap mClipMap;
         HeightMap mHeightMap;
 
-        GLTexture2D* mGroundTexture;
+        ArrayTexture mTextures;
 
         GLShader* mShader;
 
