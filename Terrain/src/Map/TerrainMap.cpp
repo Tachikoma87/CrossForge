@@ -3,7 +3,7 @@
 
 namespace Terrain {
     TerrainMap::TerrainMap(SGNTransformation *rootTransform)
-        : mRootTransform(rootTransform), mMapScale(1.0f), mMapHeight(1000.0f){
+        : mRootTransform(rootTransform), mMapScale(1.0f), mMapHeight(2000.0f){
         initShader();
     }
 

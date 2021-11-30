@@ -12,6 +12,7 @@
 //
 
 const uint MAX_OCTAVES = 16;
+const uint MAX_VALUE = 65535u;
 
 struct NoiseData {
     float scale;
@@ -23,7 +24,7 @@ struct NoiseData {
 
 layout(local_size_x = 1, local_size_y = 1) in;
 
-layout(r16, binding = 0) uniform image2D HeighMap;
+layout(r16ui, binding = 0) uniform uimage2D HeighMap;
 uniform NoiseData Noise;
 
 vec3 mod289(vec3 x) {
@@ -132,6 +133,5 @@ void main() {
 //        pixel.x = 0;
 //    }
 
-    // output to a specific pixel in the image
-    imageStore(HeighMap, textureCoords, vec4(height));
+    imageStore(HeighMap, textureCoords, uvec4((height + 1) / 2 * float(MAX_VALUE)));
 }
