@@ -1,14 +1,39 @@
 #include <CForge/Graphics/Shader/SShaderManager.h>
-#include <CForge/Graphics/STextureManager.h>
+#include <CForge/AssetIO/SAssetIO.h>
+#include <Terrain/src/ArrayTexture.h>
+#include <CForge/Core/SLogger.h>
 #include "TerrainMap.h"
 
 namespace Terrain {
     TerrainMap::TerrainMap(SGNTransformation *rootTransform)
-        : mRootTransform(rootTransform), mMapScale(1.0f), mMapHeight(2000.0f){
+        : mRootTransform(rootTransform), mMapScale(1.0f), mMapHeight(2000.0f), mTextures(7, 1024) {
         initShader();
-        mGroundTexture = STextureManager::create("Assets/ground1.jpg");
-        mGroundTexture = STextureManager::create("Assets/grass.jpg");
-        //mGroundTexture = STextureManager::create("Assets/ground2.jpg");
+
+        vector<string> files;
+        files.push_back("Assets/water.jpg");
+        files.push_back("Assets/sand.jpg");
+        files.push_back("Assets/ground.jpg");
+        files.push_back("Assets/grass.jpg");
+        files.push_back("Assets/grass_rock2.jpg");
+        files.push_back("Assets/rock2.jpg");
+        files.push_back("Assets/snow.jpg");
+
+        for (int i = 0; i < files.size(); i++) {
+            string file = files[i];
+
+            if (!File::exists(file)) throw CForgeExcept("Image file " + file + " could not be found!");
+
+            T2DImage<uint8_t> image;
+
+            try {
+                SAssetIO::load(file, &image);
+            }
+            catch (CrossForgeException& e) {
+                SLogger::logException(e);
+            }
+
+            mTextures.setTexture(&image, i);
+        }
     }
 
     TerrainMap::~TerrainMap() {
@@ -54,11 +79,10 @@ namespace Terrain {
         mHeightMap.bindTexture();
 
         glActiveTexture(GL_TEXTURE1);
-        mGroundTexture->bind();
-
+        mTextures.bind();
 
         glUniform1i(mShader->uniformLocation("HeightMap"), 0);
-        glUniform1i(mShader->uniformLocation("GroundTexture"), 1);
+        glUniform1i(mShader->uniformLocation("Textures"), 1);
         glUniform1f(mShader->uniformLocation("MapScale"), mMapScale);
         glUniform1f(mShader->uniformLocation("MapHeight"), mMapHeight);
 

@@ -138,7 +138,7 @@ if(WIN32)
         Terrain/src/Map/TerrainMap.cpp
         Terrain/src/Map/TileActor.cpp
 		"thirdparty/glad/src/glad.c"
-		)
+		Terrain/src/ArrayTexture.cpp Terrain/src/ArrayTexture.h)
 endif (WIN32)
 
 if(UNIX)
@@ -149,7 +149,7 @@ if(UNIX)
         Terrain/src/Map/TileNode.cpp
         Terrain/src/Map/HeightMap.cpp
         Terrain/src/Map/TerrainMap.cpp
-        Terrain/src/Map/TileActor.cpp)
+        Terrain/src/Map/TileActor.cpp Terrain/src/ArrayTexture.cpp Terrain/src/ArrayTexture.h)
 endif (UNIX)
 
 if(WIN32)
