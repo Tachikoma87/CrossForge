@@ -13,7 +13,7 @@ using namespace CForge;
 
 namespace Terrain {
 
-    void initCForge(GLWindow* window, RenderDevice* renderDevice, VirtualCamera* camera, DirectionalLight* sun) {
+    void initCForge(GLWindow* window, RenderDevice* renderDevice, VirtualCamera* camera, DirectionalLight* sun, DirectionalLight* light) {
         uint32_t winWidth = 720;
         uint32_t winHeight = 720;
 
@@ -25,7 +25,7 @@ namespace Terrain {
         if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
         RenderDevice::RenderDeviceConfig renderConfig;
-        renderConfig.DirectionalLightsCount = 1;
+        renderConfig.DirectionalLightsCount = 2;
         renderConfig.PointLightsCount = 0;
         renderConfig.SpotLightsCount = 0;
         renderConfig.ExecuteLightingPass = true;
@@ -37,7 +37,7 @@ namespace Terrain {
         renderDevice->init(&renderConfig);
 
         ShaderCode::LightConfig lightConfig;
-        lightConfig.DirLightCount = 1;
+        lightConfig.DirLightCount = 2;
         lightConfig.PCFSize = 1;
         lightConfig.PointLightCount = 0;
         lightConfig.ShadowBias = 0.0004f;
@@ -52,9 +52,16 @@ namespace Terrain {
         camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 1.0f, 100000.0f);
         renderDevice->activeCamera(camera);
 
-        Vector3f sunPos = Vector3f(10.0f, 100.0f, 0.0f);
-        sun->init(sunPos, -sunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 2.0f);
+        Vector3f sunPos = Vector3f(2000.0f, 2000.0f, 0.0f);
+        sun->init(sunPos, -sunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f);
+        auto projection = GraphicsUtility::perspectiveProjection(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 1.0f, 10000.0f);
+        const uint32_t ShadowMapDim = 4096;
+        sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(1250, 1250), 1000.0f, 10000.0f);
         renderDevice->addLight(sun);
+
+        Vector3f lightPos = Vector3f(-2000.0f, 2000.0f, -1000.0f);
+        light->init(lightPos, -lightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 0.5f);
+        renderDevice->addLight(light);
     }
 
     void initDebugQuad(ScreenQuad* quad) {
@@ -65,7 +72,7 @@ namespace Terrain {
         SShaderManager* shaderManager = SShaderManager::instance();
         vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "330 core",
                                                             0, "", ""));
-        fsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.frag", "330 core",
+        fsSources.push_back(shaderManager->createShaderCode("Shader/DebugQuad.frag", "330 core",
                                                             0, "", ""));
         GLShader *quadShader  = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
         shaderManager->release();
@@ -104,12 +111,13 @@ namespace Terrain {
 	void TerrainSetup() {
         bool wireframe = false;
         bool debugTexture = false;
+        bool shadows = true;
 
         GLWindow window;
         RenderDevice renderDevice;
         VirtualCamera camera;
-        DirectionalLight sun;
-        initCForge(&window, &renderDevice, &camera, &sun);
+        DirectionalLight sun, light;
+        initCForge(&window, &renderDevice, &camera, &sun, &light);
 
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);
@@ -138,6 +146,11 @@ namespace Terrain {
 			sceneGraph.update(1.0f);
 
             map.update(camera.position().x(), camera.position().z());
+
+            if (shadows) {
+                renderDevice.activePass(RenderDevice::RENDERPASS_SHADOW, &sun);
+                sceneGraph.render(&renderDevice);
+            }
 
 			renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 
@@ -190,7 +203,7 @@ namespace Terrain {
                     .persistence = 0.5f,
                     .lacunarity = 2.0f};
                 heightMapConfig = {.width = 1024 * 8, .height = 1024 * 8, .noiseConfig = noiseConfig};
-                map.setMapHeight(1000);
+                map.setMapHeight(2000);
 
                 map.generateHeightMap(heightMapConfig);
             }
@@ -198,6 +211,10 @@ namespace Terrain {
                 window.keyboard()->keyState(Keyboard::KEY_F5, Keyboard::KEY_RELEASED);
                 map.heightMapFromTexture(STextureManager::create("Assets/height_map1.jpg"));
                 map.setMapHeight(100);
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_F6)) {
+                window.keyboard()->keyState(Keyboard::KEY_F6, Keyboard::KEY_RELEASED);
+                shadows = !shadows;
             }
             static float scale = 1.0f;
             if (window.keyboard()->keyPressed(Keyboard::KEY_F8)) {
