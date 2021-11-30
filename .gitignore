@@ -4,7 +4,9 @@ out/
 Documentation/Doc/
 Libraries/
 MyAssets/
-Assets/
+
+# temporary, until better solution is found
+Assets
 
 # Prerequisites
 *.d
