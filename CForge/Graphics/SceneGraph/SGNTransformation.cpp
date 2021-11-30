@@ -113,4 +113,17 @@ namespace CForge {
 		}
 	}//render
 
+	void SGNTransformation::buildTansformation(Eigen::Vector3f* pPosition, Eigen::Quaternionf* pRotation, Eigen::Vector3f* pScale) {
+		Vector3f ParentPosition = Vector3f::Zero();
+		Quaternionf ParentRotation = Quaternionf::Identity();
+		Vector3f ParentScale = Vector3f::Ones();
+
+		if (nullptr != m_pParent) m_pParent->buildTansformation(&ParentPosition, &ParentRotation, &ParentScale);
+
+		if (nullptr != pPosition) (*pPosition) = ParentPosition + ParentRotation * m_Translation;
+		if (nullptr != pRotation) (*pRotation) = ParentRotation * m_Rotation;
+		if (nullptr != pScale) (*pScale) = ParentScale.cwiseProduct(m_Scale);
+
+	}//buildTrnasformation
+
 }//name space

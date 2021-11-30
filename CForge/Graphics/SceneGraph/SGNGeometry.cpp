@@ -76,4 +76,17 @@ namespace CForge {
 		}
 	}//render
 
+	void SGNGeometry::buildTansformation(Eigen::Vector3f* pPosition, Eigen::Quaternionf* pRotation, Eigen::Vector3f* pScale) {
+		Vector3f ParentPosition = Eigen::Vector3f::Zero();
+		Quaternionf ParentRotation = Eigen::Quaternionf::Identity();
+		Vector3f ParentScale = Eigen::Vector3f::Ones();
+
+		if (nullptr != m_pParent) m_pParent->buildTansformation(&ParentPosition, &ParentRotation, &ParentScale);
+
+		if (nullptr != pPosition) (*pPosition) = ParentPosition + m_Position;
+		if (nullptr != pRotation) (*pRotation) = ParentRotation * m_Rotation;
+		if (nullptr != pScale) (*pScale) = m_Scale.cwiseProduct(ParentScale);
+
+	}//buildTransformation
+
 }//name space
