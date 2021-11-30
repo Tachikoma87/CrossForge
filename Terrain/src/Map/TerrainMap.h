@@ -40,6 +40,8 @@ namespace Terrain {
         ClipMap mClipMap;
         HeightMap mHeightMap;
 
+        GLTexture2D* mGroundTexture;
+
         GLShader* mShader;
 
         SGNTransformation* mRootTransform;
