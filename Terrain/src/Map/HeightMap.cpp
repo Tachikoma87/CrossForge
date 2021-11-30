@@ -15,22 +15,23 @@ namespace Terrain {
     }
 
     void HeightMap::generate(HeightMapConfig config) {
-        GLint internalFormat = GL_R16F;
-        GLint format = GL_RED; // seems to have no effect
+        GLint internalFormat = GL_R16UI;
+        GLint format = GL_RED_INTEGER;
+        GLint dataType = GL_UNSIGNED_SHORT;
 
         GLuint textureHandle;
         glGenTextures(1, &textureHandle);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureHandle);
-//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
         float borderColor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
         glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, config.width, config.height, 0, format, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, config.width, config.height, 0, format, dataType, NULL);
         glBindImageTexture(0, textureHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, internalFormat);
 
         mTexture = STextureManager::fromHandle(textureHandle);
