@@ -1,5 +1,5 @@
 #include <glad/glad.h>
-#include "../../CForge/Graphics/RenderDevice.h"
+#include "../RenderDevice.h"
 #include "MorphTargetActor.h"
 
 using namespace Eigen;
@@ -93,7 +93,7 @@ namespace CForge {
 					glUniform1i(MTTex, MTTex);
 				}
 				int32_t MTUBO = i->pShader->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
-				if (MTUBO >= 0) m_MorphTargetUBO.bind(MTUBO);
+				m_MorphTargetUBO.bind(MTUBO);
 			}
 			glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
 		}//for[all render groups]

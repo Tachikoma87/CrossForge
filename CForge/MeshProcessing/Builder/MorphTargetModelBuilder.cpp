@@ -2,7 +2,7 @@
 
 namespace CForge {
 
-	MorphTargetModelBuilder::MorphTargetModelBuilder(void) {
+	MorphTargetModelBuilder::MorphTargetModelBuilder(void): CForgeObject("MorphTargetModelBuilder") {
 
 	}//Constructor
 

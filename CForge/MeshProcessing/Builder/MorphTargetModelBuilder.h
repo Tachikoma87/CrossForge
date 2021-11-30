@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): UBOBoneData.h and UBOBoneData.cpp                                   *
+* File(s): MorphTargetBuilder.h and MorphTargetBuilder.cpp                  *
 *                                                                           *
 * Content:    *
 *          .                                         *
@@ -15,38 +15,39 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_UBOBONEDATA_H__
-#define __CFORGE_UBOBONEDATA_H__
+#ifndef __CFORGE_MORPHTARGETMODELBUILDER_H__
+#define __CFORGE_MORPHTARGETMODELBUILDER_H__
 
-#include "../../CForge/Graphics/GLBuffer.h"
+#include "../../Core/CForgeObject.h"
+#include "../../AssetIO/T3DMesh.hpp"
 
 namespace CForge {
-	/**
-	* \brief Uniform buffer object skeletal animation (Bones) related data.
-	*
-	* \todo Do full documentation.
-	*/
-	class UBOBoneData : public CForgeObject {
-	public:
-		UBOBoneData(void);
-		~UBOBoneData(void);
+	class CFORGE_IXPORT MorphTargetModelBuilder: public CForgeObject {
+	public: 
+		MorphTargetModelBuilder(void);
+		~MorphTargetModelBuilder(void);
 
-		void init(uint32_t BoneCount);
+		void init(T3DMesh<float>* pBaseMesh);
 		void clear(void);
 
-		void bind(uint32_t BindingPoint);
+		void addTarget(T3DMesh<float>* pTarget, std::string Name);
+		void build(void);
 
-		void skinningMatrix(uint32_t Index, Eigen::Matrix4f SkinningMat);
-
-		uint32_t size(void)const;
+		void retrieveMorphTargets(T3DMesh<float>* pMesh);
 
 	protected:
+		struct Target {
+			std::string Name; ///< Name of the morph target
+			std::vector<Eigen::Vector3f> Positions; ///< Vertex positions
+			std::vector<Eigen::Vector3f> Normals; ///< per vertex Normals
+		};
 
-	private:
-		GLBuffer m_Buffer;
-		uint32_t m_BoneCount;
-	};//UBOBoneData
+		T3DMesh<float> m_BaseMesh;
+		std::vector<Target*> m_Targets;
+		std::vector<T3DMesh<float>::MorphTarget*> m_MorphTargets; // the final morph targets
+
+	};//MorphTargetModelBuilder
 
 }//name space
 
-#endif
+#endif 

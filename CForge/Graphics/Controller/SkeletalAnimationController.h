@@ -18,14 +18,13 @@
 #ifndef __CFORGE_SKELETALANIMATIONCONTROLLER_H__
 #define __CFORGE_SKELETALANIMATIONCONTROLLER_H__
 
-#include "../../CForge/Core/CForgeObject.h"
-#include "../../CForge/AssetIO/T3DMesh.hpp"
-#include "../../CForge/Graphics/Shader/ShaderCode.h"
-#include "../../CForge/Graphics/Shader/SShaderManager.h"
-#include "UBOBoneData.h"
+#include "../../AssetIO/T3DMesh.hpp"
+#include "../UniformBufferObjects/UBOBoneData.h"
+#include "../Shader/ShaderCode.h"
+#include "../Shader/GLShader.h"
 
 namespace CForge {
-	class SkeletalAnimationController {
+	class CFORGE_IXPORT SkeletalAnimationController: public CForgeObject {
 	public:
 		struct Animation {
 			int32_t AnimationID;
