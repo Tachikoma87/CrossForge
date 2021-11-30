@@ -22,6 +22,7 @@
 #include "MorphTargetAnimationController.h"
 #include "../../CForge//Graphics/GLBuffer.h"
 #include "UBOMorphTargetData.h"
+#include "MorphTargetAnimationController.h"
 
 namespace CForge {
 	class MorphTargetActor : public IRenderableActor {
@@ -29,18 +30,23 @@ namespace CForge {
 		MorphTargetActor(void);
 		~MorphTargetActor(void);
 
-		void init(T3DMesh<float>* pMesh);
+		void init(T3DMesh<float>* pMesh, MorphTargetAnimationController *pController);
 		void clear(void);
 		void release(void);
 
 		void render(class RenderDevice* pRDev);
 		void update(float fpsScale = 1.0f);
 
+		int32_t addAnimation(MorphTargetAnimationController::ActiveAnimation* pAnim);
+
 	protected:
 		void buildMorphTargetBuffer(T3DMesh<float>* pMesh);
 
 		GLBuffer m_MorphTargetBuffer;
 		UBOMorphTargetData m_MorphTargetUBO;
+		MorphTargetAnimationController* m_pAnimationController;
+
+		std::vector<MorphTargetAnimationController::ActiveAnimation*> m_ActiveAnimations;
 	};//MorphTargetActor
 
 }//name-space
