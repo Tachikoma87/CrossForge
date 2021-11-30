@@ -7,12 +7,7 @@
 * \section To-Do List
 *
 * \todo Include TinyXML
-* \todo include libraries to load/store image data (jpeg, png, ...) [Copy from hydra Graphics Engine]
 * \todo Add class for hardware modules: Stepper Driver, C1101
-* \todo Start GUI (open window and initialize OpenGL | XWindow and WindowsAPI)
-* \todo Change all pragma once to header guards
-*
-*
 *
 *
 * Group definition
@@ -26,23 +21,35 @@
 /***
 * Planning:	
 Iteration: Skeletal Animation
-	* Read article on Skeletal Animation
+	* [x] Read article on Skeletal Animation
 	* [x] Read skeletal animation data from file
 	* [x] Extend T3DMesh with skeletal data
 	* [x] Create and implement SkeletalActor
 	* [x] adapt shader for skeletal animation
 	* [x] make shadows work with skeletal animation
-	* move skeletal actor and stuff to library
-	* rethink concept in ShaderManager to not create same shader multiple times (maybe compare final code)
+	* [ ] move skeletal actor and stuff to library
+	
 	
 Iteration: Morph Target animation
 	* [x] extend T3DMesh with Morph targets
-	* create Morph target builder class (takes topological identical meshes and creates morph targets)
-	* write shader for morph target animation
-	* implement UBO for morph target animation
-	* implement morph target animation controller (creates the animation data, holds UBO and morph target data [GLBuffer])
-	* implement MorphTargetActor
-	* 
+	* [x] create Morph target builder class (takes topological identical meshes and creates morph targets)
+	* [x] write shader for morph target animation
+	* [x] implement UBO for morph target animation
+	* [x] implement morph target animation controller (creates the animation data, holds UBO and morph target data [GLBuffer])
+	* [x] implement MorphTargetActor
+	* [ ] move Morph Target classes to core
+	
+Example Scenes:
+	[ ] create Example assets folder and push to repo
+	[ ] import dome from Digitale Objektrekonstruktion and update Minimum Graphical setup
+	[ ] write example for lighting/shadow
+	[ ] write example for skeletal animation
+	[ ] write example for morph target animation
+
+Miscellaneous Stuff:
+	[x] add method to build transformation from node
+	[ ] rethink concept in ShaderManager to not create same shader multiple times (maybe compare final code)
+
 * Ideas for next iteration: 
 	* implement mesh processing operations (halfe edge DS, IGL methods)
 		* https://kaba.hilvi.org/homepage/blog/halfedge/halfedge.htm
