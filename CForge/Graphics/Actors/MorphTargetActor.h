@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SkeletalActor.h and SkeletalActor.cpp                           *
+* File(s): MorphTargetActor.h and MorphTargetActor.cpp                          *
 *                                                                           *
 * Content:    *
 *          .                                         *
@@ -15,34 +15,38 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SKELETALACTOR_H__
-#define __CFORGE_SKELETALACTOR_H__
+#ifndef __CFORGE_MORPHTARGETACTOR_H__
+#define __CFROGE_MORPHTARGETACTOR_H__
 
-#include "../../CForge/Core/CForgeObject.h"
-#include "../../CForge/Graphics/Actors/IRenderableActor.h"
-#include "../../CForge/Graphics/Actors/VertexUtility.h"
-#include "../../CForge/Graphics/Actors/RenderGroupUtility.h"
-#include "SkeletalAnimationController.h"
+#include "IRenderableActor.h"
+#include "../GLBuffer.h"
+#include "../UniformBufferObjects/UBOMorphTargetData.h"
+#include "../Controller/MorphTargetAnimationController.h"
 
 namespace CForge {
-	class SkeletalActor : public IRenderableActor {
+	class CFORGE_IXPORT MorphTargetActor : public IRenderableActor {
 	public:
-		SkeletalActor(void);
-		~SkeletalActor(void);
+		MorphTargetActor(void);
+		~MorphTargetActor(void);
 
-		void init(T3DMesh<float>* pMesh, SkeletalAnimationController* pController);
-		void activeAnimation(SkeletalAnimationController::Animation* pAnim);
-		SkeletalAnimationController::Animation* activeAnimation(void)const;
+		void init(T3DMesh<float>* pMesh, MorphTargetAnimationController *pController);
 		void clear(void);
 		void release(void);
 
 		void render(class RenderDevice* pRDev);
+		void update(float fpsScale = 1.0f);
+
+		int32_t addAnimation(MorphTargetAnimationController::ActiveAnimation* pAnim);
 
 	protected:
-		SkeletalAnimationController* m_pAnimationController;
-		SkeletalAnimationController::Animation* m_pActiveAnimation;
+		void buildMorphTargetBuffer(T3DMesh<float>* pMesh);
 
-	};//SkeletalActor
+		GLBuffer m_MorphTargetBuffer;
+		UBOMorphTargetData m_MorphTargetUBO;
+		MorphTargetAnimationController* m_pAnimationController;
+
+		std::vector<MorphTargetAnimationController::ActiveAnimation*> m_ActiveAnimations;
+	};//MorphTargetActor
 
 }//name-space
 

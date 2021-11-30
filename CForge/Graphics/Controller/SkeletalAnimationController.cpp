@@ -1,11 +1,13 @@
 #include "SkeletalAnimationController.h"
-#include "../../CForge/Graphics/GraphicsUtility.h"
+#include "../Shader/SShaderManager.h"
+#include "../GraphicsUtility.h"
+
 using namespace Eigen;
 using namespace std;
 
 namespace CForge {
 
-	SkeletalAnimationController::SkeletalAnimationController(void) {
+	SkeletalAnimationController::SkeletalAnimationController(void): CForgeObject("SkeletalAnimationController") {
 
 	}//constructor
 

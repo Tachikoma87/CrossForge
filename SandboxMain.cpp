@@ -46,9 +46,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	try {
-		//MinimumGraphicalSetup();
+		MinimumGraphicalSetup();
 		//shadowTest();
-		morphTargetAnimTestScene();
+		//morphTargetAnimTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

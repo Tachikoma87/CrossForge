@@ -151,6 +151,10 @@ namespace CForge {
 			const float Strength = (1.0f - i->t) * Params[0] + i->t * Params[1];
 			pUBO->setMorphTargetParam(ActiveMorphTargets, MTID, Strength);
 			ActiveMorphTargets++;
+
+			// 12 is hard coded maximum in shader
+			// if we set more than 12, shader will access invalid data23
+			if (ActiveMorphTargets >= 12) break; 
 		}//for[active animations
 
 		pUBO->activeMorphTargets(ActiveMorphTargets);

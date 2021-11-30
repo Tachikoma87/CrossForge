@@ -29,7 +29,6 @@ Iteration: Skeletal Animation
 	* [x] make shadows work with skeletal animation
 	* [ ] move skeletal actor and stuff to library
 	
-	
 Iteration: Morph Target animation
 	* [x] extend T3DMesh with Morph targets
 	* [x] create Morph target builder class (takes topological identical meshes and creates morph targets)

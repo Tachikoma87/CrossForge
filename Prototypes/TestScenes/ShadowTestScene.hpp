@@ -36,7 +36,7 @@
 
 #include "../../CForge/Graphics/Actors/StaticActor.h"
 
-#include "../Actor/SkeletalActor.h"
+#include "../../CForge/Graphics/Actors/SkeletalActor.h"
 
 #include "../../Examples/SceneUtilities.hpp"
 

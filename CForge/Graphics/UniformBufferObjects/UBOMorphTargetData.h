@@ -18,10 +18,10 @@
 #ifndef __CFORGE_UBOMORPHTARGETDATA_H__
 #define __CFORGE_UBOMORPHTARGETDATA_H__
 
-#include "../../CForge/Graphics/GLBuffer.h"
+#include "../GLBuffer.h"
 
 namespace CForge {
-	class UBOMorphTargetData: public CForgeObject {
+	class CFORGE_IXPORT UBOMorphTargetData: public CForgeObject {
 	public:
 		UBOMorphTargetData(void);
 		~UBOMorphTargetData(void);
