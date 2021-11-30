@@ -39,6 +39,7 @@
 #include "../../Examples/SceneUtilities.hpp"
 
 #include "../Actor/MorphTargetActor.h"
+#include "../Actor/MorphTargetAnimationController.h"
 #include "../Builder/MorphTargetModelBuilder.h"
 
 using namespace Eigen;
@@ -56,6 +57,8 @@ namespace CForge {
 		MTList.push_back(pair("Anger",			"Assets/FGMaleModel/MaleFace_ExpressionAnger.obj"));
 		MTList.push_back(pair("Baring Teeth",	"Assets/FGMaleModel/MaleFace_ExpressionBaringTeeth.obj"));
 		MTList.push_back(pair("Chin Raised",	"Assets/FGMaleModel/MaleFace_ExpressionChinRaised.obj"));
+		MTList.push_back(pair("Disgust",		"Assets/FGMaleModel/MaleFace_ExpressionDisgust.obj"));
+		MTList.push_back(pair("Fear",			"Assets/FGMaleModel/MaleFace_ExpressionFear.obj"));
 		
 		T3DMesh<float> M;
 		for (auto i : MTList) {
@@ -156,7 +159,12 @@ namespace CForge {
 		SceneUtilities::setMeshShader(&M, 0.5f, 0.04f);
 		M.computePerVertexNormals();
 		buildMTModel(&M);
-		Face.init(&M);
+
+		// create morph target animation controller for this asset
+		MorphTargetAnimationController MTAnimController;
+		MTAnimController.init(&M);
+
+		Face.init(&M, &MTAnimController);
 		FaceTransformSGN.init(nullptr);
 		const float FaceScale = 0.01f;
 		FaceSGN.init(&FaceTransformSGN, &Face, Vector3f(0.0f, 3.0f, 0.0f), Quaternionf::Identity(), Vector3f(FaceScale, FaceScale, FaceScale));
@@ -193,10 +201,81 @@ namespace CForge {
 		Keyboard* pKeyboard = RenderWin.keyboard();
 		Mouse* pMouse = RenderWin.mouse();
 
+		// create morph target animation sequence
+		MorphTargetAnimationController::AnimationSequence Seq;
+		Seq.Name = "Anger";
+		Seq.Targets.push_back(0);
+		Seq.Parameters.push_back(Vector3f(0.0f, 1.0f, 2.0f));
+		Seq.Targets.push_back(0);
+		Seq.Parameters.push_back(Vector3f(1.0f, 0.0f, 2.0f));
+		MTAnimController.addAnimationSequence(&Seq);
+
+		Seq.clear();
+		Seq.Name = "Baring Teeth";
+		Seq.Targets.push_back(1);
+		Seq.Parameters.push_back(Vector3f(0.0f, 1.0f, 1.0f));
+		Seq.Targets.push_back(1);
+		Seq.Parameters.push_back(Vector3f(1.0f, 0.0f, 1.0f));
+		MTAnimController.addAnimationSequence(&Seq);
+
+		Seq.clear();
+		Seq.Name = "Chin Raiser";
+		Seq.Targets.push_back(2);
+		Seq.Parameters.push_back(Vector3f(0.0f, 1.0f, 1.0f));
+		Seq.Targets.push_back(2);
+		Seq.Parameters.push_back(Vector3f(1.0f, 0.0f, 1.0f));
+		MTAnimController.addAnimationSequence(&Seq);
+
+		Seq.clear();
+		Seq.Name = "Disgust";
+		Seq.Targets.push_back(3);
+		Seq.Parameters.push_back(Vector3f(0.0f, 1.0f, 1.0f));
+		Seq.Targets.push_back(3);
+		Seq.Parameters.push_back(Vector3f(1.0f, 1.0f, 0.5f));
+		Seq.Targets.push_back(3);
+		Seq.Parameters.push_back(Vector3f(1.0f, 0.0f, 1.0f));
+		MTAnimController.addAnimationSequence(&Seq);
+
+		Seq.clear();
+		Seq.Name = "Fear";
+		Seq.Targets.push_back(4);
+		Seq.Parameters.push_back(Vector3f(0.0f, 1.0f, 1.0f));
+		Seq.Targets.push_back(4);
+		Seq.Parameters.push_back(Vector3f(1.0f, 1.0f, 2.0f));
+		Seq.Targets.push_back(4);
+		Seq.Parameters.push_back(Vector3f(1.0f, 0.0f, 1.0f));
+		MTAnimController.addAnimationSequence(&Seq);
+
+		
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
+			MTAnimController.update(1.0f);
 
 			SceneUtilities::defaultCameraUpdate(&Cam, pKeyboard, pMouse);
+
+			float MTAnimSpeed = 1.0f;
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) MTAnimSpeed = 2.0f;
+
+			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) {
+				MorphTargetAnimationController::ActiveAnimation* pAnim = MTAnimController.play(0, MTAnimSpeed);
+				Face.addAnimation(pAnim);
+			}
+			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) {
+				MorphTargetAnimationController::ActiveAnimation* pAnim = MTAnimController.play(1, MTAnimSpeed);
+				Face.addAnimation(pAnim);
+			}
+			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) {
+				MorphTargetAnimationController::ActiveAnimation* pAnim = MTAnimController.play(2, MTAnimSpeed);
+				Face.addAnimation(pAnim);
+			}
+			if (pKeyboard->keyPressed(Keyboard::KEY_4, true)) {
+				MorphTargetAnimationController::ActiveAnimation* pAnim = MTAnimController.play(3, MTAnimSpeed);
+				Face.addAnimation(pAnim);
+			}
+			if (pKeyboard->keyPressed(Keyboard::KEY_5, true)) {
+				MorphTargetAnimationController::ActiveAnimation* pAnim = MTAnimController.play(4, MTAnimSpeed);
+				Face.addAnimation(pAnim);
+			}
 
 			SGTest.update(1.0f);
 

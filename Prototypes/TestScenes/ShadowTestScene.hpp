@@ -403,7 +403,7 @@ namespace CForge {
 				printf("Saturation now: %.2f\n", PPC.Saturation);
 			}
 
-			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT, Keyboard::KEY_8)) {
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) && pKeyboard->keyPressed(Keyboard::KEY_8)) {
 				PPC.Contrast -= 0.05f;
 				pSMan->configShader(PPC);
 				pKeyboard->keyState(Keyboard::KEY_8, Keyboard::KEY_RELEASED);

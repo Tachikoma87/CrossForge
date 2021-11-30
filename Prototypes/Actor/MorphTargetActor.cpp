@@ -15,7 +15,7 @@ namespace CForge {
 		clear();
 	}//Destructor
 
-	void MorphTargetActor::init(T3DMesh<float>* pMesh) {
+	void MorphTargetActor::init(T3DMesh<float>* pMesh, MorphTargetAnimationController *pController) {
 		clear();
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 		if (pMesh->vertexCount() == 0) throw CForgeExcept("Mesh contains no vertex data. Can not initialize!");
@@ -53,10 +53,7 @@ namespace CForge {
 		m_MorphTargetUBO.init();
 		m_MorphTargetUBO.dataOffset(pMesh->vertexCount());
 
-		m_MorphTargetUBO.activeMorphTargets(2);
-		//m_MorphTargetUBO.setMorphTargetParam(0, 1, 0.5f);
-		m_MorphTargetUBO.setMorphTargetParam(1, 2, 0.7f);
-
+		m_pAnimationController = pController;
 	}//initialize
 
 	void MorphTargetActor::clear(void) {
@@ -77,6 +74,9 @@ namespace CForge {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
 
 		m_VertexArray.bind();
+
+		// create UBO data
+		m_pAnimationController->apply(&m_ActiveAnimations, &m_MorphTargetUBO);
 
 		for (auto i : m_RenderGroupUtility.renderGroups()) {
 			if (i->pShader == nullptr) continue;
@@ -139,5 +139,23 @@ namespace CForge {
 		delete[] pBufferData;
 		pBufferData = nullptr;
 	}//buildMorphTargetBuffer
+
+	int32_t MorphTargetActor::addAnimation(MorphTargetAnimationController::ActiveAnimation* pAnim) {
+		if (nullptr == pAnim) throw NullpointerExcept("pAnim");
+		int32_t Rval = -1;
+
+		for (size_t i = 0; i < m_ActiveAnimations.size(); ++i) {
+			if (m_ActiveAnimations[i] == nullptr) {
+				Rval = i;
+				break;
+			}
+		}
+		if (Rval == -1) {
+			Rval = m_ActiveAnimations.size();
+			m_ActiveAnimations.push_back(nullptr);
+		}
+		m_ActiveAnimations[Rval] = pAnim;
+
+	}//addAnimation
 
 }//name space
