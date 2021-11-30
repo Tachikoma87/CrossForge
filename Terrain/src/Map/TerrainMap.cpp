@@ -1,10 +1,14 @@
 #include <CForge/Graphics/Shader/SShaderManager.h>
+#include <CForge/Graphics/STextureManager.h>
 #include "TerrainMap.h"
 
 namespace Terrain {
     TerrainMap::TerrainMap(SGNTransformation *rootTransform)
         : mRootTransform(rootTransform), mMapScale(1.0f), mMapHeight(2000.0f){
         initShader();
+        mGroundTexture = STextureManager::create("Assets/ground1.jpg");
+        mGroundTexture = STextureManager::create("Assets/grass.jpg");
+        //mGroundTexture = STextureManager::create("Assets/ground2.jpg");
     }
 
     TerrainMap::~TerrainMap() {
@@ -49,7 +53,12 @@ namespace Terrain {
         glActiveTexture(GL_TEXTURE0);
         mHeightMap.bindTexture();
 
+        glActiveTexture(GL_TEXTURE1);
+        mGroundTexture->bind();
+
+
         glUniform1i(mShader->uniformLocation("HeightMap"), 0);
+        glUniform1i(mShader->uniformLocation("GroundTexture"), 1);
         glUniform1f(mShader->uniformLocation("MapScale"), mMapScale);
         glUniform1f(mShader->uniformLocation("MapHeight"), mMapHeight);
 
