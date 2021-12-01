@@ -75,7 +75,7 @@ namespace CForge {
 		SShaderManager* pSMan = SShaderManager::instance();
 
 		m_pShadowPassFSCode = pSMan->createShaderCode("Shader/ShadowPassShader.frag", "330 core", 0, "lowp", "lowp");
-		m_pShadowPassVSCode = pSMan->createShaderCode("Shader/ShadowPassShader.vert", "330 core", ShaderCode::CONF_SKELETALANIMATION, "lowp", "lowp");
+		m_pShadowPassVSCode = pSMan->createShaderCode("Shader/ShadowPassShader.vert", "330 core", ShaderCode::CONF_SKELETALANIMATION | ShaderCode::CONF_LIGHTING, "lowp", "lowp");
 
 		ShaderCode::SkeletalAnimationConfig SkelConfig;
 		SkelConfig.BoneCount = m_Joints.size();
