@@ -11,11 +11,9 @@
 
 #include "Examples/exampleMinimumGraphicsSetup.hpp"
 #include "Examples/exampleSkeletalAnimation.hpp"
+#include "Examples/exampleMorphTargetAnimation.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
-#include "Prototypes/TestScenes/MorphTargetAnimTestScene.hpp"
-
-#include <glad/glad.h>
 
 using namespace CForge;
 using namespace Eigen;
@@ -50,9 +48,10 @@ int main(int argc, char* argv[]) {
 
 	try {
 		//exampleMinimumGraphicsSetup();
-		exampleSkeletalAnimation();
+		//exampleSkeletalAnimation();
+		exampleMorphTargetAnimation();
+		// 
 		//shadowTest();
-		//morphTargetAnimTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
