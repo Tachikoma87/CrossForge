@@ -67,8 +67,6 @@ namespace CForge {
 			if (m_Config.ExecuteLightingPass) {
 				m_ScreenQuad.init(0.0f, 0.0f, 1.0f, 1.0f, nullptr);
 				SShaderManager* pSMan = SShaderManager::instance();
-				//vector<string> VSSources;
-				//vector<string> FSSources;
 				string ErrorLog;
 
 				std::vector<ShaderCode*> VSSources;
@@ -76,9 +74,6 @@ namespace CForge {
 				ShaderCode* pSC = nullptr;
 
 				if (m_Config.PhysicallyBasedShading) {
-					//VSSources.push_back("Shader/DRLightingPassPBS.vert");
-					//FSSources.push_back("Shader/DRLightingPassPBS.frag");
-
 					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.vert", "330 core", 0, "highp", "highp");
 					VSSources.push_back(pSC);
 					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp", "highp");
@@ -86,8 +81,6 @@ namespace CForge {
 					m_pDeferredLightingPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
 				}
 				else {
-					//VSSources.push_back("Shader/DRLightingPassBlinnPhong.vert");
-					//FSSources.push_back("Shader/DRLightingPassBlinnPhong.frag");
 					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.vert", "330 core", 0, "highp", "highp");
 					VSSources.push_back(pSC);
 					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp", "highp");
@@ -102,8 +95,6 @@ namespace CForge {
 
 				VSSources.clear();
 				FSSources.clear();
-				//VSSources.push_back("Shader/ShadowPassShader.vert");
-				//FSSources.push_back("Shader/ShadowPassShader.frag");
 				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.vert", "330 core", ShaderCode::CONF_LIGHTING, "highp", "highp");
 				VSSources.push_back(pSC);
 				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.frag", "330 core", 0, "highp", "highp");
