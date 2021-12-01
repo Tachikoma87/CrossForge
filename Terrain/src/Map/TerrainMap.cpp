@@ -34,6 +34,8 @@ namespace Terrain {
 
             mTextures.setTexture(&image, i);
         }
+
+        mTextures.generateMipmap();
     }
 
     TerrainMap::~TerrainMap() {
