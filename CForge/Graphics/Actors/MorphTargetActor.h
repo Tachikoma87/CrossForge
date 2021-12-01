@@ -16,7 +16,7 @@
 *                                                                           *
 \****************************************************************************/
 #ifndef __CFORGE_MORPHTARGETACTOR_H__
-#define __CFROGE_MORPHTARGETACTOR_H__
+#define __CFORGE_MORPHTARGETACTOR_H__
 
 #include "IRenderableActor.h"
 #include "../GLBuffer.h"
