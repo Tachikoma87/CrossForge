@@ -156,6 +156,7 @@ namespace CForge {
 		}
 		m_ActiveAnimations[Rval] = pAnim;
 
+		return Rval;
 	}//addAnimation
 
 }//name space

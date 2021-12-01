@@ -67,6 +67,12 @@ namespace CForge {
 		void apply(std::vector<ActiveAnimation*>* pAnims, UBOMorphTargetData* pUBO);
 		bool valid(ActiveAnimation* pAnim);
 
+		uint32_t morphTargetCount(void)const;
+		MorphTarget* morphTarget(int32_t ID);
+
+		uint32_t animationSequenceCount(void)const;
+		AnimationSequence *animationSequence(int32_t ID);
+
 	protected:
 
 		void progress(ActiveAnimation* pAnim, float Scale);

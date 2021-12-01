@@ -168,4 +168,22 @@ namespace CForge {
 		return Rval;
 	}//valid
 
+	uint32_t MorphTargetAnimationController::morphTargetCount(void)const {
+		return m_MorphTargets.size();
+	}//morphTargetCount
+
+	MorphTargetAnimationController::MorphTarget* MorphTargetAnimationController::morphTarget(int32_t ID) {
+		if (ID < 0 || ID >= m_MorphTargets.size()) throw IndexOutOfBoundsExcept("ID");
+		return m_MorphTargets[ID];
+	}//morphTarget
+
+	uint32_t MorphTargetAnimationController::animationSequenceCount(void)const {
+		return m_AnimationSequences.size();
+	}//animationSequenceCount
+
+	MorphTargetAnimationController::AnimationSequence* MorphTargetAnimationController::animationSequence(int32_t ID) {
+		if (ID < 0 || ID >= m_AnimationSequences.size()) throw IndexOutOfBoundsExcept("ID");
+		return m_AnimationSequences[ID];
+	}//animationSequence
+
 }//name space
