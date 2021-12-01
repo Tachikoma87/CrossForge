@@ -1,9 +1,9 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): PITestScene.hpp                                            *
+* File(s): exampleMinimumGraphicsSetup.hpp                                            *
 *                                                                           *
-* Content: Class to interact with an MF52 NTC Thermistor by using a basic   *
-*          voltage divider circuit.                                         *
+* Content: Example scene that shows minimum setup with an OpenGL capable   *
+*          window, lighting setup, and a single moving object.              *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,8 +15,8 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_PITESTSCENE_HPP__
-#define __CFORGE_PITESTSCENE_HPP__
+#ifndef __CFORGE_EXAMPLEMINIMUMGRAPHICSSETUP_HPP__
+#define __CFORGE_EXAMPLEMINIMUMGRAPHICSSETUP_HPP__
 
 #include "../CForge/AssetIO/SAssetIO.h"
 #include "../CForge/Graphics/Shader/SShaderManager.h"
@@ -42,7 +42,7 @@ using namespace std;
 
 namespace CForge {
 
-	void MinimumGraphicalSetup(void) {
+	void exampleMinimumGraphicsSetup(void) {
 		SShaderManager* pSMan = SShaderManager::instance();
 
 		std::string WindowTitle = "CForge - Minimum Graphics Setup";
@@ -58,13 +58,11 @@ namespace CForge {
 			WinHeight = 576;
 		}
 
+		// create an OpenGL capable windows
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
 
-		std::string GLError;
-		GraphicsUtility::checkGLError(&GLError);
-		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
-
+		// configure and initialize rendering pipeline
 		RenderDevice RDev;
 		RenderDevice::RenderDeviceConfig Config;
 		Config.DirectionalLightsCount = 1;
@@ -78,6 +76,7 @@ namespace CForge {
 		Config.UseGBuffer = true;
 		RDev.init(&Config);
 
+		// configure and initialize shader configuration device
 		ShaderCode::LightConfig LC;
 		LC.DirLightCount = 1;
 		LC.PointLightCount = 1;
@@ -87,24 +86,27 @@ namespace CForge {
 		LC.ShadowMapCount = 1;
 		pSMan->configShader(LC);
 
-
+		// initialize camera
 		VirtualCamera Cam;
-		Cam.init(Vector3f(0.0f, 3.0f, 5.0f), Vector3f::UnitY());
+		Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
 		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
 
+		// initialize sun (key lights) and back ground light (fill light)
 		Vector3f SunPos = Vector3f(-5.0f, 15.0f, 35.0f);
-		Vector3f BGLightPos = Vector3f(0.0f, 25.0f, -20.0f);
+		Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -30.0f);
 		DirectionalLight Sun;
 		PointLight BGLight;
 		Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
+		// sun will cast shadows
 		Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
 		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
 
+		// set camera and lights
 		RDev.activeCamera(&Cam);
 		RDev.addLight(&Sun);
 		RDev.addLight(&BGLight);
 
-		// load skydome and a texture cube
+		// load skydome and a textured cube
 		T3DMesh<float> M;	
 		StaticActor Skydome;
 		StaticActor Cube;
@@ -115,7 +117,7 @@ namespace CForge {
 		Skydome.init(&M);	
 		M.clear();
 		
-		SAssetIO::load("Assets/TexturedCube.fbx", &M);
+		SAssetIO::load("Assets/ExampleScenes/TexturedCube.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		M.computePerVertexNormals();
 		Cube.init(&M);
@@ -132,10 +134,9 @@ namespace CForge {
 		SkydomeSGN.init(&RootSGN, &Skydome);
 		SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
 
-		// add rotating cube
+		// add cube
 		SGNGeometry CubeSGN;
 		SGNTransformation CubeTransformSGN;
-
 		CubeTransformSGN.init(&RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
 		CubeSGN.init(&CubeTransformSGN, &Cube);
 		
@@ -144,9 +145,11 @@ namespace CForge {
 		R = AngleAxisf(GraphicsUtility::degToRad(45.0f / 60.0f), Vector3f::UnitY());
 		CubeTransformSGN.rotationDelta(R);
 
-		int64_t LastFPSPrint = GetTickCount();
+		// stuff for performance monitoring
+		uint64_t LastFPSPrint = CoreUtility::timestamp();
 		int32_t FPSCount = 0;
 
+		std::string GLError = "";
 		GraphicsUtility::checkGLError(&GLError);
 		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
@@ -167,12 +170,12 @@ namespace CForge {
 			RenderWin.swapBuffers();
 
 			FPSCount++;
-			if (GetTickCount() - LastFPSPrint > 1000) {
+			if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {
 				char Buf[64];
 				sprintf(Buf, "FPS: %d\n", FPSCount);
 				FPS = float(FPSCount);
 				FPSCount = 0;
-				LastFPSPrint = GetTickCount();
+				LastFPSPrint = CoreUtility::timestamp();
 
 				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
 			}
@@ -184,7 +187,7 @@ namespace CForge {
 
 		pSMan->release();
 
-	}//PITestScene
+	}//exampleMinimumGraphicsSetup
 
 }
 

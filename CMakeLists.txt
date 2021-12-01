@@ -185,6 +185,12 @@ add_custom_command(
 	${CMAKE_CURRENT_BINARY_DIR}/Assets
 )
 
+add_custom_command(
+	TARGET CForgeSandbox PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/MyAssets
+	${CMAKE_CURRENT_BINARY_DIR}/MyAssets
+)
 
 project(ExportLibrary)
 add_executable(ExportLibrary 

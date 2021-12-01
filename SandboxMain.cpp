@@ -9,7 +9,9 @@
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
 
-#include "Examples/MinimumGraphicalSetup.hpp"
+#include "Examples/exampleMinimumGraphicsSetup.hpp"
+#include "Examples/exampleSkeletalAnimation.hpp"
+
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/MorphTargetAnimTestScene.hpp"
 
@@ -45,8 +47,10 @@ int main(int argc, char* argv[]) {
 		return -1;	
 	}
 
+
 	try {
-		MinimumGraphicalSetup();
+		//exampleMinimumGraphicsSetup();
+		exampleSkeletalAnimation();
 		//shadowTest();
 		//morphTargetAnimTestScene();
 	}
@@ -57,7 +61,6 @@ int main(int argc, char* argv[]) {
 	catch (...) {
 		printf("A not handled exception occurred!\n");
 	}
-
 
 	if(nullptr != pDev) pDev->release();
 	

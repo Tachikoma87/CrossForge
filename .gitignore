@@ -5,9 +5,6 @@ Documentation/Doc/
 Libraries/
 MyAssets/
 
-# temporary, until better solution is found
-Assets
-
 # Prerequisites
 *.d
 

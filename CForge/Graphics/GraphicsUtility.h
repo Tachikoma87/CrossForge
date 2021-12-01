@@ -65,6 +65,8 @@ namespace CForge {
 		static Eigen::Matrix4f translationMatrix(Eigen::Vector3f Trans);
 		static Eigen::Matrix4f scaleMatrix(Eigen::Vector3f Scale);
 
+		static Eigen::Matrix3f alignVectors(const Eigen::Vector3f Source, const Eigen::Vector3f Target);
+
 		static void retrieveColorTexture(uint32_t TexObj, T2DImage<uint8_t>* pImg);
 		static void retrieveDepthTexture(uint32_t TexObj, T2DImage<uint8_t>* pImg, float Near = -1.0f, float Far = -1.0f);
 		static void retrieveFrameBuffer(T2DImage<uint8_t>* pColor, T2DImage<uint8_t>* pDepth = nullptr, float Near = -1.0f, float Far = -1.0f);

@@ -58,7 +58,7 @@ void main(){
 		T += BoneWeights[i] * Bones.SkinningMatrix[BoneIndices[i]];	
 	}//for[4 weights]
 	Po = T * vec4(Position, 1.0);
-	No = transpose(inverse(T)) * vec4(Normal, 0.0);
+	No = T * vec4(No);
 #endif 
 
 #ifdef MORPHTARGET_ANIMATION
@@ -73,9 +73,8 @@ void main(){
 	Po += vec4(Displ, 0.0);
 #endif
 
-	N = mat3(transpose(inverse(ModelMatrix))) * No.xyz;
+	N = (ModelMatrix * No).xyz;
 	Pos = (ModelMatrix * Po).xyz;
 	UV = UVW.xy;
-	//gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * ModelMatrix * vec4(Position, 1.0);
 	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * ModelMatrix * Po;
 }//main
