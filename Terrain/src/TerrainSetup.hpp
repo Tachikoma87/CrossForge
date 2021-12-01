@@ -17,10 +17,10 @@ namespace Terrain {
         uint32_t winWidth = 720;
         uint32_t winHeight = 720;
 
-        winWidth =  1720;
-        winHeight = 1720;
+        winWidth =  1200;
+        winHeight = 1200;
 
-        window->init(Vector2i(100, 100), Vector2i(winWidth, winHeight), "Terrain Setup");
+        window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup");
         gladLoadGL();
 
         string GLError;
@@ -59,7 +59,7 @@ namespace Terrain {
         sun->init(sunPos, -sunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 2.5f);
         auto projection = GraphicsUtility::perspectiveProjection(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 1.0f, 10000.0f);
         const uint32_t ShadowMapDim = 4096;
-        sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(1250, 1250), 1000.0f, 10000.0f);
+        sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(1250, 1250), 1000.0f, 100000.0f);
         renderDevice->addLight(sun);
 
         Vector3f lightPos = Vector3f(-2000.0f, 2000.0f, -1000.0f);
