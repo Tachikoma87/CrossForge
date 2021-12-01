@@ -14,6 +14,7 @@ namespace Terrain {
 
         void setTexture(T2DImage<uint8_t>* image, int32_t index);
         void bind();
+        void generateMipmap();
     private:
         int32_t mSize;
         int32_t mCount;
