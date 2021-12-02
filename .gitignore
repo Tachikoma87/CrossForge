@@ -12,7 +12,6 @@ MyAssets/
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch
