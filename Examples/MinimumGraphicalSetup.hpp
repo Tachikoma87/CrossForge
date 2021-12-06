@@ -133,7 +133,7 @@ namespace CForge {
 
 		RDev.activeCamera(&Cam);
 		RDev.addLight(&Sun);
-		
+
 		SceneGraph SGTest;
 		SGNGeometry CubeSGN;
 		SGNTransformation CubeTransformSGN;
@@ -156,7 +156,7 @@ namespace CForge {
 
 		// rotate about the y-axis at 45 degree every second
 		Quaternionf R;
-		
+
 		R = AngleAxisf(GraphicsUtility::degToRad(15.0f / 60.0f), Vector3f::UnitY());
 		CubeTransformSGN.rotationDelta(R);
 
@@ -171,8 +171,6 @@ namespace CForge {
 			SGTest.render(&RDev);
 
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
-
-			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 
 			RenderWin.swapBuffers();
 

@@ -101,6 +101,7 @@ namespace CForge {
 
 		void addVertexShader(const std::string Code);
 		void addFragmentShader(const std::string Code);
+        void addComputeShader(const std::string Code);
 
 		void build(std::string *pErrorLog);
 
