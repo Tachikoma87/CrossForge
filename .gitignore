@@ -1,6 +1,8 @@
 # Folders
 .vs/
+.idea/
 out/
+cmake-build-debug/**/*
 Documentation/Doc/
 Libraries/
 MyAssets/
@@ -37,3 +39,5 @@ MyAssets/
 *.exe
 *.out
 *.app
+
+CMakeSettings.json
