@@ -35,6 +35,8 @@
 #include "../CForge/Graphics/Actors/StaticActor.h"
 
 #include "../CForge/AssetIO/RockMesh.hpp"
+#include "../CForge/AssetIO/TreeMesh.hpp"
+#include "../CForge/AssetIO/TreeGenerator.hpp"
 
 using namespace Eigen;
 using namespace std;
@@ -45,12 +47,27 @@ namespace CForge {
 		for (uint32_t i = 0; i < pM->materialCount(); ++i) {
 			T3DMesh<float>::Material* pMat = pM->getMaterial(i);
 
-			pMat->TexAlbedo = "Assets/Rock_040_basecolor.jpg";
-			pMat->TexNormal = "Assets/Rock_040_normal.jpg";
-			pMat->TexDepth = "Assets/Rock_040_ambientOcclusion.jpg";
-		
+			pMat->TexAlbedo = "Assets/Aspen_bark_001_COLOR.jpg";
+			pMat->TexNormal = "Assets/Aspen_bark_001_NORM.jpg";
+			pMat->TexDepth = "Assets/Aspen_bark_001_Packed.png";
 
-			pMat->VertexShaderSources.push_back("Shader/BasicGeometryPass.vert");
+			//pMat->TexAlbedo = "Assets/Bark_06_baseColor.jpg";
+			//pMat->TexNormal = "Assets/Bark_06_normal.jpg";
+			//pMat->TexDepth = "Assets/Bark_06_Packed.png";
+
+			//pMat->TexAlbedo = "Assets/Rock_035_baseColor.jpg";
+			//pMat->TexNormal = "Assets/Rock_035_normal.jpg";
+			//pMat->TexDepth = "Assets/Rock_035_Packed.png";
+
+			//pMat->TexAlbedo = "Assets/brick_color.jpg";
+			//pMat->TexNormal = "Assets/brick_normal.jpg";
+			//pMat->TexDepth = "Assets/brick_Packed.png";
+
+			//pMat->TexAlbedo = "Assets/Rock_040_basecolor.jpg";
+			//pMat->TexNormal = "Assets/Rock_040_normal.jpg";
+			//pMat->TexDepth = "Assets/Rock_040_Packed.png";
+
+			pMat->VertexShaderSources.push_back("Shader/RockShader.vert");
 			pMat->FragmentShaderSources.push_back("Shader/RockShader.frag");
 			pMat->Metallic = Metallic;
 			pMat->Roughness = Roughness;
@@ -104,23 +121,30 @@ namespace CForge {
 
 
 		VirtualCamera Cam;
-		Cam.init(Vector3f(0.0f, 0.0f, 5.0f), Vector3f::UnitY());
+		Cam.init(Vector3f(0.0f, 5.0f, 7.0f), Vector3f::UnitY());
+		Cam.yaw(GraphicsUtility::degToRad(0));
+		//Cam.init(Vector3f(0.0f, 0.0f, -5.0f), Vector3f::UnitY());
+		//Cam.yaw(GraphicsUtility::degToRad(180));
 		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(80.0f), 0.1f, 1000.0f);
 
-		Vector3f SunPos = Vector3f(5.0f, 25.0f, 25.0f);
+		Vector3f SunPos = Vector3f(30, 30, 30);
 		DirectionalLight Sun;
 		Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
 
 		RDev.activeCamera(&Cam);
 		RDev.addLight(&Sun);
-
+		
 		SceneGraph SGTest;
 		SGNGeometry CubeSGN;
 		SGNTransformation CubeTransformSGN;
 		StaticActor Cube;
 
-		RockMesh M;
-		setMeshShader(&M, 0.1f, 0.04f);
+		string exportPath = "C:/Users/wolfr/source/repos/CrossForge/out/build/x64-Debug/Assets/";
+		//string exportPath = "C:/Users/wolfr/Source/Repos/CrossForge/Assets/";
+		TreeGenerator::generateTrees(TreeType::aspen, 1, exportPath);
+		TreeMesh M;
+		//RockMesh M;
+		setMeshShader(&M, 0.1f, 0.00f);
 		//M.computePerVertexNormals();
 		Cube.init(&M);
 
@@ -128,9 +152,12 @@ namespace CForge {
 		CubeSGN.init(&CubeTransformSGN, &Cube);
 		SGTest.init(&CubeTransformSGN);
 
+
+
 		// rotate about the y-axis at 45 degree every second
 		Quaternionf R;
-		R = AngleAxisf(GraphicsUtility::degToRad(10.0f / 60.0f), Vector3f::UnitY());
+		
+		R = AngleAxisf(GraphicsUtility::degToRad(15.0f / 60.0f), Vector3f::UnitY());
 		CubeTransformSGN.rotationDelta(R);
 
 		int64_t LastFPSPrint = GetTickCount();
@@ -146,8 +173,6 @@ namespace CForge {
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
-
-			
 
 			RenderWin.swapBuffers();
 
