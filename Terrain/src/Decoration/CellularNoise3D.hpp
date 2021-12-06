@@ -3,7 +3,7 @@
 #include <math.h>
 #include <algorithm>
 
-#include "../Core/CoreUtility.hpp"
+#include "CForge/Core/CoreUtility.hpp"
 
 using namespace Eigen;
 
@@ -21,7 +21,7 @@ namespace CForge {
 			this->numCells = numCells;
 			maxDist = std::max(std::max(width, height), depth) * 2;
 
-			//seed für randomF
+			//seed fï¿½r randomF
 			srand(time(NULL));
 
 			// generate Points

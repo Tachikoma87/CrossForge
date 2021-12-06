@@ -1,8 +1,8 @@
 #ifndef __CFORGE_GRASS_GENERATOR_H__
 #define __CFORGE_GRASS_GENERATOR_H__
 
-#include "../Core/CoreUtility.hpp"
-#include "ObjExporter.hpp"
+#include "CForge/Core/CoreUtility.hpp"
+#include "CForge/AssetIO/ObjExporter.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>

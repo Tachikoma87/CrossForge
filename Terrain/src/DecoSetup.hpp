@@ -18,28 +18,29 @@
 #ifndef __CFORGE_PITESTSCENE_HPP__
 #define __CFORGE_PITESTSCENE_HPP__
 
-#include "../CForge/AssetIO/SAssetIO.h"
-#include "../CForge/Graphics/Shader/SShaderManager.h"
-#include "../CForge/Graphics/STextureManager.h"
+#include "CForge/AssetIO/SAssetIO.h"
+#include "CForge/Graphics/Shader/SShaderManager.h"
+#include "CForge/Graphics/STextureManager.h"
 
-#include "../CForge/Graphics/GLWindow.h"
-#include "../CForge/Graphics/GraphicsUtility.h"
-#include "../CForge/Graphics/RenderDevice.h"
+#include "CForge/Graphics/GLWindow.h"
+#include "CForge/Graphics/GraphicsUtility.h"
+#include "CForge/Graphics/RenderDevice.h"
 
-#include "../CForge/Graphics/Lights/DirectionalLight.h"
+#include "CForge/Graphics/Lights/DirectionalLight.h"
 
-#include "../CForge/Graphics/SceneGraph/SceneGraph.h"
-#include "../CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "../CForge/Graphics/SceneGraph/SGNTransformation.h"
+#include "CForge/Graphics/SceneGraph/SceneGraph.h"
+#include "CForge/Graphics/SceneGraph/SGNGeometry.h"
+#include "CForge/Graphics/SceneGraph/SGNTransformation.h"
 
-#include "../CForge/Graphics/Actors/StaticActor.h"
+#include "CForge/Graphics/Actors/StaticActor.h"
 
-#include "../CForge/AssetIO/RockMesh.hpp"
-#include "../CForge/AssetIO/TreeMesh.hpp"
-#include "../CForge/AssetIO/TreeGenerator.hpp"
+#include "Terrain/src/Decoration/RockMesh.hpp"
+#include "Terrain/src/Decoration/TreeMesh.hpp"
+#include "Terrain/src/Decoration/TreeGenerator.hpp"
 
 using namespace Eigen;
 using namespace std;
+using namespace Terrain;
 
 namespace CForge {
 
@@ -47,9 +48,9 @@ namespace CForge {
 		for (uint32_t i = 0; i < pM->materialCount(); ++i) {
 			T3DMesh<float>::Material* pMat = pM->getMaterial(i);
 
-			pMat->TexAlbedo = "Assets/Aspen_bark_001_COLOR.jpg";
-			pMat->TexNormal = "Assets/Aspen_bark_001_NORM.jpg";
-			pMat->TexDepth = "Assets/Aspen_bark_001_Packed.png";
+			pMat->TexAlbedo = "Assets/richard/Aspen_bark_001_COLOR.jpg";
+			pMat->TexNormal = "Assets/richard/Aspen_bark_001_NORM.jpg";
+			pMat->TexDepth = "Assets/richard/Aspen_bark_001_Packed.png";
 
 			//pMat->TexAlbedo = "Assets/Bark_06_baseColor.jpg";
 			//pMat->TexNormal = "Assets/Bark_06_normal.jpg";
@@ -74,7 +75,7 @@ namespace CForge {
 		}//for[materials]
 	}//setMeshShader
 
-	void MinimumGraphicalSetup(void) {
+	void DecoSetup(void) {
 		SAssetIO* pAssIO = SAssetIO::instance();
 		STextureManager* pTexMan = STextureManager::instance();
 		SShaderManager* pSMan = SShaderManager::instance();
@@ -139,9 +140,8 @@ namespace CForge {
 		SGNTransformation CubeTransformSGN;
 		StaticActor Cube;
 
-		string exportPath = "C:/Users/wolfr/source/repos/CrossForge/out/build/x64-Debug/Assets/";
-		//string exportPath = "C:/Users/wolfr/Source/Repos/CrossForge/Assets/";
-		TreeGenerator::generateTrees(TreeType::aspen, 1, exportPath);
+		string exportPath = "Assets/";
+		TreeGenerator::generateTrees(TreeGenerator::Normal, 1, exportPath);
 		TreeMesh M;
 		//RockMesh M;
 		setMeshShader(&M, 0.1f, 0.00f);
@@ -160,7 +160,6 @@ namespace CForge {
 		R = AngleAxisf(GraphicsUtility::degToRad(15.0f / 60.0f), Vector3f::UnitY());
 		CubeTransformSGN.rotationDelta(R);
 
-		int64_t LastFPSPrint = GetTickCount();
 		int32_t FPSCount = 0;
 
 		while (!RenderWin.shutdown()) {
@@ -179,11 +178,7 @@ namespace CForge {
 			}
 
 			FPSCount++;
-			if (GetTickCount() - LastFPSPrint > 1000) {
-				printf("FPS: %d\n", FPSCount);
-				FPSCount = 0;
-				LastFPSPrint = GetTickCount();
-			}
+
 		}//while[main loop]
 
 
