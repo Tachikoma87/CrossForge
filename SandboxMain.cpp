@@ -54,6 +54,7 @@ int main(int argc, char* argv[]) {
 	}
 	
 
+
 	if(nullptr != pDev) pDev->release();
 	
 #ifdef WIN32

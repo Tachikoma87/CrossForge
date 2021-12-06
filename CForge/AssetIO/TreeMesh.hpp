@@ -1,56 +1,24 @@
-#ifndef __CFORGE_ROCKMESH_H__
-#define __CFORGE_ROCKMESH_H__
+#ifndef __CFORGE_TREEMESH_H__
+#define __CFORGE_TREEMESH_H__
 
 #include "../Core/CForgeObject.h"
 #include "../Core/CoreUtility.hpp"
 #include "T3DMesh.hpp"
 #include "SAssetIO.h"
-#include "PerlinNoise.hpp"
-#include "CellularNoise3D.hpp"
 
 using namespace Eigen;
 
 namespace CForge {
 
-	class RockMesh : public T3DMesh<float> {
+	class TreeMesh : public T3DMesh<float> {
 		
 
 		public:
-			RockMesh() : T3DMesh() {
-				// load base mesh (sphere)
-				//SAssetIO::load("Assets/uvSphere.obj", this);
-				SAssetIO::load("Assets/uvSphereLowPoly.obj", this);
-				//SAssetIO::load("Assets/plane.obj", this);
-				//SAssetIO::load("Assets/cube.obj", this);
-				
-				
-				// generate noise
-				CellularNoise3D cNoise(10, 1, 1, 1);
-				CellularNoise3D fineCNoise(50, 1, 1, 1);
-				siv::PerlinNoise pNoise;
-
-				// rough stone shape
+			TreeMesh() : T3DMesh() {
+				SAssetIO::load("Assets/tree0.obj", this);
+				//computePerFaceNormals();
+				//calcTangents();
 				updateVertexAtributes();
-				for (int i = 0; i < m_Positions.size(); i++) {
-					m_Positions[i] += m_Normals[i] * cNoise.getValue(m_Positions[i], 0, 4);
-				}
-
-				// fine cut
-				updateVertexAtributes();
-				for (int i = 0; i < m_Positions.size(); i++) {
-					m_Positions[i] += m_Normals[i] * (pNoise.accumulatedOctaveNoise3D(m_Positions[i].x(), m_Positions[i].y(), m_Positions[i].z(), 8) / 7.5);
-				}
-				
-				// upscale
-				/*
-				float scale = 3;
-				for (int i = 0; i < m_Positions.size(); i++) {
-					m_Positions[i] *= scale;
-				}
-				*/
-
-				updateVertexAtributes();
-
 				//printf("Amount of Vertices: %d\n", m_Positions.size());
 			}
 
@@ -91,6 +59,7 @@ namespace CForge {
 							m_Tangents[uniqueVertices[i][j]] = m_Tangents[uniqueVertices[i][0]];
 						}
 					}
+
 
 				}
 
