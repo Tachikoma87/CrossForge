@@ -120,15 +120,26 @@ endif(UNIX)
 
 
 project(ExportLibrary)
-add_executable(ExportLibrary
-		ExportLibrary.cpp
-		)
+add_executable(ExportLibrary ExportLibrary.cpp)
 
-target_link_libraries(ExportLibrary
-		PRIVATE crossforge
-		)
+target_link_libraries(ExportLibrary PRIVATE crossforge)
+
+# TERRAIN
 
 if(WIN32)
+	project (Terrain)
+	add_executable(Terrain
+		"thirdparty/glad/src/glad.c"
+		Main.cpp
+        Terrain/src/Map/ClipMap.cpp
+        Terrain/src/Map/TileNode.cpp
+        Terrain/src/Map/HeightMap.cpp
+        Terrain/src/Map/TerrainMap.cpp
+        Terrain/src/Map/TileActor.cpp
+		Terrain/src/ArrayTexture.cpp Terrain/src/Decoration/TreeGenerator.cpp)
+endif (WIN32)
+
+if(UNIX)
 	project (Terrain)
 	add_executable(Terrain
 		Main.cpp
@@ -137,32 +148,10 @@ if(WIN32)
         Terrain/src/Map/HeightMap.cpp
         Terrain/src/Map/TerrainMap.cpp
         Terrain/src/Map/TileActor.cpp
-		"thirdparty/glad/src/glad.c"
-		Terrain/src/ArrayTexture.cpp Terrain/src/ArrayTexture.h)
-endif (WIN32)
-
-if(UNIX)
-	project (Terrain)
-	add_executable(Terrain
-		Main.cpp
-        Terrain/src/Map/ClipMap.cpp
-        Terrain/src/Map/TileNode.cpp
-        Terrain/src/Map/HeightMap.cpp
-        Terrain/src/Map/TerrainMap.cpp
-        Terrain/src/Map/TileActor.cpp Terrain/src/ArrayTexture.cpp Terrain/src/ArrayTexture.h)
+		Terrain/src/ArrayTexture.cpp Terrain/src/Decoration/TreeGenerator.cpp)
 endif (UNIX)
 
-if(WIN32)
-	target_link_libraries(Terrain
-			PRIVATE crossforge
-			)
-endif (WIN32)
-
-if(UNIX)
-	target_link_libraries(Terrain
-			PRIVATE crossforge
-			)
-endif(UNIX)
+target_link_libraries(Terrain PRIVATE crossforge)
 
 # copy engine shaders
 add_custom_command(
