@@ -15,9 +15,13 @@ namespace Terrain {
     }
 
     void HeightMap::generate(HeightMapConfig config) {
-        GLint internalFormat = GL_R16UI;
-        GLint format = GL_RED_INTEGER;
-        GLint dataType = GL_UNSIGNED_SHORT;
+//        GLint internalFormat = GL_R16UI;
+//        GLint format = GL_RED_INTEGER;
+//        GLint dataType = GL_UNSIGNED_SHORT;
+
+        GLint internalFormat = GL_R32F;
+        GLint format = GL_RED;
+        GLint dataType = GL_FLOAT;
 
         GLuint textureHandle;
         glGenTextures(1, &textureHandle);

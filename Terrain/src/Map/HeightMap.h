@@ -1,4 +1,4 @@
-#pragma onceFLOAT
+#pragma once
 
 #include <CForge/Graphics/GLTexture2D.h>
 #include <CForge/Graphics/Shader/GLShader.h>

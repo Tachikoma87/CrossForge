@@ -129,6 +129,7 @@ namespace Terrain {
             return;
         }
 
+
         GLWindow window;
         RenderDevice renderDevice;
         VirtualCamera camera;
@@ -138,7 +139,7 @@ namespace Terrain {
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);
 
-        ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 64, .levelCount = 8};
+        ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 128, .levelCount = 5};
         HeightMap::NoiseConfig noiseConfig = {.seed = 0,
             .scale = 1.0f,
             .octaves = 10,
