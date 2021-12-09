@@ -10,7 +10,8 @@ const vec3 COLORS[LAYER_COUNT] = vec3[](vec3(0, 0, 204) / 255, vec3(252, 208, 70
 const float LAYER_HEIGHTS[LAYER_COUNT - 1] = float[](0.5, 0.54, 0.62, 0.73, 0.83);
 const float BLEND_VALUES[LAYER_COUNT - 1] = float[](0.02, 0.1, 0.1, 0.1, 0.2);
 
-uniform usampler2D HeightMap;
+//uniform usampler2D HeightMap;
+uniform sampler2D HeightMap;
 uniform sampler2DArray Textures;
 uniform float MapHeight;
 
@@ -35,8 +36,12 @@ vec3 calculateLayerColor(float height) {
     return color;
 }
 
-float getHeight(uvec4 sampledHeight) {
-    return sampledHeight.x / float(MAX_VALUE) * MapHeight;
+//float getHeight(uvec4 sampledHeight) {
+//    return sampledHeight.x / float(MAX_VALUE) * MapHeight;
+//}
+
+float getHeight(vec4 sampledHeight) {
+    return sampledHeight.x * MapHeight;
 }
 
 vec3 calculateNormal(vec2 samplePosition) {

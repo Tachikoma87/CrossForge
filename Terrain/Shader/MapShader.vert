@@ -12,7 +12,8 @@ layout(std140) uniform ModelData {
     mat4 ModelMatrix;
 };
 
-uniform usampler2D HeightMap;
+//uniform usampler2D HeightMap;
+uniform sampler2D HeightMap;
 uniform float MapScale;
 uniform float MapHeight;
 
@@ -30,12 +31,12 @@ void main(){
     // first 0.5 centeres the texel position and the second centers the map texture
     SamplePosition = (worldPosition.xz + 0.5) / mapSize;
     SamplePosition = vec2(SamplePosition.x + 0.5, -SamplePosition.y + 0.5);
-    Height = texelFetch(HeightMap, ivec2(SamplePosition * mapSize), 0).x / float(MAX_VALUE);
+//    Height = texelFetch(HeightMap, ivec2(SamplePosition * mapSize), 0).x / float(MAX_VALUE);
+    Height = texelFetch(HeightMap, ivec2(SamplePosition * mapSize), 0).x;
 
     worldPosition.y = Height * MapHeight;
     worldPosition.xyz *= MapScale;
     FragPosition = worldPosition.xyz;
 
     gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * worldPosition;
-
 }
