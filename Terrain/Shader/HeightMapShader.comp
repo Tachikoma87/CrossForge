@@ -24,7 +24,8 @@ struct NoiseData {
 
 layout(local_size_x = 1, local_size_y = 1) in;
 
-layout(r16ui, binding = 0) uniform uimage2D HeighMap;
+//layout(r16ui, binding = 0) uniform uimage2D HeighMap;
+layout(r32f, binding = 0) uniform image2D HeighMap;
 uniform NoiseData Noise;
 
 vec3 mod289(vec3 x) {
@@ -133,5 +134,6 @@ void main() {
 //        pixel.x = 0;
 //    }
 
-    imageStore(HeighMap, textureCoords, uvec4((height + 1) / 2 * float(MAX_VALUE)));
+//    imageStore(HeighMap, textureCoords, uvec4((height + 1) / 2 * float(MAX_VALUE)));
+    imageStore(HeighMap, textureCoords, vec4((height + 1) / 2));
 }
