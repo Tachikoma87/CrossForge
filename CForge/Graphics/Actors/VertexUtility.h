@@ -35,9 +35,9 @@ namespace CForge {
 			VPROP_NORMAL			= 0x0002,
 			VPROP_TANGENT			= 0x0004,
 			VPROP_UVW				= 0x0008,
-			VPROP_COLOR				= 0x0010,
+			VPROP_COLOR				= 0x0010, ///< vertex colors
 			VPROP_BONEINDICES		= 0x0020, ///< bone indices
-			VPROP_BONEWEIGHTS		= 0x0040,
+			VPROP_BONEWEIGHTS		= 0x0040, ///< bone weights
 		};
 
 		VertexUtility(void);

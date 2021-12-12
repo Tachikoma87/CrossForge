@@ -1,6 +1,5 @@
 #version 330 core
 
-
 #ifdef SKELETAL_ANIMATION
 const uint BoneCount = 40U;
 
@@ -10,7 +9,6 @@ layout (std140) uniform BoneData{
 #endif
 
 #ifdef MORPHTARGET_ANIMATION 
-
 uniform samplerBuffer MorphTargetDataBuffer;
 
 layout (std140) uniform MorphTargetData{
@@ -43,6 +41,11 @@ layout (location = 4) in ivec4 BoneIndices;
 layout (location = 5) in vec4 BoneWeights;
 #endif
 
+#ifdef VERTEX_COLORS 
+layout (location = 6) in vec3 VertexColor;
+out vec3 Color;
+#endif
+
 out vec3 Pos;
 out vec3 N;
 out vec2 UV;
@@ -71,6 +74,10 @@ void main(){
 	}//for[active morph targets]
 
 	Po += vec4(Displ, 0.0);
+#endif
+
+#ifdef VERTEX_COLORS
+Color = VertexColor;
 #endif
 
 	N = (ModelMatrix * No).xyz;
