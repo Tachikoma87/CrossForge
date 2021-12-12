@@ -31,7 +31,7 @@ namespace CForge {
 	class CFORGE_IXPORT GLShader: public CForgeObject {
 	public:
 		enum Attribute: int8_t {
-			ATTRIB_UNKNOWN = 0,
+			ATTRIB_UNKNOWN = -1,
 			ATTRIB_POSITION = 0,
 			ATTRIB_NORMAL,
 			ATTRIB_TANGENT,

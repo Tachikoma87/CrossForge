@@ -14,6 +14,7 @@
 #include "Examples/exampleMorphTargetAnimation.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
+#include "Prototypes/TestScenes/VertexColorTestScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -49,9 +50,10 @@ int main(int argc, char* argv[]) {
 	try {
 		//exampleMinimumGraphicsSetup();
 		//exampleSkeletalAnimation();
-		exampleMorphTargetAnimation();
+		//exampleMorphTargetAnimation();
 		// 
 		//shadowTest();
+		vertexColorTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
