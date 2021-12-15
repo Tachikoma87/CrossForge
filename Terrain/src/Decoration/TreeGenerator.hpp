@@ -24,7 +24,7 @@ namespace Terrain {
 
     private:
         struct RotPos {
-            Vector3f rotation;
+            Quaternionf rotation;
             Vector3f position;
         };
 
@@ -50,12 +50,6 @@ namespace Terrain {
                                            Matrix3<float> &rotationMatrix, float uvCordU);
 
         static void generateLeavesQuad(GEOMETRY &geometry, RotPos &rotPos, float width, float height, float offset, int numFaces);
-
-        static Vector3f getVectorRotation(Vector3f vec);
-
-        static Vector3f rotateVector(Vector3f vec, Vector3f rot);
-
-        static Matrix3f rotVectorToRotMatrix(Vector3f rot);
         
         static float randomF(float min, float max);
 
