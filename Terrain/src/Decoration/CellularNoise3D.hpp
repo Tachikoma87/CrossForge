@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <random>
 #include <math.h>
@@ -7,7 +9,6 @@
 
 using namespace Eigen;
 
-namespace CForge {
 
 	class CellularNoise3D{
 
@@ -60,5 +61,5 @@ namespace CForge {
 			return (min + (float) rand() / (float) (RAND_MAX) * (max - min));
 		}
 	};
-}
+
 

@@ -1,5 +1,4 @@
-#ifndef __CFORGE_TREEMESH_H__
-#define __CFORGE_TREEMESH_H__
+#pragma once
 
 #include "CForge/Core/CForgeObject.h"
 #include "CForge/Core/CoreUtility.hpp"
@@ -10,16 +9,16 @@ using namespace Eigen;
 
 namespace CForge {
 
-	class TreeMesh : public T3DMesh<float> {
+	class DekoMesh : public T3DMesh<float> {
 		
 
 		public:
-			TreeMesh() : T3DMesh() {
-				SAssetIO::load("Assets/tree0.obj", this);
-				//computePerFaceNormals();
-				//calcTangents();
+			DekoMesh() : T3DMesh() {
+			}
+
+			void load(std::string importPath) {
+				SAssetIO::load(importPath, this);
 				updateVertexAtributes();
-				//printf("Amount of Vertices: %d\n", m_Positions.size());
 			}
 
 			protected:
@@ -84,4 +83,3 @@ namespace CForge {
 				}
 	};
 }
-#endif

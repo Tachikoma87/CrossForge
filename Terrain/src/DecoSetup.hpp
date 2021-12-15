@@ -35,8 +35,10 @@
 #include "CForge/Graphics/Actors/StaticActor.h"
 
 #include "Terrain/src/Decoration/RockMesh.hpp"
-#include "Terrain/src/Decoration/TreeMesh.hpp"
+#include "Terrain/src/Decoration/DekoMesh.hpp"
 #include "Terrain/src/Decoration/TreeGenerator.hpp"
+#include "Terrain/src/Decoration/RockGenerator.hpp"
+#include "Terrain/src/Decoration/GrassGenerator.hpp"
 
 using namespace Eigen;
 using namespace std;
@@ -48,28 +50,31 @@ namespace CForge {
 		for (uint32_t i = 0; i < pM->materialCount(); ++i) {
 			T3DMesh<float>::Material* pMat = pM->getMaterial(i);
 
-			pMat->TexAlbedo = "Assets/richard/Aspen_bark_001_COLOR.jpg";
-			pMat->TexNormal = "Assets/richard/Aspen_bark_001_NORM.jpg";
-			pMat->TexDepth = "Assets/richard/Aspen_bark_001_Packed.png";
+			//pMat->TexAlbedo = "Assets/richard/leaves3_color.png";
+			//pMat->TexDepth = "Assets/richard/leaves3_alpha2.png";
 
-			//pMat->TexAlbedo = "Assets/Bark_06_baseColor.jpg";
-			//pMat->TexNormal = "Assets/Bark_06_normal.jpg";
-			//pMat->TexDepth = "Assets/Bark_06_Packed.png";
+			//pMat->TexAlbedo = "Assets/richard/free grass.png";
+			//pMat->TexDepth = "Assets/richard/grassAlpha.png";
 
-			//pMat->TexAlbedo = "Assets/Rock_035_baseColor.jpg";
-			//pMat->TexNormal = "Assets/Rock_035_normal.jpg";
-			//pMat->TexDepth = "Assets/Rock_035_Packed.png";
+			//pMat->TexAlbedo = "Assets/richard/Aspen_bark_001_COLOR.jpg";
+			//pMat->TexNormal = "Assets/richard/Aspen_bark_001_NORM.jpg";
+			//pMat->TexDepth = "Assets/richard/Aspen_bark_001_Packed.png";
 
-			//pMat->TexAlbedo = "Assets/brick_color.jpg";
-			//pMat->TexNormal = "Assets/brick_normal.jpg";
-			//pMat->TexDepth = "Assets/brick_Packed.png";
+			//pMat->TexAlbedo = "Assets/richard/Bark_06_baseColor.jpg";
+			//pMat->TexNormal = "Assets/richard/Bark_06_normal.jpg";
+			//pMat->TexDepth = "Assets/richard/Bark_06_Packed.png";
 
-			//pMat->TexAlbedo = "Assets/Rock_040_basecolor.jpg";
-			//pMat->TexNormal = "Assets/Rock_040_normal.jpg";
-			//pMat->TexDepth = "Assets/Rock_040_Packed.png";
+			//pMat->TexAlbedo = "Assets/richard/Rock_035_baseColor.jpg";
+			//pMat->TexNormal = "Assets/richard/Rock_035_normal.jpg";
+			//pMat->TexDepth = "Assets/richard/Rock_035_Packed.png";
+
+			//pMat->TexAlbedo = "Assets/richard/Rock_040_basecolor.jpg";
+			//pMat->TexNormal = "Assets/richard/Rock_040_normal.jpg";
+			//pMat->TexDepth = "Assets/richard/Rock_040_Packed.png";
 
 			pMat->VertexShaderSources.push_back("Shader/RockShader.vert");
-			pMat->FragmentShaderSources.push_back("Shader/RockShader.frag");
+			//pMat->FragmentShaderSources.push_back("Shader/RockShader.frag");
+			pMat->FragmentShaderSources.push_back("Shader/GrassShader.frag");
 			pMat->Metallic = Metallic;
 			pMat->Roughness = Roughness;
 		}//for[materials]
@@ -120,8 +125,8 @@ namespace CForge {
 		LC.SpotLightCount = 0;
 		pSMan->configShader(LC);
 
-
 		VirtualCamera Cam;
+		//Cam.init(Vector3f(0.0f, 5.0f, 7.0f), Vector3f::UnitY());
 		Cam.init(Vector3f(0.0f, 5.0f, 7.0f), Vector3f::UnitY());
 		Cam.yaw(GraphicsUtility::degToRad(0));
 		//Cam.init(Vector3f(0.0f, 0.0f, -5.0f), Vector3f::UnitY());
@@ -135,30 +140,123 @@ namespace CForge {
 		RDev.activeCamera(&Cam);
 		RDev.addLight(&Sun);
 
+
+
 		SceneGraph SGTest;
-		SGNGeometry CubeSGN;
-		SGNTransformation CubeTransformSGN;
-		StaticActor Cube;
+		SGNTransformation objectTransformSGN;
+		objectTransformSGN.init(nullptr);
+		SGNGeometry objectSGN;
+		StaticActor object;
+		SGNGeometry objectSGN2;
+		StaticActor object2;
 
-		string exportPath = "Assets/";
-		TreeGenerator::generateTrees(TreeGenerator::Normal, 1, exportPath);
-		TreeMesh M;
-		//RockMesh M;
-		setMeshShader(&M, 0.1f, 0.00f);
-		//M.computePerVertexNormals();
-		Cube.init(&M);
+		DekoMesh M;
+		DekoMesh M2;
 
-		CubeTransformSGN.init(nullptr);
-		CubeSGN.init(&CubeTransformSGN, &Cube);
-		SGTest.init(&CubeTransformSGN);
+		enum DekoObject {rock, grass, tree, leaves, treeAndLeaves};
+		bool generateNew = true;
+
+		switch (treeAndLeaves) {
+		case rock:
+			if (generateNew) {
+				RockGenerator::generateRocks(RockGenerator::Normal, 1, "Assets/");
+			}
+			M.load("Assets/rock0.obj");
+			M.getMaterial(0)->TexAlbedo = "Assets/richard/Rock_035_baseColor.jpg";
+			M.getMaterial(0)->TexNormal = "Assets/richard/Rock_035_normal.jpg";
+			M.getMaterial(0)->TexDepth = "Assets/richard/Rock_035_Packed.png";
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
+			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/RockShader.frag");
+
+			object.init(&M);
+			objectTransformSGN.translation(Vector3f(0, 5, 0));
+			objectSGN.init(&objectTransformSGN, &object);
+			SGTest.init(&objectTransformSGN);
+			break;
+		case grass:
+			if (generateNew) {
+				GrassGenerator::generateGrass(GrassType::triangle, 1, "Assets/");
+			}
+			M.load("Assets/grass0.obj");
+			M.getMaterial(0)->TexAlbedo = "Assets/richard/grass_color.jpg";
+			M.getMaterial(0)->TexDepth = "Assets/richard/grassAlpha.png";
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
+			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
+			
+			object.init(&M);
+			objectTransformSGN.translation(Vector3f(0, 3, 0));
+			objectSGN.init(&objectTransformSGN, &object);
+			SGTest.init(&objectTransformSGN);
+			break;
+		case tree:
+			if (generateNew) {
+				TreeGenerator::generateTrees(TreeGenerator::Normal, 1, "Assets/");
+			}
+			M.load("Assets/tree0.obj");
+			//M.getMaterial(0)->TexAlbedo = "Assets/richard/Aspen_bark_001_COLOR.jpg";
+			//M.getMaterial(0)->TexNormal = "Assets/richard/Aspen_bark_001_NORM.jpg";
+			//M.getMaterial(0)->TexDepth = "Assets/richard/Aspen_bark_001_Packed.png";
+
+			M.getMaterial(0)->TexAlbedo = "Assets/richard/Bark_06_baseColor.jpg";
+			M.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
+			M.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
+			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
+
+			object.init(&M);
+			objectSGN.init(&objectTransformSGN, &object);
+			SGTest.init(&objectTransformSGN);
+			break;
+		case leaves:
+			if (generateNew) {
+				TreeGenerator::generateTrees(TreeGenerator::Normal, 1, "Assets/");
+			}
+			M.load("Assets/leaves0.obj");
+			M.getMaterial(0)->TexAlbedo = "Assets/richard/leaves3_color.png";
+			M.getMaterial(0)->TexDepth = "Assets/richard/leaves3_alpha.jpg";
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
+			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
+
+			object.init(&M);
+			objectSGN.init(&objectTransformSGN, &object);
+			SGTest.init(&objectTransformSGN);
+			break;
+		case treeAndLeaves:
+			if (generateNew) {
+				TreeGenerator::generateTrees(TreeGenerator::Normal, 1, "Assets/");
+			}
+
+			M.load("Assets/tree0.obj");
+			M.getMaterial(0)->TexAlbedo = "Assets/richard/Bark_06_baseColor.jpg";
+			M.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
+			M.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
+			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
+
+			object.init(&M);
+			objectSGN.init(&objectTransformSGN, &object);
+			SGTest.init(&objectTransformSGN);
 
 
+			M2.load("Assets/leaves0.obj");
+			M2.getMaterial(0)->TexAlbedo = "Assets/richard/leaves3_color.png";
+			M2.getMaterial(0)->TexDepth = "Assets/richard/leaves3_alpha.jpg";
+			M2.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
+			M2.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
+
+			object2.init(&M2);
+			objectSGN2.init(&objectTransformSGN, &object2);
+			SGTest.init(&objectTransformSGN);
+			break;
+		}
+
+		//printf("\n\nVector x: %f, y: %f, z: %f\n\n", testVector.x(), testVector.y(), testVector.z());
 
 		// rotate about the y-axis at 45 degree every second
 		Quaternionf R;
 
 		R = AngleAxisf(GraphicsUtility::degToRad(15.0f / 60.0f), Vector3f::UnitY());
-		CubeTransformSGN.rotationDelta(R);
+		objectTransformSGN.rotationDelta(R);
 
 		int32_t FPSCount = 0;
 
@@ -167,9 +265,13 @@ namespace CForge {
 			SGTest.update(1.0f);
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			
 			SGTest.render(&RDev);
-
+			
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+
+			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+			
 
 			RenderWin.swapBuffers();
 

@@ -24,7 +24,7 @@ namespace Terrain {
 
     private:
         struct RotPos {
-            Quaternionf rotation;
+            Vector3f rotation;
             Vector3f position;
         };
 
@@ -37,10 +37,10 @@ namespace Terrain {
 
         // generate "standard" tree
         static void generateTree(GEOMETRY &geometry, int recursionDepth, float numOfSplits, int complexity,
-                                 RotPos rotPos, BranchProperties branchProperties);
+                                 RotPos rotPos, BranchProperties branchProperties, GEOMETRY& leavesGeometry);
 
         static void generateAspenBirkTree(GEOMETRY &geometry, int complexity, int numBranches, RotPos rotPos,
-                                          BranchProperties branchProperties);
+                                          BranchProperties branchProperties, GEOMETRY& leavesGeometry);
 
         // generate distorted cylinder with radius interpolation
         static RotPos generateBranch(GEOMETRY &geometry, RotPos rotPos, int numCircles, int pointsPerCirlce,
@@ -49,8 +49,14 @@ namespace Terrain {
         static void generateCircleVertices(GEOMETRY &geometry, int pointsPerCircle, Vector3f centrePoint, float radius,
                                            Matrix3<float> &rotationMatrix, float uvCordU);
 
-        static void generateTestQuad(GEOMETRY &geometry);
+        static void generateLeavesQuad(GEOMETRY &geometry, RotPos &rotPos, float width, float height, float offset, int numFaces);
 
+        static Vector3f getVectorRotation(Vector3f vec);
+
+        static Vector3f rotateVector(Vector3f vec, Vector3f rot);
+
+        static Matrix3f rotVectorToRotMatrix(Vector3f rot);
+        
         static float randomF(float min, float max);
 
         static int randomI(int min, int max);
