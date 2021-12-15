@@ -2,11 +2,6 @@
 
 namespace Terrain {
     void TreeGenerator::generateTrees(TreeType treeType, int numberTrees, string exportPath) {
-        Vector3f vec(1, 0, 1);
-        Vector3f testVector = getVectorRotation(vec);
-        printf("\n\nVector x: %f, y: %f, z: %f\n\n", testVector.x() / PI * 180, testVector.y() / PI * 180, testVector.z() / PI * 180);
-        //printf("\n\nVector x: %f, y: %f, z: %f\n\n", testVector.x(), testVector.y(), testVector.z());
-       
         for (int i = 0; i < numberTrees; i++) {
             // new random Seed
             srand(time(NULL));
@@ -15,7 +10,7 @@ namespace Terrain {
             GEOMETRY geometry;
             BranchProperties branchProperties;
             RotPos rotPos;
-            rotPos.rotation = Vector3f(0, 0, 0);
+            rotPos.rotation = Quaternionf(1, 0, 0, 0);
             rotPos.position = Vector3f(0, 0, 0);
 
             GEOMETRY leavesGeometry;
@@ -43,17 +38,14 @@ namespace Terrain {
 
             ObjExporter::meshExport(geometry, exportPath + "tree" + to_string(i) + ".obj");
             ObjExporter::meshExport(leavesGeometry, exportPath + "leaves" + to_string(i) + ".obj");
-            
         }
-        
     }
 
     void TreeGenerator::generateTree(GEOMETRY &geometry, int recursionDepth, float numOfSplits, int complexity,
                                      RotPos rotPos,
-                                     BranchProperties branchProperties, GEOMETRY &leavesGeometry) {
+                                     BranchProperties branchProperties, GEOMETRY& leavesGeometry) {
         if (recursionDepth <= 0) {
-
-            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f/1600.0f, 0.1, 3);
+            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1, 3);
             rotPos.rotation.y() += PI / 2;
             generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1, 3);
             return;
@@ -82,12 +74,15 @@ namespace Terrain {
             RotPos extraBranchRotPos;
             extraBranchRotPos.position = geometry.vertices[extraBranchIndices[i]] -
                                          geometry.normals[extraBranchIndices[i]] * branchProperties.topRadius;
-            extraBranchRotPos.rotation = rotPos.rotation + Vector3f(PI / 2, randomF(0, 2 * PI), 0);//getVectorRotation(geometry.normals[extraBranchIndices[i]]);
+            extraBranchRotPos.rotation = Quaternionf().setFromTwoVectors(Vector3f(0, 1, 0),
+                                                                         geometry.normals[extraBranchIndices[i]]);
             extraBranchRotPos.rotation.x() *= 0.6;
+            extraBranchRotPos.rotation.z() *= 0.6;
+            extraBranchRotPos.rotation.normalize();
             generateTree(geometry, recursionDepth - 1, numOfSplits, complexity, extraBranchRotPos,
                          extraBranchProperties, leavesGeometry);
         }
-        
+
         // smooth branches
         for (int i = 0; i < numOfSplits + 0.5; i++) {
             generateTree(geometry, recursionDepth - 1, numOfSplits, complexity, rotPos, branchProperties, leavesGeometry);
@@ -113,8 +108,11 @@ namespace Terrain {
             RotPos extraBranchRotPos;
             extraBranchRotPos.position = geometry.vertices[extraBranchIndices[i]] -
                                          geometry.normals[extraBranchIndices[i]] * branchProperties.topRadius;
-            extraBranchRotPos.rotation = getVectorRotation(geometry.normals[extraBranchIndices[i]]);
-            extraBranchRotPos.rotation *= 0.6;
+            extraBranchRotPos.rotation = Quaternionf().setFromTwoVectors(Vector3f(0, 1, 0),
+                                                                         geometry.normals[extraBranchIndices[i]]);
+            extraBranchRotPos.rotation.x() *= 0.6;
+            extraBranchRotPos.rotation.z() *= 0.6;
+            extraBranchRotPos.rotation.normalize();
             generateTree(geometry, 3, 2, 3, extraBranchRotPos, branchProperties, leavesGeometry);
         }
         /*
@@ -137,7 +135,7 @@ namespace Terrain {
             (2 * PI * radius); // Textur Verzerrung vermeiden indem der Kreisumfang auf 1 normiert wird
         float uvCordU = 0;
         Vector2f rotationAcceleration = Vector2f(0, 0);
-        Matrix3<float> rotationMatrix = rotVectorToRotMatrix(rotPos.rotation);
+        Matrix3<float> rotationMatrix = rotPos.rotation.toRotationMatrix();
 
         generateCircleVertices(geometry, pointsPerCirlce, rotPos.position, radius, rotationMatrix, uvCordU);
         for (int i = 1; i <= numCircles; i++) {
@@ -148,7 +146,8 @@ namespace Terrain {
             rotationAcceleration.y() += randomF(-angleStep, angleStep);
             rotPos.rotation.x() = (rotPos.rotation.x() + rotationAcceleration.x()) * 0.95;
             rotPos.rotation.z() = (rotPos.rotation.z() + rotationAcceleration.y()) * 0.95;
-            rotationMatrix = rotVectorToRotMatrix(rotPos.rotation);
+            rotPos.rotation.normalize();
+            rotationMatrix = rotPos.rotation.toRotationMatrix();
             rotPos.position += rotationMatrix * Vector3f(0, stepDistance, 0);
             generateCircleVertices(geometry, pointsPerCirlce, rotPos.position, radius, rotationMatrix, uvCordU);
             // set faces
@@ -182,9 +181,11 @@ namespace Terrain {
         }
     }
 
+
     void TreeGenerator::generateLeavesQuad(GEOMETRY &geometry, RotPos &rotPos, float width, float height, float offset, int numFaces) {
         width /= 2;
-        Matrix3f rotMat = rotVectorToRotMatrix(rotPos.rotation);
+        rotPos.rotation.normalize();
+        Matrix3f rotMat = rotPos.rotation.toRotationMatrix();
         geometry.vertices.push_back((rotMat * Vector3f(-width, height - offset, 0)) + rotPos.position);
         geometry.vertices.push_back((rotMat * Vector3f(-width, -offset, 0)) + rotPos.position);
         geometry.vertices.push_back((rotMat * Vector3f(width, -offset, 0)) + rotPos.position);
@@ -201,40 +202,6 @@ namespace Terrain {
         geometry.faces.push_back({Vector3i(vertexIndex - 3, 1, normalIndex), Vector3i(vertexIndex - 2, 2, normalIndex), Vector3i(vertexIndex - 1, 3, normalIndex), Vector3i(vertexIndex, 4, normalIndex)});
     }
 
-    Vector3f TreeGenerator::getVectorRotation(Vector3f vec) {
-        vec.normalize();
-        float zRot = atan2(vec.x(), vec.y());
-        vec = rotateVector(vec, Vector3f(0, 0, -zRot));
-        float xRot = atan2(vec.z(), vec.y());
-        vec = rotateVector(vec, Vector3f(-xRot, 0, 0));
-        float yRot = atan2(vec.x(), vec.z());
-        return Vector3f(xRot, yRot, zRot);
-    }
-
-    Vector3f TreeGenerator::rotateVector(Vector3f vec, Vector3f rot) {
-        
-        return rotVectorToRotMatrix(rot) * vec;
-    }
-
-    Matrix3f TreeGenerator::rotVectorToRotMatrix(Vector3f rot) {
-        Matrix3f xRot{
-            {1, 0, 0},
-            {0, cos(rot.x()), -sin(rot.x())},
-            {0, sin(rot.x()), cos(rot.x())}
-        };
-        Matrix3f yRot{
-            {cos(rot.y()), 0, sin(rot.y())},
-            {0, 1, 0},
-            {-sin(rot.y()), 0, cos(rot.y())}
-        };
-        Matrix3f zRot{
-            {cos(rot.z()), -sin(rot.z()), 0},
-            {sin(rot.z()), cos(rot.z()), 0},
-            {0, 0, 1}
-        };
-
-        return zRot * yRot * xRot;
-    }
 
     float TreeGenerator::randomF(float min, float max) {
         return (min + (float) rand() / (float) (RAND_MAX) * (max - min));
