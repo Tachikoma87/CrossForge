@@ -122,7 +122,7 @@ namespace Terrain {
         bool wireframe = false;
         bool debugTexture = false;
         bool shadows = true;
-        bool richard = false;
+        bool richard = true;
 
         if (richard) {
             DecoSetup();

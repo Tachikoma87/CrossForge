@@ -15,7 +15,7 @@ layout (std140) uniform MaterialData{
 }Material;
 
 uniform sampler2D TexAlbedo;
-
+uniform sampler2D TexDepth;
 
 in vec3 Pos;
 in vec3 N;
@@ -23,6 +23,9 @@ in vec2 UV;
 
 
 void main(){
+	if (texture(TexDepth, UV).r < 0.5) {
+	discard;
+	}
+
 	FragmentColor = texture(TexAlbedo, UV);	
-	
-}//main 
+}

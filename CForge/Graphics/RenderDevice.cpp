@@ -289,6 +289,9 @@ namespace CForge {
 				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
+
+				// für decorations Test
+				glDisable(GL_CULL_FACE);
 			}
 		}break;
 		case RENDERPASS_LIGHTING: {
