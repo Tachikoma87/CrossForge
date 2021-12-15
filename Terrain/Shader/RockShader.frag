@@ -28,14 +28,14 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir);
 
 void main(){
 	// enable or disable different mapping options
-	bool paraMapping = true;
-	bool normMapping = true;
-	bool ambiMapping = true;
+	bool paraMapping = false;
+	bool normMapping = false;
+	bool ambiMapping = false;
 	bool rougMapping = false;
 	bool metaMapping = false;
 
 	// scale down Texture
-	const float uvScale = 1;
+	const float uvScale = 3;
 	vec2 smallUV = UV * uvScale;
 
 	// tangent space Matrix

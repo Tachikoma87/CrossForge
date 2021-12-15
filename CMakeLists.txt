@@ -136,7 +136,9 @@ if(WIN32)
         Terrain/src/Map/HeightMap.cpp
         Terrain/src/Map/TerrainMap.cpp
         Terrain/src/Map/TileActor.cpp
-		Terrain/src/ArrayTexture.cpp Terrain/src/Decoration/TreeGenerator.cpp)
+		Terrain/src/ArrayTexture.cpp 
+		Terrain/src/Decoration/TreeGenerator.cpp
+		Terrain/src/Decoration/RockGenerator.cpp)
 endif (WIN32)
 
 if(UNIX)
@@ -148,7 +150,9 @@ if(UNIX)
         Terrain/src/Map/HeightMap.cpp
         Terrain/src/Map/TerrainMap.cpp
         Terrain/src/Map/TileActor.cpp
-		Terrain/src/ArrayTexture.cpp Terrain/src/Decoration/TreeGenerator.cpp)
+		Terrain/src/ArrayTexture.cpp 
+		Terrain/src/Decoration/TreeGenerator.cpp
+		Terrain/src/Decoration/RockGenerator.cpp)
 endif (UNIX)
 
 target_link_libraries(Terrain PRIVATE crossforge)
