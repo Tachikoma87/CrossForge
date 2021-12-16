@@ -34,7 +34,6 @@
 
 #include "CForge/Graphics/Actors/StaticActor.h"
 
-#include "Terrain/src/Decoration/RockMesh.hpp"
 #include "Terrain/src/Decoration/DekoMesh.hpp"
 #include "Terrain/src/Decoration/TreeGenerator.hpp"
 #include "Terrain/src/Decoration/RockGenerator.hpp"
@@ -45,41 +44,6 @@ using namespace std;
 using namespace Terrain;
 
 namespace CForge {
-
-	void setMeshShader(T3DMesh<float>* pM, float Roughness, float Metallic) {
-		for (uint32_t i = 0; i < pM->materialCount(); ++i) {
-			T3DMesh<float>::Material* pMat = pM->getMaterial(i);
-
-			//pMat->TexAlbedo = "Assets/richard/leaves3_color.png";
-			//pMat->TexDepth = "Assets/richard/leaves3_alpha2.png";
-
-			//pMat->TexAlbedo = "Assets/richard/free grass.png";
-			//pMat->TexDepth = "Assets/richard/grassAlpha.png";
-
-			//pMat->TexAlbedo = "Assets/richard/Aspen_bark_001_COLOR.jpg";
-			//pMat->TexNormal = "Assets/richard/Aspen_bark_001_NORM.jpg";
-			//pMat->TexDepth = "Assets/richard/Aspen_bark_001_Packed.png";
-
-			//pMat->TexAlbedo = "Assets/richard/Bark_06_baseColor.jpg";
-			//pMat->TexNormal = "Assets/richard/Bark_06_normal.jpg";
-			//pMat->TexDepth = "Assets/richard/Bark_06_Packed.png";
-
-			//pMat->TexAlbedo = "Assets/richard/Rock_035_baseColor.jpg";
-			//pMat->TexNormal = "Assets/richard/Rock_035_normal.jpg";
-			//pMat->TexDepth = "Assets/richard/Rock_035_Packed.png";
-
-			//pMat->TexAlbedo = "Assets/richard/Rock_040_basecolor.jpg";
-			//pMat->TexNormal = "Assets/richard/Rock_040_normal.jpg";
-			//pMat->TexDepth = "Assets/richard/Rock_040_Packed.png";
-
-			pMat->VertexShaderSources.push_back("Shader/RockShader.vert");
-			//pMat->FragmentShaderSources.push_back("Shader/RockShader.frag");
-			pMat->FragmentShaderSources.push_back("Shader/GrassShader.frag");
-			pMat->Metallic = Metallic;
-			pMat->Roughness = Roughness;
-		}//for[materials]
-	}//setMeshShader
-
 	void DecoSetup(void) {
 		SAssetIO* pAssIO = SAssetIO::instance();
 		STextureManager* pTexMan = STextureManager::instance();
@@ -127,7 +91,7 @@ namespace CForge {
 
 		VirtualCamera Cam;
 		//Cam.init(Vector3f(0.0f, 5.0f, 7.0f), Vector3f::UnitY());
-		Cam.init(Vector3f(0.0f, 5.0f, 7.0f), Vector3f::UnitY());
+		Cam.init(Vector3f(0.0f, 5.0f, 6.0f), Vector3f::UnitY());
 		Cam.yaw(GraphicsUtility::degToRad(0));
 		//Cam.init(Vector3f(0.0f, 0.0f, -5.0f), Vector3f::UnitY());
 		//Cam.yaw(GraphicsUtility::degToRad(180));
@@ -139,8 +103,6 @@ namespace CForge {
 
 		RDev.activeCamera(&Cam);
 		RDev.addLight(&Sun);
-
-
 
 		SceneGraph SGTest;
 		SGNTransformation objectTransformSGN;

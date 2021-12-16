@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CForge/Core/CoreUtility.hpp"
-#include "CForge/AssetIO/ObjExporter.hpp"
+#include "ObjExporter.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
