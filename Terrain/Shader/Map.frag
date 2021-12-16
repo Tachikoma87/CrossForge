@@ -2,7 +2,7 @@
 
 const ivec3 OFFSET = ivec3(-1, 0, 1);
 const uint MAX_VALUE = 65535u;
-const float TextureScale = 100;
+const float TextureScale = 1;
 
 const int LAYER_COUNT = 6;
 const vec3 COLORS[LAYER_COUNT] = vec3[](vec3(0, 0, 204) / 255, vec3(252, 208, 70) / 255, vec3(51, 205, 0) / 255,

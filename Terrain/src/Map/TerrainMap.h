@@ -15,13 +15,13 @@ namespace Terrain {
         ~TerrainMap();
 
         void update(float cameraX , float cameraY);
+        void erode();
 
         void generateClipMap(ClipMap::ClipMapConfig clipMapConfig);
         void generateHeightMap(HeightMap::HeightMapConfig heightMapConfig);
 
         void heightMapFromTexture(GLTexture2D* texture);
 
-        void setMapHeight(float mapHeight);
         void setMapScale(float mapScale);
 
         void render(RenderDevice* renderDevice, ClipMap::TileVariant variant);
@@ -36,7 +36,6 @@ namespace Terrain {
 
         // Todo: group those once more parameters are introduced
         float mMapScale;
-        float mMapHeight;
 
         ClipMap mClipMap;
         HeightMap mHeightMap;
