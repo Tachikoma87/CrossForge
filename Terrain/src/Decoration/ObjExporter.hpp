@@ -1,11 +1,10 @@
 #ifndef __CFORGE_OBJ_EXPORTER_H__
 #define __CFORGE_OBJ_EXPORTER_H__
 
-#include "../Core/CoreUtility.hpp"
+#include "../../CForge/Core/CoreUtility.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
-
 
 using namespace Eigen;
 using namespace std;
@@ -32,7 +31,6 @@ class ObjExporter {
 		}
 
 	protected:
-
 		static string geometryToString(GEOMETRY& geometry) {
 			string ret;
 			for (auto& vertice : geometry.vertices) {

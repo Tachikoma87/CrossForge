@@ -1,12 +1,13 @@
 #pragma once
 
 #include "CForge/Core/CoreUtility.hpp"
-#include "CForge/AssetIO/ObjExporter.hpp"
+#include "ObjExporter.hpp"
 #include "CellularNoise3D.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <math.h>
+#include "PerlinNoise.hpp"
 #include <algorithm>
 
 
