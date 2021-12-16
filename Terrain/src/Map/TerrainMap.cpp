@@ -6,7 +6,7 @@
 
 namespace Terrain {
     TerrainMap::TerrainMap(SGNTransformation *rootTransform)
-        : mRootTransform(rootTransform), mMapScale(1.0f), mMapHeight(2000.0f), mTextures(7, 1024) {
+        : mRootTransform(rootTransform), mMapScale(1.0f), mTextures(7, 1024) {
         initShader();
 
         vector<string> files;
@@ -51,6 +51,10 @@ namespace Terrain {
         }
     }
 
+    void TerrainMap::erode() {
+        mHeightMap.erode(10);
+    }
+
     void TerrainMap::generateClipMap(ClipMap::ClipMapConfig clipMapConfig) {
         mClipMapConfig = clipMapConfig;
         mClipMap.generate(mClipMapConfig);
@@ -64,10 +68,6 @@ namespace Terrain {
 
     void TerrainMap::heightMapFromTexture(GLTexture2D *texture) {
         mHeightMap.setTexture(texture);
-    }
-
-    void TerrainMap::setMapHeight(float mapHeight) {
-        mMapHeight = mapHeight;
     }
 
     void TerrainMap::setMapScale(float mapScale) {
@@ -86,7 +86,7 @@ namespace Terrain {
         glUniform1i(mShader->uniformLocation("HeightMap"), 0);
         glUniform1i(mShader->uniformLocation("Textures"), 1);
         glUniform1f(mShader->uniformLocation("MapScale"), mMapScale);
-        glUniform1f(mShader->uniformLocation("MapHeight"), mMapHeight);
+        glUniform1f(mShader->uniformLocation("MapHeight"), mHeightMapConfig.mapHeight);
 
         glDrawElements(GL_TRIANGLES, mClipMap.getIndexCount(variant), GL_UNSIGNED_INT, nullptr);
     }
@@ -111,10 +111,10 @@ namespace Terrain {
         string errorLog;
 
         ShaderCode* vertexShader =
-            shaderManager->createShaderCode("Shader/MapShader.vert", "330 core",
+            shaderManager->createShaderCode("Shader/Map.vert", "330 core",
                                             0, "", "");
         ShaderCode* fragmentShader =
-            shaderManager->createShaderCode("Shader/MapShader.frag", "330 core",
+            shaderManager->createShaderCode("Shader/Map.frag", "330 core",
                                             0, "", "");
 
         vsSources.push_back(vertexShader);

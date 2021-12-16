@@ -20,6 +20,7 @@ namespace Terrain {
         struct HeightMapConfig {
             uint32_t width;
             uint32_t height;
+            float mapHeight;
             NoiseConfig noiseConfig;
         };
 
@@ -29,12 +30,17 @@ namespace Terrain {
         void generate(HeightMapConfig config);
         void setTexture(GLTexture2D* texture);
 
+        void erode(int32_t count);
+
         void bindTexture();
     private:
         void bindNoiseData(NoiseConfig config);
         void initShader();
 
+        float mMapHeight;
+
         GLTexture2D* mTexture;
-        GLShader* mShader;
+        GLShader* mHeightMapShader;
+        GLShader* mErosionShader;
     };
 }
