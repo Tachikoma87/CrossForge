@@ -24,8 +24,8 @@ namespace Terrain {
                     branchProperties.botRadius = 0.3;
                     branchProperties.topRadius = 0.2;
                     branchProperties.length = 5;
-                    branchProperties.angleVariationStrength = PI / 64;
-                    generateTree(geometry, 4, 3, 8, rotPos, branchProperties, leavesGeometry);
+                    branchProperties.angleVariationStrength = PI / 55;
+                    generateTree(geometry, 4, 3, 3, rotPos, branchProperties, leavesGeometry);
                     break;
                 case Aspen:
                     branchProperties.botRadius = 0.15;
@@ -60,6 +60,7 @@ namespace Terrain {
         rotPos = generateBranch(geometry, rotPos, complexity, complexity, branchProperties);
 
         // steep angle branches
+        RotPos extraBranchRotPos;
         BranchProperties extraBranchProperties;
         extraBranchProperties.topRadius = branchProperties.topRadius * 0.8;
         extraBranchProperties.length = branchProperties.length * 0.8;
@@ -69,9 +70,16 @@ namespace Terrain {
             extraBranchIndices.push_back(
                 randomI(geometry.vertices.size() - (complexity * complexity * 2 / 3),
                         geometry.vertices.size() - 1));
+            int index = randomI(geometry.vertices.size() - (complexity * complexity * 2 / 3),
+                                geometry.vertices.size() - 1);
+            extraBranchRotPos.position = geometry.vertices[index] - geometry.normals[index] * branchProperties.topRadius;
+            extraBranchRotPos.rotation = Quaternionf().setFromTwoVectors(Vector3f(0, 1, 0), geometry.normals[index]);
+            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1, 3);
+            extraBranchRotPos.rotation.y() += PI / 2;
+            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1, 3);
         }
         for (int i = 0; i < numOfSplits; i++) {
-            RotPos extraBranchRotPos;
+            
             extraBranchRotPos.position = geometry.vertices[extraBranchIndices[i]] -
                                          geometry.normals[extraBranchIndices[i]] * branchProperties.topRadius;
             extraBranchRotPos.rotation = Quaternionf().setFromTwoVectors(Vector3f(0, 1, 0),

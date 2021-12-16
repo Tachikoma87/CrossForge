@@ -3,6 +3,8 @@
 namespace Terrain {
     void RockGenerator::generateRocks(RockType rockType, int numberRocks, string exportPath) {
         for (int i = 0; i < numberRocks; i++) {
+            
+
             // new random Seed
             srand(time(NULL));
 
@@ -26,6 +28,7 @@ namespace Terrain {
     }
 
     void RockGenerator::generateRock(GEOMETRY &geometry, int complexity) {
+        siv::PerlinNoise pNoise;
         generateSphere(geometry, complexity);
 
         // generate noise
@@ -35,6 +38,7 @@ namespace Terrain {
         // rough stone shape
         for (int i = 0; i < geometry.vertices.size(); i++) {
             geometry.vertices[i] += geometry.normals[i] * cNoise.getValue(geometry.vertices[i], 0, 4);
+            geometry.vertices[i] *= pNoise.accumulatedOctaveNoise3D(geometry.vertices[i].x(), geometry.vertices[i].y(), geometry.vertices[i].z(), 8) * 0.1 + 0.9;
         }
     }
 
