@@ -68,8 +68,8 @@ namespace CForge {
 			//pMat->TexNormal = "Assets/Rock_040_normal.jpg";
 			//pMat->TexDepth = "Assets/Rock_040_Packed.png";
 
-			pMat->VertexShaderSources.push_back("Shader/RockShader.vert");
-			pMat->FragmentShaderSources.push_back("Shader/RockShader.frag");
+			pMat->VertexShaderSources.push_back("Shader/Rock.vert");
+			pMat->FragmentShaderSources.push_back("Shader/Rock.frag");
 			pMat->Metallic = Metallic;
 			pMat->Roughness = Roughness;
 		}//for[materials]

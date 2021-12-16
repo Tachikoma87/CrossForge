@@ -52,12 +52,12 @@ namespace Terrain {
         shaderManager->configShader(lightConfig);
         shaderManager->release();
 
-        camera->init(Vector3f(.0f, 1400.0f, 100.0f), Vector3f::UnitY());
+        camera->init(Vector3f(.0f, 800.0f, 100.0f), Vector3f::UnitY());
         camera->pitch(GraphicsUtility::degToRad(-15.0f));
         camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 1.0f, 100000.0f);
         renderDevice->activeCamera(camera);
 
-        Vector3f sunPos = Vector3f(2000.0f, 2000.0f, 0.0f);
+        Vector3f sunPos = Vector3f(600.0f, 600.0f, 0.0f);
         sun->init(sunPos, -sunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 2.5f);
         auto projection = GraphicsUtility::perspectiveProjection(winWidth, winHeight, GraphicsUtility::degToRad(45.0f),
                                                                  1.0f, 10000.0f);
@@ -123,12 +123,12 @@ namespace Terrain {
         bool debugTexture = false;
         bool shadows = true;
         bool richard = false;
+        bool erode = false;
 
         if (richard) {
             DecoSetup();
             return;
         }
-
 
         GLWindow window;
         RenderDevice renderDevice;
@@ -145,8 +145,8 @@ namespace Terrain {
             .octaves = 10,
             .persistence = 0.5f,
             .lacunarity = 2.0f};
-        HeightMap::HeightMapConfig heightMapConfig = {.width = 1024 * 8, .height = 1024 *
-                                                                                   8, .noiseConfig = noiseConfig};
+        HeightMap::HeightMapConfig heightMapConfig = {.width = 1024 / 1, .height = 1024 / 1,
+                                                      .mapHeight = 400, .noiseConfig = noiseConfig};
 
         TerrainMap map = TerrainMap(&rootTransform);
         map.generateClipMap(clipMapConfig);
@@ -162,6 +162,10 @@ namespace Terrain {
             window.update();
 
             sceneGraph.update(1.0f);
+
+            if (erode) {
+                map.erode();
+            }
 
             map.update(camera.position().x(), camera.position().z());
 
@@ -219,19 +223,21 @@ namespace Terrain {
                     .octaves = 8,
                     .persistence = 0.5f,
                     .lacunarity = 2.0f};
-                heightMapConfig = {.width = 1024 * 8, .height = 1024 * 8, .noiseConfig = noiseConfig};
-                map.setMapHeight(2000);
+                heightMapConfig = {.width = 1024 * 8, .height = 1024 * 8, .mapHeight = 2000, .noiseConfig = noiseConfig};
 
                 map.generateHeightMap(heightMapConfig);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F5)) {
                 window.keyboard()->keyState(Keyboard::KEY_F5, Keyboard::KEY_RELEASED);
                 map.heightMapFromTexture(STextureManager::create("Assets/height_map1.jpg"));
-                map.setMapHeight(100);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F6)) {
                 window.keyboard()->keyState(Keyboard::KEY_F6, Keyboard::KEY_RELEASED);
                 shadows = !shadows;
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_F7)) {
+                window.keyboard()->keyState(Keyboard::KEY_F7, Keyboard::KEY_RELEASED);
+                erode = !erode;
             }
             static float scale = 1.0f;
             if (window.keyboard()->keyPressed(Keyboard::KEY_F8)) {
