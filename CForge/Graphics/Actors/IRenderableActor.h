@@ -45,6 +45,9 @@ namespace CForge {
 
 		int32_t typeID(void)const;
 
+		uint32_t materialCount(void)const;
+		RenderMaterial* material(uint32_t Index);
+
 	protected:
 		IRenderableActor(const std::string ClassName, int32_t ActorType);
 		virtual ~IRenderableActor(void);

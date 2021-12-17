@@ -108,14 +108,31 @@ namespace CForge {
 		pAnim->Name = pAnimation->Name;
 		pAnim->Speed = pAnimation->Speed;
 
+		// keyframes and join names have to match
 		for (uint32_t i = 0; i < pAnimation->Keyframes.size(); ++i) {
 			T3DMesh<float>::BoneKeyframes* pKeyframes = new T3DMesh<float>::BoneKeyframes();
-			(*pKeyframes) = (*pAnimation->Keyframes[i]);
+			//(*pKeyframes) = (*pAnimation->Keyframes[i]);
 			pAnim->Keyframes.push_back(pKeyframes);
+		}
+
+		for (uint32_t i = 0; i < pAnimation->Keyframes.size(); ++i) {
+			int32_t JointID = jointIDFromName(pAnimation->Keyframes[i]->BoneName);
+			if(JointID != -1)
+				(*pAnim->Keyframes[JointID]) = (*pAnimation->Keyframes[i]);
 		}
 
 		m_SkeletalAnimations.push_back(pAnim);
 	}//addAnimation
+
+	int32_t SkeletalAnimationController::jointIDFromName(std::string JointName) {
+		int32_t Rval = -1;
+
+		for (uint32_t i = 0; i < m_Joints.size(); ++i) {
+			if (m_Joints[i]->Name.compare(JointName) == 0) Rval = i;
+		}
+
+		return Rval;
+	}//jointIDFromName
 
 	SkeletalAnimationController::Animation* SkeletalAnimationController::createAnimation(int32_t AnimationID, float Speed, float Offset) {
 		Animation* pRval = new Animation();
@@ -179,10 +196,11 @@ namespace CForge {
 					if (Time <= pAnim->t && TimeP1 >= pAnim->t) {
 
 						float s = (pAnim->t - Time) / (TimeP1 - Time);
-
-						m_Joints[i]->LocalPosition = (1.0f - s) * pAnimData->Keyframes[i]->Positions[k] + s * pAnimData->Keyframes[i]->Positions[k+1];
-						m_Joints[i]->LocalRotation = pAnimData->Keyframes[i]->Rotations[k].slerp(s, pAnimData->Keyframes[i]->Rotations[k+1]);
-						m_Joints[i]->LocalScale = (1.0f - s) * pAnimData->Keyframes[i]->Scalings[k] + s * pAnimData->Keyframes[i]->Scalings[k+1];
+						if (i < m_Joints.size()) {
+							m_Joints[i]->LocalPosition = (1.0f - s) * pAnimData->Keyframes[i]->Positions[k] + s * pAnimData->Keyframes[i]->Positions[k + 1];
+							m_Joints[i]->LocalRotation = pAnimData->Keyframes[i]->Rotations[k].slerp(s, pAnimData->Keyframes[i]->Rotations[k + 1]);
+							m_Joints[i]->LocalScale = (1.0f - s) * pAnimData->Keyframes[i]->Scalings[k] + s * pAnimData->Keyframes[i]->Scalings[k + 1];
+						}		
 						break;
 					}
 				}
