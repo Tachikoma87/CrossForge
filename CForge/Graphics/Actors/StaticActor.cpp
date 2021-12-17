@@ -85,15 +85,6 @@ namespace CForge {
 		delete this;
 	}//release
 
-	uint32_t StaticActor::materialCount(void) const {
-		return m_RenderGroupUtility.renderGroupCount();
-	}//materialCount
-
-	RenderMaterial* StaticActor::material(uint32_t Index) {
-		if (Index >= m_RenderGroupUtility.renderGroupCount()) throw IndexOutOfBoundsExcept("Index");
-		return &(m_RenderGroupUtility.renderGroups()[Index]->Material);
-	}//material
-
 	void StaticActor::render(RenderDevice* pRDev) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
 

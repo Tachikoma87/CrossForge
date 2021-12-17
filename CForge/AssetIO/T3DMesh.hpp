@@ -148,6 +148,7 @@ namespace CForge {
 		struct BoneKeyframes {
 			int32_t ID;
 			int32_t BoneID;
+			std::string BoneName;
 			std::vector<Eigen::Vector3f> Positions;
 			std::vector<Eigen::Quaternionf> Rotations;
 			std::vector<Eigen::Vector3f> Scalings;
@@ -223,6 +224,20 @@ namespace CForge {
 
 		}//clear
 
+		void clearSkeleton(void) {
+			for (auto i : m_Bones) {
+				if (nullptr != i) delete i;
+			}
+			m_Bones.clear();
+		}//clearSkeleton
+
+		void clearSkeletalAnimations(void) {
+			for (auto i : m_SkeletalAnimations) {
+				if (nullptr != i) delete i;
+			}
+			m_SkeletalAnimations.clear();
+		}//clearSkeletalAnimations
+
 		////// Setter
 		void vertices(std::vector<Eigen::Matrix<T, 3, 1>> *pCoords) {
 			if (nullptr != pCoords) m_Positions = (*pCoords);
@@ -245,10 +260,10 @@ namespace CForge {
 		}//colors
 
 		void bones(std::vector<Bone*>* pBones, bool Copy = true) {
-			if (nullptr != pBones && Copy) {
-				for (auto i : m_Bones) delete i;
-				m_Bones.clear();
-
+			for (auto i : m_Bones) delete i;
+			m_Bones.clear();
+			
+			if (nullptr != pBones && Copy) {	
 				// create bones
 				for (size_t i = 0; i < pBones->size(); ++i) m_Bones.push_back(new Bone());
 
@@ -267,7 +282,7 @@ namespace CForge {
 				}//for[bones]
 		
 			}
-			else {
+			else if(nullptr != pBones) {
 				m_Bones = (*pBones);
 			}
 		}//bones
@@ -279,7 +294,15 @@ namespace CForge {
 			}
 			else {
 				// copy
-				throw CForgeExcept("Copying Skeletal animation not implemented yet!");
+				SkeletalAnimation* pNewAnim = new SkeletalAnimation();
+				pNewAnim->Name = pAnim->Name;
+				pNewAnim->Duration = pAnim->Duration;
+				for (auto i : pAnim->Keyframes) {
+					BoneKeyframes* pBK = new BoneKeyframes();
+					(*pBK) = (*i);
+					pNewAnim->Keyframes.push_back(pBK);
+				}
+				m_SkeletalAnimations.push_back(pNewAnim);
 			}
 
 		}//addSkeletalAnimation
@@ -532,6 +555,7 @@ namespace CForge {
 
 		// morph target related
 		std::vector<MorphTarget*> m_MorphTargets;
+
 	};//T3DMesh
 
 }//name space

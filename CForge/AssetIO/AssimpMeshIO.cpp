@@ -246,9 +246,8 @@ namespace CForge {
 			pSkelAnim->Name = pAnim->mName.C_Str();
 
 			// create keyframe for every bone
-			for (uint32_t k = 0; k < Bones.size(); k++) {
+			for (uint32_t k = 0; k < pAnim->mNumChannels; k++) {
 				pSkelAnim->Keyframes.push_back(new T3DMesh<float>::BoneKeyframes());
-				pSkelAnim->Keyframes[k]->BoneID = k;
 				pSkelAnim->Keyframes[k]->ID = k;
 			}//for[all bones]
 
@@ -257,26 +256,26 @@ namespace CForge {
 
 				T3DMesh<float>::Bone* pB = getBoneFromName(pNodeAnim->mNodeName.C_Str(), &Bones);
 
-				if (nullptr != pB) {
-					T3DMesh<float>::BoneKeyframes* pKeys = pSkelAnim->Keyframes[pB->ID];
+				int32_t KeyID = (nullptr == pB) ? k : pB->ID;
 
-					for (uint32_t l = 0; l < pNodeAnim->mNumPositionKeys; l++) {
-						pKeys->Positions.push_back( toEigenVec(pNodeAnim->mPositionKeys[l].mValue) );
-						pKeys->Timestamps.push_back(pNodeAnim->mPositionKeys[l].mTime);
-					}//for[positions]
+				pSkelAnim->Keyframes[KeyID]->BoneID = (nullptr == pB) ? -1 : pB->ID;
+				pSkelAnim->Keyframes[KeyID]->BoneName = pNodeAnim->mNodeName.C_Str();
 
-					for (uint32_t l = 0; l < pNodeAnim->mNumRotationKeys; l++) {
-						pKeys->Rotations.push_back(toEigenQuat(pNodeAnim->mRotationKeys[l].mValue));
-					}//for[rotations]
+				T3DMesh<float>::BoneKeyframes* pKeys = (pB == nullptr) ? pSkelAnim->Keyframes[k] : pSkelAnim->Keyframes[pB->ID];
+
+				for (uint32_t l = 0; l < pNodeAnim->mNumPositionKeys; l++) {
+					pKeys->Positions.push_back( toEigenVec(pNodeAnim->mPositionKeys[l].mValue) );
+					pKeys->Timestamps.push_back(pNodeAnim->mPositionKeys[l].mTime);
+				}//for[positions]
+
+				for (uint32_t l = 0; l < pNodeAnim->mNumRotationKeys; l++) {
+					pKeys->Rotations.push_back(toEigenQuat(pNodeAnim->mRotationKeys[l].mValue));
+				}//for[rotations]
 					
-					for (uint32_t l = 0; l < pNodeAnim->mNumScalingKeys; l++) {
-						pKeys->Scalings.push_back(toEigenVec(pNodeAnim->mScalingKeys[l].mValue));
-					}
+				for (uint32_t l = 0; l < pNodeAnim->mNumScalingKeys; l++) {
+					pKeys->Scalings.push_back(toEigenVec(pNodeAnim->mScalingKeys[l].mValue));
 				}
-				else {
-					printf("Got animation data for unhandled node: %s\n", pNodeAnim->mNodeName.C_Str());
-				}
-				
+							
 			}//for[channels]
 
 		}//for[all animations]
