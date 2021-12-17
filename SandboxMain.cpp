@@ -50,8 +50,7 @@ int main(int argc, char* argv[]) {
 	try {
 		//exampleMinimumGraphicsSetup();
 		//exampleSkeletalAnimation();
-		//exampleMorphTargetAnimation();
-		// 
+		//exampleMorphTargetAnimation(); 
 		//shadowTest();
 		vertexColorTestScene();
 	}

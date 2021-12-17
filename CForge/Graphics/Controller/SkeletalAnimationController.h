@@ -69,6 +69,7 @@ namespace CForge {
 		};
 
 		void transformSkeleton(Joint* pJoint, Eigen::Matrix4f ParentTransform);
+		int32_t jointIDFromName(std::string JointName);
 
 		Joint* m_pRoot;
 		std::vector<Joint*> m_Joints;
