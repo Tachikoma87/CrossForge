@@ -1,5 +1,4 @@
-#ifndef __CFORGE_OBJ_EXPORTER_H__
-#define __CFORGE_OBJ_EXPORTER_H__
+#pragma once
 
 #include "../../CForge/Core/CoreUtility.hpp"
 #include <iostream>
@@ -53,4 +52,3 @@ class ObjExporter {
 			return ret;
 		}
 };
-#endif
