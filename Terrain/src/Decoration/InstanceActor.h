@@ -1,20 +1,21 @@
 #pragma once
 
-#include "IRenderableActor.h"
-#include "../../AssetIO/T3DMesh.hpp"
-#include "../GLBuffer.h"
-#include "../GLVertexArray.h"
-#include "../Shader/GLShader.h"
-#include "../RenderMaterial.h"
-#include "VertexUtility.h"
-#include "RenderGroupUtility.h"
+#include <glad/glad.h>
+#include <iostream>
+#include "../../../CForge/Graphics/Actors/IRenderableActor.h"
+#include "CForge/AssetIO/T3DMesh.hpp"
+#include "../../../CForge/Graphics/GLBuffer.h"
+#include "../../../CForge/Graphics/GLVertexArray.h"
+#include "../../../CForge/Graphics/Shader/GLShader.h"
+#include "../../../CForge/Graphics/RenderMaterial.h"
+#include "InstanceVertexUtility.h"
+#include "../../../CForge/Graphics/Actors/RenderGroupUtility.h"
+#include "../../../CForge/Graphics/RenderDevice.h"
+#include "../../../CForge/Graphics/GraphicsUtility.h"
+#include "../../../CForge/Core/SLogger.h"
+
 
 namespace CForge {
-	/**
-	* \brief Actor that can be placed inside the world and does not do anything besides being rendered or moved rigidly.
-	*
-	* \todo Do full documentation
-	*/
 	class CFORGE_IXPORT InstanceActor: public IRenderableActor {
 	public:
 		InstanceActor(void);
@@ -23,24 +24,12 @@ namespace CForge {
 		void init(const T3DMesh<float>* pMesh);
 		void clear(void);
 		void release(void);
-
 		void render(RenderDevice* pRDev);
 
 		uint32_t materialCount(void)const;
 		RenderMaterial* material(uint32_t Index);
-
-	protected:
-
-	private:
-		//void setBufferData(void);
-		/*
-		GLBuffer m_ArrayBuffer; ///< stores vertex data
-		GLBuffer m_ElementBuffer; ///< stores triangle indexes
-		GLVertexArray m_VertexArray; ///< the vertex array
-
-		VertexUtility m_VertexUtility;
-		RenderGroupUtility m_RenderGroupUtility;*/
-
+		InstanceVertexUtility m_InstanceVertexUtility;
+		void setBufferData(void);
 	};
 
 }

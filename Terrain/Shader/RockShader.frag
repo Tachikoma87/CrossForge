@@ -23,6 +23,7 @@ in vec3 B;
 in vec3 T;
 in vec2 UV;
 in vec3 CameraPos;
+in vec4 ICM;
 
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir);
 
@@ -86,6 +87,8 @@ void main(){
 	else {
 		gAlbedoSpec.a = Material.Metallic;
 	}
+
+	//gAlbedoSpec = ICM;
 }
 
 
