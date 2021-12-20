@@ -4,6 +4,7 @@
 #include "CForge/Core/CoreUtility.hpp"
 #include "CForge/AssetIO/T3DMesh.hpp"
 #include "CForge/AssetIO/SAssetIO.h"
+#include <iostream>
 
 using namespace Eigen;
 
@@ -19,6 +20,8 @@ namespace CForge {
 			void load(std::string importPath) {
 				SAssetIO::load(importPath, this);
 				updateVertexAtributes();
+
+				//std::cout << m_Positions.size() << " " << m_Normals.size() << " " << m_UVWs.size() << " " << m_Tangents.size();
 			}
 
 			protected:
