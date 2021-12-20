@@ -38,6 +38,7 @@
 #include "Terrain/src/Decoration/TreeGenerator.hpp"
 #include "Terrain/src/Decoration/RockGenerator.hpp"
 #include "Terrain/src/Decoration/GrassGenerator.hpp"
+#include "Terrain/src/Decoration/InstanceActor.h"
 
 using namespace Eigen;
 using namespace std;
@@ -90,8 +91,7 @@ namespace CForge {
 		pSMan->configShader(LC);
 
 		VirtualCamera Cam;
-		//Cam.init(Vector3f(0.0f, 5.0f, 7.0f), Vector3f::UnitY());
-		Cam.init(Vector3f(0.0f, 5.0f, 6.0f), Vector3f::UnitY());
+		Cam.init(Vector3f(0.0f, 0.0f, 6.0f), Vector3f::UnitY());
 		Cam.yaw(GraphicsUtility::degToRad(0));
 		//Cam.init(Vector3f(0.0f, 0.0f, -5.0f), Vector3f::UnitY());
 		//Cam.yaw(GraphicsUtility::degToRad(180));
@@ -112,27 +112,33 @@ namespace CForge {
 		SGNGeometry objectSGN2;
 		StaticActor object2;
 
+		InstanceActor iActor;
+
 		DekoMesh M;
 		DekoMesh M2;
 
 		enum DekoObject {rock, grass, tree, leaves, treeAndLeaves};
-		bool generateNew = true;
+		bool generateNew = false;
 
-		switch (treeAndLeaves) {
+		switch (rock) {
 		case rock:
 			if (generateNew) {
-				RockGenerator::generateRocks(RockGenerator::Normal, 1, "Assets/");
+				RockGenerator::generateRocks(RockGenerator::LowPoly, 1, "Assets/");
 			}
 			M.load("Assets/rock0.obj");
 			M.getMaterial(0)->TexAlbedo = "Assets/richard/Rock_035_baseColor.jpg";
 			M.getMaterial(0)->TexNormal = "Assets/richard/Rock_035_normal.jpg";
 			M.getMaterial(0)->TexDepth = "Assets/richard/Rock_035_Packed.png";
-			M.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceShader.vert");
 			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/RockShader.frag");
 
-			object.init(&M);
-			objectTransformSGN.translation(Vector3f(0, 5, 0));
-			objectSGN.init(&objectTransformSGN, &object);
+
+
+
+
+			iActor.init(&M);
+			objectTransformSGN.translation(Vector3f(0, 5, -5));
+			objectSGN.init(&objectTransformSGN, &iActor);
 			SGTest.init(&objectTransformSGN);
 			break;
 		case grass:
@@ -211,6 +217,9 @@ namespace CForge {
 			SGTest.init(&objectTransformSGN);
 			break;
 		}
+
+
+
 
 		//printf("\n\nVector x: %f, y: %f, z: %f\n\n", testVector.x(), testVector.y(), testVector.z());
 
