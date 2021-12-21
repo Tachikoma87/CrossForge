@@ -123,8 +123,8 @@ namespace CForge {
 
 		// initialize skeletal actor (Eric) and its animation controller
 		T3DMesh<float> SkelAnim;
-		SAssetIO::load("MyAssets/mbmalerigmusclessym.fbx", &M);
-		SAssetIO::load("MyAssets/animation_scaled.fbx", &SkelAnim);
+		SAssetIO::load("Assets/tmp/mbmalerigmusclessym.fbx", &M);
+		SAssetIO::load("Assets/tmp/animation_scaled.fbx", &SkelAnim);
 
 		M.clearSkeletalAnimations();
 		M.addSkeletalAnimation(SkelAnim.getSkeletalAnimation(0), true);
