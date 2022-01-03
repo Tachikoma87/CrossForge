@@ -91,6 +91,7 @@ add_library(crossforge SHARED
 		CForge/Input/SInputManager.cpp
 
 		Terrain/src/Decoration/InstanceActor.cpp
+		Terrain/src/Decoration/InstanceSGN.cpp
 		Terrain/src/Decoration/InstanceVertexUtility.cpp
 		)
 set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})

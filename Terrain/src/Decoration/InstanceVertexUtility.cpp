@@ -110,30 +110,29 @@ namespace CForge {
 			pV[1] = pMesh->vertex(i).y();
 			pV[2] = pMesh->vertex(i).z();
 
-			// normals
-			if (pMesh->normalCount() == pMesh->vertexCount()) {
-				BufferOffset = i * m_VertexSize + m_NormalOffset;
-				pV = (float*)&pBuf[BufferOffset];
-				pV[0] = pMesh->normal(i).x();
-				pV[1] = pMesh->normal(i).y();
-				pV[2] = pMesh->normal(i).z();
-			}
+		
+			BufferOffset = i * m_VertexSize + m_NormalOffset;
+			pV = (float*)&pBuf[BufferOffset];
+			pV[0] = pMesh->normal(i).x();
+			pV[1] = pMesh->normal(i).y();
+			pV[2] = pMesh->normal(i).z();
+			
 
-			if (pMesh->tangentCount() == pMesh->vertexCount()) {
-				BufferOffset = i * m_VertexSize + m_TangentOffset;
-				pV = (float*)&pBuf[BufferOffset];
-				pV[0] = pMesh->tangent(i).x();
-				pV[1] = pMesh->tangent(i).y();
-				pV[2] = pMesh->tangent(i).z();
-			}
+			
+			BufferOffset = i * m_VertexSize + m_TangentOffset;
+			pV = (float*)&pBuf[BufferOffset];
+			pV[0] = pMesh->tangent(i).x();
+			pV[1] = pMesh->tangent(i).y();
+			pV[2] = pMesh->tangent(i).z();
+			
 
-			if (pMesh->textureCoordinatesCount() == pMesh->vertexCount()) {
-				BufferOffset = i * m_VertexSize + m_UVWOffset;
-				pV = (float*)&pBuf[BufferOffset];
-				pV[0] = pMesh->textureCoordinate(i).x();
-				pV[1] = pMesh->textureCoordinate(i).y();
-				pV[2] = pMesh->textureCoordinate(i).z();
-			}		
+			
+			BufferOffset = i * m_VertexSize + m_UVWOffset;
+			pV = (float*)&pBuf[BufferOffset];
+			pV[0] = pMesh->textureCoordinate(i).x();
+			pV[1] = pMesh->textureCoordinate(i).y();
+			pV[2] = pMesh->textureCoordinate(i).z();
+					
 
 		}//for[number of vertices]	
 		BufferOffset = std::min(pMesh->vertexCount(), VertexCount) * m_VertexSize;
@@ -143,7 +142,6 @@ namespace CForge {
 			pV[i] = transMatrixes.data()->data()[i];
 			
 		}
-		std::cout << BufferOffset;
 
 	}//buildBuffer
 
