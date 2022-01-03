@@ -30,6 +30,13 @@ namespace CForge {
 		RenderMaterial* material(uint32_t Index);
 		InstanceVertexUtility m_InstanceVertexUtility;
 		void setBufferData(void);
+		void addInstance(Matrix4f &matrix);
+		void clearInstances();
+
+		int instanceOffset;
+		int instanceAmmount;
+		std::vector<Matrix4f> transMatrixes;
+		bool firstInit = true;
 	};
 
 }

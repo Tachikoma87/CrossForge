@@ -21,7 +21,7 @@ namespace CForge {
 				SAssetIO::load(importPath, this);
 				updateVertexAtributes();
 
-				//std::cout << m_Positions.size() << " " << m_Normals.size() << " " << m_UVWs.size() << " " << m_Tangents.size();
+				//std::cout << m_Positions.size();
 			}
 
 			protected:

@@ -1,22 +1,4 @@
-/***************************************************************************\
-*                                                                           *
-* File(s): PITestScene.hpp													*
-*                                                                           *
-* Content: Class to interact with an MF52 NTC Thermistor by using a basic   *
-*          voltage divider circuit.                                         *
-*                                                                           *
-*                                                                           *
-* Author(s): Tom Uhlmann                                                    *
-*                                                                           *
-*                                                                           *
-* The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
-* For additional license, copyright and contact/support issues see the      *
-* supplied documentation.                                                   *
-*                                                                           *
-\***************************************************************************/
-#ifndef __CFORGE_PITESTSCENE_HPP__
-#define __CFORGE_PITESTSCENE_HPP__
+#pragma once
 
 #include "CForge/AssetIO/SAssetIO.h"
 #include "CForge/Graphics/Shader/SShaderManager.h"
@@ -39,12 +21,32 @@
 #include "Terrain/src/Decoration/RockGenerator.hpp"
 #include "Terrain/src/Decoration/GrassGenerator.hpp"
 #include "Terrain/src/Decoration/InstanceActor.h"
+#include "Terrain/src/Decoration/InstanceSGN.h"
 
 using namespace Eigen;
 using namespace std;
 using namespace Terrain;
 
 namespace CForge {
+
+	float randomF(float min, float max) {
+		return (min + (float)rand() / (float)(RAND_MAX) * (max - min));
+	}
+
+	void placeInstances(int ammount, std::vector<InstanceSGN> &nodes, SGNTransformation &trans, SceneGraph &sceneGraph, InstanceActor &iActor) {
+		int i = 0;
+		float offset = 2.25;
+		for (int x = 0; x < ammount; x++) {
+			for (int z = 0; z < ammount; z++) {
+				
+				
+				nodes[i].init(&trans, &iActor, Vector3f((x - ammount / 2) * offset + randomF(-offset / 2, offset / 2), -10, -1 - z * offset + randomF(-offset / 2, offset / 2)), Quaternionf::Identity(), Vector3f::Ones());
+				i++;
+			}
+		}
+		sceneGraph.init(&trans);
+	}
+
 	void DecoSetup(void) {
 		SAssetIO* pAssIO = SAssetIO::instance();
 		STextureManager* pTexMan = STextureManager::instance();
@@ -117,10 +119,33 @@ namespace CForge {
 		DekoMesh M;
 		DekoMesh M2;
 
-		enum DekoObject {rock, grass, tree, leaves, treeAndLeaves};
-		bool generateNew = false;
+		std::vector<InstanceSGN> nodes;
+		int ammount = 32;
+		for (int i = 0; i < ammount * ammount; i++) {
+			nodes.push_back(InstanceSGN());
+		}
 
-		switch (rock) {
+		enum DekoObject {rock, grass, tree, leaves, treeAndLeaves, instanceGrass};
+
+		bool generateNew = false;
+		DekoObject selected = instanceGrass;
+
+		switch (selected) {
+		case instanceGrass:
+			M.load("Assets/grass0.obj");
+			M.getMaterial(0)->TexAlbedo = "Assets/richard/grass_color.jpg";
+			M.getMaterial(0)->TexDepth = "Assets/richard/grassAlpha.png";
+
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceShader.vert");
+			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceShader.frag");
+
+			placeInstances(ammount, nodes, objectTransformSGN, SGTest, iActor);
+			
+			
+			
+			
+			
+			break;
 		case rock:
 			if (generateNew) {
 				RockGenerator::generateRocks(RockGenerator::LowPoly, 1, "Assets/");
@@ -129,16 +154,12 @@ namespace CForge {
 			M.getMaterial(0)->TexAlbedo = "Assets/richard/Rock_035_baseColor.jpg";
 			M.getMaterial(0)->TexNormal = "Assets/richard/Rock_035_normal.jpg";
 			M.getMaterial(0)->TexDepth = "Assets/richard/Rock_035_Packed.png";
-			M.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceShader.vert");
+
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
 			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/RockShader.frag");
 
-
-
-
-
-			iActor.init(&M);
-			objectTransformSGN.translation(Vector3f(0, 5, -5));
-			objectSGN.init(&objectTransformSGN, &iActor);
+			object.init(&M);
+			objectSGN.init(&objectTransformSGN, &object);
 			SGTest.init(&objectTransformSGN);
 			break;
 		case grass:
@@ -237,8 +258,14 @@ namespace CForge {
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			
+
+			iActor.clearInstances();
 			SGTest.render(&RDev);
+			iActor.init(&M);
+			iActor.render(&RDev);
 			
+
+
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
@@ -251,7 +278,6 @@ namespace CForge {
 			}
 
 			FPSCount++;
-
 		}//while[main loop]
 
 
@@ -262,5 +288,3 @@ namespace CForge {
 	}//PITestScene
 
 }
-
-#endif
