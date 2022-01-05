@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['line_42',['line',['../class_c_forge_1_1_cross_forge_exception.html#a0ba7301db32a751b1f8b54db89f2de03',1,'CForge::CrossForgeException::line(void) const'],['../class_c_forge_1_1_cross_forge_exception.html#a769cf62ecd31c5f560358992ac7a845d',1,'CForge::CrossForgeException::line(const int32_t Line)']]],
-  ['log_43',['log',['../class_c_forge_1_1_s_logger.html#a29ebc3968f3d8edf94586069b965bcf0',1,'CForge::SLogger']]],
-  ['logexception_44',['logException',['../class_c_forge_1_1_s_logger.html#a72a6fc37ac3daa6fd122ba953c15a434',1,'CForge::SLogger']]],
-  ['logfile_45',['logFile',['../class_c_forge_1_1_s_logger.html#a54effdd1ba9484886a723072a3a62583',1,'CForge::SLogger']]]
+  ['file_0',['File',['../class_c_forge_1_1_file.html#a583abc978f0d0af0e15478214565b3f2',1,'CForge::File']]],
+  ['file_1',['file',['../class_c_forge_1_1_cross_forge_exception.html#adcab19aa17d8255c38b08522504dce8e',1,'CForge::CrossForgeException::file(void) const'],['../class_c_forge_1_1_cross_forge_exception.html#ac334903455ade83bff5da2959ae522b9',1,'CForge::CrossForgeException::file(const std::string File)']]],
+  ['function_2',['function',['../class_c_forge_1_1_cross_forge_exception.html#a67cdc0ce5082202e85a6202da502bb42',1,'CForge::CrossForgeException::function(void) const'],['../class_c_forge_1_1_cross_forge_exception.html#aa7027e650a0f6d78b9efa1294c6b4d06',1,'CForge::CrossForgeException::function(const std::string Function)']]]
 ];
