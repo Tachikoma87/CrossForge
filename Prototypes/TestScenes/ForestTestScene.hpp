@@ -121,13 +121,13 @@ namespace CForge {
 		M.clear();
 
 		
-		AssetIO::load("MyAssets/lowpolytree.obj", &M);
+		AssetIO::load("Assets/tmp/lowpolytree.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.94f);
 		M.computePerVertexNormals();
 		Tree1.init(&M);
 		M.clear();
 
-		AssetIO::load("MyAssets/Lowpoly_tree_sample.obj", &M);
+		AssetIO::load("Assets/tmp/Lowpoly_tree_sample.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.94f);
 		M.computePerVertexNormals();
 		Tree2.init(&M);
