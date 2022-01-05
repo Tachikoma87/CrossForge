@@ -15,6 +15,7 @@
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
+#include "Prototypes/TestScenes/ForestTestScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -52,7 +53,8 @@ int main(int argc, char* argv[]) {
 		//exampleSkeletalAnimation();
 		//exampleMorphTargetAnimation(); 
 		//shadowTest();
-		vertexColorTestScene();
+		//vertexColorTestScene();
+		forestTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
