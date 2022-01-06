@@ -32,6 +32,8 @@ namespace Terrain {
 
         void generate(ClipMapConfig config);
 
+        const ClipMapConfig &getConfig();
+
         GLsizei getIndexCount(TileVariant variant);
         void bindTile(TileVariant variant);
     private:
@@ -50,6 +52,8 @@ namespace Terrain {
         void initCross(uint32_t sideLength);
         void initLine(uint32_t sideLength);
         void initTrim(uint32_t sideLength);
+
+        ClipMapConfig mConfig;
 
         GLBuffer* mVertexBuffers[TILE_COUNT];
         GLBuffer* mIndexBuffers[TILE_COUNT];

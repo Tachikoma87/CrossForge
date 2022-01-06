@@ -10,43 +10,38 @@ float randf() {
 }
 
 namespace Terrain {
-    HeightMap::HeightMap() : mTexture() {
+    HeightMap::HeightMap() : mTexture(), mHeights() {
         initShader();
     }
 
     void HeightMap::generate(HeightMapConfig config) {
-//        GLint internalFormat = GL_R16UI;
-//        GLint format = GL_RED_INTEGER;
-//        GLint dataType = GL_UNSIGNED_SHORT;
-
-        mMapHeight = config.mapHeight;
+        mConfig = config;
 
         GLint internalFormat = GL_R32F;
         GLint format = GL_RED;
         GLint dataType = GL_FLOAT;
+        GLenum target = GL_TEXTURE_2D;
 
+        // initialize texture
         GLuint textureHandle;
         glGenTextures(1, &textureHandle);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, textureHandle);
-        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-        float borderColor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, config.width, config.height, 0, format, dataType, NULL);
-        glBindImageTexture(0, textureHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, internalFormat);
+        glBindTexture(target, textureHandle);
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(target, 0, internalFormat, config.width, config.height, 0, format, dataType, NULL);
 
-        mTexture = STextureManager::fromHandle(textureHandle);
-
+        // generate map from noise
         mHeightMapShader->bind();
-        glActiveTexture(GL_TEXTURE0);
-        glBindImageTexture(0, mTexture->handle(), 0, GL_FALSE, 0, GL_WRITE_ONLY, format);
+        glBindImageTexture(0, textureHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, internalFormat);
         bindNoiseData(config.noiseConfig);
         glDispatchCompute(config.width, config.height, 1);
+
+        delete mHeights;
+        mHeights = new GLfloat[config.width * config.height];
+        glGetTexImage(target, 0, format, dataType, mHeights);
+
+        mTexture = STextureManager::fromHandle(textureHandle);
     }
 
     void HeightMap::setTexture(GLTexture2D* texture) {
@@ -116,7 +111,7 @@ namespace Terrain {
         mErosionShader->bind();
         glActiveTexture(GL_TEXTURE0);
         glUniform1f(mErosionShader->uniformLocation("Time"), rand() / (RAND_MAX + 1.));
-        glUniform1f(mErosionShader->uniformLocation("MapHeight"), mMapHeight);
+        glUniform1f(mErosionShader->uniformLocation("MapHeight"), mConfig.mapHeight);
         glUniform1i(mErosionShader->uniformLocation("BorderSize"), borderSize);
         glUniform1i(mErosionShader->uniformLocation("BrushSize"), brushWeights.size());
         glUniform1fv(mErosionShader->uniformLocation("BrushWeights"), brushWeights.size(), brushWeights.data());
@@ -124,5 +119,46 @@ namespace Terrain {
 
         glBindImageTexture(0, mTexture->handle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RED);
         glDispatchCompute(count, 1, 1);
+    }
+
+    float HeightMap::getHeightAt(float x, float y) {
+        int32_t coord_x = x;
+        int32_t coord_y = y;
+
+        float offset_x = x - coord_x;
+        float offset_y = y - coord_y;
+
+        float s00 = mHeights[coord_x + mConfig.height * coord_y];
+        float s10 = mHeights[coord_x + mConfig.height * coord_y + 1];
+        float s01 = mHeights[coord_x + mConfig.height * (coord_y + 1)];
+        float s11 = mHeights[coord_x + mConfig.height * (coord_y + 1) + 1];
+
+        float height = lerp(lerp(s00, s10, offset_x), lerp(s01, s11, offset_x), offset_y);
+
+        // printf("%f %f %f\n", x, height * mConfig.mapHeight, y);
+
+        return height * mConfig.mapHeight;
+    }
+
+    const HeightMap::HeightMapConfig &HeightMap::getConfig() {
+        return mConfig;
+    }
+
+    Vector3f HeightMap::getNormalAt(float x, float y) {
+        float s01 = getHeightAt(x - 1, y);
+        float s21 = getHeightAt(x + 1, y);
+        float s10 = getHeightAt(x, y - 1);
+        float s12 = getHeightAt(x, y + 1);
+
+        Vector3f normal = Vector3f(s21 - s01, 2, s12 - s10);
+        normal.normalize();
+
+        printf("%f %f %f\n", normal.x(), normal.y(), normal.z());
+
+        return normal;
+    }
+
+    void HeightMap::setConfig(HeightMapConfig config) {
+        mConfig = config;
     }
 }
