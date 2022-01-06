@@ -1,8 +1,7 @@
 #version 330 core
 
 const ivec3 OFFSET = ivec3(-1, 0, 1);
-const uint MAX_VALUE = 65535u;
-const float TextureScale = 1;
+const float TextureScale = 4;
 
 const int LAYER_COUNT = 6;
 const vec3 COLORS[LAYER_COUNT] = vec3[](vec3(0, 0, 204) / 255, vec3(252, 208, 70) / 255, vec3(51, 205, 0) / 255,
@@ -10,7 +9,6 @@ const vec3 COLORS[LAYER_COUNT] = vec3[](vec3(0, 0, 204) / 255, vec3(252, 208, 70
 const float LAYER_HEIGHTS[LAYER_COUNT - 1] = float[](0.5, 0.54, 0.62, 0.73, 0.83);
 const float BLEND_VALUES[LAYER_COUNT - 1] = float[](0.02, 0.1, 0.1, 0.1, 0.2);
 
-//uniform usampler2D HeightMap;
 uniform sampler2D HeightMap;
 uniform sampler2DArray Textures;
 uniform float MapHeight;
@@ -36,10 +34,6 @@ vec3 calculateLayerColor(float height) {
     return color;
 }
 
-//float getHeight(uvec4 sampledHeight) {
-//    return sampledHeight.x / float(MAX_VALUE) * MapHeight;
-//}
-
 float getHeight(vec4 sampledHeight) {
     return sampledHeight.x * MapHeight;
 }
@@ -61,11 +55,7 @@ vec3 calculateNormal(vec2 samplePosition) {
 }
 
 
-vec4 hash4( vec2 p ) { return fract(sin(vec4( 1.0+dot(p,vec2(37.0,17.0)),
-                                                2.0+dot(p,vec2(11.0,47.0)),
-                                                3.0+dot(p,vec2(41.0,29.0)),
-                                                4.0+dot(p,vec2(23.0,31.0))))*103.0);
-}
+vec4 hash4( vec2 p ) { return fract(sin(vec4(1.0+dot(p,vec2(37.0,17.0)), 2.0+dot(p,vec2(11.0,47.0)), 3.0+dot(p,vec2(41.0,29.0)), 4.0+dot(p,vec2(23.0,31.0))))*103.0); }
 
 // https://www.iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
 vec4 textureNoTile(sampler2DArray samp, in vec2 uv, int index) {
@@ -122,18 +112,20 @@ vec3 triMap(int index, vec3 normal) {
     return xDiff * blendWeights.x + yDiff * blendWeights.y + zDiff * blendWeights.z;
 }
 
-void main(){
+void main() {
+    if (SamplePosition.x < 0.01 || SamplePosition.y < 0.01 ||
+        SamplePosition.x > 0.99 || SamplePosition.y > 0.99) {
+        discard;
+    }
+
     vec3 normal = calculateNormal(SamplePosition);
 
-    vec3 color;
-    // vec3 color = calculateLayerColor(Height);
 
-    color = triMap(0, normal);
+    vec3 color = triMap(0, normal);
 
+    // smoothly interpolate between the different layers
     for (int i = 0; i < LAYER_COUNT - 1; i++) {
-        // smoothly interpolate between the different layers
         float drawStrength = smoothstep(-BLEND_VALUES[i] / 2, BLEND_VALUES[i] / 2, Height - LAYER_HEIGHTS[i]);
-
         color = mix(color, triMap(i + 1,  normal), drawStrength);
     }
 
@@ -144,7 +136,6 @@ void main(){
         // color = mix(triMap(5,  normal), color, slope / 20);
         color = triMap(6,  normal);
     }
-
 
     gPosition = vec4(FragPosition, 0);
     gNormal = vec4(normal, 0);
