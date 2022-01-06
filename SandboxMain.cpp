@@ -53,8 +53,8 @@ int main(int argc, char* argv[]) {
 		//exampleSkeletalAnimation();
 		//exampleMorphTargetAnimation(); 
 		//shadowTest();
-		//vertexColorTestScene();
-		forestTestScene();
+		vertexColorTestScene();
+		//forestTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
