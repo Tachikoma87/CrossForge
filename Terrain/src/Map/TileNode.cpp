@@ -7,15 +7,14 @@ namespace Terrain {
 
     TileNode::TileNode(ISceneGraphNode* parent, TerrainMap* map, TileData data)
         : SGNGeometry(), mTileActor(map, data.variant), mData(data) {
+
         SGNGeometry::init(parent, &mTileActor,
                           Vector3f(mData.pos.x(), 0, mData.pos.y()),
-                          AngleAxisf(0, Vector3f::UnitX()) *
-                                  AngleAxisf(GraphicsUtility::degToRad(static_cast<float>(mData.orientation) * 90.0f), Vector3f::UnitY()) *
-                                  AngleAxisf(0, Vector3f::UnitZ()),
+                          static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(static_cast<float>(mData.orientation) * 90.0f), Vector3f::UnitY())),
                           Vector3f::Ones() * mData.lod * (mData.variant == ClipMap::Trim ? 2 : 1));
     }
 
-    void TileNode::update(float cameraX , float cameraY) { // Todo rename y to z?
+    void TileNode::update(float cameraX , float cameraY) {
         float scale = 2.0f * static_cast<float>(mData.lod);
         float x = floorf(cameraX / scale) * scale;
         float y = floorf(cameraY / scale) * scale;
@@ -38,9 +37,7 @@ namespace Terrain {
                 angle = 90.0f;
             }
 
-            rotation(AngleAxisf(0, Vector3f::UnitX()) *
-                     AngleAxisf(GraphicsUtility::degToRad(angle), Vector3f::UnitY()) *
-                     AngleAxisf(0, Vector3f::UnitZ()));
+            rotation(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(angle), Vector3f::UnitY())));
         }
     }
 }

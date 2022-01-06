@@ -4,6 +4,7 @@
 #include <CForge/Graphics/Shader/GLShader.h>
 
 using namespace CForge;
+using namespace Eigen;
 
 namespace Terrain {
     class HeightMap {
@@ -28,17 +29,23 @@ namespace Terrain {
 
         // Todo: destroy old textures once all are properly stored in the texture manager
         void generate(HeightMapConfig config);
-        void setTexture(GLTexture2D* texture);
+        const HeightMapConfig &getConfig();
+        void setConfig(HeightMapConfig config);
+
+        float getHeightAt(float x, float y);
+        Vector3f getNormalAt(float x, float y);
 
         void erode(int32_t count);
 
+        void setTexture(GLTexture2D* texture);
         void bindTexture();
     private:
         void bindNoiseData(NoiseConfig config);
         void initShader();
 
-        float mMapHeight;
+        HeightMapConfig mConfig;
 
+        GLfloat* mHeights;
         GLTexture2D* mTexture;
         GLShader* mHeightMapShader;
         GLShader* mErosionShader;

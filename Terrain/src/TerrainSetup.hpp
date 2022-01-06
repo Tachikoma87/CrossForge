@@ -52,7 +52,7 @@ namespace Terrain {
         shaderManager->configShader(lightConfig);
         shaderManager->release();
 
-        camera->init(Vector3f(.0f, 800.0f, 100.0f), Vector3f::UnitY());
+        camera->init(Vector3f(.0f, 400.0f, 100.0f), Vector3f::UnitY());
         camera->pitch(GraphicsUtility::degToRad(-15.0f));
         camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 1.0f, 100000.0f);
         renderDevice->activeCamera(camera);
@@ -91,7 +91,7 @@ namespace Terrain {
 
         const float movementSpeed = 4;
 
-        float MovementScale = 1.0f;
+        float MovementScale = 0.1f;
         if (keyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) || keyboard->keyPressed(Keyboard::KEY_RIGHT_SHIFT)) {
             MovementScale = 6.0f;
         }
@@ -124,6 +124,7 @@ namespace Terrain {
         bool shadows = true;
         bool richard = false;
         bool erode = false;
+        bool cameraMode = false;
 
         if (richard) {
             DecoSetup();
@@ -199,6 +200,14 @@ namespace Terrain {
 
             updateCamera(window.mouse(), window.keyboard(), renderDevice.activeCamera());
 
+            if (cameraMode) {
+                camera.position(Vector3f(camera.position().x(),
+                                         map.getHeightAt(camera.position().x(), camera.position().z()) + 5,
+                                         camera.position().z()));
+
+                map.getNormalAt(camera.position().x(), camera.position().z());
+            }
+
             if (window.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
                 window.closeWindow();
             }
@@ -229,11 +238,11 @@ namespace Terrain {
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F5)) {
                 window.keyboard()->keyState(Keyboard::KEY_F5, Keyboard::KEY_RELEASED);
-                map.heightMapFromTexture(STextureManager::create("Assets/height_map1.jpg"));
+                map.heightMapFromTexture(STextureManager::create("Assets/height_map1.jpg"), 10);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F6)) {
                 window.keyboard()->keyState(Keyboard::KEY_F6, Keyboard::KEY_RELEASED);
-                shadows = !shadows;
+                cameraMode = !cameraMode;
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F7)) {
                 window.keyboard()->keyState(Keyboard::KEY_F7, Keyboard::KEY_RELEASED);

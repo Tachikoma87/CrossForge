@@ -10,6 +10,8 @@ namespace Terrain {
     }
 
     void ClipMap::generate(ClipMapConfig config) {
+        mConfig = config;
+
         clear();
         initTiles(config.sideLength);
         initCross(config.sideLength);
@@ -238,5 +240,9 @@ namespace Terrain {
 
         mVertexBuffers[Trim] = initVertexBuffer(vertices);
         mIndexBuffers[Trim] = initIndexBuffer(indices);
+    }
+
+    const ClipMap::ClipMapConfig &ClipMap::getConfig() {
+        return mConfig;
     }
 }
