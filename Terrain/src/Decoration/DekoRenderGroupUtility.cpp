@@ -1,18 +1,8 @@
-#include "../../Core/SLogger.h"
-#include "RenderGroupUtility.h"
-#include "../Shader/SShaderManager.h"
+#include "DekoRenderGroupUtility.h"
+#include <iostream>
 
 namespace CForge {
-
-	RenderGroupUtility::RenderGroupUtility(void): CForgeObject("RenderGroupUtiliy") {
-		m_RenderGroups.clear();
-	}//Constructor
-
-	RenderGroupUtility::~RenderGroupUtility(void) {
-		clear();
-	}//Destructor
-
-	void RenderGroupUtility::init(const T3DMesh<float>* pMesh, void **ppBuffer, uint32_t *pBufferSize) {
+	void DekoRenderGroupUtility::dekoInit(const T3DMesh<float>* pMesh, void** ppBuffer, uint32_t* pBufferSize) {
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 		if (pMesh->submeshCount() == 0) throw CForgeExcept("Mesh does not contain any submeshes");
 
@@ -22,15 +12,11 @@ namespace CForge {
 			m_RenderGroups.push_back(new RenderGroup());
 		}//for[all submeshes]
 
-		if (nullptr != ppBuffer && nullptr != pBufferSize) buildIndexArray(pMesh, ppBuffer, pBufferSize);
+		if (nullptr != ppBuffer && nullptr != pBufferSize) buildDekoIndexArray(pMesh, ppBuffer, pBufferSize);
 	}//initialize
 
-	void RenderGroupUtility::clear(void) {
-		for (auto& i : m_RenderGroups) delete i;
-		m_RenderGroups.clear();
-	}//clear
-
-	void RenderGroupUtility::buildIndexArray(const T3DMesh<float>* pMesh, void** ppBuffer, uint32_t* pBufferSize) {
+	void DekoRenderGroupUtility::buildDekoIndexArray(const T3DMesh<float>* pMesh, void** ppBuffer, uint32_t* pBufferSize) {
+		std::cout << "TEST";
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 		if (nullptr == ppBuffer) throw NullpointerExcept("ppBuffer");
 		if (nullptr == pBufferSize) throw NullpointerExcept("pBufferSize");
@@ -42,7 +28,7 @@ namespace CForge {
 
 		// compute buffer size
 		for (uint32_t i = 0; i < pMesh->submeshCount(); ++i) {
-			const T3DMesh<float>::Submesh *pSM = pMesh->getSubmesh(i);
+			const T3DMesh<float>::Submesh* pSM = pMesh->getSubmesh(i);
 			IndexCount += pSM->Faces.size() * 3;
 		}//for[submeshes]
 
@@ -76,7 +62,7 @@ namespace CForge {
 			pRG->Range.y() = BufferPointer;
 
 			// initialize shader
-			if (UsedMaterial != -1) {	
+			if (UsedMaterial != -1) {
 				//pRG->pShader = pSMan->buildShader(&pMesh->getMaterial(UsedMaterial)->VertexShaderSources, &pMesh->getMaterial(UsedMaterial)->FragmentShaderSources);	
 
 				std::vector<ShaderCode*> VSSources;
@@ -117,7 +103,7 @@ namespace CForge {
 				catch (const CrossForgeException& e) {
 					SLogger::log("Building shader failed!\n");
 				}
-				
+
 
 			}
 
@@ -142,14 +128,4 @@ namespace CForge {
 		(*pBufferSize) = IndexCount * sizeof(uint32_t);
 
 	}//buildIndexArray
-
-	std::vector<RenderGroupUtility::RenderGroup*> RenderGroupUtility::renderGroups(void) {
-		return m_RenderGroups;
-	}//renderGroups
-
-	uint32_t RenderGroupUtility::renderGroupCount(void)const {
-		return m_RenderGroups.size();
-	}//renderGroupCount
-
-
-}//name space
+}

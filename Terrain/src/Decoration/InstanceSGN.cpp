@@ -79,6 +79,7 @@ namespace CForge {
 			Matrix4f ModelMat = T * R * S;
 
 			m_pRenderable->addInstance(ModelMat);
+			m_RenderingEnabled = false;
 		}
 	}//render
 

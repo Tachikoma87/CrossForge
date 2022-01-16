@@ -90,9 +90,13 @@ add_library(crossforge SHARED
 		CForge/Input/Mouse.cpp
 		CForge/Input/SInputManager.cpp
 
+		# Decoration
+		
 		Terrain/src/Decoration/InstanceActor.cpp
 		Terrain/src/Decoration/InstanceSGN.cpp
 		Terrain/src/Decoration/InstanceVertexUtility.cpp
+		Terrain/src/Decoration/DekoRenderGroupUtility.cpp
+		
 		)
 set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
@@ -141,8 +145,10 @@ if(WIN32)
         Terrain/src/Map/TerrainMap.cpp
         Terrain/src/Map/TileActor.cpp
 		Terrain/src/ArrayTexture.cpp 
+		
 		Terrain/src/Decoration/TreeGenerator.cpp
 		Terrain/src/Decoration/RockGenerator.cpp
+		Terrain/src/Decoration/DecoSetup.cpp
 		)
 endif (WIN32)
 
@@ -156,10 +162,11 @@ if(UNIX)
         Terrain/src/Map/TerrainMap.cpp
         Terrain/src/Map/TileActor.cpp
 		Terrain/src/ArrayTexture.cpp 
+		
 		Terrain/src/Decoration/TreeGenerator.cpp
 		Terrain/src/Decoration/RockGenerator.cpp
-		Terrain/src/Decoration/InstanceActor.cpp
-		Terrain/src/Decoration/InstanceVertexUtility.cpp)
+		Terrain/src/Decoration/DecoSetup.cpp
+		)
 endif (UNIX)
 
 target_link_libraries(Terrain PRIVATE crossforge)
