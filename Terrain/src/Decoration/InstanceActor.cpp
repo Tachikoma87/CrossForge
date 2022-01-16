@@ -12,10 +12,6 @@ namespace CForge {
 		clear();
 	}//Destructor
 
-	float randomF(float min, float max) {
-		return (min + (float)rand() / (float)(RAND_MAX) * (max - min));
-	}
-
 	void InstanceActor::init(const T3DMesh<float>* pMesh) {
 
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
@@ -118,8 +114,6 @@ namespace CForge {
 				pRDev->activeShader(i->pShader);
 				pRDev->activeMaterial(&i->Material);
 			}
-
-			//glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
 
 			glDrawElementsInstanced(GL_TRIANGLES, m_ElementBuffer.size(), GL_UNSIGNED_INT, 0, instanceAmmount);
 		}//for[all render groups]

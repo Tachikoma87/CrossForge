@@ -27,5 +27,5 @@ void main(){
 	discard;
 	}
 
-	FragmentColor = texture(TexAlbedo, UV);	
+	FragmentColor = vec4(texture(TexAlbedo, UV).rgb, 1);	
 }

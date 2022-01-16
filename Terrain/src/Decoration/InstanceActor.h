@@ -9,7 +9,7 @@
 #include "../../../CForge/Graphics/Shader/GLShader.h"
 #include "../../../CForge/Graphics/RenderMaterial.h"
 #include "InstanceVertexUtility.h"
-#include "../../../CForge/Graphics/Actors/RenderGroupUtility.h"
+#include "DekoRenderGroupUtility.h"
 #include "../../../CForge/Graphics/RenderDevice.h"
 #include "../../../CForge/Graphics/GraphicsUtility.h"
 #include "../../../CForge/Core/SLogger.h"
@@ -37,6 +37,7 @@ namespace CForge {
 		int instanceAmmount;
 		std::vector<Matrix4f> transMatrixes;
 		bool firstInit = true;
+		//DekoRenderGroupUtility m_RenderGroupUtility;
 	};
 
 }
