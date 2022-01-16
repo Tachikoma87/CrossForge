@@ -82,6 +82,14 @@ namespace Terrain {
         glActiveTexture(GL_TEXTURE1);
         mTextures.bind();
 
+        int layerCount = 6;
+        vector<GLfloat> layerHeights {0.5, 0.54, 0.62, 0.73, 0.83};
+        vector<GLfloat> blendValues {0.02, 0.1, 0.1, 0.1, 0.2};
+
+        glUniform1i(mShader->uniformLocation("LayerCount"), layerCount);
+        glUniform1fv(mShader->uniformLocation("LayerHeights"), layerHeights.size(), layerHeights.data());
+        glUniform1fv(mShader->uniformLocation("BlendValues"), blendValues.size(), blendValues.data());
+
         glUniform1i(mShader->uniformLocation("HeightMap"), 0);
         glUniform1i(mShader->uniformLocation("Textures"), 1);
         glUniform1f(mShader->uniformLocation("MapScale"), mMapScale);
@@ -101,6 +109,7 @@ namespace Terrain {
 
         mTileNodes.clear();
     }
+
 
     void TerrainMap::initShader() {
         SShaderManager* shaderManager = SShaderManager::instance();
