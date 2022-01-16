@@ -1,17 +1,16 @@
 #version 330 core
 
 const ivec3 OFFSET = ivec3(-1, 0, 1);
-const float TextureScale = 4;
+const float TextureScale = 2;
+const int MAX_LAYER_COUNT = 8;
 
-const int LAYER_COUNT = 6;
-const vec3 COLORS[LAYER_COUNT] = vec3[](vec3(0, 0, 204) / 255, vec3(252, 208, 70) / 255, vec3(51, 205, 0) / 255,
-                                        vec3(32, 129, 0) / 255, vec3(68, 68, 68) / 255, vec3(255, 250, 250) / 255);
-const float LAYER_HEIGHTS[LAYER_COUNT - 1] = float[](0.5, 0.54, 0.62, 0.73, 0.83);
-const float BLEND_VALUES[LAYER_COUNT - 1] = float[](0.02, 0.1, 0.1, 0.1, 0.2);
-
-uniform sampler2D HeightMap;
+uniform int LayerCount;
+uniform float LayerHeights[MAX_LAYER_COUNT - 1];
+uniform float BlendValues[MAX_LAYER_COUNT - 1];
 uniform sampler2DArray Textures;
+
 uniform float MapHeight;
+uniform sampler2D HeightMap;
 
 in vec3 FragPosition;
 in vec2 SamplePosition;
@@ -20,19 +19,6 @@ in float Height;
 out vec4 gPosition;
 out vec4 gNormal;
 out vec4 gAlbedoSpec;
-
-vec3 calculateLayerColor(float height) {
-    vec3 color = COLORS[0];
-
-    for (int i = 0; i < LAYER_COUNT - 1; i++) {
-        // smoothly interpolate between the different layers
-        float drawStrength = smoothstep(-BLEND_VALUES[i] / 2, BLEND_VALUES[i] / 2, height - LAYER_HEIGHTS[i]);
-
-        color = mix(color, COLORS[i + 1], drawStrength);
-    }
-
-    return color;
-}
 
 float getHeight(vec4 sampledHeight) {
     return sampledHeight.x * MapHeight;
@@ -101,9 +87,9 @@ vec3 triMap(int index, vec3 normal) {
     vec3 xDiff = textureNoTile(Textures, xUV, index).xyz;
     vec3 zDiff = textureNoTile(Textures, zUV, index).xyz;
 
-    // vec3 yDiff = texture(Textures, vec3(yUV, index)).xyz;
-    // vec3 xDiff = texture(Textures, vec3(xUV, index)).xyz;
-    // vec3 zDiff = texture(Textures, vec3(zUV, index)).xyz;
+//    vec3 yDiff = texture(Textures, vec3(yUV, index)).xyz;
+//    vec3 xDiff = texture(Textures, vec3(xUV, index)).xyz;
+//    vec3 zDiff = texture(Textures, vec3(zUV, index)).xyz;
 
     vec3 blendWeights = vec3(pow(abs(normal.x), 10.0), pow(abs(normal.y), 10.0), pow(abs(normal.z), 10.0));
     // Divide our blend mask by the sum of it's components, this will make x+y+z=1
@@ -124,14 +110,14 @@ void main() {
     vec3 color = triMap(0, normal);
 
     // smoothly interpolate between the different layers
-    for (int i = 0; i < LAYER_COUNT - 1; i++) {
-        float drawStrength = smoothstep(-BLEND_VALUES[i] / 2, BLEND_VALUES[i] / 2, Height - LAYER_HEIGHTS[i]);
+    for (int i = 0; i < LayerCount - 1; i++) {
+        float drawStrength = smoothstep(-BlendValues[i] / 2, BlendValues[i] / 2, Height - LayerHeights[i]);
         color = mix(color, triMap(i + 1,  normal), drawStrength);
     }
 
     float slope = (1 - normal.y) * 90;
-    float threshold = 0.85;
-    bool snow = (slope < 20) && (Height > threshold);
+    float threshold = 0.75;
+    bool snow = (slope < 30) && (Height > threshold);
     if (snow) {
         // color = mix(triMap(5,  normal), color, slope / 20);
         color = triMap(6,  normal);
