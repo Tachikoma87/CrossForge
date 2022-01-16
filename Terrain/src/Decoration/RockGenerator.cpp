@@ -28,12 +28,12 @@ namespace Terrain {
     }
 
     void RockGenerator::generateRock(GEOMETRY &geometry, int complexity) {
-        siv::PerlinNoise pNoise;
+        
         generateSphere(geometry, complexity);
 
         // generate noise
         CellularNoise3D cNoise(10, 1, 1, 1);
-
+        siv::PerlinNoise pNoise;
         
         // rough stone shape
         for (int i = 0; i < geometry.vertices.size(); i++) {

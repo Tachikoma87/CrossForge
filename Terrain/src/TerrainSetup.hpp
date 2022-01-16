@@ -8,7 +8,7 @@
 #include <CForge/Graphics/STextureManager.h>
 
 #include "Terrain/src/Map/TerrainMap.h"
-#include "DecoSetup.hpp"
+#include "./Decoration/DecoSetup.hpp"
 
 using namespace CForge;
 

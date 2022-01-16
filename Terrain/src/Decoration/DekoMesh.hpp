@@ -20,8 +20,6 @@ namespace CForge {
 			void load(std::string importPath) {
 				SAssetIO::load(importPath, this);
 				updateVertexAtributes();
-
-				//std::cout << m_Positions.size();
 			}
 
 			protected:

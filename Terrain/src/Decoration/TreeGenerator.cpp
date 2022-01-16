@@ -14,13 +14,15 @@ namespace Terrain {
             rotPos.position = Vector3f(0, 0, 0);
 
             GEOMETRY leavesGeometry;
-            leavesGeometry.uvs.push_back(Vector2f(0, 1));
-            leavesGeometry.uvs.push_back(Vector2f(0, 0));
-            leavesGeometry.uvs.push_back(Vector2f(1, 0));
-            leavesGeometry.uvs.push_back(Vector2f(1, 1));
+            
 
             switch (treeType) {
                 case Normal:
+                    leavesGeometry.uvs.push_back(Vector2f(0, 1));
+                    leavesGeometry.uvs.push_back(Vector2f(0, 0));
+                    leavesGeometry.uvs.push_back(Vector2f(1, 0));
+                    leavesGeometry.uvs.push_back(Vector2f(1, 1));
+
                     branchProperties.botRadius = 0.3;
                     branchProperties.topRadius = 0.2;
                     branchProperties.length = 5;
@@ -34,6 +36,27 @@ namespace Terrain {
                     branchProperties.angleVariationStrength = PI / 64;
                     generateAspenBirkTree(geometry, 8, 9999, rotPos, branchProperties, leavesGeometry);
                     break;
+                case Palm:
+                    branchProperties.botRadius = 0.25;
+                    branchProperties.topRadius = 0.15;
+                    branchProperties.length = 8;
+                    branchProperties.angleVariationStrength = PI / 20;
+                    generatePalmTree(geometry, 10, rotPos, branchProperties, leavesGeometry);
+                    break;
+                case Needle:
+                    leavesGeometry.uvs.push_back(Vector2f(0, 1));
+                    leavesGeometry.uvs.push_back(Vector2f(0, 0));
+                    leavesGeometry.uvs.push_back(Vector2f(0.5f, 0));
+                    leavesGeometry.uvs.push_back(Vector2f(0.5f, 1));
+                    leavesGeometry.uvs.push_back(Vector2f(1, 0));
+                    leavesGeometry.uvs.push_back(Vector2f(1, 1));
+
+                    branchProperties.botRadius = 0.2;
+                    branchProperties.topRadius = 0.00;
+                    branchProperties.length = 10;
+                    branchProperties.angleVariationStrength = PI / 100;
+                    generateNeedleTree(geometry, 8, randomI(16, 24), randomI(4, 6), rotPos, branchProperties, leavesGeometry);
+                    break;
             }
 
             ObjExporter::meshExport(geometry, exportPath + "tree" + to_string(i) + ".obj");
@@ -45,9 +68,9 @@ namespace Terrain {
                                      RotPos rotPos,
                                      BranchProperties branchProperties, GEOMETRY& leavesGeometry) {
         if (recursionDepth <= 0) {
-            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1, 3);
+            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1);
             rotPos.rotation.y() += PI / 2;
-            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1, 3);
+            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1);
             return;
         }
 
@@ -74,9 +97,9 @@ namespace Terrain {
                                 geometry.vertices.size() - 1);
             extraBranchRotPos.position = geometry.vertices[index] - geometry.normals[index] * branchProperties.topRadius;
             extraBranchRotPos.rotation = Quaternionf().setFromTwoVectors(Vector3f(0, 1, 0), geometry.normals[index]);
-            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1, 3);
+            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1);
             extraBranchRotPos.rotation.y() += PI / 2;
-            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1, 3);
+            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1);
         }
         for (int i = 0; i < numOfSplits; i++) {
             
@@ -128,6 +151,44 @@ namespace Terrain {
         branchProperties.length /= 2;
         generateTree(geometry, 3, 2, complexity, rotPos, branchProperties);
         */
+    }
+
+    void TreeGenerator::generatePalmTree(GEOMETRY& geometry, int complexity, RotPos rotPos,
+                                         BranchProperties branchProperties, GEOMETRY& leavesGeometry) {
+        rotPos = generateBranch(geometry, rotPos, complexity, complexity, branchProperties);
+
+        generatePalmTop(leavesGeometry, rotPos, 8, 5);
+    }
+
+    void TreeGenerator::generateNeedleTree(GEOMETRY& geometry, int complexity, int circles, int numBranches, RotPos rotPos,
+                                           BranchProperties branchProperties, GEOMETRY& leavesGeometry) {
+        rotPos = generateBranch(geometry, rotPos, circles, complexity, branchProperties);
+
+        for (int i = 2; i < circles - 1; i++) {
+            int index = i * (complexity + 1);
+            float scale = 1 - (float)i / circles;
+
+            rotPos.position = geometry.vertices[index] - geometry.normals[index] * branchProperties.botRadius * scale;
+            float angle = randomF(0, 360);
+
+            
+            scale *= 2;
+            float height = rotPos.position.y();
+            for (int j = 0; j < numBranches; j++) {
+                
+
+                angle += 360 / numBranches;
+                
+                rotPos.rotation = AngleAxisf(CForge::GraphicsUtility::degToRad(0), Vector3f::UnitX())
+                                * AngleAxisf(CForge::GraphicsUtility::degToRad(angle), Vector3f::UnitY())
+                                * AngleAxisf(CForge::GraphicsUtility::degToRad(400), Vector3f::UnitZ());
+               
+                rotPos.rotation.normalize();
+                rotPos.position.y() = height + randomF(-0.3, 0.3);
+                
+                generateNeedleFoliage(leavesGeometry, rotPos, 1.2 * scale, 0.4 * scale, 1.8 * scale, 0);
+            }
+        }
     }
 
     // generate distorted cylinder with radius interpolation
@@ -190,7 +251,7 @@ namespace Terrain {
     }
 
 
-    void TreeGenerator::generateLeavesQuad(GEOMETRY &geometry, RotPos &rotPos, float width, float height, float offset, int numFaces) {
+    void TreeGenerator::generateLeavesQuad(GEOMETRY &geometry, RotPos &rotPos, float width, float height, float offset) {
         width /= 2;
         rotPos.rotation.normalize();
         Matrix3f rotMat = rotPos.rotation.toRotationMatrix();
@@ -199,17 +260,70 @@ namespace Terrain {
         geometry.vertices.push_back((rotMat * Vector3f(width, -offset, 0)) + rotPos.position);
         geometry.vertices.push_back((rotMat * Vector3f(width, height - offset, 0)) + rotPos.position);
 
-        geometry.uvs.push_back(Vector2f(0, 1));
-        geometry.uvs.push_back(Vector2f(0, 0));
-        geometry.uvs.push_back(Vector2f(1, 0));
-        geometry.uvs.push_back(Vector2f(1, 1));
-
         geometry.normals.push_back(rotMat * Vector3f(0, 0, 1));
         int vertexIndex = geometry.vertices.size();
         int normalIndex = geometry.normals.size();
         geometry.faces.push_back({Vector3i(vertexIndex - 3, 1, normalIndex), Vector3i(vertexIndex - 2, 2, normalIndex), Vector3i(vertexIndex - 1, 3, normalIndex), Vector3i(vertexIndex, 4, normalIndex)});
     }
 
+    void TreeGenerator::generateNeedleFoliage(GEOMETRY& geometry, RotPos& rotPos, float width, float height, float length, float offset) {
+        width /= 2;
+        rotPos.rotation.normalize();
+        Matrix3f rotMat = rotPos.rotation.toRotationMatrix();
+        geometry.vertices.push_back((rotMat * Vector3f(offset + length, 0, -width)) + rotPos.position);
+        geometry.vertices.push_back((rotMat * Vector3f(offset, 0, -width)) + rotPos.position);
+        
+        geometry.vertices.push_back((rotMat * Vector3f(offset, height, 0)) + rotPos.position);
+        geometry.vertices.push_back((rotMat * Vector3f(offset + length, height, 0)) + rotPos.position);
+        geometry.vertices.push_back((rotMat * Vector3f(offset, 0, width)) + rotPos.position);
+        geometry.vertices.push_back((rotMat * Vector3f(offset + length, 0, width)) + rotPos.position);
+        
+        
+        geometry.normals.push_back(rotMat * Vector3f(0, 0, 1)); // placeholder value
+
+
+        int vertexIndex = geometry.vertices.size();
+        int normalIndex = geometry.normals.size();
+        geometry.faces.push_back({ Vector3i(vertexIndex - 5, 1, normalIndex), Vector3i(vertexIndex - 4, 2, normalIndex), Vector3i(vertexIndex - 3, 3, normalIndex), Vector3i(vertexIndex - 2, 4, normalIndex) });
+        geometry.faces.push_back({ Vector3i(vertexIndex - 2, 4, normalIndex), Vector3i(vertexIndex - 3, 3, normalIndex), Vector3i(vertexIndex - 1, 5, normalIndex), Vector3i(vertexIndex, 6, normalIndex) });
+    }
+
+    void TreeGenerator::generatePalmTop(GEOMETRY& geometry, RotPos& rotPos, int numLeaves, float size) {
+        rotPos.rotation.normalize();
+        
+        Quaternionf rotOrigin = rotPos.rotation;
+        for (int j = 0; j < numLeaves / 2; j++) {
+            float randAngle = randomF(0, 360.0 / numLeaves);
+            for (int i = 0; i < numLeaves; i++) {
+                Quaternionf rot = AngleAxisf(CForge::GraphicsUtility::degToRad(0), Vector3f::UnitX())
+                    * AngleAxisf(CForge::GraphicsUtility::degToRad(360 * i / numLeaves + randAngle), Vector3f::UnitY())
+                    * AngleAxisf(CForge::GraphicsUtility::degToRad(j * 80.0 / (numLeaves / 2)), Vector3f::UnitZ());
+                rotPos.rotation = rotOrigin * rot;
+                generatePalmLeave(geometry, rotPos, PI / 2, 3, 7, PI / 2, 1, 3);
+            }
+        }
+        
+
+    }
+
+    void TreeGenerator::generatePalmLeave(GEOMETRY& geometry, RotPos& rotPos, float curveAngle, float radius, int numEdges, float innerAngle, float innerRadius, int innerEdgeNum) {
+        Matrix3f rotMat = rotPos.rotation.toRotationMatrix();
+        for (int i = 0; i < numEdges; i++) {
+            float iAngle = curveAngle * i / numEdges;
+            for (int j = 0; j < innerEdgeNum; j++) {
+                float jAngle = innerAngle * j / (innerEdgeNum - 1) - innerAngle / 2;
+                Vector3f pos = Vector3f(sin(iAngle) * radius, cos(iAngle) * radius + cos(jAngle) * innerRadius - radius - innerRadius, sin(jAngle) * innerRadius);
+
+                geometry.vertices.push_back((rotMat * pos) + rotPos.position);
+                geometry.normals.push_back(rotMat * Vector3f(0, 0, 1)); // placeholder value
+                geometry.uvs.push_back(Vector2f((float) j / (innerEdgeNum - 1), (float) i/ (numEdges - 1)));
+                if (i > 0 && j > 0) {
+                    int vertexIndex = geometry.vertices.size();
+                    geometry.faces.push_back({ Vector3i(vertexIndex, vertexIndex, vertexIndex), Vector3i(vertexIndex - innerEdgeNum, vertexIndex - innerEdgeNum, vertexIndex), Vector3i(vertexIndex - innerEdgeNum - 1, vertexIndex - innerEdgeNum - 1, vertexIndex), Vector3i(vertexIndex - 1, vertexIndex - 1, vertexIndex) });
+                }
+            }
+        }
+    }
 
     float TreeGenerator::randomF(float min, float max) {
         return (min + (float) rand() / (float) (RAND_MAX) * (max - min));

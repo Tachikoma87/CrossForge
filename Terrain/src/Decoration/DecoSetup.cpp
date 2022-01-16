@@ -1,30 +1,6 @@
-#pragma once
+#include "DecoSetup.hpp"
 
-#include "CForge/AssetIO/SAssetIO.h"
-#include "CForge/Graphics/Shader/SShaderManager.h"
-#include "CForge/Graphics/STextureManager.h"
 
-#include "CForge/Graphics/GLWindow.h"
-#include "CForge/Graphics/GraphicsUtility.h"
-#include "CForge/Graphics/RenderDevice.h"
-
-#include "CForge/Graphics/Lights/DirectionalLight.h"
-
-#include "CForge/Graphics/SceneGraph/SceneGraph.h"
-#include "CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "CForge/Graphics/SceneGraph/SGNTransformation.h"
-
-#include "CForge/Graphics/Actors/StaticActor.h"
-
-#include "Terrain/src/Decoration/DekoMesh.hpp"
-#include "Terrain/src/Decoration/TreeGenerator.hpp"
-#include "Terrain/src/Decoration/RockGenerator.hpp"
-#include "Terrain/src/Decoration/GrassGenerator.hpp"
-#include "Terrain/src/Decoration/InstanceActor.h"
-#include "Terrain/src/Decoration/InstanceSGN.h"
-
-using namespace Eigen;
-using namespace std;
 using namespace Terrain;
 
 namespace CForge {
@@ -33,9 +9,16 @@ namespace CForge {
 		return (min + (float)rand() / (float)(RAND_MAX) * (max - min));
 	}
 
+	void setWindUBO(unsigned int windUBO, Vector3f& windVec, float time) {
+		glBindBuffer(GL_UNIFORM_BUFFER, windUBO);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(float) * 3, windVec.data());
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(float) * 3, sizeof(float), &time);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	}
+
 	void placeInstances(int ammount, std::vector<InstanceSGN> &nodes, SGNTransformation &trans, SceneGraph &sceneGraph, InstanceActor &iActor) {
 		int i = 0;
-		float offset = 2.25;
+		float offset = 2.5;
 		for (int x = 0; x < ammount; x++) {
 			for (int z = 0; z < ammount; z++) {
 				
@@ -48,6 +31,7 @@ namespace CForge {
 	}
 
 	void DecoSetup(void) {
+
 		SAssetIO* pAssIO = SAssetIO::instance();
 		STextureManager* pTexMan = STextureManager::instance();
 		SShaderManager* pSMan = SShaderManager::instance();
@@ -65,6 +49,7 @@ namespace CForge {
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), "Absolute Minimum Setup");
 
+		gladLoadGL();
 
 		std::string GLError;
 		GraphicsUtility::checkGLError(&GLError);
@@ -106,6 +91,7 @@ namespace CForge {
 		RDev.activeCamera(&Cam);
 		RDev.addLight(&Sun);
 
+		//scene
 		SceneGraph SGTest;
 		SGNTransformation objectTransformSGN;
 		objectTransformSGN.init(nullptr);
@@ -113,11 +99,27 @@ namespace CForge {
 		StaticActor object;
 		SGNGeometry objectSGN2;
 		StaticActor object2;
-
 		InstanceActor iActor;
-
 		DekoMesh M;
 		DekoMesh M2;
+
+		//wind
+		Vector3f windVec = Vector3f(1, 0, 0);
+		float windAngle = 0;
+		float windStr = 1.5;
+		float windAngleVariation = 0;
+		float windAngleAcc = 10;
+		unsigned int windUBO;
+		glGenBuffers(1, &windUBO);
+		glBindBuffer(GL_UNIFORM_BUFFER, windUBO);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 4, NULL, GL_STATIC_DRAW);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 42, windUBO);
+		setWindUBO(windUBO, windVec, 0);
+
+
+
+
 
 		std::vector<InstanceSGN> nodes;
 		int ammount = 32;
@@ -125,12 +127,30 @@ namespace CForge {
 			nodes.push_back(InstanceSGN());
 		}
 
-		enum DekoObject {rock, grass, tree, leaves, treeAndLeaves, instanceGrass};
+		enum DekoObject {rock, grass, tree, leaves, treeAndLeaves, pineTree, palmTree, instanceGrass, instanceTrees
+		};
 
-		bool generateNew = false;
+		bool generateNew = true;
 		DekoObject selected = instanceGrass;
 
 		switch (selected) {
+		case instanceTrees:
+			M.load("Assets/tree0.obj");
+
+			M.getMaterial(0)->TexAlbedo = "Assets/richard/Bark_06_baseColor.jpg";
+			M.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
+			M.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
+
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceShader.vert");
+			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceShader.frag");
+
+			placeInstances(ammount, nodes, objectTransformSGN, SGTest, iActor);
+			objectTransformSGN.translation(Vector3f(0, 8, -3));
+			SGTest.render(&RDev);
+			
+			iActor.init(&M);
+
+			break;
 		case instanceGrass:
 			M.load("Assets/grass0.obj");
 			M.getMaterial(0)->TexAlbedo = "Assets/richard/grass_color.jpg";
@@ -139,16 +159,14 @@ namespace CForge {
 			M.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceShader.vert");
 			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceShader.frag");
 
-			placeInstances(ammount, nodes, objectTransformSGN, SGTest, iActor);
-			
-			
-			
-			
-			
+			placeInstances(ammount, nodes, objectTransformSGN, SGTest, iActor);		
+			SGTest.render(&RDev);
+			iActor.init(&M);
+
 			break;
 		case rock:
 			if (generateNew) {
-				RockGenerator::generateRocks(RockGenerator::LowPoly, 1, "Assets/");
+				RockGenerator::generateRocks(RockGenerator::Normal, 1, "Assets/");
 			}
 			M.load("Assets/rock0.obj");
 			M.getMaterial(0)->TexAlbedo = "Assets/richard/Rock_035_baseColor.jpg";
@@ -173,7 +191,7 @@ namespace CForge {
 			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
 			
 			object.init(&M);
-			objectTransformSGN.translation(Vector3f(0, 3, 0));
+			objectTransformSGN.translation(Vector3f(0, -2, 0));
 			objectSGN.init(&objectTransformSGN, &object);
 			SGTest.init(&objectTransformSGN);
 			break;
@@ -194,6 +212,7 @@ namespace CForge {
 
 			object.init(&M);
 			objectSGN.init(&objectTransformSGN, &object);
+			objectTransformSGN.translation(Vector3f(0, -5, -3));
 			SGTest.init(&objectTransformSGN);
 			break;
 		case leaves:
@@ -208,6 +227,7 @@ namespace CForge {
 
 			object.init(&M);
 			objectSGN.init(&objectTransformSGN, &object);
+			objectTransformSGN.translation(Vector3f(0, -5, -3));
 			SGTest.init(&objectTransformSGN);
 			break;
 		case treeAndLeaves:
@@ -223,13 +243,71 @@ namespace CForge {
 			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
 
 			object.init(&M);
+
 			objectSGN.init(&objectTransformSGN, &object);
+			objectTransformSGN.translation(Vector3f(0, -5, -3));
 			SGTest.init(&objectTransformSGN);
 
 
 			M2.load("Assets/leaves0.obj");
 			M2.getMaterial(0)->TexAlbedo = "Assets/richard/leaves3_color.png";
 			M2.getMaterial(0)->TexDepth = "Assets/richard/leaves3_alpha.jpg";
+			M2.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
+			M2.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
+
+			object2.init(&M2);
+			objectSGN2.init(&objectTransformSGN, &object2);
+			SGTest.init(&objectTransformSGN);
+			break;
+		case pineTree:
+			if (generateNew) {
+				TreeGenerator::generateTrees(TreeGenerator::Needle, 1, "Assets/");
+			}
+
+			M.load("Assets/tree0.obj");
+			M.getMaterial(0)->TexAlbedo = "Assets/richard/Dark_Bark_baseColor.jpg";
+			M.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
+			M.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
+			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
+
+			object.init(&M);
+			objectSGN.init(&objectTransformSGN, &object);
+			objectTransformSGN.translation(Vector3f(0, -5, -0));
+			SGTest.init(&objectTransformSGN);
+
+
+			M2.load("Assets/leaves0.obj");
+			M2.getMaterial(0)->TexAlbedo = "Assets/richard/needle_leaves_color_bright.png";
+			M2.getMaterial(0)->TexDepth = "Assets/richard/needle_leaves_alpha.png";
+			M2.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
+			M2.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
+
+			object2.init(&M2);
+			objectSGN2.init(&objectTransformSGN, &object2);
+			SGTest.init(&objectTransformSGN);
+			break;
+		case palmTree:
+			if (generateNew) {
+				TreeGenerator::generateTrees(TreeGenerator::Palm, 1, "Assets/");
+			}
+
+			M.load("Assets/tree0.obj");
+			M.getMaterial(0)->TexAlbedo = "Assets/richard/palm_color.jpg";
+			M.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
+			M.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
+			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
+
+			object.init(&M);
+			objectSGN.init(&objectTransformSGN, &object);
+			objectTransformSGN.translation(Vector3f(0, -5, -3));
+			SGTest.init(&objectTransformSGN);
+
+
+			M2.load("Assets/leaves0.obj");
+			M2.getMaterial(0)->TexAlbedo = "Assets/richard/pla2.png";
+			M2.getMaterial(0)->TexDepth = "Assets/richard/pla3.png";
 			M2.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
 			M2.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
 
@@ -251,20 +329,32 @@ namespace CForge {
 		objectTransformSGN.rotationDelta(R);
 
 		int32_t FPSCount = 0;
+		clock_t current_ticks, delta_ticks;
+		clock_t fps = 60;
 
 		while (!RenderWin.shutdown()) {
+			current_ticks = clock(); //for fps counter
+
+			windAngleVariation += randomF(-windAngleAcc, windAngleAcc) / (float)fps * 0.4;
+			windAngle += windAngleVariation / (float)fps;
+			windVec.x() = cos(windAngle) * windStr;
+			windVec.z() = sin(windAngle) * windStr;
+			setWindUBO(windUBO, windVec, current_ticks / 60);
+
+
 			RenderWin.update();
 			SGTest.update(1.0f);
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			
 
-			iActor.clearInstances();
+			glDisable(GL_CULL_FACE);
+
 			SGTest.render(&RDev);
-			iActor.init(&M);
-			iActor.render(&RDev);
-			
-
+			if (selected == instanceGrass || selected == instanceTrees) {
+				//iActor.init(&M);
+				iActor.render(&RDev);
+				//iActor.clearInstances();
+			}
 
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
@@ -277,7 +367,15 @@ namespace CForge {
 				RenderWin.closeWindow();
 			}
 
+			//FPS counter
 			FPSCount++;
+			delta_ticks = clock() - current_ticks;
+			if (delta_ticks > 0)
+				fps = CLOCKS_PER_SEC / delta_ticks;
+			if (FPSCount % 60 == 0) {
+				cout << fps << endl;
+			}
+
 		}//while[main loop]
 
 
