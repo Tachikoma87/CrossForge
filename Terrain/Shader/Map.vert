@@ -10,9 +10,9 @@ layout(std140) uniform ModelData {
     mat4 ModelMatrix;
 };
 
-uniform sampler2D HeightMap;
 uniform float MapScale;
 uniform float MapHeight;
+uniform sampler2D HeightMap;
 
 in vec2 VertPosition;
 
