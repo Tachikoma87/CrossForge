@@ -211,4 +211,8 @@ namespace Terrain {
         return mHeightMap.getNormalAt((x + mHeightMap.getConfig().width / 2) / mMapScale,
                                       (y + mHeightMap.getConfig().height / 2) / mMapScale);
     }
+
+    Vector2f TerrainMap::getMapSize() {
+        return Vector2f(mHeightMap.getConfig().width, mHeightMap.getConfig().height);
+    }
 }
