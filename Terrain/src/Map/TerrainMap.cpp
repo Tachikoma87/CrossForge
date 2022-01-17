@@ -6,7 +6,7 @@
 
 namespace Terrain {
     TerrainMap::TerrainMap(SGNTransformation *rootTransform)
-        : mRootTransform(rootTransform), mMapScale(1.0f), mMapHeight(2000.0f), mTextures(7, 1024) {
+        : mRootTransform(rootTransform), mMapScale(1.0f), mTextures(7, 1024) {
         initShader();
 
         vector<string> files;
@@ -51,23 +51,22 @@ namespace Terrain {
         }
     }
 
+    void TerrainMap::erode() {
+        mHeightMap.erode(10);
+    }
+
     void TerrainMap::generateClipMap(ClipMap::ClipMapConfig clipMapConfig) {
-        mClipMapConfig = clipMapConfig;
-        mClipMap.generate(mClipMapConfig);
+        mClipMap.generate(clipMapConfig);
         generateClipMapTiles();
     }
 
     void TerrainMap::generateHeightMap(HeightMap::HeightMapConfig heightMapConfig) {
-        mHeightMapConfig = heightMapConfig;
-        mHeightMap.generate(mHeightMapConfig);
+        mHeightMap.generate(heightMapConfig);
     }
 
-    void TerrainMap::heightMapFromTexture(GLTexture2D *texture) {
+    void TerrainMap::heightMapFromTexture(GLTexture2D *texture, float mapHeight) {
         mHeightMap.setTexture(texture);
-    }
-
-    void TerrainMap::setMapHeight(float mapHeight) {
-        mMapHeight = mapHeight;
+        mHeightMap.setConfig({.width = 2048, .height = 2048, .mapHeight = mapHeight, .noiseConfig = {0, 0, 0, 0, 0}});
     }
 
     void TerrainMap::setMapScale(float mapScale) {
@@ -83,10 +82,18 @@ namespace Terrain {
         glActiveTexture(GL_TEXTURE1);
         mTextures.bind();
 
+        int layerCount = 6;
+        vector<GLfloat> layerHeights {0.5, 0.54, 0.62, 0.73, 0.83};
+        vector<GLfloat> blendValues {0.02, 0.1, 0.1, 0.1, 0.2};
+
+        glUniform1i(mShader->uniformLocation("LayerCount"), layerCount);
+        glUniform1fv(mShader->uniformLocation("LayerHeights"), layerHeights.size(), layerHeights.data());
+        glUniform1fv(mShader->uniformLocation("BlendValues"), blendValues.size(), blendValues.data());
+
         glUniform1i(mShader->uniformLocation("HeightMap"), 0);
         glUniform1i(mShader->uniformLocation("Textures"), 1);
         glUniform1f(mShader->uniformLocation("MapScale"), mMapScale);
-        glUniform1f(mShader->uniformLocation("MapHeight"), mMapHeight);
+        glUniform1f(mShader->uniformLocation("MapHeight"), mHeightMap.getConfig().mapHeight);
 
         glDrawElements(GL_TRIANGLES, mClipMap.getIndexCount(variant), GL_UNSIGNED_INT, nullptr);
     }
@@ -103,6 +110,7 @@ namespace Terrain {
         mTileNodes.clear();
     }
 
+
     void TerrainMap::initShader() {
         SShaderManager* shaderManager = SShaderManager::instance();
 
@@ -111,10 +119,10 @@ namespace Terrain {
         string errorLog;
 
         ShaderCode* vertexShader =
-            shaderManager->createShaderCode("Shader/MapShader.vert", "330 core",
+            shaderManager->createShaderCode("Shader/Map.vert", "330 core",
                                             0, "", "");
         ShaderCode* fragmentShader =
-            shaderManager->createShaderCode("Shader/MapShader.frag", "330 core",
+            shaderManager->createShaderCode("Shader/Map.frag", "330 core",
                                             0, "", "");
 
         vsSources.push_back(vertexShader);
@@ -155,7 +163,7 @@ namespace Terrain {
             },
         };
 
-        float sideLength = static_cast<float>(mClipMapConfig.sideLength);
+        float sideLength = static_cast<float>(mClipMap.getConfig().sideLength);
         float lineOffset = sideLength * 1.5f;
         Vector2f linePositions[4] = {
             Vector2f(-lineOffset, 1.0f),
@@ -167,7 +175,7 @@ namespace Terrain {
         TileNode::TileData data = {Vector2f(2, 2), 0, 2, ClipMap::Cross};
         mTileNodes.push_back(new TileNode(mRootTransform, this, data));
 
-        for (uint32_t level = 0; level < mClipMapConfig.levelCount; level++) {
+        for (uint32_t level = 0; level < mClipMap.getConfig().levelCount; level++) {
             uint32_t lod = 2 << level;
             float scale = static_cast<float>(lod);
 
@@ -192,5 +200,15 @@ namespace Terrain {
             data = {Vector2f(scale, scale), 0, lod, ClipMap::Trim};
             mTileNodes.push_back(new TileNode(mRootTransform, this, data));
         }
+    }
+
+    float TerrainMap::getHeightAt(float x, float y) {
+        return mHeightMap.getHeightAt((x + mHeightMap.getConfig().width / 2) / mMapScale,
+                                      (y + mHeightMap.getConfig().height / 2) / mMapScale) * mMapScale;
+    }
+
+    Vector3f TerrainMap::getNormalAt(float x, float y) {
+        return mHeightMap.getNormalAt((x + mHeightMap.getConfig().width / 2) / mMapScale,
+                                      (y + mHeightMap.getConfig().height / 2) / mMapScale);
     }
 }
