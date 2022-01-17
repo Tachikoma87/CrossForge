@@ -95,7 +95,6 @@ add_library(crossforge SHARED
 		Terrain/src/Decoration/InstanceActor.cpp
 		Terrain/src/Decoration/InstanceSGN.cpp
 		Terrain/src/Decoration/InstanceVertexUtility.cpp
-		Terrain/src/Decoration/DekoRenderGroupUtility.cpp
 		
 		)
 set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
