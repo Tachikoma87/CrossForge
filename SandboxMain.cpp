@@ -16,6 +16,7 @@
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
 #include "Prototypes/TestScenes/ForestTestScene.hpp"
+#include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -49,12 +50,16 @@ int main(int argc, char* argv[]) {
 
 
 	try {
+		std::string UTF8String;
+		std::wstring UnicodeString;
+
 		//exampleMinimumGraphicsSetup();
 		//exampleSkeletalAnimation();
 		//exampleMorphTargetAnimation(); 
 		//shadowTest();
-		vertexColorTestScene();
+		//vertexColorTestScene();
 		//forestTestScene();
+		skelAnimTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

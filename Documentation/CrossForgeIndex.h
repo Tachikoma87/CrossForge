@@ -20,45 +20,31 @@
 
 /***
 * Planning:	
-Iteration: Skeletal Animation
-	* [x] Read article on Skeletal Animation
-	* [x] Read skeletal animation data from file
-	* [x] Extend T3DMesh with skeletal data
-	* [x] Create and implement SkeletalActor
-	* [x] adapt shader for skeletal animation
-	* [x] make shadows work with skeletal animation
-	* [ ] move skeletal actor and stuff to library
-	
-Iteration: Morph Target animation
-	* [x] extend T3DMesh with Morph targets
-	* [x] create Morph target builder class (takes topological identical meshes and creates morph targets)
-	* [x] write shader for morph target animation
-	* [x] implement UBO for morph target animation
-	* [x] implement morph target animation controller (creates the animation data, holds UBO and morph target data [GLBuffer])
-	* [x] implement MorphTargetActor
-	* [ ] move Morph Target classes to core
+
 	
 Example Scenes:
-	[ ] create Example assets folder and push to repo
-	[ ] import dome from Digitale Objektrekonstruktion and update Minimum Graphical setup
-	[ ] write example for lighting/shadow
-	[ ] write example for skeletal animation
-	[ ] write example for morph target animation
+
 
 Miscellaneous Stuff:
-	[x] add method to build transformation from node
 	[ ] rethink concept in ShaderManager to not create same shader multiple times (maybe compare final code)
 
 * Ideas for next iteration: 
 	* implement mesh processing operations (halfe edge DS, IGL methods)
 		* https://kaba.hilvi.org/homepage/blog/halfedge/halfedge.htm
-	* Normal Mapping, Parallax Mapping, 
+	* Normal Mapping, Displacement Mapping (Also in LearnOpenGL Website)
 	* Point Based Animation, 
+	* Add Compute Shaders
 	* post processing (Bloom)
 	* Video capture (separate thread that writes images to HDD and then converts to video)
 	* Geometry shader to visualize normal vectors, 
 	* view frustum culling (scene graph),
 	* WebAssembly support
+	* Sky Box (CubeMaps): https://learnopengl.com/Advanced-OpenGL/Cubemaps 
+	* Object Storing (Through LibIGL or directly with AssImp)
+	* Implement Instanced Rendering (Instanced Actor?)
+	* Cascaded Shadow Mapping: https://learnopengl.com/Guest-Articles/2021/CSM
+	* implement Text Rendering
+	* Implement (or use) GUI
 */
 
 
@@ -151,4 +137,22 @@ Miscellaneous Stuff:
 		* [x] implement this in shader utility (now ShaderCode class that handles the actual code and provides options for configuration)
 	* [x] write keyboard and mouse class (tracks keystrokes and has callback system, same for mouse)
 	* [x] add mouse and keyboard and SInputManager classes to core and add to GLWindow
+	* 
+[completed] Iteration: Skeletal Animation
+	* [x] Read article on Skeletal Animation
+	* [x] Read skeletal animation data from file
+	* [x] Extend T3DMesh with skeletal data
+	* [x] Create and implement SkeletalActor
+	* [x] adapt shader for skeletal animation
+	* [x] make shadows work with skeletal animation
+	* [x] move skeletal actor and stuff to library
+
+[completed] Iteration: Morph Target animation
+	* [x] extend T3DMesh with Morph targets
+	* [x] create Morph target builder class (takes topological identical meshes and creates morph targets)
+	* [x] write shader for morph target animation
+	* [x] implement UBO for morph target animation
+	* [x] implement morph target animation controller (creates the animation data, holds UBO and morph target data [GLBuffer])
+	* [x] implement MorphTargetActor
+	* [x] move Morph Target classes to core
 */
