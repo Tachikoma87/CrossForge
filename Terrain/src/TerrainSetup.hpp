@@ -153,6 +153,14 @@ namespace Terrain {
         map.generateClipMap(clipMapConfig);
         map.generateHeightMap(heightMapConfig);
 
+
+
+        // Todo: richard hier fass
+        // printf("%f, %f \n", map.getMapSize().x(), map.getMapSize().y());
+        // map.getHeightAt(0, 0);
+
+
+
         SceneGraph sceneGraph;
         sceneGraph.init(&rootTransform);
 

@@ -128,7 +128,7 @@ namespace CForge {
 		};
 
 		bool generateNew = true;
-		DekoObject selected = instanceGrass;
+		DekoObject selected = palmTree;
 
 		switch (selected) {
 		case instanceTrees:

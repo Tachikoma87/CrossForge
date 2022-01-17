@@ -23,6 +23,7 @@ namespace Terrain {
 
         void heightMapFromTexture(GLTexture2D* texture, float mapHeight);
 
+        Vector2f getMapSize();
         float getHeightAt(float x, float y);
         Vector3f getNormalAt(float x, float y);
         void setMapScale(float mapScale);
