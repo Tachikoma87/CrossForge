@@ -108,17 +108,14 @@ namespace CForge {
 		float windAngle = 0;
 		float windStr = 1.5;
 		float windAngleVariation = 0;
-		float windAngleAcc = 10;
+		float windAngleAcc = 100;
 		unsigned int windUBO;
 		glGenBuffers(1, &windUBO);
 		glBindBuffer(GL_UNIFORM_BUFFER, windUBO);
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 4, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 42, windUBO);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 4, windUBO);
 		setWindUBO(windUBO, windVec, 0);
-
-
-
 
 
 		std::vector<InstanceSGN> nodes;
@@ -156,8 +153,8 @@ namespace CForge {
 			M.getMaterial(0)->TexAlbedo = "Assets/richard/grass_color.jpg";
 			M.getMaterial(0)->TexDepth = "Assets/richard/grassAlpha.png";
 
-			M.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceShader.vert");
-			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceShader.frag");
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceGrassShader.vert");
+			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
 
 			placeInstances(ammount, nodes, objectTransformSGN, SGTest, iActor);		
 			SGTest.render(&RDev);
@@ -335,11 +332,12 @@ namespace CForge {
 		while (!RenderWin.shutdown()) {
 			current_ticks = clock(); //for fps counter
 
-			windAngleVariation += randomF(-windAngleAcc, windAngleAcc) / (float)fps * 0.4;
+			windAngleVariation += randomF(-windAngleAcc, windAngleAcc) / (float)fps;
+			windAngleVariation *= 0.8;
 			windAngle += windAngleVariation / (float)fps;
 			windVec.x() = cos(windAngle) * windStr;
 			windVec.z() = sin(windAngle) * windStr;
-			setWindUBO(windUBO, windVec, current_ticks / 60);
+			setWindUBO(windUBO, windVec, current_ticks / 60.0);
 
 
 			RenderWin.update();
