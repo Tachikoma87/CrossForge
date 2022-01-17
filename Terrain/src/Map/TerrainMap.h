@@ -7,6 +7,7 @@
 #include "TileNode.h"
 
 using namespace CForge;
+using namespace Eigen;
 
 namespace Terrain {
     class TerrainMap {
@@ -15,13 +16,15 @@ namespace Terrain {
         ~TerrainMap();
 
         void update(float cameraX , float cameraY);
+        void erode();
 
         void generateClipMap(ClipMap::ClipMapConfig clipMapConfig);
         void generateHeightMap(HeightMap::HeightMapConfig heightMapConfig);
 
-        void heightMapFromTexture(GLTexture2D* texture);
+        void heightMapFromTexture(GLTexture2D* texture, float mapHeight);
 
-        void setMapHeight(float mapHeight);
+        float getHeightAt(float x, float y);
+        Vector3f getNormalAt(float x, float y);
         void setMapScale(float mapScale);
 
         void render(RenderDevice* renderDevice, ClipMap::TileVariant variant);
@@ -31,12 +34,8 @@ namespace Terrain {
         void initShader();
         void generateClipMapTiles();
 
-        ClipMap::ClipMapConfig mClipMapConfig;
-        HeightMap::HeightMapConfig mHeightMapConfig; // Todo: only store here if needed
-
         // Todo: group those once more parameters are introduced
         float mMapScale;
-        float mMapHeight;
 
         ClipMap mClipMap;
         HeightMap mHeightMap;

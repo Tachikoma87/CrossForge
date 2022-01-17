@@ -52,12 +52,12 @@ namespace Terrain {
         shaderManager->configShader(lightConfig);
         shaderManager->release();
 
-        camera->init(Vector3f(.0f, 1400.0f, 100.0f), Vector3f::UnitY());
+        camera->init(Vector3f(.0f, 400.0f, 100.0f), Vector3f::UnitY());
         camera->pitch(GraphicsUtility::degToRad(-15.0f));
         camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 1.0f, 100000.0f);
         renderDevice->activeCamera(camera);
 
-        Vector3f sunPos = Vector3f(2000.0f, 2000.0f, 0.0f);
+        Vector3f sunPos = Vector3f(600.0f, 600.0f, 0.0f);
         sun->init(sunPos, -sunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 2.5f);
         auto projection = GraphicsUtility::perspectiveProjection(winWidth, winHeight, GraphicsUtility::degToRad(45.0f),
                                                                  1.0f, 10000.0f);
@@ -91,7 +91,7 @@ namespace Terrain {
 
         const float movementSpeed = 4;
 
-        float MovementScale = 1.0f;
+        float MovementScale = 0.1f;
         if (keyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) || keyboard->keyPressed(Keyboard::KEY_RIGHT_SHIFT)) {
             MovementScale = 6.0f;
         }
@@ -122,7 +122,9 @@ namespace Terrain {
         bool wireframe = false;
         bool debugTexture = false;
         bool shadows = true;
-        bool richard = true;
+        bool richard = false;
+        bool erode = false;
+        bool cameraMode = false;
 
         if (richard) {
             DecoSetup();
@@ -138,14 +140,14 @@ namespace Terrain {
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);
 
-        ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 64, .levelCount = 8};
+        ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 128, .levelCount = 5};
         HeightMap::NoiseConfig noiseConfig = {.seed = 0,
             .scale = 1.0f,
             .octaves = 10,
             .persistence = 0.5f,
             .lacunarity = 2.0f};
-        HeightMap::HeightMapConfig heightMapConfig = {.width = 1024 * 8, .height = 1024 *
-                                                                                   8, .noiseConfig = noiseConfig};
+        HeightMap::HeightMapConfig heightMapConfig = {.width = 1024 / 1, .height = 1024 / 1,
+                                                      .mapHeight = 400, .noiseConfig = noiseConfig};
 
         TerrainMap map = TerrainMap(&rootTransform);
         map.generateClipMap(clipMapConfig);
@@ -161,6 +163,10 @@ namespace Terrain {
             window.update();
 
             sceneGraph.update(1.0f);
+
+            if (erode) {
+                map.erode();
+            }
 
             map.update(camera.position().x(), camera.position().z());
 
@@ -194,6 +200,14 @@ namespace Terrain {
 
             updateCamera(window.mouse(), window.keyboard(), renderDevice.activeCamera());
 
+            if (cameraMode) {
+                camera.position(Vector3f(camera.position().x(),
+                                         map.getHeightAt(camera.position().x(), camera.position().z()) + 5,
+                                         camera.position().z()));
+
+                map.getNormalAt(camera.position().x(), camera.position().z());
+            }
+
             if (window.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
                 window.closeWindow();
             }
@@ -218,19 +232,21 @@ namespace Terrain {
                     .octaves = 8,
                     .persistence = 0.5f,
                     .lacunarity = 2.0f};
-                heightMapConfig = {.width = 1024 * 8, .height = 1024 * 8, .noiseConfig = noiseConfig};
-                map.setMapHeight(2000);
+                heightMapConfig = {.width = 1024 * 8, .height = 1024 * 8, .mapHeight = 2000, .noiseConfig = noiseConfig};
 
                 map.generateHeightMap(heightMapConfig);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F5)) {
                 window.keyboard()->keyState(Keyboard::KEY_F5, Keyboard::KEY_RELEASED);
-                map.heightMapFromTexture(STextureManager::create("Assets/height_map1.jpg"));
-                map.setMapHeight(100);
+                map.heightMapFromTexture(STextureManager::create("Assets/height_map1.jpg"), 10);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F6)) {
                 window.keyboard()->keyState(Keyboard::KEY_F6, Keyboard::KEY_RELEASED);
-                shadows = !shadows;
+                cameraMode = !cameraMode;
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_F7)) {
+                window.keyboard()->keyState(Keyboard::KEY_F7, Keyboard::KEY_RELEASED);
+                erode = !erode;
             }
             static float scale = 1.0f;
             if (window.keyboard()->keyPressed(Keyboard::KEY_F8)) {
