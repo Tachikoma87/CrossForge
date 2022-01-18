@@ -118,6 +118,48 @@ namespace Terrain {
         }
     }
 
+    void setWindUBO(unsigned int windUBO, Vector3f& windVec, float time) {
+        glBindBuffer(GL_UNIFORM_BUFFER, windUBO);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(float) * 3, windVec.data());
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(float) * 3, sizeof(float), &time);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+
+    void updateGrass(InstanceActor &iGrassActor, TerrainMap &map, VirtualCamera &camera) {
+        float oriSpacing = 1;
+        float spacing = oriSpacing;
+        int numRows = 50;
+        int numColls = numRows;
+        Vector2f mSize = map.getMapSize();
+        Vector3f camPos = camera.position();
+        Vector3f rowStep = camera.dir();
+        rowStep.y() = 0;
+        rowStep.normalize(); 
+        //rowStep = AngleAxisf(GraphicsUtility::degToRad(0), Vector3f::UnitY()) * rowStep;
+        Vector3f colStep = camera.right();
+        colStep.y() = 0;
+        colStep.normalize();
+        colStep = AngleAxisf(GraphicsUtility::degToRad(90), Vector3f::UnitY()) * rowStep;
+        iGrassActor.clearInstances();
+
+
+        
+        camPos.x() = ((int)(camPos.x() / spacing)) * spacing;
+        camPos.z() = ((int)(camPos.z() / spacing)) * spacing;
+        for (int i = 0; i < numRows; i++) {
+            int maxJ = numColls * (float)i / numRows;
+            Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(0.5, 0.5, 0.5));
+            for (int j = -maxJ; j <= maxJ; j++) {
+                Vector3f pos = camPos + rowStep * spacing * i + colStep * spacing * j;
+                float xCord = ((int)(pos.x() / oriSpacing)) * oriSpacing;
+                float zCord = ((int)(pos.z() / oriSpacing)) * oriSpacing;
+                if (xCord < mSize.x() / 2 && xCord > mSize.x() / -2 && zCord < mSize.y() / 2 && zCord > mSize.y() / -2) {
+                    iGrassActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
+                }
+            }
+        }
+    }
+
     void TerrainSetup() {
         bool wireframe = false;
         bool debugTexture = false;
@@ -153,21 +195,136 @@ namespace Terrain {
         map.generateClipMap(clipMapConfig);
         map.generateHeightMap(heightMapConfig);
 
-
+        SceneGraph sceneGraph;
+        
 
         // Todo: richard hier fass
         // printf("%f, %f \n", map.getMapSize().x(), map.getMapSize().y());
         // map.getHeightAt(0, 0);
+        bool generateNew = false;
+
+        if (generateNew) {
+            TreeGenerator::generateTrees(TreeGenerator::Needle, 1, "Assets/");
+        }
+        DekoMesh PineMesh;
+        PineMesh.load("Assets/tree0.obj");
+        PineMesh.getMaterial(0)->TexAlbedo = "Assets/richard/Dark_Bark_baseColor.jpg";
+        PineMesh.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
+        PineMesh.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
+        PineMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstancePineShader.vert");
+        PineMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceShader.frag");
+        InstanceActor iPineActor;
+
+        DekoMesh PineLeavesMesh;
+        PineLeavesMesh.load("Assets/leaves0.obj");
+        PineLeavesMesh.getMaterial(0)->TexAlbedo = "Assets/richard/needle_leaves_color_bright.png";
+        PineLeavesMesh.getMaterial(0)->TexDepth = "Assets/richard/needle_leaves_alpha.png";
+        PineLeavesMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstancePineShader.vert");
+        PineLeavesMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceFoliageShader.frag");
+        InstanceActor iPineLeavesActor;
+
+        int ammount = 32;
+        for (int x = 0; x < ammount; x++) {
+            for (int z = 0; z < ammount; z++) {
+                float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float) ammount / 4;
+                float zCord = (z - ammount / 2.0 + 0.5) * map.getMapSize().y() / (float) ammount / 4;
+
+                if (map.getHeightAt(xCord, zCord) > 235 && map.getHeightAt(xCord, zCord) < 295) {
+                    iPineActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)));
+                    iPineLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)));
+                }
+                
+            }
+        }
+        iPineActor.init(&PineMesh);
+        iPineLeavesActor.init(&PineLeavesMesh);
+
+        if (generateNew) {
+            GrassGenerator::generateGrass(GrassType::triangle, 1, "Assets/");
+        }
+        DekoMesh GrassMesh;
+        GrassMesh.load("Assets/grass0.obj");
+        GrassMesh.getMaterial(0)->TexAlbedo = "Assets/richard/grass_color.jpg";
+        GrassMesh.getMaterial(0)->TexDepth = "Assets/richard/grassAlpha.png";
+        GrassMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceGrassShader.vert");
+        GrassMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
+        InstanceActor iGrassActor;
+        
+        Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(0.5, 0.5, 0.5));
+        ammount = 250;
+        for (int x = 0; x < ammount; x++) {
+            for (int z = 0; z < ammount; z++) {
+                float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float)ammount / 4;
+                float zCord = (z - ammount / 2.0 + 0.5) * map.getMapSize().y() / (float)ammount / 4;
+                if (map.getHeightAt(xCord, zCord) > 235 && map.getHeightAt(xCord, zCord) < 295) {
+                    iGrassActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
+                }
+            }
+        }
+        iGrassActor.init(&GrassMesh);
+
+        if (generateNew) {
+            RockGenerator::generateRocks(RockGenerator::Normal, 1, "Assets/");
+        }
+        DekoMesh RockMesh;
+        RockMesh.load("Assets/rock0.obj");
+        RockMesh.getMaterial(0)->TexAlbedo = "Assets/richard/Rock_035_baseColor.jpg";
+        RockMesh.getMaterial(0)->TexNormal = "Assets/richard/Rock_035_normal.jpg";
+        RockMesh.getMaterial(0)->TexDepth = "Assets/richard/Rock_035_Packed.png";
+        RockMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceShader.vert");
+        RockMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceShader.frag");
+        InstanceActor iRockActor;
+
+        S = GraphicsUtility::scaleMatrix(Vector3f(1, 1, 1));
+        ammount = 25;
+        for (int x = 0; x < ammount; x++) {
+            for (int z = 0; z < ammount; z++) {
+                float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float)ammount / 4;
+                float zCord = (z - ammount / 2.0 + 0.5) * map.getMapSize().y() / (float)ammount / 4;
+                if (map.getHeightAt(xCord, zCord) > 235 && map.getHeightAt(xCord, zCord) < 295) {
+                    iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
+                }
+            }
+        }
+        iRockActor.init(&RockMesh);
+
+        //wind
+		Vector3f windVec = Vector3f(1, 0, 0);
+		float windAngle = 0;
+		float windStr = 1.5;
+		float windAngleVariation = 0;
+		float windAngleAcc = 100;
+		unsigned int windUBO;
+		glGenBuffers(1, &windUBO);
+		glBindBuffer(GL_UNIFORM_BUFFER, windUBO);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 4, NULL, GL_STATIC_DRAW);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 4, windUBO);
+		setWindUBO(windUBO, windVec, 0);
 
 
 
-        SceneGraph sceneGraph;
         sceneGraph.init(&rootTransform);
 
         ScreenQuad quad;
         initDebugQuad(&quad);
 
+        //fps counter
+        int32_t FPSCount = 0;
+        clock_t current_ticks, delta_ticks;
+        clock_t fps = 60;
+
         while (!window.shutdown()) {
+            current_ticks = clock(); //for fps counter
+
+            // wind
+            windAngleVariation += randomF(-windAngleAcc, windAngleAcc) / (float)fps;
+            windAngleVariation *= 0.8;
+            windAngle += windAngleVariation / (float)fps;
+            windVec.x() = cos(windAngle) * windStr;
+            windVec.z() = sin(windAngle) * windStr;
+            setWindUBO(windUBO, windVec, current_ticks / 60.0);
+
             window.update();
 
             sceneGraph.update(1.0f);
@@ -193,6 +350,18 @@ namespace Terrain {
             } else {
                 sceneGraph.render(&renderDevice);
             }
+
+            //Deko instances
+            iPineActor.render(&renderDevice);
+            iRockActor.render(&renderDevice);
+
+            updateGrass(iGrassActor, map, camera);
+            iGrassActor.init(&GrassMesh);
+
+            glDisable(GL_CULL_FACE);
+            iGrassActor.render(&renderDevice);
+            iPineLeavesActor.render(&renderDevice);
+            glEnable(GL_CULL_FACE);
 
             renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
@@ -266,6 +435,15 @@ namespace Terrain {
                 window.keyboard()->keyState(Keyboard::KEY_F9, Keyboard::KEY_RELEASED);
                 scale *= 0.9;
                 map.setMapScale(scale);
+            }
+
+            //FPS counter
+            FPSCount++;
+            delta_ticks = clock() - current_ticks;
+            if (delta_ticks > 0)
+                fps = CLOCKS_PER_SEC / delta_ticks;
+            if (FPSCount % 60 == 0) {
+                cout << fps << endl;
             }
         }
     }

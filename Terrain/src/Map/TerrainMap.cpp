@@ -96,6 +96,7 @@ namespace Terrain {
         glUniform1f(mShader->uniformLocation("MapHeight"), mHeightMap.getConfig().mapHeight);
 
         glDrawElements(GL_TRIANGLES, mClipMap.getIndexCount(variant), GL_UNSIGNED_INT, nullptr);
+        mClipMap.unbindTile(variant);
     }
 
     void TerrainMap::bindTexture() {

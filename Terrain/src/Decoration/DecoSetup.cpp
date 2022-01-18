@@ -128,7 +128,7 @@ namespace CForge {
 		};
 
 		bool generateNew = true;
-		DekoObject selected = palmTree;
+		DekoObject selected = instanceGrass;
 
 		switch (selected) {
 		case instanceTrees:
@@ -349,9 +349,9 @@ namespace CForge {
 
 			SGTest.render(&RDev);
 			if (selected == instanceGrass || selected == instanceTrees) {
-				//iActor.init(&M);
+				iActor.init(&M);
 				iActor.render(&RDev);
-				//iActor.clearInstances();
+				iActor.clearInstances();
 			}
 
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);

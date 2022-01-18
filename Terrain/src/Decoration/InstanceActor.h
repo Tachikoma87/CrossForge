@@ -30,7 +30,7 @@ namespace CForge {
 		RenderMaterial* material(uint32_t Index);
 		InstanceVertexUtility m_InstanceVertexUtility;
 		void setBufferData(void);
-		void addInstance(Matrix4f &matrix);
+		void addInstance(Matrix4f matrix);
 		void clearInstances();
 
 		int instanceOffset;
