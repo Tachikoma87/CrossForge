@@ -6,16 +6,15 @@
 
 namespace Terrain {
     TerrainMap::TerrainMap(SGNTransformation *rootTransform)
-        : mRootTransform(rootTransform), mMapScale(1.0f), mTextures(7, 1024) {
+        : mRootTransform(rootTransform), mTextures(6, 1024) {
         initShader();
 
         vector<string> files;
         files.push_back("Assets/water.jpg");
         files.push_back("Assets/sand.jpg");
-        files.push_back("Assets/ground.jpg");
         files.push_back("Assets/grass.jpg");
-        files.push_back("Assets/grass_rock2.jpg");
-        files.push_back("Assets/rock2.jpg");
+        files.push_back("Assets/grass_rock.jpg");
+        files.push_back("Assets/rock.jpg");
         files.push_back("Assets/snow.jpg");
 
         for (int i = 0; i < files.size(); i++) {
@@ -43,9 +42,6 @@ namespace Terrain {
     }
 
     void TerrainMap::update(float cameraX, float cameraY) {
-        cameraX /= mMapScale;
-        cameraY /= mMapScale;
-
         for (auto node : mTileNodes) {
             node->update(cameraX, cameraY);
         }
@@ -69,10 +65,6 @@ namespace Terrain {
         mHeightMap.setConfig({.width = 2048, .height = 2048, .mapHeight = mapHeight, .noiseConfig = {0, 0, 0, 0, 0}});
     }
 
-    void TerrainMap::setMapScale(float mapScale) {
-        mMapScale = mapScale;
-    }
-
     void TerrainMap::render(RenderDevice *renderDevice, Terrain::ClipMap::TileVariant variant) {
         mClipMap.bindTile(variant);
         renderDevice->activeShader(mShader);
@@ -83,8 +75,8 @@ namespace Terrain {
         mTextures.bind();
 
         int layerCount = 6;
-        vector<GLfloat> layerHeights {0.5, 0.54, 0.62, 0.73, 0.83};
-        vector<GLfloat> blendValues {0.02, 0.1, 0.1, 0.1, 0.2};
+        vector<GLfloat> layerHeights {0.5, 0.52, 0.56, 0.65, 0.78};
+        vector<GLfloat> blendValues {0.01, 0.03, 0.1, 0.1, 0.03};
 
         glUniform1i(mShader->uniformLocation("LayerCount"), layerCount);
         glUniform1fv(mShader->uniformLocation("LayerHeights"), layerHeights.size(), layerHeights.data());
@@ -92,7 +84,6 @@ namespace Terrain {
 
         glUniform1i(mShader->uniformLocation("HeightMap"), 0);
         glUniform1i(mShader->uniformLocation("Textures"), 1);
-        glUniform1f(mShader->uniformLocation("MapScale"), mMapScale);
         glUniform1f(mShader->uniformLocation("MapHeight"), mHeightMap.getConfig().mapHeight);
 
         glDrawElements(GL_TRIANGLES, mClipMap.getIndexCount(variant), GL_UNSIGNED_INT, nullptr);
@@ -204,13 +195,13 @@ namespace Terrain {
     }
 
     float TerrainMap::getHeightAt(float x, float y) {
-        return mHeightMap.getHeightAt((x + mHeightMap.getConfig().width / 2) / mMapScale,
-                                      (y + mHeightMap.getConfig().height / 2) / mMapScale) * mMapScale;
+        return mHeightMap.getHeightAt((x + mHeightMap.getConfig().width / 2),
+                                      (y + mHeightMap.getConfig().height / 2));
     }
 
     Vector3f TerrainMap::getNormalAt(float x, float y) {
-        return mHeightMap.getNormalAt((x + mHeightMap.getConfig().width / 2) / mMapScale,
-                                      (y + mHeightMap.getConfig().height / 2) / mMapScale);
+        return mHeightMap.getNormalAt((x + mHeightMap.getConfig().width / 2),
+                                      (y + mHeightMap.getConfig().height / 2));
     }
 
     Vector2f TerrainMap::getMapSize() {

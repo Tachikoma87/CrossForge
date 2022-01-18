@@ -10,7 +10,6 @@ layout(std140) uniform ModelData {
     mat4 ModelMatrix;
 };
 
-uniform float MapScale;
 uniform float MapHeight;
 uniform sampler2D HeightMap;
 
@@ -29,7 +28,6 @@ void main() {
     Height = texelFetch(HeightMap, ivec2(SamplePosition * mapSize), 0).x;
 
     worldPosition.y = Height * MapHeight;
-    worldPosition.xyz *= MapScale;
     FragPosition = worldPosition.xyz;
 
     gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * worldPosition;
