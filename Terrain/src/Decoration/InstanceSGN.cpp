@@ -69,6 +69,8 @@ namespace CForge {
 
 	void InstanceSGN::render(RenderDevice* pRDev, Eigen::Vector3f Position, Eigen::Quaternionf Rotation, Eigen::Vector3f Scale) {
 		if (nullptr != m_pRenderable && m_RenderingEnabled) {
+			std::cout << "TEST\n";
+
 			Eigen::Vector3f Pos = Position + m_Position;
 			Eigen::Quaternionf Rot = Rotation * m_Rotation;
 			Eigen::Vector3f Sca = m_Scale.cwiseProduct(Scale);
@@ -79,7 +81,7 @@ namespace CForge {
 			Matrix4f ModelMat = T * R * S;
 
 			m_pRenderable->addInstance(ModelMat);
-			m_RenderingEnabled = false;
+			//m_RenderingEnabled = false;
 		}
 	}//render
 

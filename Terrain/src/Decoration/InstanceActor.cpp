@@ -154,7 +154,7 @@ namespace CForge {
 
 	}//setBufferData
 
-	void InstanceActor::addInstance(Matrix4f &matrix) {
+	void InstanceActor::addInstance(Matrix4f matrix) {
 		transMatrixes.push_back(matrix);
 	}
 

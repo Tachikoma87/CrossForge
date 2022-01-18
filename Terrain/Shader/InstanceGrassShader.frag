@@ -20,7 +20,7 @@ uniform sampler2D TexDepth;
 in vec3 Pos;
 in vec3 N;
 in vec2 UV;
-in vec3 test;
+in vec3 worldSpacePos;
 
 //	Classic Perlin 3D Noise 
 //	by Stefan Gustavson
@@ -106,7 +106,7 @@ void main(){
 	}
 
 	float scale = 10;
-	float noiseValue = cnoise(Pos / scale) / 4;
+	float noiseValue = cnoise(worldSpacePos / scale) / 4;
 	
 	FragmentColor = texture(TexAlbedo, UV) * (1 - noiseValue) + vec4(220 / 255.0, 210 / 255.0, 25 / 255.0, 1) * noiseValue;
 }

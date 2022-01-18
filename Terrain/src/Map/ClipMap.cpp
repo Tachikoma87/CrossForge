@@ -28,6 +28,10 @@ namespace Terrain {
         mVertexArrays[variant].bind();
     }
 
+    void ClipMap::unbindTile(ClipMap::TileVariant variant) {
+        mVertexArrays[variant].unbind();
+    }
+
     void ClipMap::calculateVertices(vector<GLfloat>& vertices, uint32_t width, uint32_t height, float offsetX, float offsetY, bool swapPos) {
         // width and height in triangle side count, vertex count one more
         for (uint32_t y = 0; y <= height; y++) {
