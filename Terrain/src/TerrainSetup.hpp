@@ -57,7 +57,7 @@ namespace Terrain {
         camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 1.0f, 100000.0f);
         renderDevice->activeCamera(camera);
 
-        Vector3f sunPos = Vector3f(600.0f, 600.0f, 0.0f);
+        Vector3f sunPos = Vector3f(400.0f, 400.0f, 0.0f);
         sun->init(sunPos, -sunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 2.5f);
         auto projection = GraphicsUtility::perspectiveProjection(winWidth, winHeight, GraphicsUtility::degToRad(45.0f),
                                                                  1.0f, 10000.0f);
@@ -160,6 +160,7 @@ namespace Terrain {
         // map.getHeightAt(0, 0);
 
 
+        srand((unsigned int)time(NULL));
 
         SceneGraph sceneGraph;
         sceneGraph.init(&rootTransform);
@@ -244,7 +245,6 @@ namespace Terrain {
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F5)) {
                 window.keyboard()->keyState(Keyboard::KEY_F5, Keyboard::KEY_RELEASED);
-                map.heightMapFromTexture(STextureManager::create("Assets/height_map1.jpg"), 10);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F6)) {
                 window.keyboard()->keyState(Keyboard::KEY_F6, Keyboard::KEY_RELEASED);
@@ -253,17 +253,6 @@ namespace Terrain {
             if (window.keyboard()->keyPressed(Keyboard::KEY_F7)) {
                 window.keyboard()->keyState(Keyboard::KEY_F7, Keyboard::KEY_RELEASED);
                 erode = !erode;
-            }
-            static float scale = 1.0f;
-            if (window.keyboard()->keyPressed(Keyboard::KEY_F8)) {
-                window.keyboard()->keyState(Keyboard::KEY_F8, Keyboard::KEY_RELEASED);
-                scale *= 1.1;
-                map.setMapScale(scale);
-            }
-            if (window.keyboard()->keyPressed(Keyboard::KEY_F9)) {
-                window.keyboard()->keyState(Keyboard::KEY_F9, Keyboard::KEY_RELEASED);
-                scale *= 0.9;
-                map.setMapScale(scale);
             }
         }
     }

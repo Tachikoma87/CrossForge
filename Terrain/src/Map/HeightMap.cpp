@@ -37,11 +37,14 @@ namespace Terrain {
         bindNoiseData(config.noiseConfig);
         glDispatchCompute(config.width, config.height, 1);
 
+        mTexture = STextureManager::fromHandle(textureHandle);
+
+        erode(300);
+
         delete mHeights;
         mHeights = new GLfloat[config.width * config.height];
         glGetTexImage(target, 0, format, dataType, mHeights);
 
-        mTexture = STextureManager::fromHandle(textureHandle);
     }
 
     void HeightMap::setTexture(GLTexture2D* texture) {
@@ -83,7 +86,7 @@ namespace Terrain {
     }
 
     void HeightMap::erode(int32_t count) {
-        int radius = 8;
+        int radius = 6;
         GLint borderSize = radius;
 
         vector<GLfloat> brushWeights;
@@ -106,7 +109,7 @@ namespace Terrain {
             brushWeights[i] /= weightSum;
         }
 
-        // printf("%d\n", brushWeights.size());
+        // printf("%zu\n", brushWeights.size());
 
         mErosionShader->bind();
         glActiveTexture(GL_TEXTURE0);

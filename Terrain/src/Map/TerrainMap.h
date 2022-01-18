@@ -26,7 +26,6 @@ namespace Terrain {
         Vector2f getMapSize();
         float getHeightAt(float x, float y);
         Vector3f getNormalAt(float x, float y);
-        void setMapScale(float mapScale);
 
         void render(RenderDevice* renderDevice, ClipMap::TileVariant variant);
         void bindTexture();
@@ -34,9 +33,6 @@ namespace Terrain {
         void clear();
         void initShader();
         void generateClipMapTiles();
-
-        // Todo: group those once more parameters are introduced
-        float mMapScale;
 
         ClipMap mClipMap;
         HeightMap mHeightMap;
