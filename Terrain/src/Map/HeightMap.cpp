@@ -153,7 +153,7 @@ namespace Terrain {
         Vector3f normal = Vector3f(s21 - s01, 2, s12 - s10);
         normal.normalize();
 
-        printf("%f %f %f\n", normal.x(), normal.y(), normal.z());
+        // printf("%f %f %f\n", normal.x(), normal.y(), normal.z());
 
         return normal;
     }
