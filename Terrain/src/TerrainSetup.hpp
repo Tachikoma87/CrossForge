@@ -57,7 +57,7 @@ namespace Terrain {
         camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 1.0f, 100000.0f);
         renderDevice->activeCamera(camera);
 
-        Vector3f sunPos = Vector3f(600.0f, 600.0f, 0.0f);
+        Vector3f sunPos = Vector3f(400.0f, 400.0f, 0.0f);
         sun->init(sunPos, -sunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 2.5f);
         auto projection = GraphicsUtility::perspectiveProjection(winWidth, winHeight, GraphicsUtility::degToRad(45.0f),
                                                                  1.0f, 10000.0f);
@@ -139,9 +139,9 @@ namespace Terrain {
         camPos.y() = 0;
         Vector3f rowStep = camera.dir();
         rowStep.y() = 0;
-        rowStep.normalize(); 
+        rowStep.normalize();
         Vector3f colStep = Vector3f(rowStep.z(), 0, -rowStep.x());
-        
+
         //colStep = AngleAxisf(GraphicsUtility::degToRad(90), Vector3f::UnitY()) * rowStep;
         iGrassActor.clearInstances();
 
@@ -151,7 +151,7 @@ namespace Terrain {
             int maxJ = numColls * i / numRows;
             Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(0.5, 0.5, 0.5));
             for (int j = -maxJ; j <= maxJ; j++) {
-                
+
                 Vector3f pos = camPos + rowStep * spacing * i + colStep * spacing * j;
                 float xCord = ((int)(pos.x() / spacing)) * spacing;
                 float zCord = ((int)(pos.z() / spacing)) * spacing;
@@ -159,7 +159,7 @@ namespace Terrain {
                     iGrassActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
                 }
             }
-           
+
         }
     }
 
@@ -188,7 +188,7 @@ namespace Terrain {
         float triangleHeight = 60;
         float triangleWidth = 60;
         float spacing = 1;
-        
+
         Vector3f camDir = camera.dir();
         Vector3f camRig = camera.right();
         camDir.y() = 0;
@@ -250,7 +250,7 @@ namespace Terrain {
         map.generateHeightMap(heightMapConfig);
 
         SceneGraph sceneGraph;
-        
+
 
         // Todo: richard hier fass
         // printf("%f, %f \n", map.getMapSize().x(), map.getMapSize().y());
@@ -295,7 +295,7 @@ namespace Terrain {
                         iPineLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)));
                     }
                 }
-                
+
             }
         }
         iPineActor.init(&PineMesh);
@@ -311,7 +311,7 @@ namespace Terrain {
         GrassMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceGrassShader.vert");
         GrassMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
         InstanceActor iGrassActor;
-        
+
         Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(0.5, 0.5, 0.5));
         ammount = 250;
         for (int x = 0; x < ammount; x++) {
@@ -363,6 +363,7 @@ namespace Terrain {
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		glBindBufferBase(GL_UNIFORM_BUFFER, 4, windUBO);
 		setWindUBO(windUBO, windVec, 0);
+        srand((unsigned int)time(NULL));
 
 
 
@@ -475,7 +476,6 @@ namespace Terrain {
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F5)) {
                 window.keyboard()->keyState(Keyboard::KEY_F5, Keyboard::KEY_RELEASED);
-                map.heightMapFromTexture(STextureManager::create("Assets/height_map1.jpg"), 10);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F6)) {
                 window.keyboard()->keyState(Keyboard::KEY_F6, Keyboard::KEY_RELEASED);
