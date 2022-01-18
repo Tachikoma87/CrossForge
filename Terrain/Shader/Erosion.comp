@@ -1,12 +1,14 @@
 #version 120
 
+// based on https://github.com/SebLague/Hydraulic-Erosion
+
 layout(local_size_x = 1024) in;
 layout(r32f, binding = 0) uniform image2D HeightMap;
 
 uniform float Time;
 uniform float MapHeight;
 
-const int MAX_BRUSH_SIZE = 200;
+const int MAX_BRUSH_SIZE = 250;
 
 uniform int BrushSize; // number of pixels to errode
 uniform int BorderSize; // size of the border, in which erorion is terminated to prevent invalid texture loads/stores
@@ -14,12 +16,12 @@ uniform int BorderSize; // size of the border, in which erorion is terminated to
 uniform ivec2 BrushOffsets[MAX_BRUSH_SIZE];
 uniform float BrushWeights[MAX_BRUSH_SIZE];
 
-const int maxLifetime = 20;
-const float inertia = 0.05; // At zero, water will instantly change direction to flow downhill. At 1, water will never change direction.
-const float sedimentCapacityFactor = 10; // Multiplier for how much sediment a droplet can carry
+const int maxLifetime = 40;
+const float inertia = 0.8; // At zero, water will instantly change direction to flow downhill. At 1, water will never change direction.
+const float sedimentCapacityFactor = 4; // Multiplier for how much sediment a droplet can carry
 const float minSedimentCapacity = 0.01; // Used to prevent carry capacity getting too close to zero on flatter terrain
-const float depositSpeed = 0.3;
-const float erodeSpeed = 0.3;
+const float depositSpeed = 0.1;
+const float erodeSpeed = 0.8;
 
 const float evaporateSpeed = 0.1;
 const float gravity = 4;
