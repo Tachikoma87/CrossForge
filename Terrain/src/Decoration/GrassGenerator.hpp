@@ -34,7 +34,7 @@ class GrassGenerator {
 						break;
 				}
 
-				ObjExporter::meshExport(geometry, exportPath + "grass" + to_string(i) + ".obj");
+				ObjExporter::meshExport(geometry, exportPath + to_string(i) + ".obj");
 			}
 		}
 
