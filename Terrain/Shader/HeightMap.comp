@@ -11,21 +11,6 @@
 //               https://github.com/stegu/webgl-noise
 //
 
-const uint MAX_OCTAVES = 16;
-
-struct NoiseData {
-    float scale;
-    uint octaves;
-    float persistence;
-    float lacunarity;
-    vec2 offsets[MAX_OCTAVES];
-};
-
-layout(local_size_x = 1, local_size_y = 1) in;
-
-layout(r32f, binding = 0) uniform image2D HeightMap;
-uniform NoiseData Noise;
-
 vec3 mod289(vec3 x) {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
@@ -86,6 +71,36 @@ float snoise(vec2 v) {
     return 130.0 * dot(m, g);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const uint MAX_OCTAVES = 16;
+
+struct NoiseData {
+    float scale;
+    uint octaves;
+    float persistence;
+    float lacunarity;
+    vec2 offsets[MAX_OCTAVES];
+};
+
+layout(local_size_x = 1, local_size_y = 1) in;
+
+layout(r32f, binding = 0) uniform image2D HeightMap;
+uniform NoiseData Noise;
+
 float onoise(vec2 pos) {
     float noise_height = 0.0;
     float amplitude = 1.0;
@@ -103,10 +118,20 @@ float onoise(vec2 pos) {
     return noise_height;
 }
 
+float heightModifyer(float x, float s) {
+    float c = 2 / (1 + exp(s));
+
+    return (1 / (1 - c)) * (2 / (1 + exp(s * (1 - x))) - c);
+}
+
 void main() {
     // get index in global work group i.e x,y position
     ivec2 textureCoords = ivec2(gl_GlobalInvocationID.xy);
     vec2 uv = vec2(gl_GlobalInvocationID.xy) / vec2(gl_NumWorkGroups.xy);
+
+    float minCutoff = 0.4;
+    float falloff = - minCutoff * pow(4 * length(uv - 0.5) - 1, 2) + 1;
+    falloff = clamp(falloff, minCutoff, 1);
 
     float adjustment = 1.0;
     for (int i = 1; i < Noise.octaves; i++) {
@@ -115,5 +140,25 @@ void main() {
 
     float height = onoise(uv) / adjustment;
 
-    imageStore(HeightMap, textureCoords, vec4((height + 1) / 2));
+    vec2 mountain_pos = Noise.offsets[0];
+    float mountain_radius = 0.3;
+
+    float dist = length(uv - mountain_pos);
+    height = (height + 1) / 2 * falloff;
+    height = (height * 2) - 1;
+
+    float flat_mul = 0.4;
+
+    if (height > 0) {
+        if (dist < mountain_radius) {
+            height = height * mix(flat_mul, 2, pow(1.0 - dist / mountain_radius, 2));
+        }
+        else{
+            height = height * flat_mul;
+        }
+    }
+
+    height = (height + 1) / 2;
+
+    imageStore(HeightMap, textureCoords, vec4(height));
 }
