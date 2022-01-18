@@ -1,15 +1,13 @@
 #version 330 core
 
-const uint MAX_VALUE = 65535u;
-
 in vec2 TexCoords;
 
 out vec4 FragColor;
 
-uniform usampler2D HeightMap;
+uniform sampler2D HeightMap;
 
 void main(){
-    float height = texture(HeightMap, TexCoords).x / float(MAX_VALUE);
+    float height = texture(HeightMap, TexCoords).x;
 
     if (height > 0.5) {
         FragColor.g = (height - 0.5) * 2;
