@@ -23,7 +23,7 @@ namespace Terrain {
                     break;
             }
 
-            ObjExporter::meshExport(geometry, exportPath + "rock" + to_string(i) + ".obj");
+            ObjExporter::meshExport(geometry, exportPath + to_string(i) + ".obj");
         }
     }
 

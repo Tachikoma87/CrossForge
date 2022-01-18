@@ -59,8 +59,8 @@ namespace Terrain {
                     break;
             }
 
-            ObjExporter::meshExport(geometry, exportPath + "tree" + to_string(i) + ".obj");
-            ObjExporter::meshExport(leavesGeometry, exportPath + "leaves" + to_string(i) + ".obj");
+            ObjExporter::meshExport(geometry, exportPath + to_string(i) + ".obj");
+            ObjExporter::meshExport(leavesGeometry, exportPath + "Leaves" + to_string(i) + ".obj");
         }
     }
 
