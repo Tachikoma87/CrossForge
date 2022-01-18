@@ -141,7 +141,7 @@ namespace Terrain {
         rootTransform.init(nullptr);
 
         ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 128, .levelCount = 5};
-        HeightMap::NoiseConfig noiseConfig = {.seed = 0,
+        HeightMap::NoiseConfig noiseConfig = {.seed = static_cast<uint32_t>(rand()),
             .scale = 1.0f,
             .octaves = 10,
             .persistence = 0.5f,
@@ -212,8 +212,6 @@ namespace Terrain {
                 camera.position(Vector3f(camera.position().x(),
                                          map.getHeightAt(camera.position().x(), camera.position().z()) + 5,
                                          camera.position().z()));
-
-                map.getNormalAt(camera.position().x(), camera.position().z());
             }
 
             if (window.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
@@ -237,11 +235,11 @@ namespace Terrain {
                 window.keyboard()->keyState(Keyboard::KEY_F4, Keyboard::KEY_RELEASED);
                 noiseConfig = {.seed = static_cast<uint32_t>(rand()),
                     .scale = 1.0f,
-                    .octaves = 8,
+                    .octaves = 10,
                     .persistence = 0.5f,
                     .lacunarity = 2.0f};
-                heightMapConfig = {.width = 1024 * 8, .height = 1024 * 8, .mapHeight = 2000, .noiseConfig = noiseConfig};
-
+                heightMapConfig = {.width = 1024 / 1, .height = 1024 / 1,
+                    .mapHeight = 400, .noiseConfig = noiseConfig};
                 map.generateHeightMap(heightMapConfig);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F5)) {
