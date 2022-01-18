@@ -251,10 +251,6 @@ namespace Terrain {
 
         SceneGraph sceneGraph;
 
-
-        // Todo: richard hier fass
-        // printf("%f, %f \n", map.getMapSize().x(), map.getMapSize().y());
-        // map.getHeightAt(0, 0);
         bool generateNew = false;
 
         siv::PerlinNoise pNoise;
@@ -484,17 +480,6 @@ namespace Terrain {
             if (window.keyboard()->keyPressed(Keyboard::KEY_F7)) {
                 window.keyboard()->keyState(Keyboard::KEY_F7, Keyboard::KEY_RELEASED);
                 erode = !erode;
-            }
-            static float scale = 1.0f;
-            if (window.keyboard()->keyPressed(Keyboard::KEY_F8)) {
-                window.keyboard()->keyState(Keyboard::KEY_F8, Keyboard::KEY_RELEASED);
-                scale *= 1.1;
-                map.setMapScale(scale);
-            }
-            if (window.keyboard()->keyPressed(Keyboard::KEY_F9)) {
-                window.keyboard()->keyState(Keyboard::KEY_F9, Keyboard::KEY_RELEASED);
-                scale *= 0.9;
-                map.setMapScale(scale);
             }
 
             //FPS counter
