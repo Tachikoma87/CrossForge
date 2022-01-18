@@ -19,5 +19,9 @@ in vec2 UV;
 in vec3 test;
 
 void main(){
+	if (texture(TexDepth, UV).r < 0.5) {
+		discard;
+	}
+
 	FragmentColor = texture(TexAlbedo, UV);
 }

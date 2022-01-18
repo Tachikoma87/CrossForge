@@ -36,6 +36,7 @@ namespace Terrain {
 
         GLsizei getIndexCount(TileVariant variant);
         void bindTile(TileVariant variant);
+        void unbindTile(TileVariant variant);
     private:
         static void calculateVertices(vector<GLfloat>& vertices, uint32_t width, uint32_t height, float offsetX=0.0f, float offsetY=0.0f, bool swapPos=false);
         static void calculateIndices(vector<GLuint>& indices, uint32_t width, uint32_t height, TileVariant variant, uint32_t offset=0);
