@@ -27,7 +27,7 @@ namespace Terrain {
                     branchProperties.topRadius = 0.2;
                     branchProperties.length = 5;
                     branchProperties.angleVariationStrength = PI / 55;
-                    generateTree(geometry, 4, 3, 8, rotPos, branchProperties, leavesGeometry);
+                    generateTree(geometry, 4, 3, 4, rotPos, branchProperties, leavesGeometry);
                     break;
                 case Aspen:
                     branchProperties.botRadius = 0.15;
@@ -68,9 +68,9 @@ namespace Terrain {
                                      RotPos rotPos,
                                      BranchProperties branchProperties, GEOMETRY& leavesGeometry) {
         if (recursionDepth <= 0) {
-            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1);
+            generateLeavesQuad(leavesGeometry, rotPos, 1 * 1.5, 1383.0f / 1600.0f * 1.5, 0.1);
             rotPos.rotation.y() += PI / 2;
-            generateLeavesQuad(leavesGeometry, rotPos, 1, 1383.0f / 1600.0f, 0.1);
+            generateLeavesQuad(leavesGeometry, rotPos, 1 * 1.5, 1383.0f / 1600.0f * 1.5, 0.1);
             return;
         }
 

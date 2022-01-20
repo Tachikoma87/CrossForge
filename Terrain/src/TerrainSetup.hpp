@@ -185,30 +185,44 @@ namespace Terrain {
 
     void updateGrass(InstanceActor& iGrassActor, TerrainMap& map, VirtualCamera& camera) {
         iGrassActor.clearInstances();
-        float triangleHeight = 60;
-        float triangleWidth = 60;
-        float spacing = 1;
+        for (int i = 4; i > 0; i--) {
+            float scale = exp2(i);
+            float triangleHeight = 20 * scale;
+            float triangleWidth = 30 * scale;
+            float smallerTriangleHeight = (i == 1) ? 0.1 : triangleHeight / 2.0;
+            float smallerTriangleWidth = (i == 1) ? 0.1 : triangleWidth / 2.0;
 
-        Vector3f camDir = camera.dir();
-        Vector3f camRig = camera.right();
-        camDir.y() = 0;
-        camRig.y() = 0;
-        camDir.normalize();
-        camRig.normalize();
-        Vector3f A = camera.position();
-        Vector3f B = A + camDir * triangleHeight + camRig * triangleWidth / 2.0;
-        Vector3f C = A + camDir * triangleHeight + camRig * triangleWidth / -2.0;
-        Vector2f minPos = Vector2f(min(min(A.x(), B.x()), C.x()), min(min(A.z(), B.z()), C.z()));
-        Vector2f maxPos = Vector2f(max(max(A.x(), B.x()), C.x()), max(max(A.z(), B.z()), C.z()));
+            float spacing = 1 * scale;
 
-        Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(0.5, 0.5, 0.5));
+            Vector3f camDir = camera.dir();
+            Vector3f camRig = camera.right();
+            camDir.y() = 0;
+            camRig.y() = 0;
+            camDir.normalize();
+            camRig.normalize();
+            Vector3f A = camera.position();
+            Vector3f B = A + camDir * triangleHeight + camRig * triangleWidth / 2.0;
+            Vector3f C = A + camDir * triangleHeight + camRig * triangleWidth / -2.0;
+            Vector3f D = A + camDir * smallerTriangleHeight + camRig * smallerTriangleWidth / 2.0;
+            Vector3f E = A + camDir * smallerTriangleHeight + camRig * smallerTriangleWidth / -2.0;
+            Vector2f minPos = Vector2f(min(min(A.x(), B.x()), C.x()), min(min(A.z(), B.z()), C.z()));
+            Vector2f maxPos = Vector2f(max(max(A.x(), B.x()), C.x()), max(max(A.z(), B.z()), C.z()));
+            Vector2f mSize = map.getMapSize();
 
-        for (int z = minPos.y(); z < maxPos.y(); z += spacing) {
-            for (int x = minPos.x(); x < maxPos.x(); x += spacing) {
-                if (PointInTriangle(Vector2f(x, z), Vector2f(A.x(), A.z()), Vector2f(B.x(), B.z()), Vector2f(C.x(), C.z()))) {
-                    float xCord = ((int)(x / spacing)) * spacing;
-                    float zCord = ((int)(z / spacing)) * spacing;
-                    iGrassActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
+            Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(1 * scale, 1 + i / 2, 1 * scale));
+
+            for (int z = minPos.y(); z < maxPos.y(); z += spacing) {
+                for (int x = minPos.x(); x < maxPos.x(); x += spacing) {
+                    if (PointInTriangle(Vector2f(x, z), Vector2f(A.x(), A.z()), Vector2f(B.x(), B.z()), Vector2f(C.x(), C.z())) &&
+                        !PointInTriangle(Vector2f(x, z), Vector2f(A.x(), A.z()), Vector2f(D.x(), D.z()), Vector2f(E.x(), E.z()))) {
+                        float xCord = ((int)(x / spacing)) * spacing;
+                        float zCord = ((int)(z / spacing)) * spacing;
+                        if (xCord < mSize.x() / 2 && xCord > mSize.x() / -2 && zCord < mSize.y() / 2 && zCord > mSize.y() / -2) {
+                            if (map.getHeightAt(xCord, zCord) > 210 && map.getHeightAt(xCord, zCord) < 255) {
+                                iGrassActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -220,7 +234,7 @@ namespace Terrain {
         bool shadows = true;
         bool richard = false;
         bool erode = false;
-        bool cameraMode = false;
+        bool cameraMode = true;
 
         if (richard) {
             DecoSetup();
@@ -251,14 +265,19 @@ namespace Terrain {
 
         SceneGraph sceneGraph;
 
-        bool generateNew = false;
+        bool generateNew = true;
 
         siv::PerlinNoise pNoise;
-        float noiseScale = 0.001;
+        float noiseScale = 0.01;
 
         if (generateNew) {
             TreeGenerator::generateTrees(TreeGenerator::Needle, 1, "Assets/needleTree");
+            TreeGenerator::generateTrees(TreeGenerator::Palm, 1, "Assets/palmTree");
+            TreeGenerator::generateTrees(TreeGenerator::Normal, 1, "Assets/tree");
+            GrassGenerator::generateGrass(GrassType::triangle, 1, "Assets/grass");
+            RockGenerator::generateRocks(RockGenerator::Normal, 1, "Assets/rock");
         }
+
         DekoMesh PineMesh;
         PineMesh.load("Assets/needleTree0.obj");
         PineMesh.getMaterial(0)->TexAlbedo = "Assets/richard/Dark_Bark_baseColor.jpg";
@@ -273,33 +292,83 @@ namespace Terrain {
         PineLeavesMesh.getMaterial(0)->TexAlbedo = "Assets/richard/needle_leaves_color_bright.png";
         PineLeavesMesh.getMaterial(0)->TexDepth = "Assets/richard/needle_leaves_alpha.png";
         PineLeavesMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstancePineShader.vert");
-        PineLeavesMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceFoliageShader.frag");
+        PineLeavesMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
         InstanceActor iPineLeavesActor;
 
-        int ammount = 1000;
+        DekoMesh PalmMesh;
+        PalmMesh.load("Assets/palmTree0.obj");
+        PalmMesh.getMaterial(0)->TexAlbedo = "Assets/richard/palm_color.jpg";
+        PalmMesh.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
+        PalmMesh.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
+        PalmMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstancePineShader.vert");
+        PalmMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceShader.frag");
+        InstanceActor iPalmActor;
+
+        DekoMesh PalmLeavesMesh;
+        PalmLeavesMesh.load("Assets/palmTreeLeaves0.obj");
+        PalmLeavesMesh.getMaterial(0)->TexAlbedo = "Assets/richard/pla2.png";
+        PalmLeavesMesh.getMaterial(0)->TexDepth = "Assets/richard/pla3.png";
+        PalmLeavesMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstancePineShader.vert");
+        PalmLeavesMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
+        InstanceActor iPalmLeavesActor;
+
+        DekoMesh TreeMesh;
+        TreeMesh.load("Assets/tree0.obj");
+        TreeMesh.getMaterial(0)->TexAlbedo = "Assets/richard/Bark_06_baseColor.jpg";
+        TreeMesh.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
+        TreeMesh.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
+        TreeMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstancePineShader.vert");
+        TreeMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceShader.frag");
+        InstanceActor iTreeActor;
+
+        DekoMesh TreeLeavesMesh;
+        TreeLeavesMesh.load("Assets/treeLeaves0.obj");
+        TreeLeavesMesh.getMaterial(0)->TexAlbedo = "Assets/richard/leaves3_color.png";
+        TreeLeavesMesh.getMaterial(0)->TexDepth = "Assets/richard/leaves3_alpha.jpg";
+        TreeLeavesMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstancePineShader.vert");
+        TreeLeavesMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
+        InstanceActor iTreeLeavesActor;
+
+        int ammount = 45;
+        Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(4, 4, 4));
+        Matrix4f R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY())));
         for (int x = 0; x < ammount; x++) {
             for (int z = 0; z < ammount; z++) {
                 float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float) ammount * 0.9;
                 float zCord = (z - ammount / 2.0 + 0.5) * map.getMapSize().y() / (float) ammount * 0.9;
 
-                //xCord += randomF(map.getMapSize().x() / (float)ammount / -2.0, map.getMapSize().x() / (float)ammount / 2.0);
-                //zCord += randomF(map.getMapSize().y() / (float)ammount / -2.0, map.getMapSize().y() / (float)ammount / 2.0);
+                xCord += randomF(map.getMapSize().x() / (float)ammount / -2.0, map.getMapSize().x() / (float)ammount / 2.0);
+                zCord += randomF(map.getMapSize().y() / (float)ammount / -2.0, map.getMapSize().y() / (float)ammount / 2.0);
 
-                if (map.getHeightAt(xCord, zCord) > 235 && map.getHeightAt(xCord, zCord) < 295) {
-                    if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale, 0, zCord * noiseScale, 1) > 0.2) {
-                        iPineActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)));
-                        iPineLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)));
+                R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY())));
+                if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale, 0, zCord * noiseScale, 1) < 0.0) {
+                    if (map.getHeightAt(xCord, zCord) > 225 && map.getHeightAt(xCord, zCord) < 255) {
+                        iPineActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
+                        iPineLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
+                    }
+                    
+                    else if (map.getHeightAt(xCord, zCord) > 202 && map.getHeightAt(xCord, zCord) < 208) {
+                        iPalmActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord) - 0.3, zCord)) * R * S);
+                        iPalmLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord) - 0.3, zCord)) * R * S);
                     }
                 }
-
+                if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale, 0, zCord * noiseScale, 1) > 0.0) {
+                    if (map.getHeightAt(xCord, zCord) > 208 && map.getHeightAt(xCord, zCord) < 235) {
+                        iTreeActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
+                        iTreeLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
+                    }
+                }
             }
         }
         iPineActor.init(&PineMesh);
         iPineLeavesActor.init(&PineLeavesMesh);
 
-        if (generateNew) {
-            GrassGenerator::generateGrass(GrassType::triangle, 1, "Assets/grass");
-        }
+        iTreeActor.init(&TreeMesh);
+        iTreeLeavesActor.init(&TreeLeavesMesh);
+
+        iPalmActor.init(&PalmMesh);
+        iPalmLeavesActor.init(&PalmLeavesMesh);
+
         DekoMesh GrassMesh;
         GrassMesh.load("Assets/grass0.obj");
         GrassMesh.getMaterial(0)->TexAlbedo = "Assets/richard/grass_color.jpg";
@@ -308,44 +377,48 @@ namespace Terrain {
         GrassMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
         InstanceActor iGrassActor;
 
-        Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(0.5, 0.5, 0.5));
+        /*
+        S = GraphicsUtility::scaleMatrix(Vector3f(0.5, 0.5, 0.5));
         ammount = 250;
         for (int x = 0; x < ammount; x++) {
             for (int z = 0; z < ammount; z++) {
                 float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float)ammount / 4;
                 float zCord = (z - ammount / 2.0 + 0.5) * map.getMapSize().y() / (float)ammount / 4;
                 if (map.getHeightAt(xCord, zCord) > 235 && map.getHeightAt(xCord, zCord) < 295) {
-                    //iGrassActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
+                    iGrassActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
                 }
             }
         }
+        */
         iGrassActor.init(&GrassMesh);
-
-        if (generateNew) {
-            RockGenerator::generateRocks(RockGenerator::Normal, 1, "Assets/rock");
-        }
+        
+        
         DekoMesh RockMesh;
         RockMesh.load("Assets/rock0.obj");
         RockMesh.getMaterial(0)->TexAlbedo = "Assets/richard/Rock_035_baseColor.jpg";
         RockMesh.getMaterial(0)->TexNormal = "Assets/richard/Rock_035_normal.jpg";
         RockMesh.getMaterial(0)->TexDepth = "Assets/richard/Rock_035_Packed.png";
         RockMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceShader.vert");
-        RockMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceShader.frag");
+        RockMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceRockShader.frag");
         InstanceActor iRockActor;
 
-        S = GraphicsUtility::scaleMatrix(Vector3f(1, 1, 1));
-        ammount = 5;
+        S = GraphicsUtility::scaleMatrix(Vector3f(4, 4, 4));
+        ammount = 3;
         for (int x = 0; x < ammount; x++) {
             for (int z = 0; z < ammount; z++) {
-                float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float)ammount;
-                float zCord = (z - ammount / 2.0 + 0.5) * map.getMapSize().y() / (float)ammount;
-                if (map.getHeightAt(xCord, zCord) > 235 && map.getHeightAt(xCord, zCord) < 295) {
-                    iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
+                float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float)ammount * 0.9;
+                float zCord = (z - ammount / 2.0 + 0.5) * map.getMapSize().y() / (float)ammount * 0.9;
+
+                xCord += randomF(map.getMapSize().x() / (float)ammount / -2.0, map.getMapSize().x() / (float)ammount / 2.0);
+                zCord += randomF(map.getMapSize().y() / (float)ammount / -2.0, map.getMapSize().y() / (float)ammount / 2.0);
+                if (map.getHeightAt(xCord, zCord) > 210 && map.getHeightAt(xCord, zCord) < 275) {
+                    R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
+                    iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
                 }
             }
         }
         iRockActor.init(&RockMesh);
-
+        
         //wind
 		Vector3f windVec = Vector3f(1, 0, 0);
 		float windAngle = 0;
@@ -360,8 +433,6 @@ namespace Terrain {
 		glBindBufferBase(GL_UNIFORM_BUFFER, 4, windUBO);
 		setWindUBO(windUBO, windVec, 0);
         srand((unsigned int)time(NULL));
-
-
 
         sceneGraph.init(&rootTransform);
 
@@ -412,14 +483,18 @@ namespace Terrain {
 
             //Deko instances
             iPineActor.render(&renderDevice);
+            iTreeActor.render(&renderDevice);
+            iPalmActor.render(&renderDevice);
             iRockActor.render(&renderDevice);
 
-           // updateGrass(iGrassActor, map, camera);
-            //iGrassActor.init(&GrassMesh);
+            updateGrass(iGrassActor, map, camera);
+            iGrassActor.init(&GrassMesh);
 
             glDisable(GL_CULL_FACE);
             iGrassActor.render(&renderDevice);
             iPineLeavesActor.render(&renderDevice);
+            iTreeLeavesActor.render(&renderDevice);
+            iPalmLeavesActor.render(&renderDevice);
             glEnable(GL_CULL_FACE);
 
             renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
@@ -438,7 +513,7 @@ namespace Terrain {
 
             if (cameraMode) {
                 camera.position(Vector3f(camera.position().x(),
-                                         map.getHeightAt(camera.position().x(), camera.position().z()) + 5,
+                                         map.getHeightAt(camera.position().x(), camera.position().z()) + 10,
                                          camera.position().z()));
             }
 
