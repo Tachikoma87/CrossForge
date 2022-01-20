@@ -103,7 +103,7 @@ out vec3 B;
 out vec3 T;
 out vec2 UV;
 out vec3 CameraPos;
-out vec3 test;
+out vec3 worldSpacePos;
 
 
 void main(){
@@ -116,7 +116,7 @@ void main(){
 
 	windPos += (noiseValue) * wind * Position.y / 15 * sqrt(Position.x * Position.x + Position.z * Position.z);
 	
-	test = vec3(noiseValue, noiseValue, noiseValue);
+	worldSpacePos = windPos;
 
 	// Normal, Tangent, BiTangent, Position, CameraPosition in WorldSpace
 	N = normalize(mat3(m) * Normal);
