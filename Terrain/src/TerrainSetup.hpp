@@ -447,13 +447,15 @@ namespace Terrain {
         while (!window.shutdown()) {
             current_ticks = clock(); //for fps counter
 
+            printf("%ld\n", current_ticks);
+
             // wind
             windAngleVariation += randomF(-windAngleAcc, windAngleAcc) / (float)fps;
             windAngleVariation *= 0.8;
             windAngle += windAngleVariation / (float)fps;
             windVec.x() = cos(windAngle) * windStr;
             windVec.z() = sin(windAngle) * windStr;
-            setWindUBO(windUBO, windVec, current_ticks / 60.0);
+            setWindUBO(windUBO, windVec, current_ticks / 60);
 
             window.update();
 
