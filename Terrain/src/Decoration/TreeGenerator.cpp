@@ -27,7 +27,7 @@ namespace Terrain {
                     branchProperties.topRadius = 0.2;
                     branchProperties.length = 5;
                     branchProperties.angleVariationStrength = PI / 55;
-                    generateTree(geometry, 4, 3, 4, rotPos, branchProperties, leavesGeometry);
+                    generateTree(geometry, 4, 3, 5, rotPos, branchProperties, leavesGeometry);
                     break;
                 case Aspen:
                     branchProperties.botRadius = 0.15;
