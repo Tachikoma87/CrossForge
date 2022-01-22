@@ -47,6 +47,18 @@ namespace Terrain {
 
     }
 
+    void HeightMap::updateHeights() {
+        GLint format = GL_RED;
+        GLint dataType = GL_FLOAT;
+        GLenum target = GL_TEXTURE_2D;
+
+        bindTexture();
+
+        delete mHeights;
+        mHeights = new GLfloat[mConfig.width * mConfig.height];
+        glGetTexImage(target, 0, format, dataType, mHeights);
+    }
+
     void HeightMap::setTexture(GLTexture2D* texture) {
         mTexture = texture;
     }
