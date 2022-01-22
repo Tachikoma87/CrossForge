@@ -44,7 +44,6 @@ namespace Terrain {
         delete mHeights;
         mHeights = new GLfloat[config.width * config.height];
         glGetTexImage(target, 0, format, dataType, mHeights);
-
     }
 
     void HeightMap::updateHeights() {
