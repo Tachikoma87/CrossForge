@@ -207,4 +207,8 @@ namespace Terrain {
     Vector2f TerrainMap::getMapSize() {
         return Vector2f(mHeightMap.getConfig().width, mHeightMap.getConfig().height);
     }
+
+    void TerrainMap::updateHeights() {
+        mHeightMap.updateHeights();
+    }
 }

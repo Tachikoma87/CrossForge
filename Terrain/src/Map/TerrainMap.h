@@ -17,6 +17,7 @@ namespace Terrain {
 
         void update(float cameraX , float cameraY);
         void erode();
+        void updateHeights();
 
         void generateClipMap(ClipMap::ClipMapConfig clipMapConfig);
         void generateHeightMap(HeightMap::HeightMapConfig heightMapConfig);

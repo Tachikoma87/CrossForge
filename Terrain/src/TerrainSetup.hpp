@@ -545,6 +545,7 @@ namespace Terrain {
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F5)) {
                 window.keyboard()->keyState(Keyboard::KEY_F5, Keyboard::KEY_RELEASED);
+                map.updateHeights();
                 placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor);
                 iPineActor.init(&PineMesh);
                 iPineLeavesActor.init(&PineLeavesMesh);
