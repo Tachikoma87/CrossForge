@@ -36,6 +36,7 @@ namespace Terrain {
         Vector3f getNormalAt(float x, float y);
 
         void erode(int32_t count);
+        void updateHeights();
 
         void setTexture(GLTexture2D* texture);
         void bindTexture();

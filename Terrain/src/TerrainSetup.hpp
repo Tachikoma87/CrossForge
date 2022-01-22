@@ -76,9 +76,9 @@ namespace Terrain {
         string errorLog;
 
         SShaderManager *shaderManager = SShaderManager::instance();
-        vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "330 core",
+        vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "420 core",
                                                             0, "", ""));
-        fsSources.push_back(shaderManager->createShaderCode("Shader/DebugQuad.frag", "330 core",
+        fsSources.push_back(shaderManager->createShaderCode("Shader/DebugQuad.frag", "420 core",
                                                             0, "", ""));
         GLShader *quadShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
         shaderManager->release();
@@ -150,14 +150,15 @@ namespace Terrain {
 
     void updateGrass(InstanceActor& iGrassActor, TerrainMap& map, VirtualCamera& camera) {
         iGrassActor.clearInstances();
+        float sizeScale = 0.5;
         for (int i = 3; i > 0; i--) {
             float scale = exp2(i);
-            float triangleHeight = 20 * scale;
-            float triangleWidth = 30 * scale;
+            float triangleHeight = 20 * scale * sizeScale;
+            float triangleWidth = 30 * scale * sizeScale;
             float smallerTriangleHeight = (i == 1) ? 0.1 : triangleHeight / 2.0;
             float smallerTriangleWidth = (i == 1) ? 0.1 : triangleWidth / 2.0;
 
-            float spacing = 1 * scale;
+            float spacing = 1 * scale * sizeScale;
 
             Vector3f camDir = camera.dir();
             Vector3f camRig = camera.right();
@@ -184,8 +185,8 @@ namespace Terrain {
                         float xCord = ((int)(x / spacing)) * spacing;
                         float zCord = ((int)(z / spacing)) * spacing;
 
-                        float sizeScale = sqrt((A - Vector3f(xCord, 0, zCord)).norm()) / 2;
-                        Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale, sizeScale / 2, sizeScale));
+                        float distScale = sqrt((A - Vector3f(xCord, 0, zCord)).norm()) / 2 * sizeScale;
+                        Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(distScale, distScale / 2, distScale));
                         if (xCord < mSize.x() / 2 && xCord > mSize.x() / -2 && zCord < mSize.y() / 2 && zCord > mSize.y() / -2) {
                             if (map.getHeightAt(xCord, zCord) > 210 && map.getHeightAt(xCord, zCord) < 255) {
                                 iGrassActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
@@ -209,8 +210,10 @@ namespace Terrain {
         siv::PerlinNoise pNoise;
         float noiseScale = 0.01;
 
-        int ammount = 45;
-        Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(4, 4, 4));
+        float sizeScale = 1;
+
+        int ammount = 200;
+        Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale, sizeScale, sizeScale));
         Matrix4f R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY())));
         for (int x = 0; x < ammount; x++) {
             for (int z = 0; z < ammount; z++) {
@@ -338,6 +341,8 @@ namespace Terrain {
         bool erode = false;
         bool cameraMode = true;
 
+        float cameraHeight = 2;
+
         if (richard) {
             DecoSetup();
             return;
@@ -372,25 +377,18 @@ namespace Terrain {
 
         DekoMesh PineMesh;
         InstanceActor iPineActor;
-
         DekoMesh PineLeavesMesh;
         InstanceActor iPineLeavesActor;
-
         DekoMesh PalmMesh;
         InstanceActor iPalmActor;
-
         DekoMesh PalmLeavesMesh;
         InstanceActor iPalmLeavesActor;
-
         DekoMesh TreeMesh;
         InstanceActor iTreeActor;
-
         DekoMesh TreeLeavesMesh;
         InstanceActor iTreeLeavesActor;
-
         DekoMesh GrassMesh;
         InstanceActor iGrassActor;
-        
         DekoMesh RockMesh;
         InstanceActor iRockActor;
 
@@ -409,9 +407,10 @@ namespace Terrain {
         //wind
 		Vector3f windVec = Vector3f(1, 0, 0);
 		float windAngle = 0;
-		float windStr = 1.5;
+		float windStr = 1.0;
+        float windWaveSpeedMultiplier = 0.25;
 		float windAngleVariation = 0;
-		float windAngleAcc = 100;
+		float windAngleAcc = 1;
 		unsigned int windUBO;
 		glGenBuffers(1, &windUBO);
 		glBindBuffer(GL_UNIFORM_BUFFER, windUBO);
@@ -434,15 +433,13 @@ namespace Terrain {
         while (!window.shutdown()) {
             current_ticks = clock(); //for fps counter
 
-            printf("%ld\n", current_ticks);
-
             // wind
             windAngleVariation += randomF(-windAngleAcc, windAngleAcc) / (float)fps;
             windAngleVariation *= 0.8;
             windAngle += windAngleVariation / (float)fps;
             windVec.x() = cos(windAngle) * windStr;
             windVec.z() = sin(windAngle) * windStr;
-            setWindUBO(windUBO, windVec, current_ticks / 60);
+            setWindUBO(windUBO, windVec, current_ticks / 60.0 * windWaveSpeedMultiplier);
 
             window.update();
 
@@ -506,7 +503,7 @@ namespace Terrain {
 
             if (cameraMode) {
                 camera.position(Vector3f(camera.position().x(),
-                                         map.getHeightAt(camera.position().x(), camera.position().z()) + 10,
+                                         map.getHeightAt(camera.position().x(), camera.position().z()) + cameraHeight,
                                          camera.position().z()));
             }
 
