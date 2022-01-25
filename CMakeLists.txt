@@ -20,6 +20,13 @@ FIND_PACKAGE(glfw3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenCV CONFIG REQUIRED)
 FIND_PACKAGE(libigl CONFIG REQUIRED)
 
+#enable edit and continue and hot reload (Visual Studio 2022)
+#if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+#	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /ZI")
+#	string(REPLACE "/Zi" "/ZI" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS})
+#	set(CMAKE_SHARED_LINKER_FLAGS "/SAFESEH:NO")
+#	set(CMAKE_EXE_LINKER_FLAGS "/SAFESEH:NO")
+#endif()
 
 include_directories(
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
@@ -150,6 +157,8 @@ add_executable(CForgeSandbox
 	Prototypes/StripPhoto.cpp 
 	Prototypes/StripPhotoCamera.cpp
 
+	Prototypes/Internet/TCPSocket.cpp 
+	Prototypes/Internet/UDPSocket.cpp
 	)
 
 
@@ -158,6 +167,7 @@ if(WIN32)
 	PRIVATE crossforge
 	PRIVATE glfw 
 	${OpenCV_LIBS}
+	ws2_32
 	)
 endif (WIN32)
 

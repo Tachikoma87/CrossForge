@@ -1,0 +1,149 @@
+#include "UDPSocket.h"
+#include "../../CForge/Core/CoreUtility.hpp"
+#include <WinSock2.h>
+
+namespace CForge {
+
+	void UDPSocket::startup(void) {
+		WSADATA wsa;
+		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+			throw CForgeExcept("Failed to initialized winsock. Error Code: " + std::to_string(WSAGetLastError()));
+		}
+	}//startup
+
+	void UDPSocket::cleanup(void) {
+		WSACleanup();
+	}//cleanup
+
+	UDPSocket::UDPSocket(void) {
+		m_pRecvThread = nullptr;
+		m_pHandle = nullptr;
+
+		m_pInBuffer = nullptr;
+		m_pOutBuffer = nullptr;
+		m_BufferSize = 0;
+	}//Constructor
+
+	UDPSocket::~UDPSocket(void) {
+		end();
+
+	}//Destructor
+
+	void UDPSocket::begin(SocketType Type, uint16_t Port) {
+		end();
+
+		// create a socket
+		SOCKET pSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		if (INVALID_SOCKET == pSock) throw CForgeExcept("Creating socket failed!");
+
+		m_Port = Port;
+
+		if (Type == TYPE_SERVER) {
+			// bind server to port
+			sockaddr_in Addr;
+			Addr.sin_family = AF_INET;
+			Addr.sin_port = htons(m_Port);
+			Addr.sin_addr.s_addr = ADDR_ANY;
+			int32_t rc = bind(pSock, (sockaddr*)&Addr, sizeof(SOCKADDR_IN));
+			if (rc == SOCKET_ERROR) throw CForgeExcept("Binding socket failed. WSA error: " + std::to_string(WSAGetLastError()));
+		}
+
+		m_pHandle = (void*)pSock;
+
+		// start thread
+		m_pRecvThread = new std::thread(&UDPSocket::recvThread, this);
+
+		// create Buffer
+		m_BufferSize = 2048;
+		m_pInBuffer = new uint8_t[m_BufferSize];
+		m_pOutBuffer = new uint8_t[m_BufferSize];
+	}//begin
+
+	void UDPSocket::end(void) {
+		if (nullptr != m_pHandle) closesocket((SOCKET)m_pHandle);
+		m_pHandle = nullptr;
+		if (m_pRecvThread != nullptr) m_pRecvThread->join();
+		m_pRecvThread = nullptr;
+
+		m_pHandle = nullptr;
+
+		if (nullptr != m_pInBuffer) delete[] m_pInBuffer;
+		if (nullptr != m_pOutBuffer) delete[] m_pOutBuffer;
+		m_BufferSize = 0;
+
+		m_pInBuffer = nullptr;
+		m_pOutBuffer = nullptr;
+
+		while (!m_InQueue.empty()) {
+			auto* pMsg = m_InQueue.front();
+			delete pMsg;
+			m_InQueue.pop();
+		}
+
+	}//end
+
+	void UDPSocket::sendData(uint8_t* pData, uint32_t DataSize, std::string IP, uint16_t Port) {
+		if (nullptr == m_pHandle) throw CForgeExcept("Socket not valid!");
+
+		SOCKET pSock = (SOCKET)m_pHandle;
+
+		sockaddr_in RecvAddr;
+		RecvAddr.sin_family = AF_INET;
+		RecvAddr.sin_port = htons(Port);
+		RecvAddr.sin_addr.s_addr = inet_addr(IP.c_str());
+
+		if (SOCKET_ERROR == sendto(pSock, (char*)pData, DataSize, 0, (sockaddr*)&RecvAddr, sizeof(RecvAddr))) {
+			throw CForgeExcept("Sending message to " + IP + ":" + std::to_string(Port) + " failed!");
+		}
+
+	}//send
+
+	bool UDPSocket::recvData(uint8_t* pBuffer, uint32_t* pDataSize, std::string* pSender, uint16_t* pPort) {
+		if (m_InQueue.empty()) return false;
+
+		m_Mutex.lock();
+		Package* pRval = m_InQueue.front();
+		m_InQueue.pop();
+		m_Mutex.unlock();
+
+		(*pDataSize) = pRval->DataSize;
+		if (nullptr != pSender) (*pSender) = pRval->IP;
+		if (nullptr != pPort) (*pPort) = pRval->Port;
+		memcpy(pBuffer, pRval->pData, pRval->DataSize);
+		delete pRval;
+		return true;
+	}//getMessage
+
+
+
+	void UDPSocket::recvThread(void) {
+		SOCKET pSock = (SOCKET)m_pHandle;
+
+		while (nullptr != m_pHandle) {
+			sockaddr_in AddrIn;
+			int32_t AddrLen;
+
+			AddrIn.sin_family = AF_INET;
+			AddrIn.sin_port = htons(m_Port);
+			AddrIn.sin_addr.s_addr = INADDR_ANY;
+			int32_t Len = sizeof(AddrIn);
+
+			int32_t MsgLength = recvfrom(pSock, (char*)m_pInBuffer, m_BufferSize, 0, (sockaddr*)&AddrIn, &Len);
+			if (MsgLength > 0) {
+				Package* pP = new Package();
+				pP->pData = new uint8_t[MsgLength];
+				memcpy(pP->pData, m_pInBuffer, MsgLength);
+				pP->DataSize = MsgLength;
+				pP->IP = inet_ntoa(AddrIn.sin_addr);
+				pP->Port = ntohs(AddrIn.sin_port);
+				m_Mutex.lock();
+				m_InQueue.push(pP);
+				m_Mutex.unlock();
+			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}//while[do not leave thread]
+
+	}//socketThread
+
+}//name space
