@@ -2,7 +2,9 @@
 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/Exporter.hpp>
 #include "../../CForge/Core/SLogger.h"
+
 
 using namespace Assimp;
 
@@ -43,7 +45,20 @@ namespace CForge {
 	}//load
 
 	void AssimpMeshIO::store(const std::string Filepath, const T3DMesh<float>* pMesh) {
-		throw CForgeExcept("Storing 3D models not implemented by this plugin!");
+		if (Filepath.empty()) throw CForgeExcept("Empty filepath specified!");
+		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
+
+		std::string FileType = "";
+		if (Filepath.find(".fbx") != std::string::npos) FileType = "fbx";
+		else if (Filepath.find(".obj") != std::string::npos) FileType = "obj";
+		else if (Filepath.find(".ply") != std::string::npos) FileType = "ply";
+		else if (Filepath.find(".stl") != std::string::npos) FileType = "stl";
+
+		// convert mesh to aiScene
+		aiScene S;
+		T3DMeshToAiScene(pMesh, &S);
+		Exporter Ex;
+		Ex.Export(&S, FileType.c_str(), Filepath.c_str());
 	}//store
 
 	bool AssimpMeshIO::accepted(const std::string Filepath, Operation Op) {
@@ -55,7 +70,10 @@ namespace CForge {
 			else if (Filepath.find(".stl") != std::string::npos) Rval = true;
 		}
 		else {
-			Rval = false;
+			if (Filepath.find(".fbx") != std::string::npos) Rval = true;
+			else if (Filepath.find(".obj") != std::string::npos) Rval = true;
+			else if (Filepath.find(".ply") != std::string::npos) Rval = true;
+			else if (Filepath.find(".stl") != std::string::npos) Rval = true;
 		}
 		
 		return Rval;
@@ -197,7 +215,6 @@ namespace CForge {
 		}//for[all materials]
 
 		// join identical bones (if names are identical)
-	
 		for (auto i : Bones) {
 			if (nullptr == i) continue;
 			for (uint32_t k = i->ID + 1; k < Bones.size(); ++k) {
@@ -292,6 +309,58 @@ namespace CForge {
 
 	}//aiMeshTo3DMesh
 
+	void AssimpMeshIO::T3DMeshToAiScene(const T3DMesh<float>* pMesh, aiScene* pScene) {
+		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
+		if (nullptr == pScene) throw NullpointerExcept("pScene");
+
+		pScene->mRootNode = new aiNode();
+
+		// add mesh
+		pScene->mNumMeshes = 1;
+		pScene->mMeshes = new (aiMesh*);
+		pScene->mMeshes[0] = new aiMesh();
+
+		pScene->mRootNode->mMeshes = new unsigned int[1];
+		pScene->mRootNode->mMeshes[0] = 0;
+		pScene->mRootNode->mNumMeshes = 1;
+
+		// dump vertex data
+		aiMesh* pM = pScene->mMeshes[0];
+		pM->mNumVertices = pMesh->vertexCount();
+		pM->mVertices = new aiVector3D[pMesh->vertexCount()];
+		for (uint32_t i = 0; i < pMesh->vertexCount(); ++i) {
+			pM->mVertices[i] = toAiVector(pMesh->vertex(i));
+		}
+
+		pM->mMaterialIndex = 0;
+
+		// now for the faces
+		const T3DMesh<float>::Submesh* pSub = pMesh->getSubmesh(0);
+		pM->mFaces = new aiFace[pSub->Faces.size()];
+		for (uint32_t i = 0; i < pSub->Faces.size(); ++i) {
+			aiFace F;
+			F.mNumIndices = 3;
+			F.mIndices = new unsigned int[3];
+			F.mIndices[0] = pSub->Faces[i].Vertices[0];
+			F.mIndices[1] = pSub->Faces[i].Vertices[1];
+			F.mIndices[2] = pSub->Faces[i].Vertices[2];
+			pM->mFaces[i] = F;
+		}//for[faces]
+		pM->mNumFaces = pSub->Faces.size();
+
+		// store materials
+		pScene->mNumMaterials = pMesh->materialCount();
+		pScene->mMaterials = new aiMaterial*[pMesh->materialCount()];
+		for (uint32_t i = 0; i < pScene->mNumMaterials; ++i) {
+			pScene->mMaterials[i] = new aiMaterial();
+
+			const T3DMesh<float>::Material* pMat = pMesh->getMaterial(i);
+
+			//pScene->mMaterials[i]->AddProperty()
+		}
+
+	}//T3DMeshToAiScene
+
 	void AssimpMeshIO::retrieveBoneHierarchy(aiNode* pNode, std::vector<T3DMesh<float>::Bone*>* pBones) {
 		if (nullptr == pNode) return; // end of recursion
 		if (nullptr == pBones) throw NullpointerExcept("pBones");
@@ -364,5 +433,48 @@ namespace CForge {
 		Rval.w() = Q.w;
 		return Rval;
 	}//toEigenQuat
+
+	aiVector3D AssimpMeshIO::toAiVector(const Eigen::Vector3f Vec)const {
+		aiVector3D Rval;
+		Rval.x = Vec.x();
+		Rval.y = Vec.y();
+		Rval.z = Vec.z();
+		return Rval;
+	}//toAiVector
+
+	aiMatrix4x4 AssimpMeshIO::toAiMatrix(const Eigen::Matrix4f Mat)const {
+		aiMatrix4x4 Rval;
+		Rval.a1 = Mat(0, 0);
+		Rval.a2 = Mat(0, 1);
+		Rval.a3 = Mat(0, 2);
+		Rval.a4 = Mat(0, 3);
+
+		Rval.b1 = Mat(1, 0);
+		Rval.b2 = Mat(1, 1);
+		Rval.b3 = Mat(1, 2);
+		Rval.b4 = Mat(1, 3);
+
+		Rval.c1 = Mat(2, 0);
+		Rval.c2 = Mat(2, 1);
+		Rval.c3 = Mat(2, 2);
+		Rval.c4 = Mat(2, 3);
+
+		Rval.d1 = Mat(3, 0);
+		Rval.d2 = Mat(3, 1);
+		Rval.d3 = Mat(3, 2);
+		Rval.d4 = Mat(3, 3);
+
+		return Rval;
+
+	}//toAiMatrix
+
+	aiQuaternion AssimpMeshIO::toAiQuat(const Eigen::Quaternionf Q)const {
+		aiQuaternion Rval;
+		Rval.x = Q.x();
+		Rval.y = Q.y();
+		Rval.z = Q.z();
+		Rval.w = Q.w();
+		return Rval;
+	}//toAiQuat
 
 }//name space

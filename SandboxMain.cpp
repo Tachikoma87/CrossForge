@@ -17,6 +17,8 @@
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
 #include "Prototypes/TestScenes/ForestTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
+#include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
+#include "Prototypes/TestScenes/SocketTestScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -59,7 +61,9 @@ int main(int argc, char* argv[]) {
 		//shadowTest();
 		//vertexColorTestScene();
 		//forestTestScene();
-		skelAnimTestScene();
+		//skelAnimTestScene();
+		//imuInputDeviceTestScene();
+		socketTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
@@ -71,6 +75,9 @@ int main(int argc, char* argv[]) {
 
 	if(nullptr != pDev) pDev->release();
 	
+	char c;
+	//scanf("%c", &c);
+
 #ifdef WIN32
 	// dump memory statics
 	_CrtMemCheckpoint(&S2);
