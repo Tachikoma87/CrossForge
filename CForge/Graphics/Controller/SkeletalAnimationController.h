@@ -30,6 +30,7 @@ namespace CForge {
 			int32_t AnimationID;
 			float Speed;
 			float t; //current
+			bool Finished;
 		};
 
 		SkeletalAnimationController(void);

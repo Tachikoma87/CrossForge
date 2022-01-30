@@ -61,9 +61,9 @@ int main(int argc, char* argv[]) {
 		//shadowTest();
 		//vertexColorTestScene();
 		//forestTestScene();
-		//skelAnimTestScene();
+		skelAnimTestScene();
 		//imuInputDeviceTestScene();
-		socketTestScene();
+		//socketTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

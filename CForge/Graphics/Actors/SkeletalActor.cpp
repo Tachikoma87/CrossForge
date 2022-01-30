@@ -65,13 +65,16 @@ namespace CForge {
 	void SkeletalActor::render(RenderDevice* pRDev) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
 
-		m_pAnimationController->applyAnimation(m_pActiveAnimation);
+		if (nullptr != m_pActiveAnimation && m_pActiveAnimation->Finished) {
+			m_pAnimationController->destroyAnimation(m_pActiveAnimation);
+			m_pActiveAnimation = nullptr;
+		}
 		
-		m_VertexArray.bind();
 		// set current animation data 
 		// if active animation is nullptr bind pose will be set
 		m_pAnimationController->applyAnimation(m_pActiveAnimation, true);
 
+		m_VertexArray.bind();
 		for (auto i : m_RenderGroupUtility.renderGroups()) {
 			if (i->pShader == nullptr) continue;
 

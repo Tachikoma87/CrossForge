@@ -50,6 +50,7 @@ namespace CForge {
 		float FPS = 60.0f;
 
 		bool const LowRes = false;
+		bool const HighRes = false;
 
 		uint32_t WinWidth = 1280;
 		uint32_t WinHeight = 720;
@@ -59,6 +60,11 @@ namespace CForge {
 			WinHeight = 576;
 		}
 
+		if (HighRes) {
+			WinWidth = 1920;
+			WinHeight = 1080;
+		}
+
 		// create an OpenGL capable windows
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
@@ -66,7 +72,7 @@ namespace CForge {
 		// configure and initialize rendering pipeline
 		RenderDevice RDev;
 		RenderDevice::RenderDeviceConfig Config;
-		Config.DirectionalLightsCount = 1;
+		Config.DirectionalLightsCount = 2;
 		Config.PointLightsCount = 1;
 		Config.SpotLightsCount = 0;
 		Config.ExecuteLightingPass = true;
@@ -79,7 +85,7 @@ namespace CForge {
 
 		// configure and initialize shader configuration device
 		ShaderCode::LightConfig LC;
-		LC.DirLightCount = 1;
+		LC.DirLightCount = 2;
 		LC.PointLightCount = 1;
 		LC.SpotLightCount = 0;
 		LC.PCFSize = 0;
@@ -94,26 +100,35 @@ namespace CForge {
 		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
 
 		// initialize sun (key lights) and back ground light (fill light)
-		Vector3f SunPos = Vector3f(-25.0f, 50.0f, -20.0f);
-		Vector3f SunLookAt = Vector3f(0.0f, 0.0f, 30.0f);
-		Vector3f BGLightPos = Vector3f(0.0f, 5.0f, 60.0f);
+		Vector3f SunPos = Vector3f(-15.0f, 80.0f, 40.0f);
+		Vector3f SunLookAt = Vector3f(0.0f, 0.0f, -10.0f);
+		Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -20.0f);
+		Vector3f FillLightPos = Vector3f(25.0f, 30.0f, 30.0f);
 		DirectionalLight Sun;
+		DirectionalLight  Fill;
 		PointLight BGLight;
-		Sun.init(SunPos, (SunLookAt - SunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
+		Sun.init(SunPos, (SunLookAt - SunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 4.0f);
 		// sun will cast shadows
-		Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(20.0f, 20.0f, 0.1f, 1000.0f));
-		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.5f, Vector3f(0.0f, 0.0f, 0.0f));
+		int32_t ShadowMapSize = 4096;
+		Sun.initShadowCasting(ShadowMapSize, ShadowMapSize, GraphicsUtility::orthographicProjection(40.0f, 40.0f, 0.1f, 1000.0f));
+		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 2.5f, Vector3f(0.0f, 0.0f, 0.0f));
+		Fill.init(FillLightPos, (SunLookAt - FillLightPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 3.5f);
 
 		// set camera and lights
 		RDev.activeCamera(&Cam);
 		RDev.addLight(&Sun);
 		RDev.addLight(&BGLight);
+		RDev.addLight(&Fill);
 
 		// load skydome and a textured cube
 		T3DMesh<float> M;
 		StaticActor Skydome;
-		SkeletalActor Eric;
-		SkeletalAnimationController Controller;
+		SkeletalActor Captured;
+		SkeletalActor Synth;
+		SkeletalActor Style;
+		SkeletalAnimationController ControllerCaptured;
+		SkeletalAnimationController ControllerSynth;
+		SkeletalAnimationController ControllerStyle;
 
 		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
@@ -122,16 +137,48 @@ namespace CForge {
 		M.clear();
 
 		// initialize skeletal actor (Eric) and its animation controller
-		SAssetIO::load("Assets/tmp/ManMulti.fbx", &M);
+		SAssetIO::load("MyAssets/DoubleCaptured.glb", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.04f);
-		M.getMaterial(0)->TexAlbedo = "Assets/tmp/MHTextures/young_lightskinned_male_diffuse2.png";
-		M.getMaterial(1)->TexAlbedo = "Assets/tmp/MHTextures/brown_eye.png";
-		M.getMaterial(2)->TexAlbedo = "Assets/tmp/MHTextures/male_casualsuit04_diffuse.png";
-		M.getMaterial(3)->TexAlbedo = "Assets/tmp/MHTextures/shoes06_diffuse.png";
+		// male textures
+		//M.getMaterial(0)->TexAlbedo = "Assets/tmp/MHTextures/young_lightskinned_male_diffuse2.png";
+		//M.getMaterial(1)->TexAlbedo = "Assets/tmp/MHTextures/brown_eye.png";
+		//M.getMaterial(2)->TexAlbedo = "Assets/tmp/MHTextures/male_casualsuit04_diffuse.png";
+		//M.getMaterial(3)->TexAlbedo = "Assets/tmp/MHTextures/shoes06_diffuse.png";
+
+		// female textures
+		M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
+		M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
+		M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+		M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
+
 		M.computePerVertexNormals();
-		Controller.init(&M);
-		Eric.init(&M, &Controller);
+		ControllerCaptured.init(&M);
+		Captured.init(&M, &ControllerCaptured);
 		M.clear();
+
+		SAssetIO::load("MyAssets/DoubleSynth.glb", &M);
+		SceneUtilities::setMeshShader(&M, 0.7f, 0.04f);
+		M.computePerVertexNormals();
+		M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
+		M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
+		M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+		M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
+		ControllerSynth.init(&M);
+		Synth.init(&M, &ControllerSynth);
+		M.clear();
+
+		SAssetIO::load("MyAssets/DoubleStylized.glb", &M);
+		SceneUtilities::setMeshShader(&M, 0.7f, 0.04f);
+		M.computePerVertexNormals();
+		M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
+		M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
+		M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+		M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
+		ControllerStyle.init(&M);
+		Style.init(&M, &ControllerStyle);
+		M.clear();
+
+
 
 		// build scene graph
 		SceneGraph SG;
@@ -145,14 +192,30 @@ namespace CForge {
 		SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
 
 		// add skeletal actor to scene graph (Eric)
-		SGNGeometry EricSGN;
-		Quaternionf EricRot;
-		EricRot = Quaternionf::Identity();
-		EricRot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
-		SGNTransformation EricTransformSGN;
-		EricTransformSGN.init(&RootSGN, Vector3f(0.0f, 0.25f, 0.0f), EricRot, Vector3f(1.0f, 1.0f, 1.0f));
-		EricSGN.init(&EricTransformSGN, &Eric);
-		EricSGN.scale(Vector3f(0.05f, 0.05f, 0.05f));
+		SGNGeometry CapturedSGN;
+		SGNGeometry StyleSGN;
+		SGNGeometry SynthSGN;
+		SGNTransformation CapturedTransformSGN;
+		SGNTransformation StyleTransformSGN;
+		SGNTransformation SynthTransformSGN;
+
+		Vector3f ModelPos = Vector3f(0.0f, 0.0f, 0.0f);
+		Vector3f Offset = Vector3f(0.0f, 0.0f, -5.0f);
+
+		float Sc = 0.05f;
+
+		Quaternionf Rot;
+		Rot = Quaternionf::Identity();
+
+	
+		CapturedTransformSGN.init(&RootSGN, ModelPos + 2 * Offset, Rot, Vector3f(Sc, Sc, Sc));
+		CapturedSGN.init(&CapturedTransformSGN, &Captured);
+
+		StyleTransformSGN.init(&RootSGN, ModelPos + Offset, Rot, Vector3f(Sc, Sc, Sc));
+		StyleSGN.init(&StyleTransformSGN, &Style);
+
+		SynthTransformSGN.init(&RootSGN, ModelPos, Rot, Vector3f(Sc, Sc, Sc));
+		SynthSGN.init(&SynthTransformSGN, &Synth);
 
 		// stuff for performance monitoring
 		uint64_t LastFPSPrint = CoreUtility::timestamp();
@@ -163,51 +226,70 @@ namespace CForge {
 		GraphicsUtility::checkGLError(&GLError);
 		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
+		SkeletalAnimationController::Animation* pAnimFront = nullptr;
+		SkeletalAnimationController::Animation* pAnimBack = nullptr;
+
+		bool RepeatAnim = false;
+		float LastAnimSpeed = 16.666f;
+
 		// start main loop
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
 			SG.update(FPS / 60.0f);
 
 			// this will progress all active skeletal animations for this controller
-			Controller.update(FPS / 60.0f);
+			ControllerCaptured.update(60.0f/FPS);
+			ControllerSynth.update(60.0f/FPS);
+			ControllerStyle.update(60.0f/FPS);
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
 
 			// if user hits key 1, animation will be played
 			// if user also presses shift, animation speed is doubled
-			float AnimationSpeed = 1.0f;
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed = 2.0f;
+			float AnimationSpeed = 16.666f;
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed /= 2.0f;
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
-				SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
-				Eric.activeAnimation(pAnim);
+				Captured.activeAnimation(ControllerCaptured.createAnimation(0, AnimationSpeed, 0.0f));
+				Synth.activeAnimation(ControllerSynth.createAnimation(0, AnimationSpeed, 0.0f));
+				Style.activeAnimation(ControllerStyle.createAnimation(0, AnimationSpeed, 0.0f));
+				LastAnimSpeed = AnimationSpeed;
 			}
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
-				SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(1, AnimationSpeed, 0.0f);
-				Eric.activeAnimation(pAnim);
+
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {	
+				RepeatAnim = !RepeatAnim;		
 			}
+
+			if (RepeatAnim && (Style.activeAnimation() == nullptr || Captured.activeAnimation() == nullptr || Synth.activeAnimation() == nullptr)) {
+				Captured.activeAnimation(ControllerCaptured.createAnimation(0, LastAnimSpeed, 0.0f));
+				Synth.activeAnimation(ControllerSynth.createAnimation(0, LastAnimSpeed, 0.0f));
+				Style.activeAnimation(ControllerStyle.createAnimation(0, LastAnimSpeed, 0.0f));
+			}
+
+			
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
-				SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(2, AnimationSpeed, 0.0f);
-				Eric.activeAnimation(pAnim);
+				bool En;
+				SynthSGN.enabled(nullptr, &En);
+				SynthSGN.enable(true, !En);
 			}
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) {
-				SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(3, AnimationSpeed, 0.0f);
-				Eric.activeAnimation(pAnim);
+				bool En;
+				StyleSGN.enabled(nullptr, &En);
+				StyleSGN.enable(true, !En);
 			}
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_5, true)) {
-				SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(4, AnimationSpeed, 0.0f);
-				Eric.activeAnimation(pAnim);
+				bool En;
+				CapturedSGN.enabled(nullptr, &En);
+				CapturedSGN.enable(true, !En);
 			}
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_6, true)) {
-				SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(5, AnimationSpeed, 0.0f);
-				Eric.activeAnimation(pAnim);
+				
 			}
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_7, true)) {
-				SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(6, AnimationSpeed, 0.0f);
-				Eric.activeAnimation(pAnim);
+				
 			}
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_8, true)) {
-				SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(7, AnimationSpeed, 0.0f);
-				Eric.activeAnimation(pAnim);
+				
 			}
 
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
