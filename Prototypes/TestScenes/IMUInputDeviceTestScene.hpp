@@ -40,6 +40,9 @@
 #include "../Internet/UDPSocket.h"
 #include "../Internet/IMUPackage.hpp"
 
+
+#include "../Misc/IMUCameraController.h"
+
 using namespace Eigen;
 using namespace std;
 
@@ -65,10 +68,10 @@ namespace CForge {
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
 
-		UDPSocket::startup();
+		//UDPSocket::startup();
 
-		UDPSocket IMUServer;
-		IMUServer.begin(UDPSocket::TYPE_SERVER, 25000);
+		/*UDPSocket IMUServer;
+		IMUServer.begin(UDPSocket::TYPE_SERVER, 25000);*/
 
 		// configure and initialize rendering pipeline
 		RenderDevice RDev;
@@ -226,33 +229,14 @@ namespace CForge {
 		std::string Sender;
 		uint16_t Port;
 
+		UDPSocket::startup();
+		IMUCamera IMUCam;
+		IMUCam.init(25001, 25000, 250, 250);
+
+
 		while (!RenderWin.shutdown()) {
 			
-			//if (IMUServer.getMessage(Buffer, &MsgLength, &Sender, &Port)) {
-			if(IMUServer.recvData(Buffer, &MsgLength, &Sender, &Port)){
-				if (ArduForge::IMUPackage::checkMagicTag(Buffer)) {
-					ArduForge::IMUPackage ImuMsg;
-					ImuMsg.fromStream(Buffer, MsgLength);
-
-					//printf("IMU: %.2f %.2f %.2f\n", ImuMsg.AccelX, ImuMsg.AccelY, ImuMsg.AccelZ);
-
-					// use data for camera movement
-					float Forward = std::abs(ImuMsg.GyroY);
-					if (Forward< 5.0f) Forward = 0.0f;
-					Cam.forward(Forward/100.0f);
-
-					float RotY = -ImuMsg.GyroX;
-					if (std::abs(RotY) < 15.0f) RotY = 0.0f;
-					Cam.rotY(GraphicsUtility::degToRad(RotY/10.0f));
-
-					RotY = ImuMsg.AccelY;
-					if (std::abs(RotY) > 0.15f) {
-						Cam.rotY(GraphicsUtility::degToRad(-10.0f*RotY));
-					}
-				}
-			}
-
-			//printf("Change\n");
+			IMUCam.update(&Cam, 1.0f);
 
 			RenderWin.update();
 			SG.update(FPS / 60.0f);
@@ -288,7 +272,7 @@ namespace CForge {
 		/*Client.end();
 		Server.end();*/
 
-		IMUServer.end();
+		//IMUServer.end();
 
 		UDPSocket::cleanup();
 		

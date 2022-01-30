@@ -128,9 +128,11 @@ namespace CForge {
 
 		M.clear();
 
+		SAssetIO::load("MyAssets/ExpTest.fbx", &M);
+
 		SAssetIO::load("MyAssets/sea_shell_MedRes.obj", &M);
 		M.computePerVertexNormals();
-		SAssetIO::store("MyAssets/Tmp/ExpTest.obj", &M);
+		SAssetIO::store("MyAssets/Tmp/ExpTest.x", &M);
 		
 		
 		M.clear();

@@ -159,6 +159,8 @@ add_executable(CForgeSandbox
 
 	Prototypes/Internet/TCPSocket.cpp 
 	Prototypes/Internet/UDPSocket.cpp
+
+	Prototypes/Misc/IMUCameraController.cpp
 	)
 
 
