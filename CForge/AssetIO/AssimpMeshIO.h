@@ -57,6 +57,7 @@ namespace CForge {
 
 		T3DMesh<float>::Bone* getBoneFromName(std::string Name, std::vector<T3DMesh<float>::Bone*>* pBones);
 		void retrieveBoneHierarchy(aiNode* pNode, std::vector<T3DMesh<float>::Bone*>* pBones);
+		void writeBone(aiNode* pNode, const T3DMesh<float>::Bone* pBone);
 
 		Assimp::Importer m_Importer;
 

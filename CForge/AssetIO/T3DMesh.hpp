@@ -173,6 +173,7 @@ namespace CForge {
 
 		T3DMesh(void): CForgeObject("TDMesh") {
 			m_pRoot = nullptr;
+			m_pRootBone = nullptr;
 		}//Constructor
 
 		~T3DMesh(void) {
@@ -197,7 +198,6 @@ namespace CForge {
 					pMat->init(i);
 					m_Materials.push_back(pMat);
 				}//for[materials]
-				m_pRoot = pRef->m_pRoot;
 				m_AABB = pRef->m_AABB;
 			}
 		}//initialize
@@ -213,6 +213,7 @@ namespace CForge {
 			for (auto& i : m_Materials) delete i;
 			m_Materials.clear();
 			m_pRoot = nullptr;
+			m_pRootBone = nullptr;
 
 			for (auto& i : m_Bones) delete i;
 			m_Bones.clear();
@@ -285,6 +286,12 @@ namespace CForge {
 			else if(nullptr != pBones) {
 				m_Bones = (*pBones);
 			}
+
+			// find root bone
+			for (auto i : m_Bones) {
+				if (i->pParent == nullptr) m_pRootBone = i;
+			}//for[all bones]
+
 		}//bones
 
 		void addSkeletalAnimation(SkeletalAnimation* pAnim, bool Copy = true) {
@@ -480,6 +487,13 @@ namespace CForge {
 			return m_MorphTargets[Index];
 		}//getMorphTarget
 
+		Bone* rootBone(void) {
+			return m_pRootBone;
+		}//rootBone
+
+		const Bone* rootBone(void)const {
+			return m_pRootBone;
+		}//rootBone
 
 		void computePerFaceNormals(void) {
 			for (auto i : m_Submeshes) {
