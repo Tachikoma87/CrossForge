@@ -185,7 +185,7 @@ namespace Terrain {
                         float xCord = ((int)(x / spacing)) * spacing;
                         float zCord = ((int)(z / spacing)) * spacing;
 
-                        float distScale = sqrt((A - Vector3f(xCord, 0, zCord)).norm()) / 2 * sizeScale;
+                        float distScale = max(sqrt((A - Vector3f(xCord, 0, zCord)).norm()), 3.0f) / 2 * sizeScale;
                         Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(distScale, distScale / 2, distScale));
                         if (xCord < mSize.x() / 2 && xCord > mSize.x() / -2 && zCord < mSize.y() / 2 && zCord > mSize.y() / -2) {
                             if (map.getHeightAt(xCord, zCord) > 210 && map.getHeightAt(xCord, zCord) < 255) {
@@ -198,7 +198,7 @@ namespace Terrain {
         }
     }
 
-    void placeDekoElements(TerrainMap &map, InstanceActor &iPineActor, InstanceActor &iPineLeavesActor, InstanceActor &iTreeActor, InstanceActor &iTreeLeavesActor, InstanceActor &iPalmActor, InstanceActor &iPalmLeavesActor, InstanceActor &iRockActor) {
+    void placeDekoElements(TerrainMap &map, InstanceActor &iPineActor, InstanceActor &iPineLeavesActor, InstanceActor &iTreeActor, InstanceActor &iTreeLeavesActor, InstanceActor &iPalmActor, InstanceActor &iPalmLeavesActor, InstanceActor &iRockActor, InstanceActor& iBushActor) {
         iPineActor.clearInstances();
         iPineLeavesActor.clearInstances();
         iTreeActor.clearInstances();
@@ -206,8 +206,10 @@ namespace Terrain {
         iPalmActor.clearInstances();
         iPalmLeavesActor.clearInstances();
         iRockActor.clearInstances();
+        iBushActor.clearInstances();
 
         siv::PerlinNoise pNoise;
+        float noiseOffset = randomF(-1000, 1000);
         float noiseScale = 0.01;
 
         float sizeScale = 1;
@@ -215,37 +217,56 @@ namespace Terrain {
         int ammount = 200;
         Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale, sizeScale, sizeScale));
         Matrix4f R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY())));
+        float randomSizeScale;
         for (int x = 0; x < ammount; x++) {
             for (int z = 0; z < ammount; z++) {
                 float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float)ammount * 0.9;
                 float zCord = (z - ammount / 2.0 + 0.5) * map.getMapSize().y() / (float)ammount * 0.9;
 
+               
+
                 xCord += randomF(map.getMapSize().x() / (float)ammount / -2.0, map.getMapSize().x() / (float)ammount / 2.0);
                 zCord += randomF(map.getMapSize().y() / (float)ammount / -2.0, map.getMapSize().y() / (float)ammount / 2.0);
 
                 R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY())));
-                if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale, 0, zCord * noiseScale, 1) < 0.0) {
+                if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale + noiseOffset, 0, zCord * noiseScale, 1) < -0.1) {
                     if (map.getHeightAt(xCord, zCord) > 225 && map.getHeightAt(xCord, zCord) < 255) {
+                        randomSizeScale = randomF(0.25f, 1.5f);
+                        S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
                         iPineActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
                         iPineLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
                     }
 
                     else if (map.getHeightAt(xCord, zCord) > 202 && map.getHeightAt(xCord, zCord) < 208) {
+                        randomSizeScale = randomF(0.8f, 2.2f);
+                        S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale, sizeScale * randomSizeScale, sizeScale));
                         iPalmActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord) - 0.3, zCord)) * R * S);
                         iPalmLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord) - 0.3, zCord)) * R * S);
                     }
                 }
-                if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale, 0, zCord * noiseScale, 1) > 0.0) {
+                else if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale + noiseOffset, 0, zCord * noiseScale, 1) > 0.1) {
                     if (map.getHeightAt(xCord, zCord) > 208 && map.getHeightAt(xCord, zCord) < 235) {
+                        randomSizeScale = randomF(0.8f, 1.25f);
+                        S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
                         iTreeActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
                         iTreeLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
+                    }
+                }
+                else {
+                    if (false && map.getHeightAt(xCord, zCord) > 208 && map.getHeightAt(xCord, zCord) < 255) {
+                        if (x % 5 == 0 && z % 5 == 0) {
+                            randomSizeScale = randomF(0.8f, 1.25f);
+                            S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
+                            iBushActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
+                        }
                     }
                 }
             }
         }
 
-        S = GraphicsUtility::scaleMatrix(Vector3f(4, 4, 4));
-        ammount = 3;
+
+        
+        ammount /= 10;
         for (int x = 0; x < ammount; x++) {
             for (int z = 0; z < ammount; z++) {
                 float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float)ammount * 0.9;
@@ -255,18 +276,20 @@ namespace Terrain {
                 zCord += randomF(map.getMapSize().y() / (float)ammount / -2.0, map.getMapSize().y() / (float)ammount / 2.0);
                 if (map.getHeightAt(xCord, zCord) > 210 && map.getHeightAt(xCord, zCord) < 275) {
                     R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
+                    S = GraphicsUtility::scaleMatrix(Vector3f(randomF(0.5, 2), randomF(0.5, 1.2), randomF(0.5, 2)));
                     iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
                 }
             }
         }
     }
 
-    void loadNewDekoObjects(bool generateNew, DekoMesh &PineMesh, DekoMesh &PineLeavesMesh, DekoMesh &PalmMesh, DekoMesh &PalmLeavesMesh, DekoMesh &TreeMesh, DekoMesh &TreeLeavesMesh, DekoMesh &GrassMesh, DekoMesh &RockMesh) {
+    void loadNewDekoObjects(bool generateNew, DekoMesh &PineMesh, DekoMesh &PineLeavesMesh, DekoMesh &PalmMesh, DekoMesh &PalmLeavesMesh, DekoMesh &TreeMesh, DekoMesh &TreeLeavesMesh, DekoMesh &GrassMesh, DekoMesh &RockMesh, DekoMesh& BushMesh) {
         if (generateNew) {
             TreeGenerator::generateTrees(TreeGenerator::Needle, 1, "Assets/needleTree");
             TreeGenerator::generateTrees(TreeGenerator::Palm, 1, "Assets/palmTree");
             TreeGenerator::generateTrees(TreeGenerator::Normal, 1, "Assets/tree");
             GrassGenerator::generateGrass(GrassType::triangle, 1, "Assets/grass");
+            GrassGenerator::generateGrass(GrassType::cross, 1, "Assets/bush");
             RockGenerator::generateRocks(RockGenerator::Normal, 1, "Assets/rock");
         }
         
@@ -295,8 +318,8 @@ namespace Terrain {
 
         PalmLeavesMesh.clear();
         PalmLeavesMesh.load("Assets/palmTreeLeaves0.obj");
-        PalmLeavesMesh.getMaterial(0)->TexAlbedo = "Assets/richard/pla2.png";
-        PalmLeavesMesh.getMaterial(0)->TexDepth = "Assets/richard/pla3.png";
+        PalmLeavesMesh.getMaterial(0)->TexAlbedo = "Assets/richard/palmLeave_color.png";
+        PalmLeavesMesh.getMaterial(0)->TexDepth = "Assets/richard/palmLeave_alpha.png";
         PalmLeavesMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstancePineShader.vert");
         PalmLeavesMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
 
@@ -315,6 +338,13 @@ namespace Terrain {
         TreeLeavesMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstancePineShader.vert");
         TreeLeavesMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
 
+        BushMesh.clear();
+        BushMesh.load("Assets/bush0.obj");
+        BushMesh.getMaterial(0)->TexAlbedo = "Assets/richard/placeholder.png";
+        BushMesh.getMaterial(0)->TexDepth = "Assets/richard/placeholderAlpha.png";
+        BushMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceGrassShader.vert");
+        BushMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
+
         GrassMesh.clear();
         GrassMesh.load("Assets/grass0.obj");
         GrassMesh.getMaterial(0)->TexAlbedo = "Assets/richard/grass_color.jpg";
@@ -330,6 +360,8 @@ namespace Terrain {
         RockMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceShader.vert");
         RockMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceRockShader.frag");
     }
+
+
 
 
 
@@ -389,12 +421,14 @@ namespace Terrain {
         InstanceActor iTreeLeavesActor;
         DekoMesh GrassMesh;
         InstanceActor iGrassActor;
+        DekoMesh BushMesh;
+        InstanceActor iBushActor;
         DekoMesh RockMesh;
         InstanceActor iRockActor;
 
-        loadNewDekoObjects(generateNew, PineMesh, PineLeavesMesh, PalmMesh, PalmLeavesMesh, TreeMesh, TreeLeavesMesh, GrassMesh, RockMesh);
+        loadNewDekoObjects(generateNew, PineMesh, PineLeavesMesh, PalmMesh, PalmLeavesMesh, TreeMesh, TreeLeavesMesh, GrassMesh, RockMesh, BushMesh);
 
-        placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor);
+        placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
         iPineActor.init(&PineMesh);
         iPineLeavesActor.init(&PineLeavesMesh);
         iTreeActor.init(&TreeMesh);
@@ -403,6 +437,7 @@ namespace Terrain {
         iPalmLeavesActor.init(&PalmLeavesMesh);
         iRockActor.init(&RockMesh);
         iGrassActor.init(&GrassMesh);
+        iBushActor.init(&BushMesh);
         
         //wind
 		Vector3f windVec = Vector3f(1, 0, 0);
@@ -472,6 +507,7 @@ namespace Terrain {
             iTreeActor.render(&renderDevice);
             iPalmActor.render(&renderDevice);
             iRockActor.render(&renderDevice);
+            iBushActor.render(&renderDevice);
 
             if (renderGrass) {
                 updateGrass(iGrassActor, map, camera);
@@ -482,6 +518,7 @@ namespace Terrain {
             if (renderGrass) {
                 iGrassActor.render(&renderDevice);
             }
+            
             iPineLeavesActor.render(&renderDevice);
             iTreeLeavesActor.render(&renderDevice);
             iPalmLeavesActor.render(&renderDevice);
@@ -534,7 +571,7 @@ namespace Terrain {
                 heightMapConfig = {.width = 1024 / 1, .height = 1024 / 1,
                     .mapHeight = 400, .noiseConfig = noiseConfig};
                 map.generateHeightMap(heightMapConfig);
-                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor);
+                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
                 iPineActor.init(&PineMesh);
                 iPineLeavesActor.init(&PineLeavesMesh);
                 iTreeActor.init(&TreeMesh);
@@ -542,11 +579,12 @@ namespace Terrain {
                 iPalmActor.init(&PalmMesh);
                 iPalmLeavesActor.init(&PalmLeavesMesh);
                 iRockActor.init(&RockMesh);
+                iBushActor.init(&BushMesh);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F5)) {
                 window.keyboard()->keyState(Keyboard::KEY_F5, Keyboard::KEY_RELEASED);
                 map.updateHeights();
-                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor);
+                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
                 iPineActor.init(&PineMesh);
                 iPineLeavesActor.init(&PineLeavesMesh);
                 iTreeActor.init(&TreeMesh);
@@ -554,6 +592,7 @@ namespace Terrain {
                 iPalmActor.init(&PalmMesh);
                 iPalmLeavesActor.init(&PalmLeavesMesh);
                 iRockActor.init(&RockMesh);
+                iBushActor.init(&BushMesh);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F6)) {
                 window.keyboard()->keyState(Keyboard::KEY_F6, Keyboard::KEY_RELEASED);
@@ -572,6 +611,7 @@ namespace Terrain {
                 iPalmActor.clearInstances();
                 iPalmLeavesActor.clearInstances();
                 iRockActor.clearInstances();
+                iBushActor.clearInstances();
                 iPineActor.init(&PineMesh);
                 iPineLeavesActor.init(&PineLeavesMesh);
                 iTreeActor.init(&TreeMesh);
@@ -579,6 +619,7 @@ namespace Terrain {
                 iPalmActor.init(&PalmMesh);
                 iPalmLeavesActor.init(&PalmLeavesMesh);
                 iRockActor.init(&RockMesh);
+                iBushActor.init(&BushMesh);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F9)) {
                 window.keyboard()->keyState(Keyboard::KEY_F9, Keyboard::KEY_RELEASED);
@@ -586,9 +627,9 @@ namespace Terrain {
             }
             if (false && window.keyboard()->keyPressed(Keyboard::KEY_F10)) {
                 window.keyboard()->keyState(Keyboard::KEY_F10, Keyboard::KEY_RELEASED);
-                loadNewDekoObjects(generateNew, PineMesh, PineLeavesMesh, PalmMesh, PalmLeavesMesh, TreeMesh, TreeLeavesMesh, GrassMesh, RockMesh);
+                loadNewDekoObjects(generateNew, PineMesh, PineLeavesMesh, PalmMesh, PalmLeavesMesh, TreeMesh, TreeLeavesMesh, GrassMesh, RockMesh, BushMesh);
 
-                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor);
+                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
                 iPineActor.init(&PineMesh);
                 iPineLeavesActor.init(&PineLeavesMesh);
                 iTreeActor.init(&TreeMesh);
@@ -596,6 +637,7 @@ namespace Terrain {
                 iPalmActor.init(&PalmMesh);
                 iPalmLeavesActor.init(&PalmLeavesMesh);
                 iRockActor.init(&RockMesh);
+                iBushActor.init(&BushMesh);
             }
 
             //FPS counter
