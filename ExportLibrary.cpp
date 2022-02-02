@@ -1,6 +1,7 @@
 #include "CForge/AssetIO/File.h"
 #ifdef WIN32
 #include <filesystem>
+using namespace std;
 #else
 #include <experimental/filesystem>
 using namespace std::experimental;

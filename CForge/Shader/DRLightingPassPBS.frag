@@ -135,7 +135,7 @@ float shadowCalculationDirectionalLight(vec3 FragPosWorldSpace, vec3 Normal, vec
 		Rval = (CurrentDepth - bias > ClosestDepth) ? 1.0 : 0.0;
 		#endif
 	}
-	return Rval;
+	return 0.0f;
 }//shadowCalculationDirectionalLight
 #endif
 

@@ -23,6 +23,7 @@ namespace Terrain {
 
         static void generateTrees(TreeType treeType, int numberTrees, string exportPath);
 
+
     private:
         struct RotPos {
             Quaternionf rotation;

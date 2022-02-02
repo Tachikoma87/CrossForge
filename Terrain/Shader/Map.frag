@@ -73,7 +73,7 @@ vec3 calculateNormal(vec2 samplePosition) {
     float s10 = getHeight(textureOffset(HeightMap, samplePosition, OFFSET.yx));
     float s12 = getHeight(textureOffset(HeightMap, samplePosition, OFFSET.yz));
 
-    vec3 normal = normalize(vec3(s21 - s01, 2, s12 - s10));
+    vec3 normal = normalize(vec3(s21 - s01, 0.2, s12 - s10));
 
     return normal;
 }
@@ -128,7 +128,7 @@ void main() {
 
 
     gPosition = vec4(FragPosition, 0);
-    gNormal = vec4(normal, 0);
-    gAlbedoSpec = vec4(color, 0);
+    gNormal = vec4(normal, 0.5);
+    gAlbedoSpec = vec4(color, 0.04);
     // gAlbedoSpec = vec4(0.5, 0.5, 0.5, 0);
 }
