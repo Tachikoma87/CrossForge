@@ -62,7 +62,7 @@ namespace Terrain {
 
     void TerrainMap::heightMapFromTexture(GLTexture2D *texture, float mapHeight) {
         mHeightMap.setTexture(texture);
-        mHeightMap.setConfig({.width = 2048, .height = 2048, .mapHeight = mapHeight, .noiseConfig = {0, 0, 0, 0, 0}});
+        mHeightMap.setConfig({.width = 2048/2, .height = 2048/2, .mapHeight = mapHeight, .noiseConfig = {0, 0, 0, 0, 0}});
     }
 
     void TerrainMap::render(RenderDevice *renderDevice, Terrain::ClipMap::TileVariant variant) {
