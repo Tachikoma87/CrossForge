@@ -29,18 +29,19 @@ namespace Terrain {
         glBindTexture(target, textureHandle);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(target, 0, internalFormat, config.width, config.height, 0, format, dataType, NULL);
+        glTexImage2D(target, 0, internalFormat, config.width, config.height, 0, format, dataType, NULL); 
 
         // generate map from noise
         mHeightMapShader->bind();
         glBindImageTexture(0, textureHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, internalFormat);
         bindNoiseData(config.noiseConfig);
+
         glDispatchCompute(config.width, config.height, 1);
+        // wait for compute shader to finish
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 
         mTexture = STextureManager::fromHandle(textureHandle);
-
         erode(300);
-
         delete mHeights;
         mHeights = new GLfloat[config.width * config.height];
         glGetTexImage(target, 0, format, dataType, mHeights);
@@ -132,7 +133,10 @@ namespace Terrain {
         glUniform2iv(mErosionShader->uniformLocation("BrushOffsets"), brushOffsets.size(), brushOffsets.data());
 
         glBindImageTexture(0, mTexture->handle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RED);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
         glDispatchCompute(count, 1, 1);
+        // wait for compute shader to finish
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
     }
 
     float HeightMap::getHeightAt(float x, float y) {
