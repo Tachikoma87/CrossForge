@@ -1,6 +1,8 @@
 #version 330 core 
 
-layout(location = 0) out vec4 FragmentColor;
+layout(location = 0) out vec4 gPosition;
+layout(location = 1) out vec4 gNormal;
+layout(location = 2) out vec4 gAlbedoSpec;
 
 layout (std140) uniform MaterialData{
 	vec4 Color;
@@ -20,5 +22,8 @@ in vec3 test;
 
 void main(){
 	vec2 scaledUV = UV * 8;
-	FragmentColor = texture(TexAlbedo, scaledUV);
+	gPosition = vec4(Pos, 0.0); //texture(TexAlbedo, UV);
+	gNormal = vec4(N, 0.0);
+	gAlbedoSpec = vec4(texture(TexAlbedo, scaledUV).rgb, 0.0);
+	
 }
