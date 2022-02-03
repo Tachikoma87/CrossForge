@@ -25,9 +25,8 @@ out vec3 CameraPos;
 
 
 void main(){
-	mat4 m = mat4(vec4(1, 0, 0, 0), vec4(0, 1, 0, 0), vec4(0, 0, 1, 0), vec4(0, 0, 0, 1));
-
-	m = instanceMatrix;
+	
+	mat4 m = instanceMatrix;
 
 	// Normal, Tangent, BiTangent, Position, CameraPosition in WorldSpace
 	N = normalize(mat3(m) * Normal);

@@ -107,9 +107,7 @@ out vec3 worldSpacePos;
 
 
 void main(){
-	mat4 m = mat4(vec4(1, 0, 0, 0), vec4(0, 1, 0, 0), vec4(0, 0, 1, 0), vec4(0, 0, 0, 1));
-
-	m = instanceMatrix;
+	mat4 m = instanceMatrix;
 
 	vec3 windPos = (m * vec4(Position, 1)).xyz;
 	float noiseValue = cnoise((vec3(windPos) + vec3(1, 0, 0) * time) / 10);
