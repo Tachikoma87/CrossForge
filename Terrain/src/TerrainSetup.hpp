@@ -54,20 +54,21 @@ namespace Terrain {
 
         camera->init(Vector3f(.0f, 400.0f, 100.0f), Vector3f::UnitY());
         camera->pitch(GraphicsUtility::degToRad(-15.0f));
-        camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 500.0f);
+        camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 5000.0f);
         renderDevice->activeCamera(camera);
 
-        Vector3f sunPos = Vector3f(0.0f, 1000.0f, -50.0f);
-        sun->init(sunPos, (Vector3f(0.0f, 400.0f, 0.0f) - sunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 10.1f);
+        Vector3f sunPos = Vector3f(400.0f, 400.0f, 400.0f);
+        sun->init(sunPos, (-sunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 7.5f);
         auto projection = GraphicsUtility::perspectiveProjection(winWidth, winHeight, GraphicsUtility::degToRad(45.0f),  1.0f, 1000.0f);
         const uint32_t ShadowMapDim = 512;
         sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(400, 400), 1.0f, 1000.0f);
         renderDevice->addLight(sun);
 
-        Vector3f lightPos = Vector3f(200.0f, 1000.0f, 250.0f);
-        light->init(lightPos, -lightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 8.35f);
+        Vector3f lightPos = Vector3f(-400.0f, 200.0f, -400.0f);
+        light->init(lightPos, -lightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 0.5f);
         renderDevice->addLight(light);
     }
+
 
     void initDebugQuad(ScreenQuad *quad) {
         vector<ShaderCode *> vsSources;
@@ -211,6 +212,7 @@ namespace Terrain {
         float noiseOffset = randomF(-500, 500);
         float noiseScale = 0.01;
 
+
         float sizeScale = 1;
 
         int ammount = 75;
@@ -282,6 +284,7 @@ namespace Terrain {
         }
     }
 
+
     void loadNewDekoObjects(bool generateNew, DekoMesh &PineMesh, DekoMesh &PineLeavesMesh, DekoMesh &PalmMesh, DekoMesh &PalmLeavesMesh, DekoMesh &TreeMesh, DekoMesh &TreeLeavesMesh, DekoMesh &GrassMesh, DekoMesh &RockMesh, DekoMesh& BushMesh) {
         if (generateNew) {
             TreeGenerator::generateTrees(TreeGenerator::Needle, 1, "Assets/needleTree");
@@ -294,7 +297,6 @@ namespace Terrain {
         
         PineMesh.clear();
         PineMesh.load("Assets/needleTree0.obj");
-        PineMesh.computePerVertexNormals();
         PineMesh.getMaterial(0)->TexAlbedo = "Assets/richard/Dark_Bark_baseColor.jpg";
         PineMesh.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
         PineMesh.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
@@ -309,14 +311,12 @@ namespace Terrain {
         PineLeavesMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
 
         PalmMesh.clear();
-        PalmMesh.computePerVertexNormals();
         PalmMesh.load("Assets/palmTree0.obj");
         PalmMesh.getMaterial(0)->TexAlbedo = "Assets/richard/palm_color.jpg";
         PalmMesh.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
         PalmMesh.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
         PalmMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstancePineShader.vert");
         PalmMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceShader.frag");
-
 
         PalmLeavesMesh.clear();
         PalmLeavesMesh.load("Assets/palmTreeLeaves0.obj");
@@ -327,7 +327,6 @@ namespace Terrain {
 
         TreeMesh.clear();
         TreeMesh.load("Assets/tree0.obj");
-        TreeMesh.computePerVertexNormals();
         TreeMesh.getMaterial(0)->TexAlbedo = "Assets/richard/Bark_06_baseColor.jpg";
         TreeMesh.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
         TreeMesh.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
@@ -402,7 +401,6 @@ namespace Terrain {
         map.generateClipMap(clipMapConfig);    
         map.generateHeightMap(heightMapConfig);
 
-
         SceneGraph sceneGraph;
 
         bool generateNew = true;
@@ -427,7 +425,6 @@ namespace Terrain {
         DekoMesh RockMesh;
         InstanceActor iRockActor;
 
-
         loadNewDekoObjects(generateNew, PineMesh, PineLeavesMesh, PalmMesh, PalmLeavesMesh, TreeMesh, TreeLeavesMesh, GrassMesh, RockMesh, BushMesh);
 
         placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
@@ -440,7 +437,6 @@ namespace Terrain {
         iRockActor.init(&RockMesh);
         iGrassActor.init(&GrassMesh);
         iBushActor.init(&BushMesh);
-
         
         //wind
 		Vector3f windVec = Vector3f(1, 0, 0);
@@ -517,17 +513,12 @@ namespace Terrain {
             iRockActor.render(&renderDevice);
             iBushActor.render(&renderDevice);
 
+            glDisable(GL_CULL_FACE);
             if (renderGrass) {
                 updateGrass(iGrassActor, map, camera);
                 iGrassActor.init(&GrassMesh);
-            }
-
-            glDisable(GL_CULL_FACE);
-            if (renderGrass) {
                 iGrassActor.render(&renderDevice);
             }
-
-            
             iPineLeavesActor.render(&renderDevice);
             iTreeLeavesActor.render(&renderDevice);
             iPalmLeavesActor.render(&renderDevice);
