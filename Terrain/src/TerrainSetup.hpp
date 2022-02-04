@@ -10,6 +10,8 @@
 #include "Terrain/src/Map/TerrainMap.h"
 #include "./Decoration/DecoSetup.hpp"
 
+#include "../../Prototypes/Graphics/SkyboxActor.h"
+
 using namespace CForge;
 
 namespace Terrain {
@@ -460,12 +462,27 @@ namespace Terrain {
         ScreenQuad quad;
         initDebugQuad(&quad);
 
+
+        // initialize skybox
+        SkyboxActor Skybox;
+        std::vector<string> BoxTexs;
+        BoxTexs.push_back("Assets/skybox/right.jpg");
+        BoxTexs.push_back("Assets/skybox/left.jpg");
+        BoxTexs.push_back("Assets/skybox/top.jpg");
+        BoxTexs.push_back("Assets/skybox/bottom.jpg");
+        BoxTexs.push_back("Assets/skybox/back.jpg");
+        BoxTexs.push_back("Assets/skybox/front.jpg");
+        Skybox.init(BoxTexs[0], BoxTexs[1], BoxTexs[2], BoxTexs[3], BoxTexs[4], BoxTexs[5]);
+
+
         //fps counter
         int32_t FPSCount = 0;
         clock_t current_ticks, delta_ticks;
         clock_t fps = 60;
 
         uint64_t LastFPS = CoreUtility::timestamp();
+
+        uint32_t ScreenshotNumber = 0;
 
         while (!window.shutdown()) {
             current_ticks = clock(); //for fps counter
@@ -530,7 +547,7 @@ namespace Terrain {
             renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
             renderDevice.activePass(RenderDevice::RENDERPASS_FORWARD);
-
+            renderDevice.requestRendering(&Skybox, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
 
             if (debugTexture) {
                 glActiveTexture(GL_TEXTURE0);
@@ -654,8 +671,14 @@ namespace Terrain {
                 SAssetIO::store("../NormalBuffer.jpg", &Img);
                 renderDevice.gBuffer()->retrieveAlbedoBuffer(&Img);
                 SAssetIO::store("../AlbedoBuffer.jpg", &Img);
+            }
 
+            if (window.keyboard()->keyPressed(Keyboard::KEY_P)) {
+                window.keyboard()->keyState(Keyboard::KEY_P, Keyboard::KEY_RELEASED);
 
+                T2DImage<uint8_t> ColorBufferImg;
+                GraphicsUtility::retrieveFrameBuffer(&ColorBufferImg, nullptr);
+                AssetIO::store("Screenshot_" + std::to_string(ScreenshotNumber++) + ".jpg", &ColorBufferImg);
             }
 
             //FPS counter

@@ -148,6 +148,9 @@ if(WIN32)
 		Terrain/src/Decoration/TreeGenerator.cpp
 		Terrain/src/Decoration/RockGenerator.cpp
 		Terrain/src/Decoration/DecoSetup.cpp
+
+		Prototypes/Graphics/GLCubemap.cpp
+		Prototypes/Graphics/SkyboxActor.cpp
 		)
 endif (WIN32)
 
@@ -165,6 +168,9 @@ if(UNIX)
 		Terrain/src/Decoration/TreeGenerator.cpp
 		Terrain/src/Decoration/RockGenerator.cpp
 		Terrain/src/Decoration/DecoSetup.cpp
+
+		Prototypes/Graphics/GLCubemap.cpp
+		Prototypes/Graphics/SkyboxActor.cpp
 		)
 endif (UNIX)
 
@@ -176,6 +182,14 @@ add_custom_command(
 		COMMAND ${CMAKE_COMMAND} -E copy_directory
 		${CMAKE_SOURCE_DIR}/CForge/Shader
 		${CMAKE_CURRENT_BINARY_DIR}/Shader
+)
+
+#copy prototype shaders
+add_custom_command(
+	TARGET Terrain PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
+	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 
 #Todo: copy on run
