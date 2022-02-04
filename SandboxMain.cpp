@@ -19,6 +19,8 @@
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SocketTestScene.hpp"
+#include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
+#include "Prototypes/TestScenes/SkyboxTestScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -61,9 +63,13 @@ int main(int argc, char* argv[]) {
 		//shadowTest();
 		//vertexColorTestScene();
 		//forestTestScene();
-		skelAnimTestScene();
+		//skelAnimTestScene();
+
 		//imuInputDeviceTestScene();
 		//socketTestScene();
+		//assetGLTFTestScene();
+		skyboxTestScene();
+
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

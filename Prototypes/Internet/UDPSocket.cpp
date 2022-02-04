@@ -1,5 +1,7 @@
 #include "UDPSocket.h"
 #include "../../CForge/Core/CoreUtility.hpp"
+
+#ifdef WIN32
 #include <WinSock2.h>
 
 namespace CForge {
@@ -147,3 +149,44 @@ namespace CForge {
 	}//socketThread
 
 }//name space
+
+#elif defined unix
+
+namespace CForge {
+
+	void UDPSocket::startup(void) {
+
+	}//startup
+
+	void UDPSocket::cleanup(void) {
+
+	}//cleanup
+
+	UDPSocket::UDPSocket(void) {
+
+	}//Constructor
+
+	UDPSocket::~UDPSocket(void) {
+
+	}//Destructor
+
+	void UDPSocket::begin(SocketType Type, uint16_t Port) {
+
+	}//begin
+
+	void UDPSocket::end(void) {
+
+	}//end
+
+	void UDPSocket::sendData(uint8_t* pData, uint32_t DataSize, std::string IP, uint16_t Port) {
+
+	}//sendData
+
+	bool UDPSocket::recvData(uint8_t* pBuffer, uint32_t* pDataSize, std::string* pSender, uint16_t* pPort) {
+		return false;
+	}//recvData
+
+}//name space
+
+
+#endif
