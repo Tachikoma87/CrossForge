@@ -65,9 +65,10 @@ namespace Terrain {
         renderDevice->addLight(sun);
 
         Vector3f lightPos = Vector3f(-400.0f, 200.0f, -400.0f);
-        light->init(lightPos, -lightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 0.5f);
+        light->init(lightPos, -lightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.0f);
         renderDevice->addLight(light);
     }
+
 
 
     void initDebugQuad(ScreenQuad *quad) {
@@ -464,6 +465,8 @@ namespace Terrain {
         clock_t current_ticks, delta_ticks;
         clock_t fps = 60;
 
+        uint64_t LastFPS = CoreUtility::timestamp();
+
         while (!window.shutdown()) {
             current_ticks = clock(); //for fps counter
 
@@ -527,6 +530,7 @@ namespace Terrain {
             renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
             renderDevice.activePass(RenderDevice::RENDERPASS_FORWARD);
+
 
             if (debugTexture) {
                 glActiveTexture(GL_TEXTURE0);
@@ -656,12 +660,20 @@ namespace Terrain {
 
             //FPS counter
             FPSCount++;
-            delta_ticks = clock() - current_ticks;
+
+            if (CoreUtility::timestamp() - LastFPS > 1000) {
+                fps = FPSCount;
+                FPSCount = 0;
+                LastFPS = CoreUtility::timestamp();
+                printf("FPS: %d\n", fps);
+            }
+
+           /* delta_ticks = clock() - current_ticks;
             if (delta_ticks > 0)
                 fps = CLOCKS_PER_SEC / delta_ticks;
             if (FPSCount % 60 == 0) {
                 cout << fps << endl;
-            }
+            }*/
         }
     }
 }
