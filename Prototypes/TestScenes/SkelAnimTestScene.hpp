@@ -178,8 +178,6 @@ namespace CForge {
 		Style.init(&M, &ControllerStyle);
 		M.clear();
 
-
-
 		// build scene graph
 		SceneGraph SG;
 		SGNTransformation RootSGN;
