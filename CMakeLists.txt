@@ -5,14 +5,13 @@ IF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
    MESSAGE(SEND_ERROR "In-source builds are not allowed. Use a different build directory.")
 ENDIF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
+# CrossForge library
+project(crossforge VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 file(MAKE_DIRECTORY "MyAssets")
-
-# CrossForge library
-project(crossforge VERSION 0.1 LANGUAGES CXX)
 
 FIND_PACKAGE(OpenGL REQUIRED)
 FIND_PACKAGE(assimp CONFIG REQUIRED)
@@ -161,8 +160,14 @@ add_executable(CForgeSandbox
 	Prototypes/Internet/UDPSocket.cpp
 
 	Prototypes/Misc/IMUCameraController.cpp
+
+	Prototypes/Assets/GLTFSDKIO.cpp
+
+	Prototypes/Graphics/GLCubemap.cpp
+	Prototypes/Graphics/SkyboxActor.cpp
 	)
 
+#find_library(GLTFSDK_Lib GLTFSDK)
 
 if(WIN32)
 	target_link_libraries(CForgeSandbox 
@@ -170,6 +175,7 @@ if(WIN32)
 	PRIVATE glfw 
 	${OpenCV_LIBS}
 	ws2_32
+#	${GLTFSDK_Lib}
 	)
 endif (WIN32)
 
@@ -204,6 +210,13 @@ add_custom_command(
 	COMMAND ${CMAKE_COMMAND} -E copy_directory 
 	${CMAKE_SOURCE_DIR}/MyAssets
 	${CMAKE_CURRENT_BINARY_DIR}/MyAssets
+)
+
+add_custom_command(
+	TARGET CForgeSandbox PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
+	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 
 project(ExportLibrary)

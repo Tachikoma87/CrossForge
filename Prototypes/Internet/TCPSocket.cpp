@@ -1,5 +1,7 @@
 #include "TCPSocket.h"
 #include "../../CForge/Core/CoreUtility.hpp"
+
+#ifdef WIN32
 #include <WinSock2.h>
 
 namespace CForge {
@@ -195,3 +197,50 @@ namespace CForge {
 	}//socketClientThread
 
 }//name space
+
+#elif defined unix
+namespace CForge {
+	void TCPSocket::startup(void) {
+
+	}//startup
+
+	void TCPSocket::cleanup(void) {
+
+	}//cleanup
+
+	TCPSocket::TCPSocket(void) {
+
+	}//Constructor
+
+	TCPSocket::~TCPSocket(void) {
+
+	}//Destructor
+
+	void TCPSocket::begin(SocketType Type, uint16_t Port) {
+
+	}//begin
+
+	void TCPSocket::end(void) {
+
+	}//end
+
+	void TCPSocket::sendData(uint8_t* pData, uint32_t DataSize, int32_t ConnectionID) {
+
+	}//sendData
+
+	bool TCPSocket::recvData(uint8_t* pBuffer, uint32_t* pDataSize, int32_t ConnectionID) {
+		return false;
+	}//recvData
+
+	bool TCPSocket::connectTo(std::string IP, uint16_t Port) {
+		return false;
+	}//connectTo
+
+	uint32_t TCPSocket::activeConnections(void)const {
+		return m_ActiveConnections.size();
+	}//activeConnections
+}
+
+
+#endif 
+
