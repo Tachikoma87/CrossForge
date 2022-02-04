@@ -16,6 +16,7 @@ namespace Terrain {
             GEOMETRY leavesGeometry;
             
 
+
             switch (treeType) {
                 case Normal:
                     leavesGeometry.uvs.push_back(Vector2f(0, 1));
