@@ -167,15 +167,16 @@ add_executable(CForgeSandbox
 	Prototypes/Graphics/SkyboxActor.cpp
 	)
 
-#find_library(GLTFSDK_Lib GLTFSDK)
 
 if(WIN32)
+	find_library(GLTFSDK_Lib GLTFSDK)
+
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
 	PRIVATE glfw 
 	${OpenCV_LIBS}
 	ws2_32
-#	${GLTFSDK_Lib}
+	${GLTFSDK_Lib}
 	)
 endif (WIN32)
 
