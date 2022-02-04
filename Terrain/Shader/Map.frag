@@ -73,7 +73,7 @@ vec3 calculateNormal(vec2 samplePosition) {
     float s10 = getHeight(textureOffset(HeightMap, samplePosition, OFFSET.yx));
     float s12 = getHeight(textureOffset(HeightMap, samplePosition, OFFSET.yz));
 
-    vec3 normal = normalize(vec3(s01 - s21, 2, s10 - s12));
+    vec3 normal = normalize(vec3(s01 - s21, 1, s10 - s12));
 
     return normal;
 }
