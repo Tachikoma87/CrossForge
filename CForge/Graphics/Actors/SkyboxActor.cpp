@@ -1,10 +1,15 @@
-#include "../../CForge/Graphics/RenderDevice.h"
-#include "../../CForge/Core/SLogger.h"
-#include "SkyboxActor.h"
+//#include "../../CForge/AssetIO/SAssetIO.h"
+//#include "../../CForge/Graphics/RenderDevice.h"
+//#include "../../CForge/Core/SLogger.h"
 
+#include "../../AssetIO/SAssetIO.h"
+#include "../RenderDevice.h"
+#include "../../Core/SLogger.h"
+
+#include "SkyboxActor.h"
 #include <glad/glad.h>
 
-#include "../../CForge/AssetIO/SAssetIO.h"
+
 
 using namespace Eigen;
 
