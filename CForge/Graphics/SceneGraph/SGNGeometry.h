@@ -28,7 +28,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT SGNGeometry : public ISceneGraphNode {
+	class CFORGE_API SGNGeometry : public ISceneGraphNode {
 	public:
 		SGNGeometry(void);
 		~SGNGeometry(void);

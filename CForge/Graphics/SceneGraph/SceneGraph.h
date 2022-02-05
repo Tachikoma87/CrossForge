@@ -28,7 +28,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT SceneGraph: public CForgeObject {
+	class CFORGE_API SceneGraph: public CForgeObject {
 	public:
 		SceneGraph(void);
 		~SceneGraph(void);

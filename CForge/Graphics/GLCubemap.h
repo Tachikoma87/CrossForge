@@ -22,7 +22,7 @@
 #include "../AssetIO/T2DImage.hpp"
 
 namespace CForge {
-	class CFORGE_IXPORT GLCubemap: public CForgeObject {
+	class CFORGE_API GLCubemap: public CForgeObject {
 	public:
 		GLCubemap(void);
 		~GLCubemap(void);

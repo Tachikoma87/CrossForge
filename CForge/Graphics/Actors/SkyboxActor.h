@@ -23,7 +23,7 @@
 #include "../UniformBufferObjects/UBOColorAdjustment.h"
 
 namespace CForge {
-	class CFORGE_IXPORT SkyboxActor : public IRenderableActor {
+	class CFORGE_API SkyboxActor : public IRenderableActor {
 	public:
 		SkyboxActor(void);
 		~SkyboxActor(void);

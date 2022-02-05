@@ -29,7 +29,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT ISceneGraphNode: public CForgeObject {
+	class CFORGE_API ISceneGraphNode: public CForgeObject {
 	public:
 
 		virtual void update(float FPSScale) = 0;

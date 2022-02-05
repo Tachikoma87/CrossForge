@@ -27,7 +27,7 @@ namespace CForge {
 	*
 	* \todo Full documentation
 	*/
-	struct CFORGE_IXPORT VirtualCameraMsg {
+	struct CFORGE_API VirtualCameraMsg {
 		enum MsgCode: int8_t {
 			UNKNOWN = -1,
 			POSITION_CHANGED,
@@ -53,7 +53,7 @@ namespace CForge {
 	*
 	* \todo Full documentation
 	*/
-	class CFORGE_IXPORT VirtualCamera:public CForgeObject, public ITCaller<VirtualCameraMsg> {
+	class CFORGE_API VirtualCamera:public CForgeObject, public ITCaller<VirtualCameraMsg> {
 	public:
 		VirtualCamera(void);
 		~VirtualCamera(void);
