@@ -152,19 +152,20 @@ add_executable(CForgeSandbox
 	"thirdparty/glad/src/glad.c"
 
 	CForge/Core/SGPIO.cpp
-	Prototypes/I2C.cpp 
-	Prototypes/MPU6050.cpp
-	Prototypes/RotaryEncoder.cpp
-	Prototypes/PhotoFinish.cpp
-	Prototypes/StripPhoto.cpp 
-	Prototypes/StripPhotoCamera.cpp
+	Prototypes/Hardware/I2C.cpp 
+	Prototypes/Hardware/MPU6050.cpp
+	Prototypes/Hardware/RotaryEncoder.cpp
+
+	Prototypes/Camera/PhotoFinish.cpp
+	Prototypes/Camera/StripPhoto.cpp 
+	Prototypes/Camera/StripPhotoCamera.cpp
 
 	Prototypes/Internet/TCPSocket.cpp 
 	Prototypes/Internet/UDPSocket.cpp
 
 	Prototypes/Misc/IMUCameraController.cpp
 
-	Prototypes/Assets/GLTFSDKIO.cpp
+	Prototypes/Assets/GLTFIO.cpp
 	)
 
 

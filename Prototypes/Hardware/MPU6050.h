@@ -17,7 +17,7 @@
 \****************************************************************************/
 
 #include <inttypes.h>
-#include "../CForge/Core/SGPIO.h"
+#include "../../CForge/Core/SGPIO.h"
 #include "I2C.h"
 
 namespace CForge {
