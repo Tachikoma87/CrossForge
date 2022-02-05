@@ -59,13 +59,13 @@ int main(int argc, char* argv[]) {
 		//exampleMorphTargetAnimation(); 
 		//shadowTest();
 		//vertexColorTestScene();
-		//forestTestScene();
+		forestTestScene();
 		//skelAnimTestScene();
 
 		//imuInputDeviceTestScene();
 		//socketTestScene();
 		//assetGLTFTestScene();
-		skyboxTestScene();
+		//skyboxTestScene();
 
 	}
 	catch (const CrossForgeException & e) {
