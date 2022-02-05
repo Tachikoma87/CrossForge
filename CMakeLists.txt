@@ -55,7 +55,7 @@ add_library(crossforge SHARED
 	# Graphics related
 	CForge/Graphics/GBuffer.cpp 
 	CForge/Graphics/GLBuffer.cpp 
-	CForge/Graphics/GLCubeMap.cpp
+	CForge/Graphics/GLCubemap.cpp
 	CForge/Graphics/GLTexture2D.cpp 
 	CForge/Graphics/GLVertexArray.cpp 
 	CForge/Graphics/GLWindow.cpp 
@@ -69,7 +69,7 @@ add_library(crossforge SHARED
 	# Actor related
 	CForge/Graphics/Actors/IRenderableActor.cpp 
 	CForge/Graphics/Actors/RenderGroupUtility.cpp 
-	CForge/Graphics/Actors/SkyBoxActor.cpp
+	CForge/Graphics/Actors/SkyboxActor.cpp
 	CForge/Graphics/Actors/VertexUtility.cpp 
 	CForge/Graphics/Actors/ScreenQuad.cpp 
 	CForge/Graphics/Actors/StaticActor.cpp 
