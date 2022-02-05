@@ -29,7 +29,6 @@ FIND_PACKAGE(libigl CONFIG REQUIRED)
 
 include_directories(
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
-	"${CMAKE_SOURCE_DIR}/thirdparty/eigen"
 	"${OpenCV_INCLUDE_DIRS}"
 )
 
@@ -166,22 +165,15 @@ add_executable(CForgeSandbox
 	Prototypes/Misc/IMUCameraController.cpp
 
 	Prototypes/Assets/GLTFSDKIO.cpp
-
-#	Prototypes/Graphics/GLCubemap.cpp
-#	Prototypes/Graphics/SkyboxActor.cpp
-#	"Prototypes/Graphics/UBOColorAdjustment.cpp"
 	)
 
 
 if(WIN32)
-	find_library(GLTFSDK_Lib GLTFSDK)
-
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
 	PRIVATE glfw 
 	${OpenCV_LIBS}
 	ws2_32
-	${GLTFSDK_Lib}
 	)
 endif (WIN32)
 

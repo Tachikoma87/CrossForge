@@ -18,7 +18,7 @@
 #ifndef __CFORGE_UBOBONEDATA_H__
 #define __CFORGE_UBOBONEDATA_H__
 
-#include "../../CForge/Graphics/GLBuffer.h"
+#include "../GLBuffer.h"
 
 namespace CForge {
 	/**
