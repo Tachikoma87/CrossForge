@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): GLTFSDKIO.h and GLTFSDKIO.cpp                                              *
+* File(s): StripPhoto.h and StripPhoto.cpp                                  *
 *                                                                           *
-* Content: Import/Export class for glTF format using ms-gltf sdk   *
+* Content:    *
 *                                                   *
 *                                                                           *
 *                                                                           *
@@ -15,29 +15,39 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_GLTFSDKIO_H__
-#define __CFORGE_GLTFSDKIO_H__
-//
-//#ifndef __unix__
-//#include "../../CForge/AssetIO/I3DMeshIO.h"
-//
-//namespace CForge {
-//	class GLTFSDKIO /* : public I3DMeshIO*/ {
-//	public:
-//		GLTFSDKIO(void);
-//		~GLTFSDKIO(void);
-//
-//		void load(const std::string Filepath, T3DMesh<float>* pMesh);
-//		void store(const std::string Filepath, const T3DMesh<float>* pMesh);
-//
-//		void release(void);
-//		bool accepted(const std::string Filepath, I3DMeshIO::Operation Op);
-//
-//	protected:
-//
-//	};//GLTFSDKIO
-//
-//}//name space
 
-//#endif
-#endif 
+#ifndef __CFORGE_STRIPPHOTOCAMERA_H__
+#define __CFORGE_STRIPPHOTOCAMERA_H__
+
+#include <opencv2/opencv.hpp>
+#include <Eigen/Eigen>
+#include "../../CForge/Core/CrossForgeException.h"
+#include "StripPhoto.h"
+
+namespace CForge {
+
+	class StripPhotoCamera {
+	public:
+		StripPhotoCamera(void);
+		~StripPhotoCamera(void);
+
+		void init(void);
+		void clear(void);
+
+		void update(void);
+		cv::Mat lastFrame(void);
+
+	protected:
+		StripPhoto m_StripPhoto;
+		cv::VideoCapture m_Camera;
+		cv::Mat m_ImageFrame;
+
+		cv::Mat m_LastFrame;
+
+		uint16_t m_FPSCounter;
+		uint64_t m_LastFPSPrint;
+	};//StripPhotoCamera
+
+}//name-space
+
+#endif // Header guards
