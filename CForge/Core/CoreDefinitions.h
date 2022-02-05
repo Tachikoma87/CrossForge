@@ -21,9 +21,9 @@
 #include <string>
 
 #ifdef CFORGE_EXPORTS
-#define CFORGE_IXPORT __declspec(dllexport)
+#define CFORGE_API __declspec(dllexport)
 #elif defined __WINDLL
-#define CFORGE_IXPORT__declspec(dllimport)
+#define CFORGE_API __declspec(dllimport)
 #else
-#define CFORGE_IXPORT
+#define CFORGE_API
 #endif

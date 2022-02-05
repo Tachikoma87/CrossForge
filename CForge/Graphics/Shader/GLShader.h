@@ -28,10 +28,10 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT GLShader: public CForgeObject {
+	class CFORGE_API GLShader: public CForgeObject {
 	public:
 		enum Attribute: int8_t {
-			ATTRIB_UNKNOWN = 0,
+			ATTRIB_UNKNOWN = -1,
 			ATTRIB_POSITION = 0,
 			ATTRIB_NORMAL,
 			ATTRIB_TANGENT,
@@ -57,6 +57,8 @@ namespace CForge {
 			DEFAULTUBO_MATERIALDATA,
 			DEFAULTUBO_MODELDATA,
 			DEFAULTUBO_BONEDATA,
+			DEFAULTUBO_MORPHTARGETDATA,
+			DEFAULTUBO_COLORADJUSTMENT,
 			DEFAULTUBO_COUNT,
 		};
 
@@ -69,6 +71,7 @@ namespace CForge {
 			DEFAULTTEX_SHADOW1,
 			DEFAULTTEX_SHADOW2,
 			DEFAULTTEX_SHADOW3,
+			DEFAULTTEX_MORPHTARGETDATA,
 			DEFAULTTEX_COUNT,
 		};
 
@@ -79,6 +82,8 @@ namespace CForge {
 		const std::string UBOMaterialDataName = "MaterialData";
 		const std::string UBOModelDataName = "ModelData";
 		const std::string UBOBoneDataName = "BoneData";
+		const std::string UBOMorphTargetDataName = "MorphTargetData";
+		const std::string UBOColorAdjustmentDataName = "ColorAdjustmentData";
 
 		const std::string TextureAlbedoName = "TexAlbedo";
 		const std::string TextureNormalName = "TexNormal";
@@ -87,6 +92,7 @@ namespace CForge {
 		const std::string TextureShadow1Name = "TexSHadow[1]";
 		const std::string TextureShadow2Name = "TexShadow[2]";
 		const std::string TextureShadow3Name = "TexShadow[3]";
+		const std::string TextureMorphTargetDataName = "MorphTargetDataBuffer";
 
 		static uint32_t attribArrayIndex(Attribute Attrib);
 
