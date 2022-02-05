@@ -65,6 +65,7 @@ namespace CForge {
 	}//Destructor
 
 	void SkyboxActor::init(std::string Right, std::string Left, std::string Top, std::string Bottom, std::string Back, std::string Front) {
+        clear();
 
         // create skybox data (unit cube)
         T3DMesh<float> M;

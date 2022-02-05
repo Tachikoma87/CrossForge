@@ -12,6 +12,7 @@
 #include "Examples/exampleMinimumGraphicsSetup.hpp"
 #include "Examples/exampleSkeletalAnimation.hpp"
 #include "Examples/exampleMorphTargetAnimation.hpp"
+#include "Examples/exampleSkybox.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
@@ -19,8 +20,7 @@
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SocketTestScene.hpp"
-#include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
-#include "Prototypes/TestScenes/SkyboxTestScene.hpp"
+
 
 using namespace CForge;
 using namespace Eigen;
@@ -57,9 +57,11 @@ int main(int argc, char* argv[]) {
 		//exampleMinimumGraphicsSetup();
 		//exampleSkeletalAnimation();
 		//exampleMorphTargetAnimation(); 
+		exampleSkybox();
+		
 		//shadowTest();
 		//vertexColorTestScene();
-		forestTestScene();
+		//forestTestScene();
 		//skelAnimTestScene();
 
 		//imuInputDeviceTestScene();

@@ -155,7 +155,7 @@ namespace CForge {
 
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			SG.update(FPS/60.0f);
+			SG.update(60.0f/FPS);
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
 
