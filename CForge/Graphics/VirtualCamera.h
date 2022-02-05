@@ -27,7 +27,7 @@ namespace CForge {
 	*
 	* \todo Full documentation
 	*/
-	struct CFORGE_IXPORT VirtualCameraMsg {
+	struct CFORGE_API VirtualCameraMsg {
 		enum MsgCode: int8_t {
 			UNKNOWN = -1,
 			POSITION_CHANGED,
@@ -53,7 +53,7 @@ namespace CForge {
 	*
 	* \todo Full documentation
 	*/
-	class CFORGE_IXPORT VirtualCamera:public CForgeObject, public ITCaller<VirtualCameraMsg> {
+	class CFORGE_API VirtualCamera:public CForgeObject, public ITCaller<VirtualCameraMsg> {
 	public:
 		VirtualCamera(void);
 		~VirtualCamera(void);
@@ -61,6 +61,7 @@ namespace CForge {
 		void init(Eigen::Vector3f Position, Eigen::Vector3f Up);
 		void clear(void);
 		void resetToOrigin(void);
+		void lookAt(const Eigen::Vector3f Position, const Eigen::Vector3f Target, const Eigen::Vector3f Up = Eigen::Vector3f::UnitY());
 
 		Eigen::Matrix4f cameraMatrix(void)const;
 		Eigen::Matrix4f projectionMatrix(void)const;

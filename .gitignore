@@ -12,7 +12,6 @@ MyAssets/
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch
@@ -37,3 +36,6 @@ MyAssets/
 *.exe
 *.out
 *.app
+
+# Visual Studio files
+CMakeSettings.json

@@ -21,7 +21,7 @@
 #include "../Core/CForgeObject.h"
 
 namespace CForge {
-	class CFORGE_IXPORT Mouse: public CForgeObject {
+	class CFORGE_API Mouse: public CForgeObject {
 	public:
 		enum Button : int8_t {
 			BTN_UNKNOWN = -1,

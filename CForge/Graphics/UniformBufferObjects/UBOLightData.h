@@ -27,7 +27,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT UBOLightData: CForgeObject {
+	class CFORGE_API UBOLightData: CForgeObject {
 	public:
 		UBOLightData(void);
 		~UBOLightData(void);
