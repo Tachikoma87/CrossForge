@@ -2,7 +2,7 @@
 #include "GLCubemap.h"
 
 namespace CForge {
-	GLCubemap::GLCubemap(void) {
+	GLCubemap::GLCubemap(void): CForgeObject("GLCubemap") {
 		m_TexObj = GL_INVALID_INDEX;
 	}//Constructor
 

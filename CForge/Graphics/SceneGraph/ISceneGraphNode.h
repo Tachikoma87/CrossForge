@@ -33,7 +33,7 @@ namespace CForge {
 	public:
 
 		virtual void update(float FPSScale) = 0;
-		virtual void render(RenderDevice *pRDev, Eigen::Vector3f Position, Eigen::Quaternionf Rotation, Eigen::Vector3f Scale) = 0;
+		virtual void render(RenderDevice *pRDev, const Eigen::Vector3f Position, const Eigen::Quaternionf Rotation, const Eigen::Vector3f Scale) = 0;
 
 		// builds transformation recursively the tree up to root
 		virtual void buildTansformation(Eigen::Vector3f* pPosition, Eigen::Quaternionf* pRotation, Eigen::Vector3f* pScale) = 0;

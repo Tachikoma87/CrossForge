@@ -39,10 +39,8 @@ namespace CForge {
 		}break;
 		}//switch[usage]
 
-		
-
 		m_BufferType = Type;
-
+		
 		if (BufferSize != 0) bufferData(pBufferData, BufferSize);
 
 		bind();
@@ -90,8 +88,6 @@ namespace CForge {
 	}//size
 
 	void GLBuffer::bindBufferBase(uint32_t BindingPoint) {
-		bind();
-
 		glBindBufferBase(m_GLTarget, BindingPoint, m_GLID);
 	}//bindBufferBase
 

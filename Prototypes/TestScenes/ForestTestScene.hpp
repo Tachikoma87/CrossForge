@@ -40,6 +40,8 @@
 using namespace Eigen;
 using namespace std;
 
+
+
 namespace CForge {
 
 	void forestTestScene(void) {
@@ -145,7 +147,7 @@ namespace CForge {
 		SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
 
 		// generate a forest
-		const uint32_t TreeCount = 4000;
+		const uint32_t TreeCount = 1000;
 		SGNGeometry* pTreeNodes = new SGNGeometry[TreeCount];
 		SGNTransformation* pTreeTransNodes = new SGNTransformation[TreeCount];
 
@@ -164,6 +166,7 @@ namespace CForge {
 
 			Quaternionf RotationY;
 			RotationY = AngleAxisf(GraphicsUtility::degToRad(CoreUtility::randRange(0.0f, 360.0f)), Vector3f::UnitY());
+
 
 			pTreeTransNodes[i].init(&RootSGN);
 			pTreeTransNodes[i].translation(Pos);
@@ -198,11 +201,9 @@ namespace CForge {
 		// start main loop
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			SG.update(FPS / 60.0f);
-
+			SG.update(60.0f / FPS);
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
-
 
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
 			SG.render(&RDev);
