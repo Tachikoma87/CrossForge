@@ -31,7 +31,7 @@ namespace CForge {
 	* \todo Do full documentation
 	* 
 	*/
-	class CFORGE_IXPORT CForgeObject {
+	class CFORGE_API CForgeObject {
 	public:
 		static const uint32_t INVALID_ID = 0xFFFFFFFF;
 

@@ -92,6 +92,14 @@ namespace CForge {
 						if (pMesh->boneCount() > 0) {
 							ConfigOptions |= ShaderCode::CONF_SKELETALANIMATION;
 						}
+						// requires morph target animation?
+						if (pMesh->morphTargetCount() > 0) {
+							ConfigOptions |= ShaderCode::CONF_MORPHTARGETANIMATION;
+						}
+						// requires per vertex colors
+						if (pMesh->colorCount() > 0) {
+							ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
+						}
 
 						ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
 
@@ -101,11 +109,22 @@ namespace CForge {
 							pC->config(&SKConfig);
 						}
 
+						if (pMesh->morphTargetCount() > 0) {
+							ShaderCode::MorphTargetAnimationConfig MTConfig;
+
+							pC->config(&MTConfig);
+						}
+
 						VSSources.push_back(pC);
 					}
 
 					for (auto k : pMat->FragmentShaderSources) {
 						uint8_t ConfigOptions = 0;
+
+						if (pMesh->colorCount() > 0) {
+							ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
+						}
+
 						ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
 						FSSources.push_back(pC);
 					}

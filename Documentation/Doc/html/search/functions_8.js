@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['_7ecrossforgeexception_51',['~CrossForgeException',['../class_c_forge_1_1_cross_forge_exception.html#a218e9c249ac7f0507b366fb67cc79c7c',1,'CForge::CrossForgeException']]],
-  ['_7escrossforgedevice_52',['~SCrossForgeDevice',['../class_c_forge_1_1_s_cross_forge_device.html#ad0ab7f50b6b2845fe32b3b4e3b81b935',1,'CForge::SCrossForgeDevice']]],
-  ['_7eslogger_53',['~SLogger',['../class_c_forge_1_1_s_logger.html#ae177298fc1dcbd903d3f62d3a4278d7e',1,'CForge::SLogger']]]
+  ['read_0',['read',['../class_c_forge_1_1_file.html#ad6649c7c00bfe7e165bbc9a576540018',1,'CForge::File']]],
+  ['release_1',['release',['../class_c_forge_1_1_s_cross_forge_device.html#aebf36323a6dfbbfa8019953f80e4a448',1,'CForge::SCrossForgeDevice::release()'],['../class_c_forge_1_1_s_logger.html#afab237ce1472a831b41ecdc7bfb0c585',1,'CForge::SLogger::release()']]],
+  ['rewind_2',['rewind',['../class_c_forge_1_1_file.html#a19b4e9d80640c9ac378ca6db18e9f44c',1,'CForge::File']]]
 ];
