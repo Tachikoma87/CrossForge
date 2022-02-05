@@ -28,7 +28,7 @@ namespace CForge {
 	* \todo Do full documentation.
 	*
 	*/
-	class CFORGE_IXPORT VertexUtility: public CForgeObject {
+	class CFORGE_API VertexUtility: public CForgeObject {
 	public:
 		enum VertexProperty:uint16_t {
 			VPROP_POSITION			= 0x0001,

@@ -27,7 +27,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT UBOMaterialData: public CForgeObject {
+	class CFORGE_API UBOMaterialData: public CForgeObject {
 	public:
 		UBOMaterialData(void);
 		~UBOMaterialData(void);

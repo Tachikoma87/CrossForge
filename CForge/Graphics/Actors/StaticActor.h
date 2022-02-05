@@ -33,7 +33,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation
 	*/
-	class CFORGE_IXPORT StaticActor: public IRenderableActor {
+	class CFORGE_API StaticActor: public IRenderableActor {
 	public:
 		StaticActor(void);
 		~StaticActor(void);

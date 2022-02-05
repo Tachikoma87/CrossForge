@@ -45,7 +45,7 @@ namespace CForge {
 	* \todo Write appropriate clear() function
 	* \todo Full documentation
 	*/
-	class CFORGE_IXPORT RenderDevice: public CForgeObject, public ITListener<VirtualCameraMsg> {
+	class CFORGE_API RenderDevice: public CForgeObject, public ITListener<VirtualCameraMsg> {
 	public:
 		enum RenderPass: int8_t {
 			RENDERPASS_UNKNOWN = -1,
@@ -55,7 +55,7 @@ namespace CForge {
 			RENDERPASS_FORWARD,		///< forward rendering draw pass
 		};
 
-		struct CFORGE_IXPORT RenderDeviceConfig {
+		struct CFORGE_API RenderDeviceConfig {
 			uint32_t DirectionalLightsCount;
 			uint32_t PointLightsCount;
 			uint32_t SpotLightsCount;

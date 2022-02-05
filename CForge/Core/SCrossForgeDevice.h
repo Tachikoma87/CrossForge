@@ -36,7 +36,7 @@ namespace CForge {
 	* \ingroup Core
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT SCrossForgeDevice {
+	class CFORGE_API SCrossForgeDevice {
 		friend class CForgeObject;
 	public:
 

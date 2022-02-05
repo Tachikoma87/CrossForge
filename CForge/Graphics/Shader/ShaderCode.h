@@ -22,7 +22,7 @@
 
 
 namespace CForge {
-	class CFORGE_IXPORT ShaderCode: public CForgeObject {
+	class CFORGE_API ShaderCode: public CForgeObject {
 	public:
 		
 		struct LightConfig {

@@ -34,7 +34,7 @@ namespace CForge {
 	* \todo Do full documentation
 	* \todo Add timestamp method
 	*/
-	class CFORGE_IXPORT CoreUtility {
+	class CFORGE_API CoreUtility {
 	public:
 		CoreUtility(void) {
 

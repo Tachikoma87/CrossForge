@@ -21,7 +21,7 @@
 #include "../GLBuffer.h"
 
 namespace CForge {
-	class CFORGE_IXPORT UBOColorAdjustment: public CForgeObject {
+	class CFORGE_API UBOColorAdjustment: public CForgeObject {
 	public:
 		UBOColorAdjustment(void);
 		~UBOColorAdjustment(void);

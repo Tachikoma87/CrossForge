@@ -28,7 +28,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT GLShader: public CForgeObject {
+	class CFORGE_API GLShader: public CForgeObject {
 	public:
 		enum Attribute: int8_t {
 			ATTRIB_UNKNOWN = -1,
