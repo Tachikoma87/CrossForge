@@ -31,7 +31,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT IRenderableActor: public CForgeObject {
+	class CFORGE_API IRenderableActor: public CForgeObject {
 	public:
 		enum ActorType: int32_t {
 			ATYPE_UNKNOWN = -1,

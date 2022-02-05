@@ -22,7 +22,7 @@
 #include "../../AssetIO/T3DMesh.hpp"
 
 namespace CForge {
-	class CFORGE_IXPORT MorphTargetModelBuilder: public CForgeObject {
+	class CFORGE_API MorphTargetModelBuilder: public CForgeObject {
 	public: 
 		MorphTargetModelBuilder(void);
 		~MorphTargetModelBuilder(void);

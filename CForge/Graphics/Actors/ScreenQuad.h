@@ -30,7 +30,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation
 	*/
-	class CFORGE_IXPORT ScreenQuad : public IRenderableActor {
+	class CFORGE_API ScreenQuad : public IRenderableActor {
 	public:
 		ScreenQuad(void);
 		~ScreenQuad(void);

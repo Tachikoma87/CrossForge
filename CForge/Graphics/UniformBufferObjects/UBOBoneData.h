@@ -26,7 +26,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT UBOBoneData : public CForgeObject {
+	class CFORGE_API UBOBoneData : public CForgeObject {
 	public:
 		UBOBoneData(void);
 		~UBOBoneData(void);

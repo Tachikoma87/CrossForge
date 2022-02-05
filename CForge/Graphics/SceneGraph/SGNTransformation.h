@@ -26,7 +26,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT SGNTransformation : public ISceneGraphNode {
+	class CFORGE_API SGNTransformation : public ISceneGraphNode {
 	public:
 		SGNTransformation(void);
 		~SGNTransformation(void);

@@ -31,7 +31,7 @@ namespace CForge {
 	* \todo Think about better names for shutdown and closeWindow
 	* \todo Implement callback system for window changes
 	*/
-	class CFORGE_IXPORT GLWindow: public CForgeObject {
+	class CFORGE_API GLWindow: public CForgeObject {
 	public:
 		GLWindow(void);
 		~GLWindow(void);

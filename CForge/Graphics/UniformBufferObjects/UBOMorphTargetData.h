@@ -21,7 +21,7 @@
 #include "../GLBuffer.h"
 
 namespace CForge {
-	class CFORGE_IXPORT UBOMorphTargetData: public CForgeObject {
+	class CFORGE_API UBOMorphTargetData: public CForgeObject {
 	public:
 		UBOMorphTargetData(void);
 		~UBOMorphTargetData(void);

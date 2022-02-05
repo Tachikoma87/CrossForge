@@ -24,7 +24,7 @@
 #include "../Controller/MorphTargetAnimationController.h"
 
 namespace CForge {
-	class CFORGE_IXPORT MorphTargetActor : public IRenderableActor {
+	class CFORGE_API MorphTargetActor : public IRenderableActor {
 	public:
 		MorphTargetActor(void);
 		~MorphTargetActor(void);
