@@ -25,21 +25,21 @@ namespace CForge {
 		if (pMesh->textureCoordinatesCount() > 0) VProps |= VertexUtility::VPROP_UVW;
 
 		m_VertexUtility.init(VProps);
-		void* pBuffer = nullptr;
+		uint8_t* pBuffer = nullptr;
 		uint32_t BufferSize = 0;
-		m_VertexUtility.buildBuffer(pMesh->vertexCount(), &pBuffer, &BufferSize, pMesh);
+		m_VertexUtility.buildBuffer(pMesh->vertexCount(), (void**)&pBuffer, &BufferSize, pMesh);
 
 		// build vertex buffer
 		m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
-		delete[] pBuffer;
+		if(nullptr != pBuffer) delete[] pBuffer;
 		pBuffer = nullptr;
 		BufferSize = 0;
 
-		m_RenderGroupUtility.init(pMesh, &pBuffer, &BufferSize);
+		m_RenderGroupUtility.init(pMesh, (void**)&pBuffer, &BufferSize);
 		// build index buffer
 		m_ElementBuffer.init(GLBuffer::BTYPE_INDEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
 
-		delete[] pBuffer;
+		if(nullptr != pBuffer) delete[] pBuffer;
 		pBuffer = nullptr;
 		BufferSize = 0;
 
