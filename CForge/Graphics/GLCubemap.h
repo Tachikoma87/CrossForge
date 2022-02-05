@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SkyboxActor.h and SkyboxActor.cpp                                *
+* File(s): GLCubemap.h and GLCubemap.cpp                                     *
 *                                                                           *
 * Content:    *
 *          .                                         *
@@ -15,29 +15,31 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SKYBOXACTOR_H__
-#define __CFORGE_SKYBOXACTOR_H__
+#ifndef __CFORGE_GLCUBEMAPS_H__
+#define __CFORGE_GLCUBEMAPS_H__
 
-#include "../../CForge/Graphics/Actors/IRenderableActor.h"
-#include "GLCubemap.h"
+#include "../Core/CForgeObject.h"
+#include "../AssetIO/T2DImage.hpp"
 
 namespace CForge {
-	class SkyboxActor : public IRenderableActor {
+	class CFORGE_IXPORT GLCubemap: public CForgeObject {
 	public:
-		SkyboxActor(void);
-		~SkyboxActor(void);
+		GLCubemap(void);
+		~GLCubemap(void);
 
-		void init(std::string Right, std::string Left, std::string Top, std::string Bottom, std::string Back, std::string Front);
+		void init(	const T2DImage<uint8_t>* pRight, const T2DImage<uint8_t>* pLeft, const T2DImage<uint8_t>* pTop, 
+					const T2DImage<uint8_t>* pBottom, T2DImage<uint8_t>* pBack, T2DImage<uint8_t>* pFront);
 		void clear(void);
 		void release(void);
 
-		void render(class RenderDevice* pRDev);
+		void bind(void);
+		uint32_t handle(void)const;
 
 	protected:
-		GLCubemap m_Cubemap;
-	};//SkyboxActor
+		uint32_t m_TexObj;
+
+	};//GLCubemap
 
 }//name space
-
 
 #endif 

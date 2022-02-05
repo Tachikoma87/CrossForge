@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): GLCubemap.h and GLCubemap.cpp                                     *
+* File(s): SkyboxActor.h and SkyboxActor.cpp                                *
 *                                                                           *
 * Content:    *
 *          .                                         *
@@ -15,31 +15,42 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_GLCUBEMAPS_H__
-#define __CFORGE_GLCUBEMAPS_H__
+#ifndef __CFORGE_SKYBOXACTOR_H__
+#define __CFORGE_SKYBOXACTOR_H__
 
-#include "../../CForge/Core/CForgeObject.h"
-#include "../../CForge/AssetIO/T2DImage.hpp"
+#include "IRenderableActor.h"
+#include "../GLCubemap.h"
+#include "../UniformBufferObjects/UBOColorAdjustment.h"
 
 namespace CForge {
-	class GLCubemap {
+	class CFORGE_IXPORT SkyboxActor : public IRenderableActor {
 	public:
-		GLCubemap(void);
-		~GLCubemap(void);
+		SkyboxActor(void);
+		~SkyboxActor(void);
 
-		void init(const T2DImage<uint8_t>* pRight, const T2DImage<uint8_t>* pLeft, const T2DImage<uint8_t>* pTop, 
-			const T2DImage<uint8_t>* pBottom, T2DImage<uint8_t>* pBack, T2DImage<uint8_t>* pFront);
+		void init(std::string Right, std::string Left, std::string Top, std::string Bottom, std::string Back, std::string Front);
 		void clear(void);
 		void release(void);
 
-		void bind(void);
-		uint32_t handle(void)const;
+		void render(class RenderDevice* pRDev);
 
+		void saturation(float Saturation);
+		void brightness(float Brightness);
+		void contrast(float Contrast);
+
+		float saturation(void)const;
+		float brightness(void)const;
+		float contrast(void)const;
 	protected:
-		uint32_t m_TexObj;
+		GLCubemap m_Cubemap;
+		UBOColorAdjustment m_ColorAdjustUBO;
 
-	};//GLCubemap
+		float m_Saturation;
+		float m_Brightness;
+		float m_Contrast;
+	};//SkyboxActor
 
 }//name space
+
 
 #endif 

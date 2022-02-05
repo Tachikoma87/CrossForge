@@ -54,9 +54,6 @@ int main(int argc, char* argv[]) {
 
 
 	try {
-		std::string UTF8String;
-		std::wstring UnicodeString;
-
 		//exampleMinimumGraphicsSetup();
 		//exampleSkeletalAnimation();
 		//exampleMorphTargetAnimation(); 

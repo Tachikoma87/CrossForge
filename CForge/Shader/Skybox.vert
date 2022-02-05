@@ -6,6 +6,10 @@ layout (std140) uniform CameraData{
 	vec4 Position;
 }Camera;
 
+layout(std140) uniform ModelData{
+	mat4 ModelMatrix;
+}Model;
+
 layout(location = 0) in vec3 Position;
 
 out vec3 TexCoords;
@@ -16,7 +20,7 @@ void main(){
 
 	mat4 Cam = mat4(mat3(Camera.ViewMatrix));
 
-	vec4 Pos = Camera.ProjectionMatrix * Cam * vec4(Position, 1.0);
+	vec4 Pos = Camera.ProjectionMatrix * Cam * Model.ModelMatrix * vec4(Position, 1.0);
 	gl_Position = Pos.xyww;
 }//main 
 

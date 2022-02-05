@@ -22,6 +22,7 @@
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
 #include "../../CForge/Graphics/STextureManager.h"
 
+
 #include "../../CForge/Graphics/GLWindow.h"
 #include "../../CForge/Graphics/GraphicsUtility.h"
 #include "../../CForge/Graphics/RenderDevice.h"
@@ -36,8 +37,8 @@
 #include "../../CForge/Graphics/Actors/StaticActor.h"
 
 #include "../../Examples/SceneUtilities.hpp" 
-#include "../Graphics/SkyboxActor.h"
 
+#include "../../CForge/Graphics/Actors/SkyboxActor.h"
 
 using namespace Eigen;
 using namespace std;
@@ -158,22 +159,66 @@ namespace CForge {
 		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 
-
 		SkyboxActor Skybox;
 		std::vector<string> BoxTexs;
-		BoxTexs.push_back("MyAssets/skybox/right.jpg");
+		/*BoxTexs.push_back("MyAssets/skybox/right.jpg");
 		BoxTexs.push_back("MyAssets/skybox/left.jpg");
 		BoxTexs.push_back("MyAssets/skybox/top.jpg");
 		BoxTexs.push_back("MyAssets/skybox/bottom.jpg");
 		BoxTexs.push_back("MyAssets/skybox/back.jpg");
-		BoxTexs.push_back("MyAssets/skybox/front.jpg");		
+		BoxTexs.push_back("MyAssets/skybox/front.jpg");		*/
+
+		/*BoxTexs.push_back("MyAssets/TechnoSkybox/vz_techno_right.png");
+		BoxTexs.push_back("MyAssets/TechnoSkybox/vz_techno_left.png");
+		BoxTexs.push_back("MyAssets/TechnoSkybox/vz_techno_up.png");
+		BoxTexs.push_back("MyAssets/TechnoSkybox/vz_techno_down.png");
+		BoxTexs.push_back("MyAssets/TechnoSkybox/vz_techno_back.png");
+		BoxTexs.push_back("MyAssets/TechnoSkybox/vz_techno_front.png");*/
+
+
+		/*BoxTexs.push_back("MyAssets/EmptySpace/vz_empty_space_right.png");
+		BoxTexs.push_back("MyAssets/EmptySpace/vz_empty_space_left.png");
+		BoxTexs.push_back("MyAssets/EmptySpace/vz_empty_space_up.png");
+		BoxTexs.push_back("MyAssets/EmptySpace/vz_empty_space_down.png");
+		BoxTexs.push_back("MyAssets/EmptySpace/vz_empty_space_back.png");
+		BoxTexs.push_back("MyAssets/EmptySpace/vz_empty_space_front.png");*/
+
+		BoxTexs.push_back("MyAssets/clear/vz_clear_right.png");
+		BoxTexs.push_back("MyAssets/clear/vz_clear_left.png");
+		BoxTexs.push_back("MyAssets/clear/vz_clear_up.png");
+		BoxTexs.push_back("MyAssets/clear/vz_clear_down.png");
+		BoxTexs.push_back("MyAssets/clear/vz_clear_back.png");
+		BoxTexs.push_back("MyAssets/clear/vz_clear_front.png");
+
+		T2DImage<uint8_t> Img;
+		AssetIO::load("MyAssets/clear/vz_clear_right.png", &Img);
+		Img.rotate90();
+		AssetIO::store("MyAssets/Rotated.jpg", &Img);
+
 		Skybox.init(BoxTexs[0], BoxTexs[1], BoxTexs[2], BoxTexs[3], BoxTexs[4], BoxTexs[5]);
+		Skybox.brightness(1.15f);
+		Skybox.contrast(1.1f);
+		Skybox.saturation(1.2f);
+
+		Quaternionf SkyboxRotDelta = Quaternionf::Identity();
+		Quaternionf SkyboxRot = Quaternionf::Identity();
+		SkyboxRotDelta = AngleAxisf(GraphicsUtility::degToRad(-1.0f / 60.0f), Vector3f::UnitY());
 
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			SG.update(FPS / 60.0f);
+			SG.update(60.0f / FPS);
+
+			SkyboxRot *= SkyboxRotDelta;
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
+
+
+			Keyboard* pKeyboard = RenderWin.keyboard();
+			float Step = (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) ? -0.05f : 0.05f;
+			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) Skybox.brightness(Skybox.brightness() + Step);
+			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) Skybox.saturation(Skybox.saturation() + Step);
+			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) Skybox.contrast(Skybox.contrast() + Step);
+
 
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
 			SG.render(&RDev);
@@ -184,7 +229,7 @@ namespace CForge {
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
-			RDev.requestRendering(&Skybox, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
+			RDev.requestRendering(&Skybox, SkyboxRot, Vector3f::Zero(), Vector3f::Ones());
 
 			RenderWin.swapBuffers();
 
