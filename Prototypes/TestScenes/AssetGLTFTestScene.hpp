@@ -67,9 +67,9 @@ namespace CForge {
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
 
 
-		T3DMesh<float> GLModel;
+		/*T3DMesh<float> GLModel;
 		GLTFSDKIO GLReader;
-		GLReader.load("MyAssets/FemaleModel.glb", &GLModel);
+		GLReader.load("MyAssets/FemaleModel.glb", &GLModel);*/
 
 		// configure and initialize rendering pipeline
 		RenderDevice RDev;
