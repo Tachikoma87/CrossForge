@@ -56,6 +56,7 @@ add_library(crossforge SHARED
 	# Graphics related
 	CForge/Graphics/GBuffer.cpp 
 	CForge/Graphics/GLBuffer.cpp 
+	CForge/Graphics/GLCubeMap.cpp
 	CForge/Graphics/GLTexture2D.cpp 
 	CForge/Graphics/GLVertexArray.cpp 
 	CForge/Graphics/GLWindow.cpp 
@@ -65,9 +66,11 @@ add_library(crossforge SHARED
 	CForge/Graphics/VirtualCamera.cpp
 	CForge/Graphics/GraphicsUtility.cpp
 
+
 	# Actor related
 	CForge/Graphics/Actors/IRenderableActor.cpp 
 	CForge/Graphics/Actors/RenderGroupUtility.cpp 
+	CForge/Graphics/Actors/SkyBoxActor.cpp
 	CForge/Graphics/Actors/VertexUtility.cpp 
 	CForge/Graphics/Actors/ScreenQuad.cpp 
 	CForge/Graphics/Actors/StaticActor.cpp 
@@ -85,6 +88,7 @@ add_library(crossforge SHARED
 
 	# Uniform Buffer Objects
 	CForge/Graphics/UniformBufferObjects/UBOCameraData.cpp 
+	CForge/Graphics/UniformBufferObjects/UBOColorAdjustment.cpp
 	CForge/Graphics/UniformBufferObjects/UBOLightData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOMaterialData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOModelData.cpp
@@ -163,8 +167,9 @@ add_executable(CForgeSandbox
 
 	Prototypes/Assets/GLTFSDKIO.cpp
 
-	Prototypes/Graphics/GLCubemap.cpp
-	Prototypes/Graphics/SkyboxActor.cpp
+#	Prototypes/Graphics/GLCubemap.cpp
+#	Prototypes/Graphics/SkyboxActor.cpp
+#	"Prototypes/Graphics/UBOColorAdjustment.cpp"
 	)
 
 

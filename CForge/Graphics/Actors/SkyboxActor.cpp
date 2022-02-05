@@ -10,71 +10,45 @@ using namespace Eigen;
 
 namespace CForge {
 
-    float skyboxVertices[] = {
-        // positions          
-        -1.0f,  1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
+    float SkyboxVertices[] = {
+        // bottom vertices (CCW)
+       -1.0f, -1.0f, -1.0f,
+       1.0f, -1.0f, -1.0f,
+       1.0f, -1.0f, 1.0f,
+       -1.0f, -1.0f, 1.0f,
 
-        -1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
-
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-
-        -1.0f, -1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
-
-        -1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f, -1.0f,
-
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f
-    };
+       // to vertices (CCW)
+       -1.0f, 1.0f, -1.0f,
+       1.0f, 1.0f, -1.0f,
+       1.0f, 1.0f, 1.0f,
+       -1.0f, 1.0f, 1.0f,
+    };//skyboxVertices
 
     int32_t SkyboxIndices[] = {
-        0,1,2,
-        3,4,5,
+       // right
+        1,2,5,
+        6,5,2,
 
-        6,7,8,
-        9,10,11,
+        // left
+        3,0,4,
+        3,4,7,
 
-        12,13,14,
-        15,16,17,
+        // top
+        7,4,5,
+        7,5,6,
 
-        18,19,20,
-        21,22,23,
+        // bottom
+        0,3,1,
+        1,3,2,
 
-        24,25,26,
-        27,28,29,
+        // back
+        2,3,7,
+        2,7,6,
 
-        30,31,32,
-        33,34,35
-    };
-
+        // front
+        0,1,4,
+        5,4,1,
+    };//skyboxIndices
 
 	SkyboxActor::SkyboxActor(void): IRenderableActor("SkyboxActor", 12) {
 
@@ -82,7 +56,7 @@ namespace CForge {
 	}//Constructor
 
 	SkyboxActor::~SkyboxActor(void) {
-
+        clear();
 	}//Destructor
 
 	void SkyboxActor::init(std::string Right, std::string Left, std::string Top, std::string Bottom, std::string Back, std::string Front) {
@@ -92,10 +66,9 @@ namespace CForge {
         T3DMesh<float>::Submesh Sub;
         std::vector<Vector3f> Vertices;
         // create vertices
-        for (uint32_t i = 0; i < 108/3 ; i++) {
-            Vertices.push_back(Vector3f(skyboxVertices[i*3 + 0], skyboxVertices[i*3 + 1], skyboxVertices[i*3 + 2]));
+        for (uint32_t i = 0; i < 8 ; i++) {
+            Vertices.push_back(Vector3f(SkyboxVertices[i*3 + 0], SkyboxVertices[i*3 + 1], SkyboxVertices[i*3 + 2]));
         }
-
 
         // create faces
         for (uint32_t i = 0; i < 12; ++i) {
@@ -163,15 +136,22 @@ namespace CForge {
             AssetIO::load(Bottom, &CubeImages[3]);
             AssetIO::load(Back, &CubeImages[4]);
             AssetIO::load(Front, &CubeImages[5]);
+
+            CubeImages[0].rotate180();
+            CubeImages[1].rotate180();
+            CubeImages[4].rotate180();
+            CubeImages[5].rotate180();
         }
         catch (const CrossForgeException& e) {
             Logger::logException(e);
             return;
         }
 
-        m_Cubemap.init(&CubeImages[0], &CubeImages[1], &CubeImages[2], &CubeImages[3], &CubeImages[4], &CubeImages[5]);
-       
-
+        m_Cubemap.init(&CubeImages[0], &CubeImages[1], &CubeImages[2], &CubeImages[3], &CubeImages[4], &CubeImages[5]);  
+        m_ColorAdjustUBO.init();
+        contrast(1.0f);
+        brightness(1.0f);
+        saturation(1.0f);
 	}//initialize
 
 	void SkyboxActor::clear(void) {
@@ -181,6 +161,7 @@ namespace CForge {
 
         m_VertexUtility.clear();
         m_RenderGroupUtility.clear();
+        m_ColorAdjustUBO.clear();
 	}//clear
 
 	void SkyboxActor::release(void) {
@@ -188,30 +169,56 @@ namespace CForge {
 	}
 
 	void SkyboxActor::render(RenderDevice* pRDev) {
+        if (pRDev->activePass() != RenderDevice::RENDERPASS_FORWARD) return;
 
         m_VertexArray.bind();
 
         glDepthMask(GL_FALSE);
-        glDisable(GL_CULL_FACE);
         glDepthFunc(GL_LEQUAL);
 
         for (auto i : m_RenderGroupUtility.renderGroups()) {
             if (i->pShader == nullptr) continue;
 
-            if (pRDev->activePass() == RenderDevice::RENDERPASS_FORWARD) {
-                pRDev->activeShader(i->pShader);
-                pRDev->activeMaterial(&i->Material);
+            pRDev->activeShader(i->pShader);
+            pRDev->activeMaterial(&i->Material);
+            m_Cubemap.bind();
 
-                m_Cubemap.bind();
+            uint32_t BindingPoint = i->pShader->uboBindingPoint(GLShader::DEFAULTUBO_COLORADJUSTMENT); // i->pShader->uboBindingPoint("ColorAdjustmentData");
+            if (BindingPoint != GL_INVALID_INDEX) m_ColorAdjustUBO.bind(BindingPoint);        
 
-                glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
-                //glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
+            glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
+            
         }//for[all render groups]
-
         glDepthMask(GL_TRUE);
-        glEnable(GL_CULL_FACE);
         glDepthFunc(GL_LESS);
+
 	}//render
+
+    void SkyboxActor::saturation(float Saturation) {
+        m_Saturation = Saturation;
+        m_ColorAdjustUBO.saturation(m_Saturation);
+    }//saturation
+
+    void SkyboxActor::brightness(float Brightness) {
+        m_Brightness = Brightness;
+        m_ColorAdjustUBO.brigthness(m_Brightness);
+    }//brightness
+
+    void SkyboxActor::contrast(float Contrast) {
+        m_Contrast = Contrast;
+        m_ColorAdjustUBO.contrast(m_Contrast);
+    }//contrast
+
+    float SkyboxActor::saturation(void)const {
+        return m_Saturation;
+    }//saturation
+
+    float SkyboxActor::brightness(void)const {
+        return m_Brightness;
+    }//brightness
+
+    float SkyboxActor::contrast(void)const {
+        return m_Contrast;
+    }//contrast
 
 }//name space
