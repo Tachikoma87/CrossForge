@@ -133,7 +133,10 @@ namespace CForge {
 	}//requestRendering
 
 	void RenderDevice::activeShader(GLShader* pShader) {
-		if (pShader != m_pActiveShader) {
+		if (pShader == nullptr) {
+			m_pActiveShader = nullptr;
+		}
+		else if (pShader != m_pActiveShader) {
 			m_pActiveShader = pShader;
 			m_pActiveShader->bind();
 			
@@ -171,7 +174,10 @@ namespace CForge {
 	}//activeShader
 
 	void RenderDevice::activeMaterial(RenderMaterial* pMaterial) {
-		if (pMaterial != m_pActiveMaterial) {
+		if (nullptr == pMaterial) {
+			m_pActiveMaterial = nullptr;
+		}
+		else if (pMaterial != m_pActiveMaterial) {
 			m_pActiveMaterial = pMaterial;
 			updateMaterial();
 		}

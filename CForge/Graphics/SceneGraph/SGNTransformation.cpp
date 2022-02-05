@@ -93,10 +93,10 @@ namespace CForge {
 		float Temp = FPSScale;
 		Quaternionf TargetRot = m_Rotation;
 		while (Temp > 1.0f) {
-			TargetRot = m_RotationDelta * TargetRot;
+			TargetRot *= m_RotationDelta;
 			Temp -= 1.0f;
 		}
-		m_Rotation = TargetRot.slerp(Temp, m_RotationDelta * TargetRot);
+		m_Rotation = TargetRot.slerp(Temp, TargetRot * m_RotationDelta);
 		m_Scale += FPSScale * m_ScaleDelta;
 
 		for (auto &i : m_Children) i->update(FPSScale);

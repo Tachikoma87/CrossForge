@@ -159,7 +159,7 @@ namespace CForge {
 		// start main loop
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			SG.update(FPS/60.0f);
+			SG.update(60.0f/FPS);
 
 			// this will progress all active skeletal animations for this controller
 			Controller.update(FPS / 60.0f);
