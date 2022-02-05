@@ -1,5 +1,5 @@
 #include "PhotoFinish.h"
-#include "../CForge/Core/CrossForgeException.h"
+#include "../../CForge/Core/CrossForgeException.h"
 
 namespace CrossForge {
 	PhotoFinish::PhotoFinish(void) {

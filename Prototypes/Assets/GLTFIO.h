@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): StripPhoto.h and StripPhoto.cpp                                  *
+* File(s): GLTFIO.h and GLTFIO.cpp                                            *
 *                                                                           *
-* Content:    *
+* Content: Import/Export class for glTF format using tinygltf   *
 *                                                   *
 *                                                                           *
 *                                                                           *
@@ -15,39 +15,27 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
+#ifndef __CFORGE_GLTFIO_H__
+#define __CFORGE_GLTFIO_H__
 
-#ifndef __CFORGE_STRIPPHOTOCAMERA_H__
-#define __CFORGE_STRIPPHOTOCAMERA_H__
-
-#include <opencv2/opencv.hpp>
-#include <Eigen/Eigen>
-#include "../CForge/Core/CrossForgeException.h"
-#include "StripPhoto.h"
+#include "../../CForge/AssetIO/I3DMeshIO.h"
 
 namespace CForge {
-
-	class StripPhotoCamera {
+	class GLTFIO {
 	public:
-		StripPhotoCamera(void);
-		~StripPhotoCamera(void);
+		GLTFIO(void);
+		~GLTFIO(void);
 
-		void init(void);
-		void clear(void);
-
-		void update(void);
-		cv::Mat lastFrame(void);
+		void load(const std::string Filepath, T3DMesh<float>* pMesh);
+		void store(const std::string Filepath, const T3DMesh<float>* pMesh);
+		
+		void release(void);
+		bool accepted(const std::string Filepath, I3DMeshIO::Operation Op);
 
 	protected:
-		StripPhoto m_StripPhoto;
-		cv::VideoCapture m_Camera;
-		cv::Mat m_ImageFrame;
 
-		cv::Mat m_LastFrame;
+	};//GLTFIO
 
-		uint16_t m_FPSCounter;
-		uint64_t m_LastFPSPrint;
-	};//StripPhotoCamera
+}//name space
 
-}//name-space
-
-#endif // Header guards
+#endif 

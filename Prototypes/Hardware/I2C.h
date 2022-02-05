@@ -18,7 +18,7 @@
 #pragma once
 
 #include <string>
-#include "../CForge/Core/CrossForgeException.h"
+#include "../../CForge/Core/CrossForgeException.h"
 
 namespace CForge {
 
