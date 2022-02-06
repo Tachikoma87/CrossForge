@@ -26,6 +26,7 @@
 #include "../CForge/Graphics/GraphicsUtility.h"
 #include "../CForge/Graphics/RenderDevice.h"
 
+
 #include "../CForge/Graphics/Lights/DirectionalLight.h"
 #include "../CForge/Graphics/Lights/PointLight.h"
 
@@ -168,7 +169,7 @@ namespace CForge {
 
 		// create actor and initialize
 		SkyboxActor Skybox;
-		Skybox.init(EmptySpace[0], EmptySpace[1], EmptySpace[2], EmptySpace[3], EmptySpace[4], EmptySpace[5]);
+		Skybox.init(ClearSky[0], ClearSky[1], ClearSky[2], ClearSky[3], ClearSky[4], ClearSky[5]);
 
 		// set initialize color adjustment values
 		Skybox.brightness(1.15f);
@@ -192,8 +193,6 @@ namespace CForge {
 
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			RDev.activeShader(nullptr);
-			RDev.activeMaterial(nullptr);
 			SG.update(60.0f/FPS);
 			SkyboxSG.update(60.0f / FPS);
 

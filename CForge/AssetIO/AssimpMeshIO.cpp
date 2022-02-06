@@ -72,6 +72,7 @@ namespace CForge {
 			else if (Filepath.find(".x") != std::string::npos) Rval = true;
 			else if (Filepath.find(".glb") != std::string::npos) Rval = true;
 			else if (Filepath.find(".bvh") != std::string::npos) Rval = true;
+			else if (Filepath.find(".gltf") != std::string::npos) Rval = true;
 		}
 		else {
 			if (Filepath.find(".fbx") != std::string::npos) Rval = true;
