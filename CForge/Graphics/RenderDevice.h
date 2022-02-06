@@ -74,6 +74,11 @@ namespace CForge {
 			void init(void);
 		};
 
+		struct Viewport {
+			Eigen::Vector2i Position;
+			Eigen::Vector2i Size;
+		};
+
 		RenderDevice(void);
 		~RenderDevice(void);
 
@@ -85,7 +90,7 @@ namespace CForge {
 		void activeShader(GLShader* pShader);
 		void activeMaterial(RenderMaterial* pMaterial);
 		void activeCamera(VirtualCamera* pCamera);
-		void activePass(RenderPass Pass, ILight *pActiveLight = nullptr);
+		void activePass(RenderPass Pass, ILight* pActiveLight = nullptr, bool ClearBuffer = true);
 		RenderDevice::RenderPass activePass(void)const;
 
 		GLShader* activeShader(void)const;
@@ -105,6 +110,9 @@ namespace CForge {
 		GBuffer* gBuffer(void);
 
 		GLShader* shadowPassShader(void);
+
+		void viewport(Viewport VP);
+		Viewport viewport(void)const;
 
 	protected:
 		struct ActiveLight {
@@ -141,6 +149,8 @@ namespace CForge {
 		ScreenQuad m_ScreenQuad;
 		GLShader* m_pDeferredLightingPassShader;
 		GLShader* m_pShadowPassShader;
+
+		Viewport m_Viewport;
 	private:
 
 	};//RenderDevice

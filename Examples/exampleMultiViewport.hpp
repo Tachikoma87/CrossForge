@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): exampleMinimumGraphicsSetup.hpp                                            *
+* File(s): exampleMultiViewport.hpp                                            *
 *                                                                           *
 * Content: Example scene that shows minimum setup with an OpenGL capable   *
 *          window, lighting setup, and a single moving object.              *
@@ -15,9 +15,8 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_EXAMPLEMINIMUMGRAPHICSSETUP_HPP__
-#define __CFORGE_EXAMPLEMINIMUMGRAPHICSSETUP_HPP__
-
+#ifndef __CFORGE_EXAMPLEMULTIVIEWPORT_HPP__
+#define __CFORGE_EXAMPLEMULTIVIEWPORT_HPP__
 
 #include "../CForge/AssetIO/SAssetIO.h"
 #include "../CForge/Graphics/Shader/SShaderManager.h"
@@ -43,21 +42,31 @@ using namespace std;
 
 namespace CForge {
 
-	void exampleMinimumGraphicsSetup(void) {
+	void exampleMultiViewport(void) {
 		SShaderManager* pSMan = SShaderManager::instance();
 
-		std::string WindowTitle = "CForge - Minimum Graphics Setup";
+		std::string WindowTitle = "CForge - Multi Viewport Example";
 		float FPS = 60.0f;
 
 		bool const LowRes = false;
+		bool const HighRes = false;
 
 		uint32_t WinWidth = 1280;
 		uint32_t WinHeight = 720;
+
+		uint32_t GBufferWidth = 1280 / 2;
+		uint32_t GBufferHeight = 720 / 2;
 
 		if (LowRes) {
 			WinWidth = 720;
 			WinHeight = 576;
 		}
+		if (HighRes) {
+			WinWidth = 1920;
+			WinHeight = 1080;
+		}
+
+
 
 		// create an OpenGL capable windows
 		GLWindow RenderWin;
@@ -70,8 +79,8 @@ namespace CForge {
 		Config.PointLightsCount = 1;
 		Config.SpotLightsCount = 0;
 		Config.ExecuteLightingPass = true;
-		Config.GBufferHeight = WinHeight;
-		Config.GBufferWidth = WinWidth;
+		Config.GBufferHeight = GBufferHeight;
+		Config.GBufferWidth = GBufferWidth;
 		Config.pAttachedWindow = &RenderWin;
 		Config.PhysicallyBasedShading = true;
 		Config.UseGBuffer = true;
@@ -90,7 +99,7 @@ namespace CForge {
 		// initialize camera
 		VirtualCamera Cam;
 		Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
-		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+		Cam.projectionMatrix(GBufferWidth, GBufferHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
 
 		// initialize sun (key lights) and back ground light (fill light)
 		Vector3f SunPos = Vector3f(-5.0f, 15.0f, 35.0f);
@@ -108,44 +117,58 @@ namespace CForge {
 		RDev.addLight(&BGLight);
 
 		// load skydome and a textured cube
-		T3DMesh<float> M;	
+		T3DMesh<float> M;
 		StaticActor Skydome;
-		StaticActor Cube;
+		StaticActor Helmet;
 
 		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
 		M.computePerVertexNormals();
-		Skydome.init(&M);	
+		Skydome.init(&M);
 		M.clear();
-		
-		SAssetIO::load("Assets/ExampleScenes/TexturedCube.fbx", &M);
-		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
+
+		SAssetIO::load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &M);
+		SceneUtilities::setMeshShader(&M, 0.2f, 0.24f);
 		M.computePerVertexNormals();
-		Cube.init(&M);
+		Helmet.init(&M);
 		M.clear();
 
-		// build scene graph
-		SceneGraph SG;
-		SGNTransformation RootSGN;
-		RootSGN.init(nullptr);
-		SG.init(&RootSGN);
+		// build scene graphs (one for every viewport)
+		SceneGraph SGs[4];
+		SGNTransformation RootSGNs[4];
 
-		// add skydome
-		SGNGeometry SkydomeSGN;
-		SkydomeSGN.init(&RootSGN, &Skydome);
-		SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
+		//SGNTransformation DomeTransSGNs[4];
+		SGNTransformation HelmetTransSGNs[4];
+		SGNGeometry DomeGeomSGNs[4];
+		SGNGeometry HelmetGeomSGNs[4];
 
-		// add cube
-		SGNGeometry CubeSGN;
-		SGNTransformation CubeTransformSGN;
-		CubeTransformSGN.init(&RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
-		CubeSGN.init(&CubeTransformSGN, &Cube);
+		float Speed = 10.0f; // Degree per second
+		Quaternionf HelmetRotationDeltas[4];
+		HelmetRotationDeltas[0] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitX());
+		HelmetRotationDeltas[1] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitY());
+		HelmetRotationDeltas[2] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitZ());
+		HelmetRotationDeltas[3] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f(1.0f, 1.0f, 1.0f).normalized());
+
+		for (uint8_t i = 0; i < 4; ++i) {
+			RootSGNs[i].init(nullptr);
+			SGs[i].init(&RootSGNs[i]);
+
+			// add skydome
+			DomeGeomSGNs[i].init(&RootSGNs[i], &Skydome, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(5.0f, 5.0f, 5.0f));
+			// add helmet
+			HelmetTransSGNs[i].init(&RootSGNs[i], Vector3f(0.0f, 6.5f, 0.0f));
+			HelmetGeomSGNs[i].init(&HelmetTransSGNs[i], &Helmet, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(5.0f, 5.0f, 5.0f));
+
+			// let the helmets spin
+			HelmetTransSGNs[i].rotationDelta(HelmetRotationDeltas[i]);	
+		}
+
+		// we need one viewport for the GBuffer
+		RenderDevice::Viewport GBufferVP;
+		GBufferVP.Position = Vector2i(0, 0);
+		GBufferVP.Size = Vector2i(GBufferWidth, GBufferHeight);
 		
-		// rotate about the y-axis at 45 degree every second
-		Quaternionf R;
-		R = AngleAxisf(GraphicsUtility::degToRad(45.0f / 60.0f), Vector3f::UnitY());
-		CubeTransformSGN.rotationDelta(R);
-
+		
 		// stuff for performance monitoring
 		uint64_t LastFPSPrint = CoreUtility::timestamp();
 		int32_t FPSCount = 0;
@@ -154,19 +177,58 @@ namespace CForge {
 		GraphicsUtility::checkGLError(&GLError);
 		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
+		// main rendering loop
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			SG.update(60.0f/FPS);
-
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
 
-			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-			SG.render(&RDev);
+			uint32_t RenderWinWidth = RenderWin.width();
+			uint32_t RenderWinHeight = RenderWin.height();
 
-			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			SG.render(&RDev);
+			Cam.projectionMatrix(RenderWinWidth, RenderWinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
 
-			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			uint32_t Margin = 14;
+			Vector2i VPSize = Vector2i(RenderWinWidth / 2, RenderWinHeight / 2) - 2 * Vector2i(Margin, Margin) + Vector2i(Margin/2, Margin/2);
+
+			RenderDevice::Viewport VPs[4];
+			// Top left
+			VPs[0].Position = Vector2i(0, RenderWinHeight / 2) + Vector2i(Margin, Margin/2);
+			// top right
+			VPs[1].Position = Vector2i(RenderWinWidth / 2, RenderWinHeight / 2) + Vector2i(Margin/2, Margin/2);
+			// bottom left
+			VPs[2].Position = Vector2i(Margin, Margin);
+			// bottom right
+			VPs[3].Position = Vector2i(RenderWinWidth / 2, 0) + Vector2i(Margin/2, Margin);
+			for (uint8_t i = 0; i < 4; ++i) VPs[i].Size = VPSize;
+
+
+			// perform rendering for the 4 viewports
+			for (uint8_t i = 0; i < 4; ++i) {
+				SGs[i].update(60.0f / FPS);
+
+				// render scene as usual
+				RDev.viewport(GBufferVP);
+				RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
+				SGs[i].render(&RDev);
+				RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+				SGs[i].render(&RDev);
+
+				// set viewport and perform lighting pass
+				// this will produce the correct tile in the final output window (backbuffer to be specific)
+				RDev.viewport(VPs[i]);
+				RDev.activePass(RenderDevice::RENDERPASS_LIGHTING, nullptr, (i==0) ? true : false);
+			}
+
+
+
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_F10, true)) {
+				RenderDevice::Viewport V;
+				V.Position = Vector2i(0, 0);
+				V.Size = Vector2i(RenderWinWidth, RenderWinHeight);
+				RDev.viewport(V);
+				RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+				SceneUtilities::takeScreenshot("Screenshot.jpg");
+			}
 
 			RenderWin.swapBuffers();
 
@@ -181,6 +243,8 @@ namespace CForge {
 				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
 			}
 
+			
+
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				RenderWin.closeWindow();
 			}
@@ -188,7 +252,7 @@ namespace CForge {
 
 		pSMan->release();
 
-	}//exampleMinimumGraphicsSetup
+	}//exampleMultiViewport
 
 }
 

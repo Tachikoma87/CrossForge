@@ -49,11 +49,16 @@ namespace CForge {
 
 		if (nullptr == pConfig) m_Config.init();
 		else m_Config = (*pConfig);
-
+		
 		m_CameraUBO.init();
 		m_ModelUBO.init();
 		m_MaterialUBO.init();
 		m_LightsUBO.init(m_Config.DirectionalLightsCount, m_Config.PointLightsCount, m_Config.SpotLightsCount);
+
+		if (pConfig->pAttachedWindow != nullptr) {
+			m_Viewport.Position = Vector2i(0, 0);
+			m_Viewport.Size = Vector2i(pConfig->pAttachedWindow->width(), pConfig->pAttachedWindow->height());
+		}
 
 		// use GBuffer?
 		if (m_Config.UseGBuffer) {
@@ -63,9 +68,10 @@ namespace CForge {
 				m_Config.GBufferWidth = 1280;
 			}
 			m_GBuffer.init(m_Config.GBufferWidth, m_Config.GBufferHeight);
+			m_ScreenQuad.init(0.0f, 0.0f, 1.0f, 1.0f, nullptr);
 
 			if (m_Config.ExecuteLightingPass) {
-				m_ScreenQuad.init(0.0f, 0.0f, 1.0f, 1.0f, nullptr);
+				
 				SShaderManager* pSMan = SShaderManager::instance();
 				string ErrorLog;
 
@@ -78,7 +84,7 @@ namespace CForge {
 					VSSources.push_back(pSC);
 					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp", "highp");
 					FSSources.push_back(pSC);
-					m_pDeferredLightingPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
+					m_pDeferredLightingPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);	
 				}
 				else {
 					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.vert", "330 core", 0, "highp", "highp");
@@ -107,6 +113,9 @@ namespace CForge {
 
 				pSMan->release();
 			}//if[lighting pass]
+			m_Viewport.Size = Vector2i(pConfig->GBufferWidth, pConfig->GBufferHeight);
+			m_Viewport.Position = Vector2i(0, 0);
+
 		}//if[GBuffer]
 
 	}//initialize
@@ -251,7 +260,7 @@ namespace CForge {
 		}
 	}//updateMaterial
 
-	void RenderDevice::activePass(RenderPass Pass, ILight *pActiveLight) {
+	void RenderDevice::activePass(RenderPass Pass, ILight *pActiveLight, bool ClearBuffer) {
 		m_ActiveRenderPass = Pass;
 
 		// change state?
@@ -272,7 +281,7 @@ namespace CForge {
 			if (nullptr != pAL) {
 				pAL->pLight->bindShadowFBO();
 				glViewport(0, 0, pAL->pLight->shadowMapSize().x(), pAL->pLight->shadowMapSize().y());
-				glClear(GL_DEPTH_BUFFER_BIT);
+				if(ClearBuffer) glClear(GL_DEPTH_BUFFER_BIT);
 
 				uint32_t Loc = m_pActiveShader->uniformLocation("ActiveLightID");
 				glUniform1ui(Loc, pAL->UBOIndex);
@@ -283,8 +292,8 @@ namespace CForge {
 			// bind geometry buffer
 			if (m_Config.UseGBuffer) {
 				m_GBuffer.bind();
-				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glViewport(m_Viewport.Position.x(), m_Viewport.Position.y(), m_Viewport.Size.x(), m_Viewport.Size.y());
+				if(ClearBuffer) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
 			}
 		}break;
@@ -294,8 +303,8 @@ namespace CForge {
 			}
 
 			if (m_Config.ExecuteLightingPass) {
-				glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glViewport(m_Viewport.Position.x(), m_Viewport.Position.y(), m_Viewport.Size.x(), m_Viewport.Size.y());
+				if(ClearBuffer) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
 
 				activeShader(m_pDeferredLightingPassShader);
@@ -315,7 +324,8 @@ namespace CForge {
 					m_GBuffer.bindTexture(GBuffer::COMP_ALBEDO, LocAlbedo);
 					glUniform1i(LocAlbedo, LocAlbedo);
 				}
-				requestRendering(&m_ScreenQuad, Quaternionf::Identity(), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f));
+
+				requestRendering(&m_ScreenQuad, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
 			}
 		}break;
 		case RENDERPASS_FORWARD: {
@@ -324,12 +334,14 @@ namespace CForge {
 				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 				m_GBuffer.blitDepthBuffer(m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
+				glViewport(m_Viewport.Position.x(), m_Viewport.Position.y(), m_Viewport.Size.x(), m_Viewport.Size.y());
 			}
 		}break;
 		default: break;
 		}
 
+		m_pActiveMaterial = nullptr;
+		m_pActiveShader = nullptr;
 	}//activePass
 
 	void RenderDevice::addLight(ILight* pLight) {
@@ -419,5 +431,13 @@ namespace CForge {
 	GLShader* RenderDevice::shadowPassShader(void) {
 		return m_pShadowPassShader;
 	}//shadowPassShader
+
+	void RenderDevice::viewport(Viewport VP) {
+		m_Viewport = VP;
+	}//viewport
+
+	RenderDevice::Viewport RenderDevice::viewport(void)const {
+		return m_Viewport;
+	}//viewport
 
 }//name space
