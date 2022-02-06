@@ -62,6 +62,12 @@ namespace CForge {
 			}
 		}//defaultCameraUpdate
 
+		static void takeScreenshot(std::string Filepath) {
+			T2DImage<uint8_t> ColorBuffer;
+			GraphicsUtility::retrieveFrameBuffer(&ColorBuffer);
+			SAssetIO::store(Filepath, &ColorBuffer);
+		}//takeScreen
+
 	};// SceneUtilities
 
 }//name space

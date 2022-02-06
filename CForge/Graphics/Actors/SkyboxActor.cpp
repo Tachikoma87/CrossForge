@@ -98,13 +98,13 @@ namespace CForge {
         uint16_t VertexProperties = VertexUtility::VPROP_POSITION;
 
         uint32_t BufferSize;
-        void* pBuffer = nullptr;
+        uint8_t* pBuffer = nullptr;
         try {
             m_VertexUtility.init(VertexProperties);
-            m_VertexUtility.buildBuffer(M.vertexCount(), &pBuffer, &BufferSize, &M);
+            m_VertexUtility.buildBuffer(M.vertexCount(), (void**)&pBuffer, &BufferSize, &M);
             m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
 
-            delete[] pBuffer;
+            if(nullptr != pBuffer) delete[] pBuffer;
             pBuffer = nullptr;
             BufferSize = 0;
         }
@@ -115,9 +115,9 @@ namespace CForge {
 
         // build render groups and element array
         try {
-            m_RenderGroupUtility.init(&M, &pBuffer, &BufferSize);
+            m_RenderGroupUtility.init(&M, (void**)&pBuffer, &BufferSize);
             m_ElementBuffer.init(GLBuffer::BTYPE_INDEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
-            delete[] pBuffer;
+            if(nullptr != pBuffer) delete[] pBuffer;
             pBuffer = nullptr;
             BufferSize = 0;
         }

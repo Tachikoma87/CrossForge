@@ -13,6 +13,7 @@
 #include "Examples/exampleSkeletalAnimation.hpp"
 #include "Examples/exampleMorphTargetAnimation.hpp"
 #include "Examples/exampleSkybox.hpp"
+#include "Examples/exampleMultiViewport.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
@@ -20,6 +21,7 @@
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SocketTestScene.hpp"
+#include "Prototypes/TestScenes/anotherTestScene.hpp"
 
 
 using namespace CForge;
@@ -35,8 +37,6 @@ int main(int argc, char* argv[]) {
 
 	try {
 		 pDev = SCrossForgeDevice::instance();
-		 // to fetch OpenGL function points in main program
-
 		 SLogger::logFile("Logs/ErrorLog.txt", SLogger::LOGTYPE_ERROR, true, true);
 		 SLogger::logFile("Logs/DebugLog.txt", SLogger::LOGTYPE_DEBUG, true, true);
 		 SLogger::logFile("Logs/InfoLog.txt", SLogger::LOGTYPE_INFO, true, true);
@@ -57,7 +57,9 @@ int main(int argc, char* argv[]) {
 		//exampleMinimumGraphicsSetup();
 		//exampleSkeletalAnimation();
 		//exampleMorphTargetAnimation(); 
-		exampleSkybox();
+		//exampleSkybox();
+		exampleMultiViewport();
+
 		
 		//shadowTest();
 		//vertexColorTestScene();
@@ -67,7 +69,9 @@ int main(int argc, char* argv[]) {
 		//imuInputDeviceTestScene();
 		//socketTestScene();
 		//assetGLTFTestScene();
-		//skyboxTestScene();
+
+		//anotherTestScene();
+		
 
 	}
 	catch (const CrossForgeException & e) {
