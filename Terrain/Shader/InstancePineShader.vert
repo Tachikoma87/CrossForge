@@ -104,9 +104,12 @@ out vec3 T;
 out vec2 UV;
 out vec3 CameraPos;
 out vec3 worldSpacePos;
+out vec3 vertPos;
 
 
 void main(){
+	vertPos = normalize(Position);
+	
 	mat4 m = instanceMatrix;
 
 	vec3 windPos = (m * vec4(Position, 1)).xyz;

@@ -126,6 +126,11 @@ void main() {
     multiplieer *= 1 - clamp(smoothstep(LayerHeights[3], 1, Height), 0, 0.8);
     color = mix(triMap(4,  normal), color, 1 - multiplieer);
 
+    /*
+    if (Height < 0.501) {
+        discard;
+    }
+    */
 
     gPosition = vec4(FragPosition, 0);
     gNormal = vec4(normal, 0);

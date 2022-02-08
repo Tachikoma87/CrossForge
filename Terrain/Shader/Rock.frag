@@ -35,7 +35,7 @@ void main(){
 	bool metaMapping = false;
 
 	// scale down Texture
-	const float uvScale = 3;
+	const float uvScale = 7;
 	vec2 smallUV = UV * uvScale;
 
 	// tangent space Matrix
