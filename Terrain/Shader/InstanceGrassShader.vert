@@ -104,9 +104,11 @@ out vec3 T;
 out vec2 UV;
 out vec3 CameraPos;
 out vec3 worldSpacePos;
+out vec3 vertPos;
 
 
 void main(){
+	
 	mat4 m = mat4(vec4(1, 0, 0, 0), vec4(0, 1, 0, 0), vec4(0, 0, 1, 0), vec4(0, 0, 0, 1));
 
 	m = instanceMatrix;
@@ -125,6 +127,7 @@ void main(){
 	Pos = (Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(windPos, 1)).rgb;
 	CameraPos = Camera.Position.xyz;
 
+	vertPos = N;
 
 	UV = UVW.xy;
 	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(windPos, 1);

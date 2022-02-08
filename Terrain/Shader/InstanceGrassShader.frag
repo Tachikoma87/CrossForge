@@ -3,8 +3,9 @@
 //#version 300 es
 //precision lowp float;
 
-// gBuffer stuff
-layout(location = 0) out vec4 FragmentColor;
+layout(location = 0) out vec4 gPosition;
+layout(location = 1) out vec4 gNormal;
+layout(location = 2) out vec4 gAlbedoSpec;
 
 layout (std140) uniform MaterialData{
 	vec4 Color;
@@ -21,6 +22,7 @@ in vec3 Pos;
 in vec3 N;
 in vec2 UV;
 in vec3 worldSpacePos;
+in vec3 vertPos;
 
 //	Classic Perlin 3D Noise 
 //	by Stefan Gustavson
@@ -108,5 +110,7 @@ void main(){
 	float scale = 10;
 	float noiseValue = cnoise(worldSpacePos / scale) / 4;
 	
-	FragmentColor = texture(TexAlbedo, UV) * (1 - noiseValue) + vec4(220 / 255.0, 210 / 255.0, 25 / 255.0, 1) * noiseValue;
+	gPosition = vec4(Pos, 0.0);
+	gNormal = vec4(vertPos, 0.0);
+	gAlbedoSpec = vec4(texture(TexAlbedo, UV).rgb, 0) * (1 - noiseValue) + vec4(220 / 255.0, 210 / 255.0, 25 / 255.0, 0) * noiseValue;;
 }

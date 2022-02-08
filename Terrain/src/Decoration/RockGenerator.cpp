@@ -35,7 +35,6 @@ namespace Terrain {
         CellularNoise3D cNoise(10, 1, 1, 1);
         siv::PerlinNoise pNoise;
         
-        // rough stone shape
         for (int i = 0; i < geometry.vertices.size(); i++) {
             geometry.vertices[i] += geometry.normals[i] * cNoise.getValue(geometry.vertices[i], 0, 4);
             geometry.vertices[i] *= pNoise.accumulatedOctaveNoise3D(geometry.vertices[i].x(), geometry.vertices[i].y(), geometry.vertices[i].z(), 8) * 0.1 + 0.9;

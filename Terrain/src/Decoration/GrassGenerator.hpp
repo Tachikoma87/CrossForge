@@ -30,7 +30,7 @@ class GrassGenerator {
 						generate(geometry, 0, 6, 6);
 						break;
 					case triangle:
-						generate(geometry, 0.3, 6, 3);
+						generate(geometry, 0.6, 6, 3);
 						break;
 				}
 
