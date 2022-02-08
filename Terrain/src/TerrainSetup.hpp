@@ -170,6 +170,7 @@ namespace Terrain {
             camDir.normalize();
             camRig.normalize();
             Vector3f A = camera.position();
+            A -= camDir * 2;
             A.y() = 0;
             Vector3f B = A + camDir * triangleHeight + camRig * triangleWidth / 2.0;
             Vector3f C = A + camDir * triangleHeight + camRig * triangleWidth / -2.0;
@@ -201,6 +202,7 @@ namespace Terrain {
         }
     }
 
+
     void placeDekoElements(TerrainMap &map, InstanceActor &iPineActor, InstanceActor &iPineLeavesActor, InstanceActor &iTreeActor, InstanceActor &iTreeLeavesActor, InstanceActor &iPalmActor, InstanceActor &iPalmLeavesActor, InstanceActor &iRockActor, InstanceActor& iBushActor) {
         iPineActor.clearInstances();
         iPineLeavesActor.clearInstances();
@@ -218,7 +220,7 @@ namespace Terrain {
 
         float sizeScale = 1;
 
-        int ammount = 75;
+        int ammount = 200;
         Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale, sizeScale, sizeScale));
         Matrix4f R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY())));
         float randomSizeScale;
@@ -250,7 +252,7 @@ namespace Terrain {
                 }
                 else if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale + noiseOffset, 0, zCord * noiseScale, 1) > 0.1) {
                     if (map.getHeightAt(xCord, zCord) > 208 && map.getHeightAt(xCord, zCord) < 235) {
-                        randomSizeScale = randomF(0.8f, 1.25f);
+                        randomSizeScale = randomF(1.25f, 1.75f);
                         S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
                         iTreeActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
                         iTreeLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
@@ -280,13 +282,12 @@ namespace Terrain {
                 zCord += randomF(map.getMapSize().y() / (float)ammount / -2.0, map.getMapSize().y() / (float)ammount / 2.0);
                 if (map.getHeightAt(xCord, zCord) > 210 && map.getHeightAt(xCord, zCord) < 275) {
                     R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
-                    S = GraphicsUtility::scaleMatrix(Vector3f(randomF(0.5, 2), randomF(0.5, 1.2), randomF(0.5, 2)));
+                    S = GraphicsUtility::scaleMatrix(Vector3f(randomF(0.5, 1), randomF(0.5, 1), randomF(0.5, 1)));
                     iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
                 }
             }
         }
     }
-
 
     void loadNewDekoObjects(bool generateNew, DekoMesh &PineMesh, DekoMesh &PineLeavesMesh, DekoMesh &PalmMesh, DekoMesh &PalmLeavesMesh, DekoMesh &TreeMesh, DekoMesh &TreeLeavesMesh, DekoMesh &GrassMesh, DekoMesh &RockMesh, DekoMesh& BushMesh) {
         if (generateNew) {
@@ -367,6 +368,7 @@ namespace Terrain {
     }
 
 
+
     void TerrainSetup() {
         bool wireframe = false;
         bool debugTexture = false;
@@ -407,7 +409,7 @@ namespace Terrain {
         SceneGraph sceneGraph;
 
         bool generateNew = true;
-        bool renderGrass = false;
+        bool renderGrass = true;
 
         DekoMesh PineMesh;
         InstanceActor iPineActor;

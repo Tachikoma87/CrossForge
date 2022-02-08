@@ -79,7 +79,7 @@ namespace CForge {
 
 		VirtualCamera Cam;
 		Cam.init(Vector3f(0.0f, 0.0f, 6.0f), Vector3f::UnitY());
-		Cam.yaw(GraphicsUtility::degToRad(0));
+		
 		//Cam.init(Vector3f(0.0f, 0.0f, -5.0f), Vector3f::UnitY());
 		//Cam.yaw(GraphicsUtility::degToRad(180));
 		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(80.0f), 0.1f, 1000.0f);
@@ -117,7 +117,6 @@ namespace CForge {
 		glBindBufferBase(GL_UNIFORM_BUFFER, 4, windUBO);
 		setWindUBO(windUBO, windVec, 0);
 
-
 		std::vector<InstanceSGN> nodes;
 		int ammount = 32;
 		for (int i = 0; i < ammount * ammount; i++) {
@@ -128,7 +127,7 @@ namespace CForge {
 		};
 
 		bool generateNew = true;
-		DekoObject selected = instanceGrass;
+		DekoObject selected = rock;
 
 		switch (selected) {
 		case instanceTrees:
@@ -163,15 +162,16 @@ namespace CForge {
 			break;
 		case rock:
 			if (generateNew) {
-				RockGenerator::generateRocks(RockGenerator::Normal, 1, "Assets/");
+				RockGenerator::generateRocks(RockGenerator::Normal, 1, "Assets/rock");
 			}
 			M.load("Assets/rock0.obj");
 			M.getMaterial(0)->TexAlbedo = "Assets/richard/Rock_035_baseColor.jpg";
 			M.getMaterial(0)->TexNormal = "Assets/richard/Rock_035_normal.jpg";
 			M.getMaterial(0)->TexDepth = "Assets/richard/Rock_035_Packed.png";
 
-			M.getMaterial(0)->VertexShaderSources.push_back("Shader/RockShader.vert");
-			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/RockShader.frag");
+			M.getMaterial(0)->VertexShaderSources.push_back("Shader/Rock.vert");
+			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/Rock.frag");
+
 
 			object.init(&M);
 			objectSGN.init(&objectTransformSGN, &object);
@@ -179,7 +179,7 @@ namespace CForge {
 			break;
 		case grass:
 			if (generateNew) {
-				GrassGenerator::generateGrass(GrassType::triangle, 1, "Assets/");
+				GrassGenerator::generateGrass(GrassType::cross, 1, "Assets/grass");
 			}
 			M.load("Assets/grass0.obj");
 			M.getMaterial(0)->TexAlbedo = "Assets/richard/grass_color.jpg";
@@ -188,9 +188,11 @@ namespace CForge {
 			M.getMaterial(0)->FragmentShaderSources.push_back("Shader/GrassShader.frag");
 			
 			object.init(&M);
-			objectTransformSGN.translation(Vector3f(0, -2, 0));
+			objectTransformSGN.translation(Vector3f(0, -5, 0));
 			objectSGN.init(&objectTransformSGN, &object);
 			SGTest.init(&objectTransformSGN);
+
+			Cam.pitch(GraphicsUtility::degToRad(400));
 			break;
 		case tree:
 			if (generateNew) {
