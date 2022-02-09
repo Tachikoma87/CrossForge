@@ -27,6 +27,7 @@ namespace ArduForge {
         enum Command : int8_t {
             CMD_UNKNOWN = -1,
             CMD_DATA,
+            CMD_CALIBRATE,
         };
 
         IMUPackage(void) {

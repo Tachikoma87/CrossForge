@@ -133,9 +133,16 @@ namespace CForge {
 
 		for (uint32_t i = 0; i < pAnim->Keyframes.size(); ++i) {
 			auto* pKeyFrame = pAnim->Keyframes[i];
+			if (pKeyFrame->BoneName.empty()) continue;
 			if (pKeyFrame->Timestamps.size() != MaxTimestamps) pKeyFrame->Timestamps = pAnim->Keyframes[KeyframeMaxTimestamps]->Timestamps;
 			Vector3f Pos = pKeyFrame->Positions[0];
 			Vector3f Scale = pKeyFrame->Scalings[0];
+			Quaternionf Rot = pKeyFrame->Rotations[0];
+
+
+			while (pKeyFrame->Positions.size() < MaxTimestamps) pKeyFrame->Positions.push_back(Pos);
+			while (pKeyFrame->Scalings.size() < MaxTimestamps) pKeyFrame->Scalings.push_back(Scale);
+			while (pKeyFrame->Rotations.size() < MaxTimestamps) pKeyFrame->Rotations.push_back(Rot);
 		}
 	
 	}//addAnimation
@@ -205,6 +212,8 @@ namespace CForge {
 
 			// apply local transformations
 			for (uint32_t i = 0; i < pAnimData->Keyframes.size(); ++i) {
+
+				if (pAnimData->Keyframes[i]->BoneName.empty()) continue;
 
 				if (pAnimData->Keyframes[i]->Timestamps.size() == 0) continue;
 

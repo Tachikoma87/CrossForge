@@ -37,6 +37,8 @@
 
 #include "../../Examples/SceneUtilities.hpp"
 
+#include "../../CForge/Graphics/Actors/SkyboxActor.h"
+
 #include "../Internet/UDPSocket.h"
 #include "../Internet/IMUPackage.hpp"
 
@@ -92,10 +94,11 @@ namespace CForge {
 		LC.DirLightCount = 1;
 		LC.PointLightCount = 1;
 		LC.SpotLightCount = 0;
-		LC.PCFSize = 1;
+		LC.PCFSize = 2;
 		LC.ShadowBias = 0.0001f;
 		LC.ShadowMapCount = 1;
 		pSMan->configShader(LC);
+
 
 		// initialize camera
 		VirtualCamera Cam;
@@ -103,14 +106,15 @@ namespace CForge {
 		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
 
 		// initialize sun (key lights) and back ground light (fill light)
-		Vector3f SunPos = Vector3f(-15.0f, 125.0f, 200.0f);
-		Vector3f BGLightPos = Vector3f(0.0f, 50.0f, -100.0f);
+		Vector3f SunPos = Vector3f(-15.0f, 625.0f, 500.0f);
+		Vector3f BGLightPos = Vector3f(0.0f, 10.0f, -500.0f);
 		DirectionalLight Sun;
 		PointLight BGLight;
 		Sun.init(SunPos, (Vector3f(0.0f, 0.0f, 0.0f) - SunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 15.0f);
 		// sun will cast shadows
-		Sun.initShadowCasting(4*1024, 4*1024, GraphicsUtility::orthographicProjection(175.0f, 175.0f, 0.1f, 1000.0f));
-		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 2.0f, Vector3f(0.0f, 0.0f, 0.0f));
+		uint32_t ShadowMapSize = 4 * 1024;
+		Sun.initShadowCasting(ShadowMapSize, ShadowMapSize, GraphicsUtility::orthographicProjection(575.0f, 575.0f, 5.0f, 1500.0f));
+		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f, Vector3f(0.0f, 0.0f, 0.0f));
 
 		// set camera and lights
 		RDev.activeCamera(&Cam);
@@ -122,8 +126,14 @@ namespace CForge {
 		StaticActor Skydome;
 		StaticActor Cube;
 
-		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
-		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
+		//SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
+		SAssetIO::load("MyAssets/TexturedGround.fbx", &M);
+
+		for (uint8_t i = 0; i < 4; ++i) M.textureCoordinate(i) *= 10.0f;
+
+		SceneUtilities::setMeshShader(&M, 0.0f, 0.04f);
+		M.getMaterial(0)->Color = 0.75f * Vector4f(0.75f, 0.85f, 0.75f, 1.0f);
+		M.getMaterial(0)->TexAlbedo = "MyAssets/ForestGround.jpg";
 		M.computePerVertexNormals();
 		Skydome.init(&M);
 		M.clear();
@@ -139,6 +149,43 @@ namespace CForge {
 		SGNTransformation RootSGN;
 		RootSGN.init(nullptr);
 		SG.init(&RootSGN);
+
+		vector<string> ClearSky;
+		/*ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_right.png");
+		ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_left.png");
+		ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_up.png");
+		ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_down.png");
+		ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_back.png");
+		ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_front.png");*/
+
+		ClearSky.push_back("MyAssets/Cloudy/bluecloud_rt.jpg");
+		ClearSky.push_back("MyAssets/Cloudy/bluecloud_lf.jpg");
+		ClearSky.push_back("MyAssets/Cloudy/bluecloud_up.jpg");
+		ClearSky.push_back("MyAssets/Cloudy/bluecloud_dn.jpg");
+		ClearSky.push_back("MyAssets/Cloudy/bluecloud_ft.jpg");
+		ClearSky.push_back("MyAssets/Cloudy/bluecloud_bk.jpg");
+
+
+		SkyboxActor Skybox;
+		Skybox.init(ClearSky[0], ClearSky[1], ClearSky[2], ClearSky[3], ClearSky[4], ClearSky[5]);
+
+		// set initialize color adjustment values
+		Skybox.brightness(1.15f);
+		Skybox.contrast(1.0f);
+		Skybox.saturation(1.2f);
+
+		SceneGraph SkyboxSG;
+		SGNTransformation SkyboxTransSGN;
+		SGNGeometry SkyboxGeomSGN;
+
+		// create scene graph for the Skybox
+		SkyboxTransSGN.init(nullptr);
+		SkyboxGeomSGN.init(&SkyboxTransSGN, &Skybox);
+		SkyboxSG.init(&SkyboxTransSGN);
+		
+		Quaternionf Rot;
+		Rot = AngleAxisf(GraphicsUtility::degToRad(-0.25f / 60.0f), Vector3f::UnitY());
+		SkyboxTransSGN.rotationDelta(Rot);
 
 		StaticActor Tree1;
 		StaticActor Tree2;
@@ -158,15 +205,18 @@ namespace CForge {
 		// add skydome
 		SGNGeometry SkydomeSGN;
 		SkydomeSGN.init(&RootSGN, &Skydome);
-		SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
+		Rot;
+		Rot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
+		SkydomeSGN.rotation(Rot);
+		SkydomeSGN.scale(Vector3f(600.0f, 600.0f, 1.0f));
 
 		// generate a forest
 		const uint32_t TreeCount = 500;
 		SGNGeometry* pTreeNodes = new SGNGeometry[TreeCount];
 		SGNTransformation* pTreeTransNodes = new SGNTransformation[TreeCount];
 
-		float MinPlane = -150.0f;
-		float MaxPlane = 150.0f;
+		float MinPlane = -500.0f;
+		float MaxPlane = 500.0f;
 
 		for (uint32_t i = 0; i < TreeCount; ++i) {
 
@@ -176,7 +226,7 @@ namespace CForge {
 			Pos.y() = 0.0f;
 			Pos.z() = CoreUtility::randRange(MinPlane, MaxPlane);
 
-			float Scaling = CoreUtility::randRange(1.8f, 2.4f);
+			float Scaling = CoreUtility::randRange(3.8f, 8.4f);
 
 			Quaternionf RotationY;
 			RotationY = AngleAxisf(GraphicsUtility::degToRad(CoreUtility::randRange(0.0f, 360.0f)), Vector3f::UnitY());
@@ -230,18 +280,33 @@ namespace CForge {
 		uint16_t Port;
 
 		UDPSocket::startup();
-		IMUCamera IMUCam;
-		IMUCam.init(25001, 25000, 250, 250);
+		IMUCameraController IMUCam;
+		IMUCam.init(25001, 25000, 200, 500);
 
+		bool Flying = false;
 
 		while (!RenderWin.shutdown()) {
 			
-			IMUCam.update(&Cam, 1.0f);
+			
 
 			RenderWin.update();
-			SG.update(FPS / 60.0f);
+			SG.update(60.0f/FPS);
+			SkyboxSG.update(60.0f / FPS);
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) Flying = !Flying;
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) IMUCam.calibrate();
+
+			Vector3f Pos = Cam.position();
+			Pos.x() = std::max(MinPlane, Pos.x());
+			Pos.x() = std::min(MaxPlane, Pos.x());
+			if(!Flying) Pos.y() = 0.85f;
+			Pos.z() = std::max(MinPlane, Pos.z());
+			Pos.z() = std::min(MaxPlane, Pos.z());
+
+			Cam.position(Pos);
+
+			IMUCam.update(&Cam, 60.0f / FPS);
 
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
 			SG.render(&RDev);
@@ -250,6 +315,9 @@ namespace CForge {
 			SG.render(&RDev);
 
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+
+			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+			SkyboxSG.render(&RDev);
 
 			RenderWin.swapBuffers();
 
@@ -269,10 +337,7 @@ namespace CForge {
 			}
 		}//while[main loop]
 
-		/*Client.end();
-		Server.end();*/
-
-		//IMUServer.end();
+		IMUCam.clear();
 
 		UDPSocket::cleanup();
 		

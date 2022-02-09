@@ -85,7 +85,7 @@ namespace CForge {
 			removeDefine("PCF_SHADOWS");
 		}
 		else {
-			addDefine("PDF_SHADOWS");	
+			addDefine("PCF_SHADOWS");	
 			changeConst("const int PCFFilterSize", to_string(pConfig->PCFSize));
 		}
 
