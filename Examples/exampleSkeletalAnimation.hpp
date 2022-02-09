@@ -171,6 +171,7 @@ namespace CForge {
 			// if user also presses shift, animation speed is doubled
 			float AnimationSpeed = 1.0f;
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed = 2.0f;
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed = 0.5f;
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 				SkeletalAnimationController::Animation *pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
 				Eric.activeAnimation(pAnim);

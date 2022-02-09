@@ -24,10 +24,10 @@
 #include "../Internet/UDPSocket.h"
 
 namespace CForge {
-	class IMUCamera {
+	class IMUCameraController {
 	public:
-		IMUCamera(void);
-		~IMUCamera(void);
+		IMUCameraController(void);
+		~IMUCameraController(void);
 
 		void init(uint16_t PortLeft, uint16_t PortRight, uint32_t ForwardInterpolation, uint32_t RotationInterpolation);
 		void clear(void);
@@ -35,15 +35,27 @@ namespace CForge {
 		void update(VirtualCamera *pCamera, float Scale);
 		void apply(VirtualCamera* pCamera, float Scale);
 
+		void calibrate(void);
 
 	protected:
 		struct IMUData {
 			uint64_t Timestamp;
 			Eigen::Vector3f Rotations;
 			Eigen::Vector3f Accelerations;
+
+			void clear(void) {
+				Timestamp = 0;
+				Rotations = Eigen::Vector3f::Zero();
+				Accelerations = Eigen::Vector3f::Zero();
+			}
 		};
 
 		struct InterpolatedControllerData {
+			IMUData AveragedMovementLeft;
+			IMUData AveragedMovementRight;
+			IMUData AveragedRotationLeft;
+			IMUData AveragedRotationRight;
+
 			float ForwardLeft;
 			float ForwardRight;
 			float RotationLeft;
@@ -71,16 +83,20 @@ namespace CForge {
 		uint32_t m_ForwardInterpolation;
 		uint32_t m_RotationInterpolation;
 
-		/*float m_Forward;
-		float m_Rotation;
-		float m_Tilt;*/
-
 		float m_StepSpeed;
 
 		uint64_t m_StepStarted;
 		uint64_t m_StepEnded;
 
 		InterpolatedControllerData m_CmdData;
+
+		std::string m_LeftFootIP;
+		std::string m_RightFootIP;
+		uint16_t m_LeftFootPort;
+		uint16_t m_RightFootPort;
+
+		float m_HeadOffset;
+		float m_CameraHeight;
 
 	};//IMUCamera
 
