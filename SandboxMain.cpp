@@ -58,21 +58,18 @@ int main(int argc, char* argv[]) {
 		//exampleSkeletalAnimation();
 		//exampleMorphTargetAnimation(); 
 		//exampleSkybox();
-		exampleMultiViewport();
-
-		
+		//exampleMultiViewport();
+	
 		//shadowTest();
 		//vertexColorTestScene();
 		//forestTestScene();
 		//skelAnimTestScene();
 
-		//imuInputDeviceTestScene();
+		imuInputDeviceTestScene();
 		//socketTestScene();
 		//assetGLTFTestScene();
 
-		//anotherTestScene();
-		
-
+		//anotherTestScene();	
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
