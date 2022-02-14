@@ -45,13 +45,19 @@ namespace CForge {
 	
 	private:
 		void aiSceneTo3DMesh(const aiScene* pScene, T3DMesh<float>* pMesh, std::string Directory);
+		void T3DMeshToAiScene(const T3DMesh<float>* pMesh, aiScene* pScene);
 
 		inline Eigen::Vector3f toEigenVec(const aiVector3D Vec)const;
 		inline Eigen::Matrix4f toEigenMat(const aiMatrix4x4 Mat)const;
 		inline Eigen::Quaternionf toEigenQuat(const aiQuaternion Q)const;
 
+		inline aiVector3D toAiVector(const Eigen::Vector3f Vec)const;
+		inline aiMatrix4x4 toAiMatrix(const Eigen::Matrix4f Mat)const;
+		inline aiQuaternion toAiQuat(const Eigen::Quaternionf Q)const;
+
 		T3DMesh<float>::Bone* getBoneFromName(std::string Name, std::vector<T3DMesh<float>::Bone*>* pBones);
 		void retrieveBoneHierarchy(aiNode* pNode, std::vector<T3DMesh<float>::Bone*>* pBones);
+		void writeBone(aiNode* pNode, const T3DMesh<float>::Bone* pBone);
 
 		Assimp::Importer m_Importer;
 

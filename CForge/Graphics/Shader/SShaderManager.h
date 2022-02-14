@@ -28,7 +28,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT SShaderManager: CForgeObject {
+	class CFORGE_API SShaderManager: CForgeObject {
 	public:
 		static SShaderManager* instance(void);
 		void release(void);

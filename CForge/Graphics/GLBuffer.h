@@ -26,7 +26,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT GLBuffer: public CForgeObject {
+	class CFORGE_API GLBuffer: public CForgeObject {
 	public:
 		enum BufferType: int32_t {
 			BTYPE_UNKNOWN = -1,

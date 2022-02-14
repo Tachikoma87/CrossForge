@@ -94,10 +94,17 @@ int main(int argc, char* argv[]) {
 	// Graphics/Actors
 	Directories.push_back("crossforge/include/crossforge/Graphics/Actors/");
 	IncludeFiles.push_back("Graphics/Actors/IRenderableActor.h");
+	IncludeFiles.push_back("Graphics/Actors/MorphTargetActor.h");
 	IncludeFiles.push_back("Graphics/Actors/RenderGroupUtility.h");
 	IncludeFiles.push_back("Graphics/Actors/ScreenQuad.h");
+	IncludeFiles.push_back("Graphics/Actors/SkeletalActor.h");
 	IncludeFiles.push_back("Graphics/Actors/StaticActor.h");
 	IncludeFiles.push_back("Graphics/Actors/VertexUtility.h");
+
+	// Graphics/Controller
+	Directories.push_back("crossforge/include/crossforge/Graphics/Controller/");
+	IncludeFiles.push_back("Graphics/Controller/MorphTargetAnimationController.h");
+	IncludeFiles.push_back("Graphics/Controller/SkeletalAnimationController.h");
 
 	// Graphics/Lights
 	Directories.push_back("crossforge/include/crossforge/Graphics/Lights/");
@@ -113,16 +120,20 @@ int main(int argc, char* argv[]) {
 	IncludeFiles.push_back("Graphics/SceneGraph/SGNGeometry.h");
 	IncludeFiles.push_back("Graphics/SceneGraph/SGNTransformation.h");
 
+	// Graphics/Shader
 	Directories.push_back("crossforge/include/crossforge/Graphics/Shader/");
 	IncludeFiles.push_back("Graphics/Shader/GLShader.h");
 	IncludeFiles.push_back("Graphics/Shader/SShaderManager.h");
 	IncludeFiles.push_back("Graphics/Shader/ShaderCode.h");
 
+	// Graphics/UniformBufferObjects
 	Directories.push_back("crossforge/include/crossforge/Graphics/UniformBufferObjects/");
+	IncludeFiles.push_back("Graphics/UniforMBufferObjects/UBOBoneData.h");
 	IncludeFiles.push_back("Graphics/UniformBufferObjects/UBOCameraData.h");
 	IncludeFiles.push_back("Graphics/UniformBUfferObjects/UBOLightData.h");
 	IncludeFiles.push_back("Graphics/UniformBUfferObjects/UBOMaterialData.h");
 	IncludeFiles.push_back("Graphics/UniformBufferObjects/UBOModelData.h");
+	IncludeFiles.push_back("Graphics/UniformBufferObjects/UBOMorphTargetData.h");
 
 	// INput
 	Directories.push_back("crossforge/include/crossforge/Input/");
@@ -147,7 +158,7 @@ int main(int argc, char* argv[]) {
 	BinaryFiles.push_back("x64-Debug/libpng16d.dll");
 	BinaryFiles.push_back("x64-Debug/lzmad.dll");
 	BinaryFiles.push_back("x64-Debug/opencv_cored.dll");
-	BinaryFiles.push_back("x64-Debug/opencv_highguid.dll");
+//	BinaryFiles.push_back("x64-Debug/opencv_highguid.dll");
 	BinaryFiles.push_back("x64-Debug/opencv_imgcodecsd.dll");
 	BinaryFiles.push_back("x64-Debug/opencv_imgprocd.dll");
 	BinaryFiles.push_back("x64-Debug/opencv_videoiod.dll");
@@ -167,7 +178,7 @@ int main(int argc, char* argv[]) {
 	BinaryFiles.push_back("x64-Release/libpng16.dll");
 	BinaryFiles.push_back("x64-Release/lzma.dll");
 	BinaryFiles.push_back("x64-Release/opencv_core.dll");
-	BinaryFiles.push_back("x64-Release/opencv_highgui.dll");
+//	BinaryFiles.push_back("x64-Release/opencv_highgui.dll");
 	BinaryFiles.push_back("x64-Release/opencv_imgcodecs.dll");
 	BinaryFiles.push_back("x64-Release/opencv_imgproc.dll");
 	BinaryFiles.push_back("x64-Release/opencv_videoio.dll");

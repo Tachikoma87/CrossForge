@@ -18,6 +18,7 @@
 #ifndef __CFORGE_SHADOWTESTSCENE_HPP__
 #define __CFORGE_SHADOWTESTSCENE_HPP__
 
+
 #include "../../CForge/AssetIO/SAssetIO.h"
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
 #include "../../CForge/Graphics/STextureManager.h"
@@ -36,7 +37,7 @@
 
 #include "../../CForge/Graphics/Actors/StaticActor.h"
 
-#include "../Actor/SkeletalActor.h"
+#include "../../CForge/Graphics/Actors/SkeletalActor.h"
 
 #include "../../Examples/SceneUtilities.hpp"
 
@@ -326,7 +327,7 @@ namespace CForge {
 		PictureRot = Eigen::AngleAxis(GraphicsUtility::degToRad(-45.0f), Eigen::Vector3f::UnitY());
 
 		uint32_t FrameCount = 0;
-		uint32_t LastFPSPrint = GetTickCount();
+		uint64_t LastFPSPrint = CoreUtility::timestamp();
 
 		uint32_t TimingShadowPass = 0;
 		uint32_t TimingGeometryPass = 0;
@@ -339,9 +340,9 @@ namespace CForge {
 
 		while (!RenderWin.shutdown()) {
 			FrameCount++;
-			if (GetTickCount() - LastFPSPrint > 2000) {
+			if (CoreUtility::timestamp() - LastFPSPrint > 2000) {
 
-				LastFPSPrint = GetTickCount();
+				LastFPSPrint = CoreUtility::timestamp();
 				float AvailableMemory = GraphicsUtility::gpuMemoryAvailable() / 1000.0f;
 				float MemoryInUse = AvailableMemory - GraphicsUtility::gpuFreeMemory() / 1000.0f;
 
@@ -403,7 +404,7 @@ namespace CForge {
 				printf("Saturation now: %.2f\n", PPC.Saturation);
 			}
 
-			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT, Keyboard::KEY_8)) {
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) && pKeyboard->keyPressed(Keyboard::KEY_8)) {
 				PPC.Contrast -= 0.05f;
 				pSMan->configShader(PPC);
 				pKeyboard->keyState(Keyboard::KEY_8, Keyboard::KEY_RELEASED);

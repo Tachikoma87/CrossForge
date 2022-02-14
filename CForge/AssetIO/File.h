@@ -26,7 +26,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation
 	*/
-	class CFORGE_IXPORT File: public CForgeObject {
+	class CFORGE_API File: public CForgeObject {
 	public:
 		
 		/**

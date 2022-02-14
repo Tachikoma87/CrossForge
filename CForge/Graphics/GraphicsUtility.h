@@ -27,7 +27,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT GraphicsUtility: public CForgeObject {
+	class CFORGE_API GraphicsUtility: public CForgeObject {
 	public:
 		struct GPUTraits {
 			int32_t MaxTextureImageUnits;
@@ -64,6 +64,8 @@ namespace CForge {
 		static Eigen::Matrix4f rotationMatrix(Eigen::Quaternionf Rot);
 		static Eigen::Matrix4f translationMatrix(Eigen::Vector3f Trans);
 		static Eigen::Matrix4f scaleMatrix(Eigen::Vector3f Scale);
+
+		static Eigen::Matrix3f alignVectors(const Eigen::Vector3f Source, const Eigen::Vector3f Target);
 
 		static void retrieveColorTexture(uint32_t TexObj, T2DImage<uint8_t>* pImg);
 		static void retrieveDepthTexture(uint32_t TexObj, T2DImage<uint8_t>* pImg, float Near = -1.0f, float Far = -1.0f);
