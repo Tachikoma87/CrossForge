@@ -9,12 +9,23 @@
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
 
+#include "Examples/exampleMinimumGraphicsSetup.hpp"
+#include "Examples/exampleSkeletalAnimation.hpp"
+#include "Examples/exampleMorphTargetAnimation.hpp"
+
 #include "Examples/MinimumGraphicalSetup.hpp"
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/MorphTargetAnimTestScene.hpp"
 #include "Prototypes/TestScenes/LODTestScene.hpp"
 
-#include <glad/glad.h>
+#include "Prototypes/TestScenes/ShadowTestScene.hpp"
+#include "Prototypes/TestScenes/VertexColorTestScene.hpp"
+#include "Prototypes/TestScenes/ForestTestScene.hpp"
+#include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
+#include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
+#include "Prototypes/TestScenes/SocketTestScene.hpp"
+#include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
+#include "Prototypes/TestScenes/SkyboxTestScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -46,7 +57,20 @@ int main(int argc, char* argv[]) {
 		return -1;	
 	}
 
+
 	try {
+		//exampleMinimumGraphicsSetup();
+		//exampleSkeletalAnimation();
+		//exampleMorphTargetAnimation(); 
+		//shadowTest();
+		//vertexColorTestScene();
+		//forestTestScene();
+		//skelAnimTestScene();
+
+		//imuInputDeviceTestScene();
+		//socketTestScene();
+		//assetGLTFTestScene();
+		//skyboxTestScene();
 		LODTestScene();
 		//MinimumGraphicalSetup();
 		//shadowTest();
@@ -60,9 +84,11 @@ int main(int argc, char* argv[]) {
 		printf("A not handled exception occurred!\n");
 	}
 
-
 	if(nullptr != pDev) pDev->release();
 	
+	char c;
+	//scanf("%c", &c);
+
 #ifdef WIN32
 	// dump memory statics
 	_CrtMemCheckpoint(&S2);

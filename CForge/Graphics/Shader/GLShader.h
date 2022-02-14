@@ -28,10 +28,10 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT GLShader: public CForgeObject {
+	class CFORGE_API GLShader: public CForgeObject {
 	public:
 		enum Attribute: int8_t {
-			ATTRIB_UNKNOWN = 0,
+			ATTRIB_UNKNOWN = -1,
 			ATTRIB_POSITION = 0,
 			ATTRIB_NORMAL,
 			ATTRIB_TANGENT,
@@ -58,6 +58,7 @@ namespace CForge {
 			DEFAULTUBO_MODELDATA,
 			DEFAULTUBO_BONEDATA,
 			DEFAULTUBO_MORPHTARGETDATA,
+			DEFAULTUBO_COLORADJUSTMENT,
 			DEFAULTUBO_COUNT,
 		};
 
@@ -82,6 +83,7 @@ namespace CForge {
 		const std::string UBOModelDataName = "ModelData";
 		const std::string UBOBoneDataName = "BoneData";
 		const std::string UBOMorphTargetDataName = "MorphTargetData";
+		const std::string UBOColorAdjustmentDataName = "ColorAdjustmentData";
 
 		const std::string TextureAlbedoName = "TexAlbedo";
 		const std::string TextureNormalName = "TexNormal";

@@ -81,7 +81,6 @@ namespace CForge {
 		}
 
 		// shadow stuff
-
 		if (pConfig->PCFSize == 0) {
 			removeDefine("PCF_SHADOWS");
 		}
@@ -129,7 +128,7 @@ namespace CForge {
 		if (ConfigOptions & CONF_POSTPROCESSING) config(&m_PostProcessingConfig);
 		if (ConfigOptions & CONF_SKELETALANIMATION) config(&m_SkeletalAnimationConfig);
 		if (ConfigOptions & CONF_MORPHTARGETANIMATION) config(&m_MorphTargetAnimationConfig);
-
+		if (ConfigOptions & CONF_VERTEXCOLORS) addDefine("VERTEX_COLORS");
 	}//config
 
 	std::string ShaderCode::code(void)const {

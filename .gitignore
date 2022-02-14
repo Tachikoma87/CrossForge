@@ -4,7 +4,6 @@ out/
 Documentation/Doc/
 Libraries/
 MyAssets/
-Assets/
 
 # Prerequisites
 *.d
@@ -13,7 +12,6 @@ Assets/
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch
@@ -38,3 +36,6 @@ Assets/
 *.exe
 *.out
 *.app
+
+# Visual Studio files
+CMakeSettings.json
