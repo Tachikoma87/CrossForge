@@ -26,15 +26,15 @@ namespace CForge {
 		if (pMesh->colorCount() > 0) VertexProperties |= VertexUtility::VPROP_COLOR;
 		
 		// build array buffer of vertex data
-		void* pBuffer = nullptr;
+		uint8_t* pBuffer = nullptr;
 		uint32_t BufferSize = 0;
 
 		try {
 			m_VertexUtility.init(VertexProperties);
-			m_VertexUtility.buildBuffer(pMesh->vertexCount(), &pBuffer, &BufferSize, pMesh);
+			m_VertexUtility.buildBuffer(pMesh->vertexCount(), (void**)&pBuffer, &BufferSize, pMesh);
 			m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
 			// free buffer data
-			delete[] pBuffer;
+			if(nullptr != pBuffer) delete[] pBuffer;
 			pBuffer = nullptr;
 			BufferSize = 0;
 		}
@@ -49,10 +49,10 @@ namespace CForge {
 	
 		// build render groups and element array
 		try {
-			m_RenderGroupUtility.init(pMesh, &pBuffer, &BufferSize);
+			m_RenderGroupUtility.init(pMesh, (void**)&pBuffer, &BufferSize);
 			m_ElementBuffer.init(GLBuffer::BTYPE_INDEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
 			// free buffer data
-			delete[] pBuffer;
+			if(nullptr != pBuffer) delete[] pBuffer;
 			pBuffer = nullptr;
 			BufferSize = 0;
 		}
@@ -84,15 +84,6 @@ namespace CForge {
 	void StaticActor::release(void) {
 		delete this;
 	}//release
-
-	uint32_t StaticActor::materialCount(void) const {
-		return m_RenderGroupUtility.renderGroupCount();
-	}//materialCount
-
-	RenderMaterial* StaticActor::material(uint32_t Index) {
-		if (Index >= m_RenderGroupUtility.renderGroupCount()) throw IndexOutOfBoundsExcept("Index");
-		return &(m_RenderGroupUtility.renderGroups()[Index]->Material);
-	}//material
 
 	void StaticActor::render(RenderDevice* pRDev) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");

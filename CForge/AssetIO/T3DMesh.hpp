@@ -148,6 +148,7 @@ namespace CForge {
 		struct BoneKeyframes {
 			int32_t ID;
 			int32_t BoneID;
+			std::string BoneName;
 			std::vector<Eigen::Vector3f> Positions;
 			std::vector<Eigen::Quaternionf> Rotations;
 			std::vector<Eigen::Vector3f> Scalings;
@@ -172,6 +173,7 @@ namespace CForge {
 
 		T3DMesh(void): CForgeObject("TDMesh") {
 			m_pRoot = nullptr;
+			m_pRootBone = nullptr;
 		}//Constructor
 
 		~T3DMesh(void) {
@@ -196,7 +198,6 @@ namespace CForge {
 					pMat->init(i);
 					m_Materials.push_back(pMat);
 				}//for[materials]
-				m_pRoot = pRef->m_pRoot;
 				m_AABB = pRef->m_AABB;
 			}
 		}//initialize
@@ -212,6 +213,7 @@ namespace CForge {
 			for (auto& i : m_Materials) delete i;
 			m_Materials.clear();
 			m_pRoot = nullptr;
+			m_pRootBone = nullptr;
 
 			for (auto& i : m_Bones) delete i;
 			m_Bones.clear();
@@ -222,6 +224,20 @@ namespace CForge {
 			m_MorphTargets.clear();
 
 		}//clear
+
+		void clearSkeleton(void) {
+			for (auto i : m_Bones) {
+				if (nullptr != i) delete i;
+			}
+			m_Bones.clear();
+		}//clearSkeleton
+
+		void clearSkeletalAnimations(void) {
+			for (auto i : m_SkeletalAnimations) {
+				if (nullptr != i) delete i;
+			}
+			m_SkeletalAnimations.clear();
+		}//clearSkeletalAnimations
 
 		////// Setter
 		void vertices(std::vector<Eigen::Matrix<T, 3, 1>> *pCoords) {
@@ -245,10 +261,10 @@ namespace CForge {
 		}//colors
 
 		void bones(std::vector<Bone*>* pBones, bool Copy = true) {
-			if (nullptr != pBones && Copy) {
-				for (auto i : m_Bones) delete i;
-				m_Bones.clear();
-
+			for (auto i : m_Bones) delete i;
+			m_Bones.clear();
+			
+			if (nullptr != pBones && Copy) {	
 				// create bones
 				for (size_t i = 0; i < pBones->size(); ++i) m_Bones.push_back(new Bone());
 
@@ -267,9 +283,15 @@ namespace CForge {
 				}//for[bones]
 		
 			}
-			else {
+			else if(nullptr != pBones) {
 				m_Bones = (*pBones);
 			}
+
+			// find root bone
+			for (auto i : m_Bones) {
+				if (i->pParent == nullptr) m_pRootBone = i;
+			}//for[all bones]
+
 		}//bones
 
 		void addSkeletalAnimation(SkeletalAnimation* pAnim, bool Copy = true) {
@@ -279,7 +301,15 @@ namespace CForge {
 			}
 			else {
 				// copy
-				throw CForgeExcept("Copying Skeletal animation not implemented yet!");
+				SkeletalAnimation* pNewAnim = new SkeletalAnimation();
+				pNewAnim->Name = pAnim->Name;
+				pNewAnim->Duration = pAnim->Duration;
+				for (auto i : pAnim->Keyframes) {
+					BoneKeyframes* pBK = new BoneKeyframes();
+					(*pBK) = (*i);
+					pNewAnim->Keyframes.push_back(pBK);
+				}
+				m_SkeletalAnimations.push_back(pNewAnim);
 			}
 
 		}//addSkeletalAnimation
@@ -457,6 +487,13 @@ namespace CForge {
 			return m_MorphTargets[Index];
 		}//getMorphTarget
 
+		Bone* rootBone(void) {
+			return m_pRootBone;
+		}//rootBone
+
+		const Bone* rootBone(void)const {
+			return m_pRootBone;
+		}//rootBone
 
 		void computePerFaceNormals(void) {
 			for (auto i : m_Submeshes) {
@@ -532,6 +569,7 @@ namespace CForge {
 
 		// morph target related
 		std::vector<MorphTarget*> m_MorphTargets;
+
 	};//T3DMesh
 
 }//name space

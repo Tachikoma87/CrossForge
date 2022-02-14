@@ -5,12 +5,13 @@ IF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
    MESSAGE(SEND_ERROR "In-source builds are not allowed. Use a different build directory.")
 ENDIF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
+# CrossForge library
+project(crossforge VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# CrossForge library
-project(crossforge VERSION 0.1 LANGUAGES CXX)
+file(MAKE_DIRECTORY "MyAssets")
 
 FIND_PACKAGE(OpenGL REQUIRED)
 FIND_PACKAGE(assimp CONFIG REQUIRED)
@@ -18,6 +19,13 @@ FIND_PACKAGE(glfw3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenCV CONFIG REQUIRED)
 FIND_PACKAGE(libigl CONFIG REQUIRED)
 
+#enable edit and continue and hot reload (Visual Studio 2022)
+#if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+#	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /ZI")
+#	string(REPLACE "/Zi" "/ZI" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS})
+#	set(CMAKE_SHARED_LINKER_FLAGS "/SAFESEH:NO")
+#	set(CMAKE_EXE_LINKER_FLAGS "/SAFESEH:NO")
+#endif()
 
 include_directories(
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
@@ -49,6 +57,7 @@ add_library(crossforge SHARED
 	# Graphics related
 	CForge/Graphics/GBuffer.cpp 
 	CForge/Graphics/GLBuffer.cpp 
+	CForge/Graphics/GLCubemap.cpp
 	CForge/Graphics/GLTexture2D.cpp 
 	CForge/Graphics/GLVertexArray.cpp 
 	CForge/Graphics/GLWindow.cpp 
@@ -58,12 +67,20 @@ add_library(crossforge SHARED
 	CForge/Graphics/VirtualCamera.cpp
 	CForge/Graphics/GraphicsUtility.cpp
 
+
 	# Actor related
 	CForge/Graphics/Actors/IRenderableActor.cpp 
 	CForge/Graphics/Actors/RenderGroupUtility.cpp 
+	CForge/Graphics/Actors/SkyboxActor.cpp
+	CForge/Graphics/Actors/VertexUtility.cpp 
 	CForge/Graphics/Actors/ScreenQuad.cpp 
 	CForge/Graphics/Actors/StaticActor.cpp 
-	CForge/Graphics/Actors/VertexUtility.cpp 
+	CForge/Graphics/Actors/SkeletalActor.cpp 
+	CForge/Graphics/Actors/MorphTargetActor.cpp 
+
+	# Animation Controller 
+	CForge/Graphics/Controller/SkeletalAnimationController.cpp 
+	CForge/Graphics/Controller/MorphTargetAnimationController.cpp
 
 	# Shader
 	CForge/Graphics/Shader/GLShader.cpp 
@@ -72,9 +89,12 @@ add_library(crossforge SHARED
 
 	# Uniform Buffer Objects
 	CForge/Graphics/UniformBufferObjects/UBOCameraData.cpp 
+	CForge/Graphics/UniformBufferObjects/UBOColorAdjustment.cpp
 	CForge/Graphics/UniformBufferObjects/UBOLightData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOMaterialData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOModelData.cpp
+	CForge/Graphics/UniformBufferObjects/UBOBoneData.cpp 
+	CForge/Graphics/UniformBufferObjects/UBOMorphTargetData.cpp
 
 	# Lights
 	CForge/Graphics/Lights/ILight.cpp 
@@ -92,6 +112,9 @@ add_library(crossforge SHARED
 	CForge/Input/Keyboard.cpp 
 	CForge/Input/Mouse.cpp
 	CForge/Input/SInputManager.cpp
+
+	# Mesh Processing
+	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
  )
 set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
@@ -142,16 +165,14 @@ add_executable(CForgeSandbox
 	"Prototypes/LODHandler.cpp"
 	Prototypes/SLOD.cpp
 
-	Prototypes/Actor/SkeletalActor.cpp
-	Prototypes/Actor/UBOBoneData.cpp
-	Prototypes/Actor/SkeletalAnimationController.cpp
-	Prototypes/Actor/MorphTargetActor.cpp 
-	Prototypes/Actor/MorphTargetAnimationController.cpp 
-	Prototypes/Actor/UBOMorphTargetData.cpp 
+	Prototypes/Internet/TCPSocket.cpp 
+	Prototypes/Internet/UDPSocket.cpp
 
+	Prototypes/Misc/IMUCameraController.cpp
+
+	Prototypes/Assets/GLTFSDKIO.cpp
 	"Prototypes/Builder/MorphTargetModelBuilder.cpp"
 	 "Prototypes/Actor/LODActor.cpp")
-
 
 if(WIN32)
 	target_link_libraries(CForgeSandbox 
@@ -160,6 +181,7 @@ if(WIN32)
 	PRIVATE igl::core 
 	PRIVATE igl::common 
 	${OpenCV_LIBS}
+	ws2_32
 	)
 endif (WIN32)
 
@@ -191,6 +213,19 @@ add_custom_command(
 	${CMAKE_CURRENT_BINARY_DIR}/Assets
 )
 
+add_custom_command(
+	TARGET CForgeSandbox PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/MyAssets
+	${CMAKE_CURRENT_BINARY_DIR}/MyAssets
+)
+
+add_custom_command(
+	TARGET CForgeSandbox PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
+	${CMAKE_CURRENT_BINARY_DIR}/Shader
+)
 
 project(ExportLibrary)
 add_executable(ExportLibrary 

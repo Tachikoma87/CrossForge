@@ -21,7 +21,10 @@ namespace CForge {
 	}//initialize
 
 	void VirtualCamera::clear(void) {
-
+		m_Rotation = Quaternionf::Identity();
+		m_Position = Vector3f::Zero();
+		notifyListeners(VirtualCameraMsg::POSITION_CHANGED);
+		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);
 	}//clear
 
 	void VirtualCamera::resetToOrigin(void) {
@@ -29,9 +32,30 @@ namespace CForge {
 		m_Position = Vector3f(0, 0, 0);
 
 		notifyListeners(VirtualCameraMsg::POSITION_CHANGED);
-		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);
-		
+		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);	
 	}//resetToORigin
+
+	void VirtualCamera::lookAt(const Eigen::Vector3f Position, const Eigen::Vector3f Target, const Eigen::Vector3f Up) {
+		Vector3f Z = (Target - Position).normalized();
+		Vector3f X = (Z.cross(Up)).normalized();
+		Vector3f Y = X.cross(Z);
+		Z = -Z;
+
+		Matrix3f Rot;
+		Rot(0, 0) = X.x();
+		Rot(0, 1) = X.y();
+		Rot(0, 2) = X.z();
+		Rot(1, 0) = Y.x();
+		Rot(1, 1) = Y.y();
+		Rot(1, 2) = Y.z();
+		Rot(2, 0) = Z.x();
+		Rot(2, 1) = Z.y();
+		Rot(2, 2) = Z.z();
+		Rot.transposeInPlace();
+		m_Rotation = Rot;
+
+		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);
+	}//lookAt
 
 	Matrix4f VirtualCamera::cameraMatrix(void)const {
 		Matrix4f Rval;

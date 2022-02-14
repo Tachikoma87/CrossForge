@@ -27,7 +27,7 @@ namespace CForge{
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT GBuffer: public CForgeObject {
+	class CFORGE_API GBuffer: public CForgeObject {
 	public:
 		enum Component: int8_t {
 			COMP_POSITION = 0,

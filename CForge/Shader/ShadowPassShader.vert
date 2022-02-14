@@ -37,7 +37,8 @@ void main(){
 	for(uint i = 0U; i < 4U; ++i){
 		T += BoneWeights[i] * Bones.SkinningMatrix[BoneIndices[i]];	
 	}//for[4 weights]
-	Po = T * vec4(Position, 1.0);
+	//Po = T * vec4(Position, 1.0);
+	Po = T * Po;
 #endif 
 
 	gl_Position = DirLights.LightSpaceMatrices[ActiveLightID] * ModelMatrix * Po;

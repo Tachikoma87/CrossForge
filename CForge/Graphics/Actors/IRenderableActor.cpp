@@ -62,8 +62,15 @@ namespace CForge {
 			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_WEIGHTS));
 			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_WEIGHTS), 4, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (const void*)m_VertexUtility.offset(VertexUtility::VPROP_BONEWEIGHTS));
 		}
-
-
 	}//setBufferData
+
+	uint32_t IRenderableActor::materialCount(void) const {
+		return m_RenderGroupUtility.renderGroupCount();
+	}//materialCount
+
+	RenderMaterial* IRenderableActor::material(uint32_t Index) {
+		if (Index >= m_RenderGroupUtility.renderGroupCount()) throw IndexOutOfBoundsExcept("Index");
+		return &(m_RenderGroupUtility.renderGroups()[Index]->Material);
+	}//material
 
 }//name space
