@@ -129,6 +129,8 @@ project (CForgeSandbox)
 add_executable(CForgeSandbox 
 	SandboxMain.cpp 
 	"thirdparty/glad/src/glad.c"
+	# tinyxml2
+	"${CMAKE_SOURCE_DIR}/thirdparty/tinyxml2/tinyxml2.cpp"
 
 	CForge/Core/SGPIO.cpp
 	Prototypes/I2C.cpp 
@@ -137,6 +139,8 @@ add_executable(CForgeSandbox
 	Prototypes/PhotoFinish.cpp
 	Prototypes/StripPhoto.cpp 
 	Prototypes/StripPhotoCamera.cpp
+	"Prototypes/LODHandler.cpp"
+	Prototypes/SLOD.cpp
 
 	Prototypes/Actor/SkeletalActor.cpp
 	Prototypes/Actor/UBOBoneData.cpp
@@ -146,13 +150,15 @@ add_executable(CForgeSandbox
 	Prototypes/Actor/UBOMorphTargetData.cpp 
 
 	"Prototypes/Builder/MorphTargetModelBuilder.cpp"
-	)
+	 "Prototypes/Actor/LODActor.cpp")
 
 
 if(WIN32)
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
-	PRIVATE glfw 
+	PRIVATE glfw
+	PRIVATE igl::core 
+	PRIVATE igl::common 
 	${OpenCV_LIBS}
 	)
 endif (WIN32)
@@ -161,7 +167,9 @@ if(UNIX)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
 		PRIVATE glfw 
-		PRIVATE assimp::assimp
+		PRIVATE assimp::assim
+		PRIVATE igl::core 
+		PRIVATE igl::commonp
 		${OpenCV_LIBS}
 		PRIVATE gpiod
 		PRIVATE dl
