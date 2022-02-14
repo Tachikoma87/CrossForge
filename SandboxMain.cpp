@@ -12,6 +12,7 @@
 #include "Examples/MinimumGraphicalSetup.hpp"
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/MorphTargetAnimTestScene.hpp"
+#include "Prototypes/TestScenes/LODTestScene.hpp"
 
 #include <glad/glad.h>
 
@@ -46,9 +47,10 @@ int main(int argc, char* argv[]) {
 	}
 
 	try {
+		LODTestScene();
 		//MinimumGraphicalSetup();
 		//shadowTest();
-		morphTargetAnimTestScene();
+		//morphTargetAnimTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
