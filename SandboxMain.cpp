@@ -14,7 +14,7 @@
 #include "Examples/exampleMorphTargetAnimation.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
-#include "Prototypes/TestScenes/VertexColorTestScene.hpp"
+#include "Prototypes/TestScenes/MuscleAnalysis.hpp"
 #include "Prototypes/TestScenes/ForestTestScene.hpp"
 
 using namespace CForge;

@@ -104,7 +104,7 @@ add_library(crossforge SHARED
 
 	# Mesh Processing
 	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
- )
+  "CForge/AssetIO/MuscleDataInput.cpp")
 set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
 if(WIN32)
@@ -150,7 +150,7 @@ add_executable(CForgeSandbox
 	Prototypes/StripPhoto.cpp 
 	Prototypes/StripPhotoCamera.cpp
 
-	)
+	 "CForge/AssetIO/MuscleDataInput.cpp")
 
 
 if(WIN32)
@@ -196,7 +196,7 @@ add_custom_command(
 
 project(ExportLibrary)
 add_executable(ExportLibrary 
-	ExportLibrary.cpp)
+	ExportLibrary.cpp "CForge/AssetIO/MuscleDataInput.cpp")
 
 target_link_libraries(ExportLibrary
 	PRIVATE crossforge)
