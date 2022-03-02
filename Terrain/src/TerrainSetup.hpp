@@ -18,8 +18,8 @@ namespace Terrain {
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
                     DirectionalLight *light) {
-        uint32_t winWidth = 1280/1;
-        uint32_t winHeight = 720/1;
+        uint32_t winWidth = 5120 / 2;
+        uint32_t winHeight = 1440;
 
        /* winWidth = 1200;
         winHeight = 1200;*/
@@ -367,8 +367,6 @@ namespace Terrain {
         RockMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceRockShader.frag");
     }
 
-
-
     void TerrainSetup() {
         bool wireframe = false;
         bool debugTexture = false;
@@ -376,6 +374,8 @@ namespace Terrain {
         bool richard = false;
         bool erode = false;
         bool cameraMode = true;
+        bool generateNew = true;
+        bool renderGrass = true;
 
         float cameraHeight = 2;
 
@@ -408,8 +408,7 @@ namespace Terrain {
 
         SceneGraph sceneGraph;
 
-        bool generateNew = true;
-        bool renderGrass = true;
+        
 
         DekoMesh PineMesh;
         InstanceActor iPineActor;

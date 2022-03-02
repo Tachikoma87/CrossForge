@@ -127,7 +127,7 @@ void main(){
 	Pos = (Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(windPos, 1)).rgb;
 	CameraPos = Camera.Position.xyz;
 
-	vertPos = N;
+	vertPos = vec3(1, 0, 0);
 
 	UV = UVW.xy;
 	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(windPos, 1);
