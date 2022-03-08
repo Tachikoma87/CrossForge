@@ -80,16 +80,16 @@ namespace CForge {
 				ShaderCode* pSC = nullptr;
 
 				if (m_Config.PhysicallyBasedShading) {
-					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.vert", "330 core", 0, "highp", "highp");
+					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.vert", "330 core", 0, "highp");
 					VSSources.push_back(pSC);
-					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp", "highp");
+					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp");
 					FSSources.push_back(pSC);
 					m_pDeferredLightingPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);	
 				}
 				else {
-					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.vert", "330 core", 0, "highp", "highp");
+					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.vert", "330 core", 0, "highp");
 					VSSources.push_back(pSC);
-					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp", "highp");
+					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp");
 					FSSources.push_back(pSC);
 					m_pDeferredLightingPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
 				}
@@ -101,9 +101,9 @@ namespace CForge {
 
 				VSSources.clear();
 				FSSources.clear();
-				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.vert", "330 core", ShaderCode::CONF_LIGHTING, "highp", "highp");
+				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.vert", "330 core", ShaderCode::CONF_LIGHTING, "highp");
 				VSSources.push_back(pSC);
-				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.frag", "330 core", 0, "highp", "highp");
+				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.frag", "330 core", 0, "highp");
 				FSSources.push_back(pSC);
 				m_pShadowPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
 				if (nullptr == m_pShadowPassShader || !ErrorLog.empty()) {

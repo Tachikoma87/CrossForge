@@ -241,13 +241,13 @@ namespace CForge {
 		SkydomeSGN.scale(Vector3f(600.0f, 600.0f, 1.0f));
 
 		// generate a forest
-		const uint32_t TreeCount = 500;
+		const uint32_t TreeCount = 1500;
 		SGNGeometry* pTreeNodes = new SGNGeometry[TreeCount];
 		SGNTransformation* pTreeTransNodes = new SGNTransformation[TreeCount];
 		Sphere* pTreeSpheres = new Sphere[TreeCount];
 
-		float MinPlane = -200.0f;
-		float MaxPlane = 200.0f;
+		float MinPlane = -400.0f;
+		float MaxPlane = 400.0f;
 
 		for (uint32_t i = 0; i < TreeCount; ++i) {
 			// placement in world

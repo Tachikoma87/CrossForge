@@ -146,7 +146,7 @@ namespace CForge {
 					ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
 				}
 
-				ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
+				ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp");
 
 				if (pMesh->boneCount() > 0) {
 					ShaderCode::SkeletalAnimationConfig SKConfig;
@@ -170,7 +170,7 @@ namespace CForge {
 					ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
 				}
 
-				ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
+				ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp");
 				FSCodes.push_back(pC);
 			}
 		}
