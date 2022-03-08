@@ -80,8 +80,15 @@ namespace CForge {
 			std::string TexAlbedo;
 			std::string TexNormal;
 			std::string TexDepth;
-			std::vector<std::string> VertexShaderSources;
-			std::vector<std::string> FragmentShaderSources;
+
+			std::vector<std::string> VertexShaderGeometryPass;
+			std::vector<std::string> FragmentShaderGeometryPass;
+
+			std::vector<std::string> VertexShaderShadowPass;
+			std::vector<std::string> FragmentShaderShadowPass;
+
+			std::vector<std::string> VertexShaderForwardPass;
+			std::vector<std::string> FragmentShaderForwardPass;
 
 			Material(void) {
 				ID = -1;
@@ -89,10 +96,15 @@ namespace CForge {
 				TexAlbedo = "";
 				TexNormal = "";
 				TexDepth = "";
-				VertexShaderSources.clear();
-				FragmentShaderSources.clear();
 				Metallic = 0.0f;
 				Roughness = 0.8f;
+
+				VertexShaderGeometryPass.clear();
+				FragmentShaderGeometryPass.clear();
+				VertexShaderShadowPass.clear();
+				FragmentShaderShadowPass.clear();
+				VertexShaderForwardPass.clear();
+				FragmentShaderForwardPass.clear();
 			}//Constructor
 
 			~Material(void) {
@@ -106,9 +118,13 @@ namespace CForge {
 					Color = pMat->Color;
 					TexAlbedo = pMat->TexAlbedo;
 					TexNormal = pMat->TexNormal;
-					TexDepth = pMat->TexDepth;
-					VertexShaderSources = pMat->VertexShaderSources;
-					FragmentShaderSources = pMat->FragmentShaderSources;
+					
+					VertexShaderGeometryPass = pMat->VertexShaderGeometryPass;
+					FragmentShaderGeometryPass = pMat->FragmentShaderGeometryPass;
+					VertexShaderShadowPass = pMat->VertexShaderShadowPass;
+					FragmentShaderShadowPass = pMat->FragmentShaderShadowPass;
+					VertexShaderForwardPass = pMat->VertexShaderForwardPass;
+					FragmentShaderForwardPass = pMat->FragmentShaderForwardPass;
 				}
 			}//initialize
 
@@ -118,8 +134,12 @@ namespace CForge {
 				TexAlbedo = "";
 				TexNormal = "";
 				TexDepth = "";
-				VertexShaderSources.clear();
-				FragmentShaderSources.clear();
+				VertexShaderGeometryPass.clear();
+				FragmentShaderGeometryPass.clear();
+				VertexShaderShadowPass.clear();
+				FragmentShaderShadowPass.clear();
+				VertexShaderForwardPass.clear();
+				FragmentShaderForwardPass.clear();
 			}//clear
 
 		};//Material

@@ -50,6 +50,30 @@ using namespace std;
 
 namespace CForge {
 
+	struct Rect {
+		Vector2f Min;
+		Vector2f Max;
+
+		inline bool pointInside(Vector2f P) const{
+			bool Rval = true;
+			if (P.x() > Max.x()) Rval = false;
+			if (P.y() > Max.y()) Rval = false;
+			if (P.x() < Min.x()) Rval = false;
+			if (P.y() < Min.y()) Rval = false;
+			return Rval;
+		}
+	};
+
+	struct Sphere {
+		Vector3f Position;
+		float Radius2;
+
+		inline bool pointInside(Vector3f P) const {
+			const Vector3f Vec = (P - Position);
+			return Vec.dot(Vec) < Radius2;
+		}
+	};
+
 	void imuInputDeviceTestScene(void) {
 		SShaderManager* pSMan = SShaderManager::instance();
 
@@ -69,11 +93,6 @@ namespace CForge {
 		// create an OpenGL capable windows
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
-
-		//UDPSocket::startup();
-
-		/*UDPSocket IMUServer;
-		IMUServer.begin(UDPSocket::TYPE_SERVER, 25000);*/
 
 		// configure and initialize rendering pipeline
 		RenderDevice RDev;
@@ -189,6 +208,7 @@ namespace CForge {
 
 		StaticActor Tree1;
 		StaticActor Tree2;
+		StaticActor Coin;
 
 		AssetIO::load("Assets/tmp/lowpolytree.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.94f);
@@ -200,6 +220,16 @@ namespace CForge {
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.94f);
 		M.computePerVertexNormals();
 		Tree2.init(&M);
+		M.clear();
+
+		AssetIO::load("MyAssets/StarCoin.glb", &M);
+		SceneUtilities::setMeshShader(&M, 0.2f, 0.5f);
+		M.computePerVertexNormals();
+		for (uint32_t i = 0; i < M.materialCount(); ++i) {
+			M.getMaterial(i)->TexAlbedo = "MyAssets/MaterialStar_baseColor.jpeg";
+			M.getMaterial(i)->TexNormal = "";
+		}
+		Coin.init(&M);
 		M.clear();
 
 		// add skydome
@@ -214,12 +244,12 @@ namespace CForge {
 		const uint32_t TreeCount = 500;
 		SGNGeometry* pTreeNodes = new SGNGeometry[TreeCount];
 		SGNTransformation* pTreeTransNodes = new SGNTransformation[TreeCount];
+		Sphere* pTreeSpheres = new Sphere[TreeCount];
 
-		float MinPlane = -500.0f;
-		float MaxPlane = 500.0f;
+		float MinPlane = -200.0f;
+		float MaxPlane = 200.0f;
 
 		for (uint32_t i = 0; i < TreeCount; ++i) {
-
 			// placement in world
 			Vector3f Pos;
 			Pos.x() = CoreUtility::randRange(MinPlane, MaxPlane);
@@ -236,19 +266,59 @@ namespace CForge {
 			pTreeTransNodes[i].scale(Vector3f(Scaling, Scaling, Scaling));
 			pTreeTransNodes[i].rotation(RotationY);
 
-
 			if (CoreUtility::rand() % 5 != 0) {
 				Vector3f StaticOffset = Vector3f(0.0f, 1.8f * Scaling, 0.0f);
 				pTreeNodes[i].init(&pTreeTransNodes[i], &Tree1, StaticOffset);
+				pTreeSpheres[i].Position = Pos + Vector3f(0.0f, 1.0f, 0.0f);;
+				const float r = 2.0f + Scaling / 8.0f;;
+				pTreeSpheres[i].Radius2 = r * r;
 			}
 			else {
 				Vector3f StaticOffset = Vector3f(0.0f, 0.0f * Scaling, 0.0f);
 				Vector3f StaticScale = Vector3f(0.15f, 0.15f, 0.15f);
 				pTreeNodes[i].init(&pTreeTransNodes[i], &Tree2, StaticOffset, Quaternionf::Identity(), StaticScale);
+				pTreeSpheres[i].Position = Pos + Vector3f(0.0f, 1.0f, 0.0f);
+				const float r = 2.5f;
+				pTreeSpheres[i].Radius2 = r * r;
 			}
 
+			
 
 		}//for[generate trees]
+
+		// generate coins
+		uint32_t CoinCount = 200;
+		SGNGeometry* pCoinNodes = new SGNGeometry[CoinCount];
+		SGNTransformation* pCoinTransNodes = new SGNTransformation[CoinCount];
+		Sphere* pCoinBS = new Sphere[CoinCount];
+
+		float CoinScale = 1.25f;
+		Quaternionf CoinRotDelta;
+		CoinRotDelta = AngleAxisf(GraphicsUtility::degToRad(180.0f / 60.0f), Vector3f::UnitY());
+
+		for (uint32_t i = 0; i < CoinCount; ++i) {
+			// placement in world
+			Vector3f Pos;
+			Pos.x() = CoreUtility::randRange(MinPlane, MaxPlane);
+			Pos.y() = 1.5f;
+			Pos.z() = CoreUtility::randRange(MinPlane, MaxPlane);
+
+			Quaternionf RotationY;
+			RotationY = AngleAxisf(GraphicsUtility::degToRad(CoreUtility::randRange(0.0f, 360.0f)), Vector3f::UnitY());
+
+			pCoinTransNodes[i].init(&RootSGN);
+			pCoinTransNodes[i].translation(Pos);
+			//pCoinTransNodes[i].scale(Vector3f(Scaling, Scaling, Scaling));
+			pCoinTransNodes[i].rotation(RotationY);
+			pCoinTransNodes[i].rotationDelta(CoinRotDelta);
+
+			pCoinNodes[i].init(&pCoinTransNodes[i], &Coin, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(CoinScale, CoinScale, CoinScale));
+
+			pCoinBS[i].Position = Pos;
+			const float r = 2.0f;
+			pCoinBS[i].Radius2 = r * r;
+
+		}
 
 
 		// add cube
@@ -281,14 +351,14 @@ namespace CForge {
 
 		UDPSocket::startup();
 		IMUCameraController IMUCam;
-		IMUCam.init(25001, 25000, 200, 500);
+		IMUCam.init(25001, 25000, 200);
 
 		bool Flying = false;
 
+		uint32_t PlayerScore = 0;
+
 		while (!RenderWin.shutdown()) {
 			
-			
-
 			RenderWin.update();
 			SG.update(60.0f/FPS);
 			SkyboxSG.update(60.0f / FPS);
@@ -307,6 +377,31 @@ namespace CForge {
 			Cam.position(Pos);
 
 			IMUCam.update(&Cam, 60.0f / FPS);
+
+			Pos = Cam.position();
+
+			// player collision with tree?
+			for (uint32_t i = 0; i < TreeCount; ++i) {
+				if (pTreeSpheres[i].pointInside(Pos)) {
+					// set player outside sphere
+					Vector3f V = pTreeSpheres[i].Position + std::sqrtf(pTreeSpheres[i].Radius2) * (Pos - pTreeSpheres[i].Position).normalized();	
+					Pos.x() = V.x();
+					Pos.z() = V.z();
+					Cam.position(Pos);
+				}
+			}
+
+			// player within coin range?
+			for (uint32_t i = 0; i < CoinCount; ++i) {
+				bool En;
+				pCoinNodes[i].enabled(&En, nullptr);
+				if (En && pCoinBS[i].pointInside(Pos)) {
+					pCoinNodes[i].enable(false, false);
+					PlayerScore++;
+					printf("Player Score: %d\n", PlayerScore);
+				}
+			}
+
 
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
 			SG.render(&RDev);
@@ -329,12 +424,20 @@ namespace CForge {
 				FPSCount = 0;
 				LastFPSPrint = CoreUtility::timestamp();
 
-				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
+				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "] - Score: " + std::to_string(PlayerScore) + " Coins");
 			}
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				RenderWin.closeWindow();
 			}
+
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
+				T2DImage<uint8_t> Img;
+				static uint32_t ShotCount = 0;
+				GraphicsUtility::retrieveFrameBuffer(&Img, nullptr);
+				AssetIO::store("Screenshot_" + std::to_string(++ShotCount) + ".jpg", &Img);
+			}
+
 		}//while[main loop]
 
 		IMUCam.clear();

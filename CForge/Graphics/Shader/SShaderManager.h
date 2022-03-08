@@ -30,6 +30,17 @@ namespace CForge {
 	*/
 	class CFORGE_API SShaderManager: CForgeObject {
 	public:
+
+		enum DEFAULT_SHADER_SOURCE: int8_t {
+			DEF_VS_GEOMETRY_PASS = 0,
+			DEF_FS_GEOMETRY_PASS,
+			DEF_VS_SHADOW_PASS,
+			DEF_FS_SHADOW_PASS,
+			DEF_VS_FORWARD_PASS,
+			DEF_FS_FORWARD_PASS,
+			DEF_SS_COUNT,
+		};
+
 		static SShaderManager* instance(void);
 		void release(void);
 
@@ -41,6 +52,8 @@ namespace CForge {
 
 		void configShader(ShaderCode::LightConfig LC);
 		void configShader(ShaderCode::PostProcessingConfig PPC);
+
+		std::vector<std::string> defaultShaderSources(DEFAULT_SHADER_SOURCE Type);
 
 	protected:
 		SShaderManager(void);
@@ -89,6 +102,13 @@ namespace CForge {
 
 		ShaderCode::LightConfig m_LightConfig;
 		ShaderCode::PostProcessingConfig m_PostProcessingConfig;
+
+		std::vector<std::string> m_DefVSGeometry;
+		std::vector<std::string> m_DefFSGeometry;
+		std::vector<std::string> m_DefVSShadow;
+		std::vector<std::string> m_DefFSShadow;
+		std::vector<std::string> m_DefVSForward;
+		std::vector<std::string> m_DefFSForward;
 
 	};//SShaderManager
 }
