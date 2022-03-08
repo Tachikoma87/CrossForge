@@ -241,7 +241,7 @@ namespace CForge {
 		SkydomeSGN.scale(Vector3f(600.0f, 600.0f, 1.0f));
 
 		// generate a forest
-		const uint32_t TreeCount = 1500;
+		const uint32_t TreeCount = 500;
 		SGNGeometry* pTreeNodes = new SGNGeometry[TreeCount];
 		SGNTransformation* pTreeTransNodes = new SGNTransformation[TreeCount];
 		Sphere* pTreeSpheres = new Sphere[TreeCount];
@@ -384,7 +384,7 @@ namespace CForge {
 			for (uint32_t i = 0; i < TreeCount; ++i) {
 				if (pTreeSpheres[i].pointInside(Pos)) {
 					// set player outside sphere
-					Vector3f V = pTreeSpheres[i].Position + std::sqrtf(pTreeSpheres[i].Radius2) * (Pos - pTreeSpheres[i].Position).normalized();	
+					Vector3f V = pTreeSpheres[i].Position + std::sqrt(pTreeSpheres[i].Radius2) * (Pos - pTreeSpheres[i].Position).normalized();	
 					Pos.x() = V.x();
 					Pos.z() = V.z();
 					Cam.position(Pos);

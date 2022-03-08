@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): anotherTestScene.hpp                                            *
+* File(s): NormalMappingTestScene.hpp                                            *
 *                                                                           *
 * Content: Example scene that shows minimum setup with an OpenGL capable   *
 *          window, lighting setup, and a single moving object.              *
@@ -15,8 +15,9 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_ANOTHERTESTSCENE_HPP__
-#define __CFORGE_ANOTHERTESTSCENE_HPP__
+#ifndef __CFORGE_NORMALMAPPINGTESTSCENE_HPP__
+#define __CFORGE_NORMALMAPPINGTESTSCENE_HPP__
+
 
 #include "../../CForge/AssetIO/SAssetIO.h"
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
@@ -42,14 +43,13 @@ using namespace std;
 
 namespace CForge {
 
-	void anotherTestScene(void) {
+	void normalMappingTestScene(void) {
 		SShaderManager* pSMan = SShaderManager::instance();
 
-		std::string WindowTitle = "CForge - Another Test Scene";
+		std::string WindowTitle = "CForge - Minimum Graphics Setup";
 		float FPS = 60.0f;
 
 		bool const LowRes = false;
-		bool const HighRes = false;
 
 		uint32_t WinWidth = 1280;
 		uint32_t WinHeight = 720;
@@ -57,10 +57,6 @@ namespace CForge {
 		if (LowRes) {
 			WinWidth = 720;
 			WinHeight = 576;
-		}
-		if (HighRes) {
-			WinWidth = 1920;
-			WinHeight = 1080;
 		}
 
 		// create an OpenGL capable windows
@@ -122,13 +118,20 @@ namespace CForge {
 		Skydome.init(&M);
 		M.clear();
 
-		SAssetIO::load("MyAssets/Sponza/Sponza.gltf", &M);
-		//SAssetIO::load("MyAssets/Helmet/DamagedHelmet.gltf", &M);
-		//SAssetIO::load("MyAssets/FlightHelmet/FlightHelmet.gltf", &M);
-		SceneUtilities::setMeshShader(&M, 0.3f, 0.34f);
+		SAssetIO::load("Assets/ExampleScenes/TexturedCube.fbx", &M);
+		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		M.computePerVertexNormals();
-		//M.tangents(&std::vector<Eigen::Vector3f>());
 		M.computePerVertexTangents();
+
+		for (uint32_t i = 0; i < M.materialCount(); ++i) {
+			T3DMesh<float>::Material* pM = M.getMaterial(i);
+
+			if (!pM->TexAlbedo.empty()) {
+				pM->TexAlbedo = "MyAssets/Lion_Albedo.jpg";
+				pM->TexNormal = "MyAssets/Lion_Normal.jpg";
+			}
+		}
+
 		Cube.init(&M);
 		M.clear();
 
@@ -146,14 +149,12 @@ namespace CForge {
 		// add cube
 		SGNGeometry CubeSGN;
 		SGNTransformation CubeTransformSGN;
-		CubeTransformSGN.init(&RootSGN, Vector3f(0.0f, 6.5f, 0.0f));
-		float S = 5.1f;
-		CubeTransformSGN.scale(Vector3f(S, S, S));
+		CubeTransformSGN.init(&RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
 		CubeSGN.init(&CubeTransformSGN, &Cube);
 
 		// rotate about the y-axis at 45 degree every second
 		Quaternionf R;
-		//R = AngleAxisf(GraphicsUtility::degToRad(5.0f / 60.0f), Vector3f::UnitY());
+		R = AngleAxisf(GraphicsUtility::degToRad(45.0f / 60.0f), Vector3f::UnitY());
 		CubeTransformSGN.rotationDelta(R);
 
 		// stuff for performance monitoring
@@ -164,38 +165,17 @@ namespace CForge {
 		GraphicsUtility::checkGLError(&GLError);
 		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
-		RenderDevice::Viewport VP1;
-		RenderDevice::Viewport VP2;
-
-		VP1.Position = Vector2i(0, 0);
-		VP1.Size = Vector2i(WinWidth, WinHeight);
-		VP2.Position = Vector2i(WinWidth / 2, 0);
-		VP2.Size = VP1.Size;
-		
-		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.5f, 1000.0f);
-
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
 			SG.update(60.0f / FPS);
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
 
-
-			// render in left viewport
-			RDev.viewport(VP1);
-			
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
 			SG.render(&RDev);
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			SG.render(&RDev);
-
-			//// render in right viewport
-			//RDev.viewport(VP2);
-
-			//RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY, nullptr, false);
-			//SG.render(&RDev);
-
 
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
@@ -211,7 +191,6 @@ namespace CForge {
 
 				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
 			}
-
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				RenderWin.closeWindow();

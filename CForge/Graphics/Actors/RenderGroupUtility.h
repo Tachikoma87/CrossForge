@@ -66,7 +66,7 @@ namespace CForge {
 		uint32_t renderGroupCount(void)const;
 
 	protected:
-		GLShader* createShader(const T3DMesh<float>* pMesh, std::vector<std::string> VSSources, std::vector<std::string> FSSources);
+		GLShader* createShader(const T3DMesh<float>* pMesh, const T3DMesh<float>::Material *pMat, std::vector<std::string> VSSources, std::vector<std::string> FSSources);
 
 	private:
 		std::vector<RenderGroup*> m_RenderGroups;

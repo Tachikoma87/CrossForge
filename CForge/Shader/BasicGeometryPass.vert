@@ -33,8 +33,9 @@ layout(std140) uniform ModelData{
 
 layout (location = 0) in vec3 Position;
 layout (location = 1) in vec3 Normal;
-layout (location = 2) in vec3 Tangent;
 layout (location = 3) in vec3 UVW;
+
+
 
 #ifdef SKELETAL_ANIMATION
 layout (location = 4) in ivec4 BoneIndices;
@@ -44,6 +45,11 @@ layout (location = 5) in vec4 BoneWeights;
 #ifdef VERTEX_COLORS 
 layout (location = 6) in vec3 VertexColor;
 out vec3 Color;
+#endif
+
+#ifdef NORMAL_MAPPING 
+layout (location = 2) in vec3 Tangent;
+out mat3 TBN;
 #endif
 
 out vec3 Pos;
@@ -77,10 +83,18 @@ void main(){
 #endif
 
 #ifdef VERTEX_COLORS
-Color = VertexColor;
+	Color = VertexColor;
 #endif
 
-	N = (ModelMatrix * No).xyz;
+	N = normalize((ModelMatrix * No).xyz);
+
+#ifdef NORMAL_MAPPING 
+	vec3 Tan = normalize((ModelMatrix * vec4(Tangent, 0.0)).xyz);
+	vec3 BTan = cross(N, Tan);
+	TBN = mat3(Tan, BTan, N);
+#endif
+
+	
 	Pos = (ModelMatrix * Po).xyz;
 	UV = UVW.xy;
 	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * ModelMatrix * Po;
