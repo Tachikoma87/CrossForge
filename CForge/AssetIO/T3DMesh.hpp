@@ -48,6 +48,7 @@ namespace CForge {
 			std::vector<Face> Faces;
 			int32_t Material;
 			std::vector<Eigen::Vector3f> FaceNormals; ///< Stores face normals (if required)
+			std::vector<Eigen::Vector3f> FaceTangents; ///< Stores face tangents (if required)
 			Eigen::Quaternion<float> RotationOffset; // rotation relative to parent
 			Eigen::Matrix<T, 3, 1> TranslationOffset; // translation relative to parent
 			std::vector<Submesh*> Children;
@@ -64,6 +65,8 @@ namespace CForge {
 				Children = pRef->Children;
 				pParent = pRef->pParent;
 				Material = pRef->Material;
+				FaceNormals = pRef->FaceNormals;
+				FaceTangents = pRef->FaceTangents;
 			}//initialize
 		};//Submesh
 
@@ -522,13 +525,36 @@ namespace CForge {
 			}//for[submeshes]
 		}//computePerFaceNormals
 
+		void computePerFaceTangents(void) {
+
+			if (m_UVWs.size() == 0) throw CForgeExcept("No UVW coordinates. Can not compute tangents.");
+
+			for (auto i : m_Submeshes) {
+				i->FaceTangents.clear();
+				for (auto F : i->Faces) {
+					const Eigen::Vector3f Edge1 = m_Positions[F.Vertices[1]] - m_Positions[F.Vertices[0]];
+					const Eigen::Vector3f Edge2 = m_Positions[F.Vertices[2]] - m_Positions[F.Vertices[0]];
+					const Eigen::Vector3f DeltaUV1 = m_UVWs[F.Vertices[1]] - m_UVWs[F.Vertices[0]];
+					const Eigen::Vector3f DeltaUV2 = m_UVWs[F.Vertices[2]] - m_UVWs[F.Vertices[0]];
+
+					float f = 1.0f / (DeltaUV1.x() * DeltaUV2.y() - DeltaUV2.x() + DeltaUV1.y());
+
+					Vector3f Tangent;
+					Tangent.x() = f * (DeltaUV2.y() * Edge1.x() - DeltaUV1.y() * Edge2.x());
+					Tangent.y() = f * (DeltaUV2.y() * Edge1.y() - DeltaUV1.y() * Edge2.y());
+					Tangent.z() = f * (DeltaUV2.y() * Edge1.z() - DeltaUV1.y() * Edge2.z());
+					i->FaceTangents.push_back(Tangent);
+				}//for[all faces]
+			}//for[all submeshes]
+
+		}//computeTangents
+
 		void computePerVertexNormals(bool ComputePerFaceNormals = true) {
 			if(ComputePerFaceNormals) computePerFaceNormals();
 
 			m_Normals.clear();
 			// create normals
-			Eigen::Vector3f Origin = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Normals.push_back(Origin);
+			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Normals.push_back(Vector3f::Zero());
 
 			// sum normals
 			for (auto i : m_Submeshes) {
@@ -544,6 +570,29 @@ namespace CForge {
 			for (auto& i : m_Normals) i.normalize();
 
 		}//computeperVertexNormals
+
+		void computePerVertexTangents(bool ComputePerFaceTangents = true) {
+			if (ComputePerFaceTangents) computePerFaceTangents();
+
+			m_Tangents.clear();
+
+			// create tangents
+			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Tangents.push_back(Vector3f::Zero());
+
+			// sum tangents
+			for (auto i : m_Submeshes) {
+				for (uint32_t k = 0; k < i->Faces.size(); ++k) {
+					Face* pF = &(i->Faces[k]);
+					m_Tangents[pF->Vertices[0]] += i->FaceTangents[k];
+					m_Tangents[pF->Vertices[1]] += i->FaceTangents[k];
+					m_Tangents[pF->Vertices[2]] += i->FaceTangents[k];
+				}//for[all faces]
+			}//for[submeshes]
+
+			// normalize tangents
+			for (auto& i : m_Tangents) i.normalize();
+
+		}//computePerVertexTangents
 
 		AABB aabb(void)const {
 			return m_AABB;

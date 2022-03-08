@@ -22,9 +22,12 @@
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SocketTestScene.hpp"
 #include "Prototypes/TestScenes/anotherTestScene.hpp"
+#include "Prototypes/TestScenes/NormalMappingTestScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
+
+
 
 int main(int argc, char* argv[]) {
 #ifdef WIN32
@@ -52,6 +55,8 @@ int main(int argc, char* argv[]) {
 	}
 
 
+
+
 	try {
 		//exampleMinimumGraphicsSetup();
 		//exampleSkeletalAnimation();
@@ -64,11 +69,12 @@ int main(int argc, char* argv[]) {
 		//forestTestScene();
 		//skelAnimTestScene();
 
-		imuInputDeviceTestScene();
+		//imuInputDeviceTestScene();
 		//socketTestScene();
 		//assetGLTFTestScene();
 
-		//anotherTestScene();	
+		anotherTestScene();	
+		//normalMappingTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

@@ -256,7 +256,6 @@ namespace CForge {
 			m_MaterialUBO.metallic(m_pActiveMaterial->metallic());
 			m_MaterialUBO.roughness(m_pActiveMaterial->roughness());
 			m_MaterialUBO.ambientOcclusion(m_pActiveMaterial->ambientOcclusion());
-
 		}
 	}//updateMaterial
 

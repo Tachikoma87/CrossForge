@@ -6,7 +6,13 @@ using namespace Eigen;
 
 namespace CForge {
 	IMUCameraController::IMUCameraController(void) {
+		m_HeadOffset = 0.0f;
+		m_CameraHeight = -1.0f;
 
+		m_UserState = STATE_STANDING;
+
+		m_TurnLeft = false;
+		m_TurnRight = false;
 	}//Constructor
 
 	IMUCameraController::~IMUCameraController(void) {

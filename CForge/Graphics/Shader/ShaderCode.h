@@ -80,6 +80,7 @@ namespace CForge {
 			CONF_SKELETALANIMATION		= 0x04,
 			CONF_MORPHTARGETANIMATION	= 0x08,
 			CONF_VERTEXCOLORS			= 0x10,
+			CONF_NORMALMAPPING			= 0x20,
 		};
 
 		ShaderCode(void);

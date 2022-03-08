@@ -129,6 +129,7 @@ namespace CForge {
 		if (ConfigOptions & CONF_SKELETALANIMATION) config(&m_SkeletalAnimationConfig);
 		if (ConfigOptions & CONF_MORPHTARGETANIMATION) config(&m_MorphTargetAnimationConfig);
 		if (ConfigOptions & CONF_VERTEXCOLORS) addDefine("VERTEX_COLORS");
+		if (ConfigOptions & CONF_NORMALMAPPING) addDefine("NORMAL_MAPPING");
 	}//config
 
 	std::string ShaderCode::code(void)const {

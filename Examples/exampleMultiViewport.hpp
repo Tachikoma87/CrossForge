@@ -130,6 +130,7 @@ namespace CForge {
 		SAssetIO::load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &M);
 		SceneUtilities::setMeshShader(&M, 0.2f, 0.24f);
 		M.computePerVertexNormals();
+		M.computePerVertexTangents();
 		Helmet.init(&M);
 		M.clear();
 
