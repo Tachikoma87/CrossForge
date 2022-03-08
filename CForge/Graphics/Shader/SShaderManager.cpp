@@ -357,4 +357,22 @@ namespace CForge {
 		}
 	}//configShader
 
+	std::vector<std::string> SShaderManager::defaultShaderSources(DEFAULT_SHADER_SOURCE Type) {
+		std::vector<std::string> Rval;
+
+		switch (Type) {
+		case DEF_VS_GEOMETRY_PASS: Rval = m_DefVSGeometry; break;
+		case DEF_FS_GEOMETRY_PASS: Rval = m_DefFSGeometry; break;
+		case DEF_VS_SHADOW_PASS: Rval = m_DefVSShadow; break;
+		case DEF_FS_SHADOW_PASS: Rval = m_DefFSShadow; break;
+		case DEF_VS_FORWARD_PASS: Rval = m_DefVSForward; break;
+		case DEF_FS_FORWARD_PASS: Rval = m_DefFSForward; break;
+		default: {
+			throw CForgeExcept("Invalid default shader source type specified!");
+		}break;
+		}//switch[shader source type]
+
+		return Rval;
+	}//defaultShaderSources
+
 }//name space

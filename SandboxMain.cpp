@@ -23,7 +23,6 @@
 #include "Prototypes/TestScenes/SocketTestScene.hpp"
 #include "Prototypes/TestScenes/anotherTestScene.hpp"
 
-
 using namespace CForge;
 using namespace Eigen;
 
@@ -58,14 +57,14 @@ int main(int argc, char* argv[]) {
 		//exampleSkeletalAnimation();
 		//exampleMorphTargetAnimation(); 
 		//exampleSkybox();
-		//exampleMultiViewport();
+		exampleMultiViewport();
 	
 		//shadowTest();
 		//vertexColorTestScene();
 		//forestTestScene();
 		//skelAnimTestScene();
 
-		imuInputDeviceTestScene();
+		//imuInputDeviceTestScene();
 		//socketTestScene();
 		//assetGLTFTestScene();
 

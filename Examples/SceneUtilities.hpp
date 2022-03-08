@@ -34,8 +34,15 @@ namespace CForge {
 		static void setMeshShader(T3DMesh<float>* pM, float Roughness, float Metallic) {
 			for (uint32_t i = 0; i < pM->materialCount(); ++i) {
 				T3DMesh<float>::Material* pMat = pM->getMaterial(i);
-				pMat->VertexShaderSources.push_back("Shader/BasicGeometryPass.vert");
-				pMat->FragmentShaderSources.push_back("Shader/BasicGeometryPass.frag");
+				/*pMat->VertexShaderSources.push_back("Shader/BasicGeometryPass.vert");
+				pMat->FragmentShaderSources.push_back("Shader/BasicGeometryPass.frag");*/
+
+				pMat->VertexShaderGeometryPass.push_back("Shader/BasicGeometryPass.vert");
+				pMat->FragmentShaderGeometryPass.push_back("Shader/BasicGeometryPass.frag");
+
+				pMat->VertexShaderShadowPass.push_back("Shader/ShadowPassShader.vert");
+				pMat->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");
+
 				pMat->Metallic = Metallic;
 				pMat->Roughness = Roughness;
 			}//for[materials]

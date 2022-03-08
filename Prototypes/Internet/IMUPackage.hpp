@@ -26,7 +26,8 @@ namespace ArduForge {
 
         enum Command : int8_t {
             CMD_UNKNOWN = -1,
-            CMD_DATA,
+            CMD_RAW_DATA,
+            CMD_AVG_DATA,
             CMD_CALIBRATE,
         };
 
@@ -70,7 +71,7 @@ namespace ArduForge {
             memcpy(&pBuffer[Rval], &Cmd, sizeof(int8_t)); Rval += sizeof(int8_t);
 
             // set float values
-            if (CMD_DATA == Cmd) {
+            if (CMD_RAW_DATA == Cmd || CMD_AVG_DATA == Cmd) {
                 memcpy(&pBuffer[Rval], &GyroX, sizeof(float)); Rval += sizeof(float);
                 memcpy(&pBuffer[Rval], &GyroY, sizeof(float)); Rval += sizeof(float);
                 memcpy(&pBuffer[Rval], &GyroZ, sizeof(float)); Rval += sizeof(float);
@@ -87,7 +88,7 @@ namespace ArduForge {
             uint16_t Pointer = 5;
 
             memcpy(&Cmd, &pBuffer[Pointer], sizeof(int8_t)); Pointer += sizeof(int8_t);
-            if (CMD_DATA == Cmd) {
+            if (CMD_RAW_DATA == Cmd || CMD_AVG_DATA == Cmd) {
                 memcpy(&GyroX, &pBuffer[Pointer], sizeof(float)); Pointer += sizeof(float);
                 memcpy(&GyroY, &pBuffer[Pointer], sizeof(float)); Pointer += sizeof(float);
                 memcpy(&GyroZ, &pBuffer[Pointer], sizeof(float)); Pointer += sizeof(float);

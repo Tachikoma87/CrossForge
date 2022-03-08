@@ -77,67 +77,28 @@ namespace CForge {
 
 			// initialize shader
 			if (UsedMaterial != -1) {	
-				//pRG->pShader = pSMan->buildShader(&pMesh->getMaterial(UsedMaterial)->VertexShaderSources, &pMesh->getMaterial(UsedMaterial)->FragmentShaderSources);	
-
-				std::vector<ShaderCode*> VSSources;
-				std::vector<ShaderCode*> FSSources;
-				std::string ErrorLog;
+				
 				const T3DMesh<float>::Material* pMat = pMesh->getMaterial(UsedMaterial);
 
-				try {
-					for (auto k : pMat->VertexShaderSources) {
-						uint8_t ConfigOptions = 0;
+				std::vector<std::string> VSSources;
+				std::vector<std::string> FSSources;
 
-						// requires skeletal animation?
-						if (pMesh->boneCount() > 0) {
-							ConfigOptions |= ShaderCode::CONF_SKELETALANIMATION;
-						}
-						// requires morph target animation?
-						if (pMesh->morphTargetCount() > 0) {
-							ConfigOptions |= ShaderCode::CONF_MORPHTARGETANIMATION;
-						}
-						// requires per vertex colors
-						if (pMesh->colorCount() > 0) {
-							ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
-						}
+				// geometry pass
+				VSSources = (pMat->VertexShaderGeometryPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_VS_GEOMETRY_PASS) : pMat->VertexShaderGeometryPass;
+				FSSources = (pMat->FragmentShaderGeometryPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_FS_GEOMETRY_PASS) : pMat->FragmentShaderGeometryPass;
+				pRG->pShaderGeometryPass = (VSSources.empty() || FSSources.empty()) ? nullptr : createShader(pMesh, VSSources, FSSources);
 
-						ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
+				// shadow pass
+				VSSources = (pMat->VertexShaderShadowPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_VS_SHADOW_PASS) : pMat->VertexShaderShadowPass;
+				FSSources = (pMat->FragmentShaderShadowPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_FS_SHADOW_PASS) : pMat->FragmentShaderShadowPass;
+				pRG->pShaderShadowPass = (VSSources.empty() || FSSources.empty()) ? nullptr : createShader(pMesh, VSSources, FSSources);
 
-						if (pMesh->boneCount() > 0) {
-							ShaderCode::SkeletalAnimationConfig SKConfig;
-							SKConfig.BoneCount = pMesh->boneCount();
-							pC->config(&SKConfig);
-						}
 
-						if (pMesh->morphTargetCount() > 0) {
-							ShaderCode::MorphTargetAnimationConfig MTConfig;
-
-							pC->config(&MTConfig);
-						}
-
-						VSSources.push_back(pC);
-					}
-
-					for (auto k : pMat->FragmentShaderSources) {
-						uint8_t ConfigOptions = 0;
-
-						if (pMesh->colorCount() > 0) {
-							ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
-						}
-
-						ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
-						FSSources.push_back(pC);
-					}
-
-					pRG->pShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
-
-					if (!ErrorLog.empty()) SLogger::log("Building shader failed:\n" + ErrorLog);
-				}
-				catch (const CrossForgeException& e) {
-					SLogger::log("Building shader failed!\n");
-				}
+				// forward pass
+				VSSources = (pMat->VertexShaderForwardPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_VS_FORWARD_PASS) : pMat->VertexShaderForwardPass;
+				FSSources = (pMat->FragmentShaderForwardPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_FS_FORWARD_PASS) : pMat->FragmentShaderForwardPass;
+				pRG->pShaderForwardPass = (VSSources.empty() ||FSSources.empty()) ? nullptr : createShader(pMesh, VSSources, FSSources);
 				
-
 			}
 
 			// initialize material
@@ -161,6 +122,75 @@ namespace CForge {
 		(*pBufferSize) = IndexCount * sizeof(uint32_t);
 
 	}//buildIndexArray
+
+	GLShader* RenderGroupUtility::createShader(const T3DMesh<float>* pMesh, std::vector<std::string> VSSources, std::vector<std::string> FSSources) {
+		GLShader* pRval = nullptr;
+
+		SShaderManager* pSMan = SShaderManager::instance();
+		std::vector<ShaderCode*> VSCodes;
+		std::vector<ShaderCode*> FSCodes;
+
+		try {
+
+			for (auto k : VSSources) {
+				uint8_t ConfigOptions = 0;
+
+				// requires skeletal animation?
+				if (pMesh->boneCount() > 0) {
+					ConfigOptions |= ShaderCode::CONF_SKELETALANIMATION;
+				}
+				// requires morph target animation?
+				if (pMesh->morphTargetCount() > 0) {
+					ConfigOptions |= ShaderCode::CONF_MORPHTARGETANIMATION;
+				}
+				// requires per vertex colors
+				if (pMesh->colorCount() > 0) {
+					ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
+				}
+
+				ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
+
+				if (pMesh->boneCount() > 0) {
+					ShaderCode::SkeletalAnimationConfig SKConfig;
+					SKConfig.BoneCount = pMesh->boneCount();
+					pC->config(&SKConfig);
+				}
+
+				if (pMesh->morphTargetCount() > 0) {
+					ShaderCode::MorphTargetAnimationConfig MTConfig;
+
+					pC->config(&MTConfig);
+				}
+
+				VSCodes.push_back(pC);
+			}
+
+			for (auto k : FSSources) {
+				uint8_t ConfigOptions = 0;
+
+				if (pMesh->colorCount() > 0) {
+					ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
+				}
+
+				ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
+				FSCodes.push_back(pC);
+			}
+		}
+		catch (const CrossForgeException& e) {
+			SLogger::logException(e);
+		}
+		try {
+			std::string ErrorLog;
+			pRval = pSMan->buildShader(&VSCodes, &FSCodes, &ErrorLog);
+			if (!ErrorLog.empty()) SLogger::log("Building shader failed:\n" + ErrorLog);
+		}
+		catch (const CrossForgeException& e) {
+			SLogger::logException(e);
+		}
+		
+		return pRval;
+	}//createShader
+
 
 	std::vector<RenderGroupUtility::RenderGroup*> RenderGroupUtility::renderGroups(void) {
 		return m_RenderGroups;
