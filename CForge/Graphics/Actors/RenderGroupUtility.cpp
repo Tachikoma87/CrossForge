@@ -84,18 +84,18 @@ namespace CForge {
 				// geometry pass
 				VSSources = (pMat->VertexShaderGeometryPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_VS_GEOMETRY_PASS) : pMat->VertexShaderGeometryPass;
 				FSSources = (pMat->FragmentShaderGeometryPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_FS_GEOMETRY_PASS) : pMat->FragmentShaderGeometryPass;
-				pRG->pShaderGeometryPass = (VSSources.empty() || FSSources.empty()) ? nullptr : createShader(pMesh, VSSources, FSSources);
+				pRG->pShaderGeometryPass = (VSSources.empty() || FSSources.empty()) ? nullptr : createShader(pMesh, pMat, VSSources, FSSources);
 
 				// shadow pass
 				VSSources = (pMat->VertexShaderShadowPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_VS_SHADOW_PASS) : pMat->VertexShaderShadowPass;
 				FSSources = (pMat->FragmentShaderShadowPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_FS_SHADOW_PASS) : pMat->FragmentShaderShadowPass;
-				pRG->pShaderShadowPass = (VSSources.empty() || FSSources.empty()) ? nullptr : createShader(pMesh, VSSources, FSSources);
+				pRG->pShaderShadowPass = (VSSources.empty() || FSSources.empty()) ? nullptr : createShader(pMesh, pMat, VSSources, FSSources);
 
 
 				// forward pass
 				VSSources = (pMat->VertexShaderForwardPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_VS_FORWARD_PASS) : pMat->VertexShaderForwardPass;
 				FSSources = (pMat->FragmentShaderForwardPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_FS_FORWARD_PASS) : pMat->FragmentShaderForwardPass;
-				pRG->pShaderForwardPass = (VSSources.empty() ||FSSources.empty()) ? nullptr : createShader(pMesh, VSSources, FSSources);
+				pRG->pShaderForwardPass = (VSSources.empty() ||FSSources.empty()) ? nullptr : createShader(pMesh, pMat, VSSources, FSSources);
 				
 			}
 
@@ -121,7 +121,7 @@ namespace CForge {
 
 	}//buildIndexArray
 
-	GLShader* RenderGroupUtility::createShader(const T3DMesh<float>* pMesh, std::vector<std::string> VSSources, std::vector<std::string> FSSources) {
+	GLShader* RenderGroupUtility::createShader(const T3DMesh<float>* pMesh, const T3DMesh<float>::Material* pMat, std::vector<std::string> VSSources, std::vector<std::string> FSSources) {
 		GLShader* pRval = nullptr;
 
 		SShaderManager* pSMan = SShaderManager::instance();
@@ -146,6 +146,11 @@ namespace CForge {
 					ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
 				}
 
+				//requires normal mapping
+				if (pMesh->tangentCount() > 0 && !pMat->TexNormal.empty()) {
+					ConfigOptions |= ShaderCode::CONF_NORMALMAPPING;
+				}
+
 				ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp");
 
 				if (pMesh->boneCount() > 0) {
@@ -168,6 +173,9 @@ namespace CForge {
 
 				if (pMesh->colorCount() > 0) {
 					ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
+				}
+				if (pMesh->tangentCount() > 0 && !pMat->TexNormal.empty()) {
+					ConfigOptions |= ShaderCode::CONF_NORMALMAPPING;
 				}
 
 				ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp");
