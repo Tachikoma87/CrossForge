@@ -15,7 +15,7 @@ namespace CForge {
 
 	}//Destructor
 
-	void ShaderCode::init(std::string ShaderCode, std::string VersionTag, uint8_t ConfigOptions, std::string PrecisionTag, std::string IntegerPrecisionTag) {
+	void ShaderCode::init(std::string ShaderCode, std::string VersionTag, uint8_t ConfigOptions, std::string PrecisionTag) {
 		if (ShaderCode.empty()) throw CForgeExcept("Empty shader code specified!");
 		if (ShaderCode[0] == '#') {
 			// already is shader code
@@ -175,5 +175,19 @@ namespace CForge {
 	string ShaderCode::originalCode(void)const {
 		return m_OrigCode;
 	}//originalCode
+
+	std::string ShaderCode::versionTag(void)const {
+		return m_VersionTag;
+	}//versionTag
+
+	uint8_t ShaderCode::configOptions(void)const {
+		return m_ConfigOptions;
+	}//configOptions
+
+	std::string ShaderCode::precisionTag(void)const {
+		return m_PrecisionTag;;
+	}//floatPrecisionTag
+
+	
 
 }//name-space

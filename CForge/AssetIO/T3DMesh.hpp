@@ -63,6 +63,7 @@ namespace CForge {
 				TranslationOffset = pRef->TranslationOffset;
 				Children = pRef->Children;
 				pParent = pRef->pParent;
+				Material = pRef->Material;
 			}//initialize
 		};//Submesh
 
@@ -533,13 +534,6 @@ namespace CForge {
 			for (auto i : m_Submeshes) {
 				for (uint32_t k = 0; k < i->Faces.size(); ++k) {
 					Face* pF = &(i->Faces[k]);
-					/*pF->Normals[0] = pF->Vertices[0];
-					pF->Normals[1] = pF->Vertices[1];
-					pF->Normals[2] = pF->Vertices[2];
-					m_Normals[pF->Normals[0]] = m_Normals[pF->Normals[0]] + i->FaceNormals[k];
-					m_Normals[pF->Normals[1]] = m_Normals[pF->Normals[1]] + i->FaceNormals[k];
-					m_Normals[pF->Normals[2]] = m_Normals[pF->Normals[2]] + i->FaceNormals[k];*/
-
 					m_Normals[pF->Vertices[0]] = m_Normals[pF->Vertices[0]] + i->FaceNormals[k];
 					m_Normals[pF->Vertices[1]] = m_Normals[pF->Vertices[1]] + i->FaceNormals[k];
 					m_Normals[pF->Vertices[2]] = m_Normals[pF->Vertices[2]] + i->FaceNormals[k];
