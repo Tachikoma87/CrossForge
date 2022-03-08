@@ -68,9 +68,7 @@ namespace CForge {
 				pBuffer[BufferPointer + 2] = k.Vertices[2];
 				BufferPointer += 3;
 
-				if (UsedMaterial == -1 && k.Material != -1) {
-					UsedMaterial = k.Material;
-				}
+				if (UsedMaterial == -1 && pSM->Material != -1) UsedMaterial = pSM->Material;
 			}//for[faces]
 
 			pRG->Range.y() = BufferPointer;

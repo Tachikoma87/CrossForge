@@ -33,27 +33,21 @@ namespace CForge {
 	template<typename T>
 	class T3DMesh: public CForgeObject {
 	public:
+		/**
+		* \brief Face data structure. Only supports triangles.
+		*/
 		struct Face {
-			int32_t Vertices[4];
-			int32_t Normals[4];
-			int32_t Tangents[4];
-			int32_t UVWs[4];
-			int32_t Colors[4];
-			int32_t Material;
+			int32_t Vertices[3];
 
 			Face(void) {
-				CoreUtility::memset(Vertices, -1, 4);
-				CoreUtility::memset(Normals, -1, 4);
-				CoreUtility::memset(Tangents, -1, 4);
-				CoreUtility::memset(UVWs, -1, 4);
-				CoreUtility::memset(Colors, -1, 4);
-				Material = -1;
+				CoreUtility::memset(Vertices, -1, 3);
 			}
 		};//Face
 
 		struct Submesh {
 			std::vector<Face> Faces;
-			std::vector<Eigen::Vector3f> FaceNormals;
+			int32_t Material;
+			std::vector<Eigen::Vector3f> FaceNormals; ///< Stores face normals (if required)
 			Eigen::Quaternion<float> RotationOffset; // rotation relative to parent
 			Eigen::Matrix<T, 3, 1> TranslationOffset; // translation relative to parent
 			std::vector<Submesh*> Children;
@@ -539,12 +533,16 @@ namespace CForge {
 			for (auto i : m_Submeshes) {
 				for (uint32_t k = 0; k < i->Faces.size(); ++k) {
 					Face* pF = &(i->Faces[k]);
-					pF->Normals[0] = pF->Vertices[0];
+					/*pF->Normals[0] = pF->Vertices[0];
 					pF->Normals[1] = pF->Vertices[1];
 					pF->Normals[2] = pF->Vertices[2];
 					m_Normals[pF->Normals[0]] = m_Normals[pF->Normals[0]] + i->FaceNormals[k];
 					m_Normals[pF->Normals[1]] = m_Normals[pF->Normals[1]] + i->FaceNormals[k];
-					m_Normals[pF->Normals[2]] = m_Normals[pF->Normals[2]] + i->FaceNormals[k];
+					m_Normals[pF->Normals[2]] = m_Normals[pF->Normals[2]] + i->FaceNormals[k];*/
+
+					m_Normals[pF->Vertices[0]] = m_Normals[pF->Vertices[0]] + i->FaceNormals[k];
+					m_Normals[pF->Vertices[1]] = m_Normals[pF->Vertices[1]] + i->FaceNormals[k];
+					m_Normals[pF->Vertices[2]] = m_Normals[pF->Vertices[2]] + i->FaceNormals[k];
 				}//for[faces]
 			}//for[sub meshes
 

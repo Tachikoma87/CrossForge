@@ -76,13 +76,14 @@ namespace CForge {
             Vertices.push_back(Vector3f(SkyboxVertices[i*3 + 0], SkyboxVertices[i*3 + 1], SkyboxVertices[i*3 + 2]));
         }
 
+        Sub.Material = 0;
+
         // create faces
         for (uint32_t i = 0; i < 12; ++i) {
             T3DMesh<float>::Face F;
             F.Vertices[0] = SkyboxIndices[i*3 + 0];
             F.Vertices[1] = SkyboxIndices[i*3 + 1];
             F.Vertices[2] = SkyboxIndices[i*3 + 2];
-            F.Material = 0;
             Sub.Faces.push_back(F);
         }
         
