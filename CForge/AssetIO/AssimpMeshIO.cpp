@@ -122,15 +122,12 @@ namespace CForge {
 
 			// now we retrieve the faces (create submesh)
 			T3DMesh<float>::Submesh* pSubmesh = new T3DMesh<float>::Submesh();
+			pSubmesh->Material = (int32_t)pM->mMaterialIndex;
 			for (uint32_t k = 0; k < pM->mNumFaces; ++k) {
 				aiFace F = pM->mFaces[k];
 				T3DMesh<float>::Face Face;
-				Face.Material = (int32_t)pM->mMaterialIndex;
 				for (uint32_t j = 0; j < F.mNumIndices && j < 4; j++) {
 					Face.Vertices[j] = PositionsOffset + F.mIndices[j];
-					if (nullptr != pM->mNormals) Face.Normals[j] = NormalsOffset + F.mIndices[j];
-					if (nullptr != pM->mTangents) Face.Tangents[j] =  TangentsOffset + F.mIndices[j];
-					if (nullptr != pM->mTextureCoords) Face.UVWs[j] = UVWsOffset + F.mIndices[j];
 				}//for[face indices]
 
 				pSubmesh->Faces.push_back(Face);
@@ -339,7 +336,7 @@ namespace CForge {
 			// set faces
 			const T3DMesh<float>::Submesh* pSub = pMesh->getSubmesh(i);
 
-			pM->mMaterialIndex = pSub->Faces[0].Material;
+			pM->mMaterialIndex = pSub->Material;
 
 			pM->mFaces = new aiFace[pSub->Faces.size()];
 			for (uint32_t k = 0; k < pSub->Faces.size(); ++k) {
