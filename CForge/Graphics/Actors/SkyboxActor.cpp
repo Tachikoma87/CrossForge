@@ -91,8 +91,8 @@ namespace CForge {
 
         T3DMesh<float>::Material Mat;
         Mat.ID = 0;
-        Mat.VertexShaderSources.push_back("Shader/Skybox.vert");
-        Mat.FragmentShaderSources.push_back("Shader/Skybox.frag");
+        Mat.VertexShaderForwardPass.push_back("Shader/Skybox.vert");
+        Mat.FragmentShaderForwardPass.push_back("Shader/Skybox.frag");
         M.addMaterial(&Mat, true);
 
         uint16_t VertexProperties = VertexUtility::VPROP_POSITION;
@@ -183,14 +183,36 @@ namespace CForge {
         glDepthFunc(GL_LEQUAL);
 
         for (auto i : m_RenderGroupUtility.renderGroups()) {
-            if (i->pShader == nullptr) continue;
 
-            pRDev->activeShader(i->pShader);
-            pRDev->activeMaterial(&i->Material);
-            m_Cubemap.bind();
+            switch (pRDev->activePass()) {
+            case RenderDevice::RENDERPASS_SHADOW: {
+                continue;
+            }break;
+            case RenderDevice::RENDERPASS_GEOMETRY: {
+                continue;
+            }break;
+            case RenderDevice::RENDERPASS_FORWARD: {
+                if (nullptr == i->pShaderForwardPass) continue;
 
-            uint32_t BindingPoint = i->pShader->uboBindingPoint(GLShader::DEFAULTUBO_COLORADJUSTMENT); // i->pShader->uboBindingPoint("ColorAdjustmentData");
-            if (BindingPoint != GL_INVALID_INDEX) m_ColorAdjustUBO.bind(BindingPoint);        
+                pRDev->activeShader(i->pShaderForwardPass);
+                pRDev->activeMaterial(&i->Material);
+                m_Cubemap.bind();
+
+                uint32_t BindingPoint = i->pShaderForwardPass->uboBindingPoint(GLShader::DEFAULTUBO_COLORADJUSTMENT); 
+                if (BindingPoint != GL_INVALID_INDEX) m_ColorAdjustUBO.bind(BindingPoint);
+                
+            }break;
+            default: continue;
+            }
+
+            //if (i->pShader == nullptr) continue;
+
+            //pRDev->activeShader(i->pShader);
+            //pRDev->activeMaterial(&i->Material);
+            //m_Cubemap.bind();
+
+            //uint32_t BindingPoint = i->pShader->uboBindingPoint(GLShader::DEFAULTUBO_COLORADJUSTMENT); // i->pShader->uboBindingPoint("ColorAdjustmentData");
+            //if (BindingPoint != GL_INVALID_INDEX) m_ColorAdjustUBO.bind(BindingPoint);        
 
             glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
             

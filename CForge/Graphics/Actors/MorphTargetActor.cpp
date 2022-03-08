@@ -79,22 +79,50 @@ namespace CForge {
 		m_pAnimationController->apply(&m_ActiveAnimations, &m_MorphTargetUBO);
 
 		for (auto i : m_RenderGroupUtility.renderGroups()) {
-			if (i->pShader == nullptr) continue;
+			
+			switch (pRDev->activePass()) {
+			case RenderDevice::RENDERPASS_GEOMETRY: {
+				if (nullptr == i->pShaderGeometryPass) continue;
 
-			if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-				
-			}
-			else {		
-				pRDev->activeShader(i->pShader);
+				pRDev->activeShader(i->pShaderGeometryPass);
 				pRDev->activeMaterial(&i->Material);
-				int32_t MTTex = i->pShader->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
+				int32_t MTTex = i->pShaderGeometryPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
 				if (MTTex >= 0) {
 					m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
 					glUniform1i(MTTex, MTTex);
 				}
-				int32_t MTUBO = i->pShader->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
+				int32_t MTUBO = i->pShaderGeometryPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
 				m_MorphTargetUBO.bind(MTUBO);
-			}
+			}break;
+			case RenderDevice::RENDERPASS_SHADOW: {
+				if (nullptr == i->pShaderShadowPass) continue;
+
+				pRDev->activeShader(i->pShaderShadowPass);
+				pRDev->activeMaterial(&i->Material);
+				int32_t MTTex = i->pShaderShadowPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
+				if (MTTex >= 0) {
+					m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
+					glUniform1i(MTTex, MTTex);
+				}
+				int32_t MTUBO = i->pShaderShadowPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
+				m_MorphTargetUBO.bind(MTUBO);
+			}break;
+			case RenderDevice::RENDERPASS_FORWARD: {
+				if (nullptr == i->pShaderForwardPass) continue;
+
+				pRDev->activeShader(i->pShaderForwardPass);
+				pRDev->activeMaterial(&i->Material);
+				int32_t MTTex = i->pShaderForwardPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
+				if (MTTex >= 0) {
+					m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
+					glUniform1i(MTTex, MTTex);
+				}
+				int32_t MTUBO = i->pShaderForwardPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
+				m_MorphTargetUBO.bind(MTUBO);
+			}break;
+			default: continue;
+			}//switch[active pass]
+
 			glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
 		}//for[all render groups]
 	}//render

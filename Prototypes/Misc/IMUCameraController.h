@@ -26,10 +26,16 @@
 namespace CForge {
 	class IMUCameraController {
 	public:
+		enum UserState: int8_t {
+			STATE_UNKNOWN = -1,
+			STATE_WALKING,
+			STATE_STANDING,
+		};
+
 		IMUCameraController(void);
 		~IMUCameraController(void);
 
-		void init(uint16_t PortLeft, uint16_t PortRight, uint32_t ForwardInterpolation, uint32_t RotationInterpolation);
+		void init(uint16_t PortLeft, uint16_t PortRight, uint32_t AveragingTime);
 		void clear(void);
 
 		void update(VirtualCamera *pCamera, float Scale);
@@ -53,23 +59,15 @@ namespace CForge {
 		struct InterpolatedControllerData {
 			IMUData AveragedMovementLeft;
 			IMUData AveragedMovementRight;
-			IMUData AveragedRotationLeft;
-			IMUData AveragedRotationRight;
+			IMUData AveragedAbsMovementLeft;
+			IMUData AveragedAbsMovementRight;
 
 			float ForwardLeft;
-			float ForwardRight;
-			float RotationLeft;
-			float RotationRight;
-			float TiltLeft;
-			float TiltRight;
+			float ForwardRight;	
 
 			InterpolatedControllerData(void) {
 				ForwardLeft = 0.0f;
 				ForwardRight = 0.0f;
-				RotationLeft = 0.0f;
-				RotationRight = 0.0f;
-				TiltLeft = 0.0f;
-				TiltRight = 0.0f;
 			}
 		};
 
@@ -80,13 +78,8 @@ namespace CForge {
 		UDPSocket m_SocketRight;
 		std::list<IMUData> m_DataBufferLeft;
 		std::list<IMUData> m_DataBufferRight;
-		uint32_t m_ForwardInterpolation;
-		uint32_t m_RotationInterpolation;
 
-		float m_StepSpeed;
-
-		uint64_t m_StepStarted;
-		uint64_t m_StepEnded;
+		uint32_t m_AveragingTime;
 
 		InterpolatedControllerData m_CmdData;
 
@@ -97,6 +90,11 @@ namespace CForge {
 
 		float m_HeadOffset;
 		float m_CameraHeight;
+
+		UserState m_UserState;
+
+		bool m_TurnLeft;
+		bool m_TurnRight;
 
 	};//IMUCamera
 

@@ -13,23 +13,22 @@ namespace CForge {
 		clear();
 	}//Destructor
 
-	void IMUCameraController::init(uint16_t PortLeft, uint16_t PortRight, uint32_t ForwardInterpolation, uint32_t RotationInterpolation) {
+	void IMUCameraController::init(uint16_t PortLeft, uint16_t PortRight, uint32_t AveragingTime) {
 		clear();
 
 		m_SocketLeft.begin(UDPSocket::TYPE_SERVER, PortLeft);
 		m_SocketRight.begin(UDPSocket::TYPE_SERVER, PortRight);
-		m_ForwardInterpolation = ForwardInterpolation;
-		m_RotationInterpolation = RotationInterpolation;
-
-		m_StepStarted = 0;
-		m_StepEnded = 0;
-		m_StepSpeed = 0.0f;
+		m_AveragingTime = AveragingTime;
 
 		m_LeftFootPort = 0;
 		m_RightFootPort = 0;
 
 		m_CameraHeight = -1.0f;
 		m_HeadOffset = 0.0f;
+
+		m_UserState = STATE_STANDING;
+		m_TurnRight = false;
+		m_TurnLeft = false;
 	}//initialize
 
 	void IMUCameraController::clear(void) {
@@ -44,7 +43,7 @@ namespace CForge {
 		updateFoot(&m_SocketLeft, &m_DataBufferLeft);
 		updateFoot(&m_SocketRight, &m_DataBufferRight);
 
-		interpolateData(&m_CmdData);
+		//interpolateData(&m_CmdData);
 
 		if (nullptr != pCamera) apply(pCamera, Scale);
 
@@ -54,6 +53,7 @@ namespace CForge {
 
 		ArduForge::IMUPackage Package;
 		Package.Cmd = ArduForge::IMUPackage::CMD_CALIBRATE;
+
 
 		uint8_t Buffer[64];
 		uint32_t DataSize = 0;
@@ -77,12 +77,12 @@ namespace CForge {
 			if (Package.checkMagicTag(Buffer)) {
 				Package.fromStream(Buffer, DataSize);
 
-				IMUData D;
+				/*IMUData D;
 				D.Timestamp = CoreUtility::timestamp();
 				D.Accelerations = Vector3f(Package.AccelX, Package.AccelY, Package.AccelZ);
 				D.Rotations = Vector3f(Package.GyroX, Package.GyroY, Package.GyroZ);
 
-				pDataBuffer->push_back(D);
+				pDataBuffer->push_back(D);*/
 
 				if (m_LeftFootPort == 0 && pSock == &m_SocketLeft) {
 					m_LeftFootPort = SenderPort;
@@ -93,94 +93,70 @@ namespace CForge {
 					m_RightFootIP = SenderIP;
 				}
 
-				//static uint64_t Stamp = CoreUtility::timestamp();
-				//static Vector3f Rots = Vector3f::Zero();
-				//static Vector3f Accels = Vector3f::Zero();
-
-				//if (CoreUtility::timestamp() - Stamp > 1000) {
-				//	Stamp = CoreUtility::timestamp();
-
-				//	printf("IMU: %.2f %.2f %.2f | %.2f %.2f %.2f\n", Rots.x(), Rots.y(), Rots.z(), Accels.x(), Accels.y(), Accels.z());
-				//	Rots = Vector3f::Zero();
-				//	Accels = Vector3f::Zero();
-				//}
-				//else {
-				//	Accels = D.Accelerations;
-				//	Rots.x() += std::abs(D.Rotations.x());
-				//	Rots.y() += std::abs(D.Rotations.y());
-				//	Rots.z() += std::abs(D.Rotations.z());
-
-				//	/*Rots.x() += (D.Rotations.x());
-				//	Rots.y() += (D.Rotations.y());
-				//	Rots.z() += (D.Rotations.z());*/
-				//}		
-
+				if (pSock == &m_SocketRight && Package.Cmd == ArduForge::IMUPackage::CMD_AVG_DATA) {
+					m_CmdData.AveragedMovementRight.Accelerations = Vector3f(Package.AccelX, Package.AccelY, Package.AccelZ);
+					m_CmdData.AveragedMovementRight.Rotations = Vector3f(Package.GyroX, Package.GyroY, Package.GyroZ);
+				}
+				if (pSock == &m_SocketLeft && Package.Cmd == ArduForge::IMUPackage::CMD_AVG_DATA) {
+					m_CmdData.AveragedMovementLeft.Accelerations = Vector3f(Package.AccelX, Package.AccelY, Package.AccelZ);
+					m_CmdData.AveragedMovementLeft.Rotations = Vector3f(Package.GyroX, Package.GyroY, Package.GyroZ);
+				}
 			}
 		}//while[receive data]
 
 		// kill data that is out of scope
-		uint32_t T = std::max(m_ForwardInterpolation, m_RotationInterpolation);
-		while (pDataBuffer->size() > 0 && (CoreUtility::timestamp() - pDataBuffer->front().Timestamp) > T) pDataBuffer->pop_front();
+		while (pDataBuffer->size() > 0 && (CoreUtility::timestamp() - pDataBuffer->front().Timestamp) > m_AveragingTime) pDataBuffer->pop_front();
 	}//updateFoot
 
 	void IMUCameraController::interpolateData(InterpolatedControllerData* pData) {
-		// reset data
-		pData->ForwardLeft = 0.0f;
-		pData->ForwardRight = 0.0f;
-		pData->RotationLeft = 0.0f;
-		pData->RotationRight = 0.0f;
-		pData->TiltLeft = 0.0f;
-		pData->TiltRight = 0.0f;
+		//// reset data
+		//pData->ForwardLeft = 0.0f;
+		//pData->ForwardRight = 0.0f;
+		//
+		//uint64_t Stamp = CoreUtility::timestamp();
+		//m_CmdData.AveragedMovementLeft.clear();
+		//m_CmdData.AveragedMovementRight.clear();
+		//m_CmdData.AveragedAbsMovementLeft.clear();
+		//m_CmdData.AveragedAbsMovementRight.clear();
 
-		uint64_t Stamp = CoreUtility::timestamp();
-		float RotationScale = 0.0f;
-		float ForwardScale = 0.0f;
+		//// left foot
+		//for (auto i : m_DataBufferLeft) {
+		//	
+		//		m_CmdData.AveragedMovementLeft.Accelerations += i.Accelerations;
+		//		m_CmdData.AveragedMovementLeft.Rotations += i.Rotations;
+		//		for (uint8_t k = 0; k < 3; ++k) {
+		//			m_CmdData.AveragedAbsMovementLeft.Rotations[k] += std::abs(i.Rotations[k]);
+		//			m_CmdData.AveragedAbsMovementLeft.Accelerations[k] += std::abs(i.Accelerations[k]);
+		//		}
+		//}
+		//
+		//if (m_DataBufferLeft.size() > 1.0f) {
+		//	float Scale = float(m_DataBufferLeft.size());
+		//	m_CmdData.AveragedMovementLeft.Accelerations /= Scale;
+		//	m_CmdData.AveragedMovementLeft.Rotations /= Scale;
+		//	m_CmdData.AveragedAbsMovementLeft.Accelerations /= Scale;
+		//	m_CmdData.AveragedAbsMovementLeft.Rotations /= Scale;
+		//}
 
-		m_CmdData.AveragedMovementLeft.clear();
-		m_CmdData.AveragedMovementRight.clear();
-		m_CmdData.AveragedRotationLeft.clear();
-		m_CmdData.AveragedRotationRight.clear();
+		//
+		//// right foot
+		//for (auto i : m_DataBufferRight) {
 
-		// left foot
-		for (auto i : m_DataBufferLeft) {
-			if (Stamp - i.Timestamp < m_ForwardInterpolation) {
-				pData->ForwardLeft += std::abs(i.Rotations.y());
-				ForwardScale += 1.0f;
-
-			}
-			if (Stamp - i.Timestamp < m_RotationInterpolation) {
-				pData->RotationLeft += -i.Rotations.x();
-				pData->TiltLeft += i.Accelerations.y();
-				RotationScale += 1.0f;
-			}
-
-		}
-		if (RotationScale > 1.0f) {
-			pData->RotationLeft /= RotationScale;
-			pData->TiltLeft /= RotationScale;
-		}
-		if (ForwardScale > 1.0f) pData->ForwardLeft /= ForwardScale;
-
-		ForwardScale = 0.0f;
-		RotationScale = 0.0f;
-		// right foot
-		for (auto i : m_DataBufferRight) {
-			if (Stamp - i.Timestamp < m_ForwardInterpolation) {
-				pData->ForwardRight += std::abs(i.Rotations.y());
-				ForwardScale += 1.0f;
-			}
-			if (Stamp - i.Timestamp < m_RotationInterpolation) {
-				pData->RotationRight += -i.Rotations.x();
-				pData->TiltRight += i.Accelerations.y();
-				RotationScale += 1.0f;
-			}
-
-		}
-		if (RotationScale > 1.0f) {
-			pData->RotationRight /= RotationScale;
-			pData->TiltRight /= RotationScale;
-		}
-		if (ForwardScale > 1.0f) pData->ForwardRight /= ForwardScale;
+		//	m_CmdData.AveragedMovementRight.Accelerations += i.Accelerations;
+		//	m_CmdData.AveragedMovementRight.Rotations += i.Rotations;
+		//	for (uint8_t k = 0; k < 3; ++k) {
+		//		m_CmdData.AveragedAbsMovementRight.Accelerations[k] += std::abs(i.Accelerations[k]);
+		//		m_CmdData.AveragedAbsMovementRight.Rotations[k] += std::abs(i.Rotations[k]);
+		//	}
+		//}
+		//
+		//if (m_DataBufferRight.size() > 1.0f) {
+		//	float Scale = float(m_DataBufferRight.size());
+		//	m_CmdData.AveragedMovementRight.Accelerations /= Scale;
+		//	m_CmdData.AveragedMovementRight.Rotations /= Scale;
+		//	m_CmdData.AveragedAbsMovementRight.Accelerations /= Scale;
+		//	m_CmdData.AveragedAbsMovementRight.Rotations /= Scale;
+		//}
 
 	}//interpolateData
 
@@ -188,33 +164,57 @@ namespace CForge {
 
 		if (m_CameraHeight < 0.0f) m_CameraHeight = pCamera->position().y();
 
-		m_StepSpeed = m_CmdData.ForwardLeft + m_CmdData.ForwardRight;
-
-		//printf("StepSpeed: %.2f\n", m_StepSpeed);
+		const float StepSpeed = m_CmdData.AveragedMovementLeft.Rotations.y() + m_CmdData.AveragedMovementRight.Rotations.y();
 		
-		if (m_StepSpeed > 30.0f) {
-			const float WalkSpeed = 3.5f;
-			const float RunSpeed = 15.0f;
+		if (StepSpeed > 25.0f) {
+			const float WalkSpeed = 5.0f;
+			const float RunSpeed = 10.0f;
 
-			float Alpha = std::clamp( (m_StepSpeed-30.0f) / 125.0f, 0.0f, 1.0f);
+			float Alpha = std::clamp( (StepSpeed-20.0f) / 200.0f, 0.0f, 1.0f);
 		
 			float Speed = Alpha * RunSpeed + (1 - Alpha) * WalkSpeed;
 			//printf("\tSpeed: %.2f | %.2f\n", Speed, m_CmdData.TiltLeft);
 
 			if (Speed > 3.51f) {
-				pCamera->forward(Speed / 50.0f);
-				m_HeadOffset += Speed / 100.0f;
+				pCamera->forward(Speed * Scale / 50.0f);
+				m_HeadOffset += Speed * Scale / 100.0f;
 				Vector3f Pos = pCamera->position();
 				Pos.y() = m_CameraHeight + 0.05f*std::sin(m_HeadOffset);
 				pCamera->position(Pos);
 			}
+			m_UserState = STATE_WALKING;
+
+			m_TurnLeft = false;
+			m_TurnRight = false;
+		}
+		else {
+			// state Standing
+			m_UserState = STATE_STANDING;
+
+			// rotate left or right?
+			if (m_CmdData.AveragedMovementRight.Rotations.x() > 50.0f) {
+				m_TurnRight = true;
+			}
+			else if (m_CmdData.AveragedMovementRight.Rotations.x() < -20.0f) {
+				m_TurnRight = false;
+			}
+			if (m_CmdData.AveragedMovementLeft.Rotations.x() < -50.0f) {
+				m_TurnLeft = true;
+			}
+			else if (m_CmdData.AveragedMovementLeft.Rotations.x() > 20.0f) {
+				m_TurnLeft = false;
+			}
+
+			const float TurnSpeed = GraphicsUtility::degToRad(45.0f / 60.0f); // 20 Degree per second
+			if (m_TurnLeft) pCamera->rotY(TurnSpeed*Scale);
+			if (m_TurnRight) pCamera->rotY(-TurnSpeed*Scale);
+
+			// sidestep left or right?
+			if (m_CmdData.AveragedMovementRight.Accelerations.y() > 0.2f) pCamera->right(m_CmdData.AveragedMovementRight.Accelerations.y()/60.0f * 10.5f * Scale);
+			if (m_CmdData.AveragedMovementLeft.Accelerations.y() < -0.2f) pCamera->right(m_CmdData.AveragedMovementLeft.Accelerations.y() / 60.0f * 10.5f * Scale);
+
 		}
 		
-
-		if (std::abs(m_CmdData.TiltLeft) > 0.2f) pCamera->rotY(GraphicsUtility::degToRad(-5.0f * m_CmdData.TiltLeft));
-		if (std::abs(m_CmdData.TiltRight) > 0.2f) pCamera->rotY(GraphicsUtility::degToRad(-5.0f * m_CmdData.TiltRight));
-
-
 	}//apply
 
 
