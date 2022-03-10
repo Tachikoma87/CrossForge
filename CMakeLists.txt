@@ -171,8 +171,8 @@ add_executable(CForgeSandbox
 	Prototypes/Misc/IMUCameraController.cpp
 
 	Prototypes/Assets/GLTFSDKIO.cpp
-	"Prototypes/Builder/MorphTargetModelBuilder.cpp"
-	 "Prototypes/Actor/LODActor.cpp")
+	 "Prototypes/Actor/LODActor.cpp"
+	 "Prototypes/MeshDecimate.cpp")
 
 if(WIN32)
 	target_link_libraries(CForgeSandbox 
@@ -189,9 +189,9 @@ if(UNIX)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
 		PRIVATE glfw 
-		PRIVATE assimp::assim
+		PRIVATE assimp::assimp
 		PRIVATE igl::core 
-		PRIVATE igl::commonp
+		PRIVATE igl::common
 		${OpenCV_LIBS}
 		PRIVATE gpiod
 		PRIVATE dl

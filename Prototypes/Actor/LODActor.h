@@ -33,7 +33,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation
 	*/
-	class CFORGE_IXPORT LODActor : public IRenderableActor {
+	class LODActor : public IRenderableActor {
 	public:
 		LODActor(void);
 		~LODActor(void);

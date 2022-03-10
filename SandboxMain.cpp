@@ -13,9 +13,8 @@
 #include "Examples/exampleSkeletalAnimation.hpp"
 #include "Examples/exampleMorphTargetAnimation.hpp"
 
-#include "Examples/MinimumGraphicalSetup.hpp"
+//#include "Examples/MinimumGraphicalSetup.hpp"
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
-#include "Prototypes/TestScenes/MorphTargetAnimTestScene.hpp"
 #include "Prototypes/TestScenes/LODTestScene.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"

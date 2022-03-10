@@ -45,7 +45,7 @@ namespace CForge {
 		std::string lodFolderpath = assembleFolderPath(Filepath);
 		std::string metaFilePath = lodFolderpath + "meta.xml";
 		
-		// create Folder if non existant
+		// create Folder if non existent
 		if (!std::filesystem::is_directory(lodFolderpath)) {
 			std::filesystem::create_directory(lodFolderpath);
 		}
