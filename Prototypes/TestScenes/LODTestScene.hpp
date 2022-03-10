@@ -40,6 +40,7 @@
 
 #include "../LODHandler.h"
 #include "../SLOD.h"
+#include "../MeshDecimate.h"
 #include <chrono>
 
 using namespace Eigen;
@@ -76,7 +77,7 @@ namespace CForge {
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), "Absolute Minimum Setup");
 		gladLoadGL();
-		glfwSwapInterval(0);
+		//glfwSwapInterval(0);
 		
 		std::string GLError;
 		GraphicsUtility::checkGLError(&GLError);
@@ -122,27 +123,39 @@ namespace CForge {
 		LODActor Cube;
 
 		T3DMesh<float> M;
-		SAssetIO::load("Assets/tree0.obj", &M);
-		
+		//SAssetIO::load("Assets/tree0.obj", &M);
 		LODHandler lodHandler;
-		lodHandler.generateLODmodels("Assets/tree0.obj");
-		
+		//lodHandler.generateLODmodels("Assets/tree0.obj");
+
+		SAssetIO::load("Assets/blub/blub.obj", &M); // complexMan, blub/blub
+		//SAssetIO::load("Assets/man/cube.obj", &M);
+		//lodHandler.generateLODmodels("Assets/testMeshOut.obj");
+		//SAssetIO::load("Assets/cubeSep.obj", &M);
+		//lodHandler.generateLODmodels("Assets/cubeSep.obj");
+		//SAssetIO::load("Assets/submeshTest.obj", &M);
+		//lodHandler.generateLODmodels("Assets/submeshTest.obj");
+
 		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
-		M.computePerVertexNormals();
-		Cube.init(&M);
+		//M.computePerVertexNormals();
+		//Cube.init(&M);
+
+		T3DMesh<float> testMesh;
+		MeshDecimator::decimateMesh(&M, &testMesh, 0.5);
+		//SceneUtilities::setMeshShader(&testMesh, 0.1f, 0.04f);
+		//testMesh.computePerVertexNormals();
+		Cube.init(&testMesh);
 
 		CubeTransformSGN.init(nullptr);
 		CubeSGN.init(&CubeTransformSGN, &Cube);
 		SGTest.init(&CubeTransformSGN);
-
+		
+		SAssetIO::store("Assets/testMeshOut.obj", &testMesh);
+		
 		// rotate about the y-axis at 45 degree every second
 		Quaternionf R;
-		R = AngleAxisf(GraphicsUtility::degToRad(45.0f / 60.0f), Vector3f::UnitY());
+		R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());
 		CubeTransformSGN.rotationDelta(R);
-		CubeTransformSGN.translation(Vector3f(0.0, -5.0, 0.0));
-
-		int64_t LastFPSPrint = GetTickCount();
-		int32_t FPSCount = 0;
+		CubeTransformSGN.translation(Vector3f(0.0, 0.0, 0.0));
 
 		bool Wireframe = true;
 		
@@ -152,10 +165,10 @@ namespace CForge {
 			RenderWin.update();
 			pLOD->update();
 
-			R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());
-			CubeTransformSGN.rotationDelta(R);
+			//R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());
+			//CubeTransformSGN.rotationDelta(R);
 			
-			SGTest.update(1.0f*pLOD->deltaTime);
+			SGTest.update(1.0f*pLOD->getDeltaTime());
 			
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 				Wireframe = !Wireframe;
@@ -175,7 +188,7 @@ namespace CForge {
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				RenderWin.closeWindow();
 			}
-			printf("deltaTime: %f\tFPS:%f \n", pLOD->deltaTime, 1.0/pLOD->deltaTime);
+			printf("deltaTime: %f\tFPS:%f \n", pLOD->getDeltaTime(), 1.0/pLOD->getDeltaTime());
 		}//while[main loop]
 
 

@@ -34,6 +34,10 @@ namespace CForge {
 		this->deltaTime = 0.000001 * microseconds;
 	}
 
+	double SLOD::getDeltaTime() {
+		return deltaTime;
+	}
+
 	void SLOD::setResolution() {
 
 	}
