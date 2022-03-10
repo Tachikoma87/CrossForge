@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "../thirdparty/tinyxml2/tinyxml2.h"
 #include "../CForge/AssetIO/File.h"
 #include <chrono>
@@ -13,10 +13,10 @@ namespace CForge {
 		std::vector<float>* getLevels();
 		void update();
 		void setResolution();
+		double getDeltaTime();
 
 		bool forceSLOD = false;
-		double deltaTime;
-
+		
 	protected:
 		SLOD(void);
 		~SLOD(void);
@@ -25,6 +25,7 @@ namespace CForge {
 		void clear(void);
 
 	private:
+		double deltaTime;
 		Eigen::Vector2i resolution;
 		std::chrono::steady_clock::time_point lastTickCount;
 		
