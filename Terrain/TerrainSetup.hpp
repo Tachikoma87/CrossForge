@@ -240,6 +240,7 @@ namespace Terrain {
 //             texture->bind();
 //             glUniform1i(shader->uniformLocation("TexAlbedo"), 0);
 //             a.render(&renderDevice);
+            gui.processMouseEvents(window.mouse());
             gui.testRender();
 
 			window.swapBuffers();

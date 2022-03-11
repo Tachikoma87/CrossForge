@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 project(crossforge VERSION 0.1 LANGUAGES CXX)
 
 FIND_PACKAGE(OpenGL REQUIRED)
+FIND_PACKAGE(Freetype REQUIRED)
 FIND_PACKAGE(assimp CONFIG REQUIRED)
 FIND_PACKAGE(glfw3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenCV CONFIG REQUIRED)
@@ -21,6 +22,7 @@ include_directories(
 		"${CMAKE_SOURCE_DIR}/thirdparty/eigen"
 		"${CMAKE_SOURCE_DIR}" # include top level for easy access to CForge, probably suboptimal
 		"${OpenCV_INCLUDE_DIRS}"
+		"${FREETYPE_INCLUDE_DIRS}"
 )
 
 add_library(crossforge SHARED
@@ -135,6 +137,8 @@ add_executable(Terrain
 		Terrain/Tile.cpp
 		Terrain/GUI/GUI.cpp
 		Terrain/GUI/WidgetBackground.cpp
+		Terrain/GUI/Widget.cpp
+		Terrain/GUI/Font.cpp
 		#"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
 		)
 
@@ -148,6 +152,7 @@ endif (WIN32)
 if(UNIX)
 	target_link_libraries(Terrain
 			PRIVATE crossforge
+			${FREETYPE_LIBRARIES}
 			)
 endif(UNIX)
 

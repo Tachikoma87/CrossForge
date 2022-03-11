@@ -8,8 +8,10 @@
 
 #include "GUIDefaults.h"
 
+// perhaps not the best name, maybe more like "drawables"
+
 /*
- Abstract class for Widget backgrounds, as there will be two types of those (plain color and image based).
+ Abstract class for Widget backgrounds, as there could be multiple (plain color, images, perhaps text).
  */
 // class IWidgetBackground {
 // public:
@@ -46,6 +48,9 @@ class WidgetBackground : public CForge::IRenderableActor/*, public IWidgetBackgr
 		GLBuffer m_VertexBuffer;
 		GLBuffer m_ElementBuffer;*/
 		  CForge::GLShader *m_pShader;
+          
+        void updatePosition(bool initialise);
+        void setBufferData(void);
 
 };//WidgetBackground
 
@@ -59,6 +64,5 @@ public:
     void init(BackgroundStyle style, CForge::GLShader *pShader = nullptr);
     void clear(void);
 //     void release(void);
-protected:
-    void setBufferData(void);
+// protected:
 };
