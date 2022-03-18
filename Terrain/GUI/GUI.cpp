@@ -50,7 +50,7 @@ void GUI::testInit()
     
     shaderManager->release();
     
-    fontFace = new FontFace;
+    fontFace = new FontFace();
 
     //Test rendering
     testtext.init(U"Beispieltext. ÄäÖöÜüß!?", fontFace, TextShader);
