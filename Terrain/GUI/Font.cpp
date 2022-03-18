@@ -50,7 +50,7 @@ int FontFace::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::G
     //resulting in 6 vertices per character with 4 components each,
     //2 position and 2 tex coords.
     const int numVertices = text.length() * 6;
-    GLfloat vertices[numVertices * 4];
+    GLfloat *vertices = new GLfloat[numVertices * 4];
 
 
     //compute the glyphs' positions
@@ -129,6 +129,8 @@ int FontFace::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::G
     assert (errorCode == 0);
     vbo->unbind();
     vao->unbind();
+
+    delete[] vertices;
 
     return numVertices;
 }
@@ -220,7 +222,7 @@ void FontFace::prepareCharMap()
     //
     //1) create the buffer
     const int numPixels = totalHeight * maxRowWidth;
-    uint8_t mapBuffer[numPixels];
+    uint8_t *mapBuffer = new uint8_t[numPixels];
 
     //2) make sure it's filled with 0 (transparent)
     for (int i = 0; i < numPixels; i++) {
@@ -275,6 +277,8 @@ void FontFace::prepareCharMap()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     errorCode = glGetError();
     assert (errorCode == 0);
+
+    delete[] mapBuffer;
 }
 
 glyph_t FontFace::getGlyph(char32_t character)

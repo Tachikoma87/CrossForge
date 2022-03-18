@@ -139,13 +139,14 @@ add_executable(Terrain
 		Terrain/GUI/WidgetBackground.cpp
 		Terrain/GUI/Widget.cpp
 		Terrain/GUI/Font.cpp
-		#"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
+		"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
 		)
 
 
 if(WIN32)
 	target_link_libraries(Terrain
 			PRIVATE crossforge
+			${FREETYPE_LIBRARIES}
 			)
 endif (WIN32)
 
