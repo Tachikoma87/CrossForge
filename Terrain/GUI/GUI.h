@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Widget.h"
+//#include "Widget.h"
 #include "WidgetBackground.h"
 #include "Font.h"
 #include <CForge/Graphics/RenderDevice.h>

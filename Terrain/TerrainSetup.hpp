@@ -29,6 +29,8 @@ namespace Terrain {
 
         window->init(Vector2i(100, 100), Vector2i(winWidth, winHeight), "Terrain Setup");
 
+        gladLoadGL();
+
         string GLError;
         GraphicsUtility::checkGLError(&GLError);
         if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());

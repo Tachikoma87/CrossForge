@@ -7,6 +7,7 @@ using namespace std::experimental;
 #endif
 #include <vector>
 
+using namespace std;
 
 const std::string RootSrcDir = "../../../CForge/";
 const std::string RootBinDir = "../";
