@@ -20,6 +20,8 @@ FontFace::FontFace()
         //TODO: figure out how to exit the program
         printf("Error loading freetype\n");
     }
+
+
     FontStyle defaults;
     error = FT_New_Face( library, defaults.FileName.c_str(), 0, &face );
     if ( error == FT_Err_Unknown_File_Format ) {
@@ -118,13 +120,15 @@ int FontFace::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::G
     vao->bind();
     errorCode = glGetError();
     assert (errorCode == 0);
-    vbo->init(CForge::GLBuffer::BTYPE_VERTEX, CForge::GLBuffer::BUSAGE_STATIC_DRAW, vertices, sizeof(vertices));
-    errorCode = glGetError();
-    assert (errorCode == 0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+    vbo->init(CForge::GLBuffer::BTYPE_VERTEX, CForge::GLBuffer::BUSAGE_STATIC_DRAW, vertices, sizeof(float)*numVertices*4);
+    vbo->bind();
     errorCode = glGetError();
     assert (errorCode == 0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+    errorCode = glGetError();
+    assert (errorCode == 0);
+   
     errorCode = glGetError();
     assert (errorCode == 0);
     vbo->unbind();
@@ -350,12 +354,13 @@ void TextLine::render(CForge::RenderDevice* pRDev)
         assert (errorCode == 0);
 
 //     m_pShader->bind();
+    m_VertexArray.bind();
+        errorCode = glGetError();
+        assert(errorCode == 0);
     pRDev->activeShader(m_pShader);
         errorCode = glGetError();
         assert (errorCode == 0);
-    m_VertexArray.bind();
-        errorCode = glGetError();
-        assert (errorCode == 0);
+   
 
     //Shader uniforms
     glActiveTexture(GL_TEXTURE0);
@@ -375,5 +380,7 @@ void TextLine::render(CForge::RenderDevice* pRDev)
         assert (errorCode == 0);
 
     glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
+
+
     m_VertexArray.unbind();
 }
