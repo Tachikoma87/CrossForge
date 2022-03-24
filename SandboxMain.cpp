@@ -21,6 +21,7 @@
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SocketTestScene.hpp"
+#include "Prototypes/TestScenes/TemplateRegistrationTestScene.hpp"
 #include "Prototypes/TestScenes/anotherTestScene.hpp"
 
 
@@ -65,9 +66,11 @@ int main(int argc, char* argv[]) {
 		//forestTestScene();
 		//skelAnimTestScene();
 
-		imuInputDeviceTestScene();
+		//imuInputDeviceTestScene();
 		//socketTestScene();
 		//assetGLTFTestScene();
+
+		tempRegTestScene();
 
 		//anotherTestScene();	
 	}

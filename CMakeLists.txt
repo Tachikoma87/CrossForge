@@ -18,6 +18,7 @@ FIND_PACKAGE(assimp CONFIG REQUIRED)
 FIND_PACKAGE(glfw3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenCV CONFIG REQUIRED)
 FIND_PACKAGE(libigl CONFIG REQUIRED)
+FIND_PACKAGE(imgui CONFIG REQUIRED)
 
 #enable edit and continue and hot reload (Visual Studio 2022)
 #if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -131,6 +132,7 @@ target_link_libraries(crossforge
 	PRIVATE igl::core 
 	PRIVATE igl::common
 	${OpenCV_LIBS}
+	PRIVATE imgui::imgui
 	)
 endif(WIN32)
 
@@ -143,6 +145,7 @@ if(UNIX)
 	PRIVATE igl::core 
 	PRIVATE igl::common
 	${OpenCV_LIBS}
+	PRIVATE imgui::imgui
 )
 endif(UNIX)
 
@@ -166,6 +169,9 @@ add_executable(CForgeSandbox
 	Prototypes/Misc/IMUCameraController.cpp
 
 	Prototypes/Assets/GLTFIO.cpp
+
+	Prototypes/TemplateRegistration/ArcBall.cpp
+	Prototypes/TemplateRegistration/MeshOctree.cpp
 	)
 
 
@@ -174,6 +180,7 @@ if(WIN32)
 	PRIVATE crossforge
 	PRIVATE glfw 
 	${OpenCV_LIBS}
+	PRIVATE imgui::imgui
 	ws2_32
 	)
 endif (WIN32)
@@ -186,6 +193,7 @@ if(UNIX)
 		${OpenCV_LIBS}
 		PRIVATE gpiod
 		PRIVATE dl
+		PRIVATE imgui::imgui
 		)
 endif(UNIX)
 
@@ -209,13 +217,6 @@ add_custom_command(
 	COMMAND ${CMAKE_COMMAND} -E copy_directory 
 	${CMAKE_SOURCE_DIR}/MyAssets
 	${CMAKE_CURRENT_BINARY_DIR}/MyAssets
-)
-
-add_custom_command(
-	TARGET CForgeSandbox PRE_BUILD 
-	COMMAND ${CMAKE_COMMAND} -E copy_directory 
-	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
-	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 
 project(ExportLibrary)
