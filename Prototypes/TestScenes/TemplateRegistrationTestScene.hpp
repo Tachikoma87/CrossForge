@@ -1,6 +1,9 @@
 #ifndef __CFORGE_TEMPLATEREGISTRATIONTESTSCENE_HPP__
 #define __CFORGE_TEMPLATEREGISTRATIONTESTSCENE_HPP__
 
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 #include "../../CForge/AssetIO/SAssetIO.h"
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
 #include "../../CForge/Graphics/STextureManager.h"
@@ -20,9 +23,14 @@
 
 #include "../../Examples/SceneUtilities.hpp"
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h" // derzeit Fehler: siehe Zeile 92
-#include "imgui_impl_opengl3.h"
+#include "initImGUI.h"
+
+//#include "imgui.h"
+//#include "imgui_impl_glfw.h" // derzeit Fehler: siehe Zeile 92
+//#include "imgui_impl_opengl3.h"
+
+
+
 
 #include "../TemplateRegistration/ArcBall.h"
 
@@ -71,6 +79,8 @@ namespace CForge {
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
 
+		gladLoadGL();
+
 		// configure and initialize rendering pipeline
 		RenderDevice RDev;
 		RenderDevice::RenderDeviceConfig Config;
@@ -92,15 +102,17 @@ namespace CForge {
 		// derzeit Fehler: Fehler C2664 "bool ImGui_ImplGlfw_InitForOpenGL(GLFWwindow *,bool)" : Konvertierung von Argument 1 von "CForge::GLFWwindow *" in "GLFWwindow *" nicht möglich
 		// (zugehöriger Header von Dear ImGui: imgui_impl_glfw.h)
 		// 
-		//IMGUI_CHECKVERSION();
-		//ImGui::CreateContext();
-		//ImGuiIO& GuiIO = ImGui::GetIO();		
-		//ImGui::StyleColorsLight();
-		//ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)RenderWin.handle(), false); //install_callbacks = true setzen, wenn false probleme macht
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& GuiIO = ImGui::GetIO();		
+		ImGui::StyleColorsLight();
+		initImGUI(RenderWin.handle());
+
+		//void* pHandle = RenderWin.handle();
+		//GLFWwindow* pW = (GLFWwindow*)pHandle;
+		//ImGui_ImplGlfw_InitForOpenGL( pW, false); //install_callbacks = true setzen, wenn false probleme macht
 		//ImGui_ImplOpenGL3_Init("#version 460 core");
 		
-
-
 
 		// configure and initialize shader configuration device
 		ShaderCode::LightConfig LC;
@@ -232,9 +244,12 @@ namespace CForge {
 			//processInput(GuiIO);
 
 			// ready new gui frame
-			//ImGui_ImplOpenGL3_NewFrame();
-			//ImGui_ImplGlfw_NewFrame();
-			//ImGui::NewFrame();
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+
+			bool show_demo_window = true;
+			if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
 
@@ -306,9 +321,9 @@ namespace CForge {
 			}
 
 			// render gui
-			//ImGui::Render();
-			//glViewport(0, 0, RenderWinWidth, RenderWinHeight);
-			//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			ImGui::Render();
+			glViewport(0, 0, RenderWinWidth, RenderWinHeight);
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			RenderWin.swapBuffers();
 

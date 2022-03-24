@@ -172,6 +172,7 @@ add_executable(CForgeSandbox
 
 	Prototypes/TemplateRegistration/ArcBall.cpp
 	Prototypes/TemplateRegistration/MeshOctree.cpp
+	Prototypes/TestScenes/initImGUI.cpp
 	)
 
 
