@@ -539,7 +539,7 @@ namespace CForge {
 
 					float f = 1.0f / (DeltaUV1.x() * DeltaUV2.y() - DeltaUV2.x() + DeltaUV1.y());
 
-					Vector3f Tangent;
+					Eigen::Vector3f Tangent;
 					Tangent.x() = f * (DeltaUV2.y() * Edge1.x() - DeltaUV1.y() * Edge2.x());
 					Tangent.y() = f * (DeltaUV2.y() * Edge1.y() - DeltaUV1.y() * Edge2.y());
 					Tangent.z() = f * (DeltaUV2.y() * Edge1.z() - DeltaUV1.y() * Edge2.z());
@@ -554,7 +554,7 @@ namespace CForge {
 
 			m_Normals.clear();
 			// create normals
-			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Normals.push_back(Vector3f::Zero());
+			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Normals.push_back(Eigen::Vector3f::Zero());
 
 			// sum normals
 			for (auto i : m_Submeshes) {
@@ -577,7 +577,7 @@ namespace CForge {
 			m_Tangents.clear();
 
 			// create tangents
-			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Tangents.push_back(Vector3f::Zero());
+			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Tangents.push_back(Eigen::Vector3f::Zero());
 
 			// sum tangents
 			for (auto i : m_Submeshes) {
