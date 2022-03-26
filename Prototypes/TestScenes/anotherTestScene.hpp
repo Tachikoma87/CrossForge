@@ -97,11 +97,11 @@ namespace CForge {
 		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
 
 		// initialize sun (key lights) and back ground light (fill light)
-		Vector3f SunPos = Vector3f(-5.0f, 15.0f, 35.0f);
-		Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -30.0f);
+		Vector3f SunPos = Vector3f(-5.0f, 45.0f, 35.0f);
+		Vector3f BGLightPos = Vector3f(0.0f, 10.0f, 2.0f);
 		DirectionalLight Sun;
 		PointLight BGLight;
-		Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
+		Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 7.0f);
 		// sun will cast shadows
 		Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
 		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
@@ -125,10 +125,11 @@ namespace CForge {
 		SAssetIO::load("MyAssets/Sponza/Sponza.gltf", &M);
 		//SAssetIO::load("MyAssets/Helmet/DamagedHelmet.gltf", &M);
 		//SAssetIO::load("MyAssets/FlightHelmet/FlightHelmet.gltf", &M);
-		SceneUtilities::setMeshShader(&M, 0.3f, 0.34f);
+		SceneUtilities::setMeshShader(&M, 0.35f, 0.04f);
 		M.computePerVertexNormals();
 		//M.tangents(&std::vector<Eigen::Vector3f>());
 		M.computePerVertexTangents();
+		//M.tangents(&std::vector<Vector3f>());
 		Cube.init(&M);
 		M.clear();
 
@@ -152,7 +153,7 @@ namespace CForge {
 		CubeSGN.init(&CubeTransformSGN, &Cube);
 
 		// rotate about the y-axis at 45 degree every second
-		Quaternionf R;
+		Quaternionf R = Quaternionf::Identity();
 		//R = AngleAxisf(GraphicsUtility::degToRad(5.0f / 60.0f), Vector3f::UnitY());
 		CubeTransformSGN.rotationDelta(R);
 
@@ -182,7 +183,7 @@ namespace CForge {
 
 
 			// render in left viewport
-			RDev.viewport(VP1);
+			//RDev.viewport(VP1);
 			
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
 			SG.render(&RDev);
@@ -212,6 +213,13 @@ namespace CForge {
 				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
 			}
 
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
+				static uint32_t ScreenshotCount = 0;
+				T2DImage<uint8_t> ColorBuffer;
+				GraphicsUtility::retrieveFrameBuffer(&ColorBuffer);
+				ScreenshotCount++;
+				AssetIO::store("Screenshot_" + to_string(ScreenshotCount) + ".jpg", &ColorBuffer);
+			}
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				RenderWin.closeWindow();

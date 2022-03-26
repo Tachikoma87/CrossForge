@@ -23,6 +23,7 @@ namespace CForge {
 
 		uint16_t VProps = VertexUtility::VPROP_POSITION | VertexUtility::VPROP_BONEINDICES | VertexUtility::VPROP_BONEWEIGHTS;
 		if (pMesh->normalCount() > 0) VProps |= VertexUtility::VPROP_NORMAL;
+		if (pMesh->tangentCount() > 0) VProps |= VertexUtility::VPROP_TANGENT;
 		if (pMesh->textureCoordinatesCount() > 0) VProps |= VertexUtility::VPROP_UVW;
 
 		m_VertexUtility.init(VProps);

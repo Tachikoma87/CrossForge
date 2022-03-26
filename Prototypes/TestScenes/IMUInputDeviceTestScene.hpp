@@ -148,12 +148,16 @@ namespace CForge {
 		//SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
 		SAssetIO::load("MyAssets/TexturedGround.fbx", &M);
 
-		for (uint8_t i = 0; i < 4; ++i) M.textureCoordinate(i) *= 10.0f;
+		for (uint8_t i = 0; i < 4; ++i) M.textureCoordinate(i) *= 15.0f;
 
 		SceneUtilities::setMeshShader(&M, 0.0f, 0.04f);
-		M.getMaterial(0)->Color = 0.75f * Vector4f(0.75f, 0.85f, 0.75f, 1.0f);
-		M.getMaterial(0)->TexAlbedo = "MyAssets/ForestGround.jpg";
+		M.getMaterial(0)->Color = 1.0f * Vector4f(0.75f, 0.85f, 0.75f, 1.0f);
+
+		M.getMaterial(0)->TexAlbedo = "MyAssets/ground14.jpg";
+		M.getMaterial(0)->TexNormal = "MyAssets/ground14n.jpg";
+
 		M.computePerVertexNormals();
+		M.computePerVertexTangents();
 		Skydome.init(&M);
 		M.clear();
 
@@ -223,14 +227,19 @@ namespace CForge {
 		M.clear();
 
 		AssetIO::load("MyAssets/StarCoin.glb", &M);
-		SceneUtilities::setMeshShader(&M, 0.2f, 0.5f);
+		SceneUtilities::setMeshShader(&M, 0.3f, 0.25f);
 		M.computePerVertexNormals();
+		M.computePerVertexTangents();
 		for (uint32_t i = 0; i < M.materialCount(); ++i) {
 			M.getMaterial(i)->TexAlbedo = "MyAssets/MaterialStar_baseColor.jpeg";
-			M.getMaterial(i)->TexNormal = "";
+			M.getMaterial(i)->TexNormal = "MyAssets/MaterialStar_normal.jpeg";
 		}
 		Coin.init(&M);
 		M.clear();
+
+
+		// set random seed
+		CoreUtility::randSeed(CoreUtility::timestamp());
 
 		// add skydome
 		SGNGeometry SkydomeSGN;
@@ -246,8 +255,8 @@ namespace CForge {
 		SGNTransformation* pTreeTransNodes = new SGNTransformation[TreeCount];
 		Sphere* pTreeSpheres = new Sphere[TreeCount];
 
-		float MinPlane = -400.0f;
-		float MaxPlane = 400.0f;
+		float MinPlane = -200.0f;
+		float MaxPlane = 200.0f;
 
 		for (uint32_t i = 0; i < TreeCount; ++i) {
 			// placement in world
@@ -282,12 +291,10 @@ namespace CForge {
 				pTreeSpheres[i].Radius2 = r * r;
 			}
 
-			
-
 		}//for[generate trees]
 
 		// generate coins
-		uint32_t CoinCount = 200;
+		uint32_t CoinCount = 250;
 		SGNGeometry* pCoinNodes = new SGNGeometry[CoinCount];
 		SGNTransformation* pCoinTransNodes = new SGNTransformation[CoinCount];
 		Sphere* pCoinBS = new Sphere[CoinCount];

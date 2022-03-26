@@ -70,10 +70,11 @@ int main(int argc, char* argv[]) {
 		//skelAnimTestScene();
 
 		//imuInputDeviceTestScene();
-		//socketTestScene();
+
+		socketTestScene();
 		//assetGLTFTestScene();
 
-		anotherTestScene();	
+		//anotherTestScene();	
 		//normalMappingTestScene();
 	}
 	catch (const CrossForgeException & e) {
