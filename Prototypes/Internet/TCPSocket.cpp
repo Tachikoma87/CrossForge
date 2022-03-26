@@ -199,6 +199,15 @@ namespace CForge {
 }//name space
 
 #elif defined unix
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+
 namespace CForge {
 	void TCPSocket::startup(void) {
 
@@ -209,36 +218,190 @@ namespace CForge {
 	}//cleanup
 
 	TCPSocket::TCPSocket(void) {
+		m_pAcceptThread = nullptr;
+		m_pHandle = nullptr;
 
+		m_pInBuffer = nullptr;
+		m_pOutBuffer = nullptr;
+		m_BufferSize = 0;
 	}//Constructor
 
 	TCPSocket::~TCPSocket(void) {
+		end();
 
 	}//Destructor
 
 	void TCPSocket::begin(SocketType Type, uint16_t Port) {
+		end();
 
+		// create a socket
+		int64_t Sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		if (-1 == Sock) throw CForgeExcept("Creating socket failed!");
+		m_Port = Port;
+
+		if (Type == TYPE_SERVER) {
+			// bind server to port
+			sockaddr_in Addr;
+			Addr.sin_family = AF_INET;
+			Addr.sin_port = htons(m_Port);
+			Addr.sin_addr.s_addr = INADDR_ANY;
+			int32_t rc = bind(Sock, (sockaddr*)&Addr, sizeof(sockaddr_in));
+
+			if (rc == -1) throw CForgeExcept("Binding socket failed.");
+			rc = listen(Sock, 250);
+			if (rc == -1) throw CForgeExcept("Setting listen of TCP server failed.");
+		}
+
+		m_pHandle = (void*)Sock;
+
+		// create Buffer
+		m_BufferSize = 2048;
+		m_pInBuffer = new uint8_t[m_BufferSize];
+		m_pOutBuffer = new uint8_t[m_BufferSize];
+
+		// start threads
+		if (Type == TYPE_SERVER) {
+			m_pAcceptThread = new std::thread(&TCPSocket::acceptThread, this);
+		}
 	}//begin
 
 	void TCPSocket::end(void) {
+		// close socket
+		if (m_pHandle != nullptr) {
+			int64_t Sock = (int64_t)m_pHandle;
+			m_pHandle = nullptr;
+			shutdown(Sock, SHUT_RDWR);
+			close(Sock);
+		}
+		m_pHandle = nullptr;
+		if (m_pAcceptThread != nullptr) m_pAcceptThread->join();
+		m_pAcceptThread = nullptr;
 
+		// close all connections
+		for (auto& i : m_ActiveConnections) {
+			if (nullptr == i) continue;
+
+			int64_t Sock = (int64_t)i->pHandle;
+			shutdown(Sock, SHUT_RDWR);
+			close(Sock);
+
+			i->pHandle = nullptr;
+			i->pRecvThread->join();
+			delete i;
+		}
+		m_ActiveConnections.clear();
+
+		if (nullptr != m_pInBuffer) delete[] m_pInBuffer;
+		if (nullptr != m_pOutBuffer) delete[] m_pOutBuffer;
+		m_BufferSize = 0;
+
+		m_pInBuffer = nullptr;
+		m_pOutBuffer = nullptr;
 	}//end
 
 	void TCPSocket::sendData(uint8_t* pData, uint32_t DataSize, int32_t ConnectionID) {
+		if (nullptr == m_pHandle) throw CForgeExcept("Socket not valid!");
+		if (ConnectionID >= m_ActiveConnections.size()) throw IndexOutOfBoundsExcept("ConnectionID");
+		if (nullptr == m_ActiveConnections[ConnectionID]) throw CForgeExcept("Connection " + std::to_string(ConnectionID) + " not valid!");
 
+		int64_t Sock = (int64_t)m_pHandle;
+		Connection* pCon = m_ActiveConnections[ConnectionID];
+		send((int64_t)pCon->pHandle, (const char*)pData, DataSize, 0);
 	}//sendData
 
 	bool TCPSocket::recvData(uint8_t* pBuffer, uint32_t* pDataSize, int32_t ConnectionID) {
-		return false;
+		if (ConnectionID >= m_ActiveConnections.size()) throw IndexOutOfBoundsExcept("ConnectionID");
+		if (nullptr == m_ActiveConnections[ConnectionID]) throw CForgeExcept("Invalid connection with id " + std::to_string(ConnectionID));
+
+		Connection* pCon = m_ActiveConnections[ConnectionID];
+
+		if (pCon->InQueue.empty()) return false;
+
+		pCon->Mutex.lock();
+		Package* pRval = pCon->InQueue.front();
+		pCon->InQueue.pop();
+		pCon->Mutex.unlock();
+		(*pDataSize) = pRval->DataSize;
+		memcpy(pBuffer, pRval->pData, pRval->DataSize);
+		delete pRval;
+		return true;
 	}//recvData
 
 	bool TCPSocket::connectTo(std::string IP, uint16_t Port) {
-		return false;
+		bool Rval = false;
+
+		int64_t Sock = (int64_t)m_pHandle;
+
+		sockaddr_in Addr;
+		Addr.sin_family = AF_INET;
+		Addr.sin_addr.s_addr = inet_addr(IP.c_str());
+		Addr.sin_port = htons(Port == 0 ? m_Port : Port);
+
+		auto Rc = connect(Sock, (sockaddr*)&Addr, sizeof(sockaddr));
+		if (Rc == -1) throw CForgeExcept("Connecting to " + IP + "failed!");
+
+		Connection* pCon = new Connection();
+		int32_t ConnectionID = m_ActiveConnections.size();
+		m_ActiveConnections.push_back(pCon);
+		pCon->IP = IP;
+		pCon->Port = Port;
+		pCon->pHandle = (void*)Sock;
+		pCon->pRecvThread = new std::thread(&TCPSocket::recvThread, this, ConnectionID);
+		
+		Rval = true;
+
+		return Rval;
 	}//connectTo
 
 	uint32_t TCPSocket::activeConnections(void)const {
-		return m_ActiveConnections.size();
+		return uint32_t(m_ActiveConnections.size());
 	}//activeConnections
+
+	void TCPSocket::acceptThread(void) {
+		int64_t Sock = (int64_t)m_pHandle;
+
+		while (nullptr != m_pHandle) {
+			sockaddr_in AddrIn;
+			socklen_t AddrLen = sizeof(AddrIn);
+			memset(&AddrIn, 0, sizeof(AddrIn));
+
+			int64_t pS = accept(Sock, (sockaddr*)&AddrIn, &AddrLen);
+			if (pS != -1) {
+
+				Connection* pNewConnection = new Connection();
+				int32_t ConnectionID = m_ActiveConnections.size();
+				m_ActiveConnections.push_back(pNewConnection);
+				pNewConnection->pHandle = (void*)pS;
+				pNewConnection->IP = inet_ntoa(AddrIn.sin_addr);
+				pNewConnection->Port = ntohs(AddrIn.sin_port);
+				pNewConnection->pRecvThread = new std::thread(&TCPSocket::recvThread, this, ConnectionID);
+			}
+		}//while[do not leave thread]
+	}//socketThread
+
+	void TCPSocket::recvThread(int32_t ConnectionID) {
+
+		Connection* pCon = m_ActiveConnections[ConnectionID];
+		int64_t Sock = (int64_t)pCon->pHandle;
+
+		while (pCon->pHandle != nullptr) {
+
+			sockaddr_in AddrIn;
+			int32_t AddrLen;
+
+			int32_t MsgLength = recv(Sock, (char*)m_pInBuffer, m_BufferSize, 0);
+			if (MsgLength > 0) {
+				pCon->Mutex.lock();
+				Package* pP = new Package();
+				pP->pData = new uint8_t[MsgLength];
+				memcpy(pP->pData, m_pInBuffer, MsgLength);
+				pP->DataSize = MsgLength;
+				pCon->InQueue.push(pP);
+				pCon->Mutex.unlock();
+			}
+		}//while[do not leave thread]
+
+	}//socketClientThread
 }
 
 

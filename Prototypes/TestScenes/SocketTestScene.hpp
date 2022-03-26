@@ -169,18 +169,23 @@ namespace CForge {
 		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 		UDPSocket::startup();
-		/*TCPSocket Client;
+		TCPSocket Client;
 		TCPSocket Client2;
 		TCPSocket Server;
-		Server.begin(TCPSocket::TYPE_SERVER, 1122);
-		Client.begin(TCPSocket::TYPE_CLIENT, 1122);
-		Client2.begin(TCPSocket::TYPE_CLIENT, 1122);*/
+
+		int32_t TCPPort = 1135;
+
+		Server.begin(TCPSocket::TYPE_SERVER, TCPPort);
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		Client.begin(TCPSocket::TYPE_CLIENT, TCPPort);
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		Client2.begin(TCPSocket::TYPE_CLIENT, TCPPort);
 
 		UDPSocket UDPServer;
 		UDPSocket UDPClient;
 
-		UDPServer.begin(UDPSocket::TYPE_SERVER, 2233);
-		UDPClient.begin(UDPSocket::TYPE_CLIENT, 0);
+		/*UDPServer.begin(UDPSocket::TYPE_SERVER, 2233);
+		UDPClient.begin(UDPSocket::TYPE_CLIENT, 0);*/
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
@@ -192,27 +197,33 @@ namespace CForge {
 		uint64_t Start = CoreUtility::timestamp();
 		uint64_t Start2 = CoreUtility::timestamp();
 
-		/*try {
-			if(Client.connectTo("127.0.0.1", 1122)) printf("Client Connected to localhost:1122\n");
-			if (Client2.connectTo("127.0.0.1", 1122)) printf("Client2 connected to localhost:1122\n");
+		try {
+			if(Client.connectTo("127.0.0.1", TCPPort)) printf("Client Connected to localhost:1122\n");
+			if (Client2.connectTo("127.0.0.1", TCPPort)) printf("Client2 connected to localhost:1122\n");
 		}
 		catch (CrossForgeException& e) {
 			SLogger::logException(e);
-		}*/
+		}
+
+		int32_t Counter = 0;
 
 		while (!RenderWin.shutdown()) {
 
-			if (CoreUtility::timestamp() - Start > 1000) {
-				UDPClient.sendData((uint8_t*)"Ping", 5, "127.0.0.1", 2233);
+
+
+			/*if (CoreUtility::timestamp() - Start > 1000) {
+				std::string Msg = "Ping " + std::to_string(Counter++);
+
+				UDPClient.sendData((uint8_t*)Msg.c_str(), Msg.length(), "127.0.0.1", 2233);
 				Start = CoreUtility::timestamp();
 			}
 
 			if (UDPServer.recvData(Buffer, &DataSize, &Sender, &Port)) {
 				printf("Message from %s:%d: %s\n", Sender.c_str(), Port, (char*)Buffer);
-			}
+			}*/
 
 
-			/*for (uint32_t i = 0; i < Server.activeConnections(); ++i) {
+			for (uint32_t i = 0; i < Server.activeConnections(); ++i) {
 				if (Server.recvData(Buffer, &DataSize, i)) {
 					printf("%s\n", (char*)Buffer);
 					Server.sendData((uint8_t*)"Pong", 5, i);
@@ -234,7 +245,7 @@ namespace CForge {
 			}
 			if (Client2.recvData(Buffer, &DataSize, 0)) {
 				printf("%s\n", (char*)Buffer);
-			}*/
+			}
 
 			RenderWin.update();
 			SG.update(FPS / 60.0f);
@@ -268,8 +279,14 @@ namespace CForge {
 		}//while[main loop]
 
 		pSMan->release();
-		/*Client.end();
-		Server.end();*/
+
+		Client.end();
+		Client2.end();
+		Server.end();
+
+		UDPClient.end();
+		UDPServer.end();
+		
 		UDPSocket::cleanup();
 
 	}//exampleMinimumGraphicsSetup

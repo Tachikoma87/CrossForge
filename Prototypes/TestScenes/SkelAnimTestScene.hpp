@@ -138,7 +138,7 @@ namespace CForge {
 
 		// initialize skeletal actor (Eric) and its animation controller
 		SAssetIO::load("MyAssets/DoubleCaptured.glb", &M);
-		SceneUtilities::setMeshShader(&M, 0.7f, 0.04f);
+		SceneUtilities::setMeshShader(&M, 0.6f, 0.04f);
 		// male textures
 		//M.getMaterial(0)->TexAlbedo = "Assets/tmp/MHTextures/young_lightskinned_male_diffuse2.png";
 		//M.getMaterial(1)->TexAlbedo = "Assets/tmp/MHTextures/brown_eye.png";
@@ -149,19 +149,23 @@ namespace CForge {
 		M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
 		M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
 		M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+		M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
 		M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
 
 		M.computePerVertexNormals();
+		//M.computePerVertexTangents();
 		ControllerCaptured.init(&M);
 		Captured.init(&M, &ControllerCaptured);
 		M.clear();
 
 		SAssetIO::load("MyAssets/DoubleSynth.glb", &M);
-		SceneUtilities::setMeshShader(&M, 0.7f, 0.04f);
+		SceneUtilities::setMeshShader(&M, 0.6f, 0.04f);
 		M.computePerVertexNormals();
+		M.computePerVertexTangents();
 		M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
 		M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
 		M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+		M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
 		M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
 		ControllerSynth.init(&M);
 		Synth.init(&M, &ControllerSynth);
@@ -170,9 +174,11 @@ namespace CForge {
 		SAssetIO::load("MyAssets/DoubleStylized.glb", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.04f);
 		M.computePerVertexNormals();
+		M.computePerVertexTangents();
 		M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
 		M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
 		M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+		M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
 		M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
 		ControllerStyle.init(&M);
 		Style.init(&M, &ControllerStyle);
@@ -309,6 +315,14 @@ namespace CForge {
 				LastFPSPrint = CoreUtility::timestamp();
 
 				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
+			}
+
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
+				static uint32_t ScreenshotCount = 0;
+				T2DImage<uint8_t> ColorBuffer;
+				GraphicsUtility::retrieveFrameBuffer(&ColorBuffer);
+				ScreenshotCount++;
+				AssetIO::store("Screenshot_" + to_string(ScreenshotCount) + ".jpg", &ColorBuffer);
 			}
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
