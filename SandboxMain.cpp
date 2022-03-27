@@ -14,13 +14,13 @@
 #include "Examples/exampleMorphTargetAnimation.hpp"
 #include "Examples/exampleSkybox.hpp"
 #include "Examples/exampleMultiViewport.hpp"
+#include "Examples/exampleSockets.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
 #include "Prototypes/TestScenes/ForestTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
-#include "Prototypes/TestScenes/SocketTestScene.hpp"
 #include "Prototypes/TestScenes/anotherTestScene.hpp"
 #include "Prototypes/TestScenes/NormalMappingTestScene.hpp"
 
@@ -63,6 +63,7 @@ int main(int argc, char* argv[]) {
 		//exampleMorphTargetAnimation(); 
 		//exampleSkybox();
 		//exampleMultiViewport();
+		exampleSockets();
 	
 		//shadowTest();
 		//vertexColorTestScene();
@@ -71,7 +72,6 @@ int main(int argc, char* argv[]) {
 
 		//imuInputDeviceTestScene();
 
-		socketTestScene();
 		//assetGLTFTestScene();
 
 		//anotherTestScene();	

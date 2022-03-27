@@ -21,11 +21,11 @@
 #include <thread>
 #include <queue>
 #include <mutex>
-#include "../../CForge/Core/CForgeObject.h"
+#include "../Core/CForgeObject.h"
 
 
 namespace CForge {
-	class TCPSocket {
+	class CFORGE_API TCPSocket: public CForgeObject {
 	public:
 		enum SocketType : int8_t {
 			TYPE_UNKNOWN = -1,
@@ -33,9 +33,10 @@ namespace CForge {
 			TYPE_CLIENT,
 		};
 
-		// start and clears Winsocket stuff (WSA). Move to engine object later as this is only a temporary solution
-		static void startup(void);
-		static void cleanup(void);
+		struct ConnectionInfo {
+			std::string IP;
+			uint16_t Port;
+		};
 
 		TCPSocket(void);
 		~TCPSocket(void);
@@ -49,12 +50,14 @@ namespace CForge {
 
 		uint32_t activeConnections(void)const;
 
+		ConnectionInfo connectionInfo(int32_t ConnectionID)const;
+
 	protected:
 		struct Package {
 			uint8_t* pData;
 			uint32_t DataSize;
 			int32_t ConnectionID;
-			
+
 
 			Package(void) {
 				pData = nullptr;
