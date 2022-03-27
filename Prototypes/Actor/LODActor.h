@@ -26,6 +26,7 @@
 #include "../../CForge/Graphics/RenderMaterial.h"
 #include "../../CForge/Graphics/Actors/VertexUtility.h"
 #include "../../CForge/Graphics/Actors/RenderGroupUtility.h"
+#include "../SLOD.h"
 
 namespace CForge {
 	/**
@@ -38,26 +39,32 @@ namespace CForge {
 		LODActor(void);
 		~LODActor(void);
 
-		void init(const T3DMesh<float>* pMesh);
+		void init(T3DMesh<float>* pMesh);
+		void init(T3DMesh<float>* pMesh, bool isTranslucent);
+		void init(T3DMesh<float>* pMesh, bool isTranslucent, const std::vector<float> &LODStages);
 		void clear(void);
 		void release(void);
 
 		void render(RenderDevice* pRDev);
 
 		uint32_t materialCount(void)const;
-		RenderMaterial* material(uint32_t Index);
+		RenderMaterial* material(uint32_t level);
 		
 		void bindLODLevel(uint32_t index);
+		bool isTranslucent();
 		
 	protected:
 
 	private:
-		void loadLODlevels();
-		void generateLODlevel();
-
+		SLOD* m_pSLOD;
+		
 		std::vector<T3DMesh<float>*> m_LODMeshes;
 		std::vector<float> m_LODStages;
 		uint32_t m_LODLevel;
+		
+		bool m_translucent;
+		bool m_visible;
+		uint32_t m_pixelCount;
 		
 		//void setBufferData(void);
 		/*
