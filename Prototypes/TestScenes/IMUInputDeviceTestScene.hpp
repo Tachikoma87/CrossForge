@@ -39,8 +39,8 @@
 
 #include "../../CForge/Graphics/Actors/SkyboxActor.h"
 
-#include "../Internet/UDPSocket.h"
-#include "../Internet/IMUPackage.hpp"
+//#include "../Internet/UDPSocket.h"
+//#include "../Internet/IMUPackage.hpp"
 
 
 #include "../Misc/IMUCameraController.h"
@@ -356,7 +356,7 @@ namespace CForge {
 		std::string Sender;
 		uint16_t Port;
 
-		UDPSocket::startup();
+
 		IMUCameraController IMUCam;
 		IMUCam.init(25001, 25000, 200);
 
@@ -448,8 +448,6 @@ namespace CForge {
 		}//while[main loop]
 
 		IMUCam.clear();
-
-		UDPSocket::cleanup();
 		
 		pSMan->release();
 

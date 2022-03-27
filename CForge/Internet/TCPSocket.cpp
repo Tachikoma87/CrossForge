@@ -6,18 +6,7 @@
 
 namespace CForge {
 
-	void TCPSocket::startup(void) {
-		WSADATA wsa;
-		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
-			throw CForgeExcept("Failed to initialized winsock. Error Code: " + std::to_string(WSAGetLastError()));
-		}
-	}//startup
-
-	void TCPSocket::cleanup(void) {
-		WSACleanup();
-	}//cleanup
-
-	TCPSocket::TCPSocket(void) {
+	TCPSocket::TCPSocket(void): CForgeObject("TCPSocket") {
 		m_pAcceptThread = nullptr;
 		m_pHandle = nullptr;
 
@@ -74,7 +63,7 @@ namespace CForge {
 		m_pAcceptThread = nullptr;
 
 		// close all connections
-		for (auto &i : m_ActiveConnections) {
+		for (auto& i : m_ActiveConnections) {
 			if (nullptr == i) continue;
 			closesocket((SOCKET)i->pHandle);
 			i->pHandle = nullptr;
@@ -102,7 +91,7 @@ namespace CForge {
 
 	}//send
 
-	bool TCPSocket::recvData(uint8_t* pBuffer, uint32_t* pDataSize, int32_t ConnectionID){
+	bool TCPSocket::recvData(uint8_t* pBuffer, uint32_t* pDataSize, int32_t ConnectionID) {
 		if (ConnectionID >= m_ActiveConnections.size()) throw IndexOutOfBoundsExcept("ConnectionID");
 		if (nullptr == m_ActiveConnections[ConnectionID]) throw CForgeExcept("Invalid connection with id " + std::to_string(ConnectionID));
 
@@ -138,7 +127,7 @@ namespace CForge {
 		pCon->IP = IP;
 		pCon->Port = Port;
 		pCon->pHandle = (void*)pSock;
-		pCon->pRecvThread = new std::thread(&TCPSocket::recvThread, this, int32_t(m_ActiveConnections.size()) );
+		pCon->pRecvThread = new std::thread(&TCPSocket::recvThread, this, int32_t(m_ActiveConnections.size()));
 		m_ActiveConnections.push_back(pCon);
 
 		Rval = true;
@@ -167,7 +156,7 @@ namespace CForge {
 				pNewConnection->pHandle = (void*)pS;
 				pNewConnection->IP = inet_ntoa(AddrIn.sin_addr);
 				pNewConnection->Port = ntohs(AddrIn.sin_port);
-				pNewConnection->pRecvThread = new std::thread(&TCPSocket::recvThread, this, ConnectionID);	
+				pNewConnection->pRecvThread = new std::thread(&TCPSocket::recvThread, this, ConnectionID);
 			}
 		}//while[do not leave thread]
 	}//socketThread
@@ -209,15 +198,8 @@ namespace CForge {
 #include <unistd.h>
 
 namespace CForge {
-	void TCPSocket::startup(void) {
 
-	}//startup
-
-	void TCPSocket::cleanup(void) {
-
-	}//cleanup
-
-	TCPSocket::TCPSocket(void) {
+	TCPSocket::TCPSocket(void): CForgeObject("TCPSocket") {
 		m_pAcceptThread = nullptr;
 		m_pHandle = nullptr;
 
@@ -347,7 +329,7 @@ namespace CForge {
 		pCon->Port = Port;
 		pCon->pHandle = (void*)Sock;
 		pCon->pRecvThread = new std::thread(&TCPSocket::recvThread, this, ConnectionID);
-		
+
 		Rval = true;
 
 		return Rval;
@@ -402,8 +384,21 @@ namespace CForge {
 		}//while[do not leave thread]
 
 	}//socketClientThread
-}
-
+}//name space
 
 #endif 
+
+namespace CForge {
+
+	TCPSocket::ConnectionInfo TCPSocket::connectionInfo(int32_t ConnectionID)const {
+		if (ConnectionID < 0 || ConnectionID >= m_ActiveConnections.size()) throw IndexOutOfBoundsExcept("ConnectionID");
+		ConnectionInfo Rval;
+		if (nullptr != m_ActiveConnections[ConnectionID]) {
+			Rval.IP = m_ActiveConnections[ConnectionID]->IP;
+			Rval.Port = m_ActiveConnections[ConnectionID]->Port;
+		}
+		return Rval;
+	}//connectionInfo
+
+}//name space
 

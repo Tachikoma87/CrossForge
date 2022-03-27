@@ -6,18 +6,7 @@
 
 namespace CForge {
 
-	void UDPSocket::startup(void) {
-		WSADATA wsa;
-		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
-			throw CForgeExcept("Failed to initialized winsock. Error Code: " + std::to_string(WSAGetLastError()));
-		}
-	}//startup
-
-	void UDPSocket::cleanup(void) {
-		WSACleanup();
-	}//cleanup
-
-	UDPSocket::UDPSocket(void) {
+	UDPSocket::UDPSocket(void): CForgeObject("UDPSocket") {
 		m_pRecvThread = nullptr;
 		m_pHandle = nullptr;
 
@@ -163,15 +152,7 @@ namespace CForge {
 
 namespace CForge {
 
-	void UDPSocket::startup(void) {
-		// nothing to do here
-	}//startup
-
-	void UDPSocket::cleanup(void) {
-		// nothing to do here
-	}//cleanup
-
-	UDPSocket::UDPSocket(void) {
+	UDPSocket::UDPSocket(void): CForgeObject("UDPSocket") {
 		m_pRecvThread = nullptr;
 		m_pHandle = nullptr;
 
@@ -222,7 +203,7 @@ namespace CForge {
 			shutdown(Sock, SHUT_RDWR);
 			close(Sock);
 		}
-		
+
 		if (m_pRecvThread != nullptr) m_pRecvThread->join();
 		m_pRecvThread = nullptr;
 

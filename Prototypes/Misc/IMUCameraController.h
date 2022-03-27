@@ -21,7 +21,9 @@
 #include <list>
 #include "../Internet/IMUPackage.hpp"
 #include "../../CForge/Graphics/VirtualCamera.h"
-#include "../Internet/UDPSocket.h"
+
+//#include "../Internet/UDPSocket.h"
+#include "../../CForge/Internet/UDPSocket.h"
 
 namespace CForge {
 	class IMUCameraController {

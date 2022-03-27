@@ -21,21 +21,18 @@
 #include <thread>
 #include <queue>
 #include <mutex>
-#include "../../CForge/Core/CForgeObject.h"
+#include "../Core/CForgeObject.h"
 
 
 namespace CForge {
-	class UDPSocket {
+
+	class CFORGE_API UDPSocket: public CForgeObject {
 	public:
 		enum SocketType : int8_t {
 			TYPE_UNKNOWN = -1,
 			TYPE_SERVER = 0,
 			TYPE_CLIENT,
 		};
-
-		// start and clears Winsocket stuff (WSA). Move to engine object later as this is only a temporary solution
-		static void startup(void);
-		static void cleanup(void);
 
 		UDPSocket(void);
 		~UDPSocket(void);
