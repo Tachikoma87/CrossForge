@@ -5,7 +5,7 @@
 namespace CForge {
 	
 	// TODO inMesh zu const& machen // cleanup split funcs
-	void MeshDecimator::decimateMesh(CForge::T3DMesh<float>* inMesh, CForge::T3DMesh<float>* outMesh, float amount)
+	void MeshDecimator::decimateMesh(const CForge::T3DMesh<float>* inMesh, CForge::T3DMesh<float>* outMesh, float amount)
 	{
 		auto start = std::chrono::high_resolution_clock::now();
 		
@@ -30,7 +30,7 @@ namespace CForge {
 		// add all faces from submeshes
 		uint32_t startIndex = 0;
 		for (uint32_t i = 0; i < inMesh->submeshCount(); i++) {
-			CForge::T3DMesh<float>::Submesh* submesh = inMesh->getSubmesh(i);
+			const CForge::T3DMesh<float>::Submesh* submesh = inMesh->getSubmesh(i);
 			std::vector<uint32_t> triIdx;
 			
 			auto faces = submesh->Faces;
@@ -104,8 +104,11 @@ namespace CForge {
 		std::vector<Eigen::Vector3f> newVerts, newNormals, newTangents, newUVs, newColors;
 		std::vector<uint32_t> UV;
 		
+		// copy all materials
 		for (uint32_t i = 0; i < inMesh->materialCount(); i++) {
-			outMesh->addMaterial(inMesh->getMaterial(i), true);
+			T3DMesh<float>::Material* pM = new T3DMesh<float>::Material();
+			pM->init(inMesh->getMaterial(i));
+			outMesh->addMaterial(pM, false);
 		}
 		
 		uint32_t oldStartSize = 0;
@@ -113,7 +116,7 @@ namespace CForge {
 		// reassemble submeshes
 		for (uint32_t i = 0; i < inMesh->submeshCount(); i++) {
 			T3DMesh<float>::Submesh* pSubmesh = new T3DMesh<float>::Submesh();
-			T3DMesh<float>::Submesh* pOldSubmesh = inMesh->getSubmesh(i);
+			const T3DMesh<float>::Submesh* pOldSubmesh = inMesh->getSubmesh(i);
 			
 			std::vector<uint32_t> faces; // list of triangle IDs of Decimated Mesh corresponding to submesh
 			uint32_t newTriAmount = 0;

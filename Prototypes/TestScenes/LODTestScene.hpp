@@ -137,19 +137,19 @@ namespace CForge {
 
 		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		//M.computePerVertexNormals();
-		//Cube.init(&M);
+		Cube.init(&M);
 
-		T3DMesh<float> testMesh;
-		MeshDecimator::decimateMesh(&M, &testMesh, 0.5);
+		//T3DMesh<float> testMesh;
+		//MeshDecimator::decimateMesh(&M, &testMesh, 0.5);
 		//SceneUtilities::setMeshShader(&testMesh, 0.1f, 0.04f);
 		//testMesh.computePerVertexNormals();
-		Cube.init(&testMesh);
+		//Cube.init(&testMesh);
 
 		CubeTransformSGN.init(nullptr);
 		CubeSGN.init(&CubeTransformSGN, &Cube);
 		SGTest.init(&CubeTransformSGN);
 		
-		SAssetIO::store("Assets/testMeshOut.obj", &testMesh);
+		//SAssetIO::store("Assets/testMeshOut.obj", &testMesh);
 		
 		// rotate about the y-axis at 45 degree every second
 		Quaternionf R;
@@ -161,22 +161,46 @@ namespace CForge {
 		
 		glLineWidth(GLfloat(1.0f));
 		
+		uint32_t cubeLODlevel = 0;
+		
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
 			pLOD->update();
+			
+
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
+				cubeLODlevel++;
+				cubeLODlevel %= 2;//6;
+				Cube.bindLODLevel(cubeLODlevel);
+			}
 
 			//R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());
 			//CubeTransformSGN.rotationDelta(R);
 			
 			SGTest.update(1.0f*pLOD->getDeltaTime());
 			
+			// RDev.activePass(RenderDevice::RENDERPASS_LOD);
+			// SGText.render(&RDev);
+			
+			// sorted Geometry front to back
+			// std::vector<SGNGeometry> RDev.getLODGeometry();
+			// std::vector<Eigen::Matrix4d> RDev.getLODTransforms();
+			
+			// activate Occlusion Culling in RENDERPASS_GEOMETRY
+			// RDev.enableOcclusionCulling();
+			
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 				Wireframe = !Wireframe;
 			}
 			
 			if (Wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);			
+			
+			// Terrain vor objekte Rendern um als occluder zu dienen
+			
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			// RDev.renderLODSG();
+			
 			SGTest.render(&RDev);
 			
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -188,7 +212,10 @@ namespace CForge {
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				RenderWin.closeWindow();
 			}
-			printf("deltaTime: %f\tFPS:%f \n", pLOD->getDeltaTime(), 1.0/pLOD->getDeltaTime());
+			//printf("deltaTime: %f\tFPS:%f", pLOD->getDeltaTime(), 1.0/pLOD->getDeltaTime());
+			std::stringstream newTitle;
+			newTitle << "deltaTime: " << pLOD->getDeltaTime() << "	FPS: " << 1.0/pLOD->getDeltaTime();
+			RenderWin.title(newTitle.str());
 		}//while[main loop]
 
 
