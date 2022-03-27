@@ -116,8 +116,12 @@ add_library(crossforge SHARED
 
 	# Mesh Processing
 	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
+
+	# Internet
+	CForge/Internet/UDPSocket.cpp
+	CForge/Internet/TCPSocket.cpp
  )
-set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
+#set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
 if(WIN32)
 add_compile_definitions(CFORGE_EXPORTS)
@@ -134,6 +138,7 @@ target_link_libraries(crossforge
 	PRIVATE igl::core 
 	PRIVATE igl::common
 	${OpenCV_LIBS}
+	ws2_32			#winsock2
 	)
 endif(WIN32)
 
@@ -163,8 +168,8 @@ add_executable(CForgeSandbox
 	Prototypes/Camera/StripPhoto.cpp 
 	Prototypes/Camera/StripPhotoCamera.cpp
 
-	Prototypes/Internet/TCPSocket.cpp 
-	Prototypes/Internet/UDPSocket.cpp
+	#Prototypes/Internet/TCPSocket.cpp 
+	#Prototypes/Internet/UDPSocket.cpp
 
 	Prototypes/Misc/IMUCameraController.cpp
 
