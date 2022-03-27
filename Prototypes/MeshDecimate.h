@@ -5,10 +5,10 @@
 #include "../CForge/AssetIO/T3DMesh.hpp"
 
 namespace CForge {
-	class MeshDecimator {	
-
+	class MeshDecimator {
+	
 	public:
-		static void decimateMesh(CForge::T3DMesh<float>* inMesh, CForge::T3DMesh<float>* outMesh, float amount);
+		static void decimateMesh(const CForge::T3DMesh<float>* inMesh, CForge::T3DMesh<float>* outMesh, float amount);
 
 		MeshDecimator(void);
 		~MeshDecimator(void);

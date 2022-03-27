@@ -71,10 +71,10 @@ namespace CForge {
 		}
 		else {
 			std::vector<float> values = readMetaFile(metaFilePath);
-			if (pSLOD->forceSLOD) {
-				if (values != *pSLOD->getLevels())
-					return false;
-			}
+			//if (pSLOD->forceSLOD) {
+			//	if (values != *pSLOD->getLevels())
+			//		return false;
+			//}
 			
 			// check if model files for lod exist
 			for (uint32_t i = 0; i < values.size(); i++) {
