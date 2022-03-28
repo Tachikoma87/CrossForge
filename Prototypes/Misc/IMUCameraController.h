@@ -19,10 +19,8 @@
 #define __CFORGE_IMUCAMERACONTROLLER_H__
 
 #include <list>
-#include "../Internet/IMUPackage.hpp"
+#include "IMUPackage.hpp"
 #include "../../CForge/Graphics/VirtualCamera.h"
-
-//#include "../Internet/UDPSocket.h"
 #include "../../CForge/Internet/UDPSocket.h"
 
 namespace CForge {
@@ -51,6 +49,12 @@ namespace CForge {
 			Eigen::Vector3f Rotations;
 			Eigen::Vector3f Accelerations;
 
+			IMUData(void) {
+				Timestamp = 0;
+				Rotations = Eigen::Vector3f::Zero();
+				Accelerations = Eigen::Vector3f::Zero();
+			}//Constructor
+
 			void clear(void) {
 				Timestamp = 0;
 				Rotations = Eigen::Vector3f::Zero();
@@ -58,7 +62,7 @@ namespace CForge {
 			}
 		};
 
-		struct InterpolatedControllerData {
+		struct AveragedControllerData {
 			IMUData AveragedMovementLeft;
 			IMUData AveragedMovementRight;
 			IMUData AveragedAbsMovementLeft;
@@ -67,14 +71,13 @@ namespace CForge {
 			float ForwardLeft;
 			float ForwardRight;	
 
-			InterpolatedControllerData(void) {
+			AveragedControllerData(void) {
 				ForwardLeft = 0.0f;
 				ForwardRight = 0.0f;
-			}
+			}//Constructor
 		};
 
 		void updateFoot(UDPSocket *pSock, std::list<IMUData>* pDataBuffer);
-		void interpolateData(InterpolatedControllerData* pData);
 
 		UDPSocket m_SocketLeft;
 		UDPSocket m_SocketRight;
@@ -83,7 +86,7 @@ namespace CForge {
 
 		uint32_t m_AveragingTime;
 
-		InterpolatedControllerData m_CmdData;
+		AveragedControllerData m_CmdData;
 
 		std::string m_LeftFootIP;
 		std::string m_RightFootIP;

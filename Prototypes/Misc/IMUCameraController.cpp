@@ -49,8 +49,6 @@ namespace CForge {
 		updateFoot(&m_SocketLeft, &m_DataBufferLeft);
 		updateFoot(&m_SocketRight, &m_DataBufferRight);
 
-		//interpolateData(&m_CmdData);
-
 		if (nullptr != pCamera) apply(pCamera, Scale);
 
 	}//update
@@ -83,13 +81,6 @@ namespace CForge {
 			if (Package.checkMagicTag(Buffer)) {
 				Package.fromStream(Buffer, DataSize);
 
-				/*IMUData D;
-				D.Timestamp = CoreUtility::timestamp();
-				D.Accelerations = Vector3f(Package.AccelX, Package.AccelY, Package.AccelZ);
-				D.Rotations = Vector3f(Package.GyroX, Package.GyroY, Package.GyroZ);
-
-				pDataBuffer->push_back(D);*/
-
 				if (m_LeftFootPort == 0 && pSock == &m_SocketLeft) {
 					m_LeftFootPort = SenderPort;
 					m_LeftFootIP = SenderIP;
@@ -113,58 +104,6 @@ namespace CForge {
 		// kill data that is out of scope
 		while (pDataBuffer->size() > 0 && (CoreUtility::timestamp() - pDataBuffer->front().Timestamp) > m_AveragingTime) pDataBuffer->pop_front();
 	}//updateFoot
-
-	void IMUCameraController::interpolateData(InterpolatedControllerData* pData) {
-		//// reset data
-		//pData->ForwardLeft = 0.0f;
-		//pData->ForwardRight = 0.0f;
-		//
-		//uint64_t Stamp = CoreUtility::timestamp();
-		//m_CmdData.AveragedMovementLeft.clear();
-		//m_CmdData.AveragedMovementRight.clear();
-		//m_CmdData.AveragedAbsMovementLeft.clear();
-		//m_CmdData.AveragedAbsMovementRight.clear();
-
-		//// left foot
-		//for (auto i : m_DataBufferLeft) {
-		//	
-		//		m_CmdData.AveragedMovementLeft.Accelerations += i.Accelerations;
-		//		m_CmdData.AveragedMovementLeft.Rotations += i.Rotations;
-		//		for (uint8_t k = 0; k < 3; ++k) {
-		//			m_CmdData.AveragedAbsMovementLeft.Rotations[k] += std::abs(i.Rotations[k]);
-		//			m_CmdData.AveragedAbsMovementLeft.Accelerations[k] += std::abs(i.Accelerations[k]);
-		//		}
-		//}
-		//
-		//if (m_DataBufferLeft.size() > 1.0f) {
-		//	float Scale = float(m_DataBufferLeft.size());
-		//	m_CmdData.AveragedMovementLeft.Accelerations /= Scale;
-		//	m_CmdData.AveragedMovementLeft.Rotations /= Scale;
-		//	m_CmdData.AveragedAbsMovementLeft.Accelerations /= Scale;
-		//	m_CmdData.AveragedAbsMovementLeft.Rotations /= Scale;
-		//}
-
-		//
-		//// right foot
-		//for (auto i : m_DataBufferRight) {
-
-		//	m_CmdData.AveragedMovementRight.Accelerations += i.Accelerations;
-		//	m_CmdData.AveragedMovementRight.Rotations += i.Rotations;
-		//	for (uint8_t k = 0; k < 3; ++k) {
-		//		m_CmdData.AveragedAbsMovementRight.Accelerations[k] += std::abs(i.Accelerations[k]);
-		//		m_CmdData.AveragedAbsMovementRight.Rotations[k] += std::abs(i.Rotations[k]);
-		//	}
-		//}
-		//
-		//if (m_DataBufferRight.size() > 1.0f) {
-		//	float Scale = float(m_DataBufferRight.size());
-		//	m_CmdData.AveragedMovementRight.Accelerations /= Scale;
-		//	m_CmdData.AveragedMovementRight.Rotations /= Scale;
-		//	m_CmdData.AveragedAbsMovementRight.Accelerations /= Scale;
-		//	m_CmdData.AveragedAbsMovementRight.Rotations /= Scale;
-		//}
-
-	}//interpolateData
 
 	void IMUCameraController::apply(VirtualCamera* pCamera, float Scale) {
 
@@ -218,9 +157,7 @@ namespace CForge {
 			// sidestep left or right?
 			if (m_CmdData.AveragedMovementRight.Accelerations.y() > 0.2f) pCamera->right(m_CmdData.AveragedMovementRight.Accelerations.y()/60.0f * 10.5f * Scale);
 			if (m_CmdData.AveragedMovementLeft.Accelerations.y() < -0.2f) pCamera->right(m_CmdData.AveragedMovementLeft.Accelerations.y() / 60.0f * 10.5f * Scale);
-
-		}
-		
+		}	
 	}//apply
 
 
