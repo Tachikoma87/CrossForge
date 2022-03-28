@@ -14,10 +14,6 @@ namespace CForge {
 
 	LODActor::~LODActor(void) {
 		clear();
-		// do not delete the first object, we do not own its reference
-		for (uint32_t i = 1; i < m_LODMeshes.size(); i++) {
-			delete m_LODMeshes[i];
-		}
 		m_pSLOD->release();
 	}//Destructor
 	
@@ -32,14 +28,19 @@ namespace CForge {
 			m_LODStages = std::vector<float>(*m_pSLOD->getLevels());
 
 		m_LODMeshes.push_back(pMesh);
+		initiateBuffers(0);
 		bindLODLevel(0);
 		
-		// TODO make LOD generation chainable (use generated LOD model for next decimation)
 		// TODO parallelise generation
 		for (uint32_t i = 1; i < m_LODStages.size(); i++) {
 			T3DMesh<float>* pLODMesh = new T3DMesh<float>();
-			MeshDecimator::decimateMesh(pMesh, pLODMesh, m_LODStages[i]);
+			float amount = float(m_LODStages[i]) / m_LODStages[i-1];
+			if (amount > 1.0)
+				throw CForgeExcept("decimation stages are in wrong order");
+			
+			MeshDecimator::decimateMesh(m_LODMeshes[i-1], pLODMesh, amount);
 			m_LODMeshes.push_back(pLODMesh);
+			initiateBuffers(i);
 		}
 		
 	}//initialize
@@ -49,36 +50,69 @@ namespace CForge {
 	}//initialize
 
 	void LODActor::init(T3DMesh<float>* pMesh, bool isTranslucent, const std::vector<float>& LODStages) {
-		// TODO eigene LOD level bauen
 		m_LODStages = LODStages;
 		init(pMesh, isTranslucent);
 	}//initialize
 
-	void LODActor::bindLODLevel(uint32_t level) {
-		clear();
+	void LODActor::initiateBuffers(uint32_t level) {
 		auto pMesh = m_LODMeshes[level];
 		
-		// exclude this part?
 		uint16_t VertexProperties = 0;
 		if (pMesh->vertexCount() > 0) VertexProperties |= VertexUtility::VPROP_POSITION;
 		if (pMesh->normalCount() > 0) VertexProperties |= VertexUtility::VPROP_NORMAL;
 		if (pMesh->tangentCount() > 0) VertexProperties |= VertexUtility::VPROP_TANGENT;
 		if (pMesh->textureCoordinatesCount() > 0) VertexProperties |= VertexUtility::VPROP_UVW;
 		if (pMesh->colorCount() > 0) VertexProperties |= VertexUtility::VPROP_COLOR;
-		// exclude this part?
-		
-		// build array buffer of vertex data
-		void* pBuffer = nullptr;
-		uint32_t BufferSize = 0;
+		m_VertexProperties.push_back(VertexProperties);
 
 		try {
+			uint8_t* pBuffer = nullptr;
+			uint32_t BufferSize = 0;
+			
+			m_VertexUtility.clear();
 			m_VertexUtility.init(VertexProperties);
-			m_VertexUtility.buildBuffer(pMesh->vertexCount(), &pBuffer, &BufferSize, pMesh);
-			m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
-			// free buffer data
-			delete[] pBuffer;
-			pBuffer = nullptr;
-			BufferSize = 0;
+			m_VertexUtility.buildBuffer(pMesh->vertexCount(), (void**)&pBuffer, &BufferSize, pMesh);
+						
+			m_VertexBuffers.push_back(pBuffer);
+			m_VertexBufferSizes.push_back(BufferSize);
+			}
+		catch (CrossForgeException& e) {
+			SLogger::logException(e);
+			return;
+		}
+		catch (...) {
+			SLogger::log("Unknown exception occurred during vertex buffer creation!");
+			return;
+		}
+
+		// build render groups and element array
+		try {
+			uint8_t* pBuffer = nullptr;
+			uint32_t BufferSize = 0;
+			RenderGroupUtility* RGU = new RenderGroupUtility();
+			RGU->init(pMesh, (void**)&pBuffer, &BufferSize);
+			m_RenderGroupUtilities.push_back(RGU);
+			
+			m_ElementBuffers.push_back(pBuffer);
+			m_ElementBufferSizes.push_back(BufferSize);
+		}
+		catch (CrossForgeException& e) {
+			SLogger::logException(e);
+			return;
+		}
+		catch (...) {
+			SLogger::log("Unknown exception occurred during building of index buffer!");
+			return;
+		}
+	}
+
+	void LODActor::bindLODLevel(uint32_t level) {
+		m_VertexBuffer.clear();
+		m_ElementBuffer.clear();
+		m_VertexArray.clear();
+		
+		try {
+			m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, m_VertexBuffers[level], m_VertexBufferSizes[level]);
 		}
 		catch (CrossForgeException& e) {
 			SLogger::logException(e);
@@ -91,13 +125,7 @@ namespace CForge {
 
 		// build render groups and element array
 		try {
-			// TODO dont recreate textures, use already existing texture objects from main Mesh
-			m_RenderGroupUtility.init(pMesh, &pBuffer, &BufferSize);
-			m_ElementBuffer.init(GLBuffer::BTYPE_INDEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
-			// free buffer data
-			delete[] pBuffer;
-			pBuffer = nullptr;
-			BufferSize = 0;
+			m_ElementBuffer.init(GLBuffer::BTYPE_INDEX, GLBuffer::BUSAGE_STATIC_DRAW, m_ElementBuffers[level], m_ElementBufferSizes[level]);
 		}
 		catch (CrossForgeException& e) {
 			SLogger::logException(e);
@@ -107,11 +135,16 @@ namespace CForge {
 			SLogger::log("Unknown exception occurred during building of index buffer!");
 			return;
 		}
-
+		
+		m_VertexUtility.clear();
+		m_VertexUtility.init(m_VertexProperties[level]);
+		//m_RenderGroupUtility = *m_RenderGroupUtilities[level]; // TODO this is not necessary?
 		m_VertexArray.init();
 		m_VertexArray.bind();
 		setBufferData();
 		m_VertexArray.unbind();
+		
+		m_LODLevel = level;
 	}
 	
 	void LODActor::clear(void) {
@@ -121,6 +154,19 @@ namespace CForge {
 
 		m_VertexUtility.clear();
 		m_RenderGroupUtility.clear();
+
+		for (uint32_t i = 0; i < m_LODMeshes.size(); i++) {
+			if (i > 0) // do not delete the first mesh, we do not own its reference
+				delete m_LODMeshes[i];
+
+			delete m_RenderGroupUtilities[i];
+			if (nullptr != m_VertexBuffers[i])
+				delete[] m_VertexBuffers[i];
+			m_VertexBuffers[i] = nullptr;
+			if (nullptr != m_ElementBuffers[i])
+				delete[] m_ElementBuffers[i];
+			m_ElementBuffers[i] = nullptr;	
+		}
 	}//Clear
 
 	void LODActor::release(void) {
@@ -128,12 +174,12 @@ namespace CForge {
 	}//release
 
 	uint32_t LODActor::materialCount(void) const {
-		return m_RenderGroupUtility.renderGroupCount();
+		return m_RenderGroupUtilities[0]->renderGroupCount();
 	}//materialCount
 
 	RenderMaterial* LODActor::material(uint32_t Index) {
-		if (Index >= m_RenderGroupUtility.renderGroupCount()) throw IndexOutOfBoundsExcept("Index");
-		return &(m_RenderGroupUtility.renderGroups()[Index]->Material);
+		if (Index >= m_RenderGroupUtilities[0]->renderGroupCount()) throw IndexOutOfBoundsExcept("Index");
+		return &(m_RenderGroupUtilities[0]->renderGroups()[Index]->Material);
 	}
 	
 	void LODActor::render(RenderDevice* pRDev) {
@@ -141,15 +187,15 @@ namespace CForge {
 
 		m_VertexArray.bind();
 
-		for (auto i : m_RenderGroupUtility.renderGroups()) {
+		for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
 			if (i->pShader == nullptr) continue;
 
 			if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
 				pRDev->activeShader(pRDev->shadowPassShader());
 			}
 			else {
-				pRDev->activeMaterial(&i->Material);
 				pRDev->activeShader(i->pShader);
+				pRDev->activeMaterial(&i->Material);
 			}
 			glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
 		}//for[all render groups]

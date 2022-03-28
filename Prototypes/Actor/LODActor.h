@@ -15,8 +15,8 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_AABBACTOR_H__
-#define __CFORGE_AABBACTOR_H__
+#ifndef __CFORGE_LODACTOR_H__
+#define __CFORGE_LODACTOR_H__
 
 #include "../../CForge/Graphics/Actors/IRenderableActor.h"
 #include "../../CForge/AssetIO/T3DMesh.hpp"
@@ -56,7 +56,10 @@ namespace CForge {
 	protected:
 
 	private:
+		void initiateBuffers(uint32_t level);
+		
 		SLOD* m_pSLOD;
+		bool m_initialized = false;
 		
 		std::vector<T3DMesh<float>*> m_LODMeshes;
 		std::vector<float> m_LODStages;
@@ -65,16 +68,14 @@ namespace CForge {
 		bool m_translucent;
 		bool m_visible;
 		uint32_t m_pixelCount;
+
+		std::vector<uint16_t> m_VertexProperties;
+		std::vector<RenderGroupUtility*> m_RenderGroupUtilities;
+		std::vector<uint8_t*> m_VertexBuffers;
+		std::vector<uint32_t> m_VertexBufferSizes;
+		std::vector<uint8_t*> m_ElementBuffers;
+		std::vector<uint32_t> m_ElementBufferSizes;
 		
-		//void setBufferData(void);
-		/*
-		GLBuffer m_ArrayBuffer; ///< stores vertex data
-		GLBuffer m_ElementBuffer; ///< stores triangle indexes
-		GLVertexArray m_VertexArray; ///< the vertex array
-
-		VertexUtility m_VertexUtility;
-		RenderGroupUtility m_RenderGroupUtility;*/
-
 	};//LODActor
 
 }//name space
