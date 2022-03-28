@@ -155,7 +155,7 @@ namespace CForge {
 		Quaternionf R;
 		R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());
 		CubeTransformSGN.rotationDelta(R);
-		CubeTransformSGN.translation(Vector3f(0.0, 0.0, 0.0));
+		CubeTransformSGN.translation(Vector3f(0.0, 0.0, 3.0));
 
 		bool Wireframe = true;
 		
@@ -170,7 +170,11 @@ namespace CForge {
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
 				cubeLODlevel++;
-				cubeLODlevel %= 2;//6;
+				cubeLODlevel %= /*2;//*/6;
+				Cube.bindLODLevel(cubeLODlevel);
+			}
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
+				cubeLODlevel = std::max(0, int32_t(cubeLODlevel)-1);
 				Cube.bindLODLevel(cubeLODlevel);
 			}
 
