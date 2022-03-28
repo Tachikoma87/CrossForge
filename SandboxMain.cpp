@@ -63,18 +63,18 @@ int main(int argc, char* argv[]) {
 		//exampleMorphTargetAnimation(); 
 		//exampleSkybox();
 		//exampleMultiViewport();
-		exampleSockets();
+		//exampleSockets();
 	
+
+		//imuInputDeviceTestScene();
+		// 
 		//shadowTest();
 		//vertexColorTestScene();
 		//forestTestScene();
 		//skelAnimTestScene();
-
-		//imuInputDeviceTestScene();
-
+		
 		//assetGLTFTestScene();
-
-		//anotherTestScene();	
+		anotherTestScene();	
 		//normalMappingTestScene();
 	}
 	catch (const CrossForgeException & e) {
