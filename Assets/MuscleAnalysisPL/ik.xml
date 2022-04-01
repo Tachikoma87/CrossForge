@@ -4,7 +4,7 @@
 		<!--Name of the directory where results are written. Be default this is the directory in which the setup file is be  executed.-->
 		<results_directory>./</results_directory>
 		<!--Name/path to the xml .osim file.-->
-		<model_file>model_scaled.osim</model_file>
+		<model_file>gait2354_simbodyUNFIXED.osim</model_file>
 		<!--The relative weighting of kinematic constraint errors. By default this is Infinity, which means constraints are strictly enforced as part of the optimization and are not appended to the objective (cost) function. Any other non-zero positive scalar is the penalty factor for constraint violations.-->
 		<constraint_weight>Inf</constraint_weight>
 		<!--The accuracy of the solution in absolute terms, i.e. the number of significant digits to which the solution can be trusted. Default 1e-5.-->
