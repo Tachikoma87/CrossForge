@@ -261,6 +261,7 @@ namespace CForge {
 							float abs = pow(ma_data.at(i).max,powv) - pow(ma_data.at(i).min,powv);
 							muscle_value = (pow(muscledata.at(g).data.at(int(pAnim->t)),powv) - pow(ma_data.at(i).min, powv)) / abs; //TODO: CAP to FRAMES
 					
+
 							//Clamp values
 						if (muscle_value > 1.0f) muscle_value = 1.0f;
 						else if (muscle_value < 0.0f) muscle_value = 0.0f;
