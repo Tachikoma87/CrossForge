@@ -23,7 +23,6 @@
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
 #include "../../CForge/Graphics/STextureManager.h"
 
-
 #include "../../CForge/Graphics/GLWindow.h"
 #include "../../CForge/Graphics/GraphicsUtility.h"
 #include "../../CForge/Graphics/RenderDevice.h"
@@ -131,7 +130,7 @@ namespace CForge {
 		// 
 		//BAT FILE PATH ABSOLUTE HAS TO BE CHANGED
 		// Change Path in bat file to its current location + set Path to Blender 
-		//std::system("C:/Users/Megaport/Documents/STUDIUM/CrossForge/crossForge/CrossForge/Assets/MuscleAnalysisPL/pl.bat");
+		std::system("C:/Users/Megaport/Documents/STUDIUM/CrossForge/crossForge/CrossForge/Assets/MuscleAnalysisPL/pl.bat");
 
 
 		std::vector<MuscleDataInput::Muscledata> muscledata;
@@ -250,25 +249,30 @@ namespace CForge {
 				if (ma_data.size() - 1 < i)break;
 				if (int(pAnim->t) > frames - 1)break;
 
+				
 				for (int g = 0; g < muscledata.size(); g++) {
 					if (muscledata.at(g).name == ma_data.at(i).name) {
 						//transform muscledata in Color with bounds
 						
 						
-					
-
+						//Scale data to (0,1)
+						float powv = 1;
 						float muscle_value = 0.0f;
-							float abs = ma_data.at(i).max - ma_data.at(i).min;
-							muscle_value = (muscledata.at(g).data.at(int(pAnim->t)) - ma_data.at(i).min) / abs; //TODO: CAP to FRAMES
+							float abs = pow(ma_data.at(i).max,powv) - pow(ma_data.at(i).min,powv);
+							muscle_value = (pow(muscledata.at(g).data.at(int(pAnim->t)),powv) - pow(ma_data.at(i).min, powv)) / abs; //TODO: CAP to FRAMES
 					
-
+							//Clamp values
 						if (muscle_value > 1.0f) muscle_value = 1.0f;
 						else if (muscle_value < 0.0f) muscle_value = 0.0f;
 
+						//Calculate Color Value
 						if (muscle_value > 0.5f) C = { 1.0f,1.0f - muscle_value,0.0f,1.0f };
-						else C = { muscle_value * 2,1.0f,0.0f,1.0f };
+						else C = { muscle_value *2,1.0f,0.0f,1.0f };
 
 						Eric.material(i)->color(C);
+
+
+
 						break;
 					}
 
