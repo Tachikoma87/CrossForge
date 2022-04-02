@@ -155,7 +155,7 @@ namespace CForge {
 		Quaternionf R;
 		R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());
 		CubeTransformSGN.rotationDelta(R);
-		CubeTransformSGN.translation(Vector3f(0.0, 0.0, 3.0));
+		CubeTransformSGN.translation(Vector3f(0.0, 0.0, 2.0));
 
 		bool Wireframe = true;
 		
@@ -198,7 +198,7 @@ namespace CForge {
 			}
 			
 			if (Wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);			
+			else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			
 			// Terrain vor objekte Rendern um als occluder zu dienen
 			
