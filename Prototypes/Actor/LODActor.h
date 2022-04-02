@@ -76,6 +76,15 @@ namespace CForge {
 		std::vector<uint8_t*> m_ElementBuffers;
 		std::vector<uint32_t> m_ElementBufferSizes;
 		
+		// AABB
+		void LODActor::renderAABB(RenderDevice* pRDev);
+		void initAABB();
+		GLVertexArray m_AABBvertArray;
+		GLBuffer m_AABBvertBuffer;
+		GLBuffer m_AABBindexBuffer;
+		GLShader* m_AABBshader;
+		void updateAABB();
+		
 	};//LODActor
 
 }//name space

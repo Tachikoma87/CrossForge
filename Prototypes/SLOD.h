@@ -31,7 +31,7 @@ namespace CForge {
 		bool forceSLOD = false;
 		bool m_preferLowLOD = false;
 		
-		std::vector<float> LODLevels = /*{1.0, 0.9}; //*/{1.0, 0.75, 0.5, 0.25, 0.125, 0.0625 };
+		std::vector<float> LODLevels = /*{1.0}; //*/{1.0, 0.75, 0.5, 0.25, 0.125, 0.0625 };
 		std::vector<float> LODDistances;
 		
 		static SLOD* m_pInstance;
