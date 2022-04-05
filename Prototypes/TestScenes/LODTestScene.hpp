@@ -68,6 +68,8 @@ namespace CForge {
 
 		uint32_t WinWidth = 1280;
 		uint32_t WinHeight = 720;
+		
+		pLOD->setResolution(Vector2i(WinWidth, WinHeight));
 
 		if (LowRes) {
 			WinWidth = 1440;//720;
@@ -77,7 +79,7 @@ namespace CForge {
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), "Absolute Minimum Setup");
 		gladLoadGL();
-		//glfwSwapInterval(0);
+		glfwSwapInterval(0);
 		
 		std::string GLError;
 		GraphicsUtility::checkGLError(&GLError);
@@ -180,11 +182,19 @@ namespace CForge {
 
 			//R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());
 			//CubeTransformSGN.rotationDelta(R);
+			static float animation = 0.0;
+			animation += pLOD->getDeltaTime()*0.5;
+			if (animation > 3.14)
+				animation = 0.0;
+			CubeTransformSGN.translation(Vector3f(0.0, 0.0, 0.0+3*sin(animation)));
+			
+			std::vector<IRenderableActor*> objects;
+			objects.push_back(&Cube);
 			
 			SGTest.update(1.0f*pLOD->getDeltaTime());
 			
-			// RDev.activePass(RenderDevice::RENDERPASS_LOD);
-			// SGText.render(&RDev);
+			RDev.activePass(RenderDevice::RENDERPASS_LOD);
+			SGTest.render(&RDev);
 			
 			// sorted Geometry front to back
 			// std::vector<SGNGeometry> RDev.getLODGeometry();
@@ -203,9 +213,9 @@ namespace CForge {
 			// Terrain vor objekte Rendern um als occluder zu dienen
 			
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			// RDev.renderLODSG();
+			RDev.renderLODSG();
 			
-			SGTest.render(&RDev);
+			//SGTest.render(&RDev);
 			
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			
