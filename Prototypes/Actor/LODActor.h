@@ -51,7 +51,12 @@ namespace CForge {
 		RenderMaterial* material(uint32_t level);
 		
 		void bindLODLevel(uint32_t index);
+		uint32_t getLODLevel();
 		bool isTranslucent();
+		bool isVisible();
+
+		T3DMesh<float>::AABB getAABB();
+		bool renderAABB(class RenderDevice* pRDev);
 		
 	protected:
 
@@ -65,8 +70,8 @@ namespace CForge {
 		std::vector<float> m_LODStages;
 		uint32_t m_LODLevel;
 		
-		bool m_translucent;
-		bool m_visible;
+		bool m_translucent = true;
+		bool m_visible = true;
 		uint32_t m_pixelCount;
 
 		std::vector<uint16_t> m_VertexProperties;
@@ -76,8 +81,8 @@ namespace CForge {
 		std::vector<uint8_t*> m_ElementBuffers;
 		std::vector<uint32_t> m_ElementBufferSizes;
 		
-		// AABB
-		void LODActor::renderAABB(RenderDevice* pRDev);
+		// AABB 
+		T3DMesh<float>::AABB m_aabb;
 		void initAABB();
 		GLVertexArray m_AABBvertArray;
 		GLBuffer m_AABBvertBuffer;

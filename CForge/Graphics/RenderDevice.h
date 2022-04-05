@@ -53,6 +53,7 @@ namespace CForge {
 			RENDERPASS_GEOMETRY,	///< deferred shading geometry pass
 			RENDERPASS_LIGHTING,	///< deferred shading lighting pass
 			RENDERPASS_FORWARD,		///< forward rendering draw pass
+			RENDERPASS_LOD,			
 		};
 
 		struct CFORGE_API RenderDeviceConfig {
@@ -81,6 +82,7 @@ namespace CForge {
 		void clear(void);
 
 		void requestRendering(IRenderableActor* pActor, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
+		void requestRendering(IRenderableActor* pActor, Eigen::Matrix4f ModelMat);
 
 		void activeShader(GLShader* pShader);
 		void activeMaterial(RenderMaterial* pMaterial);
@@ -105,6 +107,8 @@ namespace CForge {
 		GBuffer* gBuffer(void);
 
 		GLShader* shadowPassShader(void);
+
+		void renderLODSG();
 
 	protected:
 		struct ActiveLight {
@@ -142,7 +146,10 @@ namespace CForge {
 		GLShader* m_pDeferredLightingPassShader;
 		GLShader* m_pShadowPassShader;
 	private:
-
+		
+		// SG Actors sorted front to back
+		std::vector<IRenderableActor*> m_LODSGActors;
+		std::vector<Eigen::Matrix4f> m_LODSGTransformations;
 	};//RenderDevice
 }//name space
 
