@@ -43,6 +43,10 @@ namespace CForge {
 		virtual void release(void) = 0;
 		virtual void render(class RenderDevice* pRDev) = 0;
 
+		virtual bool renderAABB(RenderDevice* pRDev);
+		virtual T3DMesh<float>::AABB getAABB();
+		virtual void bindLODLevel(uint32_t level);
+		
 		int32_t typeID(void)const;
 
 		uint32_t materialCount(void)const;

@@ -4,9 +4,15 @@
 #include "Shader/SShaderManager.h"
 #include "GraphicsUtility.h"
 #include "RenderDevice.h"
+#include "iostream" //TODO remove
 
 using namespace Eigen;
 using namespace std;
+
+// TODO set macro if LOD is not used
+#if 1
+#define _USELOD
+#endif
 
 namespace CForge {
 
@@ -126,10 +132,44 @@ namespace CForge {
 		const Matrix4f ModelMat = T * R * S;
 
 		m_ModelUBO.modelMatrix(ModelMat);
-
+#ifdef _USELOD
+		if (m_ActiveRenderPass == RENDERPASS_LOD) {
+			
+			float aabbRadius = std::max(std::abs(pActor->getAABB().Max.norm()), std::abs(pActor->getAABB().Min.norm()));
+			//bool isLODActor = false;
+			//if (pActor->className().compare("LODActor") == 0)
+			//	isLODActor = true;
+			
+			float distance = (Translation- m_pActiveCamera->position()).norm()-aabbRadius;
+			//std::cout << distance << "\n";
+			if (distance < 0.0f) { // camera is inside AABB, use highest LOD
+				pActor->bindLODLevel(0);
+				m_LODSGActors.push_back(pActor);
+				m_LODSGTransformations.push_back(ModelMat);
+			} else {
+				bool visible = pActor->renderAABB(this);
+				if (visible) {
+					m_LODSGActors.push_back(pActor);
+					m_LODSGTransformations.push_back(ModelMat);
+				}
+			}
+			
+		} else
+#endif
+		{
 		// render the object with current settings
 		pActor->render(this);
+		}
+	}//requestRendering
 
+	void RenderDevice::requestRendering(IRenderableActor* pActor, Eigen::Matrix4f ModelMat) {
+		if (nullptr == pActor) throw NullpointerExcept("pActor");
+
+		m_ModelUBO.modelMatrix(ModelMat);
+		{
+			// render the object with current settings
+			pActor->render(this);
+		}
 	}//requestRendering
 
 	void RenderDevice::activeShader(GLShader* pShader) {
@@ -247,7 +287,13 @@ namespace CForge {
 
 	void RenderDevice::activePass(RenderPass Pass, ILight *pActiveLight) {
 		m_ActiveRenderPass = Pass;
-
+#ifdef _USELOD
+		// TODO this location is awkward
+		if (Pass != RENDERPASS_LOD) {
+			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			glDepthMask(GL_TRUE);
+		}
+#endif
 		// change state?
 		switch (m_ActiveRenderPass) {
 		case RENDERPASS_SHADOW: {
@@ -321,6 +367,17 @@ namespace CForge {
 				glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
 			}
 		}break;
+#ifdef _USELOD
+		case RENDERPASS_LOD: {
+			if (m_Config.UseGBuffer) {
+				m_GBuffer.bind();
+				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
+				glCullFace(GL_BACK);
+			}
+			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+			glDepthMask(GL_FALSE);
+		}
+#endif
 		default: break;
 		}
 
@@ -413,5 +470,13 @@ namespace CForge {
 	GLShader* RenderDevice::shadowPassShader(void) {
 		return m_pShadowPassShader;
 	}//shadowPassShader
-
+	
+	void RenderDevice::renderLODSG()
+	{
+		for (uint32_t i = 0; i < m_LODSGActors.size(); i++) {
+			requestRendering(m_LODSGActors[i], m_LODSGTransformations[i]);
+		}
+		m_LODSGActors.clear();
+		m_LODSGTransformations.clear();
+	}
 }//name space

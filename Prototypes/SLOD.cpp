@@ -38,8 +38,17 @@ namespace CForge {
 		return deltaTime;
 	}
 
-	void SLOD::setResolution() {
+	void SLOD::setResolution(Eigen::Vector2i resolution) {
+		this->resolution = resolution;
+		res_pixAmount = resolution.x() * resolution.y();
+	}
 
+	uint32_t SLOD::getResPixAmount() {
+		return res_pixAmount;
+	}
+	
+	std::vector<float> SLOD::getLODPercentages() {
+		return LODPercentages;
 	}
 
 	SLOD::SLOD(void){
@@ -50,10 +59,8 @@ namespace CForge {
 		
 	}//Destructor
 
-	void SLOD::init(void) {
+	void SLOD::init() {
 		this->deltaTime = 1.0/60.0;
-		//TODO set reolution with param
-		//this->resolution = 
 	}//initialize
 
 	void SLOD::clear(void) {

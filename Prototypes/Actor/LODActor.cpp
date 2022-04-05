@@ -44,6 +44,8 @@ namespace CForge {
 			initiateBuffers(i);
 		}
 		
+		m_LODMeshes[0]->computeAxisAlignedBoundingBox();
+		m_aabb = m_LODMeshes[0]->aabb();
 		initAABB();
 	}//initialize
 
@@ -148,6 +150,10 @@ namespace CForge {
 		
 		m_LODLevel = level;
 	}
+
+	uint32_t LODActor::getLODLevel() {
+		return m_LODLevel;
+	}
 	
 	void LODActor::clear(void) {
 		m_VertexBuffer.clear();
@@ -187,50 +193,50 @@ namespace CForge {
 	void LODActor::render(RenderDevice* pRDev) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
 		
-		GLuint queryID;
-		glGenQueries(1, &queryID);
-		glBeginQuery(GL_SAMPLES_PASSED, queryID);
-		
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		glDepthMask(GL_FALSE);
-		
-		//if (pRDev->activePass() == RenderDevice::RENDERPASS_LOD)
-		renderAABB(pRDev);
-		//return;
-		
-		glEndQuery(GL_SAMPLES_PASSED);
-		
-		// TODO abfrage im naechsten frame um wartezeit zu ueberbruecken
-		GLint queryState;
-		do {
-			glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
-		} while (!queryState);
-		
-		GLuint pixelCount;
-		glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &pixelCount);
-		glDeleteQueries(1, &queryID);
-		
-		std::cout << pixelCount << "\n";
+		// TODO remove
+		if (pRDev->activePass() == RenderDevice::RENDERPASS_LOD) {
+			GLuint queryID;
+			glGenQueries(1, &queryID);
+			glBeginQuery(GL_SAMPLES_PASSED, queryID);
+			
+			//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+			//glDepthMask(GL_FALSE);
+			//renderAABB(pRDev);
+			
+			glEndQuery(GL_SAMPLES_PASSED);
+			
+			// TODO abfrage im naechsten frame um wartezeit zu ueberbruecken
+			GLint queryState;
+			do {
+				glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
+			} while (!queryState);
+			
+			GLuint pixelCount;
+			glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &pixelCount);
+			glDeleteQueries(1, &queryID);
+			
+			std::cout << pixelCount << "\n";
 
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		glDepthMask(GL_TRUE);
-
-		m_VertexArray.bind();
+			//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			//glDepthMask(GL_TRUE);
 		
-		for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
-			if (i->pShader == nullptr) continue;
+		} else {
+			m_VertexArray.bind();
+			
+			for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
+				if (i->pShader == nullptr) continue;
 
-			if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-				pRDev->activeShader(pRDev->shadowPassShader());
-			}
-			else {
-				// TODO Occlusion Culling
-				pRDev->activeShader(i->pShader);
-				pRDev->activeMaterial(&i->Material);
-			}
-			glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
-		}//for[all render groups]
-		
+				if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+					pRDev->activeShader(pRDev->shadowPassShader());
+				}
+				else {
+					// TODO Occlusion Culling
+					pRDev->activeShader(i->pShader);
+					pRDev->activeMaterial(&i->Material);
+				}
+				glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
+			}//for[all render groups]
+		}
 	}//render
 	
 	void LODActor::initAABB() {
@@ -277,17 +283,50 @@ namespace CForge {
 		updateAABB();
 	}
 	
-	void LODActor::renderAABB(RenderDevice* pRDev) {
+	bool LODActor::renderAABB(class RenderDevice* pRDev) {
+		GLuint queryID;
+		glGenQueries(1, &queryID);
+		glBeginQuery(GL_SAMPLES_PASSED, queryID);
 		
+		// render AABB
 		pRDev->activeShader(m_AABBshader);
 		m_AABBvertArray.bind();
 		glDrawElements(GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_INT, nullptr);
 		m_AABBvertArray.unbind();
+
+		glEndQuery(GL_SAMPLES_PASSED);
+		// TODO abfrage im naechsten frame um wartezeit zu ueberbruecken
+		GLint queryState;
+		do {
+			glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
+		} while (!queryState);
+
+		GLuint pixelCount;
+		glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &pixelCount);
+		glDeleteQueries(1, &queryID);
+
+		//std::cout << pixelCount << "\n";
+		if (pixelCount == 0)
+			return false;
+		
+		// set LOD level based on screen coverage
+		float screenCov = float(pixelCount) / m_pSLOD->getResPixAmount();
+		std::cout << screenCov << "\n";
+		std::vector<float> LODPerc = m_pSLOD->getLODPercentages();
+		uint32_t i = 0;
+		while ( i < m_LODStages.size()-1) {
+			if (screenCov > LODPerc[i])
+				break;
+			i++;
+		}
+		
+		if (i != m_LODLevel)
+			bindLODLevel(i);
+		
+		return true;
 	}
 	
 	void LODActor::updateAABB() {
-		m_LODMeshes[0]->computeAxisAlignedBoundingBox(); // TODO unwanted side effect?
-		T3DMesh<float>::AABB aabb = m_LODMeshes[0]->aabb();
 		
 		//GLfloat vertices[] = { // Triangle Cube
 		//	aabb.Min.x(), aabb.Min.y(), aabb.Max.z(),
@@ -314,6 +353,7 @@ namespace CForge {
 		//3, 1, 5
 		//};
 		
+		T3DMesh<float>::AABB aabb = m_aabb;
 		GLfloat vertices[] = { //Triangle Strip Cube
 			aabb.Min.x(), aabb.Min.y(), aabb.Min.z(),
 			aabb.Max.x(), aabb.Min.y(), aabb.Min.z(),
@@ -349,5 +389,9 @@ namespace CForge {
 	
 	bool LODActor::isTranslucent() {
 		return m_translucent;
+	}
+
+	T3DMesh<float>::AABB LODActor::getAABB() {
+		return m_aabb;
 	}
 }
