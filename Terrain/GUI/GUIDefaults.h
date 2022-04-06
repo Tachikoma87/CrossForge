@@ -9,5 +9,5 @@ struct BackgroundStyle {
 
 struct FontStyle {
     std::string FileName = "Assets/DejaVuSans.ttf"; //Font file to load
-    int PixelSize = 16; //height of text in pixels
+    int PixelSize = 40; //height of text in pixels
 };

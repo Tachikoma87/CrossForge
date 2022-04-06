@@ -9,6 +9,8 @@
 #include "CForge/Graphics/Shader/GLShader.h"
 #include <CForge/Graphics/GLVertexArray.h>
 #include <CForge/Graphics/GLBuffer.h>
+#include <CForge/AssetIO/SAssetIO.h>
+#include <CForge/Graphics/GraphicsUtility.h>
 
 FontFace::FontFace()
 {
@@ -76,10 +78,10 @@ int FontFace::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::G
 
         //position data
         float xpos = pen_x + glyph.bitmapOffset.x;
-        float ypos = -glyph.bitmapOffset.y;
+        float ypos = glyph.bitmapOffset.y - glyph.bitmapSize.y;
         float w = glyph.bitmapSize.x, h = glyph.bitmapSize.y; //for easier access
         vertices[vertexIndex] = xpos;
-        vertices[vertexIndex + 1] = ypos + w;
+        vertices[vertexIndex + 1] = ypos + h;
         vertices[vertexIndex + 4] = xpos;
         vertices[vertexIndex + 5] = ypos;
         vertices[vertexIndex + 8] = xpos + w;
@@ -196,6 +198,11 @@ void FontFace::prepareCharMap()
     //2) pack the map theoretically first to get more accurate
     //   width and height numbers before writing the buffer
     //    and fill in the offset in the glyph_t struct
+    //   Note that a small safety padding (+1) is needed for the sampling
+    //   to not have glyphs bleed into each other on the vertex edges
+    //TODO: maybe that's just an off-by-one positioning error though?
+    //  (GL_NEAREST sampling helps a bit, but doesn't completely fix it)
+    //   SOLVED: Projection matrix had issues, now the margin isn't needed.
     int maxRowWidth = 0;
     int totalHeight = 0;
     int currentRowWidth = 0, currentRowHeight = 0;
@@ -245,6 +252,7 @@ void FontFace::prepareCharMap()
             }
         }
     }
+
     mapWidth = maxRowWidth;
     mapHeight = totalHeight;
 
@@ -277,12 +285,17 @@ void FontFace::prepareCharMap()
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     errorCode = glGetError();
     assert (errorCode == 0);
 
     delete[] mapBuffer;
+
+    //output glyph map to check alignment
+//     CForge::T2DImage<uint8_t> glyphMapImage;
+//     CForge::GraphicsUtility::retrieveColorTexture(textureID, &glyphMapImage);
+//     CForge::AssetIO::store("Assets/font.png", &glyphMapImage);
 }
 
 glyph_t FontFace::getGlyph(char32_t character)
@@ -328,11 +341,11 @@ void TextLine::init(std::u32string text, FontFace* pFontFace, CForge::GLShader* 
     setText(text);
     m_projection = Eigen::Matrix4f::Identity();
     float scale_x, scale_y;
-    scale_x = scale_y = 1.0f/720.0f;
+    scale_x = scale_y = 2.0f/720.0f;
     m_projection(0,0) = scale_x;
     m_projection(1,1) = scale_y;
-    m_projection(0,3) = scale_x * 100;
-    m_projection(1,3) = scale_y * 100;
+    m_projection(0,3) = scale_x * 100 - 1;
+    m_projection(1,3) = scale_y * 100 - 1;
 }
 
 void TextLine::setText(std::u32string text)
@@ -352,6 +365,9 @@ void TextLine::render(CForge::RenderDevice* pRDev)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         errorCode = glGetError();
         assert (errorCode == 0);
+/*
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);*/
 
 //     m_pShader->bind();
     m_VertexArray.bind();
@@ -381,6 +397,8 @@ void TextLine::render(CForge::RenderDevice* pRDev)
 
     glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
 
-
     m_VertexArray.unbind();
+
+    //terrain rendering does not work properly with enabled blending
+    glDisable(GL_BLEND);
 }
