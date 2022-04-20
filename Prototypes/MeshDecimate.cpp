@@ -2,6 +2,8 @@
 #include "../CForge/AssetIO/SAssetIO.h"
 #include <chrono>
 
+using namespace Eigen;
+
 namespace CForge {
 	
 	// TODO inMesh zu const& machen // cleanup split funcs
@@ -81,7 +83,8 @@ namespace CForge {
 		//std::cout << "DVnoMul\n" << DVnoMul << "\n";
 		//std::cout << "DV\n" << DV << "\n";
 		//std::cout << "DF\n" << DF << "\n";
-		bool iglDecRes = igl::decimate(DVnoMul, DF, amount*DF.rows(), DVnoMul, DF, DuF, DuV);
+		//bool iglDecRes = igl::decimate(DVnoMul, DF, amount*DF.rows(), DVnoMul, DF, DuF, DuV);
+		bool iglDecRes = decimateOctree(DVnoMul, DF, &DuF, &DuV, amount*DF.rows());
 		if (!iglDecRes) {
 			std::cout << "an error occured while decimating!\n";
 			//std::exit(-1);
@@ -184,6 +187,232 @@ namespace CForge {
 		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() -start).count();
 		std::cout << "Decimation Finished, time took: " << double(microseconds)*0.001 << "ms \n";
 	} // decimateMesh func
+
+	bool MeshDecimator::insideAABB(T3DMesh<float>::AABB BoundingBox, Eigen::Vector3f Vertex) {
+		for (int i = 0; i < 3; i++) {
+			if (Vertex[i] > BoundingBox.Max[i] || Vertex[i] < BoundingBox.Min[i])
+				return false;
+		}
+		return true;
+	}//insideAABB
+
+	void MeshDecimator::releaseOctree(octreeNode* root) {
+		for (uint8_t i = 0; i < 8; i++) {
+			if (root->childs[i])
+				releaseOctree(root->childs[i]);
+		}
+		delete root;
+	}
+
+	void MeshDecimator::createOctree(octreeNode* pNode, Eigen::MatrixXd* DV, std::vector<std::vector<octreeNode*>>* depthNodes) {
+		// Proposed steps for creating the octree.
+		// Step 1: Create all 8 AABBs of the respective octants
+		Vector3f Maxs[8];
+		Vector3f Mins[8];
+
+		Vector3f Diag = pNode->BoundingBox.diagonal();
+		Vector3f Min = pNode->BoundingBox.Min;
+		Vector3f Max = pNode->BoundingBox.Max;
+		Vector3f Center = Min + Diag / 2;
+
+
+		Mins[0] = Min;
+		Maxs[0] = Center;
+		Mins[1] = Vector3f(Center.x(), Min.y(), Min.z()); // front bottom right
+		Maxs[1] = Vector3f(Max.x(), Center.y(), Center.z());
+		Mins[2] = Vector3f(Min.x(), Center.y(), Min.z()); // top left
+		Maxs[2] = Vector3f(Center.x(), Max.y(), Center.z());
+		Mins[3] = Vector3f(Center.x(), Center.y(), Min.z()); // top right
+		Maxs[3] = Vector3f(Max.x(), Max.y(), Center.z());
+
+		Mins[4] = Vector3f(Min.x(), Min.y(), Center.z()); // back bottom left
+		Maxs[4] = Vector3f(Center.x(), Center.y(), Max.z());
+		Mins[5] = Vector3f(Center.x(), Min.y(), Center.z()); // bottom right
+		Maxs[5] = Vector3f(Max.x(), Center.y(), Max.z());
+		Mins[6] = Vector3f(Min.x(), Center.y(), Center.z()); // top left
+		Maxs[6] = Vector3f(Center.x(), Max.y(), Max.z());
+		Mins[7] = Center;
+		Maxs[7] = Max;
+
+		// Step 2: create and initialize the 8 child nodes
+		for (uint8_t i = 0; i < 8; ++i) {
+			T3DMesh<float>::AABB boundingBox;
+			boundingBox.Max = Maxs[i];
+			boundingBox.Min = Mins[i];
+
+			pNode->childs[i] = new octreeNode();
+			pNode->childs[i]->BoundingBox = boundingBox;
+			pNode->childs[i]->parent = pNode;
+			pNode->childs[i]->depth = pNode->depth + 1;
+		}//for[each octant]
+
+		// Step 3: Iterate other all the node's vertex IDs and sort them into the child nodes
+		// Do not forget, that we have the insideAABB utility method
+		for (auto id : pNode->VertexIDs) {
+			// sort vertices into child nodes
+
+			for (int i = 0; i < 8; i++) {
+				if (insideAABB(pNode->childs[i]->BoundingBox, DV->row(id).cast<float>()))
+					pNode->childs[i]->VertexIDs.push_back(id);
+			}
+		}//for[all vertexes]
+
+		for (uint8_t i = 0; i < 8; ++i) {
+			if (pNode->childs[i]->VertexIDs.size() != 0) {
+				while (depthNodes->size() < pNode->childs[i]->depth)
+					depthNodes->push_back(std::vector<octreeNode*>());
+				depthNodes->at(pNode->childs[i]->depth - 1).push_back(pNode->childs[i]);
+			}
+		}//for[octants]
+
+		// Step4: Recursion
+		for (uint8_t i = 0; i < 8; ++i) {
+			// kill empty nodes
+			if (pNode->childs[i]->VertexIDs.size() == 0) {
+				delete pNode->childs[i];
+				pNode->childs[i] = nullptr;
+			}
+			// call method again, if conditions for further subdivision are met
+			else if (pNode->depth < m_MaxOctreeDepth && pNode->VertexIDs.size() > m_MaxLeafVertexCount) {
+				//std::cout << "adding Node with depth " << pNode->Depth << " and size " << pNode->VertexIDs.size() << std::endl;
+				createOctree(pNode->childs[i], DV, depthNodes);
+			}
+		}//for[octants]
+	}
+
+
+	bool MeshDecimator::decimateOctree(Eigen::MatrixXd& DV, Eigen::MatrixXi& DF, Eigen::VectorXi* DuF, Eigen::VectorXi* DuV, uint32_t faceAmount) {
+		if (DV.size() == 0 || DF.size() == 0)
+			return false;
+
+		uint32_t removeFaceCount = 0;
+		std::vector<uint32_t> facesToRemove;
+		std::vector<uint32_t> pointsToRemove;
+		std::vector<std::vector<octreeNode*>> depthNodes;
+
+		// construct octree
+		octreeNode* Root = new octreeNode();
+		Root->depth = 0;
+		//set BB to first val or else we might have a prob
+		for (uint8_t j = 0; j < 3; j++) {
+			Root->BoundingBox.Min[j] = DV.row(0)[j];
+			Root->BoundingBox.Max[j] = DV.row(0)[j];
+		}
+		for (uint32_t i = 0; i < DV.rows(); i++) {
+			for (uint8_t j = 0; j < 3; j++) {
+				float span = DV.row(i)[j];
+				Root->BoundingBox.Min[j] = std::min(Root->BoundingBox.Min[j], span);
+				Root->BoundingBox.Max[j] = std::max(Root->BoundingBox.Max[j], span);
+			}
+			Root->VertexIDs.push_back(i);
+		}
+		createOctree(Root, &DV, &depthNodes);
+
+		// decimate, find targets
+		while (DF.rows() - removeFaceCount > faceAmount) {
+			// get last largest depth node
+			std::vector<octreeNode*>* largestDepth = &(depthNodes.back());
+			octreeNode* parent = largestDepth->at(0)->parent;
+			if (!parent)
+				break;
+			//largestDepth->pop_back();
+
+			// points which get merged into one
+			std::vector<uint32_t> targetPoints;
+
+			// join all child vertices into parent as one vertex
+			for (uint32_t i = 0; i < 8; i++) {
+				octreeNode* child = parent->childs[i];
+				if (child) {
+					for (uint32_t vertID : child->VertexIDs) {
+						targetPoints.push_back(vertID);
+					}
+					// remove child pointer from depth list
+					largestDepth->erase(std::remove(largestDepth->begin(), largestDepth->end(), child), largestDepth->end());
+
+					delete child;
+					parent->childs[i] = nullptr;
+				}
+			}
+
+			pointsToRemove.insert(std::end(pointsToRemove), std::next(std::begin(targetPoints)), std::end(targetPoints));
+			
+			std::vector<uint32_t> addedFaces = joinPoints(&DV, &DF, targetPoints);
+			facesToRemove.insert(std::end(facesToRemove), std::begin(addedFaces), std::end(addedFaces));
+			removeFaceCount = facesToRemove.size();
+
+			// push back new node
+			parent->VertexIDs.push_back(targetPoints[0]);
+			
+			// reduce depth if no nodes are in it anymore
+			if (depthNodes.back().empty())
+				depthNodes.pop_back();
+		}
+
+		std::vector<uint32_t> DuFVec;
+		// remove faces from DF
+		for (uint32_t i = 0; i < DF.rows(); i++) {
+			if (std::find(facesToRemove.begin(), facesToRemove.end(), i) == facesToRemove.end())
+				DuFVec.push_back(i);
+		}
+		Eigen::MatrixXi newDF = Eigen::MatrixXi(DuFVec.size(), 3);
+		*DuF = Eigen::VectorXi(DuFVec.size());
+		for (uint32_t i = 0; i < DuFVec.size(); i++) {
+			//*DuF << DuFVec[i];
+			(*DuF)[i] = DuFVec[i];
+			newDF.row(i) = DF.row(DuFVec[i]);
+		}
+		//delete DF;
+		DF = newDF;
+
+		// TODO redo same with points // TODO check if necessary
+
+		//releaseOctree(Root);
+		return true;
+	}
+
+	// merges points and returns vector of faces to remove
+	std::vector<uint32_t> MeshDecimator::joinPoints(Eigen::MatrixXd* DV, Eigen::MatrixXi* DF, const std::vector<uint32_t>& targets) {
+
+		std::vector<uint32_t> removedFaces;
+		// calculate new Point position
+		Eigen::Vector3f newPoint = Eigen::Vector3f::Zero();
+		for (uint32_t i = 0; i < targets.size(); i++) {
+			newPoint += DV->row(targets[i]).cast<float>();
+		}
+		newPoint /= targets.size();
+
+		// set position of all points to new Point
+		DV->row(targets[0]) = newPoint.cast<double>();
+		//for (uint32_t i = 0; i < targets.size(); i++) {
+		//	DV->row(targets[i]) = newPoint.cast<double>();
+		//}
+
+		for (uint32_t i = 0; i < DF->rows(); i++) {
+			// check if tri contains more than 2 points in targets
+			Eigen::Vector3i tri = DF->row(i);
+
+			uint8_t contained = 0;
+			for (uint8_t j = 0; j < 3; j++) {
+				if (std::find(targets.begin(), targets.end(), tri[j]) != targets.end()) {
+					// new point is in tri contained
+					contained++;
+					// point index to first target (new index of merged point)
+					DF->row(i)[j] = targets[0];
+				}
+			}
+
+			// 0. tri has 0 verts -> stays
+			// 1. tri has 1 verts -> new point gets moved
+			// 2. tri has 2 verts -> tri gets removed
+			// 3. tri has 3 verts -> tri gets removed
+			if (contained >= 2) { // remove tri
+				removedFaces.push_back(i);
+			}
+		}
+
+		return removedFaces;
+	}
 
 	MeshDecimator::MeshDecimator(void) {
 	}//Constructor
