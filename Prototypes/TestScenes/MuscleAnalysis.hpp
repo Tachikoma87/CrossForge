@@ -243,6 +243,8 @@ namespace CForge {
 
 			// Change Color according to muscle values
 			//float Alpha = float(CoreUtility::timestamp() - LastColorChange) / 2500.0f;
+			
+
 			for (uint32_t i = 0; i < Eric.materialCount(); ++i) {
 				//if()
 				Vector4f C = { 1.0f,1.0f,1.0f,1.0f };
@@ -251,18 +253,18 @@ namespace CForge {
 
 				
 				for (int g = 0; g < muscledata.size(); g++) {
-					if (muscledata.at(g).name == ma_data.at(i).name) {
+					//if (muscledata.at(g).name == ma_data.at(i).name) {
+					if(muscledata.at(g).name.compare(ma_data.at(i).name) == 0){
 						//transform muscledata in Color with bounds
-						
-						
+//#define ORIG_VERSION		
+#ifdef ORIG_VERSION
 						//Scale data to (0,1)
 						float powv = 1;
 						float muscle_value = 0.0f;
 							float abs = pow(ma_data.at(i).max,powv) - pow(ma_data.at(i).min,powv);
 							muscle_value = (pow(muscledata.at(g).data.at(int(pAnim->t)),powv) - pow(ma_data.at(i).min, powv)) / abs; //TODO: CAP to FRAMES
-					
 
-							//Clamp values
+						//Clamp values
 						if (muscle_value > 1.0f) muscle_value = 1.0f;
 						else if (muscle_value < 0.0f) muscle_value = 0.0f;
 
@@ -272,9 +274,36 @@ namespace CForge {
 
 						Eric.material(i)->color(C);
 
-
-
 						break;
+#else
+						int32_t FrameIndex1 = int32_t(pAnim->t);
+						int32_t FrameIndex2 = FrameIndex1 + 1;
+
+						if (FrameIndex1 >= muscledata.at(g).data.size() || FrameIndex2 >= muscledata.at(g).data.size()) break;
+
+						float abs = ma_data.at(i).max - ma_data.at(i).min;
+						float muscleValue1 = (muscledata.at(g).data[FrameIndex1] - ma_data.at(i).min)/abs;
+						float muscleValue2 = (muscledata.at(g).data[FrameIndex2] - ma_data.at(i).min)/abs;
+
+						float alpha = pAnim->t - float(FrameIndex1);
+						float mix = (1.0f - alpha) * muscleValue1 + alpha * muscleValue2;
+
+						C = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
+
+						if (mix < 0.5f) {
+							// from green to yellow
+							C.x() = 2.0f * mix;
+							C.y() = 1.0f;		
+						}
+						else {
+							// from yellow to red
+							C.x() = 1.0f;
+							C.y() = (1.0f - mix) * 2.0f;
+						}
+
+						Eric.material(i)->color(C);
+						break;
+#endif
 					}
 
 
