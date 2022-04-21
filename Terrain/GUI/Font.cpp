@@ -116,23 +116,12 @@ int FontFace::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::G
 
     //Write to opengl buffer
 
-    //find out why it crashes
-    GLenum errorCode;
-
     vao->bind();
-    errorCode = glGetError();
-    assert (errorCode == 0);
     vbo->init(CForge::GLBuffer::BTYPE_VERTEX, CForge::GLBuffer::BUSAGE_STATIC_DRAW, vertices, sizeof(float)*numVertices*4);
     vbo->bind();
-    errorCode = glGetError();
-    assert (errorCode == 0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-    errorCode = glGetError();
-    assert (errorCode == 0);
-   
-    errorCode = glGetError();
-    assert (errorCode == 0);
+
     vbo->unbind();
     vao->unbind();
 
@@ -266,9 +255,6 @@ void FontFace::prepareCharMap()
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    //find out why it crashes
-    GLenum errorCode;
-
     glTexImage2D(
         GL_TEXTURE_2D,
         0,
@@ -280,15 +266,11 @@ void FontFace::prepareCharMap()
         GL_UNSIGNED_BYTE,
         mapBuffer
     );
-    errorCode = glGetError();
-    assert (errorCode == 0);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    errorCode = glGetError();
-    assert (errorCode == 0);
 
     delete[] mapBuffer;
 
@@ -356,44 +338,23 @@ void TextLine::setText(std::u32string text)
 
 void TextLine::render(CForge::RenderDevice* pRDev)
 {
-    //find out why it crashes
-    GLenum errorCode;
-
     glEnable(GL_BLEND);
-        errorCode = glGetError();
-        assert (errorCode == 0);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        errorCode = glGetError();
-        assert (errorCode == 0);
 /*
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);*/
 
 //     m_pShader->bind();
     m_VertexArray.bind();
-        errorCode = glGetError();
-        assert(errorCode == 0);
     pRDev->activeShader(m_pShader);
-        errorCode = glGetError();
-        assert (errorCode == 0);
    
 
     //Shader uniforms
     glActiveTexture(GL_TEXTURE0);
-        errorCode = glGetError();
-        assert (errorCode == 0);
     m_pFont->bind();
-        errorCode = glGetError();
-        assert (errorCode == 0);
     glUniform1i(m_pShader->uniformLocation("glyphMap"), 0);
-        errorCode = glGetError();
-        assert (errorCode == 0);
     glUniform3f(m_pShader->uniformLocation("textColor"), 1.0f, 1.0f, 1.0f);
-        errorCode = glGetError();
-        assert (errorCode == 0);
     glUniformMatrix4fv(m_pShader->uniformLocation("projection"), 1, GL_FALSE, m_projection.data());
-        errorCode = glGetError();
-        assert (errorCode == 0);
 
     glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
 
