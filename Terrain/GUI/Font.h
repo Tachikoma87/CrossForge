@@ -7,6 +7,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "GUIDefaults.h"
+
 #include "CForge/Graphics/Shader/GLShader.h"
 #include <CForge/Graphics/GLVertexArray.h>
 #include <CForge/Graphics/GLBuffer.h>
@@ -37,12 +39,15 @@ public:
     //for render loop
     void bind();
 
+    FontStyle getStyle();
+
 private:
     FT_Library library;
     FT_Face face;
     std::unordered_map <char32_t, glyph_t> glyphs;
     unsigned int textureID;
     int mapWidth, mapHeight;
+    FontStyle style;
 };
 
 
@@ -61,4 +66,5 @@ private:
     CForge::GLVertexArray m_VertexArray;
     int m_numVertices;
     Eigen::Matrix4f m_projection;
+    float textSize;
 };
