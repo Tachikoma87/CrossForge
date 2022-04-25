@@ -11,3 +11,7 @@ struct FontStyle {
     std::string FileName = "Assets/DejaVuSans.ttf"; //Font file to load
     int PixelSize = 40; //height of text in pixels
 };
+
+struct WidgetStyle {
+    int WithinWidgetPadding = 5;
+};

@@ -35,6 +35,7 @@ public:
 
     int renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::GLVertexArray* vao);
 //     void computeBBox(std::u32string text, FT_Vector* positions, FT_BBox* pbbox);
+    int computeStringWidth(std::u32string text);
 
     //for render loop
     void bind();
@@ -59,6 +60,7 @@ public:
     void setText(std::u32string text);
     void setPosition(float x, float y);
     void render(CForge::RenderDevice* pRDev);
+    float getTextSize();
 private:
     FontFace* m_pFont;
     CForge::GLShader* m_pShader;

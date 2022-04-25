@@ -139,6 +139,7 @@ add_executable(Terrain
 		Terrain/GUI/WidgetBackground.cpp
 		Terrain/GUI/Widget.cpp
 		Terrain/GUI/Font.cpp
+		Terrain/GUI/Widgets/InputNumber.cpp
 		"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
 		)
 

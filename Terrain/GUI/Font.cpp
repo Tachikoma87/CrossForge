@@ -164,7 +164,23 @@ int FontFace::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::G
 //     }
 //     *pbbox = bbox;
 // }
-
+int FontFace::computeStringWidth(std::u32string text)
+{
+    int pen_x = 0;
+    bool use_kerning = FT_HAS_KERNING(face);
+    int previous_glyph_index = 0;
+    for (int i = 0; i < text.length(); i++) {
+        glyph_t glyph = getGlyph(text[i]);
+        //consider kerning values for nicer output
+        if (use_kerning && previous_glyph_index && glyph.index) {
+            FT_Vector delta;
+            FT_Get_Kerning(face, previous_glyph_index, glyph.index, FT_KERNING_DEFAULT, &delta);
+            pen_x += delta.x >> 6; //spacing values are returned in 1/64th of a pixel
+        }
+        pen_x += glyph.advanceWidth >> 6;
+    }
+    return pen_x;
+}
 void FontFace::prepareCharMap()
 {
     //for now, use the first ~220 codepoints as characters for the map
@@ -387,3 +403,9 @@ void TextLine::render(CForge::RenderDevice* pRDev)
     //terrain rendering does not work properly with enabled blending
     glDisable(GL_BLEND);
 }
+
+float TextLine::getTextSize()
+{
+    return textSize;
+}
+
