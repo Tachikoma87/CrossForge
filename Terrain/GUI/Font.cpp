@@ -1,5 +1,4 @@
 #include "Font.h"
-#include "GUIDefaults.h"
 #include <stdio.h>
 
 #include <string>
@@ -25,15 +24,16 @@ FontFace::FontFace()
 
 
     FontStyle defaults;
-    error = FT_New_Face( library, defaults.FileName.c_str(), 0, &face );
+    style = defaults;
+    error = FT_New_Face( library, style.FileName.c_str(), 0, &face );
     if ( error == FT_Err_Unknown_File_Format ) {
         //File opened but not a supported font format
-        printf("Error reading Font %s: unsupported format\n", defaults.FileName.c_str());
+        printf("Error reading Font %s: unsupported format\n", style.FileName.c_str());
     } else if ( error ) {
         //File not found or unable to open or whatever
-        printf("Error opening Font %s\n", defaults.FileName.c_str());
+        printf("Error opening Font %s\n", style.FileName.c_str());
     }
-    FT_Set_Pixel_Sizes(face, 0, defaults.PixelSize);
+    FT_Set_Pixel_Sizes(face, 0, style.PixelSize);
 
     prepareCharMap();
 
@@ -307,6 +307,11 @@ void FontFace::bind()
 {
     glBindTexture(GL_TEXTURE_2D, textureID);
 }
+FontStyle FontFace::getStyle()
+{
+    return style;
+}
+
 
 
 TextLine::TextLine()
@@ -320,13 +325,13 @@ void TextLine::init(FontFace* pFontFace, CForge::GLShader* pShader)
     m_pShader = pShader;
     m_VertexArray.init();
     m_numVertices = 0;
+    textSize = pFontFace->getStyle().PixelSize;
     m_projection = Eigen::Matrix4f::Identity();
     float scale_x, scale_y;
     scale_x = scale_y = 2.0f/720.0f;
     m_projection(0,0) = scale_x;
     m_projection(1,1) = scale_y;
-    m_projection(0,3) = scale_x * 0 - 1;
-    m_projection(1,3) = 1 - scale_y * 0;
+    setPosition(0, 0);
 }
 
 void TextLine::init(std::u32string text, FontFace* pFontFace, CForge::GLShader* pShader)
@@ -345,8 +350,12 @@ void TextLine::setPosition(float x, float y)
 {
     //TODO currently does not work for rotated text
     // consider using proper matrix operations in the future
+
+    //To make it abide to the same top-left based coordinate system
+    //that mouse clicks use, we need to move the text down by its size,
+    //which is done by adding it to the y coordinate.
     m_projection(0,3) = m_projection(0,0) * x - 1;
-    m_projection(1,3) = 1 - m_projection(1,1) * y;
+    m_projection(1,3) = 1 - m_projection(1,1) * (y + textSize);
 }
 
 
