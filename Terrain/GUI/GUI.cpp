@@ -53,20 +53,20 @@ void GUI::testInit()
     fontFace = new FontFace();
 
     //Test rendering
-    testtext.init(U"Beispieltext. ÄäÖöÜüß!?", fontFace, TextShader);
+//     testtext.init(U"Beispieltext. ÄäÖöÜüß!?", fontFace, TextShader);
 
     
 //     BackgroundStyle b;
-//     auto a = new TestWidget(this, nullptr);
+    auto a = new TestWidget(this, nullptr);
 //
-//     testBG.push_back(a);
+    testBG.push_back(a);
 }
 void GUI::testRender()
 {
     for (auto x : testBG) {
         if (x != nullptr) x->draw(m_renderDevice);
     }
-    testtext.render(m_renderDevice);
+//     testtext.render(m_renderDevice);
 }
 void GUI::registerMouseDownEvent ( BaseWidget* widget )
 {
@@ -83,7 +83,8 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
         //more efficient designs than a simple list could be implemented
         //depending on how many widgets will be registered in total
         for (auto x : testBG) {
-            x->onClick(mouse);
+            if (x->checkHitbox(mpos))
+                x->onClick(mouse);
         }
     }
 }
