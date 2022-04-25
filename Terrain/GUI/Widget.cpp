@@ -13,8 +13,8 @@ BaseWidget::BaseWidget ( GUI* rootGUIObject, BaseWidget* parent )
     
     m_x = 0;
     m_y = 0;
-    m_width = 0.2;
-    m_height = 0.2;
+    m_width = 20;
+    m_height = 20;
 }
 void BaseWidget::setPosition(float x, float y)
 {
@@ -45,6 +45,15 @@ void BaseWidget::onClick ( CForge::Mouse* )
     printf("reached here 2");
     return;
 }
+float BaseWidget::getWidth()
+{
+    return m_width;
+}
+float BaseWidget::getHeight()
+{
+    return m_height;
+}
+
 
 
 TestWidget::TestWidget ( GUI* rootGUIObject, BaseWidget* parent ) : BaseWidget(rootGUIObject, parent)
@@ -78,6 +87,7 @@ TextWidget::TextWidget(GUI* rootGUIObject, BaseWidget* parent) : BaseWidget(root
 {
     m_pText = new TextLine;
     m_pText->init(m_root->fontFace, m_root->TextShader);
+    m_height = m_pText->getTextSize();
 }
 void TextWidget::draw(CForge::RenderDevice* renderDevice)
 {
@@ -93,6 +103,14 @@ void TextWidget::draw(CForge::RenderDevice* renderDevice)
 void TextWidget::setText(std::u32string textString)
 {
     m_text = textString;
+
+    //calculate the width of the string to be rendered
+    //this could be done during rendering and passing an information object
+    //or something like that, saving one iteration over the string.
+    //However, having a seperate function for it has some benefits
+    //(eg. it could be expanded to cut-off/break up long strings)
+    m_width = m_root->fontFace->computeStringWidth(textString);
+
     m_pText->setText(textString);
 }
 void TextWidget::changeText(char32_t character)

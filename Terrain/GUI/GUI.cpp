@@ -2,6 +2,7 @@
 #include "Widget.h"
 #include "WidgetBackground.h"
 #include "GUIDefaults.h"
+#include "Widgets/InputNumber.h"
 
 #include <stdio.h>
 
@@ -57,7 +58,7 @@ void GUI::testInit()
 
     
 //     BackgroundStyle b;
-    auto a = new TestWidget(this, nullptr);
+    auto a = new InputNumber(this, nullptr);
 //
     testBG.push_back(a);
 }
@@ -76,16 +77,28 @@ void GUI::registerMouseDownEvent ( BaseWidget* widget )
 void GUI::processMouseEvents ( CForge::Mouse* mouse )
 {
     auto mpos = mouse->position();
+    static bool leftHoldDown = false;
     if (mouse->buttonState(CForge::Mouse::BTN_LEFT)) {
-        printf("mouse click at %f  %f\n", mpos[0], mpos[1]);
-        //trigger all registered elements for testing purposes for now
-        //can be tested against the widget's x, y, w, and h later, and
-        //more efficient designs than a simple list could be implemented
-        //depending on how many widgets will be registered in total
-        for (auto x : testBG) {
-            if (x->checkHitbox(mpos))
-                x->onClick(mouse);
+        if (!leftHoldDown) {
+            //left mouse button was just pressed down
+            leftHoldDown = true;
+            printf("mouse click at %f  %f\n", mpos[0], mpos[1]);
+            //more efficient designs than a simple list could be implemented
+            //depending on how many widgets will be registered in total
+            for (auto x : m_events_mouseDown) {
+                if (x->checkHitbox(mpos))
+                    x->onClick(mouse);
+            }
+        } else {
+            //hold down
+            /*for (auto x : m_events_mouseDown) {
+                if (x->checkHitbox(mpos))
+                    x->onClick(mouse);
+            }*/
         }
+    } else if (leftHoldDown) {
+        //mouse button released
+        leftHoldDown = false;
     }
 }
 
