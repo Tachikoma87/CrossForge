@@ -19,6 +19,10 @@ public:
     
     //Events (need some more thought put into them)
     virtual void onClick(CForge::Mouse*);
+
+    //Basic Getters&Setters
+    virtual float getWidth();
+    virtual float getHeight();
 protected:
     GUI* m_root;
     BaseWidget* m_parent;
