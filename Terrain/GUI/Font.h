@@ -49,8 +49,10 @@ private:
 class TextLine {
 public:
     TextLine();
+    void init(FontFace* pFontFace, CForge::GLShader* pShader);
     void init(std::u32string text, FontFace* pFontFace, CForge::GLShader* pShader);
     void setText(std::u32string text);
+    void setPosition(float x, float y);
     void render(CForge::RenderDevice* pRDev);
 private:
     FontFace* m_pFont;

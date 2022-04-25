@@ -314,20 +314,25 @@ TextLine::TextLine()
     //use init instead
 }
 
-void TextLine::init(std::u32string text, FontFace* pFontFace, CForge::GLShader* pShader)
+void TextLine::init(FontFace* pFontFace, CForge::GLShader* pShader)
 {
     m_pFont = pFontFace;
     m_pShader = pShader;
     m_VertexArray.init();
     m_numVertices = 0;
-    setText(text);
     m_projection = Eigen::Matrix4f::Identity();
     float scale_x, scale_y;
     scale_x = scale_y = 2.0f/720.0f;
     m_projection(0,0) = scale_x;
     m_projection(1,1) = scale_y;
-    m_projection(0,3) = scale_x * 100 - 1;
-    m_projection(1,3) = scale_y * 100 - 1;
+    m_projection(0,3) = scale_x * 0 - 1;
+    m_projection(1,3) = 1 - scale_y * 0;
+}
+
+void TextLine::init(std::u32string text, FontFace* pFontFace, CForge::GLShader* pShader)
+{
+    init(pFontFace, pShader);
+    setText(text);
 }
 
 void TextLine::setText(std::u32string text)
@@ -336,8 +341,18 @@ void TextLine::setText(std::u32string text)
     m_numVertices = m_pFont->renderString(text, &m_VertexBuffer, &m_VertexArray);
 }
 
+void TextLine::setPosition(float x, float y)
+{
+    //TODO currently does not work for rotated text
+    // consider using proper matrix operations in the future
+    m_projection(0,3) = m_projection(0,0) * x - 1;
+    m_projection(1,3) = 1 - m_projection(1,1) * y;
+}
+
+
 void TextLine::render(CForge::RenderDevice* pRDev)
 {
+    //blending required as the text will be applied as an alpha mask
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 /*

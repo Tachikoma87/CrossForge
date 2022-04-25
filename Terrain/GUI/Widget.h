@@ -1,6 +1,7 @@
 #pragma once
 
 #include "WidgetBackground.h"
+#include "Font.h"
 #include <CForge/Input/Mouse.h>
 class GUI;
 
@@ -10,7 +11,11 @@ public:
     
     BaseWidget(GUI* rootGUIObject, BaseWidget* parent);
     
-    void draw(CForge::RenderDevice* renderDevice);
+    virtual void setPosition(float x, float y);
+    virtual void changePosition(float dx, float dy);
+    virtual void draw(CForge::RenderDevice* renderDevice);
+
+    virtual bool checkHitbox(Eigen::Vector2f pointerPosition);
     
     //Events (need some more thought put into them)
     virtual void onClick(CForge::Mouse*);
@@ -34,5 +39,12 @@ public:
 class TextWidget : public BaseWidget {
 public:
     TextWidget(GUI* rootGUIObject, BaseWidget* parent);
-    void setText(std::string textString);
+    void setText(std::u32string textString);
+    void changeText(char32_t character);
+    void setPosition(float x, float y);
+    void changePosition(float dx, float dy);
+    void draw(CForge::RenderDevice* renderDevice);
+private:
+    std::u32string m_text;
+    TextLine* m_pText;
 };
