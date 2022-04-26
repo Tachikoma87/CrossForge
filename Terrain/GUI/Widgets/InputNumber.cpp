@@ -27,34 +27,34 @@
 //     }
 // }
 
-InputNumber_DecreaseButton::InputNumber_DecreaseButton(GUI* rootGUIObject, InputNumber* parent): TextWidget(rootGUIObject, parent)
+InputNumberWidget_DecreaseButton::InputNumberWidget_DecreaseButton(GUI* rootGUIObject, InputNumberWidget* parent): TextWidget(rootGUIObject, parent)
 {
     //need to save the parent in an extra variable because we need access
     //to the value functions not part of the BaseWidget interface.
     m_parentInput = parent;
     setText(U"-");
 }
-void InputNumber_DecreaseButton::onClick(CForge::Mouse*)
+void InputNumberWidget_DecreaseButton::onClick(CForge::Mouse*)
 {
     m_parentInput->changeValue(-1);
 }
-InputNumber_IncreaseButton::InputNumber_IncreaseButton(GUI* rootGUIObject, InputNumber* parent): TextWidget(rootGUIObject, parent)
+InputNumberWidget_IncreaseButton::InputNumberWidget_IncreaseButton(GUI* rootGUIObject, InputNumberWidget* parent): TextWidget(rootGUIObject, parent)
 {
     m_parentInput = parent;
     setText(U"+");
 }
-void InputNumber_IncreaseButton::onClick(CForge::Mouse*)
+void InputNumberWidget_IncreaseButton::onClick(CForge::Mouse*)
 {
     m_parentInput->changeValue(1);
 }
 
 
-InputNumber::InputNumber(GUI* rootGUIObject, BaseWidget* parent) : BaseWidget(rootGUIObject, parent)
+InputNumberWidget::InputNumberWidget(GUI* rootGUIObject, BaseWidget* parent) : BaseWidget(rootGUIObject, parent)
 {
     WidgetStyle defaults;
     m_pValue = new TextWidget(rootGUIObject, this);
-    m_pInc = new InputNumber_IncreaseButton(rootGUIObject, this);
-    m_pDec = new InputNumber_DecreaseButton(rootGUIObject, this);
+    m_pInc = new InputNumberWidget_IncreaseButton(rootGUIObject, this);
+    m_pDec = new InputNumberWidget_DecreaseButton(rootGUIObject, this);
     m_pValue->changePosition(m_pDec->getWidth() + defaults.WithinWidgetPadding, 0);
     m_value = 0;
     m_pValue->setText(U"0");
@@ -66,11 +66,11 @@ InputNumber::InputNumber(GUI* rootGUIObject, BaseWidget* parent) : BaseWidget(ro
     m_height = m_pValue->getHeight();
     m_width = m_pDec->getWidth() + m_pValue->getWidth() + m_pInc->getWidth() + 2*defaults.WithinWidgetPadding;
 }
-int InputNumber::getValue()
+int InputNumberWidget::getValue()
 {
     return m_value;
 }
-void InputNumber::setValue(int value)
+void InputNumberWidget::setValue(int value)
 {
     m_value = value;
     //The value's display width will probably change.
@@ -88,17 +88,17 @@ void InputNumber::setValue(int value)
     positionAdjust += m_pValue->getWidth();
     m_pInc->changePosition(positionAdjust, 0);
 }
-void InputNumber::changeValue(int value)
+void InputNumberWidget::changeValue(int value)
 {
     setValue(m_value + value);
 }
-void InputNumber::changePosition(float dx, float dy)
+void InputNumberWidget::changePosition(float dx, float dy)
 {
     m_pDec->changePosition(dx, dy);
     m_pValue->changePosition(dx, dy);
     m_pInc->changePosition(dx, dy);
 }
-void InputNumber::setPosition(float x, float y)
+void InputNumberWidget::setPosition(float x, float y)
 {
     float dx = x - m_x;
     float dy = y - m_y;
@@ -106,7 +106,7 @@ void InputNumber::setPosition(float x, float y)
     m_y = y;
     changePosition(dx, dy);
 }
-void InputNumber::draw(CForge::RenderDevice* renderDevice)
+void InputNumberWidget::draw(CForge::RenderDevice* renderDevice)
 {
     m_pDec->draw(renderDevice);
     m_pValue->draw(renderDevice);
@@ -121,7 +121,7 @@ TestWidget::TestWidget ( GUI* rootGUIObject, BaseWidget* parent ) : BaseWidget(r
 //     BackgroundStyle b;
 //     m_background->init(b, rootGUIObject->BackgroundColoredShader);
 
-    InputNumber* inputTest = new InputNumber(rootGUIObject, this);
+    InputNumberWidget* inputTest = new InputNumberWidget(rootGUIObject, this);
     m_children.push_back(inputTest);
 
     m_width = inputTest->getWidth();
