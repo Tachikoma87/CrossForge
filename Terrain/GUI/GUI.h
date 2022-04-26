@@ -19,6 +19,7 @@ public:
     void testRender();
     void processMouseEvents(CForge::Mouse* mouse);
     void registerMouseDownEvent(BaseWidget* widget);
+    void registerMouseDragEvent(BaseWidget* widget);
     
     CForge::GLShader* BackgroundColoredShader;
     CForge::GLShader* TextShader;
@@ -26,7 +27,8 @@ public:
 private:
     std::vector<BaseWidget*> testBG;
     CForge::RenderDevice* m_renderDevice;
-    std::vector<BaseWidget*> m_events_mouseDown;
 
-    TextLine testtext;
+    BaseWidget* focusedWidget = nullptr;
+    std::vector<BaseWidget*> m_events_mouseDown;
+    std::vector<BaseWidget*> m_events_mouseDrag;
 };

@@ -114,3 +114,23 @@ void InputNumber::draw(CForge::RenderDevice* renderDevice)
 }
 
 
+
+TestWidget::TestWidget ( GUI* rootGUIObject, BaseWidget* parent ) : BaseWidget(rootGUIObject, parent)
+{
+//     m_background = new WidgetBackgroundColored();
+//     BackgroundStyle b;
+//     m_background->init(b, rootGUIObject->BackgroundColoredShader);
+
+    InputNumber* inputTest = new InputNumber(rootGUIObject, this);
+    m_children.push_back(inputTest);
+
+    m_width = inputTest->getWidth();
+    m_height = inputTest->getHeight();
+}
+void TestWidget::onDrag ( CForge::Mouse* mouse )
+{
+    changePosition(mouse->movement()[0],mouse->movement()[1]);
+    for (auto x : m_children) {
+        x->changePosition(mouse->movement()[0],mouse->movement()[1]);
+    }
+}
