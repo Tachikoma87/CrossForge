@@ -45,6 +45,10 @@ void BaseWidget::onClick ( CForge::Mouse* )
     printf("reached here 2");
     return;
 }
+void BaseWidget::onDrag ( CForge::Mouse* )
+{
+    return;
+}
 float BaseWidget::getWidth()
 {
     return m_width;
@@ -55,33 +59,6 @@ float BaseWidget::getHeight()
 }
 
 
-
-TestWidget::TestWidget ( GUI* rootGUIObject, BaseWidget* parent ) : BaseWidget(rootGUIObject, parent)
-{
-//     m_background = new WidgetBackgroundColored();
-//     BackgroundStyle b;
-//     m_background->init(b, rootGUIObject->BackgroundColoredShader);
-
-    TextWidget* textTest = new TextWidget(rootGUIObject, this);
-    textTest->setText(U"Zeile 1");
-    m_children.push_back(textTest);
-    textTest = new TextWidget(rootGUIObject, this);
-    textTest->changePosition(0, 50);
-    textTest->setText(U"und Zeile 2.");
-    m_children.push_back(textTest);
-
-    //TODO: size reporting for text changes
-    m_width = 200;
-    m_height = 100;
-}
-void TestWidget::onClick ( CForge::Mouse* mouse )
-{
-    printf("reached here");
-    changePosition(mouse->movement()[0],mouse->movement()[1]);
-    for (auto x : m_children) {
-        x->changePosition(mouse->movement()[0],mouse->movement()[1]);
-    }
-}
 
 TextWidget::TextWidget(GUI* rootGUIObject, BaseWidget* parent) : BaseWidget(rootGUIObject, parent)
 {

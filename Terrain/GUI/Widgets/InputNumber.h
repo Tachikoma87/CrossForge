@@ -38,3 +38,9 @@ private:
     InputNumber_IncreaseButton* m_pInc;
     TextWidget* m_pValue;
 };
+
+class TestWidget : public BaseWidget {
+public:
+    TestWidget(GUI* rootGUIObject, BaseWidget* parent);
+    void onDrag(CForge::Mouse* mouse);
+};

@@ -58,7 +58,8 @@ void GUI::testInit()
 
     
 //     BackgroundStyle b;
-    auto a = new InputNumber(this, nullptr);
+    auto a = new TestWidget(this, nullptr);
+    registerMouseDragEvent(a);
 //
     testBG.push_back(a);
 }
@@ -74,6 +75,10 @@ void GUI::registerMouseDownEvent ( BaseWidget* widget )
     //simple push for now since it's only one element for testing for now, optimize later
     m_events_mouseDown.push_back(widget);
 }
+void GUI::registerMouseDragEvent(BaseWidget* widget)
+{
+    m_events_mouseDrag.push_back(widget);
+}
 void GUI::processMouseEvents ( CForge::Mouse* mouse )
 {
     auto mpos = mouse->position();
@@ -82,19 +87,33 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
         if (!leftHoldDown) {
             //left mouse button was just pressed down
             leftHoldDown = true;
+
             printf("mouse click at %f  %f\n", mpos[0], mpos[1]);
+
+            //check if anything was clicked and set the focus accordingly
+            //click events take precedence over dragable widgets
+            focusedWidget = nullptr;
+
             //more efficient designs than a simple list could be implemented
             //depending on how many widgets will be registered in total
             for (auto x : m_events_mouseDown) {
-                if (x->checkHitbox(mpos))
+                if (x->checkHitbox(mpos)) {
                     x->onClick(mouse);
+                    if (!focusedWidget) focusedWidget = x;
+                }
+            }
+            if (!focusedWidget) {
+                for (auto x : m_events_mouseDrag) {
+                    if (x->checkHitbox(mpos)) {
+                        if (!focusedWidget) focusedWidget = x;
+                    }
+                }
             }
         } else {
             //hold down
-            /*for (auto x : m_events_mouseDown) {
-                if (x->checkHitbox(mpos))
-                    x->onClick(mouse);
-            }*/
+            if (focusedWidget != nullptr)
+//                 if (focusedWidget->checkHitbox(mpos))
+                    focusedWidget->onDrag(mouse);
         }
     } else if (leftHoldDown) {
         //mouse button released

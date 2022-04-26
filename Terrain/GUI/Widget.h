@@ -19,6 +19,7 @@ public:
     
     //Events (need some more thought put into them)
     virtual void onClick(CForge::Mouse*);
+    virtual void onDrag(CForge::Mouse*);
 
     //Basic Getters&Setters
     virtual float getWidth();
@@ -32,12 +33,6 @@ protected:
     float m_y;
     float m_width; 
     float m_height;
-};
-
-class TestWidget : public BaseWidget {
-public:
-    TestWidget(GUI* rootGUIObject, BaseWidget* parent);
-    void onClick(CForge::Mouse* mouse);
 };
 
 class TextWidget : public BaseWidget {
