@@ -5,27 +5,27 @@
 
 #include <CForge/Input/Mouse.h>
 
-class InputNumber;
+class InputNumberWidget;
 
-class InputNumber_DecreaseButton : public TextWidget {
+class InputNumberWidget_DecreaseButton : public TextWidget {
 public:
-    InputNumber_DecreaseButton(GUI* rootGUIObject, InputNumber* parent);
+    InputNumberWidget_DecreaseButton(GUI* rootGUIObject, InputNumberWidget* parent);
     void onClick(CForge::Mouse * ) override;
 private:
-    InputNumber* m_parentInput;
+    InputNumberWidget* m_parentInput;
 };
 
-class InputNumber_IncreaseButton : public TextWidget {
+class InputNumberWidget_IncreaseButton : public TextWidget {
 public:
-    InputNumber_IncreaseButton(GUI* rootGUIObject, InputNumber* parent);
+    InputNumberWidget_IncreaseButton(GUI* rootGUIObject, InputNumberWidget* parent);
     void onClick(CForge::Mouse * ) override;
 private:
-    InputNumber* m_parentInput;
+    InputNumberWidget* m_parentInput;
 };
 
-class InputNumber : public BaseWidget {
+class InputNumberWidget : public BaseWidget {
 public:
-    InputNumber(GUI* rootGUIObject, BaseWidget* parent);
+    InputNumberWidget(GUI* rootGUIObject, BaseWidget* parent);
     void setValue(int value);
     void changeValue(int value);
     int getValue();
@@ -34,8 +34,8 @@ public:
     void draw(CForge::RenderDevice* renderDevice);
 private:
     int m_value;
-    InputNumber_DecreaseButton* m_pDec;
-    InputNumber_IncreaseButton* m_pInc;
+    InputNumberWidget_DecreaseButton* m_pDec;
+    InputNumberWidget_IncreaseButton* m_pInc;
     TextWidget* m_pValue;
 };
 
