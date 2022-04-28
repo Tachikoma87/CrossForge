@@ -1,9 +1,6 @@
 #ifndef __CFORGE_TEMPLATEREGISTRATIONTESTSCENE_HPP__
 #define __CFORGE_TEMPLATEREGISTRATIONTESTSCENE_HPP__
 
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-
 #include "../../CForge/AssetIO/SAssetIO.h"
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
 #include "../../CForge/Graphics/STextureManager.h"
@@ -23,30 +20,23 @@
 
 #include "../../Examples/SceneUtilities.hpp"
 
-#include "initImGUI.h"
+//#include "initImGUI.h"
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
-//#include "imgui.h"
-//#include "imgui_impl_glfw.h" // derzeit Fehler: siehe Zeile 92
-//#include "imgui_impl_opengl3.h"
+#include "../TemplateRegistration/TempRegAppState.h"
+#include "../TemplateRegistration/MeshDataset.h"
+#include "../TemplateRegistration/ViewportManager.h"
+#include "../TemplateRegistration/GUIManager.h"
 
-
-
-
-#include "../TemplateRegistration/ArcBall.h"
 
 using namespace Eigen;
+using namespace TempReg;
 
 namespace CForge {
 
-	void processInput(const ImGuiIO& GuiIO);
-
-	void rotateSplitViewGeometry(Mouse* pMouse, RenderDevice::Viewport& VP, SGNGeometry& GeomSGN, SGNTransformation& TransSGN, 
-		TempReg::ArcBall& ArcBall, int32_t& FocussedView, uint8_t CurrentView);
-
-	bool mouseInViewPort(Mouse* pMouse, RenderDevice::Viewport& VP);
-
-	// TODO: Rotation based on mouse picking in 2 modes: rotate only picked model, rotate both models at once - Line 359 
-	//void rotateCombinedViewGeometry(Mouse* pMouse, RenderDevice::Viewport& VP, /*...*/);
+	void processInput(Keyboard* pKeyboard, Mouse* pMouse, TempRegAppState* pGlobalAppState, GUIManager* pGUIMgr, ViewportManager* pVPMgr, VirtualCamera* pCam);
 
 	void tempRegTestScene(void) {
 		SShaderManager* pSMan = SShaderManager::instance();
@@ -94,26 +84,14 @@ namespace CForge {
 		Config.PhysicallyBasedShading = true;
 		Config.UseGBuffer = true;
 		RDev.init(&Config);
-
-
-
-
-		// Dear ImGui Initialization
-		// derzeit Fehler: Fehler C2664 "bool ImGui_ImplGlfw_InitForOpenGL(GLFWwindow *,bool)" : Konvertierung von Argument 1 von "CForge::GLFWwindow *" in "GLFWwindow *" nicht möglich
-		// (zugehöriger Header von Dear ImGui: imgui_impl_glfw.h)
-		// 
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& GuiIO = ImGui::GetIO();		
-		ImGui::StyleColorsLight();
-		initImGUI(RenderWin.handle());
-
-		//void* pHandle = RenderWin.handle();
-		//GLFWwindow* pW = (GLFWwindow*)pHandle;
-		//ImGui_ImplGlfw_InitForOpenGL( pW, false); //install_callbacks = true setzen, wenn false probleme macht
-		//ImGui_ImplOpenGL3_Init("#version 460 core");
+ 
+		// initialize GUI
+		GUIManager GUIMgr;
+		GUIMgr.init(RenderWin.handle(), RenderWin.width(), RenderWin.height());
 		
-
+		// global application states (template registration app)
+		TempRegAppState GlobalAppState;
+		
 		// configure and initialize shader configuration device
 		ShaderCode::LightConfig LC;
 		LC.DirLightCount = 1;
@@ -126,7 +104,7 @@ namespace CForge {
 
 		// initialize camera
 		VirtualCamera Cam;
-		Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
+		Cam.init(Vector3f(0.0f, 0.0f, 15.0f), Vector3f::UnitY());
 		Cam.projectionMatrix(GBufferWidth, GBufferHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
 
 		// initialize sun (key lights) and back ground light (fill light)
@@ -144,82 +122,22 @@ namespace CForge {
 		RDev.addLight(&Sun);
 		RDev.addLight(&BGLight);
 
-		// load meshes
-		//T3DMesh<float> SkydomeMesh;
-		T3DMesh<float> TemplateMesh, TargetMesh;
-		//StaticActor Skydome;
-		StaticActor Template, Target;
-
-		/*SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &SkydomeMesh);
-		SceneUtilities::setMeshShader(&SkydomeMesh, 0.8f, 0.04f);
-		SkydomeMesh.computePerVertexNormals();
-		Skydome.init(&SkydomeMesh);
-		SkydomeMesh.clear();*/
-
-		SAssetIO::load("Assets/ExampleScenes/TempReg/Template.obj", &TemplateMesh);
-		SceneUtilities::setMeshShader(&TemplateMesh, 0.4f, 0.0f);
-		TemplateMesh.computePerVertexNormals();
+		// load datasets
+		Vector3f TemplateColor(1.0f, 0.666f, 0.498f);	// default template color (light orange)
+		Vector3f TargetColor(0.541f, 0.784f, 1.0f);		// default target color (light blue)
 		
-		// assign default color (light orange)
-		Vector3f C;
-		C.x() = 1.0f;
-		C.y() = 0.666f;
-		C.z() = 0.498f;
-
-		std::vector<Eigen::Vector3f> Colors;
-		for (uint32_t i = 0; i < TemplateMesh.vertexCount(); i++) Colors.push_back(C);
-		TemplateMesh.colors(&Colors);
-
-		Template.init(&TemplateMesh);
-
-		SAssetIO::load("Assets/ExampleScenes/TempReg/Template.obj", &TargetMesh);
-		SceneUtilities::setMeshShader(&TargetMesh, 0.4f, 0.0f);
-		TargetMesh.computePerVertexNormals();
+		std::map<DatasetType, MeshDataset> Datasets;
+		Datasets.insert(std::pair<DatasetType, MeshDataset>(DatasetType::TEMPLATE, MeshDataset()));
+		Datasets.insert(std::pair<DatasetType, MeshDataset>(DatasetType::DTEMPLATE, MeshDataset()));
+		Datasets.insert(std::pair<DatasetType, MeshDataset>(DatasetType::TARGET, MeshDataset()));
 		
-		//assign default color (light blue)
-		C.x() = 0.541f;
-		C.y() = 0.784f;
-		C.z() = 1.0f;
+		Datasets.at(DatasetType::TEMPLATE).initFromFile("Assets/ExampleScenes/TempReg/Template.obj", true, TemplateColor);
+		Datasets.at(DatasetType::DTEMPLATE).initFromFile("Assets/ExampleScenes/TempReg/Template.obj", true, TemplateColor);
+		Datasets.at(DatasetType::TARGET).initFromFile("Assets/ExampleScenes/TempReg/Template.obj", true, TargetColor); //".../Template.obj" used for testing purposes, change to Target.obj! (use file dialog later?)
 
-		Colors.clear();
-		for (uint32_t i = 0; i < TargetMesh.vertexCount(); i++) Colors.push_back(C);
-		TargetMesh.colors(&Colors);
-
-		Target.init(&TargetMesh);
-
-		// build scene graphs
-		SceneGraph SplitViewSGs[2], CombinedViewSG;
-		SGNTransformation SplitViewRootSGNs[2], CombinedViewRootSGN;
-
-		// template and target nodes
-		SGNTransformation SplitViewTransSGNs[2], CombinedViewTransSGN[2];
-		SGNGeometry SplitViewGeomSGNs[2], CombinedViewGeomSGN[2];
-		
-		// initialize split view scene graphs
-		for (uint8_t i = 0; i < 2; ++i) {
-			SplitViewRootSGNs[i].init(nullptr);
-			SplitViewSGs[i].init(&SplitViewRootSGNs[i]);
-		}
-
-		// => template
-		SplitViewTransSGNs[0].init(&SplitViewRootSGNs[0], Vector3f(0.0f, 0.0f, 0.0f));
-		SplitViewGeomSGNs[0].init(&SplitViewTransSGNs[0], &Template, Vector3f::Zero(), Quaternionf::Identity());
-		// => target
-		SplitViewTransSGNs[1].init(&SplitViewRootSGNs[1], Vector3f(0.0f, 0.0f, 0.0f));
-		SplitViewGeomSGNs[1].init(&SplitViewTransSGNs[1], &Target, Vector3f::Zero(), Quaternionf::Identity());
-
-		// initialize combined view scene graph
-		CombinedViewRootSGN.init(nullptr);
-		CombinedViewSG.init(&CombinedViewRootSGN);
-		
-		// => template
-		CombinedViewTransSGN[0].init(&CombinedViewRootSGN, Vector3f(0.0f, 0.0f, 0.0f));
-		CombinedViewGeomSGN[0].init(&CombinedViewTransSGN[0], &Template, Vector3f::Zero(), Quaternionf::Identity());
-		// => target
-		CombinedViewTransSGN[1].init(&CombinedViewRootSGN, Vector3f(0.0f, 0.0f, 0.0f));
-		CombinedViewGeomSGN[1].init(&CombinedViewTransSGN[1], &Target, Vector3f::Zero(), Quaternionf::Identity());
-
-		TempReg::ArcBall ArcBalls[4];
+		// Build dataset views (viewports + scenegraphs)
+		ViewportManager VPMgr(4);
+		//VPMgr.initVertexMarkers("Assets/ExampleScenes/TempReg/VertMarker.obj"); //TODO: add mesh for vertex markers
 
 		// we need one viewport for the GBuffer
 		RenderDevice::Viewport GBufferVP;
@@ -235,81 +153,39 @@ namespace CForge {
 		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 		// main rendering loop
-		int32_t FocussedView = -1;
-
 		while (!RenderWin.shutdown()) {
-			RenderWin.update();
-
-			// handle user input for gui and viewports
-			//processInput(GuiIO);
-
-			// ready new gui frame
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
-
-			bool show_demo_window = true;
-			if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
-
-			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
-
+			RenderWin.update(); // calls glfwPollEvents()
 			uint32_t RenderWinWidth = RenderWin.width();
 			uint32_t RenderWinHeight = RenderWin.height();
 
+			// handle user input for gui and viewports
+			processInput(RenderWin.keyboard(), RenderWin.mouse(), &GlobalAppState, &GUIMgr, &VPMgr, &Cam);
+
+			// ready new Dear ImGui frame
+			GUIMgr.buildNextImGuiFrame(&GlobalAppState, &VPMgr, Datasets);
 			
-
-			//uint32_t Margin = 6;
-
-			// split views
-			//Vector2i VPSize = Vector2i(RenderWinWidth / 2, RenderWinHeight) - 2 * Vector2i(Margin, Margin) + Vector2i(Margin / 2, Margin / 2);
-			Vector2i VPSize = Vector2i(RenderWinWidth / 2, RenderWinHeight);
-			RenderDevice::Viewport SplitVPs[2];
-			// left split view
-			//SplitVPs[0].Position = Vector2i(Margin, Margin);
-			SplitVPs[0].Position = Vector2i(0, 0);
-			//right split view
-			//SplitVPs[1].Position = Vector2i(RenderWinWidth / 2, 0) + Vector2i(Margin / 2, Margin);
-			SplitVPs[1].Position = Vector2i(RenderWinWidth / 2, 0);
-			for (uint8_t i = 0; i < 2; ++i) SplitVPs[i].Size = VPSize;
-
-			Cam.projectionMatrix(VPSize.x(), VPSize.y(), GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
-
-			// combined view
-			/*VPSize = Vector2i(RenderWinWidth, RenderWinHeight);
-			RenderDevice::Viewport CombinedVP;
-			CombinedVP.Position = Vector2i(0, 0);
-			CombinedVP.Size = VPSize;*/
-
-			// render split views (TEST)
-			for (uint8_t i = 0; i < 2; ++i) {
-				rotateSplitViewGeometry(RenderWin.mouse(), SplitVPs[i], SplitViewGeomSGNs[i], SplitViewTransSGNs[i], ArcBalls[i], FocussedView, i);
-
-				SplitViewSGs[i].update(60.0f / FPS);
+			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse()); //TODO disable WASD movement later, change to orbit camera (lookAt)
+			
+			// render views
+			bool ClearBuffer = true;
+			for (size_t ID = 0; ID < VPMgr.activeViewportCount(); ++ID) {
+				
+				// update viewport position and dimension, camera for viewport, scene graph
+				VPMgr.updateViewport(ID, &Cam, 60.0f / FPS);
 
 				// render scene as usual
 				RDev.viewport(GBufferVP);
 				RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-				SplitViewSGs[i].render(&RDev);
+				VPMgr.renderViewport(ID, &RDev);
 				RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-				SplitViewSGs[i].render(&RDev);
+				VPMgr.renderViewport(ID, &RDev);
 
 				// set viewport and perform lighting pass
 				// this will produce the correct tile in the final output window (backbuffer to be specific)
-				RDev.viewport(SplitVPs[i]);
-				RDev.activePass(RenderDevice::RENDERPASS_LIGHTING, nullptr, (i == 0) ? true : false);
-			}
-
-			// render combined view (TEST)
-			/*SGs[2].update(60.0f / FPS);
-			RDev.viewport(GBufferVP);
-			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-			SGs[2].render(&RDev);
-			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			SGs[2].render(&RDev);
-			RDev.viewport(SplitVPs[2]);
-			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING, nullptr, false);*/
-
-
+				RDev.viewport(VPMgr.getRenderDeviceViewport(ID));
+				RDev.activePass(RenderDevice::RENDERPASS_LIGHTING, nullptr, ClearBuffer);
+				ClearBuffer = false;
+			}//for[render views]
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_F10, true)) {
 				RenderDevice::Viewport V;
@@ -320,11 +196,10 @@ namespace CForge {
 				SceneUtilities::takeScreenshot("Screenshot.jpg");
 			}
 
-			// render gui
-			ImGui::Render();
-			glViewport(0, 0, RenderWinWidth, RenderWinHeight);
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+			// render gui
+			GUIMgr.renderImGuiFrame(ClearBuffer);
+			
 			RenderWin.swapBuffers();
 
 			FPSCount++;
@@ -349,7 +224,9 @@ namespace CForge {
 
 	} //tempRegTestScene
 
-	void processInput(const ImGuiIO& GuiIO) {
+	void processInput(Keyboard* pKeyboard, Mouse* pMouse, TempRegAppState* pGlobalAppState, GUIManager* pGUIMgr, ViewportManager* pVPMgr, VirtualCamera* pCam) {
+
+		ImGuiIO& GuiIO = ImGui::GetIO();
 
 		// only forward keyboard input data to viewport controls if not captured by gui
 		// WantCaptureKeyboard-flag updated by ImGui::NewFrame(): calling processInput(...) before calling NewFrame() to poll flags from previous frame allows for more reliable input processing
@@ -364,37 +241,25 @@ namespace CForge {
 		// (as per: https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-can-i-tell-whether-to-dispatch-mousekeyboard-to-dear-imgui-or-my-application)
 		
 		if (!GuiIO.WantCaptureMouse) {
+			
+			if (pMouse->buttonState(Mouse::BTN_LEFT)) {
+
+				if (pGlobalAppState->focussedViewport() < 0) {
+					size_t ViewportUnderMouse = pVPMgr->mouseInViewport(pMouse);
+					pGlobalAppState->focusViewport(ViewportUnderMouse);
+					pVPMgr->arcballRotate(ViewportUnderMouse, true, pMouse->position().x(), pMouse->position().y(), pCam);
+				}
+				else {
+					pVPMgr->arcballRotate(pGlobalAppState->focussedViewport(), false, pMouse->position().x(), pMouse->position().y(), pCam);
+				}
+			}
+			else {
+				pGlobalAppState->focusViewport(-1);
+			}
+			
 			//...
 		}
 	}
-
-	bool mouseInViewPort(Mouse* pMouse, RenderDevice::Viewport& VP) {
-		if ((pMouse->position().x() >= VP.Position.x() && pMouse->position().y() >= VP.Position.y()) &&
-			(pMouse->position().x() <= VP.Position.x() + VP.Size.x() && pMouse->position().y() <= VP.Position.y() + VP.Size.y())) {
-			return true;
-		}
-
-		return false;
-	}
-
-	void rotateSplitViewGeometry(Mouse* pMouse, RenderDevice::Viewport& VP, SGNGeometry& GeomSGN, SGNTransformation& TransSGN, 
-		TempReg::ArcBall& ArcBall, int32_t& FocussedView, uint8_t CurrentView) {
-		
-		if (pMouse->buttonState(Mouse::BTN_LEFT)) {
-			if (FocussedView == -1 && mouseInViewPort(pMouse, VP)) {
-
-					FocussedView = CurrentView;
-					ArcBall.startRotation(pMouse->position().x(), pMouse->position().y(), VP.Size);
-			}
-			
-			if (FocussedView == CurrentView) {
-				TransSGN.rotation(ArcBall.updateRotation(pMouse->position().x(), pMouse->position().y(), VP.Size) * TransSGN.rotation());
-			}
-		}
-		else if (FocussedView != -1) FocussedView = -1;
-	}
-
-	//void rotateCombinedViewGeometry(Mouse* pMouse, RenderDevice::Viewport& VP, /*...*/); // TODO: Rotation based on mouse picking in 2 modes: rotate only picked model, rotate both models at once
 }
 
 

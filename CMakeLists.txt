@@ -170,9 +170,12 @@ add_executable(CForgeSandbox
 
 	Prototypes/Assets/GLTFIO.cpp
 
-	Prototypes/TemplateRegistration/ArcBall.cpp
-	Prototypes/TemplateRegistration/MeshOctree.cpp
-	Prototypes/TestScenes/initImGUI.cpp
+	Prototypes/TemplateRegistration/Arcball.cpp
+	Prototypes/TemplateRegistration/OBBOctree.cpp
+	Prototypes/TemplateRegistration/TempRegAppState.cpp
+	Prototypes/TemplateRegistration/ViewportManager.cpp
+	Prototypes/TemplateRegistration/MeshDataset.cpp
+	Prototypes/TemplateRegistration/GUIManager.cpp	
 	)
 
 
