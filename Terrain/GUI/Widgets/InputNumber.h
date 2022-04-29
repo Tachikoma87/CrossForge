@@ -10,7 +10,7 @@ class InputNumberWidget;
 class InputNumberWidget_DecreaseButton : public TextWidget {
 public:
     InputNumberWidget_DecreaseButton(GUI* rootGUIObject, InputNumberWidget* parent);
-    void onClick(CForge::Mouse * ) override;
+    void onClick(mouseEventInfo) override;
 private:
     InputNumberWidget* m_parentInput;
 };
@@ -18,7 +18,7 @@ private:
 class InputNumberWidget_IncreaseButton : public TextWidget {
 public:
     InputNumberWidget_IncreaseButton(GUI* rootGUIObject, InputNumberWidget* parent);
-    void onClick(CForge::Mouse * ) override;
+    void onClick(mouseEventInfo) override;
 private:
     InputNumberWidget* m_parentInput;
 };
@@ -42,5 +42,5 @@ private:
 class TestWidget : public BaseWidget {
 public:
     TestWidget(GUI* rootGUIObject, BaseWidget* parent);
-    void onDrag(CForge::Mouse* mouse);
+    void onDrag(mouseEventInfo mouse);
 };

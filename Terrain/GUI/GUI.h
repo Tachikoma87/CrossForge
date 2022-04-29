@@ -8,6 +8,10 @@
 #include <vector>
 class BaseWidget;
 
+typedef struct {
+    Eigen::Vector2f adjustedPosition;   //cursor position adjusted to the position within the clicked widget
+} mouseEventInfo;
+
 class GUI {
 public:
     enum Event {
@@ -29,6 +33,7 @@ private:
     CForge::RenderDevice* m_renderDevice;
 
     BaseWidget* focusedWidget = nullptr;
+    Eigen::Vector2f focusedClickOffset;
     std::vector<BaseWidget*> m_events_mouseDown;
     std::vector<BaseWidget*> m_events_mouseDrag;
 };

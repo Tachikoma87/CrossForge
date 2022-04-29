@@ -34,7 +34,7 @@ InputNumberWidget_DecreaseButton::InputNumberWidget_DecreaseButton(GUI* rootGUIO
     m_parentInput = parent;
     setText(U"-");
 }
-void InputNumberWidget_DecreaseButton::onClick(CForge::Mouse*)
+void InputNumberWidget_DecreaseButton::onClick(mouseEventInfo)
 {
     m_parentInput->changeValue(-1);
 }
@@ -43,7 +43,7 @@ InputNumberWidget_IncreaseButton::InputNumberWidget_IncreaseButton(GUI* rootGUIO
     m_parentInput = parent;
     setText(U"+");
 }
-void InputNumberWidget_IncreaseButton::onClick(CForge::Mouse*)
+void InputNumberWidget_IncreaseButton::onClick(mouseEventInfo)
 {
     m_parentInput->changeValue(1);
 }
@@ -127,10 +127,10 @@ TestWidget::TestWidget ( GUI* rootGUIObject, BaseWidget* parent ) : BaseWidget(r
     m_width = inputTest->getWidth();
     m_height = inputTest->getHeight();
 }
-void TestWidget::onDrag ( CForge::Mouse* mouse )
+void TestWidget::onDrag ( mouseEventInfo mouse )
 {
-    changePosition(mouse->movement()[0],mouse->movement()[1]);
+    setPosition(mouse.adjustedPosition[0], mouse.adjustedPosition[1]);
     for (auto x : m_children) {
-        x->changePosition(mouse->movement()[0],mouse->movement()[1]);
+        x->setPosition(mouse.adjustedPosition[0], mouse.adjustedPosition[1]);
     }
 }
