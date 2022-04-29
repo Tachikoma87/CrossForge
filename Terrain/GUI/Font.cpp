@@ -44,6 +44,10 @@ FontFace::~FontFace() {
     }
     FT_Done_Face(face);
     FT_Done_FreeType(library);
+    if (glIsTexture(textureID)) {
+        glDeleteTextures(1, &textureID);
+        textureID = GL_INVALID_INDEX;
+    }
 }
 
 int FontFace::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::GLVertexArray* vao)
@@ -333,6 +337,12 @@ FontStyle FontFace::getStyle()
 TextLine::TextLine()
 {
     //use init instead
+}
+TextLine::~TextLine()
+{
+//     printf("cleaned up a TextLine.\n");
+//     m_VertexArray.~GLVertexArray();
+//     m_VertexBuffer.~GLBuffer();
 }
 
 void TextLine::init(FontFace* pFontFace, CForge::GLShader* pShader)

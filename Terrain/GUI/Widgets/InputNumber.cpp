@@ -66,6 +66,13 @@ InputNumberWidget::InputNumberWidget(GUI* rootGUIObject, BaseWidget* parent) : B
     m_height = m_pValue->getHeight();
     m_width = m_pDec->getWidth() + m_pValue->getWidth() + m_pInc->getWidth() + 2*defaults.WithinWidgetPadding;
 }
+InputNumberWidget::~InputNumberWidget()
+{
+    delete m_pValue;
+    delete m_pDec;
+    delete m_pInc;
+}
+
 int InputNumberWidget::getValue()
 {
     return m_value;

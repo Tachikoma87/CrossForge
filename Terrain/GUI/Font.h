@@ -55,6 +55,7 @@ private:
 class TextLine {
 public:
     TextLine();
+    ~TextLine();
     void init(FontFace* pFontFace, CForge::GLShader* pShader);
     void init(std::u32string text, FontFace* pFontFace, CForge::GLShader* pShader);
     void setText(std::u32string text);

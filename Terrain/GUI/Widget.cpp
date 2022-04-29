@@ -15,6 +15,13 @@ BaseWidget::BaseWidget ( GUI* rootGUIObject, BaseWidget* parent )
     m_width = 20;
     m_height = 20;
 }
+BaseWidget::~BaseWidget()
+{
+    for (auto x : m_children) {
+        delete x;
+    }
+}
+
 void BaseWidget::setPosition(float x, float y)
 {
     m_x = x;
@@ -73,6 +80,10 @@ TextWidget::TextWidget(GUI* rootGUIObject, BaseWidget* parent) : BaseWidget(root
     m_pText = new TextLine;
     m_pText->init(m_root->fontFace, m_root->TextShader);
     m_height = m_pText->getTextSize();
+}
+TextWidget::~TextWidget()
+{
+    delete m_pText;
 }
 void TextWidget::draw(CForge::RenderDevice* renderDevice)
 {

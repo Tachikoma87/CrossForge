@@ -26,6 +26,7 @@ private:
 class InputNumberWidget : public BaseWidget {
 public:
     InputNumberWidget(GUI* rootGUIObject, BaseWidget* parent);
+    ~InputNumberWidget();
     void setValue(int value);
     void changeValue(int value);
     int getValue();

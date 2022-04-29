@@ -11,6 +11,7 @@ public:
     int level; //needed for event handling. higher levels receive the event so overlapping lower levels don't trigger
     
     BaseWidget(GUI* rootGUIObject, BaseWidget* parent);
+    virtual ~BaseWidget();
     
     virtual void setPosition(float x, float y);
     virtual void changePosition(float dx, float dy);
@@ -41,6 +42,7 @@ protected:
 class TextWidget : public BaseWidget {
 public:
     TextWidget(GUI* rootGUIObject, BaseWidget* parent);
+    ~TextWidget();
     void setText(std::u32string textString);
     void changeText(char32_t character);
     void setPosition(float x, float y);
