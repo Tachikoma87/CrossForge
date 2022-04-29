@@ -1,5 +1,4 @@
 #include "Widget.h"
-#include "GUI.h"
 
 BaseWidget::BaseWidget ( GUI* rootGUIObject, BaseWidget* parent )
 {
@@ -39,13 +38,12 @@ bool BaseWidget::checkHitbox(Eigen::Vector2f pointerPosition)
         m_x+m_width >= pointerPosition[0] && m_y+m_height >= pointerPosition[1];
 }
 
-void BaseWidget::onClick ( CForge::Mouse* )
+void BaseWidget::onClick ( mouseEventInfo )
 {
     //By default do nothing, have the Widgets overwrite this
-    printf("reached here 2");
     return;
 }
-void BaseWidget::onDrag ( CForge::Mouse* )
+void BaseWidget::onDrag ( mouseEventInfo )
 {
     return;
 }
@@ -57,6 +55,16 @@ float BaseWidget::getHeight()
 {
     return m_height;
 }
+Eigen::Vector2f BaseWidget::getPosition()
+{
+    return Eigen::Vector2f(m_x, m_y);
+}
+Eigen::Vector2f BaseWidget::getDimension()
+{
+    return Eigen::Vector2f(m_width, m_height);
+}
+
+
 
 
 

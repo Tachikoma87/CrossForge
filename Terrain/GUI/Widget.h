@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GUI.h"
 #include "WidgetBackground.h"
 #include "Font.h"
 #include <CForge/Input/Mouse.h>
@@ -18,12 +19,14 @@ public:
     virtual bool checkHitbox(Eigen::Vector2f pointerPosition);
     
     //Events (need some more thought put into them)
-    virtual void onClick(CForge::Mouse*);
-    virtual void onDrag(CForge::Mouse*);
+    virtual void onClick(mouseEventInfo);
+    virtual void onDrag(mouseEventInfo);
 
     //Basic Getters&Setters
     virtual float getWidth();
     virtual float getHeight();
+    virtual Eigen::Vector2f getPosition();
+    virtual Eigen::Vector2f getDimension();
 protected:
     GUI* m_root;
     BaseWidget* m_parent;

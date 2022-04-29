@@ -81,6 +81,7 @@ void GUI::registerMouseDragEvent(BaseWidget* widget)
 }
 void GUI::processMouseEvents ( CForge::Mouse* mouse )
 {
+    mouseEventInfo mouseEvent;
     auto mpos = mouse->position();
     static bool leftHoldDown = false;
     if (mouse->buttonState(CForge::Mouse::BTN_LEFT)) {
@@ -98,22 +99,31 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
             //depending on how many widgets will be registered in total
             for (auto x : m_events_mouseDown) {
                 if (x->checkHitbox(mpos)) {
-                    x->onClick(mouse);
-                    if (!focusedWidget) focusedWidget = x;
+                    if (!focusedWidget) {
+                        focusedWidget = x;
+                        focusedClickOffset = mpos - focusedWidget->getPosition();
+                    }
+                    mouseEvent.adjustedPosition = mpos - focusedClickOffset;
+                    x->onClick(mouseEvent);
                 }
             }
             if (!focusedWidget) {
                 for (auto x : m_events_mouseDrag) {
                     if (x->checkHitbox(mpos)) {
-                        if (!focusedWidget) focusedWidget = x;
+                        if (!focusedWidget) {
+                            focusedWidget = x;
+                            focusedClickOffset = mpos - focusedWidget->getPosition();
+                        }
                     }
                 }
             }
         } else {
             //hold down
-            if (focusedWidget != nullptr)
-//                 if (focusedWidget->checkHitbox(mpos))
-                    focusedWidget->onDrag(mouse);
+            if (focusedWidget != nullptr) {
+//               if (focusedWidget->checkHitbox(mpos))
+                mouseEvent.adjustedPosition = mpos - focusedClickOffset;
+                focusedWidget->onDrag(mouseEvent);
+            }
         }
     } else if (leftHoldDown) {
         //mouse button released
