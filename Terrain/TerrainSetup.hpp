@@ -249,6 +249,8 @@ namespace Terrain {
 
             updateCamera(window.mouse(), window.keyboard(), renderDevice.activeCamera());
 
+            window.mouse()->movement(Vector2f(0.0f, 0.0f));
+
 			if (window.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				window.closeWindow();
 			}
