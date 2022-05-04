@@ -24,8 +24,10 @@ BaseWidget::~BaseWidget()
 
 void BaseWidget::setPosition(float x, float y)
 {
-    m_x = x;
-    m_y = y;
+    //not the most straightforward way to do it, but works better with the derived widgets
+    float dx = x - m_x;
+    float dy = y - m_y;
+    changePosition(dx, dy);
 }
 void BaseWidget::changePosition(float dx, float dy)
 {

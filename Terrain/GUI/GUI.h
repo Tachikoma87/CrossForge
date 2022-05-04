@@ -6,11 +6,19 @@
 #include <CForge/Graphics/RenderDevice.h>
 #include <CForge/Input/Mouse.h>
 #include <vector>
+
+#include "Callback.h"
+#include <CForge/Core/ITListener.hpp>
+
 class BaseWidget;
 
 typedef struct {
     Eigen::Vector2f adjustedPosition;   //cursor position adjusted to the position within the clicked widget
 } mouseEventInfo;
+
+class CallbackTestClass : public CForge::ITListener<CallbackObject> {
+    void listen(const CallbackObject Msg) override;
+};
 
 class GUI {
 public:
@@ -31,6 +39,8 @@ public:
 private:
     std::vector<BaseWidget*> testBG;
     CForge::RenderDevice* m_renderDevice;
+
+    CallbackTestClass callbackTest;
 
     BaseWidget* focusedWidget = nullptr;
     Eigen::Vector2f focusedClickOffset;
