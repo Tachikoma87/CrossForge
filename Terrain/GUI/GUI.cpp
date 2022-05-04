@@ -2,7 +2,7 @@
 #include "Widget.h"
 #include "WidgetBackground.h"
 #include "GUIDefaults.h"
-#include "Widgets/InputNumber.h"
+#include "Widgets/Form.h"
 
 #include <stdio.h>
 
@@ -10,6 +10,16 @@
 
 using namespace std; 
 using namespace CForge;
+
+
+void CallbackTestClass::listen(const CallbackObject Msg)
+{
+    printf("Received Callback from Form %d\n", Msg.FormID);
+    for (auto x : Msg.Data)
+        printf("%d: %d\n", x.first, *(int*)x.second.pData);
+    printf("\n");
+}
+
 
 GUI::GUI(CForge::RenderDevice* renderDevice)
 {
@@ -20,6 +30,7 @@ GUI::~GUI()
     for (auto x : testBG) {
         delete x;
     }
+    delete fontFace;
 }
 
 void GUI::testInit()
@@ -58,9 +69,13 @@ void GUI::testInit()
 
     
 //     BackgroundStyle b;
-    auto a = new TestWidget(this, nullptr);
+    callbackTest = CallbackTestClass();
+    auto a = new FormWidget(1, this, nullptr);
     registerMouseDragEvent(a);
-//
+    a->startListening(&callbackTest);
+    a->addOption(1, DATATYPE_INT, U"first input");
+    a->addOption(2, DATATYPE_INT, U"second input");
+    a->addOption(1, DATATYPE_INT, U"3st input, collides with 1");
     testBG.push_back(a);
 }
 void GUI::testRender()

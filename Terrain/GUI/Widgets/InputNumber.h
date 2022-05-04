@@ -3,8 +3,6 @@
 #include "../Widget.h"
 #include "../GUI.h"
 
-#include <CForge/Input/Mouse.h>
-
 class InputNumberWidget;
 
 class InputNumberWidget_DecreaseButton : public TextWidget {
@@ -30,7 +28,6 @@ public:
     void setValue(int value);
     void changeValue(int value);
     int getValue();
-    void setPosition(float x, float y);
     void changePosition(float dx, float dy);
     void draw(CForge::RenderDevice* renderDevice);
 private:
@@ -38,10 +35,4 @@ private:
     InputNumberWidget_DecreaseButton* m_pDec;
     InputNumberWidget_IncreaseButton* m_pInc;
     TextWidget* m_pValue;
-};
-
-class TestWidget : public BaseWidget {
-public:
-    TestWidget(GUI* rootGUIObject, BaseWidget* parent);
-    void onDrag(mouseEventInfo mouse);
 };
