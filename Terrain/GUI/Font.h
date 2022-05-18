@@ -59,6 +59,7 @@ public:
     void init(FontFace* pFontFace, CForge::GLShader* pShader);
     void init(std::u32string text, FontFace* pFontFace, CForge::GLShader* pShader);
     void setText(std::u32string text);
+    void setColor(float r, float g, float b);
     void setPosition(float x, float y);
     void render(CForge::RenderDevice* pRDev);
     float getTextSize();
@@ -70,4 +71,5 @@ private:
     int m_numVertices;
     Eigen::Matrix4f m_projection;
     float textSize;
+    float textColor[3];
 };

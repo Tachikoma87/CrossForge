@@ -20,6 +20,8 @@ public:
     virtual bool checkHitbox(Eigen::Vector2f pointerPosition);
     
     //Events (need some more thought put into them)
+    virtual void focus();
+    virtual void focusLost();
     virtual void onClick(mouseEventInfo);
     virtual void onDrag(mouseEventInfo);
     virtual void onKeyPress(char32_t);
@@ -48,6 +50,8 @@ public:
     void changeText(char32_t character);
     void setPosition(float x, float y);
     void changePosition(float dx, float dy);
+    void setColor(float r, float g, float b);
+    void setColor(float color[3]);
     void draw(CForge::RenderDevice* renderDevice);
 private:
     std::u32string m_text;
