@@ -40,4 +40,5 @@ private:
     InputNumberWidget_DecreaseButton* m_pDec;
     InputNumberWidget_IncreaseButton* m_pInc;
     TextWidget* m_pValue;
+    bool m_negativeInput;
 };
