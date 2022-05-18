@@ -5,6 +5,7 @@
 #include "Widgets/Form.h"
 
 #include <stdio.h>
+#include <iostream>
 
 #include "CForge/Graphics/Shader/SShaderManager.h"
 
@@ -33,7 +34,7 @@ GUI::~GUI()
     delete fontFace;
 }
 
-void GUI::testInit()
+void GUI::testInit(CForge::GLWindow* pWin)
 {
     SShaderManager* shaderManager = SShaderManager::instance();
 
@@ -67,6 +68,11 @@ void GUI::testInit()
     //Test rendering
 //     testtext.init(U"Beispieltext. ÄäÖöÜüß!?", fontFace, TextShader);
 
+
+    m_pWin = pWin; //can be used for the input processing later on
+    m_pWin->character()->startListening(this);
+    m_pWin->keyboard()->startListening(this);
+
     
 //     BackgroundStyle b;
     callbackTest = CallbackTestClass();
@@ -93,6 +99,11 @@ void GUI::registerMouseDownEvent ( BaseWidget* widget )
 void GUI::registerMouseDragEvent(BaseWidget* widget)
 {
     m_events_mouseDrag.push_back(widget);
+}
+void GUI::processEvents()
+{
+    processMouseEvents(m_pWin->mouse());
+//     processKeyboardEvents(m_pWin->keyboard());
 }
 void GUI::processMouseEvents ( CForge::Mouse* mouse )
 {
@@ -143,6 +154,27 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
     } else if (leftHoldDown) {
         //mouse button released
         leftHoldDown = false;
+    }
+}
+void GUI::processKeyboardEvents(CForge::Keyboard* keyboard)
+{
+    //Dummy (original purpose didn't work out)
+}
+
+
+void GUI::listen(char32_t codepoint)
+{
+    //print characters and keycodes for testing purposes
+    std::cout << "Received " << codepoint << std::endl;
+}
+void GUI::listen(CForge::KeyboardCallback kc)
+{
+    //Unfortunately, the text character callback does not include backspace, enter or similar keys.
+    if (kc.state == CForge::Keyboard::KEY_PRESSED) {
+        if (kc.key == CForge::Keyboard::KEY_BACKSPACE)
+            listen(U'\b');
+        if (kc.key == CForge::Keyboard::KEY_ENTER)
+            listen(U'\n');
     }
 }
 
