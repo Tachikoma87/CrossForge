@@ -40,6 +40,7 @@ InputNumberWidget::InputNumberWidget(GUI* rootGUIObject, BaseWidget* parent) : B
 
     m_height = m_pValue->getHeight();
     m_width = m_pDec->getWidth() + m_pValue->getWidth() + m_pInc->getWidth() + 2*defaults.WithinWidgetPadding;
+    m_negativeInput = false;
 }
 InputNumberWidget::~InputNumberWidget()
 {
@@ -91,9 +92,18 @@ void InputNumberWidget::onKeyPress(char32_t character)
         setValue(m_value / 10);
         return;
     }
+    if (character == U'-') {
+        //next input should be negative if it's currently 0
+        if (m_value == 0) m_negativeInput = true;
+        return;
+    }
     //add to the end of number
     if (character > 0x39 || character < 0x30) return;
     int enteredNumber = character - 0x30;
+    if (m_value == 0 && m_negativeInput) {
+        enteredNumber *= -1;
+        m_negativeInput = false;
+    }
     setValue(m_value*10 + enteredNumber);
     return;
 }
