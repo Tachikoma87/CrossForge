@@ -25,11 +25,12 @@ public:
     void addOption(int OptionID, CallbackDatatype type, std::u32string name);
     void sendCallback();
 
-    void changePosition(float dx, float dy);
-    void draw(CForge::RenderDevice* renderDevice);
+    void changePosition(float dx, float dy) override;
+    void updateLayout() override;
+    void draw(CForge::RenderDevice* renderDevice) override;
 
     //for testing
-    void onDrag(mouseEventInfo mouse);
+    void onDrag(mouseEventInfo mouse) override;
 private:
     int m_FormID;
     std::unordered_map<int, LabelWidget*> m_labels;

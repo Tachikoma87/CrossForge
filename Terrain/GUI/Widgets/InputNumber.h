@@ -34,6 +34,7 @@ public:
     void onKeyPress(char32_t character) override;
 
     void changePosition(float dx, float dy) override;
+    void updateLayout() override;
     void draw(CForge::RenderDevice* renderDevice) override;
 private:
     int m_value;

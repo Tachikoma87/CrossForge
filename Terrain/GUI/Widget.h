@@ -13,8 +13,11 @@ public:
     BaseWidget(GUI* rootGUIObject, BaseWidget* parent);
     virtual ~BaseWidget();
     
+    //Positioning and Layout
     virtual void setPosition(float x, float y);
     virtual void changePosition(float dx, float dy);
+    virtual void updateLayout();
+
     virtual void draw(CForge::RenderDevice* renderDevice);
 
     virtual bool checkHitbox(Eigen::Vector2f pointerPosition);

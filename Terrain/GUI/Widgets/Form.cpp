@@ -63,6 +63,16 @@ void FormWidget::changePosition(float dx, float dy)
     }
     m_ApplyButton->changePosition(dx, dy);
 }
+void FormWidget::updateLayout()
+{
+    m_width = m_ApplyButton->getWidth();
+    m_height = m_ApplyButton->getHeight();
+    for (auto x : m_labels) {
+        m_width = std::max(m_width, x.second->getWidth());
+        m_height += x.second->getHeight();
+    }
+    if (m_parent != nullptr) m_parent->updateLayout();
+}
 void FormWidget::draw(CForge::RenderDevice* renderDevice)
 {
     for (auto x : m_labels) {
