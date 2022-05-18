@@ -56,6 +56,11 @@ void BaseWidget::onDrag ( mouseEventInfo )
 {
     return;
 }
+void BaseWidget::onKeyPress(char32_t)
+{
+    return;
+}
+
 float BaseWidget::getWidth()
 {
     return m_width;
