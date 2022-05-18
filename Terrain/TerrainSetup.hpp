@@ -215,7 +215,7 @@ namespace Terrain {
         sceneGraph.init(&rootTransform);
         
         GUI gui = GUI(&renderDevice);
-        gui.testInit();
+        gui.testInit(&window);
 
 		while (!window.shutdown()) {
 			window.update();
@@ -242,7 +242,7 @@ namespace Terrain {
 //             texture->bind();
 //             glUniform1i(shader->uniformLocation("TexAlbedo"), 0);
 //             a.render(&renderDevice);
-            gui.processMouseEvents(window.mouse());
+            gui.processEvents();
             gui.testRender();
 
 			window.swapBuffers();
