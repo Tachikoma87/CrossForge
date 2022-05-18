@@ -47,6 +47,14 @@ bool BaseWidget::checkHitbox(Eigen::Vector2f pointerPosition)
         m_x+m_width >= pointerPosition[0] && m_y+m_height >= pointerPosition[1];
 }
 
+void BaseWidget::focus ( )
+{
+    return;
+}
+void BaseWidget::focusLost ( )
+{
+    return;
+}
 void BaseWidget::onClick ( mouseEventInfo )
 {
     //By default do nothing, have the Widgets overwrite this
@@ -143,6 +151,14 @@ void TextWidget::changePosition(float dx, float dy)
     m_x += dx;
     m_y += dy;
     m_pText->setPosition(m_x, m_y);
+}
+void TextWidget::setColor(float r, float g, float b)
+{
+    m_pText->setColor(r, g, b);
+}
+void TextWidget::setColor(float color[3])
+{
+    m_pText->setColor(color[0], color[1], color[2]);
 }
 
 

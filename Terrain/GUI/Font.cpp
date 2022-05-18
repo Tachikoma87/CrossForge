@@ -358,6 +358,7 @@ void TextLine::init(FontFace* pFontFace, CForge::GLShader* pShader)
     m_projection(0,0) = scale_x;
     m_projection(1,1) = scale_y;
     setPosition(0, 0);
+    setColor(1, 1, 1);;
 }
 
 void TextLine::init(std::u32string text, FontFace* pFontFace, CForge::GLShader* pShader)
@@ -383,6 +384,12 @@ void TextLine::setPosition(float x, float y)
     m_projection(0,3) = m_projection(0,0) * x - 1;
     m_projection(1,3) = 1 - m_projection(1,1) * (y + textSize);
 }
+void TextLine::setColor(float r, float g, float b)
+{
+    textColor[0] = r;
+    textColor[1] = g;
+    textColor[2] = b;
+}
 
 
 void TextLine::render(CForge::RenderDevice* pRDev)
@@ -403,7 +410,7 @@ void TextLine::render(CForge::RenderDevice* pRDev)
     glActiveTexture(GL_TEXTURE0);
     m_pFont->bind();
     glUniform1i(m_pShader->uniformLocation("glyphMap"), 0);
-    glUniform3f(m_pShader->uniformLocation("textColor"), 1.0f, 1.0f, 1.0f);
+    glUniform3f(m_pShader->uniformLocation("textColor"), textColor[0], textColor[1], textColor[2]);
     glUniformMatrix4fv(m_pShader->uniformLocation("projection"), 1, GL_FALSE, m_projection.data());
 
     glDrawArrays(GL_TRIANGLES, 0, m_numVertices);

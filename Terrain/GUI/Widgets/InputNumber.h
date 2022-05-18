@@ -29,6 +29,8 @@ public:
     void setValue(int value);
     void changeValue(int value);
     int getValue();
+    void focus() override;
+    void focusLost() override;
     void onKeyPress(char32_t character) override;
 
     void changePosition(float dx, float dy) override;
