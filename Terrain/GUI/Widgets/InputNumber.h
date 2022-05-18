@@ -3,6 +3,11 @@
 #include "../Widget.h"
 #include "../GUI.h"
 
+struct InputNumberLimits {
+    int min;
+    int max;
+};
+
 class InputNumberWidget;
 
 class InputNumberWidget_DecreaseButton : public TextWidget {
@@ -38,6 +43,7 @@ public:
     void draw(CForge::RenderDevice* renderDevice) override;
 private:
     int m_value;
+    InputNumberLimits m_limits;
     InputNumberWidget_DecreaseButton* m_pDec;
     InputNumberWidget_IncreaseButton* m_pInc;
     TextWidget* m_pValue;
