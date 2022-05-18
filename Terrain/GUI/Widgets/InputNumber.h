@@ -25,11 +25,14 @@ class InputNumberWidget : public BaseWidget {
 public:
     InputNumberWidget(GUI* rootGUIObject, BaseWidget* parent);
     ~InputNumberWidget();
+
     void setValue(int value);
     void changeValue(int value);
     int getValue();
-    void changePosition(float dx, float dy);
-    void draw(CForge::RenderDevice* renderDevice);
+    void onKeyPress(char32_t character) override;
+
+    void changePosition(float dx, float dy) override;
+    void draw(CForge::RenderDevice* renderDevice) override;
 private:
     int m_value;
     InputNumberWidget_DecreaseButton* m_pDec;

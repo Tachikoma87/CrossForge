@@ -32,6 +32,7 @@ public:
     void processEvents();
     void registerMouseDownEvent(BaseWidget* widget);
     void registerMouseDragEvent(BaseWidget* widget);
+    void registerKeyPressEvent(BaseWidget* widget);
 
     void listen(char32_t codepoint) override;
     void listen(CForge::KeyboardCallback kc) override;
@@ -52,4 +53,5 @@ private:
     Eigen::Vector2f focusedClickOffset;
     std::vector<BaseWidget*> m_events_mouseDown;
     std::vector<BaseWidget*> m_events_mouseDrag;
+    std::vector<BaseWidget*> m_events_keyPress;
 };

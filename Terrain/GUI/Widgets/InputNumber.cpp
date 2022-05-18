@@ -35,6 +35,7 @@ InputNumberWidget::InputNumberWidget(GUI* rootGUIObject, BaseWidget* parent) : B
 
     rootGUIObject->registerMouseDownEvent(m_pDec);
     rootGUIObject->registerMouseDownEvent(m_pInc);
+    rootGUIObject->registerKeyPressEvent(this);
 
     m_height = m_pValue->getHeight();
     m_width = m_pDec->getWidth() + m_pValue->getWidth() + m_pInc->getWidth() + 2*defaults.WithinWidgetPadding;
@@ -72,6 +73,20 @@ void InputNumberWidget::changeValue(int value)
 {
     setValue(m_value + value);
 }
+void InputNumberWidget::onKeyPress(char32_t character)
+{
+    if (character == U'\b') {
+        //delete the last number by using integer division
+        setValue(m_value / 10);
+        return;
+    }
+    //add to the end of number
+    if (character > 0x39 || character < 0x30) return;
+    int enteredNumber = character - 0x30;
+    setValue(m_value*10 + enteredNumber);
+    return;
+}
+
 void InputNumberWidget::changePosition(float dx, float dy)
 {
     m_x += dx;
