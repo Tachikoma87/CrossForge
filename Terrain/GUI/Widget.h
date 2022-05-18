@@ -22,6 +22,7 @@ public:
     //Events (need some more thought put into them)
     virtual void onClick(mouseEventInfo);
     virtual void onDrag(mouseEventInfo);
+    virtual void onKeyPress(char32_t);
 
     //Basic Getters&Setters
     virtual float getWidth();

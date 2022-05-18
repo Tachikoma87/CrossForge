@@ -100,6 +100,10 @@ void GUI::registerMouseDragEvent(BaseWidget* widget)
 {
     m_events_mouseDrag.push_back(widget);
 }
+void GUI::registerKeyPressEvent(BaseWidget* widget)
+{
+    m_events_keyPress.push_back(widget);
+}
 void GUI::processEvents()
 {
     processMouseEvents(m_pWin->mouse());
@@ -134,12 +138,20 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
                 }
             }
             if (!focusedWidget) {
+                for (auto x : m_events_keyPress) {
+                    if (x->checkHitbox(mpos)) {
+                        focusedWidget = x;
+                        focusedClickOffset = mpos - focusedWidget->getPosition();
+                        break;
+                    }
+                }
+            }
+            if (!focusedWidget) {
                 for (auto x : m_events_mouseDrag) {
                     if (x->checkHitbox(mpos)) {
-                        if (!focusedWidget) {
-                            focusedWidget = x;
-                            focusedClickOffset = mpos - focusedWidget->getPosition();
-                        }
+                        focusedWidget = x;
+                        focusedClickOffset = mpos - focusedWidget->getPosition();
+                        break;
                     }
                 }
             }
@@ -166,6 +178,9 @@ void GUI::listen(char32_t codepoint)
 {
     //print characters and keycodes for testing purposes
     std::cout << "Received " << codepoint << std::endl;
+
+    //pass the character to the focused widget.
+    if (focusedWidget != nullptr) focusedWidget->onKeyPress(codepoint);
 }
 void GUI::listen(CForge::KeyboardCallback kc)
 {
