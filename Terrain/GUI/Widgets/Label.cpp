@@ -75,6 +75,16 @@ void LabelWidget::changePosition(float dx, float dy)
     m_pLabelText->changePosition(dx, dy);
     m_pInput->changePosition(dx, dy);
 }
+void LabelWidget::updateLayout()
+{
+    m_width = m_pLabelText->getWidth();
+    m_height = m_pLabelText->getHeight();
+    if (m_pInput) {
+        m_width += 30 + m_pInput->getWidth();
+        m_height = std::max(m_pInput->getHeight(), m_height);
+    }
+    if (m_parent != nullptr) m_parent->updateLayout();
+}
 void LabelWidget::draw(CForge::RenderDevice* renderDevice)
 {
     m_pLabelText->draw(renderDevice);

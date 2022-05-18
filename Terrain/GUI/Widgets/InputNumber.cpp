@@ -70,6 +70,7 @@ void InputNumberWidget::setValue(int value)
     //calculate m_pInc's new position with the value's changed width
     positionAdjust += m_pValue->getWidth();
     m_pInc->changePosition(positionAdjust, 0);
+    updateLayout();
 }
 void InputNumberWidget::changeValue(int value)
 {
@@ -115,6 +116,14 @@ void InputNumberWidget::changePosition(float dx, float dy)
     m_pDec->changePosition(dx, dy);
     m_pValue->changePosition(dx, dy);
     m_pInc->changePosition(dx, dy);
+}
+void InputNumberWidget::updateLayout()
+{
+    WidgetStyle defaults;
+    m_height = m_pValue->getHeight();
+    m_width = m_pDec->getWidth() + m_pValue->getWidth() + m_pInc->getWidth() + 2*defaults.WithinWidgetPadding;
+
+    if (m_parent != nullptr) m_parent->updateLayout();
 }
 void InputNumberWidget::draw(CForge::RenderDevice* renderDevice)
 {

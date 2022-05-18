@@ -13,8 +13,9 @@ public:
 
     CallbackDatum getValue();
 
-    void changePosition(float dx, float dy);
-    void draw(CForge::RenderDevice* renderDevice);
+    void changePosition(float dx, float dy) override;
+    void updateLayout() override;
+    void draw(CForge::RenderDevice* renderDevice) override;
 private:
     CallbackDatatype m_type;
     void * m_pValue;

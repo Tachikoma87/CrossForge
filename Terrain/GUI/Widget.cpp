@@ -34,6 +34,14 @@ void BaseWidget::changePosition(float dx, float dy)
     m_x += dx;
     m_y += dy;
 }
+void BaseWidget::updateLayout()
+{
+    //This method should be called by child widgets if their size or relative position changes
+    //(like eg. the number input)
+    //since no widget seems to actually use m_children at this point in time,
+    //no default default will be provided yet.
+    return;
+}
 void BaseWidget::draw(CForge::RenderDevice* renderDevice)
 {
 //     if (m_background != nullptr) m_background->render(renderDevice);
