@@ -90,6 +90,7 @@ add_library(crossforge SHARED
 		# Input related
 		CForge/Input/Keyboard.cpp
 		CForge/Input/Mouse.cpp
+		CForge/Input/Character.cpp
 		CForge/Input/SInputManager.cpp
 		)
 set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
