@@ -1,5 +1,6 @@
 #include "InputNumber.h"
 #include "../GUIDefaults.h"
+#include <limits>
 
 InputNumberWidget_DecreaseButton::InputNumberWidget_DecreaseButton(GUI* rootGUIObject, InputNumberWidget* parent): TextWidget(rootGUIObject, parent)
 {
@@ -41,6 +42,8 @@ InputNumberWidget::InputNumberWidget(GUI* rootGUIObject, BaseWidget* parent) : B
     m_height = m_pValue->getHeight();
     m_width = m_pDec->getWidth() + m_pValue->getWidth() + m_pInc->getWidth() + 2*defaults.WithinWidgetPadding;
     m_negativeInput = false;
+    m_limits.min = std::numeric_limits<int>::min();
+    m_limits.max = std::numeric_limits<int>::max();
 }
 InputNumberWidget::~InputNumberWidget()
 {
@@ -101,11 +104,15 @@ void InputNumberWidget::onKeyPress(char32_t character)
     //add to the end of number
     if (character > 0x39 || character < 0x30) return;
     int enteredNumber = character - 0x30;
-    if (m_value == 0 && m_negativeInput) {
+    //prevent integer overflow by using a long for the limits check
+    long newValue = m_value;
+    if (newValue == 0 && m_negativeInput) {
         enteredNumber *= -1;
         m_negativeInput = false;
     }
-    setValue(m_value*10 + enteredNumber);
+    newValue = newValue*10 + enteredNumber;
+    if (newValue < m_limits.max && newValue > m_limits.min)
+        setValue(newValue);
     return;
 }
 
