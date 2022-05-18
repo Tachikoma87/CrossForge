@@ -6,6 +6,7 @@ using namespace Eigen;
 
 namespace CForge {
 	
+	// TODO replace std::vector<std::vector<>> with std::vector<std::vector<>*>
 	// TODO inMesh zu const& machen // cleanup split funcs
 	void MeshDecimator::decimateMesh(const CForge::T3DMesh<float>* inMesh, CForge::T3DMesh<float>* outMesh, float amount)
 	{
@@ -112,6 +113,8 @@ namespace CForge {
 			T3DMesh<float>::Material* pM = new T3DMesh<float>::Material();
 			pM->init(inMesh->getMaterial(i));
 			outMesh->addMaterial(pM, false);
+			outMesh->getMaterial(i)->Metallic = inMesh->getMaterial(i)->Metallic;
+			outMesh->getMaterial(i)->Roughness = inMesh->getMaterial(i)->Roughness;
 		}
 		
 		uint32_t oldStartSize = 0;
@@ -151,7 +154,8 @@ namespace CForge {
 						uint32_t newSize = newVerts.size()-1;
 						Face.Vertices[k] = newSize;
 						
-						newNormals.push_back(Eigen::Vector3f::Zero());
+						//newNormals.push_back(Eigen::Vector3f::Zero());
+						newNormals.push_back(inMesh->normal(pOldSubmesh->Faces[faces[j]-oldStartSize].Normals[k]));
 						Face.Normals[k] = newSize;
 						
 						if (inMesh->textureCoordinatesCount() > 0) {
@@ -183,7 +187,6 @@ namespace CForge {
 		outMesh->textureCoordinates(&newUVs);
 		outMesh->colors(&newColors);
 		
-		outMesh->computePerVertexNormals();
 		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() -start).count();
 		std::cout << "Decimation Finished, time took: " << double(microseconds)*0.001 << "ms \n";
 	} // decimateMesh func
@@ -214,7 +217,6 @@ namespace CForge {
 		Vector3f Min = pNode->BoundingBox.Min;
 		Vector3f Max = pNode->BoundingBox.Max;
 		Vector3f Center = Min + Diag / 2;
-
 
 		Mins[0] = Min;
 		Maxs[0] = Center;
@@ -260,7 +262,7 @@ namespace CForge {
 		for (uint8_t i = 0; i < 8; ++i) {
 			if (pNode->childs[i]->VertexIDs.size() != 0) {
 				while (depthNodes->size() < pNode->childs[i]->depth)
-					depthNodes->push_back(std::vector<octreeNode*>());
+					depthNodes->push_back(std::vector<octreeNode*>()); // TODO this does not look safe, pls change
 				depthNodes->at(pNode->childs[i]->depth - 1).push_back(pNode->childs[i]);
 			}
 		}//for[octants]
@@ -366,7 +368,13 @@ namespace CForge {
 		DF = newDF;
 
 		// TODO redo same with points // TODO check if necessary
-
+		// free octree
+		for (uint32_t i = 0; i < depthNodes.size(); i++) {
+			for (uint32_t j = 0; j < depthNodes[i].size(); j++) {
+				delete depthNodes[i][j];
+			}
+		}
+		delete Root;
 		//releaseOctree(Root);
 		return true;
 	}
@@ -388,6 +396,7 @@ namespace CForge {
 		//	DV->row(targets[i]) = newPoint.cast<double>();
 		//}
 
+		// TODO make search faster by using bidirectional ref vert to tri
 		for (uint32_t i = 0; i < DF->rows(); i++) {
 			// check if tri contains more than 2 points in targets
 			Eigen::Vector3i tri = DF->row(i);

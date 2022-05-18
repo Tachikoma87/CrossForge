@@ -4,15 +4,9 @@
 #include "Shader/SShaderManager.h"
 #include "GraphicsUtility.h"
 #include "RenderDevice.h"
-#include "iostream" //TODO remove
 
 using namespace Eigen;
 using namespace std;
-
-// TODO set macro if LOD is not used
-#if 1
-#define _USELOD
-#endif
 
 namespace CForge {
 
@@ -130,38 +124,64 @@ namespace CForge {
 		const Matrix4f T = GraphicsUtility::translationMatrix(Translation);
 		const Matrix4f S = GraphicsUtility::scaleMatrix(Scale);
 		const Matrix4f ModelMat = T * R * S;
-
+		
 		m_ModelUBO.modelMatrix(ModelMat);
-#ifdef _USELOD
 		if (m_ActiveRenderPass == RENDERPASS_LOD) {
-			
-			float aabbRadius = std::max(std::abs(pActor->getAABB().Max.norm()), std::abs(pActor->getAABB().Min.norm()));
-			//bool isLODActor = false;
-			//if (pActor->className().compare("LODActor") == 0)
-			//	isLODActor = true;
-			
-			float distance = (Translation- m_pActiveCamera->position()).norm()-aabbRadius;
-			//std::cout << distance << "\n";
-			if (distance < 0.0f) { // camera is inside AABB, use highest LOD
-				pActor->bindLODLevel(0);
-				m_LODSGActors.push_back(pActor);
-				m_LODSGTransformations.push_back(ModelMat);
-			} else {
-				bool visible = pActor->renderAABB(this);
+			bool visible;
+			// automatic instanced rendering
+			// TODO make aabb mesh global instead of per actor?
+			if (pActor->isManualInstanced()) { // manual instancing
+				if (pActor->isInLODSG())
+					throw CForgeExcept("Manual instancing was defined but actor was found multiple times in SG.");
+				
+				// Actor handels visibility
+				visible = pActor->renderAABB(this, Eigen::Matrix4f());
 				if (visible) {
+					m_LODSGActors.push_back(pActor);
+					m_LODSGTransformations.push_back(Eigen::Matrix4f::Identity()); // Actor's transformation matrices are used
+					pActor->setLODSG(true);
+				}
+			}
+			else if (pActor->isInstanced()) { // automatic instancing
+				if (pActor->isInLODSG()) { // same actor is already in LODSG, add instance matrix
+					pActor->renderAABB(this, ModelMat);
+				}
+				else { // Actor is not in LODSG, create new Entry
+					visible = pActor->renderAABB(this, ModelMat);
+					if (visible) {
+						m_LODSGActors.push_back(pActor);
+						m_LODSGTransformations.push_back(Eigen::Matrix4f::Identity()); // Actor's transformation matrices are used
+						pActor->setLODSG(true);
+					}
+				}
+			}
+			else {
+				float aabbRadius = std::max(std::abs(pActor->getAABB().Max.norm()), std::abs(pActor->getAABB().Min.norm()));
+				float distance = (Translation - m_pActiveCamera->position()).norm() - aabbRadius;
+				//std::cout << distance << "\n";
+				if (distance < 0.0f) { // camera is inside AABB, use highest LOD // TODO draw as occluder
+					pActor->bindLODLevel(0);
 					m_LODSGActors.push_back(pActor);
 					m_LODSGTransformations.push_back(ModelMat);
 				}
+				else {
+					visible = pActor->renderAABB(this, Eigen::Matrix4f());
+					if (visible) {
+						m_LODSGActors.push_back(pActor);
+						m_LODSGTransformations.push_back(ModelMat);
+					}
+				}
 			}
 			
+			//m_lastInstancedActor = pActor;
 		} else
-#endif
 		{
 		// render the object with current settings
 		pActor->render(this);
 		}
 	}//requestRendering
-
+	
+	// TODO adapt this version of request rendering
 	void RenderDevice::requestRendering(IRenderableActor* pActor, Eigen::Matrix4f ModelMat) {
 		if (nullptr == pActor) throw NullpointerExcept("pActor");
 
@@ -287,13 +307,11 @@ namespace CForge {
 
 	void RenderDevice::activePass(RenderPass Pass, ILight *pActiveLight) {
 		m_ActiveRenderPass = Pass;
-#ifdef _USELOD
 		// TODO this location is awkward
 		if (Pass != RENDERPASS_LOD) {
 			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 			glDepthMask(GL_TRUE);
 		}
-#endif
 		// change state?
 		switch (m_ActiveRenderPass) {
 		case RENDERPASS_SHADOW: {
@@ -324,7 +342,7 @@ namespace CForge {
 			if (m_Config.UseGBuffer) {
 				m_GBuffer.bind();
 				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
 			}
 		}break;
@@ -367,7 +385,6 @@ namespace CForge {
 				glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
 			}
 		}break;
-#ifdef _USELOD
 		case RENDERPASS_LOD: {
 			if (m_Config.UseGBuffer) {
 				m_GBuffer.bind();
@@ -377,7 +394,6 @@ namespace CForge {
 			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 			glDepthMask(GL_FALSE);
 		}
-#endif
 		default: break;
 		}
 
@@ -475,8 +491,17 @@ namespace CForge {
 	{
 		for (uint32_t i = 0; i < m_LODSGActors.size(); i++) {
 			requestRendering(m_LODSGActors[i], m_LODSGTransformations[i]);
+			m_LODSGActors[i]->setLODSG(false);
 		}
 		m_LODSGActors.clear();
 		m_LODSGTransformations.clear();
+	}
+	void RenderDevice::clearBuffer()
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
+	void RenderDevice::setModelMatrix(Eigen::Matrix4f matrix) {
+		m_ModelUBO.modelMatrix(matrix);
 	}
 }//name space

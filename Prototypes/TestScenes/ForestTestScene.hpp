@@ -37,6 +37,9 @@
 
 #include "../../Examples/SceneUtilities.hpp"
 
+#include "../Actor/LODActor.h"
+#include "../SLOD.h"
+
 using namespace Eigen;
 using namespace std;
 
@@ -46,6 +49,7 @@ namespace CForge {
 
 	void forestTestScene(void) {
 		SShaderManager* pSMan = SShaderManager::instance();
+		SLOD* pLOD = SLOD::instance();
 
 		std::string WindowTitle = "CForge - Skeletal Animation Example";
 		float FPS = 60.0f;
@@ -59,6 +63,7 @@ namespace CForge {
 			WinWidth = 720;
 			WinHeight = 576;
 		}
+		pLOD->setResolution(Vector2i(WinWidth, WinHeight));
 
 		// create an OpenGL capable windows
 		GLWindow RenderWin;
@@ -113,8 +118,8 @@ namespace CForge {
 		// load skydome and tree
 		T3DMesh<float> M;
 		StaticActor Skydome;
-		StaticActor Tree1;
-		StaticActor Tree2;
+		LODActor Tree1;
+		LODActor Tree2;
 
 		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
@@ -202,6 +207,7 @@ namespace CForge {
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
 			SG.update(60.0f / FPS);
+			pLOD->update();
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
 
@@ -248,7 +254,7 @@ namespace CForge {
 		}//while[main loop]
 
 		pSMan->release();
-
+		pLOD->release();
 	}//exampleMinimumGraphicsSetup
 
 }
