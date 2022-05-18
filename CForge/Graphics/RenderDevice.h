@@ -109,6 +109,8 @@ namespace CForge {
 		GLShader* shadowPassShader(void);
 
 		void renderLODSG();
+		void clearBuffer();
+		void setModelMatrix(Eigen::Matrix4f matrix);
 
 	protected:
 		struct ActiveLight {
@@ -150,6 +152,10 @@ namespace CForge {
 		// SG Actors sorted front to back
 		std::vector<IRenderableActor*> m_LODSGActors;
 		std::vector<Eigen::Matrix4f> m_LODSGTransformations;
+		
+		std::vector<IRenderableActor*> m_LODSGInstancedActors;
+		//TODO IRenderableActor* m_lastInstancedActor;
+		
 	};//RenderDevice
 }//name space
 

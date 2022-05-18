@@ -56,7 +56,12 @@ namespace CForge {
 		bool isVisible();
 
 		T3DMesh<float>::AABB getAABB();
-		bool renderAABB(class RenderDevice* pRDev);
+		bool renderAABB(class RenderDevice* pRDev, Eigen::Matrix4f sgMat);
+		int32_t testAABBvis(class RenderDevice* pRDev);
+		
+		void initInstancing(bool manualInstanced);
+		void addInstance(Eigen::Matrix4f matrix);
+		void setInstanceMatrices(std::vector<Eigen::Matrix4f> matrices);
 		
 	protected:
 
@@ -81,7 +86,7 @@ namespace CForge {
 		std::vector<uint8_t*> m_ElementBuffers;
 		std::vector<uint32_t> m_ElementBufferSizes;
 		
-		// AABB 
+		// AABB
 		T3DMesh<float>::AABB m_aabb;
 		void initAABB();
 		GLVertexArray m_AABBvertArray;
@@ -89,10 +94,13 @@ namespace CForge {
 		GLBuffer m_AABBindexBuffer;
 		GLShader* m_AABBshader;
 		void updateAABB();
+
+		// Instanced Rendering
+		std::vector<Eigen::Matrix4f> m_instancedMatrices;
+		std::vector<std::vector<Eigen::Matrix4f*>*> m_instancedMatRef;
 		
 	};//LODActor
 
 }//name space
-
 
 #endif
