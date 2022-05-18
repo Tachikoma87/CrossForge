@@ -40,6 +40,10 @@ namespace CForge {
 	void Keyboard::keyState(Key K, State S) {
 		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
 		m_KeyStates[K] = S;
+		KeyboardCallback broadcastObj;
+		broadcastObj.key = K;
+		broadcastObj.state = S;
+		broadcast(broadcastObj);
 	}//keyPressed
 
 	Keyboard::State Keyboard::keyState(Key K)const {

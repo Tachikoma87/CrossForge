@@ -5,6 +5,7 @@
 #include "Font.h"
 #include <CForge/Graphics/RenderDevice.h>
 #include <CForge/Input/Mouse.h>
+#include <CForge/Input/Character.h>
 #include <vector>
 
 #include "Callback.h"
@@ -20,28 +21,33 @@ class CallbackTestClass : public CForge::ITListener<CallbackObject> {
     void listen(const CallbackObject Msg) override;
 };
 
-class GUI {
+class GUI : public CForge::ITListener<char32_t>, public CForge::ITListener<CForge::KeyboardCallback> {
 public:
-    enum Event {
-        CLICK
-    };
     GUI(CForge::RenderDevice* renderDevice);
     ~GUI();
-    void testInit();
+
+    void testInit(CForge::GLWindow* pWin);
     void testRender();
-    void processMouseEvents(CForge::Mouse* mouse);
+
+    void processEvents();
     void registerMouseDownEvent(BaseWidget* widget);
     void registerMouseDragEvent(BaseWidget* widget);
+
+    void listen(char32_t codepoint) override;
+    void listen(CForge::KeyboardCallback kc) override;
     
     CForge::GLShader* BackgroundColoredShader;
     CForge::GLShader* TextShader;
     FontFace* fontFace;
 private:
-    std::vector<BaseWidget*> testBG;
-    CForge::RenderDevice* m_renderDevice;
+    void processMouseEvents(CForge::Mouse* mouse);
+    void processKeyboardEvents(CForge::Keyboard* keyboard);
 
+    std::vector<BaseWidget*> testBG;
     CallbackTestClass callbackTest;
 
+    CForge::GLWindow* m_pWin;
+    CForge::RenderDevice* m_renderDevice;
     BaseWidget* focusedWidget = nullptr;
     Eigen::Vector2f focusedClickOffset;
     std::vector<BaseWidget*> m_events_mouseDown;
