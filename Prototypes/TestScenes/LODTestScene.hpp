@@ -63,24 +63,27 @@ namespace CForge {
 		STextureManager* pTexMan = STextureManager::instance();
 		SShaderManager* pSMan = SShaderManager::instance();
 		SLOD* pLOD = SLOD::instance();
-		
+
 		bool const LowRes = true;
 
 		uint32_t WinWidth = 1280;
 		uint32_t WinHeight = 720;
 		
-		pLOD->setResolution(Vector2i(WinWidth, WinHeight));
-
 		if (LowRes) {
 			WinWidth = 1440;//720;
 			WinHeight = 1080-80;//576;
 		}
 
+		pLOD->setResolution(Vector2i(WinWidth, WinHeight));
+
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), "Absolute Minimum Setup");
 		gladLoadGL();
 		//glfwSwapInterval(0);
-		
+
+		GraphicsUtility::GPUTraits gpuTraits = GraphicsUtility::retrieveGPUTraits();
+		std::cout << "MaxUniformBlockSize: " << gpuTraits.MaxUniformBlockSize << "\n";
+
 		std::string GLError;
 		GraphicsUtility::checkGLError(&GLError);
 		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
@@ -125,11 +128,21 @@ namespace CForge {
 		LODActor Cube;
 
 		T3DMesh<float> M;
-		//SAssetIO::load("Assets/tree0.obj", &M);
 		LODHandler lodHandler;
-		//lodHandler.generateLODmodels("Assets/tree0.obj");
 
-		SAssetIO::load("Assets/blub/blub.obj", &M); // complexMan, blub/blub
+		//SAssetIO::load("Assets/tree0.obj", &M);
+		//lodHandler.generateLODmodels("Assets/tree0.obj");
+		
+		SAssetIO::load("Assets/mirror/mirror.obj", &M);
+		//T3DMesh<float> M2;
+
+		//SGNGeometry MirrorSGN;
+		//LODActor Mirror2;
+		//SAssetIO::load("Assets/mirror/mirror.001.obj", &M2);
+		//SceneUtilities::setMeshShader(&M2, 0.1f, 0.04f);
+		//Mirror2.init(&M2);
+		
+		//SAssetIO::load("Assets/blub/blub.obj", &M); // complexMan, blub/blub
 		//SAssetIO::load("Assets/man/cube.obj", &M);
 		//lodHandler.generateLODmodels("Assets/testMeshOut.obj");
 		//SAssetIO::load("Assets/cubeSep.obj", &M);
@@ -149,6 +162,7 @@ namespace CForge {
 
 		CubeTransformSGN.init(nullptr);
 		CubeSGN.init(&CubeTransformSGN, &Cube);
+		//MirrorSGN.init(&CubeTransformSGN, &Mirror2);
 		SGTest.init(&CubeTransformSGN);
 		
 		//SAssetIO::store("Assets/testMeshOut.obj", &testMesh);
@@ -156,9 +170,11 @@ namespace CForge {
 		// rotate about the y-axis at 45 degree every second
 		Quaternionf R;
 		R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());
-		CubeTransformSGN.rotationDelta(R);
-		CubeTransformSGN.translation(Vector3f(0.0, 0.0, 2.0));
-
+		//CubeTransformSGN.rotationDelta(R);
+		//CubeTransformSGN.translation(Vector3f(0.0, -5.0, 2.0));
+		//CubeTransformSGN.translation(Vector3f(0.0, -0.0, 3.0));
+		CubeTransformSGN.translation(Vector3f(0.0,0.0,4.0));
+		
 		bool Wireframe = true;
 		
 		glLineWidth(GLfloat(1.0f));
@@ -168,16 +184,18 @@ namespace CForge {
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
 			pLOD->update();
+			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(), 2.5f * pLOD->getDeltaTime(), 200.0f * pLOD->getDeltaTime());
 			
-
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
 				cubeLODlevel++;
 				cubeLODlevel %= /*2;//*/6;
 				Cube.bindLODLevel(cubeLODlevel);
+				//Mirror2.bindLODLevel(cubeLODlevel);
 			}
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
 				cubeLODlevel = std::max(0, int32_t(cubeLODlevel)-1);
 				Cube.bindLODLevel(cubeLODlevel);
+				//Mirror2.bindLODLevel(cubeLODlevel);
 			}
 
 			//R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());
@@ -191,6 +209,7 @@ namespace CForge {
 			
 			SGTest.update(1.0f*pLOD->getDeltaTime());
 			
+			RDev.clearBuffer();
 			//RDev.activePass(RenderDevice::RENDERPASS_LOD);
 			//SGTest.render(&RDev);
 			

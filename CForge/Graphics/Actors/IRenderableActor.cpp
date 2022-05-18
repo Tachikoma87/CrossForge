@@ -12,23 +12,6 @@ namespace CForge {
 
 	}//Destructor
 
-	bool IRenderableActor::renderAABB(RenderDevice* pRDev)
-	{
-		return true;
-	}
-
-	T3DMesh<float>::AABB IRenderableActor::getAABB()
-	{
-		T3DMesh<float>::AABB aabb;
-		aabb.Min = Eigen::Vector3f(0);
-		aabb.Max = Eigen::Vector3f(0);
-		return aabb;
-	}
-
-	void IRenderableActor::bindLODLevel(uint32_t level) {
-
-	}
-
 	int32_t IRenderableActor::typeID(void)const {
 		return m_TypeID;
 	}//typeID
@@ -90,4 +73,41 @@ namespace CForge {
 		return &(m_RenderGroupUtility.renderGroups()[Index]->Material);
 	}//material
 
+	T3DMesh<float>::AABB IRenderableActor::getAABB()
+	{
+		T3DMesh<float>::AABB aabb;
+		aabb.Min = Eigen::Vector3f(0);
+		aabb.Max = Eigen::Vector3f(0);
+		return aabb;
+	}
+	
+	bool IRenderableActor::renderAABB(RenderDevice* pRDev, Eigen::Matrix4f sgMat)
+	{
+		return true;
+	}
+
+	bool IRenderableActor::isInstanced()
+	{
+		return m_isInstanced;
+	}
+
+	bool IRenderableActor::isManualInstanced()
+	{
+		return m_isManualInstaned;
+	}
+
+	bool IRenderableActor::isInLODSG() {
+		return m_isInLODSG;
+	}
+	void IRenderableActor::setLODSG(bool inside) {
+		m_isInLODSG = inside;
+	}
+
+	void IRenderableActor::bindLODLevel(uint32_t level) {
+
+	}
+
+	void IRenderableActor::addInstance(Eigen::Matrix4f matrix) {
+
+	}
 }//name space
