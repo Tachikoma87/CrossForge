@@ -1,4 +1,5 @@
 #include "InputNumber.h"
+#include "../GUIDefaults.h"
 
 InputNumberWidget_DecreaseButton::InputNumberWidget_DecreaseButton(GUI* rootGUIObject, InputNumberWidget* parent): TextWidget(rootGUIObject, parent)
 {
@@ -72,6 +73,16 @@ void InputNumberWidget::setValue(int value)
 void InputNumberWidget::changeValue(int value)
 {
     setValue(m_value + value);
+}
+void InputNumberWidget::focus()
+{
+    FontStyle f;
+    m_pValue->setColor(f.FontColorHighlight);
+}
+void InputNumberWidget::focusLost()
+{
+    FontStyle f;
+    m_pValue->setColor(f.FontColor);
 }
 void InputNumberWidget::onKeyPress(char32_t character)
 {

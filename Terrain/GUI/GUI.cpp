@@ -123,6 +123,7 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
 
             //check if anything was clicked and set the focus accordingly
             //click events take precedence over dragable widgets
+            if (focusedWidget != nullptr) focusedWidget->focusLost();
             focusedWidget = nullptr;
 
             //more efficient designs than a simple list could be implemented
@@ -131,6 +132,7 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
                 if (x->checkHitbox(mpos)) {
                     if (!focusedWidget) {
                         focusedWidget = x;
+                        focusedWidget->focus();
                         focusedClickOffset = mpos - focusedWidget->getPosition();
                     }
                     mouseEvent.adjustedPosition = mpos - focusedClickOffset;
@@ -141,6 +143,7 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
                 for (auto x : m_events_keyPress) {
                     if (x->checkHitbox(mpos)) {
                         focusedWidget = x;
+                        focusedWidget->focus();
                         focusedClickOffset = mpos - focusedWidget->getPosition();
                         break;
                     }
@@ -150,6 +153,7 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
                 for (auto x : m_events_mouseDrag) {
                     if (x->checkHitbox(mpos)) {
                         focusedWidget = x;
+                        focusedWidget->focus();
                         focusedClickOffset = mpos - focusedWidget->getPosition();
                         break;
                     }
