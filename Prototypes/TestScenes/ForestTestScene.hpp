@@ -197,12 +197,12 @@ namespace CForge {
 		SkydomeSGN.rotation(Rot);
 
 		// generate a forest
-		const uint32_t TreeCount = 1000;
+		const uint32_t TreeCount = 4000;
 		SGNGeometry* pTreeNodes = new SGNGeometry[TreeCount];
 		SGNTransformation* pTreeTransNodes = new SGNTransformation[TreeCount];
 
-		float MinPlane = -100.0f;
-		float MaxPlane = 100.0f;
+		float MinPlane = -200.0f;
+		float MaxPlane = 200.0f;
 
 		for (uint32_t i = 0; i < TreeCount; ++i) {
 
@@ -259,12 +259,10 @@ namespace CForge {
 			SG.render(&RDev);
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			//SG.render(&RDev);
+			SG.render(&RDev);
 
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 			
-
-
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 			SkyboxSG.render(&RDev);
 

@@ -22,6 +22,7 @@
 #include "IMUPackage.hpp"
 #include "../../CForge/Graphics/VirtualCamera.h"
 #include "../../CForge/Internet/UDPSocket.h"
+#include "../../CForge/AssetIO/File.h"
 
 namespace CForge {
 	class IMUCameraController {
@@ -29,6 +30,7 @@ namespace CForge {
 		enum UserState: int8_t {
 			STATE_UNKNOWN = -1,
 			STATE_WALKING,
+			STATE_RUNNING,
 			STATE_STANDING,
 		};
 
@@ -42,6 +44,8 @@ namespace CForge {
 		void apply(VirtualCamera* pCamera, float Scale);
 
 		void calibrate(void);
+
+		void recordData(std::string Filepath = std::string());
 
 	protected:
 		struct IMUData {
@@ -79,8 +83,11 @@ namespace CForge {
 
 		void updateFoot(UDPSocket *pSock, std::list<IMUData>* pDataBuffer);
 
-		UDPSocket m_SocketLeft;
-		UDPSocket m_SocketRight;
+		UDPSocket m_Socket;
+		std::list<IMUData> m_DataBuffer;
+
+		//UDPSocket m_SocketLeft;
+		//UDPSocket m_SocketRight;
 		std::list<IMUData> m_DataBufferLeft;
 		std::list<IMUData> m_DataBufferRight;
 
@@ -100,6 +107,12 @@ namespace CForge {
 
 		bool m_TurnLeft;
 		bool m_TurnRight;
+
+		bool m_DataRecording;
+		File m_DataFile;
+		uint64_t m_RecordingStartTime;
+
+		uint64_t m_LastSearch;
 
 	};//IMUCamera
 

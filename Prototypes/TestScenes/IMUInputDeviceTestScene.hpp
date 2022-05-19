@@ -294,7 +294,7 @@ namespace CForge {
 		}//for[generate trees]
 
 		// generate coins
-		uint32_t CoinCount = 250;
+		uint32_t CoinCount = 500;
 		SGNGeometry* pCoinNodes = new SGNGeometry[CoinCount];
 		SGNTransformation* pCoinTransNodes = new SGNTransformation[CoinCount];
 		Sphere* pCoinBS = new Sphere[CoinCount];
@@ -324,9 +324,7 @@ namespace CForge {
 			pCoinBS[i].Position = Pos;
 			const float r = 2.0f;
 			pCoinBS[i].Radius2 = r * r;
-
 		}
-
 
 		// add cube
 		SGNGeometry CubeSGN;
@@ -356,7 +354,6 @@ namespace CForge {
 		std::string Sender;
 		uint16_t Port;
 
-
 		IMUCameraController IMUCam;
 		IMUCam.init(25001, 25000, 200);
 
@@ -373,6 +370,9 @@ namespace CForge {
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) Flying = !Flying;
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) IMUCam.calibrate();
+
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) IMUCam.recordData("Assets/IMUData.csv");
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) IMUCam.recordData();
 
 			Vector3f Pos = Cam.position();
 			Pos.x() = std::max(MinPlane, Pos.x());
