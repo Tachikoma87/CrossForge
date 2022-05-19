@@ -43,6 +43,8 @@ namespace CForge {
 		void sendData(uint8_t* pData, uint32_t DataSize, std::string IP, uint16_t Port);
 		bool recvData(uint8_t* pBuffer, uint32_t* pDataSize, std::string* pSender, uint16_t* pPort);
 
+		uint16_t port(void)const;
+
 	protected:
 		struct Package {
 			uint8_t* pData;

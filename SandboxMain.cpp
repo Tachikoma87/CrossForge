@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 		//exampleSockets();
 	
 
-		//imuInputDeviceTestScene();
+		imuInputDeviceTestScene();
 		// 
 		//shadowTest();
 		//vertexColorTestScene();
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 		//skelAnimTestScene();
 		
 		//assetGLTFTestScene();
-		anotherTestScene();	
+		//anotherTestScene();	
 		//normalMappingTestScene();
 	}
 	catch (const CrossForgeException & e) {

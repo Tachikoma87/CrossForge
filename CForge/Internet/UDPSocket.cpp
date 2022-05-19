@@ -105,6 +105,9 @@ namespace CForge {
 		return true;
 	}//getMessage
 
+	uint16_t UDPSocket::port(void)const {
+		return m_Port;
+	}//port
 
 
 	void UDPSocket::recvThread(void) {
@@ -131,8 +134,6 @@ namespace CForge {
 				m_InQueue.push(pP);
 				m_Mutex.unlock();
 			}
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}//while[do not leave thread]
 
 	}//socketThread
