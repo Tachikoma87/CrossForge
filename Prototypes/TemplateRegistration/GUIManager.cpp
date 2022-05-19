@@ -12,8 +12,7 @@ namespace TempReg {
 
 	GUIManager::GUIManager() :
 		m_MainMenuBarHeight(-1.0f), m_RenderWinSize{0, 0}, m_SideMenuSize(ImVec2(0.0f, 0.0f)) {
-		m_SideMenuState.Unfolded = true;
-		m_VPConfigState.OpenPredefConfigMenu = false;
+		
 	}
 
 	GUIManager::~GUIManager() {
@@ -31,10 +30,19 @@ namespace TempReg {
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)pHandle, true);
 		ImGui_ImplOpenGL3_Init("#version 330 core");
 
+		setRenderWinSize(RenderWinWidth, RenderWinHeight);
+
+		m_SideMenuState.Unfolded = true;
+		m_SideMenuState.DisplayStateChanged = false;
+		m_SideMenuSize.x = (float)m_RenderWinSize[0] / 5.0f;
+
+		m_VPConfigState.OpenPredefConfigMenu = false;
+		m_VPConfigState.LoadConfiguration = false;
 		m_VPConfigState.ActiveVPCount = -1;
+		m_VPConfigState.PrevActiveVPCount = 0;
 		m_VPConfigState.ActiveVPArrType = -1;
 		m_VPConfigState.VPCountSelected = -1;
-		m_VPConfigState.VPArrTypeSelected = -1;
+		m_VPConfigState.VPArrTypeSelected = 0;
 
 		// temporary hack - hardcoded values
 		// -> emplace keys
@@ -78,11 +86,9 @@ namespace TempReg {
 		val->push_back(VPArrangementData());
 		val->back().ArrangementName = "evenly tiled";
 		val->back().ArrangementType = ViewportArrangementType::FOUR_EVEN;
-
-		setRenderWinSize(RenderWinWidth, RenderWinHeight);
 	}//init
 
-	void GUIManager::buildNextImGuiFrame(TempRegAppState* pGlobalAppState, ViewportManager* pVPMgr, std::map<DatasetType, MeshDataset>& Datasets) {
+	void GUIManager::buildNextImGuiFrame(TempRegAppState* pGlobalAppState, ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>* pDatasetGeometries) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -92,20 +98,11 @@ namespace TempReg {
 
 		buildMainMenuBar(pVPMgr);
 		
-		buildSideMenu(pVPMgr);
-
-		if (m_VPConfigState.ActiveVPCount != -1 && m_VPConfigState.ActiveVPArrType != -1)
-			buildViewportOverlays(pVPMgr, Datasets);
-		
-		if (m_VPConfigState.ActiveVPCount == -1 && m_VPConfigState.ActiveVPArrType == -1) {
-			ImVec2 PosCenter(
-				m_ViewportSectionArea(0) + (m_ViewportSectionArea(2) / 2.0f), 
-				m_ViewportSectionArea(1) + (m_ViewportSectionArea(3) / 2.0f));
-
-			buildNoViewportsInfo(PosCenter);
-		}
-
 		buildViewportConfigPredefined(pVPMgr);
+
+		buildSideMenu(pVPMgr);
+		
+		buildViewportSection(pVPMgr, pDatasetGeometries);
 	}//buildNextImGuiFrame
 
 	void GUIManager::renderImGuiFrame(const bool ClearBuffer) {
@@ -119,10 +116,6 @@ namespace TempReg {
 		m_RenderWinSize[0] = RenderWinWidth;
 		m_RenderWinSize[1] = RenderWinHeight;
 	}//setRenderWinSize
-
-	Vector4f GUIManager::getViewportContentArea(void) const {
-		return m_ViewportSectionArea;
-	}//getViewportContentArea
 
 	void GUIManager::buildMainMenuBar(ViewportManager* pVPMgr) {//TODO
 		if (ImGui::BeginMainMenuBar()) {
@@ -148,6 +141,8 @@ namespace TempReg {
 
 	void GUIManager::buildSideMenu(ViewportManager* pVPMgr) {//TODO
 		
+		m_SideMenuSize.y = (float)m_RenderWinSize[1] - m_MainMenuBarHeight;
+
 		// build fold/unfold arrow button
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
@@ -156,51 +151,20 @@ namespace TempReg {
 		ImGuiWindowFlags ArrowBtnWindowFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration;
 
 		if (m_SideMenuState.Unfolded) {
-
-			m_SideMenuSize.x = (float)m_RenderWinSize[0] / 5.0f;
-			m_SideMenuSize.y = (float)m_RenderWinSize[1] - m_MainMenuBarHeight;
-
-			// update viewport content area
-			m_ViewportSectionArea(0) = 0.0f;
-			m_ViewportSectionArea(1) = 0.0f;
-			m_ViewportSectionArea(2) = m_RenderWinSize[0] - m_SideMenuSize.x;
-			m_ViewportSectionArea(3) = m_RenderWinSize[1] - m_MainMenuBarHeight;
-
 			ImVec2 Pos((float)m_RenderWinSize[0] - m_SideMenuSize.x - ImGui::GetFrameHeight(), m_MainMenuBarHeight);
 			ImGui::SetNextWindowPos(Pos);
 
 			ImGui::Begin("##arrowbtn_window_unfolded", nullptr, ArrowBtnWindowFlags);
-			
+
 			if (ImGui::ArrowButton("##fold", ImGuiDir_Right)) {
 				m_SideMenuState.Unfolded = false;
-				
-				// resize viewport content area
-				m_ViewportSectionArea(2) = m_RenderWinSize[0];
-
-				if (m_VPConfigState.ActiveVPCount != -1 && m_VPConfigState.ActiveVPArrType != -1) {
-					int VPCount = m_VPConfigState.ActiveVPCount;
-					int ArrTypeIdx = m_VPConfigState.ActiveVPArrType;
-					auto ArrangementType = m_VPConfigState.VPCountToArrangementData.at(VPCount)[ArrTypeIdx].ArrangementType;
-					auto Tiles = pVPMgr->calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
-					pVPMgr->resizeActiveViewports(Tiles);
-
-					resizeActiveViewportOverlays(Tiles);
-				}
+				m_SideMenuState.DisplayStateChanged = true;
+				m_SideMenuSize.x = 0.0f;
 			}
 
 			ImGui::End();
 		}
 		else {
-
-			m_SideMenuSize.x = 0.0f;
-			m_SideMenuSize.y = (float)m_RenderWinSize[1] - m_MainMenuBarHeight;
-
-			// update viewport content area
-			m_ViewportSectionArea(0) = 0.0f;
-			m_ViewportSectionArea(1) = 0.0f;
-			m_ViewportSectionArea(2) = m_RenderWinSize[0];
-			m_ViewportSectionArea(3) = m_RenderWinSize[1];
-
 			ImVec2 Pos((float)m_RenderWinSize[0] - ImGui::GetFrameHeight(), m_MainMenuBarHeight);
 			ImGui::SetNextWindowPos(Pos);
 
@@ -208,19 +172,8 @@ namespace TempReg {
 
 			if (ImGui::ArrowButton("##unfold", ImGuiDir_Left)) {
 				m_SideMenuState.Unfolded = true;
-				
-				// resize viewport content area
-				m_ViewportSectionArea(2) -= m_SideMenuSize.x;
-
-				if (m_VPConfigState.ActiveVPCount != -1 && m_VPConfigState.ActiveVPArrType != -1) {
-					int VPCount = m_VPConfigState.ActiveVPCount;
-					int ArrTypeIdx = m_VPConfigState.ActiveVPArrType;
-					auto ArrangementType = m_VPConfigState.VPCountToArrangementData.at(VPCount)[ArrTypeIdx].ArrangementType;
-					auto Tiles = pVPMgr->calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
-					pVPMgr->resizeActiveViewports(Tiles);
-
-					resizeActiveViewportOverlays(Tiles);
-				}
+				m_SideMenuState.DisplayStateChanged = true;
+				m_SideMenuSize.x = (float)m_RenderWinSize[0] / 5.0f;
 			}
 
 			ImGui::End();
@@ -228,7 +181,7 @@ namespace TempReg {
 
 		ImGui::PopStyleVar();
 		ImGui::PopStyleVar();
-		
+
 		// build side menu
 		if (m_SideMenuState.Unfolded) {
 
@@ -236,15 +189,66 @@ namespace TempReg {
 
 			ImGui::SetNextWindowPos(Pos);
 			ImGui::SetNextWindowSize(m_SideMenuSize);
-			
+
 			ImGuiWindowFlags WindowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove;
 			ImGui::Begin("##sidemenu_window", nullptr, WindowFlags);
 
 			//TODO: window contents here....
 
 			ImGui::End();
-		}
+		}		
 	}//buildSideMenu
+
+	void GUIManager::buildViewportSection(ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>* pDatasetGeometries) {
+
+		m_ViewportSectionArea(0) = 0.0f;
+		m_ViewportSectionArea(1) = 0.0f;
+		m_ViewportSectionArea(2) = m_RenderWinSize[0];
+		m_ViewportSectionArea(3) = m_RenderWinSize[1] - m_MainMenuBarHeight;
+
+		if (m_SideMenuState.Unfolded) 
+			m_ViewportSectionArea(2) -= m_SideMenuSize.x;
+
+		if (m_VPConfigState.ActiveVPCount == -1 && m_VPConfigState.ActiveVPArrType == -1) {
+			ImVec2 PosCenter(
+				m_ViewportSectionArea(0) + (m_ViewportSectionArea(2) / 2.0f),
+				m_ViewportSectionArea(1) + (m_ViewportSectionArea(3) / 2.0f));
+
+			buildNoViewportsInfo(PosCenter);
+
+			return;
+		}
+
+		if (m_VPConfigState.LoadConfiguration) {
+			int VPCount = m_VPConfigState.ActiveVPCount;
+			int PrevVPCount = m_VPConfigState.PrevActiveVPCount;
+			int ArrTypeIdx = m_VPConfigState.ActiveVPArrType;
+			auto ArrangementType = m_VPConfigState.VPCountToArrangementData.at(VPCount)[ArrTypeIdx].ArrangementType;
+
+			const auto Tiles = pVPMgr->calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
+			pVPMgr->loadViewports(Tiles);
+			loadViewportOverlayStates(Tiles);
+		}
+
+		if (m_VPConfigState.ActiveVPCount != -1 && m_VPConfigState.ActiveVPArrType != -1) {
+			
+			if (m_SideMenuState.DisplayStateChanged) {		
+				// update dimensions of viewport section + individual viewports
+				int VPCount = m_VPConfigState.ActiveVPCount;
+				int ArrTypeIdx = m_VPConfigState.ActiveVPArrType;
+				auto ArrangementType = m_VPConfigState.VPCountToArrangementData.at(VPCount)[ArrTypeIdx].ArrangementType;
+
+				auto Tiles = pVPMgr->calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
+				pVPMgr->resizeActiveViewports(Tiles);
+				resizeActiveViewportOverlays(Tiles);
+			}
+
+			buildViewportOverlays(pVPMgr, pDatasetGeometries);
+		}
+
+		m_VPConfigState.LoadConfiguration = false;
+		m_SideMenuState.DisplayStateChanged = false;
+	}//buildViewportSection
 
 	void GUIManager::buildViewportConfigPredefined(ViewportManager* pVPMgr) {//TODO
 		
@@ -297,7 +301,9 @@ namespace TempReg {
 				if (ImGui::BeginListBox("##vp_arrangement_types")) {
 
 					if (m_VPConfigState.VPCountSelected != -1) {
+
 						const auto& Arrangements = m_VPConfigState.VPCountToArrangementData.at(m_VPConfigState.VPCountSelected);
+
 						for (int i = 0; i < Arrangements.size(); ++i) {
 							ImGui::PushID(i);
 							const bool Selected = (m_VPConfigState.VPArrTypeSelected == i);
@@ -334,45 +340,26 @@ namespace TempReg {
 
 			ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - 240);
 			
-			// "Apply" button remains disabled until a viewport arrangement has been selected
-			bool ApplyBtnUsed = false;
-			if (m_VPConfigState.VPArrTypeSelected == -1)
-				ImGui::BeginDisabled(true); // start section of deactivatable widgets ["OK"-Button]
-
 			if (ImGui::Button("Apply", ImVec2(120, 0))) {
 				
 				// apply selected configuration
-
-				int VPCount = m_VPConfigState.VPCountSelected;
-				int ArrTypeIdx = m_VPConfigState.VPArrTypeSelected;
-				auto ArrangementType = m_VPConfigState.VPCountToArrangementData.at(VPCount)[ArrTypeIdx].ArrangementType;
-
-				const auto Tiles = pVPMgr->calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
-				pVPMgr->loadViewports(Tiles);
-				loadViewportOverlayStates(Tiles);
-
+				m_VPConfigState.LoadConfiguration = true;
+				m_VPConfigState.PrevActiveVPCount = (m_VPConfigState.ActiveVPCount == -1) ? 0 : m_VPConfigState.ActiveVPCount;
 				m_VPConfigState.ActiveVPCount = m_VPConfigState.VPCountSelected;
 				m_VPConfigState.ActiveVPArrType = m_VPConfigState.VPArrTypeSelected;
-
-				// selected values have been "consumed" for this instance of the config menu -> reset them for next time
-				m_VPConfigState.VPCountSelected = -1;
-				m_VPConfigState.VPArrTypeSelected = -1;
-				
-				ApplyBtnUsed = true;
+				m_VPConfigState.VPArrTypeSelected = 0;
 
 				ImGui::CloseCurrentPopup();
 			}
-
-			if (m_VPConfigState.VPArrTypeSelected == -1 && !ApplyBtnUsed)
-				ImGui::EndDisabled(); // end section of deactivatable widgets ["OK"-Button]
 
 			ImGui::SameLine();
 
 			if (ImGui::Button("Cancel", ImVec2(120, 0))) {
 				
-				// discard clicked settings when cancelling out of the config menu
+				// discard any chosen settings when cancelling out of the config menu
+				m_VPConfigState.LoadConfiguration = false;
 				m_VPConfigState.VPCountSelected = -1;
-				m_VPConfigState.VPArrTypeSelected = -1;
+				m_VPConfigState.VPArrTypeSelected = 0;
 
 				ImGui::CloseCurrentPopup();
 			}
@@ -460,11 +447,11 @@ namespace TempReg {
 		}
 	}//resizeActiveViewportOverlays
 
-	void GUIManager::buildViewportOverlays(ViewportManager* pVPMgr, std::map<DatasetType, MeshDataset>& Datasets) {
+	void GUIManager::buildViewportOverlays(ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>* pDatasetGeometries) {
 		
 		for (size_t i = 0; i < m_VPOStates.size(); ++i) {
 			
-			buildViewportOverlayButtonPanel(i, pVPMgr, Datasets);
+			buildViewportOverlayButtonPanel(i, pVPMgr, pDatasetGeometries);
 			
 			if (m_VPOStates[i].ViewportSceneEmpty) {
 				ImVec2 PosCenter(pVPMgr->viewportCenter(i)(0), m_RenderWinSize[1] - pVPMgr->viewportCenter(i)(1));
@@ -546,7 +533,7 @@ namespace TempReg {
 		ImGui::PopStyleColor();
 	}//buildViewportEmptyInfo
 
-	void GUIManager::buildViewportOverlayButtonPanel(size_t VPOverlayIdx, ViewportManager* pVPMgr, std::map<DatasetType, MeshDataset>& Datasets) {//TODO
+	void GUIManager::buildViewportOverlayButtonPanel(size_t VPOverlayIdx, ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>* pDatasetGeometries) {//TODO
 
 		ImGuiWindowFlags WindowFlags = ImGuiWindowFlags_NoDecoration | /*ImGuiWindowFlags_NoBackground |*/ //<- zum Test auskommentiert
 			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
@@ -555,15 +542,37 @@ namespace TempReg {
 
 		ImGui::Begin(WindowUID.c_str(), nullptr, WindowFlags);
 
+		ImGui::SameLine();
+
+		ImVec2 ButtonPos;
+
 		// "Overlay" button
-		//TODO
+		if (ImGui::Button("Overlay")) {
+			//TODO
+		}
+		
+		//TODO: Overlay popup
 
 		// "Shading" button
+		ButtonPos = ImGui::GetCursorScreenPos();
+		if (ImGui::Button("Shading"))
+			ImGui::OpenPopup("shading_popup");
+		
+		if (ImGui::BeginPopup("showhide_popup")) {
+			ImVec2 PopupPos(ButtonPos.x, ButtonPos.y + ImGui::GetFrameHeight());
+			ImGui::SetWindowPos(PopupPos);
+						
+			//TODO: radio buttons for dataset selection
+
+
+
+			ImGui::EndPopup();
+		}
 		//TODO
 
-// "Show/Hide" button
-		ImVec2 ButtonPos = ImGui::GetCursorScreenPos();
-		if (ImGui::Button("Show/Hide"))
+		// "Show/Hide" button
+		ButtonPos = ImGui::GetCursorScreenPos();
+		if (ImGui::Button("Show"))
 			ImGui::OpenPopup("showhide_popup");
 
 		if (ImGui::BeginPopup("showhide_popup")) {
@@ -575,19 +584,24 @@ namespace TempReg {
 			if (ImGui::MenuItem("Template", "", &m_VPOStates[VPOverlayIdx].ShowTemplate)) {
 				if (m_VPOStates[VPOverlayIdx].ShowTemplate == true) {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					auto itDataset = Datasets.find(DatasetType::TEMPLATE);
+					auto itD = pDatasetGeometries->find(DatasetType::TEMPLATE);
 
-					if (itDataset != Datasets.end()) {
-						pVPMgr->addDataset(VPIdx, itDataset, Vector3f::Zero(), Quaternionf::Identity(), Vector3f::Ones());
+					if (itD != pDatasetGeometries->end()) {
+						pVPMgr->addDatasetDisplayData(VPIdx, itD);
+						if (pVPMgr->activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) pVPMgr->arrangeDatasetDisplayDataSideBySide(VPIdx);
+						else pVPMgr->arrangeDatasetDisplayDataLayered(VPIdx);
 						m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = false;
 					}
 				}
 				else {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					auto itDataset = Datasets.find(DatasetType::TEMPLATE);
+					auto itD = pDatasetGeometries->find(DatasetType::TEMPLATE);
 					
-					if (itDataset != Datasets.end())
-						pVPMgr->removeDataset(VPIdx, itDataset);
+					if (itD != pDatasetGeometries->end()) {
+						pVPMgr->removeDatasetDisplayData(VPIdx, itD);
+						if (pVPMgr->activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) pVPMgr->arrangeDatasetDisplayDataSideBySide(VPIdx);
+						else pVPMgr->arrangeDatasetDisplayDataLayered(VPIdx);
+					}
 
 					if (!m_VPOStates[VPOverlayIdx].ShowTemplate && !m_VPOStates[VPOverlayIdx].ShowDTemplate && !m_VPOStates[VPOverlayIdx].ShowTarget)
 						m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = true;
@@ -597,19 +611,24 @@ namespace TempReg {
 			if (ImGui::MenuItem("Deformed Template", "", &m_VPOStates[VPOverlayIdx].ShowDTemplate)) {
 				if (m_VPOStates[VPOverlayIdx].ShowDTemplate == true) {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					auto itDataset = Datasets.find(DatasetType::DTEMPLATE);
+					auto itD = pDatasetGeometries->find(DatasetType::DTEMPLATE);
 
-					if (itDataset != Datasets.end()) {
-						pVPMgr->addDataset(VPIdx, itDataset, Vector3f::Zero(), Quaternionf::Identity(), Vector3f::Ones());
+					if (itD != pDatasetGeometries->end()) {
+						pVPMgr->addDatasetDisplayData(VPIdx, itD);
+						if (pVPMgr->activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) pVPMgr->arrangeDatasetDisplayDataSideBySide(VPIdx);
+						else pVPMgr->arrangeDatasetDisplayDataLayered(VPIdx);
 						m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = false;
 					}
 				}
 				else {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					auto itDataset = Datasets.find(DatasetType::DTEMPLATE);
+					auto itD = pDatasetGeometries->find(DatasetType::DTEMPLATE);
 					
-					if (itDataset != Datasets.end())
-						pVPMgr->removeDataset(VPIdx, itDataset);
+					if (itD != pDatasetGeometries->end()) {
+						pVPMgr->removeDatasetDisplayData(VPIdx, itD);
+						if (pVPMgr->activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) pVPMgr->arrangeDatasetDisplayDataSideBySide(VPIdx);
+						else pVPMgr->arrangeDatasetDisplayDataLayered(VPIdx);
+					}
 
 					if (!m_VPOStates[VPOverlayIdx].ShowTemplate && !m_VPOStates[VPOverlayIdx].ShowDTemplate && !m_VPOStates[VPOverlayIdx].ShowTarget)
 						m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = true;
@@ -619,21 +638,26 @@ namespace TempReg {
 			if (ImGui::MenuItem("Target", "", &m_VPOStates[VPOverlayIdx].ShowTarget)) {
 				if (m_VPOStates[VPOverlayIdx].ShowTarget == true) {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					auto itDataset = Datasets.find(DatasetType::TARGET);
+					auto itD = pDatasetGeometries->find(DatasetType::TARGET);
 
-					if (itDataset != Datasets.end()) {
-						pVPMgr->addDataset(VPIdx, itDataset, Vector3f::Zero(), Quaternionf::Identity(), Vector3f::Ones());
+					if (itD != pDatasetGeometries->end()) {
+						pVPMgr->addDatasetDisplayData(VPIdx, itD);
+						if (pVPMgr->activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) pVPMgr->arrangeDatasetDisplayDataSideBySide(VPIdx);
+						else pVPMgr->arrangeDatasetDisplayDataLayered(VPIdx);
 						m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = false;
 					}
 						
 				}
 				else {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					auto itDataset = Datasets.find(DatasetType::TARGET);
+					auto itD = pDatasetGeometries->find(DatasetType::TARGET);
 					
-					if (itDataset != Datasets.end())
-						pVPMgr->removeDataset(VPIdx, itDataset);
-
+					if (itD != pDatasetGeometries->end()) {
+						pVPMgr->removeDatasetDisplayData(VPIdx, itD);
+						if (pVPMgr->activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) pVPMgr->arrangeDatasetDisplayDataSideBySide(VPIdx);
+						else pVPMgr->arrangeDatasetDisplayDataLayered(VPIdx);
+					}
+					
 					if (!m_VPOStates[VPOverlayIdx].ShowTemplate && !m_VPOStates[VPOverlayIdx].ShowDTemplate && !m_VPOStates[VPOverlayIdx].ShowTarget)
 						m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = true;
 				}
@@ -642,7 +666,7 @@ namespace TempReg {
 			ImGui::EndPopup();
 		}
 
-		// reposition panel using size of finalized window
+		// reposition panel using size of finalized window //TODO: precompute!
 		ImVec2 Pos(m_VPOStates[VPOverlayIdx].ContentArea.x + m_VPOStates[VPOverlayIdx].ContentArea.z - ImGui::GetWindowWidth(), m_VPOStates[VPOverlayIdx].ContentArea.y);
 		ImGui::SetWindowPos(Pos);
 

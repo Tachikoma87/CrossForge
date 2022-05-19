@@ -24,19 +24,19 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <igl/embree/unproject_onto_mesh.h>
 
 #include "../TemplateRegistration/TempRegAppState.h"
-#include "../TemplateRegistration/MeshDataset.h"
+#include "../TemplateRegistration/Dataset.h"
 #include "../TemplateRegistration/ViewportManager.h"
 #include "../TemplateRegistration/GUIManager.h"
-
 
 using namespace Eigen;
 using namespace TempReg;
 
 namespace CForge {
 
-	void processInput(Keyboard* pKeyboard, Mouse* pMouse, TempRegAppState* pGlobalAppState, GUIManager* pGUIMgr, ViewportManager* pVPMgr, VirtualCamera* pCam);
+	void processInput(GLWindow* pRenderWin, TempRegAppState* pGlobalAppState, GUIManager* pGUIMgr, ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>& pDatasetGeometries);
 
 	void tempRegTestScene(void) {
 		SShaderManager* pSMan = SShaderManager::instance();
@@ -103,9 +103,9 @@ namespace CForge {
 		pSMan->configShader(LC);
 
 		// initialize camera
-		VirtualCamera Cam;
-		Cam.init(Vector3f(0.0f, 0.0f, 15.0f), Vector3f::UnitY());
-		Cam.projectionMatrix(GBufferWidth, GBufferHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+		VirtualCamera DummyCam;
+		DummyCam.init(Vector3f(0.0f, 0.0f, 15.0f), Vector3f::UnitY());
+		DummyCam.projectionMatrix(GBufferWidth, GBufferHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
 
 		// initialize sun (key lights) and back ground light (fill light)
 		Vector3f SunPos = Vector3f(-5.0f, 15.0f, 35.0f);
@@ -118,26 +118,32 @@ namespace CForge {
 		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
 
 		// set camera and lights
-		RDev.activeCamera(&Cam);
+		RDev.activeCamera(&DummyCam);
 		RDev.addLight(&Sun);
 		RDev.addLight(&BGLight);
 
-		// load datasets
-		Vector3f TemplateColor(1.0f, 0.666f, 0.498f);	// default template color (light orange)
-		Vector3f TargetColor(0.541f, 0.784f, 1.0f);		// default target color (light blue)
-		
-		std::map<DatasetType, MeshDataset> Datasets;
-		Datasets.insert(std::pair<DatasetType, MeshDataset>(DatasetType::TEMPLATE, MeshDataset()));
-		Datasets.insert(std::pair<DatasetType, MeshDataset>(DatasetType::DTEMPLATE, MeshDataset()));
-		Datasets.insert(std::pair<DatasetType, MeshDataset>(DatasetType::TARGET, MeshDataset()));
-		
-		Datasets.at(DatasetType::TEMPLATE).initFromFile("Assets/ExampleScenes/TempReg/Template.obj", true, TemplateColor);
-		Datasets.at(DatasetType::DTEMPLATE).initFromFile("Assets/ExampleScenes/TempReg/Template.obj", true, TemplateColor);
-		Datasets.at(DatasetType::TARGET).initFromFile("Assets/ExampleScenes/TempReg/Template.obj", true, TargetColor); //".../Template.obj" used for testing purposes, change to Target.obj! (use file dialog later?)
+		// load dataset geometry
 
-		// Build dataset views (viewports + scenegraphs)
+		std::map<DatasetType, DatasetGeometryData*> DatasetGeometries; //TODO: move to better spot!
+
+		DatasetGeometries.insert(std::pair<DatasetType, DatasetGeometryData*>(DatasetType::TEMPLATE, nullptr)); //TODO: move to GUI!
+		DatasetGeometries.at(DatasetType::TEMPLATE) = new DatasetGeometryData();
+		DatasetGeometries.at(DatasetType::TEMPLATE)->initFromFile("Assets/ExampleScenes/TempReg/Template.obj", DatasetGeometryType::MESH); //TODO: move to GUI!
+
+		DatasetGeometries.insert(std::pair<DatasetType, DatasetGeometryData*>(DatasetType::DTEMPLATE, nullptr)); //TODO: move to GUI!
+		DatasetGeometries.at(DatasetType::DTEMPLATE) = new DatasetGeometryData();
+		DatasetGeometries.at(DatasetType::DTEMPLATE)->initFromFile("Assets/ExampleScenes/TempReg/Template.obj", DatasetGeometryType::MESH); //TODO: move to GUI!
+
+		DatasetGeometries.insert(std::pair<DatasetType, DatasetGeometryData*>(DatasetType::TARGET, nullptr)); //TODO: move to GUI!
+		DatasetGeometries.at(DatasetType::TARGET) = new DatasetGeometryData();
+		DatasetGeometries.at(DatasetType::TARGET)->initFromFile("Assets/ExampleScenes/TempReg/Template.obj", DatasetGeometryType::MESH); //TODO: move to GUI! --- ".../Template.obj" used for testing purposes, change to Target.obj!
+
+		// init ViewportManager: viewports + scenegraphs, render data
 		ViewportManager VPMgr(4);
-		//VPMgr.initVertexMarkers("Assets/ExampleScenes/TempReg/VertMarker.obj"); //TODO: add mesh for vertex markers
+		VPMgr.initVertexMarkerModels("Assets/ExampleScenes/TempReg/UnitSphere.obj");
+		VPMgr.initDatasetModelFromFile(DatasetType::TEMPLATE, "Assets/ExampleScenes/TempReg/Template.obj"); //TODO: move to GUI!
+		VPMgr.initDatasetModelFromFile(DatasetType::DTEMPLATE, "Assets/ExampleScenes/TempReg/Template.obj"); //TODO: move to GUI!
+		VPMgr.initDatasetModelFromFile(DatasetType::TARGET, "Assets/ExampleScenes/TempReg/Template.obj"); //TODO: move to GUI! --- ".../Template.obj" used for testing purposes, change to Target.obj!
 
 		// we need one viewport for the GBuffer
 		RenderDevice::Viewport GBufferVP;
@@ -159,19 +165,18 @@ namespace CForge {
 			uint32_t RenderWinHeight = RenderWin.height();
 
 			// handle user input for gui and viewports
-			processInput(RenderWin.keyboard(), RenderWin.mouse(), &GlobalAppState, &GUIMgr, &VPMgr, &Cam);
+			processInput(&RenderWin, &GlobalAppState, &GUIMgr, &VPMgr, DatasetGeometries);
 
 			// ready new Dear ImGui frame
-			GUIMgr.buildNextImGuiFrame(&GlobalAppState, &VPMgr, Datasets);
-			
-			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse()); //TODO disable WASD movement later, change to orbit camera (lookAt)
-			
+			GUIMgr.buildNextImGuiFrame(&GlobalAppState, &VPMgr, &DatasetGeometries);
+						
 			// render views
 			bool ClearBuffer = true;
 			for (size_t ID = 0; ID < VPMgr.activeViewportCount(); ++ID) {
 				
 				// update viewport position and dimension, camera for viewport, scene graph
-				VPMgr.updateViewport(ID, &Cam, 60.0f / FPS);
+				RDev.activeCamera(VPMgr.viewportCam(ID));
+				VPMgr.updateViewport(ID, 60.0f / FPS);
 
 				// render scene as usual
 				RDev.viewport(GBufferVP);
@@ -182,10 +187,12 @@ namespace CForge {
 
 				// set viewport and perform lighting pass
 				// this will produce the correct tile in the final output window (backbuffer to be specific)
-				RDev.viewport(VPMgr.getRenderDeviceViewport(ID));
+				RDev.viewport(VPMgr.viewportGetRenderDeviceViewport(ID));
 				RDev.activePass(RenderDevice::RENDERPASS_LIGHTING, nullptr, ClearBuffer);
 				ClearBuffer = false;
 			}//for[render views]
+
+			RDev.activeCamera(&DummyCam);
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_F10, true)) {
 				RenderDevice::Viewport V;
@@ -195,7 +202,6 @@ namespace CForge {
 				RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 				SceneUtilities::takeScreenshot("Screenshot.jpg");
 			}
-
 
 			// render gui
 			GUIMgr.renderImGuiFrame(ClearBuffer);
@@ -213,8 +219,6 @@ namespace CForge {
 				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
 			}
 
-
-
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				RenderWin.closeWindow();
 			}
@@ -224,7 +228,16 @@ namespace CForge {
 
 	} //tempRegTestScene
 
-	void processInput(Keyboard* pKeyboard, Mouse* pMouse, TempRegAppState* pGlobalAppState, GUIManager* pGUIMgr, ViewportManager* pVPMgr, VirtualCamera* pCam) {
+	void processInput(GLWindow* pRenderWin, TempRegAppState* pGlobalAppState, GUIManager* pGUIMgr, ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>& pDatasetGeometries) {
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 
+		// TODO: SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse()); //TODO disable WASD movement later, change to orbit camera (lookAt)
+		// 
+		// -> split between sections !GuiIO.WantCaptureKeyboard and !GuiIO.WantCaptureMouse!
+		// -> execute updates per viewport!
+		//
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		ImGuiIO& GuiIO = ImGui::GetIO();
 
@@ -240,28 +253,146 @@ namespace CForge {
 		// WantCaptureMouse-flag updated by ImGui::NewFrame(): calling processInput(...) before calling NewFrame() to poll flags from previous frame allows for more reliable input processing
 		// (as per: https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-can-i-tell-whether-to-dispatch-mousekeyboard-to-dear-imgui-or-my-application)
 		
-		if (!GuiIO.WantCaptureMouse) {
-			
-			if (pMouse->buttonState(Mouse::BTN_LEFT)) {
+		if (!GuiIO.WantCaptureMouse) { // mouse cursor is inside of viewport section area
+			Vector2f CurrentCursorPosOGL = Vector2f(pRenderWin->mouse()->position().x(), (float)pRenderWin->height() - pRenderWin->mouse()->position().y());
 
-				if (pGlobalAppState->focussedViewport() < 0) {
-					size_t ViewportUnderMouse = pVPMgr->mouseInViewport(pMouse);
-					pGlobalAppState->focusViewport(ViewportUnderMouse);
-					pVPMgr->arcballRotate(ViewportUnderMouse, true, pMouse->position().x(), pMouse->position().y(), pCam);
+			// current position of mouse cursor in relation to active viewports; if ViewportUnderMouse == -1 the cursor does not hover over any active viewport
+			int32_t ViewportUnderMouse = pVPMgr->mouseInViewport(CurrentCursorPosOGL);
+
+			// raycast against datasets (for picking / highlighting of vertices) if mouse cursor hovers over a viewport
+			// raycast vertex under mouse cursor only when: a) exactly one dataset is active in a viewport or
+			//										        b) mutliple datasets are displayed side by side in a viewport (NOT layered over each other)
+			if (ViewportUnderMouse > -1) {				
+				// get necessary states of viewport under mouse
+				auto ActiveDatasets = pVPMgr->activeDatasetTypes(ViewportUnderMouse);
+				auto ActiveDisplayDataArrangement = pVPMgr->activeDatasetDisplayDataArrangement(ViewportUnderMouse);
+				
+				Matrix4f View = pVPMgr->viewportViewMatrix(ViewportUnderMouse);
+				Matrix4f Projection = pVPMgr->viewportProjectionMatrix(ViewportUnderMouse);
+				
+				Vector4f VP = Vector4f( // viewport dimensions
+					pVPMgr->viewportPosition(ViewportUnderMouse).x(), pVPMgr->viewportPosition(ViewportUnderMouse).y(),
+					pVPMgr->viewportSize(ViewportUnderMouse).x(), pVPMgr->viewportSize(ViewportUnderMouse).y());
+
+				if (ActiveDatasets.size() == 1 || ActiveDisplayDataArrangement != DisplayDataArrangementMode::LAYERED) {
+					for (auto Dataset : ActiveDatasets) {
+						Matrix4f Model = pVPMgr->datasetModelMatrix(ViewportUnderMouse, Dataset);
+						int PickedFace;
+						Eigen::Vector3f PickPosBaryCoords;
+
+						if (igl::embree::unproject_onto_mesh(
+							CurrentCursorPosOGL, pDatasetGeometries.at(Dataset)->faces(), View * Model, Projection, VP,
+							pDatasetGeometries.at(Dataset)->embreeIntersector(), PickedFace, PickPosBaryCoords)) {
+							// calculate picked vertex, if any are within range of ray<->mesh intersection point
+							Vector3i Face = pDatasetGeometries.at(Dataset)->face(PickedFace);
+							Vector3f V0 = pDatasetGeometries.at(Dataset)->vertex(Face(0));
+							Vector3f V1 = pDatasetGeometries.at(Dataset)->vertex(Face(1));
+							Vector3f V2 = pDatasetGeometries.at(Dataset)->vertex(Face(2));
+							Vector3f IntersectionPoint = (PickPosBaryCoords.x() * V0) + (PickPosBaryCoords.y() * V1) + (PickPosBaryCoords.z() * V2);
+							
+							Vector3f DistV0Intersect = IntersectionPoint - V0;
+							Vector3f DistV1Intersect = IntersectionPoint - V1;
+							Vector3f DistV2Intersect = IntersectionPoint - V2;
+
+							float DistV0 = DistV0Intersect.squaredNorm();
+							float DistV1 = DistV1Intersect.squaredNorm();
+							float DistV2 = DistV2Intersect.squaredNorm();
+
+							float MinDist = DistV0;		
+							uint32_t VertexID = Face(0);
+
+							if (DistV1 < MinDist) {
+								MinDist = DistV1;
+								VertexID = Face(1);
+							}
+							if (DistV2 < MinDist) {
+								MinDist = DistV2;
+								VertexID = Face(2);
+							}
+							
+							if (MinDist < 0.06f) pGlobalAppState->newHoverPickResult(Dataset, VertexID, ViewportUnderMouse); // TODO adjust maximum distance after some testing
+							else pGlobalAppState->newHoverPickResult(DatasetType::NONE, 0, 0);
+
+							break;
+						}
+					}
+				}
+			}// end picking -> results are used below
+
+			// process mouse button inputs
+			bool MouseButtonPressed = false;
+
+			// -> middle mouse button
+			if (pRenderWin->mouse()->buttonState(Mouse::BTN_MIDDLE) == GLFW_PRESS) {
+
+				pGlobalAppState->currentMMBCursorPos(CurrentCursorPosOGL);
+				if (pGlobalAppState->oldMouseButtonState(Mouse::BTN_MIDDLE) == GLFW_RELEASE) pGlobalAppState->oldMMBCursorPos(pGlobalAppState->currentMMBCursorPos());
+
+				if (pGlobalAppState->mouseButtonViewportFocus() < 0 && ViewportUnderMouse > -1) pGlobalAppState->mouseButtonViewportFocus(ViewportUnderMouse); // inputs are now applied to this viewport until mouse button is released
+
+				if (pGlobalAppState->mouseButtonViewportFocus() > -1) {
+					pVPMgr->viewportArcballRotate(pGlobalAppState->mouseButtonViewportFocus(), pGlobalAppState->oldMMBCursorPos(), pGlobalAppState->currentMMBCursorPos()); //TODO: arbcallRotateAllViewports if Alt / Shift key (or similar) is pressed
+				}
+
+				pGlobalAppState->oldMMBCursorPos(pGlobalAppState->currentMMBCursorPos());
+				pGlobalAppState->oldMouseButtonState(Mouse::BTN_MIDDLE, GLFW_PRESS); // record this button press for next frame
+				MouseButtonPressed = true;
+			}
+			else { // pRenderWin->mouse()->buttonState(Mouse::BTN_MIDDLE) == GLFW_RELEASE
+				pGlobalAppState->currentMMBCursorPos(Vector2f::Zero());
+				pGlobalAppState->oldMMBCursorPos(Vector2f::Zero());
+				pGlobalAppState->mouseButtonViewportFocus(-1);
+				pGlobalAppState->oldMouseButtonState(Mouse::BTN_MIDDLE, GLFW_RELEASE); // record unpressed button for next frame
+			}// end if-else [pRenderWin->mouse()->buttonState(Mouse::BTN_MIDDLE) == GLFW_PRESS]
+
+			// -> left mouse button
+			if (pRenderWin->mouse()->buttonState(Mouse::BTN_LEFT) == GLFW_PRESS) {
+				
+				//TODO...
+
+				pGlobalAppState->oldMouseButtonState(Mouse::BTN_LEFT, GLFW_PRESS); // record this button press for next frame
+				MouseButtonPressed = true;
+			}
+			else { // pRenderWin->mouse()->buttonState(Mouse::BTN_LEFT) == GLFW_RELEASE
+				
+				//TODO...
+
+				pGlobalAppState->oldMouseButtonState(Mouse::BTN_LEFT, GLFW_RELEASE); // record unpressed button for next frame
+			}
+
+			// -> right mouse button
+			// temporary, remove later:
+			if (!GuiIO.WantCaptureKeyboard && ViewportUnderMouse > -1)
+				SceneUtilities::defaultCameraUpdate(pVPMgr->viewportCam(ViewportUnderMouse), pRenderWin->keyboard(), pRenderWin->mouse());
+
+			//TODO:
+			//if (pRenderWin->mouse()->buttonState(Mouse::BTN_RIGHT) == GLFW_PRESS) {
+			//					
+			//	//TODO...
+
+			//	pGlobalAppState->oldMouseButtonState(Mouse::BTN_RIGHT, GLFW_PRESS); // record this button press for next frame
+			//	MouseButtonPressed = true;
+			//}
+			//else { // pRenderWin->mouse()->buttonState(Mouse::BTN_RIGHT) == GLFW_RELEASE
+			//	
+			//	//TODO...
+
+			//	pGlobalAppState->oldMouseButtonState(Mouse::BTN_RIGHT, GLFW_RELEASE); // record unpressed button for next frame
+			//}
+
+			// no mouse buttons were pressed, mouse cursor is only hovering over viewport
+			if (!MouseButtonPressed && ViewportUnderMouse > -1) {
+				auto CurPickRes = pGlobalAppState->currentHoverPickResult();
+
+				if (CurPickRes.DT != DatasetType::NONE) {
+					//pVPMgr->placeMarker(CurPickRes.ViewportID, CurPickRes.DT, CurPickRes.VertexID, MarkerMode::HOVER);
 				}
 				else {
-					pVPMgr->arcballRotate(pGlobalAppState->focussedViewport(), false, pMouse->position().x(), pMouse->position().y(), pCam);
+					//pVPMgr->removeLastHoverMarker(CurPickRes.ViewportID);
 				}
 			}
-			else {
-				pGlobalAppState->focusViewport(-1);
-			}
-			
-			//...
 		}
 	}
 }
-
-
 
 #endif

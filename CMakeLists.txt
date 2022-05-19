@@ -169,13 +169,11 @@ add_executable(CForgeSandbox
 	Prototypes/Misc/IMUCameraController.cpp
 
 	Prototypes/Assets/GLTFIO.cpp
-
-	Prototypes/TemplateRegistration/Arcball.cpp
-	Prototypes/TemplateRegistration/OBBOctree.cpp
+		
 	Prototypes/TemplateRegistration/TempRegAppState.cpp
 	Prototypes/TemplateRegistration/ViewportManager.cpp
-	Prototypes/TemplateRegistration/MeshDataset.cpp
-	Prototypes/TemplateRegistration/GUIManager.cpp	
+	Prototypes/TemplateRegistration/GUIManager.cpp
+	Prototypes/TemplateRegistration/Dataset.cpp
 	)
 
 
@@ -185,6 +183,9 @@ if(WIN32)
 	PRIVATE glfw 
 	${OpenCV_LIBS}
 	PRIVATE imgui::imgui
+	PRIVATE igl::core 
+	PRIVATE igl::common
+	PRIVATE igl::embree
 	ws2_32
 	)
 endif (WIN32)
@@ -198,6 +199,9 @@ if(UNIX)
 		PRIVATE gpiod
 		PRIVATE dl
 		PRIVATE imgui::imgui
+		PRIVATE igl::core 
+		PRIVATE igl::common
+		PRIVATE igl::embree
 		)
 endif(UNIX)
 

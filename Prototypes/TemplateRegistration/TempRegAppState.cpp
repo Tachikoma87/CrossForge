@@ -6,9 +6,17 @@
 
 namespace TempReg {
 	TempRegAppState::TempRegAppState(void) :
-		m_GuiCaptureMouse(false), m_GuiCaptureKeyboard(false), m_TakeScreenshot(false), m_glfwCursorLock(false), 
-		m_FocussedViewport(-1), m_AppInteractionMode(AppInteractionMode::VIEWING) {
+		m_GuiCaptureMouse(false), m_GuiCaptureKeyboard(false), m_TakeScreenshot(false), m_glfwCursorLock(false),
+		m_MouseBtnOldState{ false }, m_MouseBtnViewportFocus(-1), m_AppInteractionMode(AppInteractionMode::VIEWING) {
 	
+		m_PreviousHoverPickResult.DT = DatasetType::NONE;
+		m_PreviousHoverPickResult.VertexID = 0;
+		m_PreviousHoverPickResult.ViewportID = 0;
+
+		m_CurrentHoverPickResult.DT = DatasetType::NONE;
+		m_CurrentHoverPickResult.VertexID = 0;
+		m_CurrentHoverPickResult.ViewportID = 0;
+
 	}//Constructor
 
 	TempRegAppState::~TempRegAppState() {
@@ -31,13 +39,40 @@ namespace TempReg {
 		m_glfwCursorLock = false;
 	}//unlockCursor
 
-	void TempRegAppState::focusViewport(int32_t VPIndex) {
-		m_FocussedViewport = VPIndex;
-	}//focusDatasetView
+	void TempRegAppState::oldMouseButtonState(CForge::Mouse::Button Btn, bool Down) {
+		if (Btn < CForge::Mouse::BTN_LEFT || Btn > CForge::Mouse::BTN_MIDDLE) throw IndexOutOfBoundsExcept("Btn");
+		m_MouseBtnOldState[Btn] = Down;
+	}//mouseButtonOldState
+
+	void TempRegAppState::mouseButtonViewportFocus(int32_t VPIndex) {
+		m_MouseBtnViewportFocus = VPIndex;
+	}//mouseButtonViewportFocus
+
+	void TempRegAppState::currentMMBCursorPos(Vector2f Pos) {
+		m_CursorPosMMB = Pos;
+	}//currentMMBCursorPos
+
+	void TempRegAppState::oldMMBCursorPos(Vector2f Pos) {
+		m_OldCursorPosMMB = Pos;
+	}//oldMMBCursorPos
 
 	void TempRegAppState::interactionMode(AppInteractionMode Mode) {
 		m_AppInteractionMode = Mode;
 	}//interactionMode
+
+	void TempRegAppState::newHoverPickResult(DatasetType DT, uint32_t VertexID, size_t ViewportID) {
+		m_PreviousHoverPickResult.DT = m_CurrentHoverPickResult.DT;
+		m_PreviousHoverPickResult.VertexID = m_CurrentHoverPickResult.VertexID;
+		m_PreviousHoverPickResult.ViewportID = m_CurrentHoverPickResult.ViewportID;
+
+		m_CurrentHoverPickResult.DT = DT;
+		m_CurrentHoverPickResult.VertexID = VertexID;
+		m_CurrentHoverPickResult.ViewportID = ViewportID;
+	}//newHoverPickResult
+
+	void TempRegAppState::pickingSuccessful(bool Res) {
+		m_PickingSuccessful = Res;
+	}//pickingSuccessful
 
 	//Getters
 
@@ -57,11 +92,36 @@ namespace TempReg {
 		return m_glfwCursorLock;
 	}//cursorLocked
 
-	int32_t TempRegAppState::focussedViewport(void) const {
-		return m_FocussedViewport;
-	}//focussedDatasetView
+	bool TempRegAppState::oldMouseButtonState(CForge::Mouse::Button Btn) const {
+		if (Btn <= CForge::Mouse::BTN_UNKNOWN || Btn > CForge::Mouse::BTN_MIDDLE) throw IndexOutOfBoundsExcept("Btn");
+		return m_MouseBtnOldState[Btn];
+	}//mouseButtonOldState
+
+	int32_t TempRegAppState::mouseButtonViewportFocus(void) const {
+		return m_MouseBtnViewportFocus;
+	}//mouseButtonViewportFocus
+
+	Vector2f TempRegAppState::currentMMBCursorPos(void) const {
+		return m_CursorPosMMB;
+	}//currentMMBCursorPos
+
+	Vector2f TempRegAppState::oldMMBCursorPos(void) const {
+		return m_OldCursorPosMMB;
+	}//oldMMBCursorPos
 
 	AppInteractionMode TempRegAppState::activeInteractionMode(void) const {
 		return m_AppInteractionMode;
 	}//activeInteractionMode
+
+	VertexPickResult TempRegAppState::currentHoverPickResult(void) const {
+		return m_CurrentHoverPickResult;
+	}//currentHoverPickResult
+
+	VertexPickResult TempRegAppState::previousHoverPickResult(void) const {
+		return m_PreviousHoverPickResult;
+	}//lastHoverPickResult
+
+	bool TempRegAppState::pickingSuccessful(void) const {
+		return m_PickingSuccessful;
+	}//pickingSuccessful
 }
