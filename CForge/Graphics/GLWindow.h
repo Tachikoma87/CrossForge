@@ -55,8 +55,12 @@ namespace CForge {
 		std::string title(void)const;
 		void title(const std::string Title);
 
+		void setCharacterCallback(class GLFWindow* pWin, uint32_t Codepoint);
+
 	private:
 		class GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
+
+		
 
 		void* m_pHandle;
 		Keyboard m_Keyboard;

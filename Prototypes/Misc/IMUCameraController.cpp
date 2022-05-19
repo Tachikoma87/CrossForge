@@ -13,6 +13,10 @@ namespace CForge {
 
 		m_TurnLeft = false;
 		m_TurnRight = false;
+
+		m_DataRecording = false;
+
+		m_LastSearch = 0;
 	}//Constructor
 
 	IMUCameraController::~IMUCameraController(void) {
@@ -22,8 +26,10 @@ namespace CForge {
 	void IMUCameraController::init(uint16_t PortLeft, uint16_t PortRight, uint32_t AveragingTime) {
 		clear();
 
-		m_SocketLeft.begin(UDPSocket::TYPE_SERVER, PortLeft);
-		m_SocketRight.begin(UDPSocket::TYPE_SERVER, PortRight);
+		//m_SocketLeft.begin(UDPSocket::TYPE_SERVER, PortLeft);
+		//m_SocketRight.begin(UDPSocket::TYPE_SERVER, PortRight);
+
+		m_Socket.begin(UDPSocket::TYPE_SERVER, PortLeft);
 		m_AveragingTime = AveragingTime;
 
 		m_LeftFootPort = 0;
@@ -38,33 +44,60 @@ namespace CForge {
 	}//initialize
 
 	void IMUCameraController::clear(void) {
-		m_SocketLeft.end();
-		m_SocketRight.end();
+		//m_SocketLeft.end();
+		//m_SocketRight.end();
+
+		m_Socket.end();
+
 		m_DataBufferLeft.clear();
 		m_DataBufferRight.clear();
 	}//clear
 
 	void IMUCameraController::update(VirtualCamera* pCamera, float Scale) {
 
-		updateFoot(&m_SocketLeft, &m_DataBufferLeft);
-		updateFoot(&m_SocketRight, &m_DataBufferRight);
+		//updateFoot(&m_SocketLeft, &m_DataBufferLeft);
+		//updateFoot(&m_SocketRight, &m_DataBufferRight);
+
+		updateFoot(&m_Socket, &m_DataBuffer);
 
 		if (nullptr != pCamera) apply(pCamera, Scale);
+
+		if (CoreUtility::timestamp() - m_LastSearch > 500) {
+			IMUWIP::IMUPackage SearchPackage;
+			SearchPackage.Cmd = IMUWIP::IMUPackage::CMD_SEARCH;
+			SearchPackage.setIP("192.168.1.206");
+
+			uint8_t Buffer[64];
+			if (m_LeftFootPort == 0) {
+				SearchPackage.Port = m_Socket.port();
+				uint32_t DataSize = SearchPackage.toStream(Buffer, sizeof(Buffer));
+				m_Socket.sendData(Buffer, DataSize, "192.168.1.255", 10042);
+				printf("Sending Search package (left)!\n");
+			}
+			if (m_RightFootPort == 0) {
+				SearchPackage.Port = m_Socket.port();
+				uint32_t DataSize = SearchPackage.toStream(Buffer, sizeof(Buffer));
+				m_Socket.sendData(Buffer, DataSize, "192.168.1.255", 10042);
+				printf("Sending Search package (right)!\n");
+			}
+			
+			
+			m_LastSearch = CoreUtility::timestamp();
+		}
 
 	}//update
 
 	void IMUCameraController::calibrate(void) {
 
-		ArduForge::IMUPackage Package;
-		Package.Cmd = ArduForge::IMUPackage::CMD_CALIBRATE;
-
+		IMUWIP::IMUPackage Package;
+		Package.Cmd = IMUWIP::IMUPackage::CMD_CALIBRATE;
 
 		uint8_t Buffer[64];
 		uint32_t DataSize = 0;
 		DataSize = Package.toStream(Buffer, sizeof(Buffer));
 
-		if (m_LeftFootPort != 0) m_SocketLeft.sendData(Buffer, DataSize, m_LeftFootIP, m_LeftFootPort);
-		if (m_RightFootPort != 0) m_SocketRight.sendData(Buffer, DataSize, m_RightFootIP, m_RightFootPort);
+		if (m_LeftFootPort != 0) m_Socket.sendData(Buffer, DataSize, m_LeftFootIP, m_LeftFootPort);
+		if (m_RightFootPort != 0) m_Socket.sendData(Buffer, DataSize, m_RightFootIP, m_RightFootPort);
 
 	}//calibrate
 
@@ -77,24 +110,28 @@ namespace CForge {
 		uint16_t SenderPort;
 
 		while (pSock->recvData(Buffer, &DataSize, &SenderIP, &SenderPort)) {
-			ArduForge::IMUPackage Package;
+			IMUWIP::IMUPackage Package;
 			if (Package.checkMagicTag(Buffer)) {
 				Package.fromStream(Buffer, DataSize);
 
-				if (m_LeftFootPort == 0 && pSock == &m_SocketLeft) {
+				if (m_LeftFootPort == 0 /* && pSock == &m_SocketLeft*/ && Package.Type == IMUWIP::IMUPackage::DEVICE_TRACKER_LEFT) {
 					m_LeftFootPort = SenderPort;
 					m_LeftFootIP = SenderIP;
+					printf("Found left tracker\n");
 				}
-				if (m_RightFootPort == 0 && pSock == &m_SocketRight) {
+				if (m_RightFootPort == 0 /* && pSock == &m_SocketRight*/ && Package.Type == IMUWIP::IMUPackage::DEVICE_TRACKER_RIGHT) {
 					m_RightFootPort = SenderPort;
 					m_RightFootIP = SenderIP;
+					printf("Found right tacker\n");
 				}
 
-				if (pSock == &m_SocketRight && Package.Cmd == ArduForge::IMUPackage::CMD_AVG_DATA) {
+				//if (pSock == &m_SocketRight && Package.Cmd == IMUWIP::IMUPackage::CMD_AVG_DATA) {
+				if (Package.Type == IMUWIP::IMUPackage::DEVICE_TRACKER_RIGHT && Package.Cmd == IMUWIP::IMUPackage::CMD_AVG_DATA) {
 					m_CmdData.AveragedMovementRight.Accelerations = Vector3f(Package.AccelX, Package.AccelY, Package.AccelZ);
 					m_CmdData.AveragedMovementRight.Rotations = Vector3f(Package.GyroX, Package.GyroY, Package.GyroZ);
 				}
-				if (pSock == &m_SocketLeft && Package.Cmd == ArduForge::IMUPackage::CMD_AVG_DATA) {
+				//if (pSock == &m_SocketLeft && Package.Cmd == IMUWIP::IMUPackage::CMD_AVG_DATA) {
+				if (Package.Type == IMUWIP::IMUPackage::DEVICE_TRACKER_LEFT && Package.Cmd == IMUWIP::IMUPackage::CMD_AVG_DATA) {
 					m_CmdData.AveragedMovementLeft.Accelerations = Vector3f(Package.AccelX, Package.AccelY, Package.AccelZ);
 					m_CmdData.AveragedMovementLeft.Rotations = Vector3f(Package.GyroX, Package.GyroY, Package.GyroZ);
 				}
@@ -110,27 +147,29 @@ namespace CForge {
 		if (m_CameraHeight < 0.0f) m_CameraHeight = pCamera->position().y();
 
 		const float StepSpeed = m_CmdData.AveragedMovementLeft.Rotations.y() + m_CmdData.AveragedMovementRight.Rotations.y();
-		
-		if (StepSpeed > 25.0f) {
-			const float WalkSpeed = 5.0f;
-			const float RunSpeed = 10.0f;
 
-			float Alpha = std::clamp( (StepSpeed-20.0f) / 200.0f, 0.0f, 1.0f);
-		
-			float Speed = Alpha * RunSpeed + (1 - Alpha) * WalkSpeed;
-			//printf("\tSpeed: %.2f | %.2f\n", Speed, m_CmdData.TiltLeft);
+		float Speed = 0.0f;
 
-			if (Speed > 3.51f) {
-				pCamera->forward(Speed * Scale / 50.0f);
-				m_HeadOffset += Speed * Scale / 100.0f;
-				Vector3f Pos = pCamera->position();
-				Pos.y() = m_CameraHeight + 0.05f*std::sin(m_HeadOffset);
-				pCamera->position(Pos);
-			}
-			m_UserState = STATE_WALKING;
+		//const Vector2f WalkSpeed = Vector2f(3.0f, 5.0f);
+		const float WalkSpeed = 2.5f;
+		const float RunSpeed = 10.0f;
+
+		static uint32_t RunCounter = 0;
+
+		if (StepSpeed > 20.0f) {
+			// walking
 
 			m_TurnLeft = false;
 			m_TurnRight = false;
+
+			if (StepSpeed > 90.0f)	RunCounter++;
+			else if (StepSpeed < 50.0f) RunCounter = 0;
+
+			if (StepSpeed > 60.0f && RunCounter > 30) m_UserState = STATE_RUNNING;
+			else m_UserState = STATE_WALKING;
+
+			Speed = (m_UserState == STATE_WALKING) ? WalkSpeed : RunSpeed;
+
 		}
 		else {
 			// state Standing
@@ -158,7 +197,49 @@ namespace CForge {
 			if (m_CmdData.AveragedMovementRight.Accelerations.y() > 0.2f) pCamera->right(m_CmdData.AveragedMovementRight.Accelerations.y()/60.0f * 10.5f * Scale);
 			if (m_CmdData.AveragedMovementLeft.Accelerations.y() < -0.2f) pCamera->right(m_CmdData.AveragedMovementLeft.Accelerations.y() / 60.0f * 10.5f * Scale);
 		}	
+
+		if (Speed > 0.0f) {
+			pCamera->forward(Speed * Scale / 50.0f);
+			m_HeadOffset += Speed * Scale / 100.0f;
+			Vector3f Pos = pCamera->position();
+			Pos.y() = m_CameraHeight + 0.05f * std::sin(m_HeadOffset);
+			pCamera->position(Pos);
+		}
+		
+
+		if (m_DataRecording) {
+			char Buffer[256];
+			float Time = (CoreUtility::timestamp() - m_RecordingStartTime) / 1000.0f;
+			uint32_t MsgSize = sprintf(Buffer, "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n", Time, Speed,
+				m_CmdData.AveragedMovementLeft.Accelerations.x(),
+				m_CmdData.AveragedMovementRight.Accelerations.x(),
+				m_CmdData.AveragedMovementLeft.Accelerations.y(),
+				m_CmdData.AveragedMovementRight.Accelerations.y(),
+				m_CmdData.AveragedMovementLeft.Accelerations.z(),
+				m_CmdData.AveragedMovementRight.Accelerations.z(),
+				m_CmdData.AveragedMovementLeft.Rotations.x(),
+				m_CmdData.AveragedMovementRight.Rotations.x(),
+				m_CmdData.AveragedMovementLeft.Rotations.y(),
+				m_CmdData.AveragedMovementRight.Rotations.y(),
+				m_CmdData.AveragedMovementLeft.Rotations.z(),
+				m_CmdData.AveragedMovementRight.Rotations.z());
+
+			m_DataFile.write(Buffer, MsgSize);
+		}
 	}//apply
 
+	void IMUCameraController::recordData(std::string Filepath) {
+		if (m_DataRecording) {
+			m_DataFile.end();
+			m_DataRecording = false;
+		}
+		else {
+			m_DataFile.begin(Filepath, "wb");
+			const char* Header = "Time,Speed,x-Pos-Left,x-Pos-Right,y-Pos-Left,y-Pos-Right,z-Pos-Left,z-Pos-Right,x-Rot-Left,x-Rot-Right,y-Rot-Left,y-Rot-Right,z-Rot-Left,z-Rot-Right\n";
+			m_DataFile.write(Header, std::strlen(Header));
+			m_DataRecording = true;
+			m_RecordingStartTime = CoreUtility::timestamp();
+		}
+	}//recordData
 
 }
