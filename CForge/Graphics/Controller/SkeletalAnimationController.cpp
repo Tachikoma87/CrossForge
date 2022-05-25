@@ -74,8 +74,8 @@ namespace CForge {
 
 		SShaderManager* pSMan = SShaderManager::instance();
 
-		m_pShadowPassFSCode = pSMan->createShaderCode("Shader/ShadowPassShader.frag", "330 core", 0, "lowp", "lowp");
-		m_pShadowPassVSCode = pSMan->createShaderCode("Shader/ShadowPassShader.vert", "330 core", ShaderCode::CONF_SKELETALANIMATION | ShaderCode::CONF_LIGHTING, "lowp", "lowp");
+		m_pShadowPassFSCode = pSMan->createShaderCode("Shader/ShadowPassShader.frag", "330 core", 0, "lowp");
+		m_pShadowPassVSCode = pSMan->createShaderCode("Shader/ShadowPassShader.vert", "330 core", ShaderCode::CONF_SKELETALANIMATION | ShaderCode::CONF_LIGHTING, "lowp");
 
 		ShaderCode::SkeletalAnimationConfig SkelConfig;
 		SkelConfig.BoneCount = m_Joints.size();
@@ -103,6 +103,7 @@ namespace CForge {
 	void SkeletalAnimationController::addAnimationData(T3DMesh<float>::SkeletalAnimation* pAnimation) {
 		if (nullptr == pAnimation) throw NullpointerExcept("pAnimation");
 
+		
 		T3DMesh<float>::SkeletalAnimation* pAnim = new T3DMesh<float>::SkeletalAnimation();
 		pAnim->Duration = pAnimation->Duration;
 		pAnim->Name = pAnimation->Name;
@@ -110,18 +111,40 @@ namespace CForge {
 
 		// keyframes and join names have to match
 		for (uint32_t i = 0; i < pAnimation->Keyframes.size(); ++i) {
-			T3DMesh<float>::BoneKeyframes* pKeyframes = new T3DMesh<float>::BoneKeyframes();
-			//(*pKeyframes) = (*pAnimation->Keyframes[i]);
-			pAnim->Keyframes.push_back(pKeyframes);
-		}
-
-		for (uint32_t i = 0; i < pAnimation->Keyframes.size(); ++i) {
 			int32_t JointID = jointIDFromName(pAnimation->Keyframes[i]->BoneName);
-			if(JointID != -1)
-				(*pAnim->Keyframes[JointID]) = (*pAnimation->Keyframes[i]);
+			if (JointID < 0) continue;
+			while (pAnim->Keyframes.size() <= JointID) pAnim->Keyframes.push_back(new T3DMesh<float>::BoneKeyframes());
+			(*pAnim->Keyframes[JointID]) = (*pAnimation->Keyframes[i]);
+			pAnim->Keyframes[JointID]->BoneID = JointID;
 		}
 
 		m_SkeletalAnimations.push_back(pAnim);
+		
+		int32_t KeyframeMaxTimestamps = 0;
+		int32_t MaxTimestamps = 0;
+
+		for (uint32_t i = 0; i < pAnim->Keyframes.size(); ++i) {
+			if (pAnim->Keyframes[i]->Timestamps.size() > MaxTimestamps) {
+				MaxTimestamps = pAnim->Keyframes[i]->Timestamps.size();
+				KeyframeMaxTimestamps = i;
+			}
+		}
+
+
+		for (uint32_t i = 0; i < pAnim->Keyframes.size(); ++i) {
+			auto* pKeyFrame = pAnim->Keyframes[i];
+			if (pKeyFrame->BoneName.empty()) continue;
+			if (pKeyFrame->Timestamps.size() != MaxTimestamps) pKeyFrame->Timestamps = pAnim->Keyframes[KeyframeMaxTimestamps]->Timestamps;
+			Vector3f Pos = pKeyFrame->Positions[0];
+			Vector3f Scale = pKeyFrame->Scalings[0];
+			Quaternionf Rot = pKeyFrame->Rotations[0];
+
+
+			while (pKeyFrame->Positions.size() < MaxTimestamps) pKeyFrame->Positions.push_back(Pos);
+			while (pKeyFrame->Scalings.size() < MaxTimestamps) pKeyFrame->Scalings.push_back(Scale);
+			while (pKeyFrame->Rotations.size() < MaxTimestamps) pKeyFrame->Rotations.push_back(Rot);
+		}
+	
 	}//addAnimation
 
 	int32_t SkeletalAnimationController::jointIDFromName(std::string JointName) {
@@ -139,7 +162,7 @@ namespace CForge {
 		pRval->AnimationID = AnimationID;
 		pRval->Speed = Speed;
 		pRval->t = Offset;
-
+		pRval->Finished = false;
 		Animation* pTemp = pRval;
 		for (uint32_t i = 0; i < m_ActiveAnimations.size(); ++i) {
 			if (m_ActiveAnimations[i] == nullptr) {
@@ -156,7 +179,7 @@ namespace CForge {
 
 	void SkeletalAnimationController::update(float FPSScale) {
 		for (auto i : m_ActiveAnimations) {
-			if (nullptr != i) {
+			if (nullptr != i && !i->Finished) {
 				i->t += FPSScale * i->Speed;
 			}
 		}//for[active animations]
@@ -182,10 +205,15 @@ namespace CForge {
 		else {
 			T3DMesh<float>::SkeletalAnimation* pAnimData = m_SkeletalAnimations[pAnim->AnimationID];
 
-			if (pAnim->t > pAnimData->Duration) pAnim->t = pAnimData->Duration;
+			if (pAnim->t > pAnimData->Duration) {
+				pAnim->t = pAnimData->Duration;
+				pAnim->Finished = true;
+			}
 
 			// apply local transformations
 			for (uint32_t i = 0; i < pAnimData->Keyframes.size(); ++i) {
+
+				if (pAnimData->Keyframes[i]->BoneName.empty()) continue;
 
 				if (pAnimData->Keyframes[i]->Timestamps.size() == 0) continue;
 
@@ -193,7 +221,7 @@ namespace CForge {
 					float Time = pAnimData->Keyframes[i]->Timestamps[k];
 					float TimeP1 = pAnimData->Keyframes[i]->Timestamps[k + 1];
 
-					if (Time <= pAnim->t && TimeP1 >= pAnim->t) {
+					if (Time <= pAnim->t && TimeP1 > pAnim->t) {
 
 						float s = (pAnim->t - Time) / (TimeP1 - Time);
 						if (i < m_Joints.size()) {

@@ -34,7 +34,7 @@ namespace CForge {
 	* \todo Do full documentation
 	* \todo Add timestamp method
 	*/
-	class CFORGE_IXPORT CoreUtility {
+	class CFORGE_API CoreUtility {
 	public:
 		CoreUtility(void) {
 
@@ -59,6 +59,7 @@ namespace CForge {
 		}//randRange
 
 		static uint64_t rand(void);
+		static void randSeed(uint64_t Seed); 
 
 		static uint64_t randMax(void) {
 			return std::numeric_limits<uint64_t>::max()/2ull;

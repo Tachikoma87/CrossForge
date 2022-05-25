@@ -27,6 +27,7 @@
 #include "../../CForge/Graphics/GraphicsUtility.h"
 #include "../../CForge/Graphics/RenderDevice.h"
 
+
 #include "../../CForge/Graphics/Lights/DirectionalLight.h"
 #include "../../CForge/Graphics/Lights/PointLight.h"
 
@@ -244,12 +245,13 @@ namespace CForge {
 			// Change Color according to muscle values
 			//float Alpha = float(CoreUtility::timestamp() - LastColorChange) / 2500.0f;
 			
+			if (int(pAnim->t) > frames - 2) pAnim->t = 0.0f;
 
 			for (uint32_t i = 0; i < Eric.materialCount(); ++i) {
 				//if()
 				Vector4f C = { 1.0f,1.0f,1.0f,1.0f };
 				if (ma_data.size() - 1 < i)break;
-				if (int(pAnim->t) > frames - 1)break;
+				
 
 				
 				for (int g = 0; g < muscledata.size(); g++) {

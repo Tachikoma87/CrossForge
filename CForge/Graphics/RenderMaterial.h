@@ -29,7 +29,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT RenderMaterial: public CForgeObject {
+	class CFORGE_API RenderMaterial: public CForgeObject {
 	public:
 		RenderMaterial(void);
 		~RenderMaterial(void);

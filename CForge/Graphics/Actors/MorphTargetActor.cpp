@@ -25,21 +25,21 @@ namespace CForge {
 		if (pMesh->textureCoordinatesCount() > 0) VProps |= VertexUtility::VPROP_UVW;
 
 		m_VertexUtility.init(VProps);
-		void* pBuffer = nullptr;
+		uint8_t* pBuffer = nullptr;
 		uint32_t BufferSize = 0;
-		m_VertexUtility.buildBuffer(pMesh->vertexCount(), &pBuffer, &BufferSize, pMesh);
+		m_VertexUtility.buildBuffer(pMesh->vertexCount(), (void**)&pBuffer, &BufferSize, pMesh);
 
 		// build vertex buffer
 		m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
-		delete[] pBuffer;
+		if(nullptr != pBuffer) delete[] pBuffer;
 		pBuffer = nullptr;
 		BufferSize = 0;
 
-		m_RenderGroupUtility.init(pMesh, &pBuffer, &BufferSize);
+		m_RenderGroupUtility.init(pMesh, (void**)&pBuffer, &BufferSize);
 		// build index buffer
 		m_ElementBuffer.init(GLBuffer::BTYPE_INDEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
 
-		delete[] pBuffer;
+		if(nullptr != pBuffer) delete[] pBuffer;
 		pBuffer = nullptr;
 		BufferSize = 0;
 
@@ -79,22 +79,50 @@ namespace CForge {
 		m_pAnimationController->apply(&m_ActiveAnimations, &m_MorphTargetUBO);
 
 		for (auto i : m_RenderGroupUtility.renderGroups()) {
-			if (i->pShader == nullptr) continue;
+			
+			switch (pRDev->activePass()) {
+			case RenderDevice::RENDERPASS_GEOMETRY: {
+				if (nullptr == i->pShaderGeometryPass) continue;
 
-			if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-				
-			}
-			else {		
-				pRDev->activeShader(i->pShader);
+				pRDev->activeShader(i->pShaderGeometryPass);
 				pRDev->activeMaterial(&i->Material);
-				int32_t MTTex = i->pShader->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
+				int32_t MTTex = i->pShaderGeometryPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
 				if (MTTex >= 0) {
 					m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
 					glUniform1i(MTTex, MTTex);
 				}
-				int32_t MTUBO = i->pShader->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
+				int32_t MTUBO = i->pShaderGeometryPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
 				m_MorphTargetUBO.bind(MTUBO);
-			}
+			}break;
+			case RenderDevice::RENDERPASS_SHADOW: {
+				if (nullptr == i->pShaderShadowPass) continue;
+
+				pRDev->activeShader(i->pShaderShadowPass);
+				pRDev->activeMaterial(&i->Material);
+				int32_t MTTex = i->pShaderShadowPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
+				if (MTTex >= 0) {
+					m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
+					glUniform1i(MTTex, MTTex);
+				}
+				int32_t MTUBO = i->pShaderShadowPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
+				m_MorphTargetUBO.bind(MTUBO);
+			}break;
+			case RenderDevice::RENDERPASS_FORWARD: {
+				if (nullptr == i->pShaderForwardPass) continue;
+
+				pRDev->activeShader(i->pShaderForwardPass);
+				pRDev->activeMaterial(&i->Material);
+				int32_t MTTex = i->pShaderForwardPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
+				if (MTTex >= 0) {
+					m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
+					glUniform1i(MTTex, MTTex);
+				}
+				int32_t MTUBO = i->pShaderForwardPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
+				m_MorphTargetUBO.bind(MTUBO);
+			}break;
+			default: continue;
+			}//switch[active pass]
+
 			glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
 		}//for[all render groups]
 	}//render

@@ -45,7 +45,7 @@ namespace CForge {
 	* \todo Write appropriate clear() function
 	* \todo Full documentation
 	*/
-	class CFORGE_IXPORT RenderDevice: public CForgeObject, public ITListener<VirtualCameraMsg> {
+	class CFORGE_API RenderDevice: public CForgeObject, public ITListener<VirtualCameraMsg> {
 	public:
 		enum RenderPass: int8_t {
 			RENDERPASS_UNKNOWN = -1,
@@ -55,7 +55,7 @@ namespace CForge {
 			RENDERPASS_FORWARD,		///< forward rendering draw pass
 		};
 
-		struct CFORGE_IXPORT RenderDeviceConfig {
+		struct CFORGE_API RenderDeviceConfig {
 			uint32_t DirectionalLightsCount;
 			uint32_t PointLightsCount;
 			uint32_t SpotLightsCount;
@@ -74,6 +74,11 @@ namespace CForge {
 			void init(void);
 		};
 
+		struct Viewport {
+			Eigen::Vector2i Position;
+			Eigen::Vector2i Size;
+		};
+
 		RenderDevice(void);
 		~RenderDevice(void);
 
@@ -85,7 +90,7 @@ namespace CForge {
 		void activeShader(GLShader* pShader);
 		void activeMaterial(RenderMaterial* pMaterial);
 		void activeCamera(VirtualCamera* pCamera);
-		void activePass(RenderPass Pass, ILight *pActiveLight = nullptr);
+		void activePass(RenderPass Pass, ILight* pActiveLight = nullptr, bool ClearBuffer = true);
 		RenderDevice::RenderPass activePass(void)const;
 
 		GLShader* activeShader(void)const;
@@ -105,6 +110,9 @@ namespace CForge {
 		GBuffer* gBuffer(void);
 
 		GLShader* shadowPassShader(void);
+
+		void viewport(Viewport VP);
+		Viewport viewport(void)const;
 
 	protected:
 		struct ActiveLight {
@@ -141,6 +149,8 @@ namespace CForge {
 		ScreenQuad m_ScreenQuad;
 		GLShader* m_pDeferredLightingPassShader;
 		GLShader* m_pShadowPassShader;
+
+		Viewport m_Viewport;
 	private:
 
 	};//RenderDevice

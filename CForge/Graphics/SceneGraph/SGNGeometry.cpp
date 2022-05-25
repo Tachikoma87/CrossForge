@@ -67,7 +67,7 @@ namespace CForge {
 		// nothing to do here
 	}//update
 
-	void SGNGeometry::render(RenderDevice* pRDev, Eigen::Vector3f Position, Eigen::Quaternionf Rotation, Eigen::Vector3f Scale) {
+	void SGNGeometry::render(RenderDevice* pRDev, const Eigen::Vector3f Position, const Eigen::Quaternionf Rotation, const Eigen::Vector3f Scale) {
 		if (nullptr != m_pRenderable && m_RenderingEnabled) {
 			Eigen::Vector3f Pos = Position + m_Position;
 			Eigen::Quaternionf Rot = Rotation * m_Rotation;

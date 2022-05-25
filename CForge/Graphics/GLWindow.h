@@ -31,7 +31,7 @@ namespace CForge {
 	* \todo Think about better names for shutdown and closeWindow
 	* \todo Implement callback system for window changes
 	*/
-	class CFORGE_IXPORT GLWindow: public CForgeObject {
+	class CFORGE_API GLWindow: public CForgeObject {
 	public:
 		GLWindow(void);
 		~GLWindow(void);
@@ -55,8 +55,12 @@ namespace CForge {
 		std::string title(void)const;
 		void title(const std::string Title);
 
+		void setCharacterCallback(class GLFWindow* pWin, uint32_t Codepoint);
+
 	private:
 		class GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
+
+		
 
 		void* m_pHandle;
 		Keyboard m_Keyboard;

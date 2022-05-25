@@ -24,12 +24,13 @@
 #include "../Shader/GLShader.h"
 
 namespace CForge {
-	class CFORGE_IXPORT SkeletalAnimationController: public CForgeObject {
+	class CFORGE_API SkeletalAnimationController: public CForgeObject {
 	public:
 		struct Animation {
 			int32_t AnimationID;
 			float Speed;
 			float t; //current
+			bool Finished;
 		};
 
 		SkeletalAnimationController(void);

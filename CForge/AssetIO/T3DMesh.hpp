@@ -33,27 +33,22 @@ namespace CForge {
 	template<typename T>
 	class T3DMesh: public CForgeObject {
 	public:
+		/**
+		* \brief Face data structure. Only supports triangles.
+		*/
 		struct Face {
-			int32_t Vertices[4];
-			int32_t Normals[4];
-			int32_t Tangents[4];
-			int32_t UVWs[4];
-			int32_t Colors[4];
-			int32_t Material;
+			int32_t Vertices[3];
 
 			Face(void) {
-				CoreUtility::memset(Vertices, -1, 4);
-				CoreUtility::memset(Normals, -1, 4);
-				CoreUtility::memset(Tangents, -1, 4);
-				CoreUtility::memset(UVWs, -1, 4);
-				CoreUtility::memset(Colors, -1, 4);
-				Material = -1;
+				CoreUtility::memset(Vertices, -1, 3);
 			}
 		};//Face
 
 		struct Submesh {
 			std::vector<Face> Faces;
-			std::vector<Eigen::Vector3f> FaceNormals;
+			int32_t Material;
+			std::vector<Eigen::Vector3f> FaceNormals; ///< Stores face normals (if required)
+			std::vector<Eigen::Vector3f> FaceTangents; ///< Stores face tangents (if required)
 			Eigen::Quaternion<float> RotationOffset; // rotation relative to parent
 			Eigen::Matrix<T, 3, 1> TranslationOffset; // translation relative to parent
 			std::vector<Submesh*> Children;
@@ -69,6 +64,9 @@ namespace CForge {
 				TranslationOffset = pRef->TranslationOffset;
 				Children = pRef->Children;
 				pParent = pRef->pParent;
+				Material = pRef->Material;
+				FaceNormals = pRef->FaceNormals;
+				FaceTangents = pRef->FaceTangents;
 			}//initialize
 		};//Submesh
 
@@ -80,8 +78,15 @@ namespace CForge {
 			std::string TexAlbedo;
 			std::string TexNormal;
 			std::string TexDepth;
-			std::vector<std::string> VertexShaderSources;
-			std::vector<std::string> FragmentShaderSources;
+
+			std::vector<std::string> VertexShaderGeometryPass;
+			std::vector<std::string> FragmentShaderGeometryPass;
+
+			std::vector<std::string> VertexShaderShadowPass;
+			std::vector<std::string> FragmentShaderShadowPass;
+
+			std::vector<std::string> VertexShaderForwardPass;
+			std::vector<std::string> FragmentShaderForwardPass;
 
 			Material(void) {
 				ID = -1;
@@ -89,10 +94,15 @@ namespace CForge {
 				TexAlbedo = "";
 				TexNormal = "";
 				TexDepth = "";
-				VertexShaderSources.clear();
-				FragmentShaderSources.clear();
 				Metallic = 0.0f;
 				Roughness = 0.8f;
+
+				VertexShaderGeometryPass.clear();
+				FragmentShaderGeometryPass.clear();
+				VertexShaderShadowPass.clear();
+				FragmentShaderShadowPass.clear();
+				VertexShaderForwardPass.clear();
+				FragmentShaderForwardPass.clear();
 			}//Constructor
 
 			~Material(void) {
@@ -106,9 +116,13 @@ namespace CForge {
 					Color = pMat->Color;
 					TexAlbedo = pMat->TexAlbedo;
 					TexNormal = pMat->TexNormal;
-					TexDepth = pMat->TexDepth;
-					VertexShaderSources = pMat->VertexShaderSources;
-					FragmentShaderSources = pMat->FragmentShaderSources;
+					
+					VertexShaderGeometryPass = pMat->VertexShaderGeometryPass;
+					FragmentShaderGeometryPass = pMat->FragmentShaderGeometryPass;
+					VertexShaderShadowPass = pMat->VertexShaderShadowPass;
+					FragmentShaderShadowPass = pMat->FragmentShaderShadowPass;
+					VertexShaderForwardPass = pMat->VertexShaderForwardPass;
+					FragmentShaderForwardPass = pMat->FragmentShaderForwardPass;
 				}
 			}//initialize
 
@@ -118,8 +132,12 @@ namespace CForge {
 				TexAlbedo = "";
 				TexNormal = "";
 				TexDepth = "";
-				VertexShaderSources.clear();
-				FragmentShaderSources.clear();
+				VertexShaderGeometryPass.clear();
+				FragmentShaderGeometryPass.clear();
+				VertexShaderShadowPass.clear();
+				FragmentShaderShadowPass.clear();
+				VertexShaderForwardPass.clear();
+				FragmentShaderForwardPass.clear();
 			}//clear
 
 		};//Material
@@ -173,6 +191,7 @@ namespace CForge {
 
 		T3DMesh(void): CForgeObject("TDMesh") {
 			m_pRoot = nullptr;
+			m_pRootBone = nullptr;
 		}//Constructor
 
 		~T3DMesh(void) {
@@ -197,7 +216,6 @@ namespace CForge {
 					pMat->init(i);
 					m_Materials.push_back(pMat);
 				}//for[materials]
-				m_pRoot = pRef->m_pRoot;
 				m_AABB = pRef->m_AABB;
 			}
 		}//initialize
@@ -213,6 +231,7 @@ namespace CForge {
 			for (auto& i : m_Materials) delete i;
 			m_Materials.clear();
 			m_pRoot = nullptr;
+			m_pRootBone = nullptr;
 
 			for (auto& i : m_Bones) delete i;
 			m_Bones.clear();
@@ -285,6 +304,12 @@ namespace CForge {
 			else if(nullptr != pBones) {
 				m_Bones = (*pBones);
 			}
+
+			// find root bone
+			for (auto i : m_Bones) {
+				if (i->pParent == nullptr) m_pRootBone = i;
+			}//for[all bones]
+
 		}//bones
 
 		void addSkeletalAnimation(SkeletalAnimation* pAnim, bool Copy = true) {
@@ -480,6 +505,13 @@ namespace CForge {
 			return m_MorphTargets[Index];
 		}//getMorphTarget
 
+		Bone* rootBone(void) {
+			return m_pRootBone;
+		}//rootBone
+
+		const Bone* rootBone(void)const {
+			return m_pRootBone;
+		}//rootBone
 
 		void computePerFaceNormals(void) {
 			for (auto i : m_Submeshes) {
@@ -493,24 +525,44 @@ namespace CForge {
 			}//for[submeshes]
 		}//computePerFaceNormals
 
+		void computePerFaceTangents(void) {
+
+			if (m_UVWs.size() == 0) throw CForgeExcept("No UVW coordinates. Can not compute tangents.");
+
+			for (auto i : m_Submeshes) {
+				i->FaceTangents.clear();
+				for (auto F : i->Faces) {
+					const Eigen::Vector3f Edge1 = m_Positions[F.Vertices[1]] - m_Positions[F.Vertices[0]];
+					const Eigen::Vector3f Edge2 = m_Positions[F.Vertices[2]] - m_Positions[F.Vertices[0]];
+					const Eigen::Vector3f DeltaUV1 = m_UVWs[F.Vertices[1]] - m_UVWs[F.Vertices[0]];
+					const Eigen::Vector3f DeltaUV2 = m_UVWs[F.Vertices[2]] - m_UVWs[F.Vertices[0]];
+
+					float f = 1.0f / (DeltaUV1.x() * DeltaUV2.y() - DeltaUV2.x() + DeltaUV1.y());
+
+					Eigen::Vector3f Tangent;
+					Tangent.x() = f * (DeltaUV2.y() * Edge1.x() - DeltaUV1.y() * Edge2.x());
+					Tangent.y() = f * (DeltaUV2.y() * Edge1.y() - DeltaUV1.y() * Edge2.y());
+					Tangent.z() = f * (DeltaUV2.y() * Edge1.z() - DeltaUV1.y() * Edge2.z());
+					i->FaceTangents.push_back(Tangent);
+				}//for[all faces]
+			}//for[all submeshes]
+
+		}//computeTangents
+
 		void computePerVertexNormals(bool ComputePerFaceNormals = true) {
 			if(ComputePerFaceNormals) computePerFaceNormals();
 
 			m_Normals.clear();
 			// create normals
-			Eigen::Vector3f Origin = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Normals.push_back(Origin);
+			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Normals.push_back(Eigen::Vector3f::Zero());
 
 			// sum normals
 			for (auto i : m_Submeshes) {
 				for (uint32_t k = 0; k < i->Faces.size(); ++k) {
 					Face* pF = &(i->Faces[k]);
-					pF->Normals[0] = pF->Vertices[0];
-					pF->Normals[1] = pF->Vertices[1];
-					pF->Normals[2] = pF->Vertices[2];
-					m_Normals[pF->Normals[0]] = m_Normals[pF->Normals[0]] + i->FaceNormals[k];
-					m_Normals[pF->Normals[1]] = m_Normals[pF->Normals[1]] + i->FaceNormals[k];
-					m_Normals[pF->Normals[2]] = m_Normals[pF->Normals[2]] + i->FaceNormals[k];
+					m_Normals[pF->Vertices[0]] = m_Normals[pF->Vertices[0]] + i->FaceNormals[k];
+					m_Normals[pF->Vertices[1]] = m_Normals[pF->Vertices[1]] + i->FaceNormals[k];
+					m_Normals[pF->Vertices[2]] = m_Normals[pF->Vertices[2]] + i->FaceNormals[k];
 				}//for[faces]
 			}//for[sub meshes
 
@@ -518,6 +570,29 @@ namespace CForge {
 			for (auto& i : m_Normals) i.normalize();
 
 		}//computeperVertexNormals
+
+		void computePerVertexTangents(bool ComputePerFaceTangents = true) {
+			if (ComputePerFaceTangents) computePerFaceTangents();
+
+			m_Tangents.clear();
+
+			// create tangents
+			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Tangents.push_back(Eigen::Vector3f::Zero());
+
+			// sum tangents
+			for (auto i : m_Submeshes) {
+				for (uint32_t k = 0; k < i->Faces.size(); ++k) {
+					Face* pF = &(i->Faces[k]);
+					m_Tangents[pF->Vertices[0]] += i->FaceTangents[k];
+					m_Tangents[pF->Vertices[1]] += i->FaceTangents[k];
+					m_Tangents[pF->Vertices[2]] += i->FaceTangents[k];
+				}//for[all faces]
+			}//for[submeshes]
+
+			// normalize tangents
+			for (auto& i : m_Tangents) i.normalize();
+
+		}//computePerVertexTangents
 
 		AABB aabb(void)const {
 			return m_AABB;

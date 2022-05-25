@@ -26,7 +26,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT UBOCameraData: public CForgeObject {
+	class CFORGE_API UBOCameraData: public CForgeObject {
 	public:
 		UBOCameraData(void);
 		~UBOCameraData(void);

@@ -22,7 +22,7 @@
 #include "../Controller/SkeletalAnimationController.h"
 
 namespace CForge {
-	class CFORGE_IXPORT SkeletalActor : public IRenderableActor {
+	class CFORGE_API SkeletalActor : public IRenderableActor {
 	public:
 		SkeletalActor(void);
 		~SkeletalActor(void);

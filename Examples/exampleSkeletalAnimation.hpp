@@ -18,6 +18,7 @@
 #ifndef __CFORGE_EXAMPLESKELETALANIMATION_HPP__
 #define __CFORGE_EXAMPLESKELETALANIMATION_HPP__
 
+
 #include "../CForge/AssetIO/SAssetIO.h"
 #include "../CForge/Graphics/Shader/SShaderManager.h"
 #include "../CForge/Graphics/STextureManager.h"
@@ -159,7 +160,7 @@ namespace CForge {
 		// start main loop
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			SG.update(FPS/60.0f);
+			SG.update(60.0f/FPS);
 
 			// this will progress all active skeletal animations for this controller
 			Controller.update(FPS / 60.0f);
@@ -170,6 +171,7 @@ namespace CForge {
 			// if user also presses shift, animation speed is doubled
 			float AnimationSpeed = 1.0f;
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed = 2.0f;
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed = 0.5f;
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 				SkeletalAnimationController::Animation *pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
 				Eric.activeAnimation(pAnim);

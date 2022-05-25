@@ -30,7 +30,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation
 	*/
-	class CFORGE_IXPORT ScreenQuad : public IRenderableActor {
+	class CFORGE_API ScreenQuad : public IRenderableActor {
 	public:
 		ScreenQuad(void);
 		~ScreenQuad(void);
@@ -44,9 +44,6 @@ namespace CForge {
 	protected:
 		void setBufferData(void);
 
-		/*GLVertexArray m_VertexArray;
-		GLBuffer m_VertexBuffer;
-		GLBuffer m_ElementBuffer;*/
 		GLShader *m_pShader;
 
 	};//ScreenQuad

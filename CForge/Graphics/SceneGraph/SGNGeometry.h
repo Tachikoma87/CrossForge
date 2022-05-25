@@ -28,7 +28,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT SGNGeometry : public ISceneGraphNode {
+	class CFORGE_API SGNGeometry : public ISceneGraphNode {
 	public:
 		SGNGeometry(void);
 		~SGNGeometry(void);
@@ -47,7 +47,7 @@ namespace CForge {
 		IRenderableActor* actor(void)const;
 
 		void update(float FPSScale);
-		void render(RenderDevice* pRDev, Eigen::Vector3f Position, Eigen::Quaternionf Rotation, Eigen::Vector3f Scale);
+		void render(RenderDevice* pRDev, const Eigen::Vector3f Position, const Eigen::Quaternionf Rotation, const Eigen::Vector3f Scale);
 		void buildTansformation(Eigen::Vector3f* pPosition, Eigen::Quaternionf* pRotation, Eigen::Vector3f* pScale);
 	private:
 		Eigen::Vector3f m_Position;

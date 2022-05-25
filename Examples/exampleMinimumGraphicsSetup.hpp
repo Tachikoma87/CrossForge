@@ -18,6 +18,7 @@
 #ifndef __CFORGE_EXAMPLEMINIMUMGRAPHICSSETUP_HPP__
 #define __CFORGE_EXAMPLEMINIMUMGRAPHICSSETUP_HPP__
 
+
 #include "../CForge/AssetIO/SAssetIO.h"
 #include "../CForge/Graphics/Shader/SShaderManager.h"
 #include "../CForge/Graphics/STextureManager.h"
@@ -155,7 +156,7 @@ namespace CForge {
 
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			SG.update(FPS/60.0f);
+			SG.update(60.0f/FPS);
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
 

@@ -1,5 +1,5 @@
 #include "MPU6050.h"
-#include "../CForge/Core/CrossForgeException.h"
+#include "../../CForge/Core/CrossForgeException.h"
 #include <thread>
 #include <chrono>
 

@@ -1,18 +1,20 @@
 cmake_minimum_required(VERSION 3.16)
 
+SET(VCPKG_BOOTSTRAP_OPTIONS "-disableMetrics")    # Disable telemetry for vcpkg.
+SET(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)             # Install vcpkg dependencies automatically(experimental - might be changed or removed later; see: https://github.com/microsoft/vcpkg/issues/1653). 
+
 # Forbid in-source builds.
 IF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
    MESSAGE(SEND_ERROR "In-source builds are not allowed. Use a different build directory.")
 ENDIF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
+# CrossForge library
+project(crossforge VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 file(MAKE_DIRECTORY "MyAssets")
-
-# CrossForge library
-project(crossforge VERSION 0.1 LANGUAGES CXX)
 
 FIND_PACKAGE(OpenGL REQUIRED)
 FIND_PACKAGE(assimp CONFIG REQUIRED)
@@ -20,10 +22,16 @@ FIND_PACKAGE(glfw3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenCV CONFIG REQUIRED)
 FIND_PACKAGE(libigl CONFIG REQUIRED)
 
+#enable edit and continue and hot reload (Visual Studio 2022)
+#if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+#	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /ZI")
+#	string(REPLACE "/Zi" "/ZI" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS})
+#	set(CMAKE_SHARED_LINKER_FLAGS "/SAFESEH:NO")
+#	set(CMAKE_EXE_LINKER_FLAGS "/SAFESEH:NO")
+#endif()
 
 include_directories(
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
-	"${CMAKE_SOURCE_DIR}/thirdparty/eigen"
 	"${OpenCV_INCLUDE_DIRS}"
 )
 
@@ -50,6 +58,7 @@ add_library(crossforge SHARED
 	# Graphics related
 	CForge/Graphics/GBuffer.cpp 
 	CForge/Graphics/GLBuffer.cpp 
+	CForge/Graphics/GLCubemap.cpp
 	CForge/Graphics/GLTexture2D.cpp 
 	CForge/Graphics/GLVertexArray.cpp 
 	CForge/Graphics/GLWindow.cpp 
@@ -59,9 +68,11 @@ add_library(crossforge SHARED
 	CForge/Graphics/VirtualCamera.cpp
 	CForge/Graphics/GraphicsUtility.cpp
 
+
 	# Actor related
 	CForge/Graphics/Actors/IRenderableActor.cpp 
 	CForge/Graphics/Actors/RenderGroupUtility.cpp 
+	CForge/Graphics/Actors/SkyboxActor.cpp
 	CForge/Graphics/Actors/VertexUtility.cpp 
 	CForge/Graphics/Actors/ScreenQuad.cpp 
 	CForge/Graphics/Actors/StaticActor.cpp 
@@ -79,6 +90,7 @@ add_library(crossforge SHARED
 
 	# Uniform Buffer Objects
 	CForge/Graphics/UniformBufferObjects/UBOCameraData.cpp 
+	CForge/Graphics/UniformBufferObjects/UBOColorAdjustment.cpp
 	CForge/Graphics/UniformBufferObjects/UBOLightData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOMaterialData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOModelData.cpp
@@ -104,8 +116,14 @@ add_library(crossforge SHARED
 
 	# Mesh Processing
 	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
-  "CForge/AssetIO/MuscleDataInput.cpp")
-set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
+
+	# Internet
+	CForge/Internet/UDPSocket.cpp
+	CForge/Internet/TCPSocket.cpp
+ 
+  "CForge/AssetIO/MuscleDataInput.cpp"
+  )
+#set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
 if(WIN32)
 add_compile_definitions(CFORGE_EXPORTS)
@@ -122,6 +140,7 @@ target_link_libraries(crossforge
 	PRIVATE igl::core 
 	PRIVATE igl::common
 	${OpenCV_LIBS}
+	ws2_32			#winsock2
 	)
 endif(WIN32)
 
@@ -143,21 +162,28 @@ add_executable(CForgeSandbox
 	"thirdparty/glad/src/glad.c"
 
 	CForge/Core/SGPIO.cpp
-	Prototypes/I2C.cpp 
-	Prototypes/MPU6050.cpp
-	Prototypes/RotaryEncoder.cpp
-	Prototypes/PhotoFinish.cpp
-	Prototypes/StripPhoto.cpp 
-	Prototypes/StripPhotoCamera.cpp
+	Prototypes/Hardware/I2C.cpp 
+	Prototypes/Hardware/MPU6050.cpp
+	Prototypes/Hardware/RotaryEncoder.cpp
 
+	Prototypes/Camera/PhotoFinish.cpp
+	Prototypes/Camera/StripPhoto.cpp 
+	Prototypes/Camera/StripPhotoCamera.cpp
+
+	#Prototypes/Internet/TCPSocket.cpp 
+	#Prototypes/Internet/UDPSocket.cpp
+
+	Prototypes/Misc/IMUCameraController.cpp
+
+	
 	 "CForge/AssetIO/MuscleDataInput.cpp")
-
 
 if(WIN32)
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
 	PRIVATE glfw 
 	${OpenCV_LIBS}
+	ws2_32
 	)
 endif (WIN32)
 
@@ -194,9 +220,9 @@ add_custom_command(
 	${CMAKE_CURRENT_BINARY_DIR}/MyAssets
 )
 
-project(ExportLibrary)
+
 add_executable(ExportLibrary 
-	ExportLibrary.cpp "CForge/AssetIO/MuscleDataInput.cpp")
+	ExportLibrary.cpp )
 
 target_link_libraries(ExportLibrary
 	PRIVATE crossforge)

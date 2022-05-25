@@ -27,7 +27,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT GraphicsUtility: public CForgeObject {
+	class CFORGE_API GraphicsUtility: public CForgeObject {
 	public:
 		struct GPUTraits {
 			int32_t MaxTextureImageUnits;

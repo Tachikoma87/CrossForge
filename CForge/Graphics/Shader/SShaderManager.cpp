@@ -26,20 +26,24 @@ namespace CForge {
 
 	}//release
 
-	ShaderCode* SShaderManager::createShaderCode(std::string Code, std::string VersionTag, uint8_t ConfigOptions, std::string FloatPrecisionTag, std::string IntegerPrecisionTag) {
+	ShaderCode* SShaderManager::createShaderCode(std::string Code, std::string VersionTag, uint8_t ConfigOptions, std::string PrecisionTag) {
 		ShaderCode* pRval = nullptr;
 
+		// do not create repeatedly if same object definition
 		for (auto i : m_ShaderCodes) {
-			/*if (i != nullptr && i->originalCode().compare(Code) == 0) {
-				pRval = i;
-				break;
-			}*/
+			if (i->originalCode().compare(Code) != 0) continue;
+			if (i->versionTag().compare(VersionTag) != 0) continue;
+			if (i->configOptions() != ConfigOptions) continue;
+			if (i->precisionTag().compare(PrecisionTag) != 0) continue;
+
+			pRval = i;
+			break;
 		}//for[all shader codes]
 
 
 		if (nullptr == pRval) {
 			pRval = new ShaderCode();
-			pRval->init(Code, VersionTag, ConfigOptions, FloatPrecisionTag, IntegerPrecisionTag);
+			pRval->init(Code, VersionTag, ConfigOptions, PrecisionTag);
 			m_ShaderCodes.push_back(pRval);
 		}
 		return pRval;
@@ -83,143 +87,11 @@ namespace CForge {
 			pRval = pS->pShader;
 
 			m_Shader.push_back(pS);
-
-			/*pS->pShader->init();
-			for (auto k : pS->VSSources) pS->pShader->addVertexShader(k->code());
-			for (auto k : pS->FSSources) pS->pShader->addFragmentShader(k->code());
-			std::string ErrorLog;
-			try {
-				pS->pShader->build(&ErrorLog);
-			}
-			catch (const CrossForgeException& e) {
-				delete pS->pShader;
-				delete pS;
-				SLogger::logException(e);
-				return nullptr;
-			}
-
-			if (!ErrorLog.empty() && nullptr != perror) {
-				delete pS->pShader;
-				(*pErrorLog) = ErrorLog;
-			}
-			else {
-				pRval = pS->pShader;
-				m_Shader.push_back(pS);
-			}*/
-			
-
 		}//if[create new shader object]
 
 		return pRval;
 	}//buildShader
 
-	//GLShader* SShaderManager::buildShader(const std::vector<std::string>* pVSSources, const std::vector<std::string>* pFSSources, std::string *pErrorLog) {
-	//	if (nullptr == pVSSources) throw NullpointerExcept("pVSrouces");
-	//	if (nullptr == pFSSources) throw NullpointerExcept("pFSSources");
-
-	//	if (pVSSources->empty() || pFSSources->empty()) return nullptr;
-
-	//	GLShader* pRval = nullptr;
-
-	//	// search for shader with same sources
-	//	for (auto i : m_Shader) {
-	//		if (i->Sources.size() != pVSSources->size() + pFSSources->size()) continue;
-
-	//		pRval = i->pShader;
-
-	//		for (auto k : (*pVSSources)) {
-	//			if (!findShaderSource(k, i)) {
-	//				pRval = nullptr;
-	//				break;
-	//			}
-	//		}//for[VSources]
-
-	//		if (nullptr == pRval) break;
-
-	//		for (auto k : (*pFSSources)) {
-	//			if (!findShaderSource(k, i)) {
-	//				pRval = nullptr;
-	//				break;
-	//			}
-	//		}//for[FSources]
-
-	//		if (nullptr != pRval) {
-	//			i->ReferenceCount++;
-	//			return pRval;
-	//		}
-	//	}//for[shader]
-
-	//	
-	//	// need to build shader
-	//	pRval = new GLShader();
-	//	pRval->init();
-	//	
-	//	std::string Code;
-	//	for (auto i : (*pVSSources)) {
-	//		if (File::exists(i)) {
-	//			Code = AssetIO::readTextFile(i);
-	//			pRval->addVertexShader(Code);
-	//		}
-	//		else {
-	//			SLogger::log("Unable to find VS code " + i);
-	//		}
-	//		
-	//	}
-	//	for (auto i : (*pFSSources)) {
-	//		if (File::exists(i)) {
-	//			Code = AssetIO::readTextFile(i);
-	//			pRval->addFragmentShader(Code);
-	//		}
-	//		else {
-	//			SLogger::log("Unable to find FS code " + i);
-	//		}	
-	//	}
-
-	//	try {
-	//		std::string ErrorLog;
-	//		pRval->build(&ErrorLog);
-
-	//		if (!ErrorLog.empty()) {
-	//			SLogger::log("Shader compilation " + pVSSources->at(0) + " | " + pFSSources->at(0) + "failed: " + ErrorLog);
-	//			delete pRval;
-	//			pRval = nullptr;
-
-	//			if (nullptr != pErrorLog) (*pErrorLog) = ErrorLog;
-	//		}
-	//	}
-	//	catch (CrossForgeException& e) {
-	//		SLogger::logException(e);
-	//		delete pRval;
-	//		pRval = nullptr;
-	//	}
-	//	catch (...) {
-	//		SLogger::log("Something went wrong during shader building!");
-	//		delete pRval;
-	//		pRval = nullptr;
-	//	}
-
-	//	if (nullptr != pRval) {
-	//		Shader* pS = new Shader();
-	//		pS->Sources = (*pVSSources);
-	//		for (auto i : (*pFSSources)) pS->Sources.push_back(i);
-	//		pS->pShader = pRval;
-	//		pS->ReferenceCount = 1;
-	//		m_Shader.push_back(pS);
-	//	}
-
-	//	return pRval;
-	//}//buildShader
-
-	//bool SShaderManager::findShaderSource(std::string Source, Shader* pShader) {
-	//	bool Rval = false;
-	//	for (auto const k : pShader->Sources) {
-	//		if (0 == k.compare(Source)) {
-	//			Rval = true;
-	//			break;
-	//		}
-	//	}
-	//	return Rval;
-	//}//findShaderSource
 
 	uint32_t SShaderManager::shaderCount(void)const {
 		return m_Shader.size();
@@ -277,6 +149,7 @@ namespace CForge {
 			if (i->requiresConfig(ShaderCode::CONF_POSTPROCESSING)) i->config(&m_PostProcessingConfig);
 			if (i->requiresConfig(ShaderCode::CONF_SKELETALANIMATION)) i->config(ShaderCode::CONF_SKELETALANIMATION);
 			if (i->requiresConfig(ShaderCode::CONF_VERTEXCOLORS)) i->config(ShaderCode::CONF_VERTEXCOLORS);
+			if (i->requiresConfig(ShaderCode::CONF_NORMALMAPPING)) i->config(ShaderCode::CONF_NORMALMAPPING);
 			pShader->pShader->addVertexShader(i->code());
 		}//for[VS sources]
 
@@ -285,6 +158,7 @@ namespace CForge {
 			if (i->requiresConfig(ShaderCode::CONF_LIGHTING)) i->config(&m_LightConfig);
 			if (i->requiresConfig(ShaderCode::CONF_POSTPROCESSING)) i->config(&m_PostProcessingConfig);
 			if (i->requiresConfig(ShaderCode::CONF_VERTEXCOLORS)) i->config(ShaderCode::CONF_VERTEXCOLORS);
+			if (i->requiresConfig(ShaderCode::CONF_NORMALMAPPING)) i->config(ShaderCode::CONF_NORMALMAPPING);
 			pShader->pShader->addFragmentShader(i->code());
 		}//for[FS sources]
 
@@ -356,5 +230,23 @@ namespace CForge {
 			if (Rebuild) configAndCompile(i);
 		}
 	}//configShader
+
+	std::vector<std::string> SShaderManager::defaultShaderSources(DEFAULT_SHADER_SOURCE Type) {
+		std::vector<std::string> Rval;
+
+		switch (Type) {
+		case DEF_VS_GEOMETRY_PASS: Rval = m_DefVSGeometry; break;
+		case DEF_FS_GEOMETRY_PASS: Rval = m_DefFSGeometry; break;
+		case DEF_VS_SHADOW_PASS: Rval = m_DefVSShadow; break;
+		case DEF_FS_SHADOW_PASS: Rval = m_DefFSShadow; break;
+		case DEF_VS_FORWARD_PASS: Rval = m_DefVSForward; break;
+		case DEF_FS_FORWARD_PASS: Rval = m_DefFSForward; break;
+		default: {
+			throw CForgeExcept("Invalid default shader source type specified!");
+		}break;
+		}//switch[shader source type]
+
+		return Rval;
+	}//defaultShaderSources
 
 }//name space

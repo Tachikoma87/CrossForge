@@ -21,7 +21,7 @@
 #include "../Core/CForgeObject.h"
 
 namespace CForge {
-	class CFORGE_IXPORT Keyboard: public CForgeObject {
+	class CFORGE_API Keyboard: public CForgeObject {
 	public:
 		enum Key : int16_t {
 			KEY_UNKNOWN = -1,

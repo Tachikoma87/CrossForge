@@ -34,11 +34,13 @@
 #include "../../CForge/Graphics/SceneGraph/SGNTransformation.h"
 
 #include "../../CForge/Graphics/Actors/StaticActor.h"
-
+#include "../../CForge/Graphics/Actors/SkyboxActor.h"
 #include "../../Examples/SceneUtilities.hpp"
 
 using namespace Eigen;
 using namespace std;
+
+
 
 namespace CForge {
 
@@ -114,8 +116,9 @@ namespace CForge {
 		StaticActor Tree1;
 		StaticActor Tree2;
 
-		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
+		SAssetIO::load("MyAssets/TexturedGround.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
+		M.getMaterial(0)->TexAlbedo = "";
 		M.computePerVertexNormals();
 		Skydome.init(&M);
 		M.clear();
@@ -133,6 +136,53 @@ namespace CForge {
 		Tree2.init(&M);
 		M.clear();
 
+
+		vector<string> ClearSky;
+		/*ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_right.png");
+		ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_left.png");
+		ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_up.png");
+		ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_down.png");
+		ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_back.png");
+		ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_front.png");*/
+
+		/*ClearSky.push_back("MyAssets/Cloudy/browncloud_rt.jpg"); 
+		ClearSky.push_back("MyAssets/Cloudy/browncloud_lf.jpg"); 
+		ClearSky.push_back("MyAssets/Cloudy/browncloud_up.jpg");
+		ClearSky.push_back("MyAssets/Cloudy/browncloud_up.jpg");
+		ClearSky.push_back("MyAssets/Cloudy/browncloud_ft.jpg"); 
+		ClearSky.push_back("MyAssets/Cloudy/browncloud_bk.jpg");*/
+
+		ClearSky.push_back("MyAssets/Cloudy/graycloud_rt.jpg");
+		ClearSky.push_back("MyAssets/Cloudy/graycloud_lf.jpg");
+		ClearSky.push_back("MyAssets/Cloudy/graycloud_up.jpg");
+		ClearSky.push_back("MyAssets/Cloudy/graycloud_dn.jpg");
+		ClearSky.push_back("MyAssets/Cloudy/graycloud_ft.jpg");
+		ClearSky.push_back("MyAssets/Cloudy/graycloud_bk.jpg");
+
+
+
+		SkyboxActor Skybox;
+		Skybox.init(ClearSky[0], ClearSky[1], ClearSky[2], ClearSky[3], ClearSky[4], ClearSky[5]);
+
+		// set initialize color adjustment values
+		Skybox.brightness(1.15f);
+		Skybox.contrast(1.1f);
+		Skybox.saturation(1.2f);
+
+		SceneGraph SkyboxSG;
+		SGNTransformation SkyboxTransSGN;
+		SGNGeometry SkyboxGeomSGN;
+
+		// create scene graph for the Skybox
+		SkyboxTransSGN.init(nullptr);
+		SkyboxGeomSGN.init(&SkyboxTransSGN, &Skybox);
+		SkyboxSG.init(&SkyboxTransSGN);
+
+		Quaternionf Rot;
+		Rot = AngleAxisf(GraphicsUtility::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
+		SkyboxTransSGN.rotationDelta(Rot);
+
+
 		// build scene graph
 		SceneGraph SG;
 		SGNTransformation RootSGN;
@@ -142,15 +192,17 @@ namespace CForge {
 		// add skydome
 		SGNGeometry SkydomeSGN;
 		SkydomeSGN.init(&RootSGN, &Skydome);
-		SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
+		SkydomeSGN.scale(Vector3f(500.0f, 500.0f, 500.0f));
+		Rot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
+		SkydomeSGN.rotation(Rot);
 
 		// generate a forest
 		const uint32_t TreeCount = 4000;
 		SGNGeometry* pTreeNodes = new SGNGeometry[TreeCount];
 		SGNTransformation* pTreeTransNodes = new SGNTransformation[TreeCount];
 
-		float MinPlane = -100.0f;
-		float MaxPlane = 100.0f;
+		float MinPlane = -200.0f;
+		float MaxPlane = 200.0f;
 
 		for (uint32_t i = 0; i < TreeCount; ++i) {
 
@@ -164,6 +216,7 @@ namespace CForge {
 
 			Quaternionf RotationY;
 			RotationY = AngleAxisf(GraphicsUtility::degToRad(CoreUtility::randRange(0.0f, 360.0f)), Vector3f::UnitY());
+
 
 			pTreeTransNodes[i].init(&RootSGN);
 			pTreeTransNodes[i].translation(Pos);
@@ -198,11 +251,9 @@ namespace CForge {
 		// start main loop
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			SG.update(FPS / 60.0f);
-
+			SG.update(60.0f / FPS);
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
-
 
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
 			SG.render(&RDev);
@@ -213,6 +264,7 @@ namespace CForge {
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 			
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+			SkyboxSG.render(&RDev);
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
 				static int32_t ScreenshotCount = 0;
@@ -226,6 +278,8 @@ namespace CForge {
 
 				ScreenshotCount++;
 			}
+
+
 
 			RenderWin.swapBuffers();
 			

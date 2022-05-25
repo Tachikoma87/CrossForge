@@ -18,7 +18,7 @@
 #ifndef __CFORGE_UBOBONEDATA_H__
 #define __CFORGE_UBOBONEDATA_H__
 
-#include "../../CForge/Graphics/GLBuffer.h"
+#include "../GLBuffer.h"
 
 namespace CForge {
 	/**
@@ -26,7 +26,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT UBOBoneData : public CForgeObject {
+	class CFORGE_API UBOBoneData : public CForgeObject {
 	public:
 		UBOBoneData(void);
 		~UBOBoneData(void);

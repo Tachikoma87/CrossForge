@@ -226,7 +226,7 @@ namespace CForge {
 
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			SG.update(FPS/60.0f);
+			SG.update(60.0f/FPS);
 
 			// progres morph target animations
 			MTController.update(FPS / 60.0f);

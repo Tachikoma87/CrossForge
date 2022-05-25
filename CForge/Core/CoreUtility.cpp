@@ -10,4 +10,8 @@ namespace CForge {
 		m_RndState ^= m_RndState << 17;
 		return m_RndState/2ull;
 	}//rand
+
+	void CoreUtility::randSeed(uint64_t Seed) {
+		m_RndState = Seed;
+	}//randSeed
 }

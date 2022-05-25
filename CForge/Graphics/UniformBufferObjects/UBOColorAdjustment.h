@@ -1,9 +1,9 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): Prototype defines.h                                              *
+* File(s): UBOPostProcessing.h and UBOPostProcessing.cpp                                   *
 *                                                                           *
-* Content: contains global definitions all subfile require.                *
-*                                                                           *
+* Content:    *
+*          .                                         *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,16 +15,31 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
+#ifndef __CFORGE_UBOPOSTPROCESSING_H__
+#define __CFORGE_UBOPOSTPROCESSING_H__
 
-#include <inttypes.h>
-#include <string>
-#include <vector>
-#include <Eigen/Eigen>
+#include "../GLBuffer.h"
 
-#ifdef CFORGE_EXPORTS
-#define CFORGE_PROTOTYPE_IXPORT __declspec(dllexport)
-#elif defined _WINDLL
-#define CFORGE_PROTOTYPE_IXPORT __declspec(dllimport)
-#else 
-#define CFORGE_PROTOTYPE_IXPORT
-#endif
+namespace CForge {
+	class CFORGE_API UBOColorAdjustment: public CForgeObject {
+	public:
+		UBOColorAdjustment(void);
+		~UBOColorAdjustment(void);
+
+		void init(void);
+		void clear(void);
+		void release(void);
+
+		void bind(uint32_t BindingPoint);
+
+		void contrast(float Contrast);
+		void saturation(float Saturation);
+		void brigthness(float Brightness);
+
+	protected:
+		GLBuffer m_Buffer;
+	};//UBOColorAdjustment
+
+}//name space
+
+#endif 

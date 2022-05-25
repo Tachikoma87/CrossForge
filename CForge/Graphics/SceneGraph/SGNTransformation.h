@@ -26,7 +26,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT SGNTransformation : public ISceneGraphNode {
+	class CFORGE_API SGNTransformation : public ISceneGraphNode {
 	public:
 		SGNTransformation(void);
 		~SGNTransformation(void);
@@ -55,7 +55,7 @@ namespace CForge {
 		Eigen::Vector3f scaleDelta(void)const;
 
 		void update(float FPSScale);
-		void render(RenderDevice* pRDev, Eigen::Vector3f Translation, Eigen::Quaternionf Rotation, Eigen::Vector3f Scale);
+		void render(RenderDevice* pRDev, const Eigen::Vector3f Translation, const Eigen::Quaternionf Rotation, const Eigen::Vector3f Scale);
 		void buildTansformation(Eigen::Vector3f* pPosition, Eigen::Quaternionf* pRotation, Eigen::Vector3f* pScale);
 
 	private:

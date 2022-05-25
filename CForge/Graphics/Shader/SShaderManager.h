@@ -28,19 +28,32 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT SShaderManager: CForgeObject {
+	class CFORGE_API SShaderManager: CForgeObject {
 	public:
+
+		enum DEFAULT_SHADER_SOURCE: int8_t {
+			DEF_VS_GEOMETRY_PASS = 0,
+			DEF_FS_GEOMETRY_PASS,
+			DEF_VS_SHADOW_PASS,
+			DEF_FS_SHADOW_PASS,
+			DEF_VS_FORWARD_PASS,
+			DEF_FS_FORWARD_PASS,
+			DEF_SS_COUNT,
+		};
+
 		static SShaderManager* instance(void);
 		void release(void);
 
 		// Code can be path or actual GLSL code
-		ShaderCode* createShaderCode(std::string Code, std::string VersionTag, uint8_t ConfigOptions, std::string FloatPrecisionTag, std::string IntegerPrecisionTag);
+		ShaderCode* createShaderCode(std::string Code, std::string VersionTag, uint8_t ConfigOptions, std::string precisionTag);
 //		GLShader* buildShader(const std::vector<std::string>* pVSSources, const std::vector<std::string>* pFSSources, std::string *pErrorLog = nullptr);
 		GLShader* buildShader(std::vector<ShaderCode*>* pVSSources, std::vector<ShaderCode*> *pFSSources, std::string* pErrorLog);
 		uint32_t shaderCount(void)const;
 
 		void configShader(ShaderCode::LightConfig LC);
 		void configShader(ShaderCode::PostProcessingConfig PPC);
+
+		std::vector<std::string> defaultShaderSources(DEFAULT_SHADER_SOURCE Type);
 
 	protected:
 		SShaderManager(void);
@@ -54,7 +67,6 @@ namespace CForge {
 		static uint32_t m_InstanceCount;
 
 		struct Shader {
-			//std::vector<std::string> Sources;
 			std::vector<ShaderCode*> VSSources;
 			std::vector<ShaderCode*> FSSources;
 			GLShader* pShader;
@@ -89,6 +101,13 @@ namespace CForge {
 
 		ShaderCode::LightConfig m_LightConfig;
 		ShaderCode::PostProcessingConfig m_PostProcessingConfig;
+
+		std::vector<std::string> m_DefVSGeometry;
+		std::vector<std::string> m_DefFSGeometry;
+		std::vector<std::string> m_DefVSShadow;
+		std::vector<std::string> m_DefFSShadow;
+		std::vector<std::string> m_DefVSForward;
+		std::vector<std::string> m_DefFSForward;
 
 	};//SShaderManager
 }

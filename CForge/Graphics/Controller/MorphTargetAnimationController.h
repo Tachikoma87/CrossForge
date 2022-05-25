@@ -22,7 +22,7 @@
 #include "../UniformBufferObjects/UBOMorphTargetData.h"
 
 namespace CForge {
-	class CFORGE_IXPORT MorphTargetAnimationController: public CForgeObject {
+	class CFORGE_API MorphTargetAnimationController: public CForgeObject {
 	public:
 		struct MorphTarget {
 			int32_t ID;

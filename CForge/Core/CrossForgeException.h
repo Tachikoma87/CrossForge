@@ -27,7 +27,7 @@ namespace CForge {
 	* \ingroup Core
 	* \todo Do full documentation
 	*/
-	class CFORGE_IXPORT CrossForgeException: public CForgeObject {
+	class CFORGE_API CrossForgeException: public CForgeObject {
 	public:
 		/**
 		*\brief Defines exception types.
