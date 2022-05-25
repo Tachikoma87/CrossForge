@@ -265,7 +265,7 @@ namespace CForge {
 			pSkelAnim->Name = pAnim->mName.C_Str();
 
 			// create keyframe for every bone
-			for (uint32_t k = 0; k < Bones.size() /*pAnim->mNumChannels*/; k++) {
+			for (uint32_t k = 0; k < /*Bones.size()*/ pAnim->mNumChannels; k++) {
 				pSkelAnim->Keyframes.push_back(new T3DMesh<float>::BoneKeyframes());
 				pSkelAnim->Keyframes[k]->ID = k;
 			}//for[all bones]
@@ -274,6 +274,7 @@ namespace CForge {
 				aiNodeAnim *pNodeAnim = pAnim->mChannels[k];
 
 				T3DMesh<float>::Bone* pB = getBoneFromName(pNodeAnim->mNodeName.C_Str(), &Bones);
+
 
 				int32_t KeyID = (nullptr == pB) ? k : pB->ID;
 

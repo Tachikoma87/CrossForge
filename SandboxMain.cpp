@@ -66,10 +66,10 @@ int main(int argc, char* argv[]) {
 		//exampleSockets();
 	
 
-		imuInputDeviceTestScene();
+		//imuInputDeviceTestScene();
 		// 
 		//shadowTest();
-		//vertexColorTestScene();
+		vertexColorTestScene();
 		//forestTestScene();
 		//skelAnimTestScene();
 		
