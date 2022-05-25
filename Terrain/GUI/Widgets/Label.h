@@ -12,6 +12,7 @@ public:
     ~LabelWidget();
 
     CallbackDatum getValue();
+    void setLimit(int lower, int higher);
 
     void changePosition(float dx, float dy) override;
     void updateLayout() override;

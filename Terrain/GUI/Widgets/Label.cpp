@@ -67,6 +67,17 @@ CallbackDatum LabelWidget::getValue()
     retObj.pData = m_pValue;
     return retObj;
 }
+void LabelWidget::setLimit(int lower, int higher)
+{
+    switch (m_type) {
+        case DATATYPE_INT:
+            (*(InputNumberWidget*)m_pInput).setLimit(lower, higher);
+            break;
+        default:
+            //invalid type or no matching input yet
+            break;
+    }
+}
 
 void LabelWidget::changePosition(float dx, float dy)
 {
