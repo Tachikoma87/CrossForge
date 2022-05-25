@@ -23,6 +23,8 @@ public:
     ~FormWidget();
 
     void addOption(int OptionID, CallbackDatatype type, std::u32string name);
+    void setLimit(int OptionID, int higher);
+    void setLimit(int OptionID, int lower, int higher);
     void sendCallback();
 
     void changePosition(float dx, float dy) override;
