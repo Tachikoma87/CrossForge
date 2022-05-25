@@ -35,6 +35,8 @@
 #include "UniformBufferObjects/UBOModelData.h"
 #include "Shader/GLShader.h"
 
+#include "../../Prototypes/UBOInstancedData.h"
+
 
 namespace CForge {
 	/**
@@ -107,11 +109,14 @@ namespace CForge {
 		GBuffer* gBuffer(void);
 
 		GLShader* shadowPassShader(void);
-
+		
+		//
 		void renderLODSG();
 		void clearBuffer();
 		void setModelMatrix(Eigen::Matrix4f matrix);
-
+		UBOInstancedData* getInstancedUBO();
+		//
+		
 	protected:
 		struct ActiveLight {
 			ILight* pLight;
@@ -134,6 +139,7 @@ namespace CForge {
 		UBOModelData m_ModelUBO;
 		UBOMaterialData m_MaterialUBO;
 		UBOLightData m_LightsUBO;
+		UBOInstancedData m_InstancesUBO;
 
 		// lights
 		std::vector<ActiveLight*> m_ActiveDirLights;

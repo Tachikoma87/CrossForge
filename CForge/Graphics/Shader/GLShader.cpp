@@ -158,6 +158,7 @@ namespace CForge {
 			m_DefaultUBOBindingPoints[DEFAULTUBO_BONEDATA] = glGetUniformBlockIndex(m_ShaderProgram, UBOBoneDataName.c_str());
 			m_DefaultUBOBindingPoints[DEFAULTUBO_MORPHTARGETDATA] = glGetUniformBlockIndex(m_ShaderProgram, UBOMorphTargetDataName.c_str());
 			m_DefaultUBOBindingPoints[DEFAULTUBO_COLORADJUSTMENT] = glGetUniformBlockIndex(m_ShaderProgram, UBOColorAdjustmentDataName.c_str());
+			m_DefaultUBOBindingPoints[DEFAULTUBO_INSTANCE] = glGetUniformBlockIndex(m_ShaderProgram, UBOInstancedDataName.c_str());
 
 			// retrieve default texture bindign points
 			m_DefaultTextureLocations[DEFAULTTEX_ALBEDO] = uniformLocation(TextureAlbedoName);

@@ -138,38 +138,35 @@ namespace CForge {
 				} // for used tris
 			} // for old submesh tris
 			
-			// TODO calculate newUVWs
-			//submesh		//faces		//index
 			std::vector<std::vector<Eigen::Vector4i>> newUVWs; //TODO rename newUVs conflict
 			
 			// add materials and set indices of submesh tris
 			for (uint32_t j = 0; j < faces.size(); j++) {
 				T3DMesh<float>::Face Face;
+				const T3DMesh<float>::Face* pOldSMFace = &(pOldSubmesh->Faces[faces[j] - oldStartSize]);
 				
-				Face.Material = pOldSubmesh->Faces[faces[j]-oldStartSize].Material;
-				for (uint32_t k = 0; k < 4; k++) {
-					if (k < 3) {
-						int32_t vertID = DF.row(newStartSize + j)[k];
-						newVerts.push_back(DVnoMul.row(vertID).cast<float>());
-						uint32_t newSize = newVerts.size()-1;
-						Face.Vertices[k] = newSize;
-						
-						//newNormals.push_back(Eigen::Vector3f::Zero());
-						newNormals.push_back(inMesh->normal(pOldSubmesh->Faces[faces[j]-oldStartSize].Normals[k]));
-						Face.Normals[k] = newSize;
-						
-						if (inMesh->textureCoordinatesCount() > 0) {
-							newUVs.push_back(inMesh->textureCoordinate(pOldSubmesh->Faces[faces[j]-oldStartSize].UVWs[k]));
-							Face.UVWs[k] = newSize;
-						}
-						if (inMesh->colorCount() > 0) {
-							newColors.push_back(inMesh->color(pOldSubmesh->Faces[faces[j] - oldStartSize].Colors[k]));
-							Face.Colors[k] = newSize;
-						}
-						if (inMesh->tangentCount() > 0) {
-							newTangents.push_back(inMesh->tangent(pOldSubmesh->Faces[faces[j] - oldStartSize].Tangents[k]));
-							Face.Tangents[k] = newSize;
-						}
+				Face.Material = pOldSMFace->Material;
+				for (uint32_t k = 0; k < 3; k++) { //TODO fourth entry not used?
+					int32_t vertID = DF.row(newStartSize + j)[k];
+					newVerts.push_back(DVnoMul.row(vertID).cast<float>());
+					uint32_t newSize = newVerts.size()-1;
+					Face.Vertices[k] = newSize;
+					
+					//newNormals.push_back(Eigen::Vector3f::Zero());
+					newNormals.push_back(inMesh->normal(pOldSMFace->Normals[k]));
+					Face.Normals[k] = newSize;
+					
+					if (inMesh->textureCoordinatesCount() > 0) {
+						newUVs.push_back(inMesh->textureCoordinate(pOldSMFace->UVWs[k]));
+						Face.UVWs[k] = newSize;
+					}
+					if (inMesh->colorCount() > 0) {
+						newColors.push_back(inMesh->color(pOldSMFace->Colors[k]));
+						Face.Colors[k] = newSize;
+					}
+					if (inMesh->tangentCount() > 0) {
+						newTangents.push_back(inMesh->tangent(pOldSMFace->Tangents[k]));
+						Face.Tangents[k] = newSize;
 					}
 				}//for[face indices]
 				

@@ -18,7 +18,7 @@
 #ifndef __CFORGE_UBOINSTANCEDDATA_H__
 #define __CFORGE_UBOINSTANCEDDATA_H__
 
-#include "../GLBuffer.h"
+#include "../CForge/Graphics/GLBuffer.h"
 
 namespace CForge {
 	/**
@@ -26,20 +26,22 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class /*CFORGE_API*/ UBOInstancedData : public CForgeObject {
+	class CFORGE_API UBOInstancedData : public CForgeObject {
 	public:
 		UBOInstancedData(void);
 		~UBOInstancedData(void);
 
-		void init(uint32_t instanceCount);
+		void init();
 		void clear(void);
 		void bind(uint32_t BindingPoint);
 		uint32_t size(void)const;
 
-		void setInstance(uint32_t index, Eigen::Matrix3f rotation, Eigen::Vector3f translation);
-		void setInstance(uint32_t index, Eigen::Matrix4f mat);
+		//void setInstance(uint32_t index, Eigen::Matrix3f rotation, Eigen::Vector3f translation);
+		//void setInstance(uint32_t index, Eigen::Matrix4f mat);
+		void setInstances(const std::vector<Eigen::Matrix4f>* mats);
 
 	protected:
+		uint32_t m_maxInstanceCount = 500;
 		GLBuffer m_Buffer;
 		uint32_t m_instanceCount;
 	};//UBOModelData

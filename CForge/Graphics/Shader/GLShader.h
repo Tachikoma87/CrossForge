@@ -59,6 +59,7 @@ namespace CForge {
 			DEFAULTUBO_BONEDATA,
 			DEFAULTUBO_MORPHTARGETDATA,
 			DEFAULTUBO_COLORADJUSTMENT,
+			DEFAULTUBO_INSTANCE,
 			DEFAULTUBO_COUNT,
 		};
 
@@ -84,6 +85,7 @@ namespace CForge {
 		const std::string UBOBoneDataName = "BoneData";
 		const std::string UBOMorphTargetDataName = "MorphTargetData";
 		const std::string UBOColorAdjustmentDataName = "ColorAdjustmentData";
+		const std::string UBOInstancedDataName = "InstancedData";
 
 		const std::string TextureAlbedoName = "TexAlbedo";
 		const std::string TextureNormalName = "TexNormal";
