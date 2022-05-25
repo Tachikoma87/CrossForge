@@ -82,6 +82,7 @@ void GUI::testInit(CForge::GLWindow* pWin)
     a->addOption(1, DATATYPE_INT, U"first input");
     a->addOption(2, DATATYPE_INT, U"second input");
     a->addOption(1, DATATYPE_INT, U"3st input, collides with 1");
+    a->setLimit(1, 5);
     testBG.push_back(a);
 }
 void GUI::testRender()

@@ -62,9 +62,9 @@ void InputNumberWidget::setValue(int value)
     //The value's display width will probably change.
     float positionAdjust = -m_pValue->getWidth();
     //u32strings don't have a to_string() method of their own, unfortunately.
-    //However, strings produced by to_string() should in almost all cases
-    //stay within ASCII encoding, which unicode is compatible to.
-    std::string valueString = std::to_string(m_value);
+    //However, wstrings on most systems should be compatible with Unicode or
+    //at the very least ASCII, where most characters used in numbers are at.
+    std::wstring valueString = std::to_wstring(m_value);
     std::u32string u32Value;
     for (char x : valueString) {
         u32Value.push_back((char32_t)x);
@@ -77,7 +77,14 @@ void InputNumberWidget::setValue(int value)
 }
 void InputNumberWidget::changeValue(int value)
 {
-    setValue(m_value + value);
+    long newValue = (long)m_value + value;
+    if (newValue <= m_limits.max && newValue >= m_limits.min)
+        setValue(newValue);
+}
+void InputNumberWidget::setLimit(int lower, int higher)
+{
+    m_limits.min = lower;
+    m_limits.max = higher;
 }
 void InputNumberWidget::focus()
 {
@@ -111,7 +118,7 @@ void InputNumberWidget::onKeyPress(char32_t character)
         m_negativeInput = false;
     }
     newValue = newValue*10 + enteredNumber;
-    if (newValue < m_limits.max && newValue > m_limits.min)
+    if (newValue <= m_limits.max && newValue >= m_limits.min)
         setValue(newValue);
     return;
 }

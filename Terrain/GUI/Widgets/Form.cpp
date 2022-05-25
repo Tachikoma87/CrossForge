@@ -43,6 +43,21 @@ void FormWidget::addOption(int OptionID, CallbackDatatype type, std::u32string n
     m_height += label->getHeight();
     m_width = std::max(m_width, label->getWidth());
 }
+void FormWidget::setLimit(int OptionID, int higher)
+{
+    if (higher > 0) {
+        setLimit(OptionID, 0, higher);
+    } else {
+        setLimit(OptionID, higher, 0);
+    }
+}
+void FormWidget::setLimit(int OptionID, int lower, int higher)
+{
+    if (m_labels.count(OptionID) > 0) {
+        m_labels[OptionID]->setLimit(lower, higher);
+    }
+}
+
 void FormWidget::sendCallback()
 {
     CallbackObject bcObj;
