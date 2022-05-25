@@ -68,6 +68,8 @@ namespace CForge {
 		// create an OpenGL capable windows
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
+		gladLoadGL();
+		glfwSwapInterval(0);
 
 		// configure and initialize rendering pipeline
 		RenderDevice RDev;
@@ -117,27 +119,36 @@ namespace CForge {
 
 		// load skydome and tree
 		T3DMesh<float> M;
-		StaticActor Skydome;
+		LODActor Skydome; //TODO compatibility with static actors / non instanced actors
 		LODActor Tree1;
 		LODActor Tree2;
 
 		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
 		M.computePerVertexNormals();
-		Skydome.init(&M);
+		for (uint32_t i = 0; i < M.materialCount(); i++) {
+			M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
+		}
+		Skydome.init(&M, true);
 		M.clear();
 
 		
 		AssetIO::load("Assets/tmp/lowpolytree.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.94f);
 		M.computePerVertexNormals();
-		Tree1.init(&M);
+		for (uint32_t i = 0; i < M.materialCount(); i++) {
+			M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
+		}
+		Tree1.init(&M, true);
 		M.clear();
 
 		AssetIO::load("Assets/tmp/Lowpoly_tree_sample.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.94f);
 		M.computePerVertexNormals();
-		Tree2.init(&M);
+		for (uint32_t i = 0; i < M.materialCount(); i++) {
+			M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
+		}
+		Tree2.init(&M, true);
 		M.clear();
 
 		// build scene graph
@@ -206,33 +217,40 @@ namespace CForge {
 		// start main loop
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			SG.update(60.0f / FPS);
+			SG.update(1.0f * pLOD->getDeltaTime());
 			pLOD->update();
+			RDev.clearBuffer();
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
-
-			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
+			
+			//RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
+			//SG.render(&RDev);
+			
+			RDev.activePass(RenderDevice::RENDERPASS_LOD);
 			SG.render(&RDev);
-
+			
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			SG.render(&RDev);
+			//SG.render(&RDev);
 
+			RDev.renderLODSG();
+
+			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 			
-			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+			//RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
-				static int32_t ScreenshotCount = 0;
-				T2DImage<uint8_t> Img;
-				T2DImage<uint8_t> DepthBuffer;
-				GraphicsUtility::retrieveFrameBuffer(&Img, &DepthBuffer, 0.1f, 200.0f);
-				AssetIO::store("../../Screenshot_" + std::to_string(ScreenshotCount) + ".jpg", &Img);
-				AssetIO::store("../../DepthBuffer_" + std::to_string(ScreenshotCount) + ".jpg", &DepthBuffer);
+			//if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
+			//	static int32_t ScreenshotCount = 0;
+			//	T2DImage<uint8_t> Img;
+			//	T2DImage<uint8_t> DepthBuffer;
+			//	GraphicsUtility::retrieveFrameBuffer(&Img, &DepthBuffer, 0.1f, 200.0f);
+			//	AssetIO::store("../../Screenshot_" + std::to_string(ScreenshotCount) + ".jpg", &Img);
+			//	AssetIO::store("../../DepthBuffer_" + std::to_string(ScreenshotCount) + ".jpg", &DepthBuffer);
 
-				Img.clear();
+			//	Img.clear();
 
-				ScreenshotCount++;
-			}
+			//	ScreenshotCount++;
+			//}
 
 			RenderWin.swapBuffers();
 			

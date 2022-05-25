@@ -28,6 +28,8 @@
 #include "../../CForge/Graphics/Actors/RenderGroupUtility.h"
 #include "../SLOD.h"
 
+#include "../UBOInstancedData.h"
+
 namespace CForge {
 	/**
 	* \brief Actor that can be placed inside the world and does not do anything besides being rendered or moved rigidly.
@@ -39,13 +41,13 @@ namespace CForge {
 		LODActor(void);
 		~LODActor(void);
 
-		void init(T3DMesh<float>* pMesh);
-		void init(T3DMesh<float>* pMesh, bool isTranslucent);
-		void init(T3DMesh<float>* pMesh, bool isTranslucent, const std::vector<float> &LODStages);
+		void init(T3DMesh<float>* pMesh, bool isInstanced = false, bool manualyInstanced = false);
+		void init(T3DMesh<float>* pMesh, const std::vector<float> &LODStages, bool isInstanced = false, bool manualyInstanced = false);
 		void clear(void);
 		void release(void);
 
 		void render(RenderDevice* pRDev);
+		void renderInstanced(RenderDevice* pRDev, UBOInstancedData* pInstanceUBO);
 
 		uint32_t materialCount(void)const;
 		RenderMaterial* material(uint32_t level);
@@ -62,6 +64,7 @@ namespace CForge {
 		void initInstancing(bool manualInstanced);
 		void addInstance(Eigen::Matrix4f matrix);
 		void setInstanceMatrices(std::vector<Eigen::Matrix4f> matrices);
+		const std::vector<Eigen::Matrix4f>* getInstanceMatrices(uint32_t level);
 		
 	protected:
 
@@ -97,7 +100,7 @@ namespace CForge {
 
 		// Instanced Rendering
 		std::vector<Eigen::Matrix4f> m_instancedMatrices;
-		std::vector<std::vector<Eigen::Matrix4f*>*> m_instancedMatRef;
+		std::vector<std::vector<Eigen::Matrix4f>*> m_instancedMatRef;
 		
 	};//LODActor
 

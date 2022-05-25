@@ -21,11 +21,13 @@ namespace CForge {
 		}
 	}//Destructor
 	
-	void LODActor::init(T3DMesh<float>* pMesh, bool isTranslucent) {
+	void LODActor::init(T3DMesh<float>* pMesh, bool isInstanced, bool manualyInstanced) {
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 		if (pMesh->vertexCount() == 0) throw CForgeExcept("Mesh contains no vertex data");
 		
-		m_translucent = isTranslucent;
+		//m_translucent = isTranslucent;
+		m_isInstanced = isInstanced;
+		m_isManualInstaned = manualyInstanced;
 		
 		// fetch LOD levels from SLOD if not given
 		if (m_LODStages.empty())
@@ -34,6 +36,9 @@ namespace CForge {
 		m_LODMeshes.push_back(pMesh);
 		initiateBuffers(0);
 		bindLODLevel(0);
+		
+		std::vector<Eigen::Matrix4f>* m_instLODMats = new std::vector<Eigen::Matrix4f>();
+		m_instancedMatRef.push_back(m_instLODMats);
 		
 		// TODO parallelise generation
 		for (uint32_t i = 1; i < m_LODStages.size(); i++) {
@@ -46,7 +51,7 @@ namespace CForge {
 			m_LODMeshes.push_back(pLODMesh);
 			initiateBuffers(i);
 			
-			std::vector<Eigen::Matrix4f*>* m_instLODMats = new std::vector<Eigen::Matrix4f*>;
+			m_instLODMats = new std::vector<Eigen::Matrix4f>();
 			m_instancedMatRef.push_back(m_instLODMats);
 		}
 		
@@ -55,13 +60,9 @@ namespace CForge {
 		initAABB();
 	}//initialize
 
-	void LODActor::init(T3DMesh<float>* pMesh) {
-		init(pMesh, true);
-	}//initialize
-
-	void LODActor::init(T3DMesh<float>* pMesh, bool isTranslucent, const std::vector<float>& LODStages) {
+	void LODActor::init(T3DMesh<float>* pMesh, const std::vector<float>& LODStages, bool isInstanced, bool manualyInstanced) {
 		m_LODStages = LODStages;
-		init(pMesh, isTranslucent);
+		init(pMesh, isInstanced, manualyInstanced);
 	}//initialize
 
 	void LODActor::initiateBuffers(uint32_t level) {
@@ -220,37 +221,52 @@ namespace CForge {
 			//
 		//} else {
 		
-		m_VertexArray.bind();
-		
-		for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
-			if (i->pShader == nullptr) continue;
-				if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-				pRDev->activeShader(pRDev->shadowPassShader());
-			}
-			else {
-				// TODO Occlusion Culling
-				pRDev->activeShader(i->pShader);
-				pRDev->activeMaterial(&i->Material);
-			}
-			
-			if (m_isInstanced) {
-				// TODO instanced draw call
-				for (uint32_t j = 0; j < m_instancedMatRef.size(); j++) {
+		if (m_isInstanced) {
+			// TODO instanced draw call
+			for (uint32_t j = 0; j < m_instancedMatRef.size(); j++) {
+				if (m_instancedMatRef[j]->size() > 0) {
+					pRDev->getInstancedUBO()->setInstances(m_instancedMatRef[j]);
+					//uint32_t BindingPoint = pRDev->activeShader()->uboBindingPoint(GLShader::DEFAULTUBO_INSTANCE);
+					//if (BindingPoint != GL_INVALID_INDEX) pRDev->getInstancedUBO()->bind(BindingPoint);
 					bindLODLevel(j);
-					for (uint32_t k = 0; k < m_instancedMatRef[j]->size(); k++) {
-						//TODO render
-						//pRDev->instancedUBO()->addInstance(k, m_instancedMatRef[j][k]);
+					m_VertexArray.bind();
+					for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
+						if (i->pShader == nullptr) continue;
+						if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+							pRDev->activeShader(pRDev->shadowPassShader());
+						}
+						else {
+							// TODO Occlusion Culling
+							pRDev->activeShader(i->pShader);
+							pRDev->activeMaterial(&i->Material);
+						}
+						glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), m_instancedMatRef[j]->size());
 					}
-					glDrawElementsInstanced(GL_TRIANGLES, m_ElementBuffer.size() / sizeof(unsigned int), GL_UNSIGNED_INT, 0, m_instancedMatRef[j]->size());
-					m_instancedMatRef[j]->clear();
+					m_VertexArray.unbind();
+					//pRDev->activeShader(m_RenderGroupUtilities[m_LODLevel]->renderGroups()[0]->pShader);
+					//pRDev->activeMaterial(&m_RenderGroupUtilities[m_LODLevel]->renderGroups()[0]->Material);
+					//glDrawElementsInstanced(GL_TRIANGLES, m_ElementBuffer.size() / sizeof(unsigned int), GL_UNSIGNED_INT, 0, m_instancedMatRef[j]->size());
 				}
-				if (!m_isManualInstaned)
-					m_instancedMatrices.clear();
+				
+				m_instancedMatRef[j]->clear();
 			}
-			else
+			if (!m_isManualInstaned)
+				m_instancedMatrices.clear();
+		} else {
+			m_VertexArray.bind();
+			for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
+				if (i->pShader == nullptr) continue;
+				if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+					pRDev->activeShader(pRDev->shadowPassShader());
+				}
+				else {
+					// TODO Occlusion Culling
+					pRDev->activeShader(i->pShader);
+					pRDev->activeMaterial(&i->Material);
+				}
 				glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
-		}//for[all render groups]
-		//}
+			}//for[all render groups]
+		}
 	}//render
 	
 	void LODActor::initAABB() {
@@ -301,12 +317,12 @@ namespace CForge {
 		int32_t level;
 		if (m_isManualInstaned) { // all instanced at once
 			bool oneWasVisible = false;
-			for (Eigen::Matrix4f mat : m_instancedMatrices) {
-				pRDev->setModelMatrix(mat);
+			for (uint32_t i = 0; i < m_instancedMatrices.size(); i++) {
+				//pRDev->setModelMatrix(mat);
 				level = testAABBvis(pRDev);
 				if (level >= 0) {
 					oneWasVisible = true;
-					m_instancedMatRef[level]->push_back(&mat);
+					m_instancedMatRef[level]->push_back(m_instancedMatrices[i]);
 				}
 			}
 			return oneWasVisible;
@@ -315,7 +331,7 @@ namespace CForge {
 			level = testAABBvis(pRDev);
 			if (level >= 0) {
 				m_instancedMatrices.push_back(sgMat);
-				m_instancedMatRef[level]->push_back(&m_instancedMatrices.back());
+				m_instancedMatRef[level]->push_back(m_instancedMatrices.at(m_instancedMatrices.size()-1));
 			}
 		}
 		else { // not instanced bind lod immediate
@@ -446,5 +462,9 @@ namespace CForge {
 	
 	void LODActor::setInstanceMatrices(std::vector<Eigen::Matrix4f> matrices) {
 		m_instancedMatrices = matrices;
+	}
+
+	const std::vector<Eigen::Matrix4f>* LODActor::getInstanceMatrices(uint32_t level) {
+		return m_instancedMatRef[level];
 	}
 }

@@ -96,6 +96,8 @@ add_library(crossforge SHARED
 	CForge/Graphics/UniformBufferObjects/UBOBoneData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOMorphTargetData.cpp
 
+	Prototypes/UBOInstancedData.cpp
+
 	# Lights
 	CForge/Graphics/Lights/ILight.cpp 
 	CForge/Graphics/Lights/DirectionalLight.cpp 
