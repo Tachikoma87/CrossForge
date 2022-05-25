@@ -27,14 +27,23 @@ layout (std140) uniform CameraData{
 	vec4 Position;
 }Camera;
 
-//layout(std140) uniform ModelData{
-//	mat4 ModelMatrix;
-//};//ModelData
+layout(std140) uniform ModelData{
+	mat4 ModelMatrix;
+};//ModelData
+
+#define MAX_INSTANCE_COUNT 500
+//struct instanceMat {
+//	mat3 instancedRotation;
+//	vec3 instancedTranslation;
+//};
+//
+//layout(std140) uniform InstancedData{
+//	instanceMat instancedMat[MAX_INSTANCE_COUNT];
+//};
 
 layout(std140) uniform InstancedData{
-	mat3 instancedRotation;
-	vec3 instancedTranslation;
-}
+	mat4 instancedMat[MAX_INSTANCE_COUNT];
+};
 
 layout (location = 0) in vec3 Position;
 layout (location = 1) in vec3 Normal;
@@ -85,8 +94,18 @@ void main(){
 Color = VertexColor;
 #endif
 
-	N = instancedRotation * No.xyz;
-	Pos = instancedRotation * Po.xyz + instancedTranslation;
+//	N = instancedMat[gl_InstanceID].instancedRotation * No.xyz;
+//	Pos = instancedMat[gl_InstanceID].instancedRotation * Po.xyz + instancedMat[gl_InstanceID].instancedTranslation;
+//	UV = UVW.xy;
+//	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(Pos,1.0);
+
+	N = (instancedMat[gl_InstanceID] * No).xyz;
+	Pos = (instancedMat[gl_InstanceID] * Po).xyz;
 	UV = UVW.xy;
-	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(Pos,1.0);
+	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * instancedMat[gl_InstanceID] * Po;
+
+//	N = (ModelMatrix * No).xyz;
+//	Pos = (ModelMatrix * Po).xyz;
+//	UV = UVW.xy;
+//	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * ModelMatrix * Po;
 }//main

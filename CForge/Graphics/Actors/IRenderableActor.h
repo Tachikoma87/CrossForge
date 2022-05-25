@@ -42,23 +42,25 @@ namespace CForge {
 
 		virtual void release(void) = 0;
 		virtual void render(class RenderDevice* pRDev) = 0;
-
-		virtual bool renderAABB(RenderDevice* pRDev, Eigen::Matrix4f sgMat);
-		virtual T3DMesh<float>::AABB getAABB();
-		virtual void bindLODLevel(uint32_t level);
-		bool isInstanced();
-		bool isManualInstanced();
 		
 		int32_t typeID(void)const;
 
 		uint32_t materialCount(void)const;
 		RenderMaterial* material(uint32_t Index);
+		
+		// 
+		virtual bool renderAABB(RenderDevice* pRDev, Eigen::Matrix4f sgMat);
+		virtual T3DMesh<float>::AABB getAABB();
+		virtual void bindLODLevel(uint32_t level);
+		bool isInstanced();
+		bool isManualInstanced();
 
 		virtual void addInstance(Eigen::Matrix4f matrix);
 		bool isInLODSG();
 		// used set check if actor is already contained in LODSG
 		void setLODSG(bool inside);
-
+		//
+		
 	protected:
 		IRenderableActor(const std::string ClassName, int32_t ActorType);
 		virtual ~IRenderableActor(void);
@@ -74,11 +76,13 @@ namespace CForge {
 
 		int32_t m_TypeID;
 		std::string m_TypeName;
-
+		
+		//
 		bool m_isInstanced = false;
 		bool m_isManualInstaned = false;
 		bool m_isInLODSG = false;
-
+		//
+		
 	private:
 		
 	};//IRenderableActor

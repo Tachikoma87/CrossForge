@@ -8,6 +8,8 @@
 using namespace Eigen;
 using namespace std;
 
+#include <iostream> //TODO remove
+
 namespace CForge {
 
 	RenderDevice::RenderDeviceConfig::RenderDeviceConfig(void) {
@@ -54,6 +56,9 @@ namespace CForge {
 		m_ModelUBO.init();
 		m_MaterialUBO.init();
 		m_LightsUBO.init(m_Config.DirectionalLightsCount, m_Config.PointLightsCount, m_Config.SpotLightsCount);
+		
+		// TODO only init if lod/instancing is used;
+		m_InstancesUBO.init();
 
 		// use GBuffer?
 		if (m_Config.UseGBuffer) {
@@ -125,15 +130,25 @@ namespace CForge {
 		const Matrix4f S = GraphicsUtility::scaleMatrix(Scale);
 		const Matrix4f ModelMat = T * R * S;
 		
+		requestRendering(pActor, ModelMat);
+	}//requestRendering
+	
+	// TODO adapt this version of request rendering
+	void RenderDevice::requestRendering(IRenderableActor* pActor, Eigen::Matrix4f ModelMat) {
+		if (nullptr == pActor) throw NullpointerExcept("pActor");
+		
+		Eigen::Vector3f Translation = Eigen::Vector3f(ModelMat.data()[12], ModelMat.data()[13], ModelMat.data()[14]);
+		
 		m_ModelUBO.modelMatrix(ModelMat);
-		if (m_ActiveRenderPass == RENDERPASS_LOD) {
+		if (m_ActiveRenderPass == RENDERPASS_LOD) { //TODO capsule in function
 			bool visible;
 			// automatic instanced rendering
 			// TODO make aabb mesh global instead of per actor?
+			// TODO capsule functions
 			if (pActor->isManualInstanced()) { // manual instancing
 				if (pActor->isInLODSG())
 					throw CForgeExcept("Manual instancing was defined but actor was found multiple times in SG.");
-				
+
 				// Actor handels visibility
 				visible = pActor->renderAABB(this, Eigen::Matrix4f());
 				if (visible) {
@@ -156,36 +171,32 @@ namespace CForge {
 				}
 			}
 			else {
-				float aabbRadius = std::max(std::abs(pActor->getAABB().Max.norm()), std::abs(pActor->getAABB().Min.norm()));
-				float distance = (Translation - m_pActiveCamera->position()).norm() - aabbRadius;
-				//std::cout << distance << "\n";
-				if (distance < 0.0f) { // camera is inside AABB, use highest LOD // TODO draw as occluder
-					pActor->bindLODLevel(0);
+				if (pActor->className().compare("LODActor") != 0) {
 					m_LODSGActors.push_back(pActor);
 					m_LODSGTransformations.push_back(ModelMat);
 				}
 				else {
-					visible = pActor->renderAABB(this, Eigen::Matrix4f());
-					if (visible) {
+					float aabbRadius = std::max(std::abs(pActor->getAABB().Max.norm()), std::abs(pActor->getAABB().Min.norm()));
+					float distance = (Translation - m_pActiveCamera->position()).norm() - aabbRadius;
+					//std::cout << distance << "\n";
+					if (distance < 0.0f) { // camera is inside AABB, use highest LOD // TODO draw as occluder
+						pActor->bindLODLevel(0);
 						m_LODSGActors.push_back(pActor);
 						m_LODSGTransformations.push_back(ModelMat);
 					}
+					else {
+						visible = pActor->renderAABB(this, Eigen::Matrix4f());
+						if (visible) {
+							m_LODSGActors.push_back(pActor);
+							m_LODSGTransformations.push_back(ModelMat);
+						}
+					}
 				}
 			}
-			
-			//m_lastInstancedActor = pActor;
-		} else
-		{
-		// render the object with current settings
-		pActor->render(this);
-		}
-	}//requestRendering
-	
-	// TODO adapt this version of request rendering
-	void RenderDevice::requestRendering(IRenderableActor* pActor, Eigen::Matrix4f ModelMat) {
-		if (nullptr == pActor) throw NullpointerExcept("pActor");
 
-		m_ModelUBO.modelMatrix(ModelMat);
+			//m_lastInstancedActor = pActor;
+		}
+		else
 		{
 			// render the object with current settings
 			pActor->render(this);
@@ -206,7 +217,14 @@ namespace CForge {
 			if (GL_INVALID_INDEX != BindingPoint) {
 				m_ModelUBO.bind(BindingPoint);
 			}
-
+			
+			BindingPoint = m_pActiveShader->uboBindingPoint(GLShader::DEFAULTUBO_INSTANCE);
+			if (GL_INVALID_INDEX != BindingPoint) {
+				m_InstancesUBO.bind(BindingPoint);
+			}
+			else {
+				//std::cout << "InstanceUBO: Invalid binding Point.\n";
+			}
 			BindingPoint = m_pActiveShader->uboBindingPoint(GLShader::DEFAULTUBO_MATERIALDATA);
 			if (GL_INVALID_INDEX != BindingPoint) m_MaterialUBO.bind(BindingPoint);
 
@@ -503,5 +521,9 @@ namespace CForge {
 
 	void RenderDevice::setModelMatrix(Eigen::Matrix4f matrix) {
 		m_ModelUBO.modelMatrix(matrix);
+	}
+	
+	UBOInstancedData* RenderDevice::getInstancedUBO() {
+		return &m_InstancesUBO;
 	}
 }//name space
