@@ -9,6 +9,9 @@
 
 #include "Terrain/src/Map/TerrainMap.h"
 #include "./Decoration/DecoSetup.hpp"
+#include "CForge/AssetIO/T3DMesh.hpp"
+#include "Water/OceanSimulation.hpp"
+//#include "Water/OceanObject.hpp"
 
 #include "../../Prototypes/Graphics/SkyboxActor.h"
 
@@ -18,8 +21,8 @@ namespace Terrain {
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
                     DirectionalLight *light) {
-        uint32_t winWidth = 5120 / 2;
-        uint32_t winHeight = 1440;
+        uint32_t winWidth = 800; // 5120 / 2 / 2;
+        uint32_t winHeight = 800; // 1440 / 2;
 
        /* winWidth = 1200;
         winHeight = 1200;*/
@@ -71,8 +74,6 @@ namespace Terrain {
         renderDevice->addLight(light);
     }
 
-
-
     void initDebugQuad(ScreenQuad *quad) {
         vector<ShaderCode *> vsSources;
         vector<ShaderCode *> fsSources;
@@ -81,7 +82,7 @@ namespace Terrain {
         SShaderManager *shaderManager = SShaderManager::instance();
         vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "420 core",
                                                             0, "", ""));
-        fsSources.push_back(shaderManager->createShaderCode("Shader/DebugQuad.frag", "420 core",
+        fsSources.push_back(shaderManager->createShaderCode("Shader/WaterDebugQuad.frag", "420 core",
                                                             0, "", ""));
         GLShader *quadShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
         shaderManager->release();
@@ -220,7 +221,7 @@ namespace Terrain {
 
         float sizeScale = 1;
 
-        int ammount = 200;
+        int ammount = 50;
         Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale, sizeScale, sizeScale));
         Matrix4f R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY())));
         float randomSizeScale;
@@ -259,9 +260,9 @@ namespace Terrain {
                     }
                 }
                 else {
-                    if (false && map.getHeightAt(xCord, zCord) > 208 && map.getHeightAt(xCord, zCord) < 255) {
+                    if (map.getHeightAt(xCord, zCord) > 208 && map.getHeightAt(xCord, zCord) < 255) {
                         if (x % 5 == 0 && z % 5 == 0) {
-                            randomSizeScale = randomF(0.8f, 1.25f);
+                            randomSizeScale = randomF(0.2f, 0.8f);
                             S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
                             iBushActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
                         }
@@ -269,8 +270,6 @@ namespace Terrain {
                 }
             }
         }
-
-
         
         ammount /= 10;
         for (int x = 0; x < ammount; x++) {
@@ -295,7 +294,7 @@ namespace Terrain {
             TreeGenerator::generateTrees(TreeGenerator::Palm, 1, "Assets/palmTree");
             TreeGenerator::generateTrees(TreeGenerator::Normal, 1, "Assets/tree");
             GrassGenerator::generateGrass(GrassType::triangle, 1, "Assets/grass");
-            GrassGenerator::generateGrass(GrassType::cross, 1, "Assets/bush");
+            GrassGenerator::generateGrass(GrassType::bush, 1, "Assets/bush");
             RockGenerator::generateRocks(RockGenerator::Normal, 1, "Assets/rock");
         }
         
@@ -346,8 +345,8 @@ namespace Terrain {
 
         BushMesh.clear();
         BushMesh.load("Assets/bush0.obj");
-        BushMesh.getMaterial(0)->TexAlbedo = "Assets/richard/placeholder.png";
-        BushMesh.getMaterial(0)->TexDepth = "Assets/richard/placeholderAlpha.png";
+        BushMesh.getMaterial(0)->TexAlbedo = "Assets/richard/bushColor2.png";
+        BushMesh.getMaterial(0)->TexDepth = "Assets/richard/bushAlpha2.png";
         BushMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceGrassShader.vert");
         BushMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
 
@@ -373,9 +372,11 @@ namespace Terrain {
         bool shadows = false;
         bool richard = false;
         bool erode = false;
-        bool cameraMode = true;
-        bool generateNew = true;
-        bool renderGrass = true;
+        bool cameraMode = false;
+        bool generateNew = false;
+        bool renderGrass = false;
+        bool renderOcean = true;
+        bool oceanOnly = false;
 
         float cameraHeight = 2;
 
@@ -383,6 +384,7 @@ namespace Terrain {
             DecoSetup();
             return;
         }
+
 
         GLWindow window;
         RenderDevice renderDevice;
@@ -399,7 +401,7 @@ namespace Terrain {
             .octaves = 10,
             .persistence = 0.5f,
             .lacunarity = 2.0f};
-        HeightMap::HeightMapConfig heightMapConfig = {.width = 1024 / 1 , .height = 1024 / 1,
+        HeightMap::HeightMapConfig heightMapConfig = {.width = 1024, .height = 1024,
                                                       .mapHeight = 400, .noiseConfig = noiseConfig};
 
         TerrainMap map = TerrainMap(&rootTransform);
@@ -408,7 +410,15 @@ namespace Terrain {
 
         SceneGraph sceneGraph;
 
-        
+    
+        OceanSimulation oceanSimulation(512, 1000, 20, Vector2f(1.0f, 1.0f), 40);
+
+
+
+
+        oceanSimulation.initOceanSimulation();
+
+        /*
 
         DekoMesh PineMesh;
         InstanceActor iPineActor;
@@ -456,13 +466,14 @@ namespace Terrain {
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		glBindBufferBase(GL_UNIFORM_BUFFER, 4, windUBO);
 		setWindUBO(windUBO, windVec, 0);
+        */
         srand((unsigned int)time(NULL));
+        
 
         sceneGraph.init(&rootTransform);
 
         ScreenQuad quad;
         initDebugQuad(&quad);
-
 
         // initialize skybox
         SkyboxActor Skybox;
@@ -474,7 +485,6 @@ namespace Terrain {
         BoxTexs.push_back("Assets/skybox/back.jpg");
         BoxTexs.push_back("Assets/skybox/front.jpg");
         Skybox.init(BoxTexs[0], BoxTexs[1], BoxTexs[2], BoxTexs[3], BoxTexs[4], BoxTexs[5]);
-
 
         //fps counter
         int32_t FPSCount = 0;
@@ -493,6 +503,7 @@ namespace Terrain {
                 shadows = !shadows;
             }
 
+            /*
             // wind
             windAngleVariation += randomF(-windAngleAcc, windAngleAcc) / (float)fps;
             windAngleVariation *= 0.8;
@@ -500,6 +511,8 @@ namespace Terrain {
             windVec.x() = cos(windAngle) * windStr;
             windVec.z() = sin(windAngle) * windStr;
             setWindUBO(windUBO, windVec, current_ticks / 60.0 * windWaveSpeedMultiplier);
+            */
+
 
             window.update();
 
@@ -518,43 +531,78 @@ namespace Terrain {
 
             renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 
-            if (wireframe) {
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                glLineWidth(1);
-                sceneGraph.render(&renderDevice);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            } else {
-                sceneGraph.render(&renderDevice);
+            if (!oceanOnly) {
+
+                if (wireframe) {
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                    glLineWidth(1);
+                    sceneGraph.render(&renderDevice);
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                }
+                else {
+                    sceneGraph.render(&renderDevice);
+                }
+
             }
 
-            //Deko instances
-            iPineActor.render(&renderDevice);
-            iTreeActor.render(&renderDevice);
-            iPalmActor.render(&renderDevice);
-            iRockActor.render(&renderDevice);
-            iBushActor.render(&renderDevice);
+            /*
+            if (!oceanOnly) {
 
-            glDisable(GL_CULL_FACE);
-            if (renderGrass) {
-                updateGrass(iGrassActor, map, camera);
-                iGrassActor.init(&GrassMesh);
-                iGrassActor.render(&renderDevice);
+                //Deko instances
+                iPineActor.render(&renderDevice);
+                iTreeActor.render(&renderDevice);
+                iPalmActor.render(&renderDevice);
+                iRockActor.render(&renderDevice);
+
+                glDisable(GL_CULL_FACE);
+                if (renderGrass) {
+                    updateGrass(iGrassActor, map, camera);
+                    iGrassActor.init(&GrassMesh);
+                    iGrassActor.render(&renderDevice);
+                }
+                iBushActor.render(&renderDevice);
+                iPineLeavesActor.render(&renderDevice);
+                iTreeLeavesActor.render(&renderDevice);
+                iPalmLeavesActor.render(&renderDevice);
+                glEnable(GL_CULL_FACE);
+
             }
-            iPineLeavesActor.render(&renderDevice);
-            iTreeLeavesActor.render(&renderDevice);
-            iPalmLeavesActor.render(&renderDevice);
-            glEnable(GL_CULL_FACE);
-
+            */
             renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
             renderDevice.activePass(RenderDevice::RENDERPASS_FORWARD);
             renderDevice.requestRendering(&Skybox, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
 
+            if (renderOcean) {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+                if (wireframe) {
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                    glLineWidth(3);
+                }
+
+                oceanSimulation.updateWaterSimulation(current_ticks / 60.0 / 100);
+
+                if (wireframe) {
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                }
+
+                glDisable(GL_BLEND);
+            }
+
+            
+
             if (debugTexture) {
                 glActiveTexture(GL_TEXTURE0);
                 map.bindTexture();
+                glBindTexture(GL_TEXTURE_2D, oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT]);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                 quad.render(&renderDevice);
             }
+
 
             window.swapBuffers();
 
@@ -593,6 +641,7 @@ namespace Terrain {
                 heightMapConfig = {.width = 1024 / 1, .height = 1024 / 1,
                     .mapHeight = 400, .noiseConfig = noiseConfig};
                 map.generateHeightMap(heightMapConfig);
+                /*
                 placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
                 iPineActor.init(&PineMesh);
                 iPineLeavesActor.init(&PineLeavesMesh);
@@ -602,10 +651,12 @@ namespace Terrain {
                 iPalmLeavesActor.init(&PalmLeavesMesh);
                 iRockActor.init(&RockMesh);
                 iBushActor.init(&BushMesh);
+                */
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F5)) {
                 window.keyboard()->keyState(Keyboard::KEY_F5, Keyboard::KEY_RELEASED);
                 map.updateHeights();
+                /*
                 placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
                 iPineActor.init(&PineMesh);
                 iPineLeavesActor.init(&PineLeavesMesh);
@@ -615,6 +666,7 @@ namespace Terrain {
                 iPalmLeavesActor.init(&PalmLeavesMesh);
                 iRockActor.init(&RockMesh);
                 iBushActor.init(&BushMesh);
+                */
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F6)) {
                 window.keyboard()->keyState(Keyboard::KEY_F6, Keyboard::KEY_RELEASED);
@@ -626,6 +678,7 @@ namespace Terrain {
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F8)) {
                 window.keyboard()->keyState(Keyboard::KEY_F8, Keyboard::KEY_RELEASED);
+                /*
                 iPineActor.clearInstances();
                 iPineLeavesActor.clearInstances();
                 iTreeActor.clearInstances();
@@ -642,6 +695,7 @@ namespace Terrain {
                 iPalmLeavesActor.init(&PalmLeavesMesh);
                 iRockActor.init(&RockMesh);
                 iBushActor.init(&BushMesh);
+                */
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F9)) {
                 window.keyboard()->keyState(Keyboard::KEY_F9, Keyboard::KEY_RELEASED);
@@ -649,6 +703,7 @@ namespace Terrain {
             }
             if (false && window.keyboard()->keyPressed(Keyboard::KEY_F10)) {
                 window.keyboard()->keyState(Keyboard::KEY_F10, Keyboard::KEY_RELEASED);
+                /*
                 loadNewDekoObjects(generateNew, PineMesh, PineLeavesMesh, PalmMesh, PalmLeavesMesh, TreeMesh, TreeLeavesMesh, GrassMesh, RockMesh, BushMesh);
 
                 placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
@@ -660,6 +715,7 @@ namespace Terrain {
                 iPalmLeavesActor.init(&PalmLeavesMesh);
                 iRockActor.init(&RockMesh);
                 iBushActor.init(&BushMesh);
+                */
             }
 
             if (window.keyboard()->keyPressed(Keyboard::KEY_O)) {

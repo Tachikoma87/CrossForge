@@ -1,0 +1,23 @@
+#version 430 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(rgba32f, binding = 0) uniform image2D textureDisplacement;
+layout(rgba32f, binding = 1) uniform image2D texturePingpong0;
+layout(rgba32f, binding = 2) uniform image2D texturePingpong1;
+
+uniform int gridSize;
+uniform int pingpong;
+
+void main() {
+	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+	
+	float perms[] = {1.0, -1.0};
+	int index = int(mod((int(pos.x + pos.y)), 2));
+	float perm = perms[index];
+
+	float h = imageLoad(pingpong == 0 ? texturePingpong0 : texturePingpong1, pos).r;
+
+	float displacement = perm * (h / float(gridSize * gridSize));
+	imageStore(textureDisplacement, pos, vec4(displacement, displacement, displacement, 1));
+}

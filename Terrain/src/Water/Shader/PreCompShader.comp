@@ -1,0 +1,67 @@
+#version 430 core
+#define M_PI 3.1415926535897932384626433832795
+#define M_G 9.81
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+layout(rgba32f, binding = 0) uniform image2D textureH0;
+layout(rgba32f, binding = 1) uniform image2D textureH0inverse;
+
+uniform vec2 randomOffset1;
+uniform vec2 randomOffset2;
+uniform vec2 randomOffset3;
+uniform vec2 randomOffset4;
+
+uniform int gridSize;
+uniform int horizontalDimension;
+uniform float amplitude;
+uniform vec2 windDirection;
+uniform float windVelocity;
+
+
+
+float random (vec2 st) { // Author @patriciogv - 2015 http://patriciogonzalezvivo.com
+	float r = fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+    return (r - 0.5) * 2;
+}
+
+void main() {
+	ivec2 pixel_pos = ivec2(gl_GlobalInvocationID.xy);
+	vec2 x = vec2(pixel_pos) - float(gridSize) / 2.0;
+
+	vec2 k = 2 * M_PI * x / horizontalDimension;
+	
+	
+	float L_ = windVelocity * windVelocity / M_G;
+	float mag = length(k);
+
+	// prevent division by zero
+	if (mag < 0.00001) {
+		mag = 0.00001;
+	}
+	float magSq = mag * mag;
+	
+	float temp = dot(normalize(k), normalize(windDirection));
+
+	float h0 = clamp(sqrt((amplitude / (magSq * magSq))
+			 * temp * temp * temp * temp * temp * temp * temp * temp // * (pow(temp, 4.0)) 
+			 * exp(-(1.0 / (magSq * L_ * L_)))
+			 * exp(-magSq * pow(horizontalDimension / 2000.0, 2.0))) / sqrt(2.0), -4000, 4000);
+
+	float temp2 = dot(normalize(-k), normalize(windDirection));
+
+	float h0inverse = clamp(sqrt((amplitude / (magSq * magSq))
+			 * temp2 * temp2 * temp2 * temp2 * temp2 * temp2 * temp2 * temp2 // * pow(temp2, 2.0)
+			 * exp(-(1.0 / (magSq * L_ * L_)))
+			 * exp(-magSq * pow(horizontalDimension / 2000.0, 2.0))) / sqrt(2.0), -4000, 4000);
+
+
+	vec4 randomNumbers = vec4(random(pixel_pos * 0.01 + randomOffset1),
+							  random(pixel_pos * 0.01 + randomOffset2),
+							  random(pixel_pos * 0.01 + randomOffset3),
+							  random(pixel_pos * 0.01 + randomOffset4));
+
+
+	imageStore(textureH0, pixel_pos, vec4(randomNumbers.xy * h0, 0, 1));
+
+	imageStore(textureH0inverse, pixel_pos, vec4(randomNumbers.zw * h0inverse, 0, 1));
+}

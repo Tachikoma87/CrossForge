@@ -140,7 +140,6 @@ namespace CForge {
 		float* pV = (float*)&pBuf[BufferOffset];
 		for (int i = 0; i < 4 * 4 * transMatrixes.size(); i++) {
 			pV[i] = transMatrixes.data()->data()[i];
-			
 		}
 
 	}//buildBuffer

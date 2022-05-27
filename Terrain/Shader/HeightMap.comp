@@ -130,7 +130,7 @@ void main() {
     vec2 uv = vec2(gl_GlobalInvocationID.xy) / vec2(gl_NumWorkGroups.xy);
 
     float minCutoff = 0.4;
-    float falloff = - minCutoff * pow(4 * length(uv - 0.5) - 1, 2) + 1;
+    float falloff = - minCutoff * pow(5 * length(uv - 0.5) - 1, 2) + 1;
     falloff = clamp(falloff, minCutoff, 1);
 
     float adjustment = 1.0;
@@ -158,7 +158,7 @@ void main() {
         }
     }
     else {
-        height = 0.0; // clamp water
+        //height = 0.0; // clamp water
     }
 
     height = (height + 1) / 2;

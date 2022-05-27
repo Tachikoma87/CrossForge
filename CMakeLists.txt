@@ -201,6 +201,14 @@ add_custom_command(
 		${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 
+# copy water shaders
+add_custom_command(
+		TARGET Terrain PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${CMAKE_SOURCE_DIR}/Terrain/src/Water/Shader
+		${CMAKE_CURRENT_BINARY_DIR}/Shader
+)
+
 add_custom_command(
 		TARGET Terrain PRE_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_directory

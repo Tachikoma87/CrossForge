@@ -1,0 +1,73 @@
+#version 430 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(rgba32f, binding = 0) uniform image2D textureTwiddleIndices;
+layout(rgba32f, binding = 1) uniform image2D texturepingpong0;
+layout(rgba32f, binding = 2) uniform image2D texturepingpong1;
+
+uniform int stage;
+uniform int pingpong;
+uniform int direction;
+
+struct complex {
+	float real;
+	float im;
+};
+
+complex mul(complex c0, complex c1) {
+	complex c;
+	c.real = c0.real * c1.real - c0.im * c1.im;
+	c.im = c0.real * c1.im + c0.im * c1.real;
+	return c ;
+}
+
+complex add(complex c0, complex c1) {
+	complex c ;
+	c.real = c0.real + c1.real;
+	c.im = c0.im + c1.im;
+	return c;
+}
+
+void horizontalButterflies() {
+	complex H;
+	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+
+	vec4 data = imageLoad(textureTwiddleIndices, ivec2(stage, pos.x)).rgba;
+
+	vec2 p_ = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(data.z, pos.y)).rg;
+	vec2 q_ = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(data.w, pos.y)).rg;
+
+	complex p = complex(p_.x, p_.y);
+	complex q = complex(q_.x, q_.y);
+	complex w = complex(data.x, data.y);
+	H = add(p, mul(w, q));
+
+	imageStore(pingpong == 0 ? texturepingpong1 : texturepingpong0, pos, vec4(H.real, H.im, 0 , 1));
+}
+
+void verticalButterflies() {
+	complex H;
+	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+
+	vec4 data = imageLoad(textureTwiddleIndices, ivec2(stage, pos.y)).rgba;
+
+	vec2 p_ = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(pos.x, data.z)).rg;
+	vec2 q_ = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(pos.x, data.w)).rg;
+
+	complex p = complex(p_.x, p_.y);
+	complex q = complex(q_.x, q_.y);
+	complex w = complex(data.x, data.y);
+	H = add(p, mul(w, q));
+
+	imageStore(pingpong == 0 ? texturepingpong1 : texturepingpong0, pos, vec4(H.real, H.im, 0 , 1));
+}
+
+void main() {
+	if (direction == 0) {
+		horizontalButterflies();
+	}
+	else {
+		verticalButterflies();
+	}
+}

@@ -12,7 +12,7 @@
 using namespace Eigen;
 using namespace std;
 
-enum GrassType {cross, triangle};
+enum GrassType {cross, triangle, bush};
 
 class GrassGenerator {
 	public:
@@ -31,6 +31,9 @@ class GrassGenerator {
 						break;
 					case triangle:
 						generate(geometry, 0.6, 6, 3);
+						break;
+					case bush:
+						generate(geometry, 0.6, 6, 10);
 						break;
 				}
 
