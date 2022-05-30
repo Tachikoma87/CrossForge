@@ -1,5 +1,6 @@
 #pragma once
 
+class BaseWidget;
 //#include "Widget.h"
 #include "WidgetBackground.h"
 #include "Font.h"
@@ -11,11 +12,10 @@
 #include "Callback.h"
 #include <CForge/Core/ITListener.hpp>
 
-class BaseWidget;
 
-typedef struct {
+struct mouseEventInfo {
     Eigen::Vector2f adjustedPosition;   //cursor position adjusted to the position within the clicked widget
-} mouseEventInfo;
+};
 
 class CallbackTestClass : public CForge::ITListener<CallbackObject> {
     void listen(const CallbackObject Msg) override;

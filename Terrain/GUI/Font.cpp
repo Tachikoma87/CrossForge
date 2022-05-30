@@ -394,9 +394,6 @@ void TextLine::setColor(float r, float g, float b)
 
 void TextLine::render(CForge::RenderDevice* pRDev)
 {
-    //blending required as the text will be applied as an alpha mask
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 /*
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);*/
@@ -417,8 +414,6 @@ void TextLine::render(CForge::RenderDevice* pRDev)
 
     m_VertexArray.unbind();
 
-    //terrain rendering does not work properly with enabled blending
-    glDisable(GL_BLEND);
 }
 
 float TextLine::getTextSize()

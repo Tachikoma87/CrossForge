@@ -21,6 +21,7 @@ FormWidget::FormWidget(int FormID, GUI* rootGUIObject, BaseWidget* parent) : Bas
     m_ApplyButton->setText(U"Apply");
     m_height = m_ApplyButton->getHeight();
     m_width = m_ApplyButton->getWidth();
+    m_background = new WidgetBackgroundColored(this, m_root->BackgroundColoredShader);
 }
 FormWidget::~FormWidget()
 {
@@ -28,6 +29,7 @@ FormWidget::~FormWidget()
         delete x.second;
     }
     delete m_ApplyButton;
+    delete m_background;
 }
 
 void FormWidget::addOption(int OptionID, CallbackDatatype type, std::u32string name)
@@ -77,6 +79,7 @@ void FormWidget::changePosition(float dx, float dy)
         x.second->changePosition(dx, dy);
     }
     m_ApplyButton->changePosition(dx, dy);
+    m_background->setPosition(m_x, m_y);
 }
 void FormWidget::updateLayout()
 {
@@ -86,6 +89,7 @@ void FormWidget::updateLayout()
         m_width = std::max(m_width, x.second->getWidth());
         m_height += x.second->getHeight();
     }
+    m_background->updateSize(false);
     if (m_parent != nullptr) m_parent->updateLayout();
 }
 void FormWidget::draw(CForge::RenderDevice* renderDevice)
@@ -94,6 +98,7 @@ void FormWidget::draw(CForge::RenderDevice* renderDevice)
         x.second->draw(renderDevice);
     }
     m_ApplyButton->draw(renderDevice);
+    m_background->render(renderDevice);
 }
 
 

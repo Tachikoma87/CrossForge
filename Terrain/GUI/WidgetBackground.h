@@ -1,5 +1,6 @@
 #pragma once
 
+//copied over from the CForge::ScreenQuad
 #include <CForge/Graphics/Actors/IRenderableActor.h>
 #include <CForge/Graphics/Actors/RenderGroupUtility.h>
 #include <CForge/Graphics/Actors/VertexUtility.h>
@@ -11,46 +12,35 @@
 // perhaps not the best name, maybe more like "drawables"
 
 /*
- Abstract class for Widget backgrounds, as there could be multiple (plain color, images, perhaps text).
+ Abstract class for Widget backgrounds, as there could be multiple (plain color, images).
  */
-// class IWidgetBackground {
-// public:
-//     virtual void init(BackgroundStyle style, CForge::GLShader *pShader = nullptr) = 0;
-//     virtual void render(class CForge::RenderDevice* pRDev) = 0;
-//     virtual ~IWidgetBackground();
-// };
+
+//forwards declaration instead of including it here because otherwise somehow everything
+//completely falls apart... It's included in WidgetBackground.cpp instead.
+class BaseWidget;
 
 class WidgetBackground : public CForge::IRenderableActor/*, public IWidgetBackground*/ {
-	public:
-		WidgetBackground(void);
-		virtual ~WidgetBackground(void);
+    public:
+        WidgetBackground(BaseWidget* parent, CForge::GLShader *pShader = nullptr);
+        ~WidgetBackground(void);
 
-		virtual void init(BackgroundStyle style, CForge::GLShader *pShader = nullptr) = 0;
-        void setPosition(float x, float y);
-        void setSize(float width, float height);
+        virtual void setPosition(float x, float y);
+        virtual void updateSize(bool initialise);
+        virtual void setColor(float r, float g, float b, float a = -1.0f);
         
-		virtual void clear(void) = 0;
-		void release(void);
+        virtual void clear(void) = 0;
+        virtual void release(void);
 
         //durch IRenderableActor bereits vorhanden
-		void render(class CForge::RenderDevice* pRDev);
+        virtual void render(class CForge::RenderDevice* pRDev) = 0;
 
-	protected:
-        
-        float m_x;     //top left point
-        float m_y;
-        float m_width; 
-        float m_height;
-        
-        BackgroundStyle m_style;
+    protected:
+        Eigen::Matrix4f m_projection;
+        BaseWidget* m_parent;
+        float m_color[4] = {0, 0, 0, 0.5f};
 
-		/*GLVertexArray m_VertexArray;
-		GLBuffer m_VertexBuffer;
-		GLBuffer m_ElementBuffer;*/
-		  CForge::GLShader *m_pShader;
-          
-        void updatePosition(bool initialise);
-        void setBufferData(void);
+        CForge::GLShader *m_pShader;
+        virtual void setBufferData(void);
 
 };//WidgetBackground
 
@@ -59,10 +49,10 @@ class WidgetBackground : public CForge::IRenderableActor/*, public IWidgetBackgr
  */
 class WidgetBackgroundColored : public WidgetBackground {
 public:
-    WidgetBackgroundColored (void);
+    WidgetBackgroundColored (BaseWidget* parent, CForge::GLShader *pShader = nullptr);
     ~WidgetBackgroundColored (void);
-    void init(BackgroundStyle style, CForge::GLShader *pShader = nullptr);
     void clear(void);
+    void render(class CForge::RenderDevice* pRDev);
 //     void release(void);
 // protected:
 };

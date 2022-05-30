@@ -1,57 +1,58 @@
 #include "WidgetBackground.h"
 #include <glad/glad.h>
 #include <CForge/Graphics/RenderDevice.h>
+#include "Widget.h"
 
 using namespace CForge;
-
-void WidgetBackground::setPosition(float x, float y) 
-{
-    m_x = x;
-    m_y = y;
-    updatePosition(false);
-};
-void WidgetBackground::setSize(float width, float height) 
-{
-    m_width = width;
-    m_height = height;
-    updatePosition(false);
-};
-void WidgetBackground::render(CForge::RenderDevice* pRDev) {
-    m_VertexArray.bind();
-    if (nullptr != m_pShader) pRDev->activeShader(m_pShader);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-}//render
-void WidgetBackground::release()
-{
-    delete this;
-}
 
 //adapted from the cforge screenquad
 //TODO: the shader should be expanded to support different colors and perhaps some other
 //styling elements in the future. Depending on how resizable and movable the GUI
 //should become, it might also make sense to pass the position data as an uniform
 //or add an transformation matrix
-void WidgetBackgroundColored::init(BackgroundStyle style, CForge::GLShader *pShader) 
-{
-    clear();
 
-// // 
-    updatePosition(true);
+WidgetBackground::WidgetBackground(BaseWidget* parent, CForge::GLShader *pShader): IRenderableActor("WidgetBackground", ATYPE_SCREENQUAD)
+{
+    m_parent = parent;
+    updateSize(true);
 
     m_VertexArray.init();
     m_VertexArray.bind();
     setBufferData();
     m_VertexArray.unbind();
-    
+
     m_pShader = pShader;
-};
-void WidgetBackgroundColored::clear()
-{
-    m_VertexArray.clear();
-    m_VertexBuffer.clear();
-    m_ElementBuffer.clear();
-    m_pShader = nullptr;
+
+    m_projection = Eigen::Matrix4f::Identity();
+    float scale_x, scale_y;
+    scale_x = scale_y = 2.0f/720.0f;
+    m_projection(0,0) = scale_x;
+    m_projection(1,1) = scale_y;
+    setPosition(m_parent->getPosition()[0], m_parent->getPosition()[1]);
 }
+WidgetBackground::~WidgetBackground()
+{
+
+}
+void WidgetBackground::release()
+{
+    delete this;
+}
+void WidgetBackground::setPosition(float x, float y)
+{
+    //TODO currently does not work for rotated text
+    // consider using proper matrix operations in the future
+    m_projection(0,3) = m_projection(0,0) * x - 1;
+    m_projection(1,3) = m_projection(1,1) * y - 1;
+};
+void WidgetBackground::setColor(float r, float g, float b, float a)
+{
+    m_color[0] = r;
+    m_color[1] = g;
+    m_color[2] = b;
+    if (a > 0) m_color[3] = a;
+}
+
 void WidgetBackground::setBufferData()
 {
     const uint32_t VertexSize = 4 * sizeof(float);
@@ -66,18 +67,15 @@ void WidgetBackground::setBufferData()
     glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW));
     glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW), 2, GL_FLOAT, GL_FALSE, VertexSize, (const void*)UVOffset);
 }
-void WidgetBackground::updatePosition(bool initialise)
+void WidgetBackground::updateSize(bool initialise)
 {
-    float left = m_x, right = m_x + m_width, top = m_y, bottom = m_y + m_height;
-    
-//     mapping from [0,1] -> [-1,1] (NDC)
-    left = left * 2.0f - 1.0f;
-    top = top * 2.0f - 1.0f;
-    right = right * 2.0f - 1.0f;
-    bottom = bottom * 2.0f - 1.0f;
+    //only buffer some quad of the required width and height,
+    //position will be handled by the projection matrix
 
-    top *= -1.0f;
-    bottom *= -1.0f;
+    float left = 0;
+    float right = m_parent->getWidth();
+    float top = 0;
+    float bottom = m_parent->getHeight();
 
     float QuadVertices[] = {
         left, bottom,		0.0f, 0.0f,
@@ -92,29 +90,33 @@ void WidgetBackground::updatePosition(bool initialise)
     if (initialise) {
         m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, QuadVertices, sizeof(QuadVertices));
     } else {
-        m_VertexBuffer.bufferData(QuadVertices, sizeof(QuadVertices));
+        m_VertexBuffer.bufferSubData(0, sizeof(QuadVertices), QuadVertices);
     }
     
+}
+
+
+WidgetBackgroundColored::WidgetBackgroundColored(BaseWidget* parent, CForge::GLShader *pShader) : WidgetBackground(parent, pShader)
+{
+
 }
 WidgetBackgroundColored::~WidgetBackgroundColored()
 {
     clear();
 }
-WidgetBackgroundColored::WidgetBackgroundColored()
+void WidgetBackgroundColored::clear()
 {
-    
+    m_VertexArray.clear();
+    m_VertexBuffer.clear();
+    m_ElementBuffer.clear();
+    m_pShader = nullptr;
 }
-WidgetBackground::WidgetBackground(): IRenderableActor("ScreenQuad", ATYPE_SCREENQUAD) 
-{
-    m_x = 0;
-    m_y = 0;
-    m_width = 0.2;
-    m_height = 0.2;
-}
-WidgetBackground::~WidgetBackground()
-{
-    
-}
-
+void WidgetBackgroundColored::render(CForge::RenderDevice* pRDev) {
+    m_VertexArray.bind();
+    if (nullptr != m_pShader) pRDev->activeShader(m_pShader);
+    glUniform4fv(m_pShader->uniformLocation("color"), 1, m_color);
+    glUniformMatrix4fv(m_pShader->uniformLocation("projection"), 1, GL_FALSE, m_projection.data());
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}//render
 
 
