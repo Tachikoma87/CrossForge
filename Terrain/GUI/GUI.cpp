@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <iostream>
 
+#include <glad/glad.h>
 #include "CForge/Graphics/Shader/SShaderManager.h"
 
 using namespace std; 
@@ -36,31 +37,28 @@ GUI::~GUI()
 
 void GUI::testInit(CForge::GLWindow* pWin)
 {
-    SShaderManager* shaderManager = SShaderManager::instance();
+    //Compile the shaders
 
+    //Text
+    SShaderManager* shaderManager = SShaderManager::instance();
     vector<ShaderCode*> vsSources;
     vector<ShaderCode*> fsSources;
     string errorLog;
-    
-//     ShaderCode* vertexShader =
-//         shaderManager->createShaderCode("Shader/ScreenQuad.vert", "330 core",
-//                                         0, "", "");
-//     ShaderCode* fragmentShader =
-//         shaderManager->createShaderCode("Shader/ScreenQuad2.frag", "330 core",
-//                                         0, "", "");
-    ShaderCode* vertexShader =
-        shaderManager->createShaderCode("Shader/text.vert", "330 core",
-                                        0, "", "");
-    ShaderCode* fragmentShader =
-        shaderManager->createShaderCode("Shader/text.frag", "330 core",
-                                        0, "", "");
-
+    ShaderCode* vertexShader = shaderManager->createShaderCode("Shader/text.vert", "330 core", 0, "", "");
+    ShaderCode* fragmentShader = shaderManager->createShaderCode("Shader/text.frag", "330 core", 0, "", "");
     vsSources.push_back(vertexShader);
     fsSources.push_back(fragmentShader);
-
-//     BackgroundColoredShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
     TextShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
-    
+    shaderManager->release();
+    //BG (single color)
+    shaderManager = SShaderManager::instance();
+    vsSources.clear();
+    fsSources.clear();
+    vertexShader = shaderManager->createShaderCode("Shader/BackgroundColored.vert", "330 core", 0, "", "");
+    fragmentShader = shaderManager->createShaderCode("Shader/BackgroundColored.frag", "330 core", 0, "", "");
+    vsSources.push_back(vertexShader);
+    fsSources.push_back(fragmentShader);
+    BackgroundColoredShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
     shaderManager->release();
     
     fontFace = new FontFace();
@@ -87,9 +85,17 @@ void GUI::testInit(CForge::GLWindow* pWin)
 }
 void GUI::testRender()
 {
+    //blending required as the text will be applied as an alpha mask
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     for (auto x : testBG) {
         if (x != nullptr) x->draw(m_renderDevice);
     }
+
+    //terrain rendering does not work properly with enabled blending
+    glDisable(GL_BLEND);
+
 //     testtext.render(m_renderDevice);
 }
 void GUI::registerMouseDownEvent ( BaseWidget* widget )
