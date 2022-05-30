@@ -3,8 +3,8 @@
 #include <string>
 
 struct BackgroundStyle {
-    float alpha = 0.5f;
-    float color[3] = {1.0f, 1.0f, 0.0f};
+    float Alpha = 0.5f;
+    float Color[3] = {1.0f, 1.0f, 0.0f};
 };
 
 struct FontStyle {

@@ -4,7 +4,6 @@
 #include "WidgetBackground.h"
 #include "Font.h"
 #include <CForge/Input/Mouse.h>
-class GUI;
 
 class BaseWidget {
 public:
