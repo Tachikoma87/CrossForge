@@ -3,11 +3,13 @@
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 layout(rgba32f, binding = 0) uniform image2D textureDisplacement;
-layout(rgba32f, binding = 1) uniform image2D texturePingpong0;
-layout(rgba32f, binding = 2) uniform image2D texturePingpong1;
+layout(rgba32f, binding = 1) uniform image2D textureNormals;
+layout(rgba32f, binding = 2) uniform image2D texturePingpong0;
+layout(rgba32f, binding = 3) uniform image2D texturePingpong1;
 
 uniform int gridSize;
 uniform int pingpong;
+uniform int text;
 
 void main() {
 	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
@@ -19,5 +21,33 @@ void main() {
 	float h = imageLoad(pingpong == 0 ? texturePingpong0 : texturePingpong1, pos).r;
 
 	float displacement = perm * (h / float(gridSize * gridSize));
-	imageStore(textureDisplacement, pos, vec4(displacement, displacement, displacement, 1));
+	vec3 oldColor = imageLoad(textureDisplacement, pos).rgb;
+
+	vec3 newColor = oldColor;
+
+	if (text == 0) {
+		newColor = vec3(displacement, oldColor.yz);
+	}
+	else if (text == 1) {
+		newColor = vec3(oldColor.x, displacement, oldColor.z);
+	}
+	else if (text == 2) {
+		newColor = vec3(oldColor.xy, displacement);
+	}
+
+	imageStore(textureDisplacement, pos, vec4(newColor, 1));
+
+
+	oldColor = imageLoad(textureNormals, pos).rgb;
+
+	newColor = oldColor;
+
+	if (text == 3) {
+		newColor = vec3(displacement, 1, oldColor.b);
+	}
+	else if (text == 4) {
+		newColor = vec3(oldColor.r, 1, displacement);
+	}
+
+	imageStore(textureNormals, pos, vec4(newColor, 1));
 }

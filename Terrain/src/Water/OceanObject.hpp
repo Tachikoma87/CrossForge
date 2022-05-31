@@ -31,8 +31,10 @@ public:
 		renderDevice->activeShader(mShader);
 		glBindVertexArray(mVAO);
 
-		glDrawElements(GL_TRIANGLES, mGridSize * mGridSize, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, (mGridSize - 1) * (mGridSize - 1) * 3 * 2, GL_UNSIGNED_INT, 0);
 	}
+
+
 
 private:
 	int mGridSize;
@@ -47,10 +49,10 @@ private:
 		string errorLog;
 
 		ShaderCode* vertexShader =
-			shaderManager->createShaderCode("Shader/Ocean.vert", "330 core",
+			shaderManager->createShaderCode("Shader/Ocean.vert", "430 core",
 				0, "", "");
 		ShaderCode* fragmentShader =
-			shaderManager->createShaderCode("Shader/Ocean.frag", "330 core",
+			shaderManager->createShaderCode("Shader/Ocean.frag", "430 core",
 				0, "", "");
 
 		vsSources.push_back(vertexShader);
@@ -61,15 +63,27 @@ private:
 		shaderManager->release();
 	}
 
+
+
+
+
 	void initRenderObjects() {
 		vector<float> vertices;
 		for (int x = 0; x < mGridSize; x++) {
 			for (int z = 0; z < mGridSize; z++) {
-				vertices.push_back(-0.5f + 1.0f / x * mGridSize);
-				vertices.push_back(0);
-				vertices.push_back(-0.5f + 1.0f / z * mGridSize);
+				// vertex Pos
+				vertices.push_back((-0.5f + (float)x / mGridSize) * 100);
+				vertices.push_back(202);
+				vertices.push_back((-0.5f + (float)z / mGridSize) * 100);
+
+				// UV
+
+				vertices.push_back((float)x / mGridSize);
+				vertices.push_back((float)z / mGridSize);
 			}
 		}
+
+
 
 		vector<unsigned int> indices;
 		for (int x = 1; x < mGridSize; x++) {
@@ -97,11 +111,13 @@ private:
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
+
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
-
 	}
 };

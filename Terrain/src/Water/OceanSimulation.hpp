@@ -41,6 +41,7 @@ public:
 		Hdz,
 		TWIDDLE_INDICES,
 		DISPLACEMENT,
+		NORMALS,
 		PINGPONG,
 		TEXTURES_AMOUNT
 	};
@@ -61,11 +62,14 @@ public:
 
 	void updateWaterSimulation(float timeCount) {
 		// calc H(k, t)
-		updateHdyTexture(timeCount);
-		// reverse fft calculation
-		butterflyOperation();
-		// final height displacement
-		calcDisplacement();
+		updateHdTexture(timeCount);
+
+		for (int i = Hdx; i <= Hdz; i++) {
+			// reverse fft calculation
+			butterflyOperation(i);
+			// final height displacement
+			calcDisplacement(i);
+		}
 	}
 
 
@@ -194,12 +198,17 @@ private:
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 	}
 
-	void updateHdyTexture(float timeCount) {
+	void updateHdTexture(float timeCount) {
 		glActiveTexture(GL_TEXTURE0);
 		glActiveTexture(GL_TEXTURE1);
 		glActiveTexture(GL_TEXTURE2);
 		glActiveTexture(GL_TEXTURE3);
 		glActiveTexture(GL_TEXTURE4);
+		glActiveTexture(GL_TEXTURE5);
+		glActiveTexture(GL_TEXTURE6);
+		glActiveTexture(GL_TEXTURE7);
+		glActiveTexture(GL_TEXTURE8);
+		glActiveTexture(GL_TEXTURE9);
 
 		// bind shader + texures
 		mRenderLoopShader->bind();
@@ -220,11 +229,11 @@ private:
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 	}
 
-	void butterflyOperation() {
+	void butterflyOperation(int texture) {
 		mButterFlyShader->bind();
 
 		glBindImageTexture(0, mTextures[TWIDDLE_INDICES], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-		glBindImageTexture(1, mTextures[Hdy], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+		glBindImageTexture(1, mTextures[texture], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 		glBindImageTexture(2, mTextures[PINGPONG], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
 		int stage = mButterFlyShader->uniformLocation("stage");
@@ -257,20 +266,25 @@ private:
 		}
 	}
 
-	void calcDisplacement() {
+	void calcDisplacement(int texture) {
 		mInversionShader->bind();
 
-		glBindImageTexture(0, mTextures[DISPLACEMENT], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-		glBindImageTexture(1, mTextures[Hdy], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-		glBindImageTexture(2, mTextures[PINGPONG], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+		glBindImageTexture(0, mTextures[DISPLACEMENT], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+		glBindImageTexture(1, mTextures[NORMALS], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+		glBindImageTexture(2, mTextures[texture], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+		glBindImageTexture(3, mTextures[PINGPONG], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 
 		int gridSize = mInversionShader->uniformLocation("gridSize");
 		int pingpong = mInversionShader->uniformLocation("pingpong");
+		int text = mInversionShader->uniformLocation("text");
 
 		glUniform1i(gridSize, mGridSize);
 		glUniform1i(pingpong, mPingPong);
+		glUniform1i(text, texture - Hdx);
 
 		glDispatchCompute(mGridSize / 8, mGridSize / 8, 1);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 	}
 };
+
+

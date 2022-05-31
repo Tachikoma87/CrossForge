@@ -11,7 +11,7 @@
 #include "./Decoration/DecoSetup.hpp"
 #include "CForge/AssetIO/T3DMesh.hpp"
 #include "Water/OceanSimulation.hpp"
-//#include "Water/OceanObject.hpp"
+#include "Water/OceanObject.hpp"
 
 #include "../../Prototypes/Graphics/SkyboxActor.h"
 
@@ -21,8 +21,8 @@ namespace Terrain {
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
                     DirectionalLight *light) {
-        uint32_t winWidth = 800; // 5120 / 2 / 2;
-        uint32_t winHeight = 800; // 1440 / 2;
+        uint32_t winWidth = 5120 / 2 / 2;
+        uint32_t winHeight = 1440 / 2;
 
        /* winWidth = 1200;
         winHeight = 1200;*/
@@ -376,7 +376,7 @@ namespace Terrain {
         bool generateNew = false;
         bool renderGrass = false;
         bool renderOcean = true;
-        bool oceanOnly = false;
+        bool oceanOnly = true;
 
         float cameraHeight = 2;
 
@@ -384,6 +384,8 @@ namespace Terrain {
             DecoSetup();
             return;
         }
+
+
 
 
         GLWindow window;
@@ -411,12 +413,12 @@ namespace Terrain {
         SceneGraph sceneGraph;
 
     
-        OceanSimulation oceanSimulation(512, 1000, 20, Vector2f(1.0f, 1.0f), 40);
-
-
+        OceanSimulation oceanSimulation(256, 1000, 40, Vector2f(1.0f, 1.0f), 40);
+        OceanObject oceanObject(256);
 
 
         oceanSimulation.initOceanSimulation();
+        oceanObject.init();
 
         /*
 
@@ -535,7 +537,7 @@ namespace Terrain {
 
                 if (wireframe) {
                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                    glLineWidth(1);
+                    glLineWidth(5);
                     sceneGraph.render(&renderDevice);
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 }
@@ -580,10 +582,15 @@ namespace Terrain {
 
                 if (wireframe) {
                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                    glLineWidth(3);
+                    glLineWidth(1);
                 }
 
+
                 oceanSimulation.updateWaterSimulation(current_ticks / 60.0 / 100);
+                glDisable(GL_CULL_FACE);
+                glBindImageTexture(0, oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+                oceanObject.render(&renderDevice);
+                glEnable(GL_CULL_FACE);
 
                 if (wireframe) {
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -591,8 +598,6 @@ namespace Terrain {
 
                 glDisable(GL_BLEND);
             }
-
-            
 
             if (debugTexture) {
                 glActiveTexture(GL_TEXTURE0);
