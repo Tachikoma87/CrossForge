@@ -28,7 +28,7 @@ WidgetBackground::WidgetBackground(BaseWidget* parent, CForge::GLShader *pShader
     scale_x = scale_y = 2.0f/720.0f;
     m_projection(0,0) = scale_x;
     m_projection(1,1) = scale_y;
-    setPosition(m_parent->getPosition()[0], m_parent->getPosition()[1]);
+    updatePosition();
 }
 WidgetBackground::~WidgetBackground()
 {
@@ -45,6 +45,11 @@ void WidgetBackground::setPosition(float x, float y)
     m_projection(0,3) = m_projection(0,0) * x - 1;
     m_projection(1,3) = 1 - m_projection(1,1) * y;
 };
+void WidgetBackground::updatePosition()
+{
+    auto pos = m_parent->getPosition();
+    setPosition(pos.x(), pos.y());
+}
 void WidgetBackground::setColor(float r, float g, float b, float a)
 {
     m_color[0] = r;
