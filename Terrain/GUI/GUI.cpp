@@ -95,8 +95,6 @@ void GUI::testRender()
 
     //terrain rendering does not work properly with enabled blending
     glDisable(GL_BLEND);
-
-//     testtext.render(m_renderDevice);
 }
 void GUI::registerMouseDownEvent ( BaseWidget* widget )
 {
