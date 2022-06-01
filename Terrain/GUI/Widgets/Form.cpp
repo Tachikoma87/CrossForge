@@ -44,6 +44,7 @@ void FormWidget::addOption(int OptionID, CallbackDatatype type, std::u32string n
     m_ApplyButton->changePosition(0, label->getHeight());
     m_height += label->getHeight();
     m_width = std::max(m_width, label->getWidth());
+    m_background->updateSize();
 }
 void FormWidget::setLimit(int OptionID, int higher)
 {
@@ -89,16 +90,16 @@ void FormWidget::updateLayout()
         m_width = std::max(m_width, x.second->getWidth());
         m_height += x.second->getHeight();
     }
-    m_background->updateSize(false);
+    m_background->updateSize();
     if (m_parent != nullptr) m_parent->updateLayout();
 }
 void FormWidget::draw(CForge::RenderDevice* renderDevice)
 {
+    m_background->render(renderDevice);
     for (auto x : m_labels) {
         x.second->draw(renderDevice);
     }
     m_ApplyButton->draw(renderDevice);
-    m_background->render(renderDevice);
 }
 
 
