@@ -60,6 +60,9 @@ int FontFace::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::G
     const int numVertices = text.length() * 6;
     GLfloat *vertices = new GLfloat[numVertices * 4];
 
+    //calculate the "descender" font value as pixels. This will be used
+    //to correctly offset the baseline within the defined font pixel size.
+    const float descender = style.PixelSize / (face->ascender/face->descender - 1);
 
     //compute the glyphs' positions
     //the text string will start at (0, 0) at the bottom left on the
@@ -82,7 +85,7 @@ int FontFace::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::G
 
         //position data
         float xpos = pen_x + glyph.bitmapOffset.x;
-        float ypos = glyph.bitmapOffset.y - glyph.bitmapSize.y;
+        float ypos = glyph.bitmapOffset.y - glyph.bitmapSize.y - descender;
         float w = glyph.bitmapSize.x, h = glyph.bitmapSize.y; //for easier access
         vertices[vertexIndex] = xpos;
         vertices[vertexIndex + 1] = ypos + h;

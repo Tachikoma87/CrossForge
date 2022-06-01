@@ -89,12 +89,18 @@ void GUI::testRender()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    //to allow overlapping widget backgrounds
+    glDisable(GL_DEPTH_TEST);
+
     for (auto x : testBG) {
         if (x != nullptr) x->draw(m_renderDevice);
     }
 
     //terrain rendering does not work properly with enabled blending
     glDisable(GL_BLEND);
+
+
+    glEnable(GL_DEPTH_TEST);
 }
 void GUI::registerMouseDownEvent ( BaseWidget* widget )
 {
