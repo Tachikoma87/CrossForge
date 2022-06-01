@@ -7,6 +7,6 @@ uniform vec4 color;
 uniform mat4 projection;
 
 void main(){
-	gl_Position = vec4(clamp(Position.x, -1, 1), clamp(Position.y, -1, 1), 0, 1);//projection * vec4(Position, 0.0, 1.0);
+	gl_Position = projection * vec4(Position, 0.9, 1.0);
 	TexCoords = UV;
 }//main
