@@ -44,12 +44,16 @@ InputNumberWidget::InputNumberWidget(GUI* rootGUIObject, BaseWidget* parent) : B
     m_negativeInput = false;
     m_limits.min = std::numeric_limits<int>::min();
     m_limits.max = std::numeric_limits<int>::max();
+
+    m_background = new WidgetBackgroundColored(this, m_root->BackgroundColoredShader);
+    m_background->setColor(1, 1, 1, 0.1);
 }
 InputNumberWidget::~InputNumberWidget()
 {
     delete m_pValue;
     delete m_pDec;
     delete m_pInc;
+    delete m_background;
 }
 
 int InputNumberWidget::getValue()
@@ -130,6 +134,7 @@ void InputNumberWidget::changePosition(float dx, float dy)
     m_pDec->changePosition(dx, dy);
     m_pValue->changePosition(dx, dy);
     m_pInc->changePosition(dx, dy);
+    m_background->updatePosition();
 }
 void InputNumberWidget::updateLayout()
 {
@@ -137,10 +142,13 @@ void InputNumberWidget::updateLayout()
     m_height = m_pValue->getHeight();
     m_width = m_pDec->getWidth() + m_pValue->getWidth() + m_pInc->getWidth() + 2*defaults.WithinWidgetPadding;
 
+    m_background->updateSize();
+
     if (m_parent != nullptr) m_parent->updateLayout();
 }
 void InputNumberWidget::draw(CForge::RenderDevice* renderDevice)
 {
+    m_background->render(renderDevice);
     m_pDec->draw(renderDevice);
     m_pValue->draw(renderDevice);
     m_pInc->draw(renderDevice);

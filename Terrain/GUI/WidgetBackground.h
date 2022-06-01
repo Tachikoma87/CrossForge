@@ -25,6 +25,7 @@ class WidgetBackground : public CForge::IRenderableActor/*, public IWidgetBackgr
         ~WidgetBackground(void);
 
         virtual void setPosition(float x, float y);
+        virtual void updatePosition();
         virtual void updateSize(bool initialise = false);
         virtual void setColor(float r, float g, float b, float a = -1.0f);
         
