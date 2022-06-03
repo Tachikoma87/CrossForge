@@ -119,36 +119,36 @@ namespace CForge {
 
 		// load skydome and tree
 		T3DMesh<float> M;
-		LODActor Skydome; //TODO compatibility with static actors / non instanced actors
-		LODActor Tree1;
-		LODActor Tree2;
+		StaticActor Skydome; //TODO compatibility with static actors / non instanced actors
+		StaticActor Tree1;
+		StaticActor Tree2;
 
 		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
 		M.computePerVertexNormals();
-		for (uint32_t i = 0; i < M.materialCount(); i++) {
-			M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
-		}
-		Skydome.init(&M, true);
+		//for (uint32_t i = 0; i < M.materialCount(); i++) {
+		//	M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
+		//}
+		Skydome.init(&M);
 		M.clear();
 
 		
 		AssetIO::load("Assets/tmp/lowpolytree.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.94f);
 		M.computePerVertexNormals();
-		for (uint32_t i = 0; i < M.materialCount(); i++) {
-			M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
-		}
-		Tree1.init(&M, true);
+		//for (uint32_t i = 0; i < M.materialCount(); i++) {
+		//	M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
+		//}
+		Tree1.init(&M);
 		M.clear();
 
 		AssetIO::load("Assets/tmp/Lowpoly_tree_sample.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.94f);
 		M.computePerVertexNormals();
-		for (uint32_t i = 0; i < M.materialCount(); i++) {
-			M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
-		}
-		Tree2.init(&M, true);
+		//for (uint32_t i = 0; i < M.materialCount(); i++) {
+		//	M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
+		//}
+		Tree2.init(&M);
 		M.clear();
 
 		// build scene graph
@@ -217,7 +217,7 @@ namespace CForge {
 		// start main loop
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			SG.update(1.0f * pLOD->getDeltaTime());
+			SG.update(1.0f/pLOD->getDeltaTime());
 			pLOD->update();
 			RDev.clearBuffer();
 
