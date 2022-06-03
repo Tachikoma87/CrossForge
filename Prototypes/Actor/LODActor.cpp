@@ -25,6 +25,7 @@ namespace CForge {
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 		if (pMesh->vertexCount() == 0) throw CForgeExcept("Mesh contains no vertex data");
 		
+		m_VertexArray.init();
 		//m_translucent = isTranslucent;
 		m_isInstanced = isInstanced;
 		m_isManualInstaned = manualyInstanced;
@@ -34,6 +35,14 @@ namespace CForge {
 			m_LODStages = std::vector<float>(*m_pSLOD->getLevels());
 
 		m_LODMeshes.push_back(pMesh);
+		uint16_t VertexProperties = 0;
+		if (pMesh->vertexCount() > 0) VertexProperties |= VertexUtility::VPROP_POSITION;
+		if (pMesh->normalCount() > 0) VertexProperties |= VertexUtility::VPROP_NORMAL;
+		if (pMesh->tangentCount() > 0) VertexProperties |= VertexUtility::VPROP_TANGENT;
+		if (pMesh->textureCoordinatesCount() > 0) VertexProperties |= VertexUtility::VPROP_UVW;
+		if (pMesh->colorCount() > 0) VertexProperties |= VertexUtility::VPROP_COLOR;
+		m_VertexProperties.push_back(VertexProperties);
+		m_VertexUtility.init(VertexProperties);
 		initiateBuffers(0);
 		bindLODLevel(0);
 		
@@ -67,21 +76,11 @@ namespace CForge {
 
 	void LODActor::initiateBuffers(uint32_t level) {
 		auto pMesh = m_LODMeshes[level];
-		
-		uint16_t VertexProperties = 0;
-		if (pMesh->vertexCount() > 0) VertexProperties |= VertexUtility::VPROP_POSITION;
-		if (pMesh->normalCount() > 0) VertexProperties |= VertexUtility::VPROP_NORMAL;
-		if (pMesh->tangentCount() > 0) VertexProperties |= VertexUtility::VPROP_TANGENT;
-		if (pMesh->textureCoordinatesCount() > 0) VertexProperties |= VertexUtility::VPROP_UVW;
-		if (pMesh->colorCount() > 0) VertexProperties |= VertexUtility::VPROP_COLOR;
-		m_VertexProperties.push_back(VertexProperties);
 
 		try {
 			uint8_t* pBuffer = nullptr;
 			uint32_t BufferSize = 0;
 			
-			m_VertexUtility.clear();
-			m_VertexUtility.init(VertexProperties);
 			m_VertexUtility.buildBuffer(pMesh->vertexCount(), (void**)&pBuffer, &BufferSize, pMesh);
 						
 			m_VertexBuffers.push_back(pBuffer);
@@ -118,10 +117,8 @@ namespace CForge {
 	}
 
 	void LODActor::bindLODLevel(uint32_t level) {
-		m_VertexBuffer.clear();
-		m_ElementBuffer.clear();
-		m_VertexArray.clear();
-		
+
+		m_VertexArray.unbind();
 		try {
 			m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, m_VertexBuffers[level], m_VertexBufferSizes[level]);
 		}
@@ -147,10 +144,7 @@ namespace CForge {
 			return;
 		}
 		
-		m_VertexUtility.clear();
-		m_VertexUtility.init(m_VertexProperties[level]);
-		//m_RenderGroupUtility = *m_RenderGroupUtilities[level]; // TODO this is not necessary?
-		m_VertexArray.init();
+		//m_VertexArray.clear();
 		m_VertexArray.bind();
 		setBufferData();
 		m_VertexArray.unbind();
@@ -226,8 +220,7 @@ namespace CForge {
 			for (uint32_t j = 0; j < m_instancedMatRef.size(); j++) {
 				if (m_instancedMatRef[j]->size() > 0) {
 					pRDev->getInstancedUBO()->setInstances(m_instancedMatRef[j]);
-					//uint32_t BindingPoint = pRDev->activeShader()->uboBindingPoint(GLShader::DEFAULTUBO_INSTANCE);
-					//if (BindingPoint != GL_INVALID_INDEX) pRDev->getInstancedUBO()->bind(BindingPoint);
+
 					bindLODLevel(j);
 					m_VertexArray.bind();
 					for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
@@ -242,12 +235,7 @@ namespace CForge {
 						}
 						glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), m_instancedMatRef[j]->size());
 					}
-					m_VertexArray.unbind();
-					//pRDev->activeShader(m_RenderGroupUtilities[m_LODLevel]->renderGroups()[0]->pShader);
-					//pRDev->activeMaterial(&m_RenderGroupUtilities[m_LODLevel]->renderGroups()[0]->Material);
-					//glDrawElementsInstanced(GL_TRIANGLES, m_ElementBuffer.size() / sizeof(unsigned int), GL_UNSIGNED_INT, 0, m_instancedMatRef[j]->size());
 				}
-				
 				m_instancedMatRef[j]->clear();
 			}
 			if (!m_isManualInstaned)
@@ -343,7 +331,7 @@ namespace CForge {
 	}
 	
 	int32_t LODActor::testAABBvis(class RenderDevice* pRDev) {
-	
+		
 		GLuint queryID;
 		glGenQueries(1, &queryID);
 		glBeginQuery(GL_SAMPLES_PASSED, queryID);
