@@ -45,8 +45,8 @@ InputNumberWidget::InputNumberWidget(GUI* rootGUIObject, BaseWidget* parent) : B
     m_limits.min = std::numeric_limits<int>::min();
     m_limits.max = std::numeric_limits<int>::max();
 
-    m_background = new WidgetBackgroundColored(this, m_root->BackgroundColoredShader);
-    m_background->setColor(1, 1, 1, 0.1);
+    m_background = new WidgetBackgroundBorder(this, m_root->BackgroundColoredShader);
+//     m_background->setColor(1, 1, 1, 0.1);
 }
 InputNumberWidget::~InputNumberWidget()
 {

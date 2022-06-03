@@ -14,12 +14,6 @@ using namespace CForge;
 WidgetBackground::WidgetBackground(BaseWidget* parent, CForge::GLShader *pShader): IRenderableActor("WidgetBackground", ATYPE_SCREENQUAD)
 {
     m_parent = parent;
-    updateSize(true);
-
-    m_VertexArray.init();
-    m_VertexArray.bind();
-    setBufferData();
-    m_VertexArray.unbind();
 
     m_pShader = pShader;
 
@@ -29,6 +23,14 @@ WidgetBackground::WidgetBackground(BaseWidget* parent, CForge::GLShader *pShader
     m_projection(0,0) = scale_x;
     m_projection(1,1) = scale_y;
     updatePosition();
+}
+void WidgetBackground::initBuffers()
+{
+    updateSize(true);
+    m_VertexArray.init();
+    m_VertexArray.bind();
+    setBufferData();
+    m_VertexArray.unbind();
 }
 WidgetBackground::~WidgetBackground()
 {
@@ -55,6 +57,13 @@ void WidgetBackground::setColor(float r, float g, float b, float a)
     m_color[0] = r;
     m_color[1] = g;
     m_color[2] = b;
+    if (a > 0) m_color[3] = a;
+}
+void WidgetBackground::setColor(float color[3], float a)
+{
+    m_color[0] = color[0];
+    m_color[1] = color[1];
+    m_color[2] = color[2];
     if (a > 0) m_color[3] = a;
 }
 
@@ -103,7 +112,9 @@ void WidgetBackground::updateSize(bool initialise)
 
 WidgetBackgroundColored::WidgetBackgroundColored(BaseWidget* parent, CForge::GLShader *pShader) : WidgetBackground(parent, pShader)
 {
-
+    initBuffers();
+    BackgroundStyle defaults;
+    setColor(defaults.Color, defaults.Alpha);
 }
 WidgetBackgroundColored::~WidgetBackgroundColored()
 {
@@ -124,4 +135,61 @@ void WidgetBackgroundColored::render(CForge::RenderDevice* pRDev) {
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }//render
 
+
+
+WidgetBackgroundBorder::WidgetBackgroundBorder(BaseWidget* parent, CForge::GLShader* pShader) : WidgetBackground(parent, pShader)
+{
+    initBuffers();
+    BorderStyle defaults;
+    m_lineWidth = defaults.LineWidth;
+    setColor(defaults.Color, defaults.Alpha);
+}
+WidgetBackgroundBorder::~WidgetBackgroundBorder()
+{
+    clear();
+}
+void WidgetBackgroundBorder::clear()
+{
+    m_VertexArray.clear();
+    m_VertexBuffer.clear();
+    m_ElementBuffer.clear();
+    m_pShader = nullptr;
+}
+void WidgetBackgroundBorder::setLineWidth(float lw)
+{
+    m_lineWidth = lw;
+}
+void WidgetBackgroundBorder::updateSize(bool initialise)
+{
+    //only buffer some quad of the required width and height,
+    //position will be handled by the projection matrix
+
+    float left = 0;
+    float right = m_parent->getWidth();
+    float top = 0;
+    float bottom = -m_parent->getHeight();
+
+    float QuadVertices[] = {
+        left, bottom,		0.0f, 0.0f,
+        right, bottom,		1.0f, 0.0f,
+        right, top,			1.0f, 1.0f,
+        left, top,			0.0f, 1.0f,
+    };
+
+    if (initialise) {
+        m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, QuadVertices, sizeof(QuadVertices));
+    } else {
+        m_VertexBuffer.bufferSubData(0, sizeof(QuadVertices), QuadVertices);
+    }
+
+}
+void WidgetBackgroundBorder::render(class CForge::RenderDevice* pRDev)
+{
+    m_VertexArray.bind();
+    if (nullptr != m_pShader) pRDev->activeShader(m_pShader);
+    glUniform4fv(m_pShader->uniformLocation("color"), 1, m_color);
+    glUniformMatrix4fv(m_pShader->uniformLocation("projection"), 1, GL_FALSE, m_projection.data());
+    glLineWidth(m_lineWidth);
+    glDrawArrays(GL_LINE_LOOP, 0, 4);
+}
 
