@@ -102,7 +102,10 @@ TextWidget::TextWidget(GUI* rootGUIObject, BaseWidget* parent) : BaseWidget(root
 {
     m_pText = new TextLine;
     m_pText->init(m_root->fontFace, m_root->TextShader);
-    m_height = m_pText->getTextSize();
+    WidgetStyle defaults;
+    m_padding = defaults.TextPadding;
+    m_pText->setPosition(m_padding, m_padding);
+    m_height = m_pText->getTextSize() + 2*m_padding;
 }
 TextWidget::~TextWidget()
 {
@@ -110,14 +113,7 @@ TextWidget::~TextWidget()
 }
 void TextWidget::draw(CForge::RenderDevice* renderDevice)
 {
-    //until I've revamped the WidgetBackground interface to fit the TextLine
-    //object, use that directly.
-    //TODO: can it even be made to fit an agnostic interface? We do need
-    //      the function to change text afterall.
     m_pText->render(renderDevice);
-    for (auto x : m_children) {
-        x->draw(renderDevice);
-    }
 }
 void TextWidget::setText(std::u32string textString)
 {
@@ -128,7 +124,7 @@ void TextWidget::setText(std::u32string textString)
     //or something like that, saving one iteration over the string.
     //However, having a seperate function for it has some benefits
     //(eg. it could be expanded to cut-off/break up long strings)
-    m_width = m_root->fontFace->computeStringWidth(textString);
+    m_width = m_root->fontFace->computeStringWidth(textString) + 2*m_padding;
 
     m_pText->setText(textString);
 }
@@ -151,14 +147,14 @@ void TextWidget::setPosition(float x, float y)
 {
     m_x = x;
     m_y = y;
-    m_pText->setPosition(x, y);
+    m_pText->setPosition(x + m_padding, y + m_padding);
 }
 
 void TextWidget::changePosition(float dx, float dy)
 {
     m_x += dx;
     m_y += dy;
-    m_pText->setPosition(m_x, m_y);
+    m_pText->setPosition(m_x + m_padding, m_y + m_padding);
 }
 void TextWidget::setColor(float r, float g, float b)
 {

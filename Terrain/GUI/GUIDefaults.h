@@ -21,4 +21,5 @@ struct FontStyle {
 
 struct WidgetStyle {
     int WithinWidgetPadding = 5;
+    int TextPadding = 3;
 };
