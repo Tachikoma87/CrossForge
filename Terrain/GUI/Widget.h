@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GUI.h"
+#include "GUIDefaults.h"
 #include "WidgetBackground.h"
 #include "Font.h"
 #include <CForge/Input/Mouse.h>
@@ -58,4 +59,5 @@ public:
 private:
     std::u32string m_text;
     TextLine* m_pText;
+    int m_padding;
 };
