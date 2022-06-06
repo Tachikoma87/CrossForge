@@ -58,13 +58,17 @@ namespace CForge {
 		bool isVisible();
 
 		T3DMesh<float>::AABB getAABB();
-		bool renderAABB(class RenderDevice* pRDev, Eigen::Matrix4f sgMat);
-		int32_t testAABBvis(class RenderDevice* pRDev);
+		void testAABBvis(class RenderDevice* pRDev, Eigen::Matrix4f sgMat);
+		void renderAABB(class RenderDevice* pRDev);
+		void queryAABB(RenderDevice* pRDev, Eigen::Matrix4f transform);
 		
 		void initInstancing(bool manualInstanced);
 		void addInstance(Eigen::Matrix4f matrix);
 		void setInstanceMatrices(std::vector<Eigen::Matrix4f> matrices);
 		const std::vector<Eigen::Matrix4f>* getInstanceMatrices(uint32_t level);
+		
+		std::vector<float> getLODStages();
+		void evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount);
 		
 	protected:
 

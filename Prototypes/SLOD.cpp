@@ -1,4 +1,5 @@
 #include "SLOD.h"
+#include "glad/glad.h"
 
 namespace CForge {
 	SLOD* SLOD::m_pInstance = nullptr;
