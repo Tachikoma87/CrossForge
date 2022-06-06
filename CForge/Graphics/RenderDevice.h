@@ -36,7 +36,7 @@
 #include "Shader/GLShader.h"
 
 #include "../../Prototypes/UBOInstancedData.h"
-
+#include <glad/glad.h>
 
 namespace CForge {
 	/**
@@ -115,6 +115,8 @@ namespace CForge {
 		void clearBuffer();
 		void setModelMatrix(Eigen::Matrix4f matrix);
 		UBOInstancedData* getInstancedUBO();
+		void LODQueryContainerPushBack(GLuint queryID, IRenderableActor* pActor, Eigen::Matrix4f transform);
+		void fetchQueryResults();
 		//
 		
 	protected:
@@ -155,13 +157,21 @@ namespace CForge {
 		GLShader* m_pShadowPassShader;
 	private:
 		
-		// SG Actors sorted front to back
+		// container assigning an actor <-> transform a query
+		struct LODQueryContainer {
+			GLuint queryID = 0;
+			IRenderableActor* pActor;
+			Eigen::Matrix4f transform;
+			uint32_t pixelCount = 0;
+		};
+		
+		void RenderDevice::AssembleLODSG();
+		
+		// SceneGraph actors and transformations for rendering
 		std::vector<IRenderableActor*> m_LODSGActors;
 		std::vector<Eigen::Matrix4f> m_LODSGTransformations;
-		
-		std::vector<IRenderableActor*> m_LODSGInstancedActors;
-		//TODO IRenderableActor* m_lastInstancedActor;
-		
+
+		std::vector<LODQueryContainer> LODQueryContainers;
 	};//RenderDevice
 }//name space
 

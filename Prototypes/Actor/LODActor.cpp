@@ -27,7 +27,7 @@ namespace CForge {
 		
 		m_VertexArray.init();
 		//m_translucent = isTranslucent;
-		m_isInstanced = isInstanced;
+		m_isInstanced = isInstanced || manualyInstanced;
 		m_isManualInstaned = manualyInstanced;
 		
 		// fetch LOD levels from SLOD if not given
@@ -194,48 +194,33 @@ namespace CForge {
 	void LODActor::render(RenderDevice* pRDev) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
 		
-		//if (pRDev->activePass() == RenderDevice::RENDERPASS_LOD) {
-			//GLuint queryID;
-			//glGenQueries(1, &queryID);
-			//glBeginQuery(GL_SAMPLES_PASSED, queryID);
-			//
-			//glEndQuery(GL_SAMPLES_PASSED);
-			//
-			//// TODO abfrage im naechsten frame um wartezeit zu ueberbruecken
-			//GLint queryState;
-			//do {
-			//	glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
-			//} while (!queryState);
-			//
-			//GLuint pixelCount;
-			//glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &pixelCount);
-			//glDeleteQueries(1, &queryID);
-			//
-			////std::cout << pixelCount << "\n";
-			//
-		//} else {
-		
 		if (m_isInstanced) {
-			// TODO instanced draw call
 			for (uint32_t j = 0; j < m_instancedMatRef.size(); j++) {
 				if (m_instancedMatRef[j]->size() > 0) {
-					pRDev->getInstancedUBO()->setInstances(m_instancedMatRef[j]);
-
+					
 					bindLODLevel(j);
 					m_VertexArray.bind();
-					for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
-						if (i->pShader == nullptr) continue;
-						if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-							pRDev->activeShader(pRDev->shadowPassShader());
-						}
-						else {
-							// TODO Occlusion Culling
-							pRDev->activeShader(i->pShader);
-							pRDev->activeMaterial(&i->Material);
-						}
-						glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), m_instancedMatRef[j]->size());
-					}
-				}
+					uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
+					
+					for (uint32_t k = 0; k < m_instancedMatRef[j]->size(); k += maxInstances) {
+						
+						uint32_t range = std::min((k + maxInstances), (uint32_t) m_instancedMatRef[j]->size());
+						pRDev->getInstancedUBO()->setInstances(m_instancedMatRef[j], Eigen::Vector2i(k, range));
+						
+						for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
+							if (i->pShader == nullptr) continue;
+							if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+								pRDev->activeShader(pRDev->shadowPassShader());
+							}
+							else {
+								// TODO Occlusion Culling
+								pRDev->activeShader(i->pShader);
+								pRDev->activeMaterial(&i->Material);
+							}
+							glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), range-k);
+						} //for [render groups]
+					} //for [maxInstances]
+				} //if [instances exist]
 				m_instancedMatRef[j]->clear();
 			}
 			if (!m_isManualInstaned)
@@ -301,40 +286,106 @@ namespace CForge {
 		updateAABB();
 	}
 	
-	bool LODActor::renderAABB(class RenderDevice* pRDev, Eigen::Matrix4f sgMat) {
-		int32_t level;
+	void LODActor::testAABBvis(class RenderDevice* pRDev, Eigen::Matrix4f sgMat) {
+		
 		if (m_isManualInstaned) { // all instanced at once
-			bool oneWasVisible = false;
+			//bool oneWasVisible = false;
 			for (uint32_t i = 0; i < m_instancedMatrices.size(); i++) {
 				//pRDev->setModelMatrix(mat);
-				level = testAABBvis(pRDev);
-				if (level >= 0) {
-					oneWasVisible = true;
-					m_instancedMatRef[level]->push_back(m_instancedMatrices[i]);
-				}
+				
+				queryAABB(pRDev, m_instancedMatrices[i]);
+				//if (level >= 0) {
+				//	oneWasVisible = true;
+				//	m_instancedMatRef[level]->push_back(m_instancedMatrices[i]);
+				//}
 			}
-			return oneWasVisible;
+			//return oneWasVisible;
 		}
 		else if (m_isInstanced) { // single instance, other instances get added over SG
-			level = testAABBvis(pRDev);
-			if (level >= 0) {
-				m_instancedMatrices.push_back(sgMat);
-				m_instancedMatRef[level]->push_back(m_instancedMatrices.at(m_instancedMatrices.size()-1));
-			}
+
+			queryAABB(pRDev, sgMat);
+			//if (level >= 0) {
+			//	m_instancedMatrices.push_back(sgMat);
+			//	m_instancedMatRef[level]->push_back(m_instancedMatrices.at(m_instancedMatrices.size()-1));
+			//}
 		}
 		else { // not instanced bind lod immediate
-			level = testAABBvis(pRDev);
-			if (level != m_LODLevel)
-				bindLODLevel(level);
+
+			queryAABB(pRDev, sgMat);
+			//level = renderAABB(pRDev);
+			//if (level != m_LODLevel)
+			//	bindLODLevel(level);
 		}
-		return level >= 0 ? true : false;
+		//return level >= 0 ? true : false;
 	}
 	
-	int32_t LODActor::testAABBvis(class RenderDevice* pRDev) {
-		
+	void LODActor::queryAABB(RenderDevice* pRDev, Eigen::Matrix4f transform) {
 		GLuint queryID;
 		glGenQueries(1, &queryID);
 		glBeginQuery(GL_SAMPLES_PASSED, queryID);
+
+		if (!glIsQuery(queryID)) {
+			// fetch current queries if no more are available
+			pRDev->fetchQueryResults();
+			glGenQueries(1, &queryID);
+			glBeginQuery(GL_SAMPLES_PASSED, queryID);
+		}
+
+		//if (!glIsQuery(queryID))
+		//	CForgeExcept("could not generate gl query");
+		
+		pRDev->LODQueryContainerPushBack(queryID, this, transform);
+	
+		renderAABB(pRDev);
+		glEndQuery(GL_SAMPLES_PASSED);
+	}
+	
+	void LODActor::evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount) {
+		int32_t level = 0;
+		
+		if (pixelCount == 0)
+			return;
+		
+		// set LOD level based on screen coverage
+		float screenCov = float(pixelCount) / m_pSLOD->getResPixAmount();
+		
+		while (level < m_LODStages.size()-1) {
+			if (screenCov > m_pSLOD->getLODPercentages()[level])
+				break;
+			level++;
+		}
+		
+		if (m_isManualInstaned) { // all instanced at once
+			//if (level >= 0) {
+				m_instancedMatRef[level]->push_back(mat);
+			//}
+		}
+		else if (m_isInstanced) { // single instance, other instances get added over SG
+			//if (level >= 0) {
+				m_instancedMatrices.push_back(mat);
+				m_instancedMatRef[level]->push_back(m_instancedMatrices.at(m_instancedMatrices.size() - 1));
+			//}
+		}
+		else { // not instanced bind lod immediately
+			if (level != m_LODLevel)
+				bindLODLevel(level);
+		}
+	}
+	
+	
+	void LODActor::renderAABB(class RenderDevice* pRDev) {
+		
+		//GLuint queryID;
+		//glGenQueries(1, &queryID);
+		//if (!glIsQuery(queryID)) {
+		//	// fetch current queries if no more are available
+		//	pRDev->fetchQueryResults();
+		//	glGenQueries(1, &queryID);
+		//}
+		//
+		//pRDev->LODQueryContainerPushBack(queryID, this, Eigen::Matrix4f());
+		//
+		//glBeginQuery(GL_SAMPLES_PASSED, queryID);
 		
 		// render AABB
 		pRDev->activeShader(m_AABBshader);
@@ -342,33 +393,33 @@ namespace CForge {
 		glDrawElements(GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_INT, nullptr);
 		m_AABBvertArray.unbind();
 
-		glEndQuery(GL_SAMPLES_PASSED);
+		//glEndQuery(GL_SAMPLES_PASSED);
 		// TODO abfrage im naechsten frame um wartezeit zu ueberbruecken
-		GLint queryState;
-		do {
-			glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
-		} while (!queryState);
+		//GLint queryState;
+		//do {
+		//	glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
+		//} while (!queryState);
 
-		GLuint pixelCount;
-		glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &pixelCount);
-		glDeleteQueries(1, &queryID);
+		//GLuint pixelCount;
+		//glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &pixelCount);
+		//glDeleteQueries(1, &queryID);
 
-		//std::cout << pixelCount << "\n";
-		if (pixelCount == 0)
-			return -1;
-		
-		// set LOD level based on screen coverage
-		float screenCov = float(pixelCount) / m_pSLOD->getResPixAmount();
-		//std::cout << screenCov << "\n";
-		std::vector<float> LODPerc = m_pSLOD->getLODPercentages();
-		uint32_t i = 0;
-		while ( i < m_LODStages.size()-1) {
-			if (screenCov > LODPerc[i])
-				break;
-			i++;
-		}
-		
-		return i;
+		////std::cout << pixelCount << "\n";
+		//if (pixelCount == 0)
+		//	return -1;
+		//
+		//// set LOD level based on screen coverage
+		//float screenCov = float(pixelCount) / m_pSLOD->getResPixAmount();
+		////std::cout << screenCov << "\n";
+		//std::vector<float> LODPerc = m_pSLOD->getLODPercentages();
+		//uint32_t i = 0;
+		//while ( i < m_LODStages.size()-1) {
+		//	if (screenCov > LODPerc[i])
+		//		break;
+		//	i++;
+		//}
+		//
+		//return i;
 	}
 	
 	void LODActor::updateAABB() {
@@ -454,5 +505,9 @@ namespace CForge {
 
 	const std::vector<Eigen::Matrix4f>* LODActor::getInstanceMatrices(uint32_t level) {
 		return m_instancedMatRef[level];
+	}
+	
+	std::vector<float> LODActor::getLODStages() {
+		return m_LODStages;
 	}
 }

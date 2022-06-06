@@ -49,9 +49,11 @@ namespace CForge {
 		RenderMaterial* material(uint32_t Index);
 		
 		// 
-		virtual bool renderAABB(RenderDevice* pRDev, Eigen::Matrix4f sgMat);
+		virtual void testAABBvis(RenderDevice* pRDev, Eigen::Matrix4f sgMat);
 		virtual T3DMesh<float>::AABB getAABB();
 		virtual void bindLODLevel(uint32_t level);
+		//virtual std::vector<float> getLODStages();
+		virtual void evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount); //TODO
 		bool isInstanced();
 		bool isManualInstanced();
 
