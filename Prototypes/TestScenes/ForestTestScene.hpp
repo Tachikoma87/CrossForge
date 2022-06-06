@@ -56,8 +56,8 @@ namespace CForge {
 
 		bool const LowRes = false;
 
-		uint32_t WinWidth = 1280;
-		uint32_t WinHeight = 720;
+		uint32_t WinWidth = 1920;
+		uint32_t WinHeight = 1080;
 
 		if (LowRes) {
 			WinWidth = 720;
@@ -119,36 +119,34 @@ namespace CForge {
 
 		// load skydome and tree
 		T3DMesh<float> M;
-		StaticActor Skydome; //TODO compatibility with static actors / non instanced actors
-		StaticActor Tree1;
-		StaticActor Tree2;
+		StaticActor Skydome;
+		LODActor Tree1;
+		LODActor Tree2;
 
 		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
 		M.computePerVertexNormals();
-		//for (uint32_t i = 0; i < M.materialCount(); i++) {
-		//	M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
-		//}
 		Skydome.init(&M);
 		M.clear();
 
-		
-		AssetIO::load("Assets/tmp/lowpolytree.obj", &M);
+
+		AssetIO::load("Assets/tree0.obj", &M);
+		//AssetIO::load("Assets/tmp/lowpolytree.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.94f);
 		M.computePerVertexNormals();
-		//for (uint32_t i = 0; i < M.materialCount(); i++) {
-		//	M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
-		//}
-		Tree1.init(&M);
+		for (uint32_t i = 0; i < M.materialCount(); i++) {
+			M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
+		}
+		Tree1.init(&M, true);
 		M.clear();
 
 		AssetIO::load("Assets/tmp/Lowpoly_tree_sample.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.94f);
 		M.computePerVertexNormals();
-		//for (uint32_t i = 0; i < M.materialCount(); i++) {
-		//	M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
-		//}
-		Tree2.init(&M);
+		for (uint32_t i = 0; i < M.materialCount(); i++) {
+			M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
+		}
+		Tree2.init(&M, true);
 		M.clear();
 
 		// build scene graph
@@ -223,8 +221,8 @@ namespace CForge {
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
 			
-			//RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-			//SG.render(&RDev);
+			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
+			SG.render(&RDev);
 			
 			RDev.activePass(RenderDevice::RENDERPASS_LOD);
 			SG.render(&RDev);

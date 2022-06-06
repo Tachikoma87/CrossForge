@@ -4,11 +4,10 @@
 #include "Shader/SShaderManager.h"
 #include "GraphicsUtility.h"
 #include "RenderDevice.h"
+#include "../../Prototypes/SLOD.h" //TODO remove
 
 using namespace Eigen;
 using namespace std;
-
-#include <iostream> //TODO remove
 
 namespace CForge {
 
@@ -141,34 +140,12 @@ namespace CForge {
 		
 		m_ModelUBO.modelMatrix(ModelMat);
 		if (m_ActiveRenderPass == RENDERPASS_LOD) { //TODO capsule in function
-			bool visible;
+			//bool visible;
 			// automatic instanced rendering
 			// TODO make aabb mesh global instead of per actor?
 			// TODO capsule functions
-			if (pActor->isManualInstanced()) { // manual instancing
-				if (pActor->isInLODSG())
-					throw CForgeExcept("Manual instancing was defined but actor was found multiple times in SG.");
-
-				// Actor handels visibility
-				visible = pActor->renderAABB(this, Eigen::Matrix4f());
-				if (visible) {
-					m_LODSGActors.push_back(pActor);
-					m_LODSGTransformations.push_back(Eigen::Matrix4f::Identity()); // Actor's transformation matrices are used
-					pActor->setLODSG(true);
-				}
-			}
-			else if (pActor->isInstanced()) { // automatic instancing
-				if (pActor->isInLODSG()) { // same actor is already in LODSG, add instance matrix
-					pActor->renderAABB(this, ModelMat);
-				}
-				else { // Actor is not in LODSG, create new Entry
-					visible = pActor->renderAABB(this, ModelMat);
-					if (visible) {
-						m_LODSGActors.push_back(pActor);
-						m_LODSGTransformations.push_back(Eigen::Matrix4f::Identity()); // Actor's transformation matrices are used
-						pActor->setLODSG(true);
-					}
-				}
+			if (pActor->isInstanced()) {
+				pActor->testAABBvis(this, ModelMat);
 			}
 			else {
 				if (pActor->className().compare("LODActor") != 0) {
@@ -176,22 +153,59 @@ namespace CForge {
 					m_LODSGTransformations.push_back(ModelMat);
 				}
 				else {
-					float aabbRadius = std::max(std::abs(pActor->getAABB().Max.norm()), std::abs(pActor->getAABB().Min.norm()));
-					float distance = (Translation - m_pActiveCamera->position()).norm() - aabbRadius;
-					//std::cout << distance << "\n";
-					if (distance < 0.0f) { // camera is inside AABB, use highest LOD // TODO draw as occluder
-						pActor->bindLODLevel(0);
-						m_LODSGActors.push_back(pActor);
-						m_LODSGTransformations.push_back(ModelMat);
-					}
-					else {
-						visible = pActor->renderAABB(this, Eigen::Matrix4f());
-						if (visible) {
-							m_LODSGActors.push_back(pActor);
-							m_LODSGTransformations.push_back(ModelMat);
-						}
-					}
+					pActor->testAABBvis(this, ModelMat);
+					//m_LODSGActors.push_back(pActor);
+					//m_LODSGTransformations.push_back(ModelMat);
 				}
+			}
+			
+			//if (pActor->isManualInstanced()) { // manual instancing
+			//	//if (pActor->isInLODSG())
+			//	//	throw CForgeExcept("Manual instancing was defined but actor was found multiple times in SG.");
+
+			//	// Actor handels visibility
+			//	pActor->testAABBvis(this, Eigen::Matrix4f());
+			//	//if (visible) {
+			//	//	m_LODSGActors.push_back(pActor);
+			//	//	m_LODSGTransformations.push_back(Eigen::Matrix4f::Identity()); // Actor's transformation matrices are used
+			//	//	pActor->setLODSG(true);
+			//	//}
+			//}
+			//else if (pActor->isInstanced()) { // automatic instancing
+			//	if (pActor->isInLODSG()) { // same actor is already in LODSG, add instance matrix
+			//		pActor->testAABBvis(this, ModelMat);
+			//	}
+			//	else { // Actor is not in LODSG, create new Entry
+			//		pActor->testAABBvis(this, ModelMat);
+			//		//if (visible) {
+			//		//	m_LODSGActors.push_back(pActor);
+			//		//	m_LODSGTransformations.push_back(Eigen::Matrix4f::Identity()); // Actor's transformation matrices are used
+			//		//	pActor->setLODSG(true);
+			//		//}
+			//	}
+			//}
+			/*else*/ {
+				//if (pActor->className().compare("LODActor") != 0) {
+				//	m_LODSGActors.push_back(pActor);
+				//	m_LODSGTransformations.push_back(ModelMat);
+				//}
+				//else {
+				//	float aabbRadius = std::max(std::abs(pActor->getAABB().Max.norm()), std::abs(pActor->getAABB().Min.norm()));
+				//	float distance = (Translation - m_pActiveCamera->position()).norm() - aabbRadius;
+				//	//std::cout << distance << "\n";
+				//	if (distance < 0.0f) { // camera is inside AABB, use highest LOD // TODO draw as occluder
+				//		pActor->bindLODLevel(0);
+				//		m_LODSGActors.push_back(pActor);
+				//		m_LODSGTransformations.push_back(ModelMat);
+				//	}
+				//	else {
+				//		pActor->testAABBvis(this, Eigen::Matrix4f());
+				//		//if (visible) {
+				//		//	m_LODSGActors.push_back(pActor);
+				//		//	m_LODSGTransformations.push_back(ModelMat);
+				//		//}
+				//	}
+				//}
 			}
 
 			//m_lastInstancedActor = pActor;
@@ -324,12 +338,14 @@ namespace CForge {
 	}//updateMaterial
 
 	void RenderDevice::activePass(RenderPass Pass, ILight *pActiveLight) {
-		m_ActiveRenderPass = Pass;
-		// TODO this location is awkward
-		if (Pass != RENDERPASS_LOD) {
+		
+		// enable drawing after LOD pass
+		if (m_ActiveRenderPass == RENDERPASS_LOD /* && Pass != RENDERPASS_LOD*/) {
 			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 			glDepthMask(GL_TRUE);
 		}
+		m_ActiveRenderPass = Pass;
+
 		// change state?
 		switch (m_ActiveRenderPass) {
 		case RENDERPASS_SHADOW: {
@@ -507,6 +523,9 @@ namespace CForge {
 	
 	void RenderDevice::renderLODSG()
 	{
+		fetchQueryResults();
+		AssembleLODSG();
+		
 		for (uint32_t i = 0; i < m_LODSGActors.size(); i++) {
 			requestRendering(m_LODSGActors[i], m_LODSGTransformations[i]);
 			m_LODSGActors[i]->setLODSG(false);
@@ -525,5 +544,69 @@ namespace CForge {
 	
 	UBOInstancedData* RenderDevice::getInstancedUBO() {
 		return &m_InstancesUBO;
+	}
+
+	void RenderDevice::fetchQueryResults() {
+		
+		for (uint32_t i = 0; i < LODQueryContainers.size(); i++) {
+			LODQueryContainer* queryContainer = &LODQueryContainers[i];
+			GLuint pixelCount;
+			GLint queryState;
+			GLuint queryID = queryContainer->queryID;
+			if (!glIsQuery(queryID) || queryContainer->pixelCount != 0)
+				continue;
+			do {
+				glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
+			} while (!queryState);
+			glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &pixelCount);
+			glDeleteQueries(1, &queryID);
+			
+			queryContainer->pixelCount = pixelCount;
+			queryContainer->queryID = 0;
+		}
+	}
+
+	void RenderDevice::LODQueryContainerPushBack(GLuint queryID, IRenderableActor* pActor, Eigen::Matrix4f transform) {
+		LODQueryContainer container;
+		container.queryID = queryID;
+		container.pActor = pActor;
+		container.transform = transform;
+		LODQueryContainers.push_back(container);
+	}
+	
+	void RenderDevice::AssembleLODSG() { //TODO
+		for (uint32_t i = 0; i < LODQueryContainers.size(); i++) {
+			LODQueryContainer* cont = &LODQueryContainers[i];
+			IRenderableActor* pActor = cont->pActor;
+			
+			// instance is not visiable, so we cull it
+			if (cont->pixelCount == 0)
+				continue;
+			
+			// calculate distance bounding sphere border to camera
+			Eigen::Vector3f Translation = Eigen::Vector3f(cont->transform.data()[12], cont->transform.data()[13], cont->transform.data()[14]);
+			float aabbRadius = std::max(std::abs(pActor->getAABB().Max.norm()), std::abs(pActor->getAABB().Min.norm()));
+			float distance = (Translation - m_pActiveCamera->position()).norm() - aabbRadius;
+			
+			// set pixel count to max if cam is inside BB, due to backface culling
+			if (distance < 0.0)
+				cont->pixelCount = UINT32_MAX;
+			
+			// sets LOD level, and transform matrix when instanced
+			cont->pActor->evaluateQueryResult(cont->transform, cont->pixelCount);
+			
+			// TODO push back sorted for front to back rendering
+			if (!cont->pActor->isInLODSG()) {
+				if (cont->pActor->isInstanced()) {
+					m_LODSGTransformations.push_back(Eigen::Matrix4f::Identity());
+				}
+				else {
+					m_LODSGTransformations.push_back(cont->transform);
+				}
+				cont->pActor->setLODSG(true);
+				m_LODSGActors.push_back(cont->pActor);
+			}
+		}
+		LODQueryContainers.clear();
 	}
 }//name space

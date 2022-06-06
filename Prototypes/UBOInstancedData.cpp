@@ -65,11 +65,11 @@ namespace CForge {
 	//	m_Buffer.bufferSubData(index * 12 * sizeof(float), 12 * sizeof(float), dat);
 	//}
 
-	void UBOInstancedData::setInstances(const std::vector<Eigen::Matrix4f>* mats)
+	void UBOInstancedData::setInstances(const std::vector<Eigen::Matrix4f>* mats, Eigen::Vector2i range)
 	{
-		m_instanceCount = mats->size();
+		m_instanceCount = range.y()-range.x();
 		
-		for (uint32_t i = 0; i < mats->size(); i++) {
+		for (uint32_t i = 0; i < m_instanceCount; i++) {
 			if (i >= m_maxInstanceCount)
 				break;
 			//const float* pMat = mats->at(i).data();
@@ -82,7 +82,7 @@ namespace CForge {
 			//}
 			
 			float dat[16];
-			const float* pMat = mats->at(i).data();
+			const float* pMat = mats->at(i+range.x()).data();
 			for (uint32_t j = 0; j < 16; j++) {
 				dat[j] = pMat[j];
 			}
@@ -90,6 +90,10 @@ namespace CForge {
 			//m_Buffer.bufferSubData(i * 12 * sizeof(float), 12 * sizeof(float), dat);
 			m_Buffer.bufferSubData(i * 16 * sizeof(float), 16 * sizeof(float), dat);
 		}
+	}
+
+	uint32_t UBOInstancedData::getMaxInstanceCount() {
+		return m_maxInstanceCount;
 	}
 
 }//name space
