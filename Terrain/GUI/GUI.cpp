@@ -34,6 +34,10 @@ GUI::~GUI()
         delete x;
     }
     delete fontFace;
+    for (auto x : fontFaces) {
+        delete x;
+    }
+    FT_Done_FreeType(library);
 }
 
 void GUI::testInit(CForge::GLWindow* pWin)
@@ -62,7 +66,7 @@ void GUI::testInit(CForge::GLWindow* pWin)
     BackgroundColoredShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
     shaderManager->release();
     
-    fontFace = new FontFace();
+    loadFonts();
 
     //Test rendering
 //     testtext.init(U"Beispieltext. ÄäÖöÜüß!?", fontFace, TextShader);
@@ -84,6 +88,24 @@ void GUI::testInit(CForge::GLWindow* pWin)
 //     a->setLimit(1, 5);
 //     testBG.push_back(a);
 }
+void GUI::loadFonts()
+{
+    //initialise Freetype
+    int error;
+    error = FT_Init_FreeType(&library);
+    if (error) {
+        //Error occured loading the library
+        //TODO: figure out how to exit the program
+        printf("Error loading freetype\n");
+    }
+    FontStyle1 f1;
+    FontFace* font = new FontFace(f1, library);
+    fontFaces.push_back(font);
+    FontStyle2 f2;
+    font = new FontFace(f2, library);
+    fontFaces.push_back(font);
+}
+
 void GUI::testRender()
 {
     //blending required as the text will be applied as an alpha mask

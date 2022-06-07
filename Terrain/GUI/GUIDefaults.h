@@ -12,11 +12,36 @@ struct BorderStyle {
     float Alpha = 1.0f;
 };
 
+
+//Probably would've been easier to just do in the GUI class where it's used
+//But I preferred to have it all together in this file
+
 struct FontStyle {
-    std::string FileName = "Assets/DejaVuSans.ttf"; //Font file to load
-    int PixelSize = 16; //height of text in pixels
-    float FontColor[3] = {1.0f, 1.0f, 1.0f};
-    float FontColorHighlight[3] = {1.0f, 1.0f, 0.5f};
+    std::string FileName; //Font file to load
+    int PixelSize; //height of text in pixels
+    float FontColor[3];
+    float FontColorHighlight[3];
+};
+
+struct FontStyle1 : FontStyle {         //the default font
+    FontStyle1() {
+        FileName = "Assets/DejaVuSans.ttf";
+        PixelSize = 16;
+        float font_color[3] = {1.0f, 1.0f, 1.0f};
+        float font_color_highlight[3] = {1.0f, 1.0f, 0.5f};
+        std::copy(FontColor, FontColor+3, font_color);  //stupid c++ not allowing direct array assignment
+        std::copy(FontColorHighlight, FontColorHighlight+3, font_color_highlight);
+    }
+};
+struct FontStyle2 : FontStyle {         //the default font
+    FontStyle2() {
+        FileName = "Assets/DejaVuSans-Bold.ttf";
+        PixelSize = 16;
+        float font_color[3] = {1.0f, 1.0f, 1.0f};
+        float font_color_highlight[3] = {1.0f, 1.0f, 0.5f};
+        std::copy(FontColor, FontColor+3, font_color);
+        std::copy(FontColorHighlight, FontColorHighlight+3, font_color_highlight);
+    }
 };
 
 struct WidgetStyle {
