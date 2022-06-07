@@ -3,6 +3,7 @@
 #include "WidgetBackground.h"
 #include "GUIDefaults.h"
 #include "Widgets/Form.h"
+#include "Widgets/Window.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -73,15 +74,15 @@ void GUI::testInit(CForge::GLWindow* pWin)
 
     
 //     BackgroundStyle b;
-    callbackTest = CallbackTestClass();
-    auto a = new FormWidget(1, this, nullptr);
-    registerMouseDragEvent(a);
-    a->startListening(&callbackTest);
-    a->addOption(1, DATATYPE_INT, U"first input");
-    a->addOption(2, DATATYPE_INT, U"second input");
-    a->addOption(1, DATATYPE_INT, U"3st input, collides with 1");
-    a->setLimit(1, 5);
-    testBG.push_back(a);
+//     callbackTest = CallbackTestClass();
+//     auto a = new FormWidget(1, this, nullptr);
+//     registerMouseDragEvent(a);
+//     a->startListening(&callbackTest);
+//     a->addOption(1, DATATYPE_INT, U"first input");
+//     a->addOption(2, DATATYPE_INT, U"second input");
+//     a->addOption(1, DATATYPE_INT, U"3st input, collides with 1");
+//     a->setLimit(1, 5);
+//     testBG.push_back(a);
 }
 void GUI::testRender()
 {
@@ -102,6 +103,16 @@ void GUI::testRender()
 
     glEnable(GL_DEPTH_TEST);
 }
+
+FormWidget * GUI::createOptionsWindow(std::u32string title, int FormID)
+{
+    WindowWidget* window = new WindowWidget(title, this, nullptr);
+    FormWidget* form = new FormWidget(FormID, this, window);
+    window->setContentWidget(form);
+    testBG.push_back(window);
+    return form;
+}
+
 void GUI::registerMouseDownEvent ( BaseWidget* widget )
 {
     //simple push for now since it's only one element for testing for now, optimize later
