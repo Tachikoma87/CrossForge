@@ -7,13 +7,20 @@ BaseWidget::BaseWidget ( GUI* rootGUIObject, BaseWidget* parent )
     m_root = rootGUIObject;
     //I assume this could be useful for combined Widgets
     m_parent = parent;
-    if (parent != nullptr) level = parent->level + 1;
-    else level = 0;
-    
-    m_x = 0;
-    m_y = 0;
+    if (parent != nullptr) {
+        level = parent->level + 1;
+        m_x = parent->getPosition()[0];
+        m_y = parent->getPosition()[1];
+    }
+    else {
+        level = 0;
+        m_x = 0;
+        m_y = 0;
+    }
     m_width = 20;
     m_height = 20;
+
+    m_background = nullptr;
 }
 BaseWidget::~BaseWidget()
 {
@@ -33,6 +40,7 @@ void BaseWidget::changePosition(float dx, float dy)
 {
     m_x += dx;
     m_y += dy;
+    if (m_background != nullptr) m_background->updatePosition();
 }
 void BaseWidget::updateLayout()
 {
@@ -44,7 +52,7 @@ void BaseWidget::updateLayout()
 }
 void BaseWidget::draw(CForge::RenderDevice* renderDevice)
 {
-//     if (m_background != nullptr) m_background->render(renderDevice);
+    if (m_background != nullptr) m_background->render(renderDevice);
     for (auto x : m_children) {
         x->draw(renderDevice);
     }
@@ -113,6 +121,7 @@ TextWidget::~TextWidget()
 }
 void TextWidget::draw(CForge::RenderDevice* renderDevice)
 {
+    if (m_background != nullptr) m_background->render(renderDevice);
     m_pText->render(renderDevice);
 }
 void TextWidget::setText(std::u32string textString)
@@ -125,6 +134,7 @@ void TextWidget::setText(std::u32string textString)
     //However, having a seperate function for it has some benefits
     //(eg. it could be expanded to cut-off/break up long strings)
     m_width = m_root->fontFace->computeStringWidth(textString) + 2*m_padding;
+    if (m_background != nullptr) m_background->updateSize();
 
     m_pText->setText(textString);
 }
@@ -148,6 +158,7 @@ void TextWidget::setPosition(float x, float y)
     m_x = x;
     m_y = y;
     m_pText->setPosition(x + m_padding, y + m_padding);
+    if (m_background != nullptr) m_background->updatePosition();
 }
 
 void TextWidget::changePosition(float dx, float dy)
@@ -155,6 +166,7 @@ void TextWidget::changePosition(float dx, float dy)
     m_x += dx;
     m_y += dy;
     m_pText->setPosition(m_x + m_padding, m_y + m_padding);
+    if (m_background != nullptr) m_background->updatePosition();
 }
 void TextWidget::setColor(float r, float g, float b)
 {

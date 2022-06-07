@@ -89,6 +89,9 @@ void InputNumberWidget::setLimit(int lower, int higher)
 {
     m_limits.min = lower;
     m_limits.max = higher;
+
+    if (m_value < m_limits.min) setValue(m_limits.min);
+    else if (m_value > m_limits.max) setValue(m_limits.max);
 }
 void InputNumberWidget::focus()
 {

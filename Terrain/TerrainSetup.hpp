@@ -14,6 +14,7 @@
 
 #include "TileActor.h"
 #include "GUI/GUI.h"
+#include "GUI/Widgets/Form.h"
 
 #include <stdio.h>
 
@@ -216,6 +217,16 @@ namespace Terrain {
         
         GUI gui = GUI(&renderDevice);
         gui.testInit(&window);
+
+        CallbackTestClass callbacktest;
+        FormWidget* form = gui.createOptionsWindow(U"Test Window", 1);
+        form->startListening(&callbacktest);
+        form->addOption(1, DATATYPE_INT, U"1st Option");
+        form->setLimit(1, 10);
+        form->addOption(2, DATATYPE_INT, U"2nd Option");
+        form->setLimit(2, 10, 20);
+        form->addOption(3, DATATYPE_INT, U"3rd Option");
+
 
 		while (!window.shutdown()) {
 			window.update();
