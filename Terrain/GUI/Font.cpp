@@ -11,29 +11,18 @@
 #include <CForge/AssetIO/SAssetIO.h>
 #include <CForge/Graphics/GraphicsUtility.h>
 
-FontFace::FontFace()
+FontFace::FontFace(FontStyle style, FT_Library library)
 {
-    //initialise Freetype
-    int error;
-    error = FT_Init_FreeType(&library);
-    if (error) {
-        //Error occured loading the library
-        //TODO: figure out how to exit the program
-        printf("Error loading freetype\n");
-    }
-
-
-    FontStyle defaults;
-    style = defaults;
-    error = FT_New_Face( library, style.FileName.c_str(), 0, &face );
+    m_style = style;
+    int error = FT_New_Face( library, m_style.FileName.c_str(), 0, &face );
     if ( error == FT_Err_Unknown_File_Format ) {
         //File opened but not a supported font format
-        printf("Error reading Font %s: unsupported format\n", style.FileName.c_str());
+        printf("Error reading Font %s: unsupported format\n", m_style.FileName.c_str());
     } else if ( error ) {
         //File not found or unable to open or whatever
-        printf("Error opening Font %s\n", style.FileName.c_str());
+        printf("Error opening Font %s\n", m_style.FileName.c_str());
     }
-    FT_Set_Pixel_Sizes(face, 0, style.PixelSize);
+    FT_Set_Pixel_Sizes(face, 0, m_style.PixelSize);
 
     prepareCharMap();
 
@@ -43,7 +32,6 @@ FontFace::~FontFace() {
         delete x.second.bitmap;
     }
     FT_Done_Face(face);
-    FT_Done_FreeType(library);
     if (glIsTexture(textureID)) {
         glDeleteTextures(1, &textureID);
         textureID = GL_INVALID_INDEX;
@@ -62,7 +50,7 @@ int FontFace::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::G
 
     //calculate the "descender" font value as pixels. This will be used
     //to correctly offset the baseline within the defined font pixel size.
-    const float descender = style.PixelSize / (face->ascender/face->descender - 1);
+    const float descender = m_style.PixelSize / (face->ascender/face->descender - 1);
 
     //compute the glyphs' positions
     //the text string will start at (0, 0) at the bottom left on the
@@ -332,7 +320,7 @@ void FontFace::bind()
 }
 FontStyle FontFace::getStyle()
 {
-    return style;
+    return m_style;
 }
 
 
@@ -351,10 +339,10 @@ TextLine::~TextLine()
 void TextLine::init(FontFace* pFontFace, CForge::GLShader* pShader)
 {
     m_pFont = pFontFace;
+    textSize = pFontFace->getStyle().PixelSize;
     m_pShader = pShader;
     m_VertexArray.init();
     m_numVertices = 0;
-    textSize = pFontFace->getStyle().PixelSize;
     m_projection = Eigen::Matrix4f::Identity();
     float scale_x, scale_y;
     scale_x = scale_y = 2.0f/720.0f;
@@ -368,6 +356,12 @@ void TextLine::init(std::u32string text, FontFace* pFontFace, CForge::GLShader* 
 {
     init(pFontFace, pShader);
     setText(text);
+}
+
+void TextLine::changeFont(FontFace* newFont)
+{
+    m_pFont = newFont;
+    textSize = newFont->getStyle().PixelSize;
 }
 
 void TextLine::setText(std::u32string text)
@@ -422,5 +416,9 @@ void TextLine::render(CForge::RenderDevice* pRDev)
 float TextLine::getTextSize()
 {
     return textSize;
+}
+int TextLine::computeStringWidth(std::u32string textString)
+{
+    return m_pFont->computeStringWidth(textString);
 }
 

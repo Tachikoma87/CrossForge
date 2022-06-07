@@ -42,9 +42,17 @@ public:
     CForge::GLShader* BackgroundColoredShader;
     CForge::GLShader* TextShader;
     FontFace* fontFace;
+    enum FontStyles {       //TODO: remember to keep updated when fonts are added/changed
+        DEFAULT_FONT = 0,
+        FONT1_REGULAR = 0,
+        FONT1_BOLD = 1
+    };
+    std::vector<FontFace*> fontFaces;
 private:
     void processMouseEvents(CForge::Mouse* mouse);
     void processKeyboardEvents(CForge::Keyboard* keyboard);
+    void loadFonts();
+    FT_Library library;
 
     std::vector<BaseWidget*> testBG;
     CallbackTestClass callbackTest;

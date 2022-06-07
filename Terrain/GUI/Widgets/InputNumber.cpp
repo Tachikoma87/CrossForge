@@ -95,12 +95,12 @@ void InputNumberWidget::setLimit(int lower, int higher)
 }
 void InputNumberWidget::focus()
 {
-    FontStyle f;
+    FontStyle1 f;
     m_pValue->setColor(f.FontColorHighlight);
 }
 void InputNumberWidget::focusLost()
 {
-    FontStyle f;
+    FontStyle1 f;
     m_pValue->setColor(f.FontColor);
 }
 void InputNumberWidget::onKeyPress(char32_t character)

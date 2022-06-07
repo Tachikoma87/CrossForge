@@ -109,7 +109,7 @@ Eigen::Vector2f BaseWidget::getDimension()
 TextWidget::TextWidget(GUI* rootGUIObject, BaseWidget* parent) : BaseWidget(rootGUIObject, parent)
 {
     m_pText = new TextLine;
-    m_pText->init(m_root->fontFace, m_root->TextShader);
+    m_pText->init(m_root->fontFaces[0], m_root->TextShader);
     WidgetStyle defaults;
     m_padding = defaults.TextPadding;
     m_pText->setPosition(m_padding, m_padding);
@@ -124,6 +124,14 @@ void TextWidget::draw(CForge::RenderDevice* renderDevice)
     if (m_background != nullptr) m_background->render(renderDevice);
     m_pText->render(renderDevice);
 }
+void TextWidget::changeFont(FontFace* newFont)
+{
+    m_pText->changeFont(newFont);
+}
+void TextWidget::changeFont(GUI::FontStyles style)
+{
+    m_pText->changeFont(m_root->fontFaces[style]);
+}
 void TextWidget::setText(std::u32string textString)
 {
     m_text = textString;
@@ -133,7 +141,7 @@ void TextWidget::setText(std::u32string textString)
     //or something like that, saving one iteration over the string.
     //However, having a seperate function for it has some benefits
     //(eg. it could be expanded to cut-off/break up long strings)
-    m_width = m_root->fontFace->computeStringWidth(textString) + 2*m_padding;
+    m_width = m_pText->computeStringWidth(textString) + 2*m_padding;
     if (m_background != nullptr) m_background->updateSize();
 
     m_pText->setText(textString);

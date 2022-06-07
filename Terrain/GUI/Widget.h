@@ -51,6 +51,8 @@ public:
     ~TextWidget();
     void setText(std::u32string textString);
     void changeText(char32_t character);
+    void changeFont(FontFace* newFont);
+    void changeFont(GUI::FontStyles style);
     void setPosition(float x, float y);
     void changePosition(float dx, float dy);
     void setColor(float r, float g, float b);

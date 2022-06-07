@@ -26,7 +26,7 @@ typedef struct glyph {
 
 class FontFace {
 public:
-    FontFace();
+    FontFace(FontStyle style, FT_Library library);
     ~FontFace();
 
     glyph_t getGlyph(char32_t character);
@@ -43,12 +43,12 @@ public:
     FontStyle getStyle();
 
 private:
-    FT_Library library;
+//     FT_Library library;
     FT_Face face;
     std::unordered_map <char32_t, glyph_t> glyphs;
     unsigned int textureID;
     int mapWidth, mapHeight;
-    FontStyle style;
+    FontStyle m_style;
 };
 
 
@@ -58,11 +58,13 @@ public:
     ~TextLine();
     void init(FontFace* pFontFace, CForge::GLShader* pShader);
     void init(std::u32string text, FontFace* pFontFace, CForge::GLShader* pShader);
+    void changeFont(FontFace* newFont);
     void setText(std::u32string text);
     void setColor(float r, float g, float b);
     void setPosition(float x, float y);
     void render(CForge::RenderDevice* pRDev);
     float getTextSize();
+    int computeStringWidth(std::u32string textString);
 private:
     FontFace* m_pFont;
     CForge::GLShader* m_pShader;
