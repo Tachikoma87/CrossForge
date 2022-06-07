@@ -29,6 +29,7 @@ WindowWidget_Header::WindowWidget_Header(std::u32string title, GUI* rootGUIObjec
 {
     m_window = parent;
     m_title = new TextWidget(rootGUIObject, this);
+    m_title->changeFont(GUI::FONT1_BOLD);
     m_title->setText(title);
     m_button = new WindowWidget_MinimizeButton(m_window, rootGUIObject, this);
     m_height = std::max(m_title->getHeight(), m_button->getHeight());
