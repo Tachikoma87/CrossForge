@@ -21,7 +21,7 @@ FormWidget::FormWidget(int FormID, GUI* rootGUIObject, BaseWidget* parent) : Bas
     m_ApplyButton->setText(U"Apply");
     m_height = m_ApplyButton->getHeight();
     m_width = m_ApplyButton->getWidth();
-    m_background = new WidgetBackgroundColored(this, m_root->BackgroundColoredShader);
+//     m_background = new WidgetBackgroundColored(this, m_root->BackgroundColoredShader);
 }
 FormWidget::~FormWidget()
 {
@@ -29,7 +29,7 @@ FormWidget::~FormWidget()
         delete x.second;
     }
     delete m_ApplyButton;
-    delete m_background;
+//     delete m_background;
 }
 
 void FormWidget::addOption(int OptionID, CallbackDatatype type, std::u32string name)
@@ -42,9 +42,10 @@ void FormWidget::addOption(int OptionID, CallbackDatatype type, std::u32string n
     label->changePosition(0, labelOffset);
     m_labels.emplace(OptionID, label);
     m_ApplyButton->changePosition(0, label->getHeight());
-    m_height += label->getHeight();
-    m_width = std::max(m_width, label->getWidth());
-    m_background->updateSize();
+//     m_height += label->getHeight();
+//     m_width = std::max(m_width, label->getWidth());
+    updateLayout();
+//     m_background->updateSize();
 }
 void FormWidget::setLimit(int OptionID, int higher)
 {
@@ -80,7 +81,7 @@ void FormWidget::changePosition(float dx, float dy)
         x.second->changePosition(dx, dy);
     }
     m_ApplyButton->changePosition(dx, dy);
-    m_background->setPosition(m_x, m_y);
+//     m_background->setPosition(m_x, m_y);
 }
 void FormWidget::updateLayout()
 {
@@ -90,12 +91,12 @@ void FormWidget::updateLayout()
         m_width = std::max(m_width, x.second->getWidth());
         m_height += x.second->getHeight();
     }
-    m_background->updateSize();
+//     m_background->updateSize();
     if (m_parent != nullptr) m_parent->updateLayout();
 }
 void FormWidget::draw(CForge::RenderDevice* renderDevice)
 {
-    m_background->render(renderDevice);
+//     m_background->render(renderDevice);
     for (auto x : m_labels) {
         x.second->draw(renderDevice);
     }

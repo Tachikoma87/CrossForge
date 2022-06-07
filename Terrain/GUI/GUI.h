@@ -1,6 +1,7 @@
 #pragma once
 
 class BaseWidget;
+class FormWidget;
 //#include "Widget.h"
 #include "WidgetBackground.h"
 #include "Font.h"
@@ -11,7 +12,6 @@ class BaseWidget;
 
 #include "Callback.h"
 #include <CForge/Core/ITListener.hpp>
-
 
 struct mouseEventInfo {
     Eigen::Vector2f adjustedPosition;   //cursor position adjusted to the position within the clicked widget
@@ -28,6 +28,8 @@ public:
 
     void testInit(CForge::GLWindow* pWin);
     void testRender();
+
+    FormWidget* createOptionsWindow(std::u32string title, int FormID);
 
     void processEvents();
     void registerMouseDownEvent(BaseWidget* widget);

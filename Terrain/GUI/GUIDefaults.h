@@ -14,7 +14,7 @@ struct BorderStyle {
 
 struct FontStyle {
     std::string FileName = "Assets/DejaVuSans.ttf"; //Font file to load
-    int PixelSize = 20; //height of text in pixels
+    int PixelSize = 16; //height of text in pixels
     float FontColor[3] = {1.0f, 1.0f, 1.0f};
     float FontColorHighlight[3] = {1.0f, 1.0f, 0.5f};
 };
