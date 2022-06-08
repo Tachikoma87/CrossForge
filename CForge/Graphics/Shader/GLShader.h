@@ -57,6 +57,7 @@ namespace CForge {
 			DEFAULTUBO_MATERIALDATA,
 			DEFAULTUBO_MODELDATA,
 			DEFAULTUBO_BONEDATA,
+			DEFAULTUBO_INSTANCE,
 			DEFAULTUBO_COUNT,
 		};
 
@@ -79,6 +80,7 @@ namespace CForge {
 		const std::string UBOMaterialDataName = "MaterialData";
 		const std::string UBOModelDataName = "ModelData";
 		const std::string UBOBoneDataName = "BoneData";
+		const std::string UBOInstancedDataName = "InstancedData";
 
 		const std::string TextureAlbedoName = "TexAlbedo";
 		const std::string TextureNormalName = "TexNormal";
