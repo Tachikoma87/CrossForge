@@ -9,6 +9,7 @@ class WindowWidget;
 class WindowWidget_MinimizeButton : public TextWidget {
 public:
     WindowWidget_MinimizeButton(WindowWidget* window, GUI* rootGUIObject, BaseWidget* parent);
+    ~WindowWidget_MinimizeButton();
 
     void onClick(mouseEventInfo) override;
 
