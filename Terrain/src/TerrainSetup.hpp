@@ -11,21 +11,25 @@
 #include "./Decoration/DecoSetup.hpp"
 
 #include "../../Prototypes/Graphics/SkyboxActor.h"
+#include <GLFW/glfw3.h>
+//#include "../../CForge/Graphics/GLWindow.h"
 
 using namespace CForge;
+#define CAM_FOV 70.0
 
 namespace Terrain {
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
                     DirectionalLight *light) {
-        uint32_t winWidth = 5120 / 2;
-        uint32_t winHeight = 1440;
+        uint32_t winWidth =  1920;
+        uint32_t winHeight = 1080;
 
        /* winWidth = 1200;
         winHeight = 1200;*/
 
         window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup");
         gladLoadGL();
+		glfwSwapInterval(0);
 
         string GLError;
         GraphicsUtility::checkGLError(&GLError);
@@ -56,7 +60,7 @@ namespace Terrain {
 
         camera->init(Vector3f(.0f, 400.0f, 100.0f), Vector3f::UnitY());
         camera->pitch(GraphicsUtility::degToRad(-15.0f));
-        camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 5000.0f);
+        camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(CAM_FOV), 0.1f, 5000.0f);
         renderDevice->activeCamera(camera);
 
         Vector3f sunPos = Vector3f(400.0f, 400.0f, 400.0f);
@@ -392,9 +396,10 @@ namespace Terrain {
 
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);
-
-        ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 128, .levelCount = 5};
-        HeightMap::NoiseConfig noiseConfig = {.seed = static_cast<uint32_t>(rand()),
+		//ClipMap::ClipMapConfig clipMapConfig = { .sideLength = 16, .levelCount = 5 };
+		ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 4, .levelCount = 6};
+		//ClipMap::ClipMapConfig clipMapConfig = { .sideLength = 128, .levelCount = 5 };
+		HeightMap::NoiseConfig noiseConfig = {.seed = static_cast<uint32_t>(rand()),
             .scale = 1.0f,
             .octaves = 10,
             .persistence = 0.5f,
@@ -508,8 +513,12 @@ namespace Terrain {
             if (erode) {
                 map.erode();
             }
-
-            map.update(camera.position().x(), camera.position().z());
+			
+			// take focus point into consideration
+			float mapCenterX = camera.position().x() + camera.dir().x()*clipMapConfig.sideLength*(1/ CAM_FOV)*250.0;
+			float mapCenterY = camera.position().z() + camera.dir().z()*clipMapConfig.sideLength*(1/ CAM_FOV)*250.0;
+			map.update(mapCenterX, mapCenterY);
+            //map.update(camera.position().x(), camera.position().z());
 
             if (shadows) {
                 renderDevice.activePass(RenderDevice::RENDERPASS_SHADOW, &sun);
@@ -517,14 +526,16 @@ namespace Terrain {
             }
 
             renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-
+			
             if (wireframe) {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 glLineWidth(1);
-                sceneGraph.render(&renderDevice);
+                //sceneGraph.render(&renderDevice);
+				map.renderMap(&renderDevice);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             } else {
-                sceneGraph.render(&renderDevice);
+                //sceneGraph.render(&renderDevice);
+				map.renderMap(&renderDevice);
             }
 
             //Deko instances

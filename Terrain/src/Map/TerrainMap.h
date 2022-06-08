@@ -6,6 +6,8 @@
 #include "../ArrayTexture.h"
 #include "TileNode.h"
 
+#include "UBOInstancedData.h"
+
 using namespace CForge;
 using namespace Eigen;
 
@@ -29,8 +31,10 @@ namespace Terrain {
         Vector3f getNormalAt(float x, float y);
 
         void render(RenderDevice* renderDevice, ClipMap::TileVariant variant);
+		void renderMap(RenderDevice* pRDev);
         void bindTexture();
-    private:
+		void prepareRender(RenderDevice* renderDevice);
+	private:
         void clear();
         void initShader();
         void generateClipMapTiles();
@@ -44,5 +48,8 @@ namespace Terrain {
 
         SGNTransformation* mRootTransform;
         vector<TileNode*> mTileNodes;
+		vector<TileActor> m_TileActors;
+		UBOInstancedData mUBOinstances;
+		uint32_t m_CurrentInstanceAmount = 0;
     };
 }

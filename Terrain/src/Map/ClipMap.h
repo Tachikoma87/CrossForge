@@ -25,6 +25,7 @@ namespace Terrain {
             Cross = 3,
             Line = 4,
             Trim = 5,
+			count,
         };
 
         ClipMap();

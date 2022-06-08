@@ -6,8 +6,14 @@ layout(std140) uniform CameraData {
     vec4 Position;
 } Camera;
 
-layout(std140) uniform ModelData {
-    mat4 ModelMatrix;
+//layout(std140) uniform ModelData {
+//    mat4 ModelMatrix;
+//};
+
+#define MAX_INSTANCE_COUNT 500
+
+layout(std140) uniform InstancedData{
+	mat4 instancedMat[MAX_INSTANCE_COUNT];
 };
 
 uniform float MapHeight;
@@ -20,6 +26,7 @@ out vec2 SamplePosition;
 out float Height; // normalized [0, 1]
 
 void main() {
+	mat4 ModelMatrix = instancedMat[gl_InstanceID];
     vec4 worldPosition = ModelMatrix * vec4(VertPosition.x, 0.0, VertPosition.y, 1.0);
     vec2 mapSize = textureSize(HeightMap, 0);
 
