@@ -29,8 +29,8 @@ struct FontStyle1 : FontStyle {         //the default font
         PixelSize = 16;
         float font_color[3] = {1.0f, 1.0f, 1.0f};
         float font_color_highlight[3] = {1.0f, 1.0f, 0.5f};
-        std::copy(FontColor, FontColor+3, font_color);  //stupid c++ not allowing direct array assignment
-        std::copy(FontColorHighlight, FontColorHighlight+3, font_color_highlight);
+        std::copy(font_color, font_color+3, FontColor);  //stupid c++ not allowing direct array assignment
+        std::copy(font_color_highlight, font_color_highlight+3, FontColorHighlight);
     }
 };
 struct FontStyle2 : FontStyle {         //the default font
@@ -39,8 +39,8 @@ struct FontStyle2 : FontStyle {         //the default font
         PixelSize = 16;
         float font_color[3] = {1.0f, 1.0f, 1.0f};
         float font_color_highlight[3] = {1.0f, 1.0f, 0.5f};
-        std::copy(FontColor, FontColor+3, font_color);
-        std::copy(FontColorHighlight, FontColorHighlight+3, font_color_highlight);
+        std::copy(font_color, font_color+3, FontColor);
+        std::copy(font_color_highlight, font_color_highlight+3, FontColorHighlight);
     }
 };
 

@@ -8,6 +8,10 @@ WindowWidget_MinimizeButton::WindowWidget_MinimizeButton(WindowWidget* window, G
     rootGUIObject->registerMouseDownEvent(this);
     m_background = new WidgetBackgroundBorder(this, m_root->BackgroundColoredShader);
 }
+WindowWidget_MinimizeButton::~WindowWidget_MinimizeButton()
+{
+    delete m_background;
+}
 void WindowWidget_MinimizeButton::onClick(mouseEventInfo)
 {
     m_minimized = !m_minimized;
@@ -41,6 +45,7 @@ WindowWidget_Header::~WindowWidget_Header()
 {
     delete m_title;
     delete m_button;
+    delete m_background;
 }
 void WindowWidget_Header::updateChildPositions()
 {
