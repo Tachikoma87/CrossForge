@@ -18,8 +18,18 @@ using namespace CForge;
 void CallbackTestClass::listen(const CallbackObject Msg)
 {
     printf("Received Callback from Form %d\n", Msg.FormID);
-    for (auto x : Msg.Data)
-        printf("%d: %d\n", x.first, *(int*)x.second.pData);
+    for (auto x : Msg.Data) {
+        switch(x.second.Type) {
+            case DATATYPE_INT:
+                printf("%d: %d\n", x.first, *(int*)x.second.pData);
+                break;
+            case DATATYPE_BOOLEAN:
+                printf("%d: %s\n", x.first, *(bool*)x.second.pData ? "True" : "False");
+                break;
+            default:
+                printf("%d: unhandled data type\n", x.first);
+        }
+    }
     printf("\n");
 }
 
@@ -162,8 +172,6 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
         if (!leftHoldDown) {
             //left mouse button was just pressed down
             leftHoldDown = true;
-
-            printf("mouse click at %f  %f\n", mpos[0], mpos[1]);
 
             //check if anything was clicked and set the focus accordingly
             //click events take precedence over dragable widgets
