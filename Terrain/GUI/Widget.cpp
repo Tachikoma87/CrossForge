@@ -146,6 +146,10 @@ void TextWidget::setText(std::u32string textString)
 
     m_pText->setText(textString);
 }
+std::u32string TextWidget::getText()
+{
+    return m_text;
+}
 void TextWidget::changeText(char32_t character)
 {
     //can be expanded in the future to support a text cursor
@@ -153,13 +157,13 @@ void TextWidget::changeText(char32_t character)
     //TODO: for now only takes unicode as input for testing
     switch (character) {
         case 8:     //Backspace: delete last chacter from string
-            m_text.pop_back();
+            if (m_text.length() > 0) m_text.pop_back();
             break;
         default:     //treat as normal character
             m_text.push_back(character);
             break;
     }
-    m_pText->setText(m_text);
+    setText(m_text);
 }
 void TextWidget::setPosition(float x, float y)
 {

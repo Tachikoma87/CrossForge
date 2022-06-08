@@ -6,6 +6,7 @@
 
 #include "InputNumber.h"
 #include "InputCheckbox.h"
+#include "InputText.h"
 
 class LabelWidget : public BaseWidget {
 public:

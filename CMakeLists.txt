@@ -142,6 +142,7 @@ add_executable(Terrain
 		Terrain/GUI/Font.cpp
 		Terrain/GUI/Widgets/InputNumber.cpp
 		Terrain/GUI/Widgets/InputCheckbox.cpp
+		Terrain/GUI/Widgets/InputText.cpp
 		Terrain/GUI/Widgets/Label.cpp
 		Terrain/GUI/Widgets/Form.cpp
 		Terrain/GUI/Widgets/Window.cpp

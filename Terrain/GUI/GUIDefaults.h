@@ -23,7 +23,7 @@ struct FontStyle {
     float FontColorHighlight[3];
 };
 
-struct FontStyle1 : FontStyle {         //the default font
+struct FontStyle1 : FontStyle {         //the default font, used for almost all default widgets
     FontStyle1() {
         FileName = "Assets/DejaVuSans.ttf";
         PixelSize = 16;
@@ -33,7 +33,7 @@ struct FontStyle1 : FontStyle {         //the default font
         std::copy(font_color_highlight, font_color_highlight+3, FontColorHighlight);
     }
 };
-struct FontStyle2 : FontStyle {         //the default font
+struct FontStyle2 : FontStyle {         //bold variant
     FontStyle2() {
         FileName = "Assets/DejaVuSans-Bold.ttf";
         PixelSize = 16;
@@ -47,4 +47,8 @@ struct FontStyle2 : FontStyle {         //the default font
 struct WidgetStyle {
     int WithinWidgetPadding = 5;
     int TextPadding = 3;
+};
+struct InputTextStyle {
+    float WrongInputColor[3] = {1.0f, 0.5f, 0.5f};
+    float ValidInputColor[3] = {0.5f, 1.0f, 0.5f};
 };
