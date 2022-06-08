@@ -26,6 +26,14 @@ void CallbackTestClass::listen(const CallbackObject Msg)
             case DATATYPE_BOOLEAN:
                 printf("%d: %s\n", x.first, *(bool*)x.second.pData ? "True" : "False");
                 break;
+            case DATATYPE_STRING:
+                printf("%d: ", x.first);
+                for (auto x : *(u32string*)x.second.pData) {
+                    if (x < 127) printf("%c", (char)x);
+                    else printf("[%X]", x);
+                }
+                printf("\n");
+                break;
             default:
                 printf("%d: unhandled data type\n", x.first);
         }

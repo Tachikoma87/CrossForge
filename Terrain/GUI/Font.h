@@ -49,6 +49,7 @@ private:
     unsigned int textureID;
     int mapWidth, mapHeight;
     FontStyle m_style;
+    bool glyphMapFinalized;
 };
 
 
