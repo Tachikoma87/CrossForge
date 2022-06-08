@@ -28,7 +28,7 @@ type.
 
 enum CallbackDatatype {
     DATATYPE_INT,
-    DATATYPE_FLOAT,
+    DATATYPE_BOOLEAN,
     DATATYPE_STRING
 };
 

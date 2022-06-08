@@ -226,6 +226,7 @@ namespace Terrain {
         form->addOption(2, DATATYPE_INT, U"2nd Option");
         form->setLimit(2, 10, 20);
         form->addOption(3, DATATYPE_INT, U"3rd Option");
+        form->addOption(4, DATATYPE_BOOLEAN, U"4th Option (Checkbox)");
 
 
 		while (!window.shutdown()) {

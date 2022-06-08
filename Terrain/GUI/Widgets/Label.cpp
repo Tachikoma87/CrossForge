@@ -24,6 +24,11 @@ LabelWidget::LabelWidget(CallbackDatatype type, std::u32string labelText, GUI* r
             *(int*)m_pValue = 0;
             m_pInput = new InputNumberWidget(rootGUIObject, this);
             break;
+        case DATATYPE_BOOLEAN:
+            m_pValue = new bool;
+            *(bool*)m_pValue = false;
+            m_pInput = new InputCheckboxWidget(rootGUIObject, this);
+            break;
         default:
             //invalid type or no matching input yet
             m_pInput = nullptr;
@@ -40,10 +45,13 @@ LabelWidget::LabelWidget(CallbackDatatype type, std::u32string labelText, GUI* r
 LabelWidget::~LabelWidget()
 {
     delete m_pLabelText;
+    delete m_pInput;
     switch (m_type) {
         case DATATYPE_INT:
             delete (int*)m_pValue;
-            delete (InputNumberWidget*)m_pInput;
+            break;
+        case DATATYPE_BOOLEAN:
+            delete (bool*)m_pValue;
             break;
         default:
             //invalid type or no matching input yet
@@ -56,6 +64,9 @@ CallbackDatum LabelWidget::getValue()
     switch (m_type) {
         case DATATYPE_INT:
             *(int*)m_pValue = (*(InputNumberWidget*)m_pInput).getValue();
+            break;
+        case DATATYPE_BOOLEAN:
+            *(bool*)m_pValue = (*(InputCheckboxWidget*)m_pInput).getValue();
             break;
         default:
             //invalid type or no matching input yet
@@ -72,6 +83,9 @@ void LabelWidget::setLimit(int lower, int higher)
     switch (m_type) {
         case DATATYPE_INT:
             (*(InputNumberWidget*)m_pInput).setLimit(lower, higher);
+            break;
+        case DATATYPE_BOOLEAN:
+            //A boolean value cannot be limited in range
             break;
         default:
             //invalid type or no matching input yet

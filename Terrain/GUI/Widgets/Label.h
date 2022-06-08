@@ -5,6 +5,7 @@
 #include "../Callback.h"
 
 #include "InputNumber.h"
+#include "InputCheckbox.h"
 
 class LabelWidget : public BaseWidget {
 public:
