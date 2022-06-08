@@ -9,7 +9,7 @@ using namespace Eigen;
 class TerrainMap;
 
 namespace Terrain {
-    class TileNode: public SGNGeometry {
+    class TileNode {
     public:
         struct TileData {
             Vector2f pos;
@@ -18,11 +18,13 @@ namespace Terrain {
             ClipMap::TileVariant variant;
         };
 
-        TileNode(ISceneGraphNode* parent, TerrainMap* map, TileData data);
+        TileNode(/*ISceneGraphNode* parent, TerrainMap* map, */TileData data);
 
         void update(float cameraX , float cameraY);
+		TileNode::TileData getTileData();
+		Eigen::Matrix4f m_trans;
     private:
         TileData mData;
-        TileActor mTileActor;
+        //TileActor mTileActor;
     };
 }

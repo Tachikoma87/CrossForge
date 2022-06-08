@@ -9,6 +9,13 @@ namespace Terrain {
         : mRootTransform(rootTransform), mTextures(6, 1024) {
         initShader();
 
+		mUBOinstances.init();
+		
+		for (uint32_t i = 0; i < ClipMap::TileVariant::count; i++) {
+			TileActor actor = TileActor(this, ClipMap::TileVariant(i));
+			m_TileActors.push_back(actor);
+		}
+		
         vector<string> files;
         files.push_back("Assets/water.jpg");
         files.push_back("Assets/sand.jpg");
@@ -42,7 +49,8 @@ namespace Terrain {
     }
 
     void TerrainMap::update(float cameraX, float cameraY) {
-        for (auto node : mTileNodes) {
+        for (uint32_t i = 0; i < mTileNodes.size(); i++) {
+			auto node = mTileNodes[i];
             node->update(cameraX, cameraY);
         }
     }
@@ -67,28 +75,56 @@ namespace Terrain {
 
     void TerrainMap::render(RenderDevice *renderDevice, Terrain::ClipMap::TileVariant variant) {
         mClipMap.bindTile(variant);
-        renderDevice->activeShader(mShader);
-        glActiveTexture(GL_TEXTURE0);
-        mHeightMap.bindTexture();
-
-        glActiveTexture(GL_TEXTURE1);
-        mTextures.bind();
-
-        int layerCount = 6;
-        vector<GLfloat> layerHeights {0.501, 0.52, 0.56, 0.65, 0.78};
-        vector<GLfloat> blendValues {0.001, 0.03, 0.1, 0.1, 0.03};
-
-        glUniform1i(mShader->uniformLocation("LayerCount"), layerCount);
-        glUniform1fv(mShader->uniformLocation("LayerHeights"), layerHeights.size(), layerHeights.data());
-        glUniform1fv(mShader->uniformLocation("BlendValues"), blendValues.size(), blendValues.data());
-
-        glUniform1i(mShader->uniformLocation("HeightMap"), 0);
-        glUniform1i(mShader->uniformLocation("Textures"), 1);
-        glUniform1f(mShader->uniformLocation("MapHeight"), mHeightMap.getConfig().mapHeight);
-
-        glDrawElements(GL_TRIANGLES, mClipMap.getIndexCount(variant), GL_UNSIGNED_INT, nullptr);
+        //glDrawElements(GL_TRIANGLES, mClipMap.getIndexCount(variant), GL_UNSIGNED_INT, nullptr);
+		glDrawElementsInstanced(GL_TRIANGLES, mClipMap.getIndexCount(variant), GL_UNSIGNED_INT, nullptr, m_CurrentInstanceAmount);
         mClipMap.unbindTile(variant);
     }
+	
+	void TerrainMap::prepareRender(RenderDevice* renderDevice) {
+		renderDevice->activeShader(mShader);
+		glActiveTexture(GL_TEXTURE0);
+		mHeightMap.bindTexture();
+
+		glActiveTexture(GL_TEXTURE1);
+		mTextures.bind();
+
+		int layerCount = 6;
+		vector<GLfloat> layerHeights{ 0.501, 0.52, 0.56, 0.65, 0.78 };
+		vector<GLfloat> blendValues{ 0.001, 0.03, 0.1, 0.1, 0.03 };
+
+		glUniform1i(mShader->uniformLocation("LayerCount"), layerCount);
+		glUniform1fv(mShader->uniformLocation("LayerHeights"), layerHeights.size(), layerHeights.data());
+		glUniform1fv(mShader->uniformLocation("BlendValues"), blendValues.size(), blendValues.data());
+
+		glUniform1i(mShader->uniformLocation("HeightMap"), 0);
+		glUniform1i(mShader->uniformLocation("Textures"), 1);
+		glUniform1f(mShader->uniformLocation("MapHeight"), mHeightMap.getConfig().mapHeight);
+	}
+	
+	void TerrainMap::renderMap(RenderDevice* pRDev) {
+		prepareRender(pRDev);
+		uint32_t BindingPoint = mShader->uboBindingPoint(GLShader::DEFAULTUBO_INSTANCE);
+		if (GL_INVALID_INDEX != BindingPoint) {
+			mUBOinstances.bind(BindingPoint);
+		}
+		for (uint32_t i = 0; i < m_TileActors.size(); i++) {
+			
+			uint32_t instanceIndex = 0;
+			for (uint32_t j = 0; j < mTileNodes.size(); j++) {
+				TileNode::TileData data = mTileNodes[j]->getTileData();
+				if (data.variant == i) {
+					mUBOinstances.setInstance(&mTileNodes[j]->m_trans, instanceIndex);
+					instanceIndex++;
+				}
+			}
+			if (instanceIndex > 500) {
+				CForgeExcept("too many instances");
+				exit(-1);
+			}
+			m_CurrentInstanceAmount = instanceIndex;
+			m_TileActors[i].render(pRDev);
+		}
+	}
 
     void TerrainMap::bindTexture() {
         mHeightMap.bindTexture();
@@ -165,7 +201,7 @@ namespace Terrain {
         };
 
         TileNode::TileData data = {Vector2f(2, 2), 0, 2, ClipMap::Cross};
-        mTileNodes.push_back(new TileNode(mRootTransform, this, data));
+        mTileNodes.push_back(new TileNode(data));
 
         for (uint32_t level = 0; level < mClipMap.getConfig().levelCount; level++) {
             uint32_t lod = 2 << level;
@@ -181,16 +217,16 @@ namespace Terrain {
                                    Vector2f(x < 2 ? 0 : 2, y < 2 ? 0 : 2) * lod;
 
                         data = {pos, orientation, lod, variant};
-                        mTileNodes.push_back(new TileNode(mRootTransform, this, data));
+                        mTileNodes.push_back(new TileNode(data));
                     }
                 }
 
                 data = {linePositions[y] * scale, y, lod, ClipMap::Line};
-                mTileNodes.push_back(new TileNode(mRootTransform, this, data));
+                mTileNodes.push_back(new TileNode(data));
             }
 
             data = {Vector2f(scale, scale), 0, lod, ClipMap::Trim};
-            mTileNodes.push_back(new TileNode(mRootTransform, this, data));
+            mTileNodes.push_back(new TileNode(data));
         }
     }
 

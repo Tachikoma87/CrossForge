@@ -151,6 +151,7 @@ if(WIN32)
 
 		Prototypes/Graphics/GLCubemap.cpp
 		Prototypes/Graphics/SkyboxActor.cpp
+		Terrain/src/Map/UBOInstancedData.cpp
 		)
 endif (WIN32)
 
@@ -174,7 +175,7 @@ if(UNIX)
 		)
 endif (UNIX)
 
-target_link_libraries(Terrain PRIVATE crossforge)
+target_link_libraries(Terrain PRIVATE crossforge PRIVATE glfw)
 
 # copy engine shaders
 add_custom_command(
