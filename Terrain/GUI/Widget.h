@@ -50,6 +50,7 @@ public:
     TextWidget(GUI* rootGUIObject, BaseWidget* parent);
     ~TextWidget();
     void setText(std::u32string textString);
+    std::u32string getText();
     void changeText(char32_t character);
     void changeFont(FontFace* newFont);
     void changeFont(GUI::FontStyles style);

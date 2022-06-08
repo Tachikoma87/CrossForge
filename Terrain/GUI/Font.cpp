@@ -180,6 +180,13 @@ void FontFace::prepareCharMap()
 {
     //for now, use the first ~220 codepoints as characters for the map
     //could be changed to something more specific in the future
+    std::u32string charactersToLoad = U" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"; //all printable characters in that range
+    charactersToLoad.push_back(U'\0'); //add the null character as fallback glyph
+
+    //get glyph should not load new glyphs (during eg. text input) after were done
+    //setting up the glyphmap. They wouldn't display correctly anyway.
+    //This is realized by this flag.
+    glyphMapFinalized = false;
 
     //determine the size of the map necessary to fit all glyphs
     //
@@ -188,7 +195,7 @@ void FontFace::prepareCharMap()
     //   roughly square aspect ratio.
     int totalWidth = 0;
     int tallestGlyph = 0;
-    for (int i = 32; i < 256; i++) {
+    for (auto i : charactersToLoad) {
         glyph_t character = getGlyph(i);
         totalWidth += character.bitmapSize.x;
         if (tallestGlyph < character.bitmapSize.y) tallestGlyph = character.bitmapSize.y;
@@ -206,7 +213,7 @@ void FontFace::prepareCharMap()
     int maxRowWidth = 0;
     int totalHeight = 0;
     int currentRowWidth = 0, currentRowHeight = 0;
-    for (int i = 32; i < 256; i++) {
+    for (auto i : charactersToLoad) {
         glyph_t character = getGlyph(i);
         int newCurrentRowWidth = currentRowWidth + character.bitmapSize.x;
         if (newCurrentRowWidth < targetWidth) {
@@ -243,7 +250,7 @@ void FontFace::prepareCharMap()
     //3) write the bitmap data
     currentRowWidth = 0;
     currentRowHeight = 0;
-    for (int i = 32; i < 256; i++) {
+    for (auto i : charactersToLoad) {
         glyph_t character = getGlyph(i);
         for (int y = 0; y < character.bitmapSize.y; y++) {
             for (int x = 0; x < character.bitmapSize.x; x++) {
@@ -252,6 +259,8 @@ void FontFace::prepareCharMap()
             }
         }
     }
+
+    glyphMapFinalized = true;
 
     mapWidth = maxRowWidth;
     mapHeight = totalHeight;
@@ -293,25 +302,33 @@ void FontFace::prepareCharMap()
 
 glyph_t FontFace::getGlyph(char32_t character)
 {
-    if (glyphs.count(character) == 0) {
-        //fetch not-yet-loaded glyph using freetype
-        glyphs[character].index = FT_Get_Char_Index(face, character);
-        FT_Load_Glyph(face, glyphs[character].index, FT_LOAD_RENDER);
-        glyphs[character].advanceWidth = face->glyph->advance.x;
-        //copying the bitmap buffer because I think it'll be freed otherwise
-        //and there's not much point to rendering it multiple times
-        glyphs[character].bitmapSize.x = face->glyph->bitmap.width;
-        glyphs[character].bitmapSize.y = face->glyph->bitmap.rows;
-        glyphs[character].bitmapOffset.x = face->glyph->bitmap_left;
-        glyphs[character].bitmapOffset.y = face->glyph->bitmap_top;
-        //assumes ft_pixel_mode_gray which should be default
-        const int numPixels = glyphs[character].bitmapSize.x * glyphs[character].bitmapSize.y;
-        glyphs[character].bitmap = new uint8_t[numPixels];
-        for (int i = 0; i < numPixels; i++) {
-            glyphs[character].bitmap[i] = face->glyph->bitmap.buffer[i];
+    if (glyphMapFinalized) {
+        if (glyphs.count(character) == 0) {
+            return glyphs[U'\0'];
+        } else {
+            return glyphs[character];
         }
+    } else {
+        if (glyphs.count(character) == 0) {
+            //fetch not-yet-loaded glyph using freetype
+            glyphs[character].index = FT_Get_Char_Index(face, character);
+            FT_Load_Glyph(face, glyphs[character].index, FT_LOAD_RENDER);
+            glyphs[character].advanceWidth = face->glyph->advance.x;
+            //copying the bitmap buffer because I think it'll be freed otherwise
+            //and there's not much point to rendering it multiple times
+            glyphs[character].bitmapSize.x = face->glyph->bitmap.width;
+            glyphs[character].bitmapSize.y = face->glyph->bitmap.rows;
+            glyphs[character].bitmapOffset.x = face->glyph->bitmap_left;
+            glyphs[character].bitmapOffset.y = face->glyph->bitmap_top;
+            //assumes ft_pixel_mode_gray which should be default
+            const int numPixels = glyphs[character].bitmapSize.x * glyphs[character].bitmapSize.y;
+            glyphs[character].bitmap = new uint8_t[numPixels];
+            for (int i = 0; i < numPixels; i++) {
+                glyphs[character].bitmap[i] = face->glyph->bitmap.buffer[i];
+            }
+        }
+        return glyphs[character];
     }
-    return glyphs[character];
 }
 
 void FontFace::bind()
