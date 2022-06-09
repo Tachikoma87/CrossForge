@@ -53,7 +53,7 @@ namespace CForge {
 		virtual T3DMesh<float>::AABB getAABB();
 		virtual void bindLODLevel(uint32_t level);
 		//virtual std::vector<float> getLODStages();
-		virtual void evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount); //TODO
+		virtual void evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount);
 		bool isInstanced();
 		bool isManualInstanced();
 

@@ -117,6 +117,7 @@ namespace CForge {
 		UBOInstancedData* getInstancedUBO();
 		void LODQueryContainerPushBack(GLuint queryID, IRenderableActor* pActor, Eigen::Matrix4f transform);
 		void fetchQueryResults();
+		void LODSGPushBack(IRenderableActor* pActor, Eigen::Matrix4f mat);
 		//
 		
 	protected:
