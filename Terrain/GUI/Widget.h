@@ -8,7 +8,6 @@
 
 class BaseWidget {
 public:
-    int level; //needed for event handling. higher levels receive the event so overlapping lower levels don't trigger
     
     BaseWidget(GUI* rootGUIObject, BaseWidget* parent);
     virtual ~BaseWidget();
@@ -20,6 +19,9 @@ public:
 
     virtual void draw(CForge::RenderDevice* renderDevice);
 
+    //For event handling
+    virtual int getLevel();
+    virtual BaseWidget* getTopWidget();
     virtual bool checkHitbox(Eigen::Vector2f pointerPosition);
     
     //Events (need some more thought put into them)
@@ -39,6 +41,7 @@ protected:
     BaseWidget* m_parent;
     std::vector<BaseWidget*> m_children;
     WidgetBackground* m_background;
+    int m_level; //needed for event handling. higher levels receive the event so overlapping lower levels don't trigger
     float m_x;     //top left point
     float m_y;
     float m_width; 
