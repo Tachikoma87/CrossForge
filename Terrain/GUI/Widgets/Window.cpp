@@ -149,13 +149,10 @@ void WindowWidget::updateLayout()
     //changes on its own.
     if (m_content != nullptr) {
         WidgetStyle defaults;
-        m_width = std::max(m_header->getWidth(), m_content->getWidth() + 2*defaults.WithinWidgetPadding);
-        if (m_minimized) {
-            m_height = m_header->getHeight();
-        } else {
-            m_height = m_header->getHeight() + m_content->getHeight() + 2*defaults.WithinWidgetPadding;
-        }
+        m_width = m_content->getWidth() + 2*defaults.WithinWidgetPadding;
+        m_height = m_header->getHeight() + m_content->getHeight() + 2*defaults.WithinWidgetPadding;
         m_header->updateChildPositions();
+        m_width = m_header->getWidth();
     }
     m_background->updateSize();
     m_border->updateSize();
