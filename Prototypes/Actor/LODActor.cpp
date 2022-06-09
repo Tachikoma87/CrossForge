@@ -6,6 +6,8 @@
 #include "../MeshDecimate.h"
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
 
+//#define SKIP_INSTANCED_QUERIES // TODO determine skipping by time query
+
 namespace CForge {
 	LODActor::LODActor(void) : IRenderableActor("LODActor", ATYPE_STATIC) {
 		m_TypeID = ATYPE_STATIC;
@@ -213,7 +215,6 @@ namespace CForge {
 								pRDev->activeShader(pRDev->shadowPassShader());
 							}
 							else {
-								// TODO Occlusion Culling
 								pRDev->activeShader(i->pShader);
 								pRDev->activeMaterial(&i->Material);
 							}
@@ -233,7 +234,6 @@ namespace CForge {
 					pRDev->activeShader(pRDev->shadowPassShader());
 				}
 				else {
-					// TODO Occlusion Culling
 					pRDev->activeShader(i->pShader);
 					pRDev->activeMaterial(&i->Material);
 				}
@@ -260,6 +260,7 @@ namespace CForge {
 			"   gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * ModelMatrix * vec4(VertPosition.x, VertPosition.y, VertPosition.z, 1.0);\n"
 			"}\0";
 		const char* fragmentShaderSource = "#version 330 core\n"
+			"layout(early_fragment_tests) in;\n"
 			"out vec4 FragColor;\n"
 			"void main()\n"
 			"{\n"
@@ -289,34 +290,39 @@ namespace CForge {
 	void LODActor::testAABBvis(class RenderDevice* pRDev, Eigen::Matrix4f sgMat) {
 		
 		if (m_isManualInstaned) { // all instanced at once
-			//bool oneWasVisible = false;
 			for (uint32_t i = 0; i < m_instancedMatrices.size(); i++) {
-				//pRDev->setModelMatrix(mat);
-				
+
+#ifndef SKIP_INSTANCED_QUERIES
+				if (!fovCulling(pRDev, &m_instancedMatrices[i]))
+					continue;
 				queryAABB(pRDev, m_instancedMatrices[i]);
-				//if (level >= 0) {
-				//	oneWasVisible = true;
-				//	m_instancedMatRef[level]->push_back(m_instancedMatrices[i]);
-				//}
+#else
+				m_instancedMatRef[0]->push_back(m_instancedMatrices[i]);
+				if (!this->isInLODSG()) {
+					pRDev->LODSGPushBack(this, Eigen::Matrix4f::Identity());
+					this->setLODSG(true);
+				}
+#endif
 			}
-			//return oneWasVisible;
 		}
 		else if (m_isInstanced) { // single instance, other instances get added over SG
 
+#ifndef SKIP_INSTANCED_QUERIES
+			if (!fovCulling(pRDev, &sgMat))
+				return;
 			queryAABB(pRDev, sgMat);
-			//if (level >= 0) {
-			//	m_instancedMatrices.push_back(sgMat);
-			//	m_instancedMatRef[level]->push_back(m_instancedMatrices.at(m_instancedMatrices.size()-1));
-			//}
+#else
+			m_instancedMatrices.push_back(sgMat);
+			m_instancedMatRef[0]->push_back(m_instancedMatrices.at(m_instancedMatrices.size()-1));
+			if (!this->isInLODSG()) {
+				pRDev->LODSGPushBack(this, Eigen::Matrix4f::Identity());
+				this->setLODSG(true);
+			}
+#endif
 		}
-		else { // not instanced bind lod immediate
-
+		else {
 			queryAABB(pRDev, sgMat);
-			//level = renderAABB(pRDev);
-			//if (level != m_LODLevel)
-			//	bindLODLevel(level);
 		}
-		//return level >= 0 ? true : false;
 	}
 	
 	void LODActor::queryAABB(RenderDevice* pRDev, Eigen::Matrix4f transform) {
@@ -355,16 +361,12 @@ namespace CForge {
 			level++;
 		}
 		
-		if (m_isManualInstaned) { // all instanced at once
-			//if (level >= 0) {
-				m_instancedMatRef[level]->push_back(mat);
-			//}
+		if (m_isManualInstaned) {
+			m_instancedMatRef[level]->push_back(mat);
 		}
-		else if (m_isInstanced) { // single instance, other instances get added over SG
-			//if (level >= 0) {
-				m_instancedMatrices.push_back(mat);
-				m_instancedMatRef[level]->push_back(m_instancedMatrices.at(m_instancedMatrices.size() - 1));
-			//}
+		else if (m_isInstanced) {
+			m_instancedMatrices.push_back(mat);
+			m_instancedMatRef[level]->push_back(m_instancedMatrices.at(m_instancedMatrices.size() - 1));
 		}
 		else { // not instanced bind lod immediately
 			if (level != m_LODLevel)
@@ -374,52 +376,10 @@ namespace CForge {
 	
 	
 	void LODActor::renderAABB(class RenderDevice* pRDev) {
-		
-		//GLuint queryID;
-		//glGenQueries(1, &queryID);
-		//if (!glIsQuery(queryID)) {
-		//	// fetch current queries if no more are available
-		//	pRDev->fetchQueryResults();
-		//	glGenQueries(1, &queryID);
-		//}
-		//
-		//pRDev->LODQueryContainerPushBack(queryID, this, Eigen::Matrix4f());
-		//
-		//glBeginQuery(GL_SAMPLES_PASSED, queryID);
-		
-		// render AABB
 		pRDev->activeShader(m_AABBshader);
 		m_AABBvertArray.bind();
 		glDrawElements(GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_INT, nullptr);
 		m_AABBvertArray.unbind();
-
-		//glEndQuery(GL_SAMPLES_PASSED);
-		// TODO abfrage im naechsten frame um wartezeit zu ueberbruecken
-		//GLint queryState;
-		//do {
-		//	glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
-		//} while (!queryState);
-
-		//GLuint pixelCount;
-		//glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &pixelCount);
-		//glDeleteQueries(1, &queryID);
-
-		////std::cout << pixelCount << "\n";
-		//if (pixelCount == 0)
-		//	return -1;
-		//
-		//// set LOD level based on screen coverage
-		//float screenCov = float(pixelCount) / m_pSLOD->getResPixAmount();
-		////std::cout << screenCov << "\n";
-		//std::vector<float> LODPerc = m_pSLOD->getLODPercentages();
-		//uint32_t i = 0;
-		//while ( i < m_LODStages.size()-1) {
-		//	if (screenCov > LODPerc[i])
-		//		break;
-		//	i++;
-		//}
-		//
-		//return i;
 	}
 	
 	void LODActor::updateAABB() {
@@ -498,6 +458,14 @@ namespace CForge {
 	void LODActor::addInstance(Eigen::Matrix4f matrix) {
 		m_instancedMatrices.push_back(matrix);
 	}
+
+	void LODActor::clearInstances() {
+		m_instancedMatrices.clear();
+	}
+
+	void LODActor::changeInstance(uint32_t index, Eigen::Matrix4f mat) {
+		m_instancedMatrices[index] = mat;
+	}
 	
 	void LODActor::setInstanceMatrices(std::vector<Eigen::Matrix4f> matrices) {
 		m_instancedMatrices = matrices;
@@ -509,5 +477,22 @@ namespace CForge {
 	
 	std::vector<float> LODActor::getLODStages() {
 		return m_LODStages;
+	}
+	
+	bool LODActor::fovCulling(RenderDevice* pRDev, Eigen::Matrix4f* mat) {
+		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
+		float aabbRadius = std::max(std::abs(getAABB().Max.norm()), std::abs(getAABB().Min.norm()));
+		float distance = (Translation - pRDev->activeCamera()->position()).norm() - aabbRadius;
+		if (distance < 0.0)
+			return true;
+		
+		Eigen::Vector3f center = getAABB().Min*0.5+getAABB().Max*0.5;
+		Eigen::Vector3f camPosToObj = Translation+center-pRDev->activeCamera()->position();
+		float offset = getAABB().diagonal().norm()*0.5 * 0.1;
+
+		float fov = pRDev->activeCamera()->getFOV();
+		if (camPosToObj.normalized().dot(pRDev->activeCamera()->dir())+(1.0/distance)*offset < std::cos(fov))
+			return false;
+		return true;
 	}
 }

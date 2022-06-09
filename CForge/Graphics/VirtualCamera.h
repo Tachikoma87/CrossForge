@@ -85,12 +85,15 @@ namespace CForge {
 		void rotY(float Theta);
 		void rotZ(float Theta);
 
+		float getFOV();
+
 	protected:
 		void notifyListeners(VirtualCameraMsg::MsgCode Code);
 
 		Eigen::Vector3f m_Position;
 		Eigen::Quaternionf m_Rotation;
 		Eigen::Matrix4f m_Projection;
+		float m_FOV;
 	};//VirtualCamera
 
 }//name space
