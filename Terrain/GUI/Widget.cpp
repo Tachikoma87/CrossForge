@@ -8,12 +8,12 @@ BaseWidget::BaseWidget ( GUI* rootGUIObject, BaseWidget* parent )
     //I assume this could be useful for combined Widgets
     m_parent = parent;
     if (parent != nullptr) {
-        level = parent->level + 1;
+        m_level = parent->getLevel() + 1;
         m_x = parent->getPosition()[0];
         m_y = parent->getPosition()[1];
     }
     else {
-        level = 0;
+        m_level = 0;
         m_x = 0;
         m_y = 0;
     }
@@ -55,6 +55,18 @@ void BaseWidget::draw(CForge::RenderDevice* renderDevice)
     if (m_background != nullptr) m_background->render(renderDevice);
     for (auto x : m_children) {
         x->draw(renderDevice);
+    }
+}
+int BaseWidget::getLevel()
+{
+    return m_level;
+}
+BaseWidget * BaseWidget::getTopWidget()
+{
+    if (m_parent == nullptr) {
+        return this;
+    } else {
+        return m_parent->getTopWidget();
     }
 }
 bool BaseWidget::checkHitbox(Eigen::Vector2f pointerPosition)

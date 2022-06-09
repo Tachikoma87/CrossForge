@@ -49,19 +49,33 @@ public:
     };
     std::vector<FontFace*> fontFaces;
 private:
+    enum EventType {
+        EVENT_CLICK,
+        EVENT_DRAG,
+        EVENT_KEYPRESS
+    };
+    void registerEvent(BaseWidget* widget, EventType et);
+    void submitTopLevelWidget(BaseWidget* widget);
     void processMouseEvents(CForge::Mouse* mouse);
     void processKeyboardEvents(CForge::Keyboard* keyboard);
     void loadFonts();
     FT_Library library;
 
-    std::vector<BaseWidget*> testBG;
     CallbackTestClass callbackTest;
 
     CForge::GLWindow* m_pWin;
     CForge::RenderDevice* m_renderDevice;
     BaseWidget* focusedWidget = nullptr;
     Eigen::Vector2f focusedClickOffset;
-    std::vector<BaseWidget*> m_events_mouseDown;
-    std::vector<BaseWidget*> m_events_mouseDrag;
-    std::vector<BaseWidget*> m_events_keyPress;
+
+    struct TopLevelWidgetHandler {
+        BaseWidget* pWidget;
+        std::vector<BaseWidget*> eventsMouseDown;
+        std::vector<BaseWidget*> eventsMouseDrag;
+        std::vector<BaseWidget*> eventsKeyPress;
+        TopLevelWidgetHandler(BaseWidget* w) {
+            pWidget = w;
+        }
+    };
+    std::vector<TopLevelWidgetHandler*> m_TopLevelWidgets;
 };

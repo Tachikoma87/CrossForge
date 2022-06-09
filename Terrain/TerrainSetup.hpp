@@ -229,6 +229,15 @@ namespace Terrain {
         form->addOption(4, DATATYPE_BOOLEAN, U"4th Option (Checkbox)");
         form->addOption(5, DATATYPE_STRING, U"5th Option (Text)");
 
+        FormWidget* form2 = gui.createOptionsWindow(U"Another Test", 2);
+        form2->startListening(&callbacktest);
+        form2->addOption(1, DATATYPE_INT, U"1st Option");
+        form2->setLimit(1, 10);
+        form2->addOption(2, DATATYPE_INT, U"2nd Option");
+        form2->setLimit(2, 10, 20);
+        form2->addOption(3, DATATYPE_INT, U"3rd Option");
+        form2->addOption(4, DATATYPE_BOOLEAN, U"4th Option (Checkbox)");
+        form2->addOption(5, DATATYPE_STRING, U"5th Option (Text)");
 
 		while (!window.shutdown()) {
 			window.update();

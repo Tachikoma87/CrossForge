@@ -48,7 +48,8 @@ GUI::GUI(CForge::RenderDevice* renderDevice)
 }
 GUI::~GUI()
 {
-    for (auto x : testBG) {
+    for (auto x : m_TopLevelWidgets) {
+        delete x->pWidget;
         delete x;
     }
     delete fontFace;
@@ -86,25 +87,10 @@ void GUI::testInit(CForge::GLWindow* pWin)
     
     loadFonts();
 
-    //Test rendering
-//     testtext.init(U"Beispieltext. ÄäÖöÜüß!?", fontFace, TextShader);
-
-
     m_pWin = pWin; //can be used for the input processing later on
     m_pWin->character()->startListening(this);
     m_pWin->keyboard()->startListening(this);
 
-    
-//     BackgroundStyle b;
-//     callbackTest = CallbackTestClass();
-//     auto a = new FormWidget(1, this, nullptr);
-//     registerMouseDragEvent(a);
-//     a->startListening(&callbackTest);
-//     a->addOption(1, DATATYPE_INT, U"first input");
-//     a->addOption(2, DATATYPE_INT, U"second input");
-//     a->addOption(1, DATATYPE_INT, U"3st input, collides with 1");
-//     a->setLimit(1, 5);
-//     testBG.push_back(a);
 }
 void GUI::loadFonts()
 {
@@ -133,8 +119,8 @@ void GUI::testRender()
     //to allow overlapping widget backgrounds
     glDisable(GL_DEPTH_TEST);
 
-    for (auto x : testBG) {
-        if (x != nullptr) x->draw(m_renderDevice);
+    for (auto x : m_TopLevelWidgets) {
+        x->pWidget->draw(m_renderDevice);
     }
 
     //terrain rendering does not work properly with enabled blending
@@ -149,22 +135,80 @@ FormWidget * GUI::createOptionsWindow(std::u32string title, int FormID)
     WindowWidget* window = new WindowWidget(title, this, nullptr);
     FormWidget* form = new FormWidget(FormID, this, window);
     window->setContentWidget(form);
-    testBG.push_back(window);
+    submitTopLevelWidget(window);
     return form;
 }
+void GUI::submitTopLevelWidget(BaseWidget* widget)
+{
+    //events can lead to the widget to be registered as top level widget
+    //before it is even fully initialised. Thus we need to check if it's
+    //not already there before submitting again.
+    for (auto x : m_TopLevelWidgets) {
+        if (x->pWidget == widget) {
+            return;
+        }
+    }
+    m_TopLevelWidgets.push_back(new TopLevelWidgetHandler(widget));
+}
 
+void GUI::registerEvent(BaseWidget* widget, GUI::EventType et)
+{
+    BaseWidget* top = widget->getTopWidget();
+    //since child widgets might register themselves before the top level widget
+    //is fully initialised, we need to first add them to the list if they're
+    //not already in there
+    submitTopLevelWidget(top);
+
+    //Find the right top level widget to register the event to
+    auto tlw = m_TopLevelWidgets.begin();
+    while (tlw != m_TopLevelWidgets.end()) {
+        if ((*tlw)->pWidget == top) {
+            break;
+        }
+        tlw++;
+    }
+
+    //get the correct list for the event type
+    vector<BaseWidget*>* list;
+    switch (et) {
+        case EVENT_CLICK:
+            list = &(*tlw)->eventsMouseDown;
+            break;
+        case EVENT_DRAG:
+            list = &(*tlw)->eventsMouseDrag;
+            break;
+        case EVENT_KEYPRESS:
+            list = &(*tlw)->eventsKeyPress;
+            break;
+    }
+
+    //insert elements with higher level (deeper within the gui scene graph)
+    //at the front so the don't get covered up by larger Widgets in which
+    //they might be wrapped.
+    int level = widget->getLevel();
+    vector<BaseWidget*>::iterator it = list->begin();
+    while (it != list->end()) {
+        if ((*it)->getLevel() < level) {
+            list->insert(it, widget);
+            return;
+        }
+        it++;
+    }
+    //if all registered elements were of higher level, add the new one to the back
+    list->push_back(widget);
+    return;
+}
 void GUI::registerMouseDownEvent ( BaseWidget* widget )
 {
-    //simple push for now since it's only one element for testing for now, optimize later
-    m_events_mouseDown.push_back(widget);
+    registerEvent(widget, EVENT_CLICK);
 }
 void GUI::registerMouseDragEvent(BaseWidget* widget)
 {
-    m_events_mouseDrag.push_back(widget);
+    registerEvent(widget, EVENT_DRAG);
 }
 void GUI::registerKeyPressEvent(BaseWidget* widget)
 {
-    m_events_keyPress.push_back(widget);
+    registerEvent(widget, EVENT_KEYPRESS);
 }
 void GUI::processEvents()
 {
@@ -186,9 +230,27 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
             if (focusedWidget != nullptr) focusedWidget->focusLost();
             focusedWidget = nullptr;
 
-            //more efficient designs than a simple list could be implemented
-            //depending on how many widgets will be registered in total
-            for (auto x : m_events_mouseDown) {
+            //First, check which top level widget the click landed in
+            auto tlw = m_TopLevelWidgets.rbegin();
+            while (tlw != m_TopLevelWidgets.rend()) {
+                if ((*tlw)->pWidget->checkHitbox(mpos)) {
+                    break;
+                }
+                tlw++;
+            }
+            TopLevelWidgetHandler* topHandle;
+            if (tlw == m_TopLevelWidgets.rend()) {
+                //click was not within any window
+                return;
+            } else {
+                //pull it to the front
+                topHandle = *tlw;
+                m_TopLevelWidgets.erase(tlw.base() - 1); //-1 because of specifics with reverse iterators
+                m_TopLevelWidgets.push_back(topHandle);
+            }
+
+            //check the registered events
+            for (auto x : topHandle->eventsMouseDown) {
                 if (x->checkHitbox(mpos)) {
                     if (!focusedWidget) {
                         focusedWidget = x;
@@ -197,10 +259,11 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
                     }
                     mouseEvent.adjustedPosition = mpos - focusedClickOffset;
                     x->onClick(mouseEvent);
+                    break;
                 }
             }
             if (!focusedWidget) {
-                for (auto x : m_events_keyPress) {
+                for (auto x : topHandle->eventsKeyPress) {
                     if (x->checkHitbox(mpos)) {
                         focusedWidget = x;
                         focusedWidget->focus();
@@ -210,7 +273,7 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
                 }
             }
             if (!focusedWidget) {
-                for (auto x : m_events_mouseDrag) {
+                for (auto x : topHandle->eventsMouseDrag) {
                     if (x->checkHitbox(mpos)) {
                         focusedWidget = x;
                         focusedWidget->focus();
@@ -222,7 +285,6 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
         } else {
             //hold down
             if (focusedWidget != nullptr) {
-//               if (focusedWidget->checkHitbox(mpos))
                 mouseEvent.adjustedPosition = mpos - focusedClickOffset;
                 focusedWidget->onDrag(mouseEvent);
             }
