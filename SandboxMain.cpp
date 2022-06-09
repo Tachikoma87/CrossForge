@@ -2,7 +2,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
-#else 
+#else
 
 #endif
 
@@ -16,6 +16,7 @@
 #include "Examples/exampleMultiViewport.hpp"
 #include "Examples/exampleSockets.hpp"
 
+#include "Prototypes/TestScenes/HairTestScene.hpp"
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
 #include "Prototypes/TestScenes/ForestTestScene.hpp"
@@ -51,7 +52,7 @@ int main(int argc, char* argv[]) {
 		pDev = nullptr;
 		char c;
 		scanf("%c", &c);
-		return -1;	
+		return -1;
 	}
 
 
@@ -60,21 +61,20 @@ int main(int argc, char* argv[]) {
 	try {
 		//exampleMinimumGraphicsSetup();
 		//exampleSkeletalAnimation();
-		//exampleMorphTargetAnimation(); 
+		//exampleMorphTargetAnimation();
 		//exampleSkybox();
 		//exampleMultiViewport();
 		//exampleSockets();
-	
 
-		imuInputDeviceTestScene();
-		// 
+		hairTest();
+		//imuInputDeviceTestScene();
 		//shadowTest();
 		//vertexColorTestScene();
 		//forestTestScene();
 		//skelAnimTestScene();
-		
+
 		//assetGLTFTestScene();
-		//anotherTestScene();	
+		//anotherTestScene();
 		//normalMappingTestScene();
 	}
 	catch (const CrossForgeException & e) {
@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	if(nullptr != pDev) pDev->release();
-	
+
 	char c;
 	//scanf("%c", &c);
 

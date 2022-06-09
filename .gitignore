@@ -1,5 +1,7 @@
 # Folders
 .vs/
+.vscode/
+build/
 out/
 Documentation/Doc/
 Libraries/

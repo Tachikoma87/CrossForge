@@ -68,7 +68,6 @@ add_library(crossforge SHARED
 	CForge/Graphics/VirtualCamera.cpp
 	CForge/Graphics/GraphicsUtility.cpp
 
-
 	# Actor related
 	CForge/Graphics/Actors/IRenderableActor.cpp 
 	CForge/Graphics/Actors/RenderGroupUtility.cpp 
@@ -120,6 +119,12 @@ add_library(crossforge SHARED
 	# Internet
 	CForge/Internet/UDPSocket.cpp
 	CForge/Internet/TCPSocket.cpp
+
+	# Hair Prototype (Sascha Jüngel) [TODO] integrate hair code into CForge
+	Prototypes/Hair/SJ_SAssetIO.cpp
+	Prototypes/Hair/I3DHairIO.cpp
+	Prototypes/Hair/HairIO.cpp
+	Prototypes/Hair/HairActor.cpp
  )
 #set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
