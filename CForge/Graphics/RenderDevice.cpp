@@ -4,7 +4,6 @@
 #include "Shader/SShaderManager.h"
 #include "GraphicsUtility.h"
 #include "RenderDevice.h"
-#include "../../Prototypes/SLOD.h" //TODO remove
 
 using namespace Eigen;
 using namespace std;
@@ -56,7 +55,6 @@ namespace CForge {
 		m_MaterialUBO.init();
 		m_LightsUBO.init(m_Config.DirectionalLightsCount, m_Config.PointLightsCount, m_Config.SpotLightsCount);
 		
-		// TODO only init if lod/instancing is used;
 		m_InstancesUBO.init();
 
 		// use GBuffer?
@@ -132,18 +130,13 @@ namespace CForge {
 		requestRendering(pActor, ModelMat);
 	}//requestRendering
 	
-	// TODO adapt this version of request rendering
 	void RenderDevice::requestRendering(IRenderableActor* pActor, Eigen::Matrix4f ModelMat) {
 		if (nullptr == pActor) throw NullpointerExcept("pActor");
 		
-		Eigen::Vector3f Translation = Eigen::Vector3f(ModelMat.data()[12], ModelMat.data()[13], ModelMat.data()[14]);
-		
 		m_ModelUBO.modelMatrix(ModelMat);
-		if (m_ActiveRenderPass == RENDERPASS_LOD) { //TODO capsule in function
-			//bool visible;
+		if (m_ActiveRenderPass == RENDERPASS_LOD) {
 			// automatic instanced rendering
 			// TODO make aabb mesh global instead of per actor?
-			// TODO capsule functions
 			if (pActor->isInstanced()) {
 				pActor->testAABBvis(this, ModelMat);
 			}
@@ -154,61 +147,8 @@ namespace CForge {
 				}
 				else {
 					pActor->testAABBvis(this, ModelMat);
-					//m_LODSGActors.push_back(pActor);
-					//m_LODSGTransformations.push_back(ModelMat);
 				}
 			}
-			
-			//if (pActor->isManualInstanced()) { // manual instancing
-			//	//if (pActor->isInLODSG())
-			//	//	throw CForgeExcept("Manual instancing was defined but actor was found multiple times in SG.");
-
-			//	// Actor handels visibility
-			//	pActor->testAABBvis(this, Eigen::Matrix4f());
-			//	//if (visible) {
-			//	//	m_LODSGActors.push_back(pActor);
-			//	//	m_LODSGTransformations.push_back(Eigen::Matrix4f::Identity()); // Actor's transformation matrices are used
-			//	//	pActor->setLODSG(true);
-			//	//}
-			//}
-			//else if (pActor->isInstanced()) { // automatic instancing
-			//	if (pActor->isInLODSG()) { // same actor is already in LODSG, add instance matrix
-			//		pActor->testAABBvis(this, ModelMat);
-			//	}
-			//	else { // Actor is not in LODSG, create new Entry
-			//		pActor->testAABBvis(this, ModelMat);
-			//		//if (visible) {
-			//		//	m_LODSGActors.push_back(pActor);
-			//		//	m_LODSGTransformations.push_back(Eigen::Matrix4f::Identity()); // Actor's transformation matrices are used
-			//		//	pActor->setLODSG(true);
-			//		//}
-			//	}
-			//}
-			/*else*/ {
-				//if (pActor->className().compare("LODActor") != 0) {
-				//	m_LODSGActors.push_back(pActor);
-				//	m_LODSGTransformations.push_back(ModelMat);
-				//}
-				//else {
-				//	float aabbRadius = std::max(std::abs(pActor->getAABB().Max.norm()), std::abs(pActor->getAABB().Min.norm()));
-				//	float distance = (Translation - m_pActiveCamera->position()).norm() - aabbRadius;
-				//	//std::cout << distance << "\n";
-				//	if (distance < 0.0f) { // camera is inside AABB, use highest LOD // TODO draw as occluder
-				//		pActor->bindLODLevel(0);
-				//		m_LODSGActors.push_back(pActor);
-				//		m_LODSGTransformations.push_back(ModelMat);
-				//	}
-				//	else {
-				//		pActor->testAABBvis(this, Eigen::Matrix4f());
-				//		//if (visible) {
-				//		//	m_LODSGActors.push_back(pActor);
-				//		//	m_LODSGTransformations.push_back(ModelMat);
-				//		//}
-				//	}
-				//}
-			}
-
-			//m_lastInstancedActor = pActor;
 		}
 		else
 		{
@@ -574,7 +514,7 @@ namespace CForge {
 		LODQueryContainers.push_back(container);
 	}
 	
-	void RenderDevice::AssembleLODSG() { //TODO
+	void RenderDevice::AssembleLODSG() {
 		for (uint32_t i = 0; i < LODQueryContainers.size(); i++) {
 			LODQueryContainer* cont = &LODQueryContainers[i];
 			IRenderableActor* pActor = cont->pActor;
@@ -609,4 +549,10 @@ namespace CForge {
 		}
 		LODQueryContainers.clear();
 	}
+	
+	void RenderDevice::LODSGPushBack(IRenderableActor* pActor, Eigen::Matrix4f mat) {
+		m_LODSGActors.push_back(pActor);
+		m_LODSGTransformations.push_back(mat);
+	}
+	
 }//name space

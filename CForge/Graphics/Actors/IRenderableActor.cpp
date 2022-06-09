@@ -114,8 +114,4 @@ namespace CForge {
 	void IRenderableActor::evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount) {
 	
 	}
-	
-	//std::vector<float> IRenderableActor::getLODStages() {
-	//	return std::vector<float>();
-	//}
 }//name space

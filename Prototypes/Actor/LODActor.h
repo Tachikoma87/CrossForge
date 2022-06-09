@@ -64,6 +64,8 @@ namespace CForge {
 		
 		void initInstancing(bool manualInstanced);
 		void addInstance(Eigen::Matrix4f matrix);
+		void clearInstances();
+		void changeInstance(uint32_t index, Eigen::Matrix4f mat);
 		void setInstanceMatrices(std::vector<Eigen::Matrix4f> matrices);
 		const std::vector<Eigen::Matrix4f>* getInstanceMatrices(uint32_t level);
 		
@@ -74,6 +76,7 @@ namespace CForge {
 
 	private:
 		void initiateBuffers(uint32_t level);
+		bool fovCulling(RenderDevice* pRDev, Eigen::Matrix4f* mat);
 		
 		SLOD* m_pSLOD;
 		bool m_initialized = false;
