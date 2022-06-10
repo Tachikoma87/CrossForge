@@ -27,7 +27,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT PointLight : public ILight {
+	class CFORGE_API PointLight : public ILight {
 	public:
 		PointLight(void);
 		~PointLight(void);

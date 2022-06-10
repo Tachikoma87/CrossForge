@@ -26,7 +26,7 @@ namespace CForge {
 	*
 	* \todo Full documentation.
 	*/
-	class CFORGE_IXPORT STextureManager: public CForgeObject {
+	class CFORGE_API STextureManager: public CForgeObject {
 	public:
 		static STextureManager* instance(void);
 		void release(void);

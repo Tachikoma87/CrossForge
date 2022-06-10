@@ -31,7 +31,7 @@ namespace CForge {
 	* \todo Add interrupt system (polling thread with sleep of 2 milliseconds)
 	* \todo Do full documentation
 	*/
-	class CFORGE_IXPORT  SGPIO: public CForgeObject {
+	class CFORGE_API  SGPIO: public CForgeObject {
 	public:
 		static const int8_t INPUT = 0;
 		static const int8_t OUTPUT = 1;
