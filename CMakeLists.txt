@@ -5,7 +5,7 @@ IF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 	MESSAGE(SEND_ERROR "In-source builds are not allowed. Use a different build directory.")
 ENDIF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # CrossForge library
@@ -92,6 +92,13 @@ add_library(crossforge SHARED
 		CForge/Input/Mouse.cpp
 		CForge/Input/Character.cpp
 		CForge/Input/SInputManager.cpp
+
+		# Decoration
+		
+		Terrain/src/Decoration/InstanceActor.cpp
+		Terrain/src/Decoration/InstanceSGN.cpp
+		Terrain/src/Decoration/InstanceVertexUtility.cpp
+		
 		)
 set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
@@ -123,19 +130,14 @@ endif(UNIX)
 
 
 project(ExportLibrary)
-add_executable(ExportLibrary
-		ExportLibrary.cpp
-		)
+add_executable(ExportLibrary ExportLibrary.cpp)
 
-target_link_libraries(ExportLibrary
-		PRIVATE crossforge
-		)
+target_link_libraries(ExportLibrary PRIVATE crossforge)
 
 project (Terrain)
 add_executable(Terrain
 		Main.cpp
-        Terrain/TileActor.cpp
-		Terrain/Tile.cpp
+
 		Terrain/GUI/GUI.cpp
 		Terrain/GUI/WidgetBackground.cpp
 		Terrain/GUI/Widget.cpp
@@ -146,23 +148,30 @@ add_executable(Terrain
 		Terrain/GUI/Widgets/Label.cpp
 		Terrain/GUI/Widgets/Form.cpp
 		Terrain/GUI/Widgets/Window.cpp
+
+        Terrain/src/Map/ClipMap.cpp
+        Terrain/src/Map/TileNode.cpp
+        Terrain/src/Map/HeightMap.cpp
+        Terrain/src/Map/TerrainMap.cpp
+        Terrain/src/Map/TileActor.cpp
+		Terrain/src/ArrayTexture.cpp
+
+		Terrain/src/Decoration/TreeGenerator.cpp
+		Terrain/src/Decoration/RockGenerator.cpp
+		Terrain/src/Decoration/DecoSetup.cpp
+
+		Prototypes/Graphics/GLCubemap.cpp
+		Prototypes/Graphics/SkyboxActor.cpp
+		Terrain/src/Map/UBOInstancedData.cpp
+
 		"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
 		)
 
-
-if(WIN32)
-	target_link_libraries(Terrain
-			PRIVATE crossforge
-			${FREETYPE_LIBRARIES}
-			)
-endif (WIN32)
-
-if(UNIX)
-	target_link_libraries(Terrain
-			PRIVATE crossforge
-			${FREETYPE_LIBRARIES}
-			)
-endif(UNIX)
+target_link_libraries(Terrain
+		PRIVATE crossforge
+		PRIVATE glfw
+		${FREETYPE_LIBRARIES}
+		)
 
 # copy engine shaders
 add_custom_command(
@@ -170,6 +179,14 @@ add_custom_command(
 		COMMAND ${CMAKE_COMMAND} -E copy_directory
 		${CMAKE_SOURCE_DIR}/CForge/Shader
 		${CMAKE_CURRENT_BINARY_DIR}/Shader
+)
+
+#copy prototype shaders
+add_custom_command(
+	TARGET Terrain PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
+	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 
 #Todo: copy on run

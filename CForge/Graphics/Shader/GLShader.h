@@ -57,6 +57,7 @@ namespace CForge {
 			DEFAULTUBO_MATERIALDATA,
 			DEFAULTUBO_MODELDATA,
 			DEFAULTUBO_BONEDATA,
+			DEFAULTUBO_INSTANCE,
 			DEFAULTUBO_COUNT,
 		};
 
@@ -79,6 +80,7 @@ namespace CForge {
 		const std::string UBOMaterialDataName = "MaterialData";
 		const std::string UBOModelDataName = "ModelData";
 		const std::string UBOBoneDataName = "BoneData";
+		const std::string UBOInstancedDataName = "InstancedData";
 
 		const std::string TextureAlbedoName = "TexAlbedo";
 		const std::string TextureNormalName = "TexNormal";
@@ -101,6 +103,7 @@ namespace CForge {
 
 		void addVertexShader(const std::string Code);
 		void addFragmentShader(const std::string Code);
+        void addComputeShader(const std::string Code);
 
 		void build(std::string *pErrorLog);
 
