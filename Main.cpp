@@ -8,25 +8,9 @@
 #include "CForge/Core/SLogger.h"
 #include "Terrain/src/TerrainSetup.hpp"
 
-//#include "Examples/exampleMinimumGraphicsSetup.hpp"
-//#include "Examples/exampleSkeletalAnimation.hpp"
-//#include "Examples/exampleMorphTargetAnimation.hpp"
-
-//#include "Examples/MinimumGraphicalSetup.hpp"
-//#include "Prototypes/TestScenes/ShadowTestScene.hpp"
-//#include "Prototypes/TestScenes/LODTestScene.hpp"
-
-//#include "Prototypes/TestScenes/ShadowTestScene.hpp"
-//#include "Prototypes/TestScenes/VertexColorTestScene.hpp"
-//#include "Prototypes/TestScenes/ForestTestScene.hpp"
-//#include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
-//#include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
-//#include "Prototypes/TestScenes/SocketTestScene.hpp"
-//#include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
-//#include "Prototypes/TestScenes/SkyboxTestScene.hpp"
-
 using namespace CForge;
 using namespace Eigen;
+using namespace Terrain;
 
 int main(int argc, char* argv[]) {
 #ifdef WIN32
@@ -72,7 +56,7 @@ int main(int argc, char* argv[]) {
 		//MinimumGraphicalSetup();
 		//shadowTest();
 		//morphTargetAnimTestScene();
-		Terrain::TerrainSetup();
+		TerrainSetup();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
