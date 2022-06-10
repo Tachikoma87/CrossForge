@@ -40,6 +40,8 @@
 #include "../Actor/LODActor.h"
 #include "../SLOD.h"
 
+#include <GLFW/glfw3.h>
+
 using namespace Eigen;
 using namespace std;
 

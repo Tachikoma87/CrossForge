@@ -1,6 +1,4 @@
 
-#include <igl/decimate.h>
-#include <igl/read_triangle_mesh.h>
 #include "SLOD.h"
 
 namespace CForge {
