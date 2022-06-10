@@ -10,6 +10,9 @@
 #include "Terrain/src/Map/TerrainMap.h"
 #include "./Decoration/DecoSetup.hpp"
 
+#include "../GUI/GUI.h"
+#include "../GUI/Widgets/Form.h"
+
 #include "../../Prototypes/Graphics/SkyboxActor.h"
 #include <GLFW/glfw3.h>
 //#include "../../CForge/Graphics/GLWindow.h"
@@ -21,8 +24,8 @@ namespace Terrain {
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
                     DirectionalLight *light) {
-        uint32_t winWidth =  1920;
-        uint32_t winHeight = 1080;
+        uint32_t winWidth =  720;
+        uint32_t winHeight = 720;
 
        /* winWidth = 1200;
         winHeight = 1200;*/
@@ -377,7 +380,7 @@ namespace Terrain {
         bool shadows = false;
         bool richard = false;
         bool erode = false;
-        bool cameraMode = true;
+        bool cameraMode = false;
         bool generateNew = true;
         bool renderGrass = true;
 
@@ -480,6 +483,29 @@ namespace Terrain {
         BoxTexs.push_back("Assets/skybox/front.jpg");
         Skybox.init(BoxTexs[0], BoxTexs[1], BoxTexs[2], BoxTexs[3], BoxTexs[4], BoxTexs[5]);
 
+        GUI gui = GUI(&renderDevice);
+        gui.testInit(&window);
+
+        CallbackTestClass callbacktest;
+        FormWidget* form = gui.createOptionsWindow(U"Test Window", 1);
+        form->startListening(&callbacktest);
+        form->addOption(1, DATATYPE_INT, U"1st Option");
+        form->setLimit(1, 10);
+        form->addOption(2, DATATYPE_INT, U"2nd Option");
+        form->setLimit(2, 10, 20);
+        form->addOption(3, DATATYPE_INT, U"3rd Option");
+        form->addOption(4, DATATYPE_BOOLEAN, U"4th Option (Checkbox)");
+        form->addOption(5, DATATYPE_STRING, U"5th Option (Text)");
+
+        FormWidget* form2 = gui.createOptionsWindow(U"Another Test", 2);
+        form2->startListening(&callbacktest);
+        form2->addOption(1, DATATYPE_INT, U"1st Option");
+        form2->setLimit(1, 10);
+        form2->addOption(2, DATATYPE_INT, U"2nd Option");
+        form2->setLimit(2, 10, 20);
+        form2->addOption(3, DATATYPE_INT, U"3rd Option");
+        form2->addOption(4, DATATYPE_BOOLEAN, U"4th Option (Checkbox)");
+        form2->addOption(5, DATATYPE_STRING, U"5th Option (Text)");
 
         //fps counter
         int32_t FPSCount = 0;
@@ -560,6 +586,9 @@ namespace Terrain {
 
             renderDevice.activePass(RenderDevice::RENDERPASS_FORWARD);
             renderDevice.requestRendering(&Skybox, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
+
+            gui.processEvents();
+            gui.testRender();
 
             if (debugTexture) {
                 glActiveTexture(GL_TEXTURE0);

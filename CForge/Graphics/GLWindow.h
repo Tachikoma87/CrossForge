@@ -21,6 +21,7 @@
 #include "../Core/CForgeObject.h"
 #include "../Input/Keyboard.h"
 #include "../Input/Mouse.h"
+#include "../Input/Character.h"
 
 namespace CForge {
 
@@ -51,6 +52,7 @@ namespace CForge {
 
 		Keyboard* keyboard(void);
 		Mouse* mouse(void);
+		Character* character(void);
 
 	private:
 		class GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
@@ -58,6 +60,7 @@ namespace CForge {
 
 		Keyboard m_Keyboard;
 		Mouse m_Mouse;
+		Character m_Character;
 		class SInputManager* m_pInputMan;
 	};//GLWindow
 
