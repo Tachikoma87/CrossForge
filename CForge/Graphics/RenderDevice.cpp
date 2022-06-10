@@ -54,6 +54,8 @@ namespace CForge {
 		m_ModelUBO.init();
 		m_MaterialUBO.init();
 		m_LightsUBO.init(m_Config.DirectionalLightsCount, m_Config.PointLightsCount, m_Config.SpotLightsCount);
+		
+		m_InstancesUBO.init();
 
 		// use GBuffer?
 		if (m_Config.UseGBuffer) {
@@ -67,8 +69,6 @@ namespace CForge {
 			if (m_Config.ExecuteLightingPass) {
 				m_ScreenQuad.init(0.0f, 0.0f, 1.0f, 1.0f, nullptr);
 				SShaderManager* pSMan = SShaderManager::instance();
-				//vector<string> VSSources;
-				//vector<string> FSSources;
 				string ErrorLog;
 
 				std::vector<ShaderCode*> VSSources;
@@ -76,9 +76,6 @@ namespace CForge {
 				ShaderCode* pSC = nullptr;
 
 				if (m_Config.PhysicallyBasedShading) {
-					//VSSources.push_back("Shader/DRLightingPassPBS.vert");
-					//FSSources.push_back("Shader/DRLightingPassPBS.frag");
-
 					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.vert", "330 core", 0, "highp", "highp");
 					VSSources.push_back(pSC);
 					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp", "highp");
@@ -86,8 +83,6 @@ namespace CForge {
 					m_pDeferredLightingPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
 				}
 				else {
-					//VSSources.push_back("Shader/DRLightingPassBlinnPhong.vert");
-					//FSSources.push_back("Shader/DRLightingPassBlinnPhong.frag");
 					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.vert", "330 core", 0, "highp", "highp");
 					VSSources.push_back(pSC);
 					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp", "highp");
@@ -102,8 +97,6 @@ namespace CForge {
 
 				VSSources.clear();
 				FSSources.clear();
-				//VSSources.push_back("Shader/ShadowPassShader.vert");
-				//FSSources.push_back("Shader/ShadowPassShader.frag");
 				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.vert", "330 core", ShaderCode::CONF_LIGHTING, "highp", "highp");
 				VSSources.push_back(pSC);
 				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.frag", "330 core", 0, "highp", "highp");
@@ -133,12 +126,35 @@ namespace CForge {
 		const Matrix4f T = GraphicsUtility::translationMatrix(Translation);
 		const Matrix4f S = GraphicsUtility::scaleMatrix(Scale);
 		const Matrix4f ModelMat = T * R * S;
-
+		
+		requestRendering(pActor, ModelMat);
+	}//requestRendering
+	
+	void RenderDevice::requestRendering(IRenderableActor* pActor, Eigen::Matrix4f ModelMat) {
+		if (nullptr == pActor) throw NullpointerExcept("pActor");
+		
 		m_ModelUBO.modelMatrix(ModelMat);
-
-		// render the object with current settings
-		pActor->render(this);
-
+		if (m_ActiveRenderPass == RENDERPASS_LOD) {
+			// automatic instanced rendering
+			// TODO make aabb mesh global instead of per actor?
+			if (pActor->isInstanced()) {
+				pActor->testAABBvis(this, ModelMat);
+			}
+			else {
+				if (pActor->className().compare("LODActor") != 0) {
+					m_LODSGActors.push_back(pActor);
+					m_LODSGTransformations.push_back(ModelMat);
+				}
+				else {
+					pActor->testAABBvis(this, ModelMat);
+				}
+			}
+		}
+		else
+		{
+			// render the object with current settings
+			pActor->render(this);
+		}
 	}//requestRendering
 
 	void RenderDevice::activeShader(GLShader* pShader) {
@@ -155,7 +171,14 @@ namespace CForge {
 			if (GL_INVALID_INDEX != BindingPoint) {
 				m_ModelUBO.bind(BindingPoint);
 			}
-
+			
+			BindingPoint = m_pActiveShader->uboBindingPoint(GLShader::DEFAULTUBO_INSTANCE);
+			if (GL_INVALID_INDEX != BindingPoint) {
+				m_InstancesUBO.bind(BindingPoint);
+			}
+			else {
+				//std::cout << "InstanceUBO: Invalid binding Point.\n";
+			}
 			BindingPoint = m_pActiveShader->uboBindingPoint(GLShader::DEFAULTUBO_MATERIALDATA);
 			if (GL_INVALID_INDEX != BindingPoint) m_MaterialUBO.bind(BindingPoint);
 
@@ -255,6 +278,12 @@ namespace CForge {
 	}//updateMaterial
 
 	void RenderDevice::activePass(RenderPass Pass, ILight *pActiveLight) {
+		
+		// enable drawing after LOD pass
+		if (m_ActiveRenderPass == RENDERPASS_LOD /* && Pass != RENDERPASS_LOD*/) {
+			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			glDepthMask(GL_TRUE);
+		}
 		m_ActiveRenderPass = Pass;
 
 		// change state?
@@ -287,7 +316,7 @@ namespace CForge {
 			if (m_Config.UseGBuffer) {
 				m_GBuffer.bind();
 				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
 			}
 		}break;
@@ -330,6 +359,15 @@ namespace CForge {
 				glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
 			}
 		}break;
+		case RENDERPASS_LOD: {
+			if (m_Config.UseGBuffer) {
+				m_GBuffer.bind();
+				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
+				glCullFace(GL_BACK);
+			}
+			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+			glDepthMask(GL_FALSE);
+		}
 		default: break;
 		}
 
@@ -422,5 +460,99 @@ namespace CForge {
 	GLShader* RenderDevice::shadowPassShader(void) {
 		return m_pShadowPassShader;
 	}//shadowPassShader
+	
+	void RenderDevice::renderLODSG()
+	{
+		fetchQueryResults();
+		AssembleLODSG();
+		
+		for (uint32_t i = 0; i < m_LODSGActors.size(); i++) {
+			requestRendering(m_LODSGActors[i], m_LODSGTransformations[i]);
+			m_LODSGActors[i]->setLODSG(false);
+		}
+		m_LODSGActors.clear();
+		m_LODSGTransformations.clear();
+	}
+	void RenderDevice::clearBuffer()
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 
+	void RenderDevice::setModelMatrix(Eigen::Matrix4f matrix) {
+		m_ModelUBO.modelMatrix(matrix);
+	}
+	
+	UBOInstancedData* RenderDevice::getInstancedUBO() {
+		return &m_InstancesUBO;
+	}
+
+	void RenderDevice::fetchQueryResults() {
+		
+		for (uint32_t i = 0; i < LODQueryContainers.size(); i++) {
+			LODQueryContainer* queryContainer = &LODQueryContainers[i];
+			GLuint pixelCount;
+			GLint queryState;
+			GLuint queryID = queryContainer->queryID;
+			if (!glIsQuery(queryID) || queryContainer->pixelCount != 0)
+				continue;
+			do {
+				glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
+			} while (!queryState);
+			glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &pixelCount);
+			glDeleteQueries(1, &queryID);
+			
+			queryContainer->pixelCount = pixelCount;
+			queryContainer->queryID = 0;
+		}
+	}
+
+	void RenderDevice::LODQueryContainerPushBack(GLuint queryID, IRenderableActor* pActor, Eigen::Matrix4f transform) {
+		LODQueryContainer container;
+		container.queryID = queryID;
+		container.pActor = pActor;
+		container.transform = transform;
+		LODQueryContainers.push_back(container);
+	}
+	
+	void RenderDevice::AssembleLODSG() {
+		for (uint32_t i = 0; i < LODQueryContainers.size(); i++) {
+			LODQueryContainer* cont = &LODQueryContainers[i];
+			IRenderableActor* pActor = cont->pActor;
+			
+			// instance is not visiable, so we cull it
+			if (cont->pixelCount == 0)
+				continue;
+			
+			// calculate distance bounding sphere border to camera
+			Eigen::Vector3f Translation = Eigen::Vector3f(cont->transform.data()[12], cont->transform.data()[13], cont->transform.data()[14]);
+			float aabbRadius = std::max(std::abs(pActor->getAABB().Max.norm()), std::abs(pActor->getAABB().Min.norm()));
+			float distance = (Translation - m_pActiveCamera->position()).norm() - aabbRadius;
+			
+			// set pixel count to max if cam is inside BB, due to backface culling
+			if (distance < 0.0)
+				cont->pixelCount = UINT32_MAX;
+			
+			// sets LOD level, and transform matrix when instanced
+			cont->pActor->evaluateQueryResult(cont->transform, cont->pixelCount);
+			
+			// TODO push back sorted for front to back rendering
+			if (!cont->pActor->isInLODSG()) {
+				if (cont->pActor->isInstanced()) {
+					m_LODSGTransformations.push_back(Eigen::Matrix4f::Identity());
+				}
+				else {
+					m_LODSGTransformations.push_back(cont->transform);
+				}
+				cont->pActor->setLODSG(true);
+				m_LODSGActors.push_back(cont->pActor);
+			}
+		}
+		LODQueryContainers.clear();
+	}
+	
+	void RenderDevice::LODSGPushBack(IRenderableActor* pActor, Eigen::Matrix4f mat) {
+		m_LODSGActors.push_back(pActor);
+		m_LODSGTransformations.push_back(mat);
+	}
+	
 }//name space

@@ -28,7 +28,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT ILight: public CForgeObject {
+	class CFORGE_API ILight: public CForgeObject {
 	public:
 		enum LightType: int8_t {
 			LIGHT_UNKNOWN = -1,

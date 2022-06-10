@@ -18,6 +18,7 @@
 #ifndef __CFORGE_SHADOWTESTSCENE_HPP__
 #define __CFORGE_SHADOWTESTSCENE_HPP__
 
+
 #include "../../CForge/AssetIO/SAssetIO.h"
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
 #include "../../CForge/Graphics/STextureManager.h"
@@ -36,7 +37,9 @@
 
 #include "../../CForge/Graphics/Actors/StaticActor.h"
 
-#include "../Actor/SkeletalActor.h"
+#include "../../CForge/Graphics/Actors/SkeletalActor.h"
+
+#include "../../Examples/SceneUtilities.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -77,22 +80,22 @@ namespace CForge {
 
 		T3DMesh<float> M;
 		SAssetIO::load("Assets/TexturedGround.fbx", &M);
-		setMeshShader(&M, 0.8f, 0.04f);
+		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
 		Ground.init(&M);
 		M.clear();
 
 		SAssetIO::load("Assets/TexturedCube.fbx", &M);
-		setMeshShader(&M, 0.6f, 0.04f);
+		SceneUtilities::setMeshShader(&M, 0.6f, 0.04f);
 		Cube.init(&M);
 		M.clear();
 
 		SAssetIO::load("Assets/TexturedSphere.fbx", &M);
-		setMeshShader(&M, 0.6f, 0.04f);
+		SceneUtilities::setMeshShader(&M, 0.6f, 0.04f);
 		Sphere.init(&M);
 		M.clear();
 
 		SAssetIO::load("Assets/Meeting Room/Armchair/Armchair.obj", &M);
-		setMeshShader(&M, 0.1f, 0.04f);
+		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		M.computePerVertexNormals();
 		Armchair.init(&M);
 		M.clear();
@@ -104,7 +107,7 @@ namespace CForge {
 		M.clear();*/
 
 		SAssetIO::load("Assets/Meeting Room/Picture/Picture.obj", &M);
-		setMeshShader(&M, 0.2f, 0.1f);
+		SceneUtilities::setMeshShader(&M, 0.2f, 0.1f);
 		M.computePerVertexNormals();
 		Picture.init(&M);
 		M.clear();
@@ -113,7 +116,7 @@ namespace CForge {
 		//SAssetIO::load("Assets/Skel/Eric_Anim.fbx", &M);
 		//SAssetIO::load("Assets/Skel/SmplMale_test.fbx", &M);
 		SAssetIO::load("Assets/Skel/ExportTest2.fbx", &M);
-		setMeshShader(&M, 0.6f, 0.04f);
+		SceneUtilities::setMeshShader(&M, 0.6f, 0.04f);
 
 		M.getMaterial(0)->TexAlbedo = "Assets/Skel/MHTextures/young_lightskinned_male_diffuse2.png";
 		M.getMaterial(1)->TexAlbedo = "Assets/Skel/MHTextures/brown_eye.png";
@@ -254,8 +257,6 @@ namespace CForge {
 		HeadRot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
 		Armchair01SGN.rotation(HeadRot);
 
-
-
 		SGNTransformation EricTransform;
 		SGNGeometry EricSGN;
 
@@ -326,7 +327,7 @@ namespace CForge {
 		PictureRot = Eigen::AngleAxis(GraphicsUtility::degToRad(-45.0f), Eigen::Vector3f::UnitY());
 
 		uint32_t FrameCount = 0;
-		uint32_t LastFPSPrint = GetTickCount();
+		uint64_t LastFPSPrint = CoreUtility::timestamp();
 
 		uint32_t TimingShadowPass = 0;
 		uint32_t TimingGeometryPass = 0;
@@ -339,25 +340,28 @@ namespace CForge {
 
 		while (!RenderWin.shutdown()) {
 			FrameCount++;
-			if (GetTickCount() - LastFPSPrint > 5000) {
+			if (CoreUtility::timestamp() - LastFPSPrint > 2000) {
 
-				LastFPSPrint = GetTickCount();
+				LastFPSPrint = CoreUtility::timestamp();
 				float AvailableMemory = GraphicsUtility::gpuMemoryAvailable() / 1000.0f;
 				float MemoryInUse = AvailableMemory - GraphicsUtility::gpuFreeMemory() / 1000.0f;
 
 				uint32_t ShadowPassTime;
 				uint32_t GeometryPassTime;
 				uint32_t LightingPassTime;
-				printf("FPS: %d | GPU Memory Usage: %.2f MB/%.2f MB\n", FrameCount / 5, MemoryInUse, AvailableMemory);
+				uint8_t WindowTitle[256];
+				sprintf((char*)WindowTitle, "FPS: %d | GPU Memory Usage: %.2f MB/%.2f MB\n", uint32_t(FrameCount / 2.0f), MemoryInUse, AvailableMemory);
 
 				if (nullptr != glGetQueryObjectuiv) {
 					glGetQueryObjectuiv(TimingShadowPass, GL_QUERY_RESULT, &ShadowPassTime);
 					glGetQueryObjectuiv(TimingGeometryPass, GL_QUERY_RESULT, &GeometryPassTime);
 					glGetQueryObjectuiv(TimingLightingPass, GL_QUERY_RESULT, &LightingPassTime);
-					printf("\tTimings: Shadow Pass: %.2fms\n", ShadowPassTime / (1000000.0f));
+					/*printf("\tTimings: Shadow Pass: %.2fms\n", ShadowPassTime / (1000000.0f));
 					printf("\tTiming Geometry Pass: %.2fms\n", GeometryPassTime / (1000000.0f));
-					printf("\tTiming Lighting Pass: %.2fms\n", LightingPassTime / (1000000.0f));
+					printf("\tTiming Lighting Pass: %.2fms\n", LightingPassTime / (1000000.0f));*/
 				}
+
+				RenderWin.title("ShadowTestScene [" + std::string((const char*)WindowTitle) + "]");
 
 				FrameCount = 0;
 			}
@@ -387,7 +391,7 @@ namespace CForge {
 			SG.update(1.0f);
 
 
-			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT, Keyboard::KEY_9)) {
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) && pKeyboard->keyPressed( Keyboard::KEY_9)) {
 				PPC.Saturation -= 0.10f;
 				pSMan->configShader(PPC);
 				pKeyboard->keyState(Keyboard::KEY_9, Keyboard::KEY_RELEASED);
@@ -400,7 +404,7 @@ namespace CForge {
 				printf("Saturation now: %.2f\n", PPC.Saturation);
 			}
 
-			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT, Keyboard::KEY_8)) {
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) && pKeyboard->keyPressed(Keyboard::KEY_8)) {
 				PPC.Contrast -= 0.05f;
 				pSMan->configShader(PPC);
 				pKeyboard->keyState(Keyboard::KEY_8, Keyboard::KEY_RELEASED);
@@ -415,66 +419,22 @@ namespace CForge {
 
 
 			// handle input
-		/*	GLFWwindow* pWin = (GLFWwindow*)RenderWin.handle();
+			if (pKeyboard->keyPressed(Keyboard::KEY_W)) Cam.forward(0.4f);
+			if (pKeyboard->keyPressed(Keyboard::KEY_S)) Cam.forward(-0.4f);
+			if (pKeyboard->keyPressed(Keyboard::KEY_D)) Cam.right(0.4f);
+			if (pKeyboard->keyPressed(Keyboard::KEY_A)) Cam.right(-0.4f);
 
-			if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_1)) {
-				glfwSwapInterval(0);
-			}
-			if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_2)) {
-				glfwSwapInterval(1);
-			}
-			if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_3)) {
-				glfwSwapInterval(2);
-			}*/
+			
+			 //rotation mode?
+			if (pMouse->buttonState(Mouse::BTN_RIGHT)) {
+				Vector2f MouseDelta = pMouse->movement();
+				Cam.rotY(GraphicsUtility::degToRad(MouseDelta.x()) * -0.1f);
+				Cam.pitch(GraphicsUtility::degToRad(MouseDelta.y()) * -0.1f);
+				pMouse->movement(Vector2f::Zero());
 
-			if (Keyboard::KEY_PRESSED == pKeyboard->keyPressed(Keyboard::KEY_4)) {
-				Wireframe = !Wireframe;
-				pKeyboard->keyState(Keyboard::KEY_4, Keyboard::KEY_RELEASED);
-			}
-			if (Keyboard::KEY_PRESSED == pKeyboard->keyPressed(Keyboard::KEY_5)) {
-				pEricAnim->Speed = (pEricAnim->Speed < 0.5f) ? 1.0f : 0.0f;
-				pKeyboard->keyState(Keyboard::KEY_5, Keyboard::KEY_RELEASED);
 			}
 
-			//if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_ESCAPE)) {
-			//	RenderWin.closeWindow();
-			//	break;
-			//}
-			//if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_W)) {
-			//	Cam.forward(0.4f);
-			//}
-			//if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_S)) {
-			//	Cam.forward(-0.4f);
-			//}
-			//if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_D)) {
-			//	Cam.right(0.4f);
-			//}
-			//if (GLFW_PRESS == glfwGetKey(pWin, GLFW_KEY_A)) {
-			//	Cam.right(-0.4f);
-			//}
-			// rotation mode?
-			/*if (glfwGetMouseButton(pWin, GLFW_MOUSE_BUTTON_RIGHT)) {
-				if (!RotationMode) {
-					MouseDelta = Eigen::Vector2f(0.0f, 0.0f);
-					double x, y;
-					glfwGetCursorPos(pWin, &x, &y);
-					MousePos = Eigen::Vector2f(x, y);
-					RotationMode = true;
-				}
-				else {
-					double x, y;
-					glfwGetCursorPos(pWin, &x, &y);
-					MouseDelta = MousePos - Eigen::Vector2f(x, y);
-
-					Cam.rotY(GraphicsUtility::degToRad(MouseDelta.x()) * 0.1f);
-					Cam.pitch(GraphicsUtility::degToRad(MouseDelta.y()) * 0.1f);
-
-					MousePos = Eigen::Vector2f(x, y);
-				}
-			}
-			else {
-				RotationMode = false;
-			}*/
+			
 			//move objects
 			for (uint32_t i = 0; i < ObjCount; ++i) {
 				ObjPositions[i] += ObjMovements[i];
@@ -622,6 +582,11 @@ namespace CForge {
 			}*/
 
 			RenderWin.swapBuffers();
+
+			if (pKeyboard->keyPressed(Keyboard::KEY_ESCAPE)) {
+				pKeyboard->keyState(Keyboard::KEY_ESCAPE, Keyboard::KEY_RELEASED);
+				RenderWin.closeWindow();
+			}
 		}
 
 

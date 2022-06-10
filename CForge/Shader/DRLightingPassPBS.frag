@@ -114,6 +114,7 @@ float shadowCalculationDirectionalLight(vec3 FragPosWorldSpace, vec3 Normal, vec
 		float bias = max(10.0*ShadowBias * (1.0 - dot(Normal, LightDir)), ShadowBias);
 
 		vec4 FragPosLightSpace = (DirLights.LightSpaceMatrices[LightIndex] * vec4(FragPosWorldSpace, 1.0));
+		FragPosLightSpace /= FragPosLightSpace.w;
 
 		vec3 ProjCoords = FragPosLightSpace.xyz * vec3(0.5) + vec3(0.5);  // mapping [-1,1] -> [0,1]
 		float ClosestDepth = texture(TexShadow[0], ProjCoords.xy).r;

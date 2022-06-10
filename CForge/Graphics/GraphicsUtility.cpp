@@ -215,6 +215,32 @@ namespace CForge {
 		return Rval;
 	}//scaleMatrix
 
+	// thanks to: https://math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-a-to-vector-b-in-3d
+	Eigen::Matrix3f GraphicsUtility::alignVectors(const Eigen::Vector3f Source, const Eigen::Vector3f Target) {
+		Vector3f a = Source;
+		Vector3f b = Target;
+
+		Vector3f v = a.cross(b);
+		float s = v.norm();
+		float c = a.dot(b);
+
+		Matrix3f vx;
+		vx(0, 0) = 0.0f;
+		vx(0, 1) = -v.z();
+		vx(0, 2) = v.y();
+
+		vx(1, 0) = v.z();
+		vx(1, 1) = 0.0f;
+		vx(1, 2) = -v.x();
+
+		vx(2, 0) = -v.y();
+		vx(2, 1) = v.x();
+		vx(2, 2) = 0.0f;
+
+		Matrix3f Rval = Matrix3f::Identity() + vx + (1.0f - c) / (s * s) * vx * vx;
+		return Rval;
+	}//alignVectors
+
 	void GraphicsUtility::retrieveFrameBuffer(T2DImage<uint8_t>* pColor, T2DImage<uint8_t>* pDepth, float Near, float Far) {
 
 		// get framebuffer width and height

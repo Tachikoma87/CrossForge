@@ -35,6 +35,8 @@
 #include "UniformBufferObjects/UBOModelData.h"
 #include "Shader/GLShader.h"
 
+#include "../../Prototypes/UBOInstancedData.h"
+#include <glad/glad.h>
 
 namespace CForge {
 	/**
@@ -45,7 +47,7 @@ namespace CForge {
 	* \todo Write appropriate clear() function
 	* \todo Full documentation
 	*/
-	class CFORGE_IXPORT RenderDevice: public CForgeObject, public ITListener<VirtualCameraMsg> {
+	class CFORGE_API RenderDevice: public CForgeObject, public ITListener<VirtualCameraMsg> {
 	public:
 		enum RenderPass: int8_t {
 			RENDERPASS_UNKNOWN = -1,
@@ -53,9 +55,10 @@ namespace CForge {
 			RENDERPASS_GEOMETRY,	///< deferred shading geometry pass
 			RENDERPASS_LIGHTING,	///< deferred shading lighting pass
 			RENDERPASS_FORWARD,		///< forward rendering draw pass
+			RENDERPASS_LOD,			
 		};
 
-		struct CFORGE_IXPORT RenderDeviceConfig {
+		struct CFORGE_API RenderDeviceConfig {
 			uint32_t DirectionalLightsCount;
 			uint32_t PointLightsCount;
 			uint32_t SpotLightsCount;
@@ -81,6 +84,7 @@ namespace CForge {
 		void clear(void);
 
 		void requestRendering(IRenderableActor* pActor, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
+		void requestRendering(IRenderableActor* pActor, Eigen::Matrix4f ModelMat);
 
 		void activeShader(GLShader* pShader);
 		void activeMaterial(RenderMaterial* pMaterial);
@@ -105,7 +109,17 @@ namespace CForge {
 		GBuffer* gBuffer(void);
 
 		GLShader* shadowPassShader(void);
-
+		
+		//
+		void renderLODSG();
+		void clearBuffer();
+		void setModelMatrix(Eigen::Matrix4f matrix);
+		UBOInstancedData* getInstancedUBO();
+		void LODQueryContainerPushBack(GLuint queryID, IRenderableActor* pActor, Eigen::Matrix4f transform);
+		void fetchQueryResults();
+		void LODSGPushBack(IRenderableActor* pActor, Eigen::Matrix4f mat);
+		//
+		
 	protected:
 		struct ActiveLight {
 			ILight* pLight;
@@ -128,6 +142,7 @@ namespace CForge {
 		UBOModelData m_ModelUBO;
 		UBOMaterialData m_MaterialUBO;
 		UBOLightData m_LightsUBO;
+		UBOInstancedData m_InstancesUBO;
 
 		// lights
 		std::vector<ActiveLight*> m_ActiveDirLights;
@@ -142,7 +157,22 @@ namespace CForge {
 		GLShader* m_pDeferredLightingPassShader;
 		GLShader* m_pShadowPassShader;
 	private:
+		
+		// container assigning an actor <-> transform a query
+		struct LODQueryContainer {
+			GLuint queryID = 0;
+			IRenderableActor* pActor;
+			Eigen::Matrix4f transform;
+			uint32_t pixelCount = 0;
+		};
+		
+		void RenderDevice::AssembleLODSG();
+		
+		// SceneGraph actors and transformations for rendering
+		std::vector<IRenderableActor*> m_LODSGActors;
+		std::vector<Eigen::Matrix4f> m_LODSGTransformations;
 
+		std::vector<LODQueryContainer> LODQueryContainers;
 	};//RenderDevice
 }//name space
 

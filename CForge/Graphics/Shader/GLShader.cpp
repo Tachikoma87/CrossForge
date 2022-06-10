@@ -195,6 +195,8 @@ namespace CForge {
 			m_DefaultUBOBindingPoints[DEFAULTUBO_SPOTLIGHTSDATA] = glGetUniformBlockIndex(m_ShaderProgram, UBOSpotLightsDataName.c_str());
 			m_DefaultUBOBindingPoints[DEFAULTUBO_MATERIALDATA] = glGetUniformBlockIndex(m_ShaderProgram, UBOMaterialDataName.c_str());
 			m_DefaultUBOBindingPoints[DEFAULTUBO_BONEDATA] = glGetUniformBlockIndex(m_ShaderProgram, UBOBoneDataName.c_str());
+			m_DefaultUBOBindingPoints[DEFAULTUBO_MORPHTARGETDATA] = glGetUniformBlockIndex(m_ShaderProgram, UBOMorphTargetDataName.c_str());
+			m_DefaultUBOBindingPoints[DEFAULTUBO_COLORADJUSTMENT] = glGetUniformBlockIndex(m_ShaderProgram, UBOColorAdjustmentDataName.c_str());
 			m_DefaultUBOBindingPoints[DEFAULTUBO_INSTANCE] = glGetUniformBlockIndex(m_ShaderProgram, UBOInstancedDataName.c_str());
 
 			// retrieve default texture bindign points
@@ -205,6 +207,7 @@ namespace CForge {
 			m_DefaultTextureLocations[DEFAULTTEX_SHADOW1] = uniformLocation(TextureShadow1Name);
 			m_DefaultTextureLocations[DEFAULTTEX_SHADOW2] = uniformLocation(TextureShadow2Name);
 			m_DefaultTextureLocations[DEFAULTTEX_SHADOW3] = uniformLocation(TextureShadow3Name);
+			m_DefaultTextureLocations[DEFAULTTEX_MORPHTARGETDATA] = uniformLocation(TextureMorphTargetDataName);
 
 			// bind shader and uniform blocks together
 			for (uint8_t i = 0; i < DEFAULTUBO_COUNT; ++i) {
@@ -272,6 +275,7 @@ namespace CForge {
 		std::pair<std::string, uint32_t> Entry;
 		Entry.first = Name;
 		Entry.second = glGetUniformBlockIndex(m_ShaderProgram, Name.c_str());
+		uniformBlockBinding(Entry.second, Entry.second);
 		m_BindingPoints.push_back(Entry);
 		return Entry.second;
 	}//uboBindingPoint

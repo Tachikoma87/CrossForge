@@ -26,7 +26,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT DirectionalLight : public ILight {
+	class CFORGE_API DirectionalLight : public ILight {
 	public:
 		DirectionalLight(void);
 		~DirectionalLight(void);

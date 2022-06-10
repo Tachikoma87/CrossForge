@@ -1,6 +1,9 @@
 var searchData=
 [
-  ['info01_3',['info01',['../class_c_forge_1_1_cross_forge_exception.html#a88843fc516057fc8ad993e21433c3dc4',1,'CForge::CrossForgeException::info01(void) const'],['../class_c_forge_1_1_cross_forge_exception.html#a2613f64f382055395be27690f8b1d89e',1,'CForge::CrossForgeException::info01(const std::string Info01)']]],
-  ['info02_4',['info02',['../class_c_forge_1_1_cross_forge_exception.html#a397b345cd2093f528f3d845e44241b99',1,'CForge::CrossForgeException::info02(void) const'],['../class_c_forge_1_1_cross_forge_exception.html#ad00bec6baef0949a174898aad3f3d93a',1,'CForge::CrossForgeException::info02(const std::string Info02)']]],
-  ['instance_5',['instance',['../class_c_forge_1_1_s_cross_forge_device.html#a01524064b1d9693924c4bce32720d90a',1,'CForge::SCrossForgeDevice::instance()'],['../class_c_forge_1_1_s_logger.html#ae0893647dea4945c829335c853fa2ac5',1,'CForge::SLogger::instance()']]]
+  ['cforgeobject_0',['CForgeObject',['../class_c_forge_1_1_c_forge_object.html',1,'CForge']]],
+  ['classes_20to_20use_20special_20hardware_20devices_20_28e_2eg_2e_20sensors_2c_20actuators_2c_20etc_2e_29_1',['Classes to use special hardware devices (e.g. sensors, actuators, etc.)',['../group___devices.html',1,'']]],
+  ['clear_2',['clear',['../class_c_forge_1_1_file.html#a645b9b1ef3600cc5249f37b37f9c726f',1,'CForge::File']]],
+  ['coreutility_3',['CoreUtility',['../class_c_forge_1_1_core_utility.html',1,'CForge']]],
+  ['crossforge_20documentation_4',['CrossForge Documentation',['../index.html',1,'']]],
+  ['crossforgeexception_5',['CrossForgeException',['../class_c_forge_1_1_cross_forge_exception.html',1,'CForge::CrossForgeException'],['../class_c_forge_1_1_cross_forge_exception.html#a34f8e9ae772102f292dbd82c90fdea93',1,'CForge::CrossForgeException::CrossForgeException()']]]
 ];
