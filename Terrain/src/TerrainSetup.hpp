@@ -13,7 +13,8 @@
 #include "../GUI/GUI.h"
 #include "../GUI/Widgets/Form.h"
 
-#include "../../Prototypes/Graphics/SkyboxActor.h"
+//#include "../../Prototypes/Graphics/SkyboxActor.h"
+#include "../../CForge/Graphics/Actors/SkyboxActor.h"
 #include <GLFW/glfw3.h>
 //#include "../../CForge/Graphics/GLWindow.h"
 

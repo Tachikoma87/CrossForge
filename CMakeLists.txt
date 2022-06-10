@@ -38,24 +38,24 @@ include_directories(
 )
 
 add_library(crossforge SHARED
-		# GLAD
-		"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
-
-		# Core related
-		CForge/Core/CForgeObject.cpp
-		CForge/Core/CrossForgeException.cpp
-		CForge/Core/SCrossForgeDevice.cpp
-		CForge/Core/SGPIO.cpp
-		CForge/Core/SLogger.cpp
-		CForge/Core/CoreUtility.cpp
-
-		# Asset import/exporter stuff
-		CForge/AssetIO/File.cpp
-		CForge/AssetIO/AssimpMeshIO.cpp
-		CForge/AssetIO/I2DImageIO.cpp
-		CForge/AssetIO/I3DMeshIO.cpp
-		CForge/AssetIO/OpenCVImageIO.cpp
-		CForge/AssetIO/SAssetIO.cpp
+	# GLAD
+	"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
+	
+	# Core related
+	CForge/Core/CForgeObject.cpp
+	CForge/Core/CrossForgeException.cpp
+	CForge/Core/SCrossForgeDevice.cpp
+	CForge/Core/SGPIO.cpp
+	CForge/Core/SLogger.cpp
+	CForge/Core/CoreUtility.cpp
+	
+	# Asset import/exporter stuff
+	CForge/AssetIO/File.cpp
+	CForge/AssetIO/AssimpMeshIO.cpp
+	CForge/AssetIO/I2DImageIO.cpp
+	CForge/AssetIO/I3DMeshIO.cpp
+	CForge/AssetIO/OpenCVImageIO.cpp
+	CForge/AssetIO/SAssetIO.cpp
 
 	# Graphics related
 	CForge/Graphics/GBuffer.cpp 
@@ -127,7 +127,7 @@ add_library(crossforge SHARED
 	
 	# Mesh Processing
 	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
-	)
+)
 set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
 if(WIN32)
@@ -162,18 +162,18 @@ endif(UNIX)
 
 project (CForgeSandbox)
 add_executable(CForgeSandbox 
-	SandboxMain.cpp 
+	Main.cpp 
 	"thirdparty/glad/src/glad.c"
 	# tinyxml2
 	"${CMAKE_SOURCE_DIR}/thirdparty/tinyxml2/tinyxml2.cpp"
 
 	CForge/Core/SGPIO.cpp
-	Prototypes/I2C.cpp 
-	Prototypes/MPU6050.cpp
-	Prototypes/RotaryEncoder.cpp
-	Prototypes/PhotoFinish.cpp
-	Prototypes/StripPhoto.cpp 
-	Prototypes/StripPhotoCamera.cpp
+	#Prototypes/I2C.cpp 
+	#Prototypes/MPU6050.cpp
+	#Prototypes/RotaryEncoder.cpp
+	#Prototypes/PhotoFinish.cpp
+	#Prototypes/StripPhoto.cpp 
+	#Prototypes/StripPhotoCamera.cpp
 	"Prototypes/LODHandler.cpp"
 	Prototypes/SLOD.cpp
 
@@ -183,8 +183,62 @@ add_executable(CForgeSandbox
 	Prototypes/Misc/IMUCameraController.cpp
 
 	Prototypes/Assets/GLTFSDKIO.cpp
-	 "Prototypes/Actor/LODActor.cpp"
-	 "Prototypes/MeshDecimate.cpp")
+	"Prototypes/Actor/LODActor.cpp"
+	"Prototypes/MeshDecimate.cpp"
+)
+
+if(WIN32)
+	target_link_libraries(CForgeSandbox 
+		PRIVATE crossforge
+		PRIVATE glfw
+		PRIVATE igl::core 
+		PRIVATE igl::common 
+		${OpenCV_LIBS}
+		ws2_32
+	)
+endif (WIN32)
+
+if(UNIX)
+	target_link_libraries(CForgeSandbox 
+		PRIVATE crossforge
+		PRIVATE glfw 
+		PRIVATE assimp::assimp
+		PRIVATE igl::core 
+		PRIVATE igl::common
+		${OpenCV_LIBS}
+		PRIVATE gpiod
+		PRIVATE dl
+	)
+endif(UNIX)
+
+#copy shaders
+add_custom_command(
+	TARGET CForgeSandbox PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${CMAKE_SOURCE_DIR}/CForge/Shader
+	${CMAKE_CURRENT_BINARY_DIR}/Shader
+)
+
+add_custom_command(
+	TARGET CForgeSandbox PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/Assets
+	${CMAKE_CURRENT_BINARY_DIR}/Assets
+)
+
+add_custom_command(
+	TARGET CForgeSandbox PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/MyAssets
+	${CMAKE_CURRENT_BINARY_DIR}/MyAssets
+)
+
+add_custom_command(
+	TARGET CForgeSandbox PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
+	${CMAKE_CURRENT_BINARY_DIR}/Shader
+)
 
 project(ExportLibrary)
 add_executable(ExportLibrary ExportLibrary.cpp)
@@ -217,41 +271,35 @@ add_executable(Terrain
 	Terrain/src/Decoration/RockGenerator.cpp
 	Terrain/src/Decoration/DecoSetup.cpp
 
-	Prototypes/Graphics/GLCubemap.cpp
-	Prototypes/Graphics/SkyboxActor.cpp
-	Terrain/src/Map/UBOInstancedData.cpp
+	
+	
+	
 
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
-	)
+)
 
 if(WIN32)
-	target_link_libraries(CForgeSandbox 
-	PRIVATE crossforge
-	PRIVATE glfw
-	PRIVATE igl::core 
-	PRIVATE igl::common 
-	${OpenCV_LIBS}
-	ws2_32
-	)
-endif (WIN32)
-
 target_link_libraries(Terrain
-		PRIVATE crossforge
-		PRIVATE glfw 
-		PRIVATE assimp::assimp
-		PRIVATE igl::core 
-		PRIVATE igl::common
-		${OpenCV_LIBS}
-		PRIVATE gpiod
-		PRIVATE dl
-		)
+	PRIVATE crossforge
+	PRIVATE glfw 
+	${FREETYPE_LIBRARIES}
+)
+endif(WIN32)
+
+if(UNIX)
+target_link_libraries(Terrain
+	PRIVATE crossforge
+	PRIVATE glfw 
+	${FREETYPE_LIBRARIES}
+)
+endif(UNIX)
 
 # copy engine shaders
 add_custom_command(
-		TARGET Terrain PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-		${CMAKE_SOURCE_DIR}/CForge/Shader
-		${CMAKE_CURRENT_BINARY_DIR}/Shader
+	TARGET Terrain PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${CMAKE_SOURCE_DIR}/CForge/Shader
+	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 
 #copy prototype shaders
@@ -262,35 +310,18 @@ add_custom_command(
 	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 
-add_custom_command(
-	TARGET CForgeSandbox PRE_BUILD 
-	COMMAND ${CMAKE_COMMAND} -E copy_directory 
-	${CMAKE_SOURCE_DIR}/MyAssets
-	${CMAKE_CURRENT_BINARY_DIR}/MyAssets
-)
-
-add_custom_command(
-	TARGET CForgeSandbox PRE_BUILD 
-	COMMAND ${CMAKE_COMMAND} -E copy_directory 
-	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
-	${CMAKE_CURRENT_BINARY_DIR}/Shader
-)
-
-project(ExportLibrary)
-add_executable(ExportLibrary 
-	ExportLibrary.cpp)
 #Todo: copy on run
 # copy terrain shaders
 add_custom_command(
-		TARGET Terrain PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-		${CMAKE_SOURCE_DIR}/Terrain/Shader
-		${CMAKE_CURRENT_BINARY_DIR}/Shader
+	TARGET Terrain PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${CMAKE_SOURCE_DIR}/Terrain/Shader
+	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 
 add_custom_command(
-		TARGET Terrain PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-		${CMAKE_SOURCE_DIR}/Terrain/Assets
-		${CMAKE_CURRENT_BINARY_DIR}/Assets
+	TARGET Terrain PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${CMAKE_SOURCE_DIR}/Terrain/Assets
+	${CMAKE_CURRENT_BINARY_DIR}/Assets
 )

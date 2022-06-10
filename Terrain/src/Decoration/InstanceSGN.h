@@ -6,12 +6,13 @@
 
 namespace CForge {
 
-	class CFORGE_IXPORT InstanceSGN : public ISceneGraphNode {
+	class CFORGE_API InstanceSGN : public ISceneGraphNode {
 	public:
 		InstanceSGN(void);
 		~InstanceSGN(void);
 
 		void init(ISceneGraphNode* pParent, InstanceActor* pRenderable, Eigen::Vector3f Position, Eigen::Quaternionf Rotation, Eigen::Vector3f Scale);
+		void buildTansformation(Eigen::Vector3f* pPosition, Eigen::Quaternionf* pRotation, Eigen::Vector3f* pScale);
 
 		void clear(void);
 

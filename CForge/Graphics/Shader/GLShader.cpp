@@ -95,39 +95,39 @@ namespace CForge {
 			// this is a compute shader
 			m_ShaderType = SHADERTYPE_COMPUTE;
 
-            uint32_t ComputeShader = glCreateShader(GL_COMPUTE_SHADER);
-            int32_t Status = 0;
+			uint32_t ComputeShader = glCreateShader(GL_COMPUTE_SHADER);
+			int32_t Status = 0;
 
-            // compile compute shader
-            try {
-                compileShader(ComputeShader, &m_ComputeShaderCodes, pErrorLog);
-            }
-            catch (CrossForgeException& e) {
-                SLogger::logException(e);
-                (*pErrorLog) = "Exception occurred during compute shader compilation!";
-                return;
-            }
-            if (!pErrorLog->empty()) {
-                glDeleteShader(ComputeShader);
-                return;
-            }
+			// compile compute shader
+			try {
+				compileShader(ComputeShader, &m_ComputeShaderCodes, pErrorLog);
+			}
+			catch (CrossForgeException& e) {
+				SLogger::logException(e);
+				(*pErrorLog) = "Exception occurred during compute shader compilation!";
+				return;
+			}
+			if (!pErrorLog->empty()) {
+				glDeleteShader(ComputeShader);
+				return;
+			}
 
-            // now link the thing
-            m_ShaderProgram = glCreateProgram();
-            glAttachShader(m_ShaderProgram, ComputeShader);
-            glLinkProgram(m_ShaderProgram);
+			// now link the thing
+			m_ShaderProgram = glCreateProgram();
+			glAttachShader(m_ShaderProgram, ComputeShader);
+			glLinkProgram(m_ShaderProgram);
 
-            glGetProgramiv(m_ShaderProgram, GL_LINK_STATUS, &Status);
-            if (!Status) {
-                (*pErrorLog) = infoLog(m_ShaderProgram, false);
-                glDeleteProgram(m_ShaderProgram);
-                m_ShaderProgram = 0;
-            }
+			glGetProgramiv(m_ShaderProgram, GL_LINK_STATUS, &Status);
+			if (!Status) {
+				(*pErrorLog) = infoLog(m_ShaderProgram, false);
+				glDeleteProgram(m_ShaderProgram);
+				m_ShaderProgram = 0;
+			}
 
-            // delete shader
-            glDeleteShader(ComputeShader);
+			// delete shader
+			glDeleteShader(ComputeShader);
 
-            return;
+			return;
 			// throw CForgeExcept("Compute shader not implemented yet. Sorry, Sorry!");
 		}
 		else if (m_VertexShaderCodes.empty() || m_FragmentShaderCodes.empty()) {

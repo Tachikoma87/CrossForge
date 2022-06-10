@@ -91,7 +91,19 @@ namespace CForge {
 			m_Buffer.bufferSubData(i * 16 * sizeof(float), 16 * sizeof(float), dat);
 		}
 	}
+	
 
+	void UBOInstancedData::setInstance(const Eigen::Matrix4f* mat, uint32_t index)
+	{
+		float dat[16];
+		const float* pMat = mat->data();
+		for (uint32_t j = 0; j < 16; j++) {
+			dat[j] = pMat[j];
+		}
+
+		m_Buffer.bufferSubData(index * 16 * sizeof(float), 16 * sizeof(float), dat);
+	}
+	
 	uint32_t UBOInstancedData::getMaxInstanceCount() {
 		return m_maxInstanceCount;
 	}
