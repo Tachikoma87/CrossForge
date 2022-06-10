@@ -40,4 +40,8 @@ MyAssets/
 *.out
 *.app
 
+# kdev
+*.kdev4
+.kdev4/
+
 CMakeSettings.json
