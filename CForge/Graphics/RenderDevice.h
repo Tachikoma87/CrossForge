@@ -166,7 +166,7 @@ namespace CForge {
 			uint32_t pixelCount = 0;
 		};
 		
-		void RenderDevice::AssembleLODSG();
+		void AssembleLODSG();
 		
 		// SceneGraph actors and transformations for rendering
 		std::vector<IRenderableActor*> m_LODSGActors;

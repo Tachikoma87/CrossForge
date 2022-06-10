@@ -115,13 +115,13 @@ namespace CForge {
 		StaticActor Skydome;
 		StaticActor Cube;
 
-		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
+		SAssetIO::load("Assets/SimpleSkydome.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
 		M.computePerVertexNormals();
 		Skydome.init(&M);
 		M.clear();
 
-		SAssetIO::load("Assets/ExampleScenes/TexturedCube.fbx", &M);
+		SAssetIO::load("Assets/TexturedCube.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		M.computePerVertexNormals();
 		Cube.init(&M);

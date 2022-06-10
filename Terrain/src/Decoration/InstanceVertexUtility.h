@@ -7,7 +7,7 @@ using namespace Eigen;
 
 namespace CForge {
 	
-	class CFORGE_IXPORT InstanceVertexUtility : public CForgeObject {
+	class CFORGE_API InstanceVertexUtility : public CForgeObject {
 	public:
 		enum VertexProperty :uint16_t {
 			VPROP_POSITION = 0x0001,

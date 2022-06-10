@@ -37,6 +37,13 @@ namespace CForge {
 		return Rval;
 	}//keyPressed
 
+	bool Keyboard::keyPressed(Key K1, Key K2, Key K3)const {
+		bool Rval = keyPressed(K1);
+		Rval &= keyPressed(K2);
+		if (K3 != KEY_UNKNOWN) Rval &= keyPressed(K3);
+		return Rval;
+	}//keyPressed
+
 	void Keyboard::keyState(Key K, State S) {
 		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
 		m_KeyStates[K] = S;

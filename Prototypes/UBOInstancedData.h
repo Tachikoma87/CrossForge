@@ -39,6 +39,7 @@ namespace CForge {
 		//void setInstance(uint32_t index, Eigen::Matrix3f rotation, Eigen::Vector3f translation);
 		//void setInstance(uint32_t index, Eigen::Matrix4f mat);
 		void setInstances(const std::vector<Eigen::Matrix4f>* mats, Eigen::Vector2i range);
+		void setInstance(const Eigen::Matrix4f* mat, uint32_t index);
 		uint32_t getMaxInstanceCount();
 
 	protected:

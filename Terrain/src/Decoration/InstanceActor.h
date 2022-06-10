@@ -16,7 +16,7 @@
 
 
 namespace CForge {
-	class CFORGE_IXPORT InstanceActor: public IRenderableActor {
+	class CFORGE_API InstanceActor: public IRenderableActor {
 	public:
 		InstanceActor(void);
 		~InstanceActor(void);
