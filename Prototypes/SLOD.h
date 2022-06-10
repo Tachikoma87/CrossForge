@@ -20,8 +20,6 @@ namespace CForge {
 		uint32_t getResPixAmount();
 		std::vector<float> getLODPercentages();
 		
-		void fetchQueryResults();
-		
 	protected:
 		SLOD(void);
 		~SLOD(void);

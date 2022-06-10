@@ -6,7 +6,7 @@
 #include "../MeshDecimate.h"
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
 
-#define SKIP_INSTANCED_QUERIES // TODO determine skipping by time query
+//#define SKIP_INSTANCED_QUERIES // TODO determine skipping by time query
 
 namespace CForge {
 	LODActor::LODActor(void) : IRenderableActor("LODActor", ATYPE_STATIC) {

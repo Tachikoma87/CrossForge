@@ -18,7 +18,7 @@ FIND_PACKAGE(Freetype REQUIRED)
 FIND_PACKAGE(assimp CONFIG REQUIRED)
 FIND_PACKAGE(glfw3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenCV CONFIG REQUIRED)
-FIND_PACKAGE(libigl CONFIG REQUIRED)
+#FIND_PACKAGE(libigl CONFIG REQUIRED)
 
 #enable edit and continue and hot reload (Visual Studio 2022)
 #if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -142,8 +142,8 @@ if(WIN32)
 target_link_libraries(crossforge 
 	PRIVATE glfw 
 	PRIVATE assimp::assimp
-	PRIVATE igl::core 
-	PRIVATE igl::common
+	#PRIVATE igl::core 
+	#PRIVATE igl::common
 	${OpenCV_LIBS}
 	)
 endif(WIN32)
@@ -154,20 +154,19 @@ if(UNIX)
 	PRIVATE stdc++fs
 	PRIVATE glfw 
 	PRIVATE assimp
-	PRIVATE igl::core 
-	PRIVATE igl::common
+	#PRIVATE igl::core 
+	#PRIVATE igl::common
 	${OpenCV_LIBS}
 )
 endif(UNIX)
 
 project (CForgeSandbox)
 add_executable(CForgeSandbox 
-	Main.cpp 
+	SandboxMain.cpp 
 	"thirdparty/glad/src/glad.c"
-	# tinyxml2
 	"${CMAKE_SOURCE_DIR}/thirdparty/tinyxml2/tinyxml2.cpp"
 
-	CForge/Core/SGPIO.cpp
+	#CForge/Core/SGPIO.cpp
 	#Prototypes/I2C.cpp 
 	#Prototypes/MPU6050.cpp
 	#Prototypes/RotaryEncoder.cpp
@@ -177,12 +176,12 @@ add_executable(CForgeSandbox
 	"Prototypes/LODHandler.cpp"
 	Prototypes/SLOD.cpp
 
-	Prototypes/Internet/TCPSocket.cpp 
-	Prototypes/Internet/UDPSocket.cpp
+	#Prototypes/Internet/TCPSocket.cpp 
+	#Prototypes/Internet/UDPSocket.cpp
 
-	Prototypes/Misc/IMUCameraController.cpp
+	#Prototypes/Misc/IMUCameraController.cpp
 
-	Prototypes/Assets/GLTFSDKIO.cpp
+	#Prototypes/Assets/GLTFSDKIO.cpp
 	"Prototypes/Actor/LODActor.cpp"
 	"Prototypes/MeshDecimate.cpp"
 )
@@ -191,8 +190,8 @@ if(WIN32)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
 		PRIVATE glfw
-		PRIVATE igl::core 
-		PRIVATE igl::common 
+		#PRIVATE igl::core 
+		#PRIVATE igl::common 
 		${OpenCV_LIBS}
 		ws2_32
 	)
@@ -203,8 +202,8 @@ if(UNIX)
 		PRIVATE crossforge
 		PRIVATE glfw 
 		PRIVATE assimp::assimp
-		PRIVATE igl::core 
-		PRIVATE igl::common
+		#PRIVATE igl::core 
+		#PRIVATE igl::common
 		${OpenCV_LIBS}
 		PRIVATE gpiod
 		PRIVATE dl
@@ -241,7 +240,7 @@ add_custom_command(
 )
 
 project(ExportLibrary)
-add_executable(ExportLibrary ExportLibrary.cpp)
+add_executable(ExportLibrary ExportLibrary.cpp "SandboxMain.cpp")
 
 target_link_libraries(ExportLibrary PRIVATE crossforge)
 
@@ -270,10 +269,6 @@ add_executable(Terrain
 	Terrain/src/Decoration/TreeGenerator.cpp
 	Terrain/src/Decoration/RockGenerator.cpp
 	Terrain/src/Decoration/DecoSetup.cpp
-
-	
-	
-	
 
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
 )
