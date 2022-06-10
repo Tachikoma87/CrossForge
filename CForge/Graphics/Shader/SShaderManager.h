@@ -37,6 +37,7 @@ namespace CForge {
 		ShaderCode* createShaderCode(std::string Code, std::string VersionTag, uint8_t ConfigOptions, std::string FloatPrecisionTag, std::string IntegerPrecisionTag);
 //		GLShader* buildShader(const std::vector<std::string>* pVSSources, const std::vector<std::string>* pFSSources, std::string *pErrorLog = nullptr);
 		GLShader* buildShader(std::vector<ShaderCode*>* pVSSources, std::vector<ShaderCode*> *pFSSources, std::string* pErrorLog);
+        GLShader* buildComputeShader(std::vector<ShaderCode*>* pCSSources, std::string* pErrorLog);
 		uint32_t shaderCount(void)const;
 
 		void configShader(ShaderCode::LightConfig LC);
@@ -57,12 +58,14 @@ namespace CForge {
 			//std::vector<std::string> Sources;
 			std::vector<ShaderCode*> VSSources;
 			std::vector<ShaderCode*> FSSources;
+            std::vector<ShaderCode*> CSSources;
 			GLShader* pShader;
 			uint32_t ReferenceCount;
 
 			Shader(void) {
 				VSSources.clear();
 				FSSources.clear();
+                CSSources.clear();
 				pShader = nullptr;
 				ReferenceCount = 0;
 			}//Constructor
@@ -74,6 +77,7 @@ namespace CForge {
 			void clear(void) {
 				VSSources.clear();
 				FSSources.clear();
+                CSSources.clear();
 				delete pShader;
 				pShader = nullptr;
 			}

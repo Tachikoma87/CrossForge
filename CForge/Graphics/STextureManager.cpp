@@ -25,15 +25,15 @@ namespace CForge {
 		}
 	}//release
 
+    GLTexture2D* STextureManager::create(const std::string Filepath) {
+        GLTexture2D* pRval = nullptr;
+        STextureManager* pTexMan = STextureManager::instance();
+        pRval = pTexMan->createTexture2D(Filepath);
+        pTexMan->release();
+        return pRval;
+    }//load
 
-	GLTexture2D* STextureManager::create(const std::string Filepath) {
-		GLTexture2D* pRval = nullptr;
-		STextureManager* pTexMan = STextureManager::instance();
-		pRval = pTexMan->createTexture2D(Filepath);
-		pTexMan->release();
-		return pRval;
-	}//load
-
+    // Todo: texture is not added to the internal texture cache m_Textures and thus not cleared up properly
 	GLTexture2D* STextureManager::create(uint32_t Width, uint32_t Height, uint8_t R, uint8_t G, uint8_t B, bool GenerateMipmaps) {
 		GLTexture2D* pRval = nullptr;
 		STextureManager* pTexMan = STextureManager::instance();
@@ -41,6 +41,11 @@ namespace CForge {
 		pTexMan->release();
 		return pRval;
 	}//create
+
+    // Todo: texture is not added to the internal texture cache m_Textures and thus not cleared up properly
+    GLTexture2D* STextureManager::fromHandle(uint32_t handle) {
+        return new GLTexture2D(handle);
+    }
 
 	void STextureManager::destroy(GLTexture2D* pTex) {
 		if (nullptr == pTex) throw NullpointerExcept("pTex");

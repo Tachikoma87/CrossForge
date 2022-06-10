@@ -6,7 +6,7 @@
 
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
-#include "Terrain/TerrainSetup.hpp"
+#include "Terrain/src/TerrainSetup.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -38,6 +38,7 @@ int main() {
 		scanf("%c", &c);
 		return -1;
 	}
+
 
 	try {
         TerrainSetup();

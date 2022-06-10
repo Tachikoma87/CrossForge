@@ -39,3 +39,5 @@ MyAssets/
 *.exe
 *.out
 *.app
+
+CMakeSettings.json
