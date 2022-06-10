@@ -87,8 +87,10 @@ namespace CForge {
 		m_pInputMan = SInputManager::instance();
 		m_Mouse.init(pWin);
 		m_Keyboard.init(pWin);
+		m_Character.init(pWin);
 		m_pInputMan->registerDevice(pWin, &m_Keyboard);
 		m_pInputMan->registerDevice(pWin, &m_Mouse);
+		m_pInputMan->registerDevice(pWin, &m_Character);
 
 	}//initialize
 
@@ -103,12 +105,14 @@ namespace CForge {
 		if (m_pInputMan != nullptr) {
 			m_pInputMan->unregisterDevice(&m_Mouse);
 			m_pInputMan->unregisterDevice(&m_Keyboard);
+			m_pInputMan->unregisterDevice(&m_Character);
 			m_pInputMan->release();
 		}
 		m_pInputMan = nullptr;	
 		m_pHandle = nullptr;
 		m_Mouse.clear();
 		m_Keyboard.clear();
+		m_Character.clear();
 	}//clear
 
 	void GLWindow::update(void) {
@@ -150,6 +154,10 @@ namespace CForge {
 
 	Mouse* GLWindow::mouse(void) {
 		return &m_Mouse;
+	}//mouse
+
+	Character* GLWindow::character(void) {
+		return &m_Character;
 	}//mouse
 
 }//name space

@@ -1,0 +1,6 @@
+Object with internal class name "IRenderableActor::ScreenQuad"[ID: 751] was not released properly!
+Object with internal class name "GLBuffer"[ID: 752] was not released properly!
+Object with internal class name "GLBuffer"[ID: 753] was not released properly!
+Object with internal class name "GLVertexArray"[ID: 754] was not released properly!
+Object with internal class name "VertexUtility"[ID: 755] was not released properly!
+Object with internal class name "RenderGroupUtiliy"[ID: 756] was not released properly!

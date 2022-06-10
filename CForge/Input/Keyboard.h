@@ -19,9 +19,13 @@
 #define __CFORGE_KEYBOARD_H__
 
 #include "../Core/CForgeObject.h"
+#include "../Core/ITCaller.hpp"
 
 namespace CForge {
-	class CFORGE_IXPORT Keyboard: public CForgeObject {
+
+	struct KeyboardCallback;
+
+	class CFORGE_IXPORT Keyboard: public ITCaller<KeyboardCallback>, public CForgeObject {
 	public:
 		enum Key : int16_t {
 			KEY_UNKNOWN = -1,
@@ -161,6 +165,11 @@ namespace CForge {
 		State m_KeyStates[KEY_COUNT]; // 0 release, 1 pressed, 2 repeated
 		class GLFWwindow* m_pWin;
 	};//Keyboard
+
+	struct KeyboardCallback {
+		Keyboard::Key key;
+		Keyboard::State state;
+	};
 
 }//name-space
 

@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 project(crossforge VERSION 0.1 LANGUAGES CXX)
 
 FIND_PACKAGE(OpenGL REQUIRED)
+FIND_PACKAGE(Freetype REQUIRED)
 FIND_PACKAGE(assimp CONFIG REQUIRED)
 FIND_PACKAGE(glfw3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenCV CONFIG REQUIRED)
@@ -21,6 +22,7 @@ include_directories(
 		"${CMAKE_SOURCE_DIR}/thirdparty/eigen"
 		"${CMAKE_SOURCE_DIR}" # include top level for easy access to CForge, probably suboptimal
 		"${OpenCV_INCLUDE_DIRS}"
+		"${FREETYPE_INCLUDE_DIRS}"
 )
 
 add_library(crossforge SHARED
@@ -88,6 +90,7 @@ add_library(crossforge SHARED
 		# Input related
 		CForge/Input/Keyboard.cpp
 		CForge/Input/Mouse.cpp
+		CForge/Input/Character.cpp
 		CForge/Input/SInputManager.cpp
 
 		# Decoration
@@ -131,20 +134,28 @@ add_executable(ExportLibrary ExportLibrary.cpp)
 
 target_link_libraries(ExportLibrary PRIVATE crossforge)
 
-# TERRAIN
-
-if(WIN32)
-	project (Terrain)
-	add_executable(Terrain
-		"thirdparty/glad/src/glad.c"
+project (Terrain)
+add_executable(Terrain
 		Main.cpp
+
+		Terrain/GUI/GUI.cpp
+		Terrain/GUI/WidgetBackground.cpp
+		Terrain/GUI/Widget.cpp
+		Terrain/GUI/Font.cpp
+		Terrain/GUI/Widgets/InputNumber.cpp
+		Terrain/GUI/Widgets/InputCheckbox.cpp
+		Terrain/GUI/Widgets/InputText.cpp
+		Terrain/GUI/Widgets/Label.cpp
+		Terrain/GUI/Widgets/Form.cpp
+		Terrain/GUI/Widgets/Window.cpp
+
         Terrain/src/Map/ClipMap.cpp
         Terrain/src/Map/TileNode.cpp
         Terrain/src/Map/HeightMap.cpp
         Terrain/src/Map/TerrainMap.cpp
         Terrain/src/Map/TileActor.cpp
-		Terrain/src/ArrayTexture.cpp 
-		
+		Terrain/src/ArrayTexture.cpp
+
 		Terrain/src/Decoration/TreeGenerator.cpp
 		Terrain/src/Decoration/RockGenerator.cpp
 		Terrain/src/Decoration/DecoSetup.cpp
@@ -152,30 +163,15 @@ if(WIN32)
 		Prototypes/Graphics/GLCubemap.cpp
 		Prototypes/Graphics/SkyboxActor.cpp
 		Terrain/src/Map/UBOInstancedData.cpp
+
+		"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
 		)
-endif (WIN32)
 
-if(UNIX)
-	project (Terrain)
-	add_executable(Terrain
-		Main.cpp
-        Terrain/src/Map/ClipMap.cpp
-        Terrain/src/Map/TileNode.cpp
-        Terrain/src/Map/HeightMap.cpp
-        Terrain/src/Map/TerrainMap.cpp
-        Terrain/src/Map/TileActor.cpp
-		Terrain/src/ArrayTexture.cpp 
-		
-		Terrain/src/Decoration/TreeGenerator.cpp
-		Terrain/src/Decoration/RockGenerator.cpp
-		Terrain/src/Decoration/DecoSetup.cpp
-
-		Prototypes/Graphics/GLCubemap.cpp
-		Prototypes/Graphics/SkyboxActor.cpp
+target_link_libraries(Terrain
+		PRIVATE crossforge
+		PRIVATE glfw
+		${FREETYPE_LIBRARIES}
 		)
-endif (UNIX)
-
-target_link_libraries(Terrain PRIVATE crossforge PRIVATE glfw)
 
 # copy engine shaders
 add_custom_command(
