@@ -6,7 +6,8 @@
 #include "../ArrayTexture.h"
 #include "TileNode.h"
 
-#include "UBOInstancedData.h"
+#include "../../Prototypes/UBOInstancedData.h"
+
 
 using namespace CForge;
 using namespace Eigen;

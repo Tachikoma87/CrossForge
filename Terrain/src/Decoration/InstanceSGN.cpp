@@ -23,6 +23,10 @@ namespace CForge {
 		scale(Scale);
 	}//initialize
 
+	void InstanceSGN::buildTansformation(Eigen::Vector3f* pPosition, Eigen::Quaternionf* pRotation, Eigen::Vector3f* pScale) {
+
+	}
+
 	void InstanceSGN::clear(void) {
 		ISceneGraphNode::clear();
 		m_Position = Vector3f::Zero();

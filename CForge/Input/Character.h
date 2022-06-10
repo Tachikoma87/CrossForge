@@ -21,8 +21,9 @@
 #include "../Core/CForgeObject.h"
 #include "../Core/ITCaller.hpp"
 
+// TODO check if this is needed
 namespace CForge {
-	class CFORGE_IXPORT Character: public ITCaller<char32_t>, public CForgeObject {
+	class CFORGE_API Character : public ITCaller<char32_t>, public CForgeObject {
 	public:
 		Character(void);
 		~Character(void);
