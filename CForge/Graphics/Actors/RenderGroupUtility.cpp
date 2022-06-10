@@ -93,7 +93,7 @@ namespace CForge {
 							ConfigOptions |= ShaderCode::CONF_SKELETALANIMATION;
 						}
 
-						ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
+						ShaderCode* pC = pSMan->createShaderCode(k, "420 core", ConfigOptions, "highp", "highp");
 
 						if (pMesh->boneCount() > 0) {
 							ShaderCode::SkeletalAnimationConfig SKConfig;
@@ -106,7 +106,7 @@ namespace CForge {
 
 					for (auto k : pMat->FragmentShaderSources) {
 						uint8_t ConfigOptions = 0;
-						ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
+						ShaderCode* pC = pSMan->createShaderCode(k, "420 core", ConfigOptions, "highp", "highp");
 						FSSources.push_back(pC);
 					}
 
