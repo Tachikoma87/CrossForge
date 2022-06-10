@@ -29,7 +29,7 @@ namespace CForge {
 	* \ingroup Core
 	*/
 
-	class CFORGE_IXPORT SLogger: public CForgeObject {
+	class CFORGE_API SLogger: public CForgeObject {
 	public:
 
 		enum LogType : int8_t {

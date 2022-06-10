@@ -1,4 +1,4 @@
-# Folders
+﻿# Folders
 .vs/
 .idea/
 out/
@@ -14,7 +14,6 @@ MyAssets/
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch

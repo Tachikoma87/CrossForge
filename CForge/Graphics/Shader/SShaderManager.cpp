@@ -309,6 +309,7 @@ namespace CForge {
 			if (i->requiresConfig(ShaderCode::CONF_LIGHTING)) i->config(&m_LightConfig);
 			if (i->requiresConfig(ShaderCode::CONF_POSTPROCESSING)) i->config(&m_PostProcessingConfig);
 			if (i->requiresConfig(ShaderCode::CONF_SKELETALANIMATION)) i->config(ShaderCode::CONF_SKELETALANIMATION);
+			if (i->requiresConfig(ShaderCode::CONF_VERTEXCOLORS)) i->config(ShaderCode::CONF_VERTEXCOLORS);
 			pShader->pShader->addVertexShader(i->code());
 		}//for[VS sources]
 
@@ -316,6 +317,7 @@ namespace CForge {
 		for (auto i : pShader->FSSources) {
 			if (i->requiresConfig(ShaderCode::CONF_LIGHTING)) i->config(&m_LightConfig);
 			if (i->requiresConfig(ShaderCode::CONF_POSTPROCESSING)) i->config(&m_PostProcessingConfig);
+			if (i->requiresConfig(ShaderCode::CONF_VERTEXCOLORS)) i->config(ShaderCode::CONF_VERTEXCOLORS);
 			pShader->pShader->addFragmentShader(i->code());
 		}//for[FS sources]
 

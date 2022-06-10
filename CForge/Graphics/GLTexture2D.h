@@ -27,7 +27,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT GLTexture2D: public CForgeObject {
+	class CFORGE_API GLTexture2D: public CForgeObject {
 	public:
 		GLTexture2D(void);
         GLTexture2D(uint32_t handle);

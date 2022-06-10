@@ -62,8 +62,56 @@ namespace CForge {
 			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_WEIGHTS));
 			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_WEIGHTS), 4, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (const void*)m_VertexUtility.offset(VertexUtility::VPROP_BONEWEIGHTS));
 		}
-
-
 	}//setBufferData
 
+	uint32_t IRenderableActor::materialCount(void) const {
+		return m_RenderGroupUtility.renderGroupCount();
+	}//materialCount
+
+	RenderMaterial* IRenderableActor::material(uint32_t Index) {
+		if (Index >= m_RenderGroupUtility.renderGroupCount()) throw IndexOutOfBoundsExcept("Index");
+		return &(m_RenderGroupUtility.renderGroups()[Index]->Material);
+	}//material
+
+	T3DMesh<float>::AABB IRenderableActor::getAABB()
+	{
+		T3DMesh<float>::AABB aabb;
+		aabb.Min = Eigen::Vector3f(0);
+		aabb.Max = Eigen::Vector3f(0);
+		return aabb;
+	}
+	
+	void IRenderableActor::testAABBvis(RenderDevice* pRDev, Eigen::Matrix4f sgMat)
+	{
+	
+	}
+
+	bool IRenderableActor::isInstanced()
+	{
+		return m_isInstanced;
+	}
+
+	bool IRenderableActor::isManualInstanced()
+	{
+		return m_isManualInstaned;
+	}
+
+	bool IRenderableActor::isInLODSG() {
+		return m_isInLODSG;
+	}
+	void IRenderableActor::setLODSG(bool inside) {
+		m_isInLODSG = inside;
+	}
+
+	void IRenderableActor::bindLODLevel(uint32_t level) {
+
+	}
+
+	void IRenderableActor::addInstance(Eigen::Matrix4f matrix) {
+
+	}
+
+	void IRenderableActor::evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount) {
+	
+	}
 }//name space

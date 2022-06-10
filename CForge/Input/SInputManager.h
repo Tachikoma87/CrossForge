@@ -24,7 +24,7 @@
 #include "Character.h"
 
 namespace CForge {
-	class CFORGE_IXPORT SInputManager: public CForgeObject {
+	class CFORGE_API SInputManager: public CForgeObject {
 	public:
 		static SInputManager* instance(void);
 		void release(void);

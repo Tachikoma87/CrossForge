@@ -8,6 +8,7 @@ namespace CForge {
 		m_GLID = GL_INVALID_INDEX;
 		m_GLUsage = GL_STATIC_DRAW;
 		m_GLTarget = GL_INVALID_INDEX;
+		m_TextureHandle = GL_INVALID_INDEX;
 		m_BufferType = BTYPE_UNKNOWN;
 		m_BufferSize = 0;
 	}//Constructor
@@ -24,6 +25,7 @@ namespace CForge {
 		case BTYPE_INDEX: m_GLTarget = GL_ELEMENT_ARRAY_BUFFER; break;
 		case BTYPE_SHADER_STORAGE: m_GLTarget = GL_SHADER_STORAGE_BUFFER; break;
 		case BTYPE_UNIFORM: m_GLTarget = GL_UNIFORM_BUFFER; break;
+		case BTYPE_TEXTURE: m_GLTarget = GL_TEXTURE_BUFFER; break;
 		default: {
 			throw CForgeExcept("Invalid buffer type specified!");
 		}break;
@@ -38,16 +40,19 @@ namespace CForge {
 		}//switch[usage]
 
 		m_BufferType = Type;
-
+		
 		if (BufferSize != 0) bufferData(pBufferData, BufferSize);
 
+		bind();
+		if (Type == BTYPE_TEXTURE) glGenTextures(1, &m_TextureHandle);
+		unbind();
 	}//initialize
 
 	void GLBuffer::clear(void) {
-		if (glIsBuffer(m_GLID)) {
-			glDeleteBuffers(1, &m_GLID);
-		}
+		if (glIsBuffer(m_GLID)) glDeleteBuffers(1, &m_GLID);
+		if (glIsTexture(m_TextureHandle)) glDeleteTextures(1, &m_TextureHandle);
 		m_GLID = GL_INVALID_INDEX;
+		m_TextureHandle = GL_INVALID_INDEX;
 		m_BufferType = BTYPE_UNKNOWN;
 	}//clear
 
@@ -83,9 +88,14 @@ namespace CForge {
 	}//size
 
 	void GLBuffer::bindBufferBase(uint32_t BindingPoint) {
-		bind();
-
 		glBindBufferBase(m_GLTarget, BindingPoint, m_GLID);
 	}//bindBufferBase
+
+	void GLBuffer::bindTextureBuffer(uint32_t ActiveTexture, uint32_t Format) {
+		//bind();
+		glActiveTexture(GL_TEXTURE0 + ActiveTexture);
+		glBindTexture(GL_TEXTURE_BUFFER, m_TextureHandle);
+		glTexBuffer(GL_TEXTURE_BUFFER, Format, m_GLID);
+	}//bindTexBuffer
 
 }//name space

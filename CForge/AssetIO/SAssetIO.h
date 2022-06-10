@@ -32,7 +32,7 @@ namespace CForge {
 	* \todo implement DDS import/export
 	*/
 
-	class CFORGE_IXPORT SAssetIO: public CForgeObject {
+	class CFORGE_API SAssetIO: public CForgeObject {
 	public:
 		static SAssetIO* instance(void);
 

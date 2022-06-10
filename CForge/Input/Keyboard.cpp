@@ -27,13 +27,13 @@ namespace CForge {
 
 	bool Keyboard::keyPressed(Key K)const {
 		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
-		return (m_KeyStates[K] != 0);
+		return (m_KeyStates[K] != KEY_RELEASED);
 	}//keyPressed
 
-	bool Keyboard::keyPressed(Key K1, Key K2, Key K3)const {
-		bool Rval = keyPressed(K1);
-		Rval &= keyPressed(K2);
-		if (K3 != KEY_UNKNOWN) Rval &= keyPressed(K3);
+	bool Keyboard::keyPressed(Key K, bool Reset) {
+		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
+		const bool Rval = (m_KeyStates[K] != KEY_RELEASED);
+		if (Reset) m_KeyStates[K] = KEY_RELEASED;
 		return Rval;
 	}//keyPressed
 

@@ -51,7 +51,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation
 	*/
-	class CFORGE_IXPORT RenderGroupUtility: public CForgeObject {
+	class CFORGE_API RenderGroupUtility: public CForgeObject {
 	public:
 		struct RenderGroup {
 			Eigen::Vector2i Range; ///< From index, to index
