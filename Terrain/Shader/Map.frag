@@ -62,14 +62,14 @@ float getHeight(float sampledHeight) {
     return sampledHeight * MapHeight;
 }
 
-vec3 calculateNormal(vec2 samplePosition) {
+vec3 calculateNormal(vec2 samplePosition, float h) {
     //     10
     //     |
     // 01--11--21
     //     |
     //     12
 	
-    float s11 = getHeight(texture(HeightMap, samplePosition).x);
+    float s11 = getHeight(h);
 	float s01 = getHeight(textureOffset(HeightMap, samplePosition, OFFSET.xy).x);
     float s10 = getHeight(textureOffset(HeightMap, samplePosition, OFFSET.yx).x);
 
@@ -113,19 +113,20 @@ void main() {
         SamplePosition.x > 0.99 || SamplePosition.y > 0.99) {
         discard;
     }
-
-    vec3 normal = calculateNormal(SamplePosition);
+	
+	float hTex = texture(HeightMap, SamplePosition).x;
+    vec3 normal = calculateNormal(SamplePosition, hTex);
 
     vec3 color = vec3(0.0); //triMap(0, normal);
 	
 	int blendValue = 0;
 	for (int i = 0; i < LayerCount - 1; i++) {
-		if (Height < LayerHeights[i])
+		if (hTex < LayerHeights[i])
 			break;
 		blendValue++;
 	}
 	
-	float drawStrength = smoothstep(-BlendValues[blendValue] / 2, BlendValues[blendValue] / 2, Height - LayerHeights[blendValue]);
+	float drawStrength = smoothstep(-BlendValues[blendValue] / 2, BlendValues[blendValue] / 2, hTex - LayerHeights[blendValue]);
 	color = mix(triMap(blendValue,  normal), triMap(blendValue+1,  normal), drawStrength*2.0);
 	
 //    // smoothly interpolate between the different layers
