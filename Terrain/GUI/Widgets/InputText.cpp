@@ -5,7 +5,7 @@ InputTextWidget_ClearButton::InputTextWidget_ClearButton(GUI* rootGUIObject, Inp
     m_text = parent;
     rootGUIObject->registerMouseDownEvent(this);
     setText(U"x");
-    m_background = new WidgetBackgroundBorder(this, m_root->BackgroundColoredShader);
+    m_background = new WidgetBackgroundBorder(this, m_root);
 }
 InputTextWidget_ClearButton::~InputTextWidget_ClearButton()
 {
@@ -24,7 +24,7 @@ InputTextWidget::InputTextWidget(GUI* rootGUIObject, BaseWidget* parent) : BaseW
     m_text = new TextWidget(m_root, this);
     m_clear = new InputTextWidget_ClearButton(m_root, this);
     m_height = m_clear->getHeight();
-    m_background = new WidgetBackgroundBorder(this, m_root->BackgroundColoredShader);
+    m_background = new WidgetBackgroundBorder(this, m_root);
     recalculateLayout();
     m_limits.min = 0;
     m_limits.max = 255;     //not like that's an actual limit, can be overwritten if longer text is required.

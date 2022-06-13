@@ -9,7 +9,7 @@ InputCheckboxWidget::InputCheckboxWidget(GUI* rootGUIObject, BaseWidget* parent)
     m_checkmark->changePosition(defaults.WithinWidgetPadding, 0);
     m_width = m_checkmark->getWidth() + 2*defaults.WithinWidgetPadding;
     m_height = m_checkmark->getHeight();
-    m_background = new WidgetBackgroundBorder(this, m_root->BackgroundColoredShader);
+    m_background = new WidgetBackgroundBorder(this, m_root);
     m_root->registerMouseDownEvent(this);
 }
 InputCheckboxWidget::~InputCheckboxWidget()

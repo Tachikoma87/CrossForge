@@ -360,12 +360,12 @@ void TextLine::init(FontFace* pFontFace, CForge::GLShader* pShader)
     m_VertexArray.init();
     m_numVertices = 0;
     m_projection = Eigen::Matrix4f::Identity();
+    //some default scale, don't forget to set the proper size with setRenderSize()!
     float scale_x, scale_y;
     scale_x = scale_y = 2.0f/720.0f;
     m_projection(0,0) = scale_x;
     m_projection(1,1) = scale_y;
-    setPosition(0, 0);
-    setColor(1, 1, 1);;
+    setColor(1, 1, 1);
 }
 
 void TextLine::init(std::u32string text, FontFace* pFontFace, CForge::GLShader* pShader)
@@ -396,6 +396,16 @@ void TextLine::setPosition(float x, float y)
     //which is done by adding it to the y coordinate.
     m_projection(0,3) = m_projection(0,0) * x - 1;
     m_projection(1,3) = 1 - m_projection(1,1) * (y + textSize);
+}
+void TextLine::setRenderSize ( uint32_t w, uint32_t h )
+{
+    //just like setPosition(), this assumes there's no rotation or other
+    //transformations of that kind
+    float x = m_projection(0,3) / m_projection(0,0);
+    float y = m_projection(1,3) / m_projection(1,1);
+    m_projection(0,0) = 2.0f / w;
+    m_projection(1,1) = 2.0f / h;
+    setPosition(x, y);
 }
 void TextLine::setColor(float r, float g, float b)
 {

@@ -52,7 +52,6 @@ GUI::~GUI()
         delete x->pWidget;
         delete x;
     }
-    delete fontFace;
     for (auto x : fontFaces) {
         delete x;
     }
@@ -333,5 +332,13 @@ void GUI::listen(CForge::KeyboardCallback kc)
         if (kc.key == CForge::Keyboard::KEY_R && m_pWin->keyboard()->keyState(CForge::Keyboard::KEY_RIGHT_CONTROL))
             for (auto x : m_TopLevelWidgets) x->pWidget->setPosition(0, 0);
     }
+}
+uint32_t GUI::getWindowHeight()
+{
+    return m_pWin->height();
+}
+uint32_t GUI::getWindowWidth()
+{
+    return m_pWin->width();
 }
 
