@@ -16,33 +16,38 @@ struct BorderStyle {
 //Probably would've been easier to just do in the GUI class where it's used
 //But I preferred to have it all together in this file
 
+//NOTE: If you add any new Fonts, you also need to load the respective
+//      FontStyle in GUI::loadFonts()
+
 struct FontStyle {
     std::string FileName; //Font file to load
     int PixelSize; //height of text in pixels
-    float FontColor[3];
-    float FontColorHighlight[3];
+    float FontColor[3] = {1.0f, 1.0f, 1.0f};
+    float FontColorHighlight[3] = {1.0f, 1.0f, 0.5f};
 };
 
 struct FontStyle1 : FontStyle {         //the default font, used for almost all default widgets
     FontStyle1() {
         FileName = "Assets/DejaVuSans.ttf";
         PixelSize = 16;
-        float font_color[3] = {1.0f, 1.0f, 1.0f};
-        float font_color_highlight[3] = {1.0f, 1.0f, 0.5f};
-        std::copy(font_color, font_color+3, FontColor);  //stupid c++ not allowing direct array assignment
-        std::copy(font_color_highlight, font_color_highlight+3, FontColorHighlight);
     }
 };
 struct FontStyle2 : FontStyle {         //bold variant
     FontStyle2() {
         FileName = "Assets/DejaVuSans-Bold.ttf";
         PixelSize = 16;
-        float font_color[3] = {1.0f, 1.0f, 1.0f};
-        float font_color_highlight[3] = {1.0f, 1.0f, 0.5f};
-        std::copy(font_color, font_color+3, FontColor);
-        std::copy(font_color_highlight, font_color_highlight+3, FontColorHighlight);
     }
 };
+
+/* The characters that should be loaded into the glyph map texture.
+ * Characters not present in this list will not display correctly (usually as □).
+ * The provided string covers all printable characters in the ascii and latin1
+ * unicode ranges. Feel free to append any other characters you may need.
+ *
+ * Note that even if a character is not included and won't display, it will still
+ * correctly be read as input.
+ */
+const std::u32string CharactersToLoadIntoTexture = U" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
 
 struct WidgetStyle {
     int WithinWidgetPadding = 5;

@@ -136,6 +136,20 @@ FormWidget * GUI::createOptionsWindow(std::u32string title, int FormID)
     FormWidget* form = new FormWidget(FormID, this, window);
     window->setContentWidget(form);
     submitTopLevelWidget(window);
+    //try to not have them overlap by default
+    float x = 0;
+    float y = 0;
+    float h = 0;
+    for (int i = 0; i < m_TopLevelWidgets.size() - 1; i++) {
+        x += m_TopLevelWidgets[i]->pWidget->getWidth();
+        h = std::max(h, m_TopLevelWidgets[i]->pWidget->getWidth());
+        if (x > m_pWin->width()) {
+            x = 0;
+            y += h;
+            h = 0;
+        };
+    }
+    window->setPosition(x, y);
     return form;
 }
 void GUI::submitTopLevelWidget(BaseWidget* widget)
@@ -316,6 +330,8 @@ void GUI::listen(CForge::KeyboardCallback kc)
             listen(U'\b');
         if (kc.key == CForge::Keyboard::KEY_ENTER)
             listen(U'\n');
+        if (kc.key == CForge::Keyboard::KEY_R && m_pWin->keyboard()->keyState(CForge::Keyboard::KEY_RIGHT_CONTROL))
+            for (auto x : m_TopLevelWidgets) x->pWidget->setPosition(0, 0);
     }
 }
 

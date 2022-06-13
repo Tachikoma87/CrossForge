@@ -124,7 +124,11 @@ void InputNumberWidget::onKeyPress(char32_t character)
         enteredNumber *= -1;
         m_negativeInput = false;
     }
-    newValue = newValue*10 + enteredNumber;
+    if (newValue > 0) {
+        newValue = newValue * 10 + enteredNumber;
+    } else {
+        newValue = newValue * 10 - enteredNumber;
+    }
     if (newValue <= m_limits.max && newValue >= m_limits.min)
         setValue(newValue);
     return;
