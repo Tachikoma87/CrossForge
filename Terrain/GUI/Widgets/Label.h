@@ -17,6 +17,7 @@ public:
     void setLimit(int lower, int higher);
     void setDefault(int value);
     void setDefault(bool value);
+    void setDefault(std::u32string value);
 
     float getJustification();
     void setJustification(float j);

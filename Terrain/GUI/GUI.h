@@ -31,7 +31,7 @@ public:
     void testRender();
 
     FormWidget* createOptionsWindow(std::u32string title, int FormID);
-    TextWidget* createInfoText();
+    TextWidget* createPlainText();
 
     void processEvents();
     void registerMouseDownEvent(BaseWidget* widget);

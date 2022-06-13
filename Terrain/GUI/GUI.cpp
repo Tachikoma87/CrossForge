@@ -151,7 +151,7 @@ FormWidget * GUI::createOptionsWindow(std::u32string title, int FormID)
     window->setPosition(x, y);
     return form;
 }
-TextWidget * GUI::createInfoText()
+TextWidget * GUI::createPlainText()
 {
     TextWidget* text = new TextWidget(this, nullptr);
     submitTopLevelWidget(text);
@@ -323,7 +323,7 @@ void GUI::processKeyboardEvents(CForge::Keyboard* keyboard)
 void GUI::listen(char32_t codepoint)
 {
     //print characters and keycodes for testing purposes
-    std::cout << "Received " << (uint32_t)codepoint << std::endl;
+//     std::cout << "Received " << (uint32_t)codepoint << std::endl;
 
     //pass the character to the focused widget.
     if (focusedWidget != nullptr) focusedWidget->onKeyPress(codepoint);
