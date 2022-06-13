@@ -66,6 +66,19 @@ void FormWidget::setLimit(int OptionID, int lower, int higher)
         m_labels[OptionID]->setLimit(lower, higher);
     }
 }
+void FormWidget::setDefault ( int OptionID, int value )
+{
+    if (m_labels.count(OptionID) > 0) {
+        m_labels[OptionID]->setDefault(value);
+    }
+}
+void FormWidget::setDefault ( int OptionID, bool value )
+{
+    if (m_labels.count(OptionID) > 0) {
+        m_labels[OptionID]->setDefault(value);
+    }
+}
+
 
 void FormWidget::sendCallback()
 {

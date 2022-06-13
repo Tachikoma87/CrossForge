@@ -9,6 +9,7 @@ public:
     ~InputCheckboxWidget();
 
     bool getValue();
+    void setState(bool state);
 
     void onClick(mouseEventInfo) override;
 

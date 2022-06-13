@@ -15,6 +15,8 @@ public:
 
     CallbackDatum getValue();
     void setLimit(int lower, int higher);
+    void setDefault(int value);
+    void setDefault(bool value);
 
     float getJustification();
     void setJustification(float j);

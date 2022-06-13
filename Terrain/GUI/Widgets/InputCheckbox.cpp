@@ -21,6 +21,11 @@ bool InputCheckboxWidget::getValue()
 {
     return m_state;
 }
+void InputCheckboxWidget::setState(bool state)
+{
+    m_state = state;
+}
+
 void InputCheckboxWidget::onClick(mouseEventInfo)
 {
     m_state = !m_state;
