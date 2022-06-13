@@ -42,8 +42,10 @@ LabelWidget::LabelWidget(CallbackDatatype type, std::u32string labelText, GUI* r
     m_width = m_pLabelText->getWidth();
     m_height = m_pLabelText->getHeight();
     if (m_pInput) {
-        m_pInput->changePosition(m_pLabelText->getWidth() + 30, 0);
-        m_width += 30 + m_pInput->getWidth();
+        WidgetStyle defaults;
+        m_justification = m_pLabelText->getWidth() + defaults.WithinWidgetPadding;
+        m_pInput->changePosition(m_justification, 0);
+        m_width = m_justification + m_pInput->getWidth();
         m_height = std::max(m_pInput->getHeight(), m_height);
     }
 }
@@ -104,6 +106,22 @@ void LabelWidget::setLimit(int lower, int higher)
         default:
             //invalid type or no matching input yet
             break;
+    }
+}
+
+float LabelWidget::getJustification()
+{
+    return m_justification;
+}
+void LabelWidget::setJustification(float j)
+{
+    if (m_pInput) {
+        m_width = m_pLabelText->getWidth();
+        m_height = m_pLabelText->getHeight();
+        m_justification = j;
+        m_pInput->setPosition(m_x + m_justification, m_y);
+        m_width = m_justification + m_pInput->getWidth();
+        m_height = std::max(m_pInput->getHeight(), m_height);
     }
 }
 

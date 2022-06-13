@@ -42,8 +42,13 @@ void FormWidget::addOption(int OptionID, CallbackDatatype type, std::u32string n
     label->changePosition(0, labelOffset);
     m_labels.emplace(OptionID, label);
     m_ApplyButton->changePosition(0, label->getHeight());
-//     m_height += label->getHeight();
-//     m_width = std::max(m_width, label->getWidth());
+    float justification = label->getJustification();
+    for (auto x : m_labels) {
+        justification = std::max(x.second->getJustification(), justification);
+    }
+    for (auto x : m_labels) {
+        x.second->setJustification(justification);
+    }
     updateLayout();
 //     m_background->updateSize();
 }
