@@ -120,6 +120,12 @@ void LabelWidget::setDefault ( bool value )
         (*(InputCheckboxWidget*)m_pInput).setState(value);
     }
 }
+void LabelWidget::setDefault(std::u32string value)
+{
+    if (m_type == DATATYPE_STRING) {
+        (*(InputTextWidget*)m_pInput).setText(value);
+    }
+}
 
 
 float LabelWidget::getJustification()
@@ -150,7 +156,7 @@ void LabelWidget::updateLayout()
     m_width = m_pLabelText->getWidth();
     m_height = m_pLabelText->getHeight();
     if (m_pInput) {
-        m_width += 30 + m_pInput->getWidth();
+        m_width = m_justification + m_pInput->getWidth();
         m_height = std::max(m_pInput->getHeight(), m_height);
     }
     if (m_parent != nullptr) m_parent->updateLayout();

@@ -53,10 +53,15 @@ bool InputTextWidget::validateInput()
 }
 void InputTextWidget::clearText()
 {
-    m_value = U"";
-    m_text->setText(m_value);
+    setText(U"");
+}
+void InputTextWidget::setText(std::u32string text)
+{
+    m_value = text;
+    m_text->setText(text);
     updateLayout();
 }
+
 void InputTextWidget::focus()
 {
     FontStyle1 defaults;
