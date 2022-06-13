@@ -23,6 +23,7 @@ public:
     std::u32string getValue();
     void setLimit(int lower, int higher);
     void clearText();
+    void setText(std::u32string text);
 
 //     void onClick(mouseEventInfo mouse) override;
     void onKeyPress(char32_t c) override;

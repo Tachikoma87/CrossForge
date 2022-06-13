@@ -78,6 +78,12 @@ void FormWidget::setDefault ( int OptionID, bool value )
         m_labels[OptionID]->setDefault(value);
     }
 }
+void FormWidget::setDefault ( int OptionID, std::u32string value )
+{
+    if (m_labels.count(OptionID) > 0) {
+        m_labels[OptionID]->setDefault(value);
+    }
+}
 
 
 void FormWidget::sendCallback()

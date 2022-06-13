@@ -392,6 +392,11 @@ namespace Terrain {
                 shadows = *((bool*)Msg.Data.at(2).pData);
                 wireframe = *((bool*)Msg.Data.at(3).pData);
                 renderGrass = *((bool*)Msg.Data.at(4).pData);
+                if (*((bool*)Msg.Data.at(5).pData)) {   //'unlock framerate'
+                    glfwSwapInterval(0);
+                } else {
+                    glfwSwapInterval(1);
+                };
             }
         };
     };
@@ -513,9 +518,11 @@ namespace Terrain {
         form->setDefault(3, false);
         form->addOption(4, DATATYPE_BOOLEAN, U"Enable Grass");
         form->setDefault(4, true);
+        form->addOption(5, DATATYPE_BOOLEAN, U"Unlock Framerate");
+        form->setDefault(5, false);
 
         //fps counter
-        TextWidget* fpsWidget = gui.createInfoText();
+        TextWidget* fpsWidget = gui.createPlainText();
         fpsWidget->setText(U"FPS: 0");
         fpsWidget->setPosition(window.width()-fpsWidget->getWidth(), 0);
         int32_t FPSCount = 0;
