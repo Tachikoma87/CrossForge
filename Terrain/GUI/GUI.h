@@ -1,6 +1,7 @@
 #pragma once
 
 class BaseWidget;
+class TextWidget;
 class FormWidget;
 //#include "Widget.h"
 #include "WidgetBackground.h"
@@ -30,6 +31,7 @@ public:
     void testRender();
 
     FormWidget* createOptionsWindow(std::u32string title, int FormID);
+    TextWidget* createInfoText();
 
     void processEvents();
     void registerMouseDownEvent(BaseWidget* widget);
