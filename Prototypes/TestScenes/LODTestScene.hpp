@@ -42,6 +42,7 @@
 #include "../SLOD.h"
 #include "../MeshDecimate.h"
 #include <chrono>
+#include <iostream>
 
 using namespace Eigen;
 using namespace std;

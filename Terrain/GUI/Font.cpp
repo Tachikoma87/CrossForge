@@ -179,8 +179,7 @@ int FontFace::computeStringWidth(std::u32string text)
 void FontFace::prepareCharMap()
 {
     //for now, use the first ~220 codepoints as characters for the map
-    //could be changed to something more specific in the future
-    std::u32string charactersToLoad = U" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁE�ÃÁE�E�E�E�ÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"; //all printable characters in that range
+    std::u32string charactersToLoad = U" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"; //all printable characters in that range
     charactersToLoad.push_back(U'\0'); //add the null character as fallback glyph
 
     //get glyph should not load new glyphs (during eg. text input) after were done
