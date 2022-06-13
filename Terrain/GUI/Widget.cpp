@@ -120,8 +120,12 @@ Eigen::Vector2f BaseWidget::getDimension()
 
 TextWidget::TextWidget(GUI* rootGUIObject, BaseWidget* parent) : BaseWidget(rootGUIObject, parent)
 {
+    //initialize with default font style
+    FontStyle1 defaultFont;
     m_pText = new TextLine;
     m_pText->init(m_root->fontFaces[0], m_root->TextShader);
+    setColor(defaultFont.FontColor);
+    m_pText->setRenderSize(m_root->getWindowWidth(), m_root->getWindowHeight());
     WidgetStyle defaults;
     m_padding = defaults.TextPadding;
     m_pText->setPosition(m_padding, m_padding);

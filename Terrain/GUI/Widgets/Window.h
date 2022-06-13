@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Widget.h"
 #include "../GUI.h"
+#include "../Widget.h"
 #include "../Callback.h"
 
 class WindowWidget;

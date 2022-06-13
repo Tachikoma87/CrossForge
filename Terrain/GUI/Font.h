@@ -63,6 +63,7 @@ public:
     void setText(std::u32string text);
     void setColor(float r, float g, float b);
     void setPosition(float x, float y);
+    void setRenderSize(uint32_t w, uint32_t h);   //Size of the window/framebuffer it gets rendered to
     void render(CForge::RenderDevice* pRDev);
     float getTextSize();
     int computeStringWidth(std::u32string textString);

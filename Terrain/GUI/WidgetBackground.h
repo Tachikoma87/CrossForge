@@ -7,6 +7,7 @@
 #include <CForge/Graphics/GLVertexArray.h>
 #include <CForge/Graphics/GLBuffer.h>
 
+#include "GUI.h"
 #include "GUIDefaults.h"
 
 // perhaps not the best name, maybe more like "drawables"
@@ -17,17 +18,19 @@
 
 //forwards declaration instead of including it here because otherwise somehow everything
 //completely falls apart... It's included in WidgetBackground.cpp instead.
+class GUI;
 class BaseWidget;
 
 class WidgetBackground : public CForge::IRenderableActor/*, public IWidgetBackground*/ {
     public:
-        WidgetBackground(BaseWidget* parent, CForge::GLShader *pShader = nullptr);
+        WidgetBackground(BaseWidget* parent, GUI* root);
         ~WidgetBackground(void);
         virtual void initBuffers();
 
         virtual void setPosition(float x, float y);
         virtual void updatePosition();
         virtual void updateSize(bool initialise = false);
+        virtual void setRenderSize(uint32_t w, uint32_t h);   //Size of the window/framebuffer it gets rendered to
         virtual void setColor(float r, float g, float b, float a = -1.0f);
         virtual void setColor(float color[3], float a = -1.0f);
         
@@ -52,7 +55,7 @@ class WidgetBackground : public CForge::IRenderableActor/*, public IWidgetBackgr
  */
 class WidgetBackgroundColored : public WidgetBackground {
 public:
-    WidgetBackgroundColored (BaseWidget* parent, CForge::GLShader *pShader = nullptr);
+    WidgetBackgroundColored (BaseWidget* parent, GUI* root);
     ~WidgetBackgroundColored (void);
     void clear(void);
     void render(class CForge::RenderDevice* pRDev);
@@ -65,7 +68,7 @@ public:
  */
 class WidgetBackgroundBorder : public WidgetBackground {
 public:
-    WidgetBackgroundBorder (BaseWidget* parent, CForge::GLShader *pShader = nullptr);
+    WidgetBackgroundBorder (BaseWidget* parent, GUI* root);
     ~WidgetBackgroundBorder (void);
     void clear(void);
     void updateSize(bool initialise = false);
