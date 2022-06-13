@@ -1,6 +1,7 @@
 ﻿#include "MeshDecimate.h"
 #include "../CForge/AssetIO/SAssetIO.h"
 #include <chrono>
+#include <iostream>
 
 using namespace Eigen;
 

@@ -1,17 +1,16 @@
 #include "CForge/AssetIO/File.h"
 #ifdef WIN32
 #include <filesystem>
+using namespace std;
 #else
 #include <experimental/filesystem>
 using namespace std::experimental;
 #endif
 #include <vector>
 
-using namespace std;
-
-const string RootSrcDir = "../../../CForge/";
-const string RootBinDir = "../";
-const string RootExportDir = "../../";
+const std::string RootSrcDir = "../../../CForge/";
+const std::string RootBinDir = "../";
+const std::string RootExportDir = "../../";
 
 #ifdef WIN32
 void copyFile(filesystem::path From, filesystem::path To) {
@@ -33,6 +32,7 @@ void copyFile(filesystem::path From, filesystem::path To) {
 	filesystem::path ToDir = To;
 	ToDir.remove_filename();
 
+#ifdef WIN32
 	if (!filesystem::exists(From)) {
 		printf("Error copying file %ls. It does not exist!\n", From.c_str());
 	}
@@ -42,6 +42,18 @@ void copyFile(filesystem::path From, filesystem::path To) {
 	else {
 		filesystem::copy_file(From, To, filesystem::copy_options::overwrite_existing);
 	}
+#else
+	if (!filesystem::exists(From)) {
+		printf("Error copying file %s. It does not exist!\n", From.c_str());
+	}
+	else if (!filesystem::exists(ToDir)) {
+		printf("Error copying file %s. Directory %s does not exist!\n", To.c_str(), ToDir.c_str());
+	}
+	else {
+		filesystem::copy_file(From, To, filesystem::copy_options::overwrite_existing);
+	}
+#endif
+
 }//copyFile
 
 #endif
