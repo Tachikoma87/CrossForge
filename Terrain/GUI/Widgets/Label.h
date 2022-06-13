@@ -16,6 +16,9 @@ public:
     CallbackDatum getValue();
     void setLimit(int lower, int higher);
 
+    float getJustification();
+    void setJustification(float j);
+
     void changePosition(float dx, float dy) override;
     void updateLayout() override;
     void draw(CForge::RenderDevice* renderDevice) override;
@@ -24,4 +27,5 @@ private:
     void * m_pValue;
     TextWidget* m_pLabelText;
     BaseWidget* m_pInput;
+    float m_justification;      //offset of the input element
 };

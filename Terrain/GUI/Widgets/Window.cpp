@@ -89,7 +89,7 @@ void WindowWidget_Header::onDrag(mouseEventInfo mouse)
 
 WindowWidget::WindowWidget(std::u32string title, GUI* rootGUIObject, BaseWidget* parent) : BaseWidget(rootGUIObject, parent)
 {
-    m_minimized = false;
+    m_minimized = true;
     m_header = new WindowWidget_Header(title, rootGUIObject, this);
     m_height = m_header->getHeight();
     m_width = m_header->getWidth();
@@ -147,16 +147,16 @@ void WindowWidget::updateLayout()
 {
     //only handle content size changes, since the header takes care of its
     //changes on its own.
-    if (m_content != nullptr) {
+    if (m_content != nullptr && !m_minimized) {
         WidgetStyle defaults;
         m_width = m_content->getWidth() + 2*defaults.WithinWidgetPadding;
         m_height = m_header->getHeight() + m_content->getHeight() + 2*defaults.WithinWidgetPadding;
         m_header->updateChildPositions();
         m_width = m_header->getWidth();
+        m_background->updateSize();
+        m_border->updateSize();
+        if (m_parent != nullptr) m_parent->updateLayout();
     }
-    m_background->updateSize();
-    m_border->updateSize();
-    if (m_parent != nullptr) m_parent->updateLayout();
 }
 void WindowWidget::changePosition(float dx, float dy)
 {
