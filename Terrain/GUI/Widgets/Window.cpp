@@ -6,7 +6,7 @@ WindowWidget_MinimizeButton::WindowWidget_MinimizeButton(WindowWidget* window, G
     m_minimized = m_window->isMinimized();
     changeAppearance();
     rootGUIObject->registerMouseDownEvent(this);
-    m_background = new WidgetBackgroundBorder(this, m_root->BackgroundColoredShader);
+    m_background = new WidgetBackgroundBorder(this, m_root);
 }
 WindowWidget_MinimizeButton::~WindowWidget_MinimizeButton()
 {
@@ -38,7 +38,7 @@ WindowWidget_Header::WindowWidget_Header(std::u32string title, GUI* rootGUIObjec
     m_button = new WindowWidget_MinimizeButton(m_window, rootGUIObject, this);
     m_height = std::max(m_title->getHeight(), m_button->getHeight());
     updateChildPositions();
-    m_background = new WidgetBackgroundBorder(this, m_root->BackgroundColoredShader);
+    m_background = new WidgetBackgroundBorder(this, m_root);
     m_root->registerMouseDragEvent(this);
 }
 WindowWidget_Header::~WindowWidget_Header()
@@ -93,8 +93,8 @@ WindowWidget::WindowWidget(std::u32string title, GUI* rootGUIObject, BaseWidget*
     m_header = new WindowWidget_Header(title, rootGUIObject, this);
     m_height = m_header->getHeight();
     m_width = m_header->getWidth();
-    m_background = new WidgetBackgroundColored(this, m_root->BackgroundColoredShader);
-    m_border = new WidgetBackgroundBorder(this, m_root->BackgroundColoredShader);
+    m_background = new WidgetBackgroundColored(this, m_root);
+    m_border = new WidgetBackgroundBorder(this, m_root);
     m_border->setLineWidth(2);
 }
 WindowWidget::~WindowWidget()

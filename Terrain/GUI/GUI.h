@@ -39,9 +39,11 @@ public:
     void listen(char32_t codepoint) override;
     void listen(CForge::KeyboardCallback kc) override;
     
+    //stuff accessed by the widgets
+    uint32_t getWindowWidth();
+    uint32_t getWindowHeight();
     CForge::GLShader* BackgroundColoredShader;
     CForge::GLShader* TextShader;
-    FontFace* fontFace;
     enum FontStyles {       //TODO: remember to keep updated when fonts are added/changed
         DEFAULT_FONT = 0,
         FONT1_REGULAR = 0,

@@ -25,7 +25,7 @@ namespace Terrain {
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
                     DirectionalLight *light) {
-        uint32_t winWidth =  720;
+        uint32_t winWidth =  1280;
         uint32_t winHeight = 720;
 
        /* winWidth = 1200;
