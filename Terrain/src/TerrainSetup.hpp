@@ -509,6 +509,9 @@ namespace Terrain {
         form2->addOption(5, DATATYPE_STRING, U"5th Option (Text)");
 
         //fps counter
+        TextWidget* fpsWidget = gui.createInfoText();
+        fpsWidget->setText(U"FPS: 0");
+        fpsWidget->setPosition(window.width()-fpsWidget->getWidth(), 0);
         int32_t FPSCount = 0;
         clock_t current_ticks, delta_ticks;
         clock_t fps = 60;
@@ -730,7 +733,13 @@ namespace Terrain {
                 fps = FPSCount;
                 FPSCount = 0;
                 LastFPS = CoreUtility::timestamp();
-                printf("FPS: %d\n", fps);
+//                 printf("FPS: %d\n", fps);
+                std::u32string text = U"FPS: ";
+                for (auto c : std::to_wstring(fps)) {
+                    text.push_back((char32_t)c);
+                }
+                fpsWidget->setText(text);
+                fpsWidget->setPosition(window.width()-fpsWidget->getWidth(), 0);
             }
 
            /* delta_ticks = clock() - current_ticks;

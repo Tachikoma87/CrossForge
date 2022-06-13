@@ -151,6 +151,13 @@ FormWidget * GUI::createOptionsWindow(std::u32string title, int FormID)
     window->setPosition(x, y);
     return form;
 }
+TextWidget * GUI::createInfoText()
+{
+    TextWidget* text = new TextWidget(this, nullptr);
+    submitTopLevelWidget(text);
+    return text;
+}
+
 void GUI::submitTopLevelWidget(BaseWidget* widget)
 {
     //events can lead to the widget to be registered as top level widget
