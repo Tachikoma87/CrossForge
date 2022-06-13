@@ -33,7 +33,7 @@ namespace Terrain {
 
         window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup");
         gladLoadGL();
-		glfwSwapInterval(0);
+// 		glfwSwapInterval(0);
 
         string GLError;
         GraphicsUtility::checkGLError(&GLError);
@@ -375,15 +375,28 @@ namespace Terrain {
         RockMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceRockShader.frag");
     }
 
+
+    bool wireframe = false;
+    bool debugTexture = false;
+    bool shadows = false;
+    bool richard = false;
+    bool erode = false;
+    bool cameraMode = false;
+    bool generateNew = true;
+    bool renderGrass = true;
+
+    class TerrainGUICallbackHandler : public ITListener<CallbackObject> {
+        void listen ( const CallbackObject Msg ) override {
+            if (Msg.FormID == 1) {
+                cameraMode = *((int*)Msg.Data.at(1).pData) == 2;
+                shadows = *((bool*)Msg.Data.at(2).pData);
+                wireframe = *((bool*)Msg.Data.at(3).pData);
+                renderGrass = *((bool*)Msg.Data.at(4).pData);
+            }
+        };
+    };
+
     void TerrainSetup() {
-        bool wireframe = false;
-        bool debugTexture = false;
-        bool shadows = false;
-        bool richard = false;
-        bool erode = false;
-        bool cameraMode = false;
-        bool generateNew = true;
-        bool renderGrass = true;
 
         float cameraHeight = 2;
 
@@ -488,25 +501,18 @@ namespace Terrain {
         gui.testInit(&window);
 
         CallbackTestClass callbacktest;
-        FormWidget* form = gui.createOptionsWindow(U"Test Window", 1);
+        TerrainGUICallbackHandler callbackHandler;
+        FormWidget* form = gui.createOptionsWindow(U"Graphics", 1);
+        form->startListening(&callbackHandler);
         form->startListening(&callbacktest);
-        form->addOption(1, DATATYPE_INT, U"1st Option");
-        form->setLimit(1, 10);
-        form->addOption(2, DATATYPE_INT, U"2nd Option");
-        form->setLimit(2, 10, 20);
-        form->addOption(3, DATATYPE_INT, U"3rd Option");
-        form->addOption(4, DATATYPE_BOOLEAN, U"4th Option (Checkbox)");
-        form->addOption(5, DATATYPE_STRING, U"5th Option (Text)");
-
-        FormWidget* form2 = gui.createOptionsWindow(U"Another Test", 2);
-        form2->startListening(&callbacktest);
-        form2->addOption(1, DATATYPE_INT, U"1st Option");
-        form2->setLimit(1, 10);
-        form2->addOption(2, DATATYPE_INT, U"2nd Option");
-        form2->setLimit(2, 10, 20);
-        form2->addOption(3, DATATYPE_INT, U"3rd Option");
-        form2->addOption(4, DATATYPE_BOOLEAN, U"4th Option (Checkbox)");
-        form2->addOption(5, DATATYPE_STRING, U"5th Option (Text)");
+        form->addOption(1, DATATYPE_INT, U"Camera Mode");
+        form->setLimit(1, 1, 2);
+        form->addOption(2, DATATYPE_BOOLEAN, U"Enable Shadows");
+        form->setDefault(2, false);
+        form->addOption(3, DATATYPE_BOOLEAN, U"Wireframe");
+        form->setDefault(3, false);
+        form->addOption(4, DATATYPE_BOOLEAN, U"Enable Grass");
+        form->setDefault(4, true);
 
         //fps counter
         TextWidget* fpsWidget = gui.createInfoText();

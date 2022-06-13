@@ -108,6 +108,19 @@ void LabelWidget::setLimit(int lower, int higher)
             break;
     }
 }
+void LabelWidget::setDefault ( int value )
+{
+    if (m_type == DATATYPE_INT) {
+        (*(InputNumberWidget*)m_pInput).setValue(value);
+    }
+}
+void LabelWidget::setDefault ( bool value )
+{
+    if (m_type == DATATYPE_BOOLEAN) {
+        (*(InputCheckboxWidget*)m_pInput).setState(value);
+    }
+}
+
 
 float LabelWidget::getJustification()
 {
