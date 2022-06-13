@@ -28,8 +28,8 @@ namespace CForge {
 	}
 
 	void SLOD::update() {
-		auto start = std::chrono::high_resolution_clock::now();
-		auto elapsed = std::chrono::high_resolution_clock::now() - this->lastTickCount;
+		auto start = std::chrono::steady_clock::now();
+		auto elapsed = start - this->lastTickCount;
 		this->lastTickCount = start;
 		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
 		this->deltaTime = 0.000001 * microseconds;

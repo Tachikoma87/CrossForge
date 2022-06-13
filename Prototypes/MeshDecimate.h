@@ -1,7 +1,9 @@
+#pragma once
 
-#include <igl/decimate.h>
+// #include <igl/decimate.h>
 //#include <igl/read_triangle_mesh.h>
 //#include <igl/write_triangle_mesh.h>
+
 #include "../CForge/AssetIO/T3DMesh.hpp"
 
 namespace CForge {

@@ -201,7 +201,7 @@ if(UNIX)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
 		PRIVATE glfw 
-		PRIVATE assimp::assimp
+		PRIVATE assimp
 		#PRIVATE igl::core 
 		#PRIVATE igl::common
 		${OpenCV_LIBS}
@@ -240,7 +240,7 @@ add_custom_command(
 )
 
 project(ExportLibrary)
-add_executable(ExportLibrary ExportLibrary.cpp "SandboxMain.cpp")
+add_executable(ExportLibrary ExportLibrary.cpp)
 
 target_link_libraries(ExportLibrary PRIVATE crossforge)
 
