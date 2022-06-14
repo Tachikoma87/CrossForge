@@ -42,9 +42,9 @@ void CallbackTestClass::listen(const CallbackObject Msg)
 }
 
 
-GUI::GUI(CForge::RenderDevice* renderDevice)
+GUI::GUI()
 {
-    m_renderDevice = renderDevice;
+
 }
 GUI::~GUI()
 {
@@ -109,7 +109,7 @@ void GUI::loadFonts()
     fontFaces.push_back(font);
 }
 
-void GUI::testRender()
+void GUI::render(CForge::RenderDevice* renderDevice)
 {
     //blending required as the text will be applied as an alpha mask
     glEnable(GL_BLEND);
@@ -119,7 +119,7 @@ void GUI::testRender()
     glDisable(GL_DEPTH_TEST);
 
     for (auto x : m_TopLevelWidgets) {
-        x->pWidget->draw(m_renderDevice);
+        x->pWidget->draw(renderDevice);
     }
 
     //terrain rendering does not work properly with enabled blending
