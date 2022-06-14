@@ -24,11 +24,11 @@ class CallbackTestClass : public CForge::ITListener<CallbackObject> {
 
 class GUI : public CForge::ITListener<char32_t>, public CForge::ITListener<CForge::KeyboardCallback> {
 public:
-    GUI(CForge::RenderDevice* renderDevice);
+    GUI();
     ~GUI();
 
     void testInit(CForge::GLWindow* pWin);
-    void testRender();
+    void render(CForge::RenderDevice* renderDevice);
 
     FormWidget* createOptionsWindow(std::u32string title, int FormID);
     TextWidget* createPlainText();
@@ -68,7 +68,6 @@ private:
     CallbackTestClass callbackTest;
 
     CForge::GLWindow* m_pWin;
-    CForge::RenderDevice* m_renderDevice;
     BaseWidget* focusedWidget = nullptr;
     Eigen::Vector2f focusedClickOffset;
 
