@@ -502,7 +502,7 @@ namespace Terrain {
         BoxTexs.push_back("Assets/skybox/front.jpg");
         Skybox.init(BoxTexs[0], BoxTexs[1], BoxTexs[2], BoxTexs[3], BoxTexs[4], BoxTexs[5]);
 
-        GUI gui = GUI(&renderDevice);
+        GUI gui = GUI();
         gui.testInit(&window);
 
         CallbackTestClass callbacktest;
@@ -605,7 +605,7 @@ namespace Terrain {
             renderDevice.requestRendering(&Skybox, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
 
             gui.processEvents();
-            gui.testRender();
+            gui.render(&renderDevice);
 
             if (debugTexture) {
                 glActiveTexture(GL_TEXTURE0);
