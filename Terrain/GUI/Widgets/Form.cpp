@@ -32,7 +32,7 @@ FormWidget::~FormWidget()
 //     delete m_background;
 }
 
-void FormWidget::addOption(int OptionID, CallbackDatatype type, std::u32string name)
+void FormWidget::addOption(int OptionID, GUIInputType type, std::u32string name)
 {
     //do not create options with colliding IDs, they won't work either way
     if (m_labels.count(OptionID) > 0) return;
@@ -66,7 +66,27 @@ void FormWidget::setLimit(int OptionID, int lower, int higher)
         m_labels[OptionID]->setLimit(lower, higher);
     }
 }
+void FormWidget::setLimit(int OptionID, float higher)
+{
+    if (higher > 0) {
+        setLimit(OptionID, 0.0f, higher);
+    } else {
+        setLimit(OptionID, higher, 0.0f);
+    }
+}
+void FormWidget::setLimit(int OptionID, float lower, float higher)
+{
+    if (m_labels.count(OptionID) > 0) {
+        m_labels[OptionID]->setLimit(lower, higher);
+    }
+}
 void FormWidget::setDefault ( int OptionID, int value )
+{
+    if (m_labels.count(OptionID) > 0) {
+        m_labels[OptionID]->setDefault(value);
+    }
+}
+void FormWidget::setDefault(int OptionID, float value)
 {
     if (m_labels.count(OptionID) > 0) {
         m_labels[OptionID]->setDefault(value);
@@ -84,11 +104,17 @@ void FormWidget::setDefault ( int OptionID, std::u32string value )
         m_labels[OptionID]->setDefault(value);
     }
 }
+void FormWidget::setStepSize(int OptionID, float stepSize)
+{
+    if (m_labels.count(OptionID) > 0) {
+        m_labels[OptionID]->setStepSize(stepSize);
+    }
+}
 
 
 void FormWidget::sendCallback()
 {
-    CallbackObject bcObj;
+    GUICallbackObject bcObj;
     bcObj.FormID = m_FormID;
     bcObj.Data.clear();
     for (auto x : m_labels) {

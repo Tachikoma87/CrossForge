@@ -385,8 +385,8 @@ namespace Terrain {
     bool generateNew = true;
     bool renderGrass = true;
 
-    class TerrainGUICallbackHandler : public ITListener<CallbackObject> {
-        void listen ( const CallbackObject Msg ) override {
+    class TerrainGUICallbackHandler : public ITListener<GUICallbackObject> {
+        void listen ( const GUICallbackObject Msg ) override {
             if (Msg.FormID == 1) {
                 cameraMode = *((int*)Msg.Data.at(1).pData) == 2;
                 shadows = *((bool*)Msg.Data.at(2).pData);
@@ -510,16 +510,23 @@ namespace Terrain {
         FormWidget* form = gui.createOptionsWindow(U"Graphics", 1);
         form->startListening(&callbackHandler);
         form->startListening(&callbacktest);
-        form->addOption(1, DATATYPE_INT, U"Camera Mode");
+        form->addOption(1, INPUTTYPE_INT, U"Camera Mode");
         form->setLimit(1, 1, 2);
-        form->addOption(2, DATATYPE_BOOLEAN, U"Enable Shadows");
+        form->addOption(2, INPUTTYPE_BOOL, U"Enable Shadows");
         form->setDefault(2, false);
-        form->addOption(3, DATATYPE_BOOLEAN, U"Wireframe");
+        form->addOption(3, INPUTTYPE_BOOL, U"Wireframe");
         form->setDefault(3, false);
-        form->addOption(4, DATATYPE_BOOLEAN, U"Enable Grass");
+        form->addOption(4, INPUTTYPE_BOOL, U"Enable Grass");
         form->setDefault(4, true);
-        form->addOption(5, DATATYPE_BOOLEAN, U"Unlock Framerate");
+        form->addOption(5, INPUTTYPE_BOOL, U"Unlock Framerate");
         form->setDefault(5, false);
+
+        FormWidget* form2 = gui.createOptionsWindow(U"Test", 42);
+        form2->startListening(&callbacktest);
+        form2->addOption(1, INPUTTYPE_RANGESLIDER, U"Slider Test");
+        form2->setLimit(1, 10.0f);
+        form2->setStepSize(1, 0.3f);
+        form2->setDefault(1, 1.5f);
 
         //fps counter
         TextWidget* fpsWidget = gui.createPlainText();
