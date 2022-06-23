@@ -15,24 +15,27 @@ using namespace std;
 using namespace CForge;
 
 
-void CallbackTestClass::listen(const CallbackObject Msg)
+void CallbackTestClass::listen(const GUICallbackObject Msg)
 {
     printf("Received Callback from Form %d\n", Msg.FormID);
     for (auto x : Msg.Data) {
         switch(x.second.Type) {
-            case DATATYPE_INT:
+            case INPUTTYPE_INT:
                 printf("%d: %d\n", x.first, *(int*)x.second.pData);
                 break;
-            case DATATYPE_BOOLEAN:
+            case INPUTTYPE_BOOL:
                 printf("%d: %s\n", x.first, *(bool*)x.second.pData ? "True" : "False");
                 break;
-            case DATATYPE_STRING:
+            case INPUTTYPE_STRING:
                 printf("%d: ", x.first);
                 for (auto x : *(u32string*)x.second.pData) {
                     if (x < 127) printf("%c", (char)x);
                     else printf("[%X]", x);
                 }
                 printf("\n");
+                break;
+            case INPUTTYPE_RANGESLIDER:
+                printf("%d: %f\n", x.first, *(float*)x.second.pData);
                 break;
             default:
                 printf("%d: unhandled data type\n", x.first);
@@ -238,6 +241,7 @@ void GUI::processEvents()
 void GUI::processMouseEvents ( CForge::Mouse* mouse )
 {
     mouseEventInfo mouseEvent;
+    mouseEvent.rawPosition = mouse->position();
     auto mpos = mouse->position();
     static bool leftHoldDown = false;
     if (mouse->buttonState(CForge::Mouse::BTN_LEFT)) {

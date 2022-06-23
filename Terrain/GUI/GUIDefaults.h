@@ -57,3 +57,10 @@ struct InputTextStyle {
     float WrongInputColor[3] = {1.0f, 0.5f, 0.5f};
     float ValidInputColor[3] = {0.5f, 1.0f, 0.5f};
 };
+struct InputSliderStyle {
+    float CursorWidth = 0;
+    float CursorBorder = 3.0f;
+    float Width = 100;
+    float Height = 10;
+    int RoundLabelNumber = 2;   //round the number text to this many decimals after the comma. Does  NOT affect return value! Negative value disables rounding.
+};

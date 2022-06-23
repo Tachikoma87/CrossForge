@@ -16,10 +16,11 @@ class FormWidget;
 
 struct mouseEventInfo {
     Eigen::Vector2f adjustedPosition;   //cursor position adjusted to the position within the clicked widget
+    Eigen::Vector2f rawPosition;        //cursor position in window space
 };
 
-class CallbackTestClass : public CForge::ITListener<CallbackObject> {
-    void listen(const CallbackObject Msg) override;
+class CallbackTestClass : public CForge::ITListener<GUICallbackObject> {
+    void listen(const GUICallbackObject Msg) override;
 };
 
 class GUI : public CForge::ITListener<char32_t>, public CForge::ITListener<CForge::KeyboardCallback> {
