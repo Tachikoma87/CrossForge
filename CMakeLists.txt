@@ -122,7 +122,8 @@ add_library(crossforge SHARED
 	CForge/Internet/TCPSocket.cpp
  
   "CForge/AssetIO/MuscleDataInput.cpp"
-  )
+   "CForge/Internet/InternetFileStream.cpp" 
+   "CForge/Internet/InternetFileStream.h")
 #set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
 if(WIN32)
@@ -176,7 +177,9 @@ add_executable(CForgeSandbox
 	Prototypes/Misc/IMUCameraController.cpp
 
 	
-	 "CForge/AssetIO/MuscleDataInput.cpp")
+	 "CForge/AssetIO/MuscleDataInput.cpp" 
+	 "CForge/Internet/InternetFileStream.cpp" 
+	 "CForge/Internet/InternetFileStream.h")
 
 if(WIN32)
 	target_link_libraries(CForgeSandbox 
@@ -222,7 +225,7 @@ add_custom_command(
 
 
 add_executable(ExportLibrary 
-	ExportLibrary.cpp )
+	ExportLibrary.cpp  "CForge/Internet/InternetFileStream.cpp" "CForge/Internet/InternetFileStream.h")
 
 target_link_libraries(ExportLibrary
 	PRIVATE crossforge)

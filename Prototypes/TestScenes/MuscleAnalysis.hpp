@@ -37,8 +37,13 @@
 
 #include "../../CForge/Graphics/Actors/StaticActor.h"
 
+#include "../../CForge/Internet/TCPSocket.h"
+#include "../../CForge/Internet/InternetFileStream.h"
+
 #include "../../Examples/SceneUtilities.hpp"
 #include <memory>
+
+
 
 using namespace Eigen;
 using namespace std;
@@ -128,21 +133,36 @@ namespace CForge {
 		M.clear();
 
 		//initilize Data and Animation
-		// 
-		//BAT FILE PATH ABSOLUTE HAS TO BE CHANGED
-		// Change Path in bat file to its current location + set Path to Blender 
-		std::system("C:/Users/Megaport/Documents/STUDIUM/CrossForge/crossForge/CrossForge/Assets/MuscleAnalysisPL/pl.bat");
+		 
+		uint16_t port = 2456;
 
 
-		std::vector<MuscleDataInput::Muscledata> muscledata;
-		int frames = 0;
+//Client
+TCPSocket client;
+client.begin(TCPSocket::SocketType::TYPE_CLIENT, port);
+client.connectTo("127.0.0.1", port);
+InternetFileStream::sendFile("Assets/MuscleAnalysisPL/animation.bvh", (uint32_t)128, client, 0);
+//exit;
+uint8_t recvBuffer[128];
+uint32_t DataSize = 128;
+while (!(client.recvData(recvBuffer, &DataSize, 0))) {}
+InternetFileStream::receiveFile("Assets/MuscleAnalysisPL/animation_scaled.fbx", client, 0,recvBuffer,DataSize);
+while (!(client.recvData(recvBuffer, &DataSize, 0))) {}
+InternetFileStream::receiveFile("Assets/MuscleAnalysisPL/animation_scaled.sto", client, 0, recvBuffer, DataSize); //TODO:Change path to right storage file
+
+
+
+
+std::vector<MuscleDataInput::Muscledata> muscledata;
+		
+int frames = 0;
 		std::vector<MuscleDataInput::Muscle_allocdata> ma_data;
 
 		// initialize skeletal actor (Eric) and its animation controller
 		T3DMesh<float> SkelAnim;
 		SAssetIO::load("Assets/tmp/mbmalerigmuscles.fbx", &M);
 		SAssetIO::load("Assets/MuscleAnalysisPL/animation_scaled.fbx", &SkelAnim);
-		MuscleDataInput::loadDataFile("Assets/MuscleAnalysisPL/3DGaitModel2354-scaled_MuscleAnalysis_FiberForce.sto", &muscledata, &frames);
+		
 		MuscleDataInput::loadMuscleAllocation("Assets/MuscleAnalysisPL/Muscle_Allocation.txt", &ma_data);
 
 		M.clearSkeletalAnimations();
