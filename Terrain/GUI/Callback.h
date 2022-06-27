@@ -30,7 +30,8 @@ enum GUIInputType {
     INPUTTYPE_INT,          //returns integers
     INPUTTYPE_BOOL,         //bool
     INPUTTYPE_STRING,       //u32string
-    INPUTTYPE_RANGESLIDER   //float
+    INPUTTYPE_RANGESLIDER,  //float
+    INPUTTYPE_DROPDOWN      //int
 };
 
 struct GUICallbackDatum {

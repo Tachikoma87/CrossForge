@@ -8,6 +8,7 @@
 #include "InputCheckbox.h"
 #include "InputText.h"
 #include "InputSlider.h"
+#include "InputDropDown.h"
 
 class LabelWidget : public BaseWidget {
 public:
@@ -22,6 +23,9 @@ public:
     void setDefault(bool value);
     void setDefault(std::u32string value);
     void setStepSize(float stepSize);
+    void setOptions(std::map<int, std::u32string> optionMap);
+
+//     template <typename T> auto getInputWidget();
 
     float getJustification();
     void setJustification(float j);

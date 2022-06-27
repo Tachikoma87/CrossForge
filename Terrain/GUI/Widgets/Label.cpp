@@ -39,6 +39,11 @@ LabelWidget::LabelWidget(GUIInputType type, std::u32string labelText, GUI* rootG
             *(float*)m_pValue = 0;
             m_pInput = new InputSliderWidget(rootGUIObject, this);
             break;
+        case INPUTTYPE_DROPDOWN:
+            m_pValue = new int;
+            *(int*)m_pValue = 0;
+            m_pInput = new InputDropDownWidget(rootGUIObject, this);
+            break;
         default:
             //invalid type or no matching input yet
             m_pInput = nullptr;
@@ -59,6 +64,7 @@ LabelWidget::~LabelWidget()
     delete m_pLabelText;
     delete m_pInput;
     switch (m_type) {
+        case INPUTTYPE_DROPDOWN:
         case INPUTTYPE_INT:
             delete (int*)m_pValue;
             break;
@@ -92,6 +98,8 @@ GUICallbackDatum LabelWidget::getValue()
         case INPUTTYPE_RANGESLIDER:
             *(float*)m_pValue = (*(InputSliderWidget*)m_pInput).getValue();
             break;
+        case INPUTTYPE_DROPDOWN:
+            *(int*)m_pValue = (*(InputDropDownWidget*)m_pInput).getValue();
         default:
             //invalid type or no matching input yet
             break;
@@ -108,15 +116,18 @@ void LabelWidget::setLimit(int lower, int higher)
         case INPUTTYPE_INT:
             (*(InputNumberWidget*)m_pInput).setLimit(lower, higher);
             break;
-        case INPUTTYPE_BOOL:
+        /*case INPUTTYPE_BOOL:
             //A boolean value cannot be limited in range
-            break;
+            break;*/
         case INPUTTYPE_STRING:
             (*(InputTextWidget*)m_pInput).setLimit(lower, higher);
             break;
         case INPUTTYPE_RANGESLIDER:
             (*(InputNumberWidget*)m_pInput).setLimit(lower, higher);
             break;
+        /*case INPUTTYPE_DROPDOWN:
+            //A dropdown is limited by its given options instead
+            break;*/
         default:
             //invalid type or no matching input yet
             break;
@@ -135,10 +146,25 @@ void LabelWidget::setLimit(float lower, float higher)
 }
 void LabelWidget::setDefault ( int value )
 {
-    if (m_type == INPUTTYPE_INT) {
-        (*(InputNumberWidget*)m_pInput).setValue(value);
-    } else if (m_type == INPUTTYPE_RANGESLIDER) {
-        (*(InputSliderWidget*)m_pInput).setValue(value);
+    switch (m_type) {
+        case INPUTTYPE_INT:
+            (*(InputNumberWidget*)m_pInput).setValue(value);
+            break;
+        case INPUTTYPE_BOOL:
+            (*(InputCheckboxWidget*)m_pInput).setState(value != 0);
+            break;
+        /*case INPUTTYPE_STRING:
+            //doesn't make much sense imo
+            break;*/
+        case INPUTTYPE_RANGESLIDER:
+            //int can be converted to float
+            (*(InputSliderWidget*)m_pInput).setValue(value);
+            break;
+        case INPUTTYPE_DROPDOWN:
+            (*(InputDropDownWidget*)m_pInput).setValue(value);
+        default:
+            //invalid type
+            break;
     }
 }
 void LabelWidget::setDefault ( bool value )
@@ -165,6 +191,28 @@ void LabelWidget::setStepSize ( float stepSize )
         (*(InputSliderWidget*)m_pInput).setStepSize(stepSize);
     }
 }
+void LabelWidget::setOptions(std::map<int, std::u32string> optionMap)
+{
+    if (m_type == INPUTTYPE_DROPDOWN) {
+        (*(InputDropDownWidget*)m_pInput).setOptions(optionMap);
+    }
+}
+
+// template<typename T> auto LabelWidget::getInputWidget()
+// {
+//     switch (m_type) {
+//         case INPUTTYPE_INT:
+//             return (InputNumberWidget*)m_pInput;
+//         case INPUTTYPE_BOOL:
+//             return (InputCheckboxWidget*)m_pInput;
+//         case INPUTTYPE_STRING:
+//             return (InputTextWidget*)m_pInput;
+//         case INPUTTYPE_RANGESLIDER:
+//             return (InputSliderWidget*)m_pInput;
+//         default:
+//             return nullptr;
+//     }
+// }
 
 
 float LabelWidget::getJustification()
