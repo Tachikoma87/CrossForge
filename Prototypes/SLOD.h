@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "../thirdparty/tinyxml2/tinyxml2.h"
 #include "../CForge/AssetIO/File.h"
 #include <chrono>
@@ -37,11 +37,12 @@ namespace CForge {
 		bool forceSLOD = false;
 		bool m_preferLowLOD = false;
 		
-		std::vector<float> LODLevels = /*{1.0, 0.9}; //*/{1.0, 0.75, 0.5, 0.25, 0.125, 0.0625, 0.03};
+		std::vector<float> LODLevels = /*{1.0, 0.9}; //*/{1.0, 0.75, 0.5, 0.25, 0.125, 0.0625};
 		//std::vector<float> LODLevels = {1.0};
 		//std::vector<float> LODPercentages = {FLT_EPSILON};
-		//std::vector<float> LODPercentages = {0.75, 0.5, 0.4, 0.25, 0.125, 0.0625, 0.03125 };
-		std::vector<float> LODPercentages = {0.5, 0.25, 0.1, 0.05, 0.01, 0.001};
+		std::vector<float> LODPercentages = {0.75, 0.5, 0.4, 0.25, 0.125, 0.0625, 0.03125 };
+		//std::vector<float> LODPercentages = {0.5, 0.25, 0.1, 0.05, 0.01, 0.001};
+		//std::vector<float> LODPercentages = {0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001};
 		std::vector<float> LODDistances;
 		
 		static SLOD* m_pInstance;

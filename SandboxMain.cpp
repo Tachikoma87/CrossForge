@@ -16,6 +16,7 @@
 //#include "Examples/MinimumGraphicalSetup.hpp"
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/LODTestScene.hpp"
+#include "Prototypes/TestScenes/MuseumTestScene.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
@@ -63,7 +64,7 @@ int main(int argc, char* argv[]) {
 		//exampleMorphTargetAnimation(); 
 		//shadowTest();
 		//vertexColorTestScene();
-		forestTestScene();
+		//forestTestScene();
 		//skelAnimTestScene();
 
 		//imuInputDeviceTestScene();
@@ -71,6 +72,7 @@ int main(int argc, char* argv[]) {
 		//assetGLTFTestScene();
 		//skyboxTestScene();
 		//LODTestScene();
+		museumTestScene();
 		//MinimumGraphicalSetup();
 		//shadowTest();
 		//morphTargetAnimTestScene();

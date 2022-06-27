@@ -35,6 +35,8 @@
 #include "UniformBufferObjects/UBOModelData.h"
 #include "Shader/GLShader.h"
 
+#include "PPBuffer.h"
+
 #include "../../Prototypes/UBOInstancedData.h"
 #include <glad/glad.h>
 
@@ -56,6 +58,7 @@ namespace CForge {
 			RENDERPASS_LIGHTING,	///< deferred shading lighting pass
 			RENDERPASS_FORWARD,		///< forward rendering draw pass
 			RENDERPASS_LOD,			
+			RENDERPASS_POSTPROCESSING,
 		};
 
 		struct CFORGE_API RenderDeviceConfig {
@@ -118,6 +121,8 @@ namespace CForge {
 		void LODQueryContainerPushBack(GLuint queryID, IRenderableActor* pActor, Eigen::Matrix4f transform);
 		void fetchQueryResults();
 		void LODSGPushBack(IRenderableActor* pActor, Eigen::Matrix4f mat);
+		
+		PPBuffer getPPBuffer();
 		//
 		
 	protected:
@@ -173,6 +178,7 @@ namespace CForge {
 		std::vector<Eigen::Matrix4f> m_LODSGTransformations;
 
 		std::vector<LODQueryContainer> LODQueryContainers;
+		PPBuffer m_PPBuffer;
 	};//RenderDevice
 }//name space
 

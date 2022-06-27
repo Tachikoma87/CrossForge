@@ -65,6 +65,7 @@ namespace CForge {
 				m_Config.GBufferWidth = 1280;
 			}
 			m_GBuffer.init(m_Config.GBufferWidth, m_Config.GBufferHeight);
+			m_PPBuffer.init(m_Config.GBufferWidth, m_Config.GBufferHeight);
 
 			if (m_Config.ExecuteLightingPass) {
 				m_ScreenQuad.init(0.0f, 0.0f, 1.0f, 1.0f, nullptr);
@@ -329,7 +330,9 @@ namespace CForge {
 			}
 
 			if (m_Config.ExecuteLightingPass) {
-				glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
+				//glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
+				m_PPBuffer.bind();
+				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
 
@@ -356,21 +359,33 @@ namespace CForge {
 		case RENDERPASS_FORWARD: {
 			if (m_Config.UseGBuffer) {
 				// blit depth buffer
-				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-				m_GBuffer.blitDepthBuffer(m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
+				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_PPBuffer.getFramebufferIndex());
+				//m_GBuffer.blitDepthBuffer(m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
+				m_GBuffer.blitDepthBuffer(m_GBuffer.width(), m_GBuffer.height());
+				glBindFramebuffer(GL_FRAMEBUFFER, m_PPBuffer.getFramebufferIndex());
+				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
+				//glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
 			}
 		}break;
 		case RENDERPASS_LOD: {
 			if (m_Config.UseGBuffer) {
-				m_GBuffer.bind();
-				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
-				glCullFace(GL_BACK);
+				//m_GBuffer.bind();
+				//glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
+				//glCullFace(GL_BACK);
 			}
 			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 			glDepthMask(GL_FALSE);
-		}
+		}break;
+		case RENDERPASS_POSTPROCESSING: {
+			if (m_Config.UseGBuffer) {
+				m_PPBuffer.bindTexture(PPBuffer::COMP,0);
+				m_GBuffer.bindTexture(GBuffer::COMP_POSITION, 1);
+				m_GBuffer.bindTexture(GBuffer::COMP_NORMAL, 2);
+				
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
+			}
+		}break;
 		default: break;
 		}
 
@@ -557,5 +572,10 @@ namespace CForge {
 		m_LODSGActors.push_back(pActor);
 		m_LODSGTransformations.push_back(mat);
 	}
+
+	PPBuffer RenderDevice::getPPBuffer() {
+		return m_PPBuffer;
+	}
+	
 	
 }//name space

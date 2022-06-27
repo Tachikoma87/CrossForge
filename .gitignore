@@ -1,4 +1,4 @@
-﻿# Folders
+# Folders
 .vs/
 .idea/
 out/
@@ -6,6 +6,7 @@ cmake-build-debug/**/*
 Documentation/Doc/
 Libraries/
 MyAssets/
+museumAssets/
 
 # Prerequisites
 *.d

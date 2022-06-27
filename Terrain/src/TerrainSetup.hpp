@@ -18,12 +18,18 @@
 #include <GLFW/glfw3.h>
 //#include "../../CForge/Graphics/GLWindow.h"
 
+#include "PPScreenQuad.h"
+#include "../../Prototypes/SLOD.h"
+#include "../../Prototypes/Actor/LODActor.h"
+
 using namespace CForge;
 #define CAM_FOV 70.0
 #define WINWIDTH 1920
 #define WINHEIGHT 1080
 
 namespace Terrain {
+
+	RenderDevice::RenderDeviceConfig renderConfig;
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
                     DirectionalLight *light) {
@@ -38,7 +44,7 @@ namespace Terrain {
         GraphicsUtility::checkGLError(&GLError);
         if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
-        RenderDevice::RenderDeviceConfig renderConfig;
+        //RenderDevice::RenderDeviceConfig renderConfig;
         renderConfig.DirectionalLightsCount = 2;
         renderConfig.PointLightsCount = 0;
         renderConfig.SpotLightsCount = 0;
@@ -96,17 +102,17 @@ namespace Terrain {
         quad->init(0, 0, 1, 1, quadShader);
     }
 
-    void updateCamera(Mouse *mouse, Keyboard *keyboard, VirtualCamera *camera) {
+    void updateCamera(Mouse *mouse, Keyboard *keyboard, VirtualCamera *camera, float deltaTime) {
         if (nullptr == keyboard) return;
 
         const float movementSpeed = 4;
 
-        float MovementScale = 0.1f;
+        float MovementScale = 0.1f*60.0/(1.0/deltaTime);
         if (keyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) || keyboard->keyPressed(Keyboard::KEY_RIGHT_SHIFT)) {
-            MovementScale = 0.3f;
+            MovementScale *= 3.0;
         }
         if (keyboard->keyPressed(Keyboard::KEY_Q)) {
-            MovementScale = 0.02f;
+            MovementScale *= 0.2;
         }
 
         if (keyboard->keyPressed(Keyboard::KEY_W) || keyboard->keyPressed(Keyboard::KEY_UP))
@@ -210,7 +216,7 @@ namespace Terrain {
     }
 
 
-    void placeDekoElements(TerrainMap &map, InstanceActor &iPineActor, InstanceActor &iPineLeavesActor, InstanceActor &iTreeActor, InstanceActor &iTreeLeavesActor, InstanceActor &iPalmActor, InstanceActor &iPalmLeavesActor, InstanceActor &iRockActor, InstanceActor& iBushActor) {
+    void placeDekoElements(TerrainMap &map, LODActor &iPineActor, LODActor &iPineLeavesActor, LODActor &iTreeActor, LODActor &iTreeLeavesActor, LODActor &iPalmActor, LODActor &iPalmLeavesActor, LODActor &iRockActor, InstanceActor& iBushActor) {
         iPineActor.clearInstances();
         iPineLeavesActor.clearInstances();
         iTreeActor.clearInstances();
@@ -382,7 +388,7 @@ namespace Terrain {
     bool erode = false;
     bool cameraMode = false;
     bool generateNew = true;
-    bool renderGrass = true;
+    bool renderGrass = false;
 
     class TerrainGUICallbackHandler : public ITListener<CallbackObject> {
         void listen ( const CallbackObject Msg ) override {
@@ -437,34 +443,41 @@ namespace Terrain {
         
 
         DekoMesh PineMesh;
-        InstanceActor iPineActor;
+        LODActor iPineActor;
         DekoMesh PineLeavesMesh;
-        InstanceActor iPineLeavesActor;
+		LODActor iPineLeavesActor;
         DekoMesh PalmMesh;
-        InstanceActor iPalmActor;
+		LODActor iPalmActor;
         DekoMesh PalmLeavesMesh;
-        InstanceActor iPalmLeavesActor;
+		LODActor iPalmLeavesActor;
         DekoMesh TreeMesh;
-        InstanceActor iTreeActor;
+		LODActor iTreeActor;
         DekoMesh TreeLeavesMesh;
-        InstanceActor iTreeLeavesActor;
+		LODActor iTreeLeavesActor;
         DekoMesh GrassMesh;
-        InstanceActor iGrassActor;
+		InstanceActor iGrassActor;
         DekoMesh BushMesh;
-        InstanceActor iBushActor;
+		InstanceActor iBushActor;
         DekoMesh RockMesh;
-        InstanceActor iRockActor;
+		LODActor iRockActor;
 
         loadNewDekoObjects(generateNew, PineMesh, PineLeavesMesh, PalmMesh, PalmLeavesMesh, TreeMesh, TreeLeavesMesh, GrassMesh, RockMesh, BushMesh);
 
         placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
-        iPineActor.init(&PineMesh);
-        iPineLeavesActor.init(&PineLeavesMesh);
-        iTreeActor.init(&TreeMesh);
-        iTreeLeavesActor.init(&TreeLeavesMesh);
-        iPalmActor.init(&PalmMesh);
-        iPalmLeavesActor.init(&PalmLeavesMesh);
-        iRockActor.init(&RockMesh);
+		printf("iPineActor\n");
+        iPineActor.init(&PineMesh, true, true);
+		printf("iPineLeavesActor\n");
+        iPineLeavesActor.init(&PineLeavesMesh, true, true);
+		printf("iTreeActor\n");
+        iTreeActor.init(&TreeMesh, true, true);
+		printf("iTreeLeavesActor\n");
+        iTreeLeavesActor.init(&TreeLeavesMesh, true, true);
+		printf("iPalmActor\n");
+        iPalmActor.init(&PalmMesh, true, true);
+		printf("iPalmLeavesActor\n");
+        iPalmLeavesActor.init(&PalmLeavesMesh, true, true);
+		printf("iRockActor\n");
+        iRockActor.init(&RockMesh, true, true);
         iGrassActor.init(&GrassMesh);
         iBushActor.init(&BushMesh);
         
@@ -532,33 +545,20 @@ namespace Terrain {
         uint32_t ScreenshotNumber = 0;
 		
 		// sea shader
+		PPScreenQuad postProc;
+		initDebugQuad(&postProc, "Shader/ScreenQuad.vert", "Shader/seascape.frag");
+		double oceanTimer = 0.0;
 		
-		ScreenQuad postProc;
-		initDebugQuad(&postProc, "Shader/ScreenQuad.vert", "Shader/invert.frag");
+		iPineLeavesActor.setFaceCulling(false);
+		iPalmLeavesActor.setFaceCulling(false);
+		iTreeLeavesActor.setFaceCulling(false);
 		
-		GLuint  postProcTex;
-		unsigned int err = 0;
-		err = glGetError();
-		while ((err != 0)) {
-			std::cout << err;
-			err = glGetError();
-		}
-		glGenTextures(1, &postProcTex);
-		glBindTexture(GL_TEXTURE_2D, postProcTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINWIDTH, WINHEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, postProcTex, 0);
-		err = glGetError();
-		while ((err != 0)) {
-			std::cout << err;
-			err = glGetError();
-		}
-		
+		SLOD* pSLOD = SLOD::instance();
+		pSLOD->setResolution(Vector2i(WINWIDTH,WINHEIGHT));
 
         while (!window.shutdown()) {
+			pSLOD->update();
+			
 			renderDevice.clearBuffer();
             current_ticks = clock(); //for fps counter
 
@@ -606,13 +606,25 @@ namespace Terrain {
                 //sceneGraph.render(&renderDevice);
 				map.renderMap(&renderDevice);
             }
+			
+			renderDevice.activePass(RenderDevice::RENDERPASS_LOD);
+			iPineActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
+			iTreeActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
+			iPalmActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
+			iRockActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
+			iPineLeavesActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
+			iTreeLeavesActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
+			iPalmLeavesActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
 
+			
+			renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			renderDevice.renderLODSG();
             //Deko instances
-            iPineActor.render(&renderDevice);
-            iTreeActor.render(&renderDevice);
-            iPalmActor.render(&renderDevice);
-            iRockActor.render(&renderDevice);
-            iBushActor.render(&renderDevice);
+            //iPineActor.render(&renderDevice);
+            //iTreeActor.render(&renderDevice);
+            //iPalmActor.render(&renderDevice);
+            //iRockActor.render(&renderDevice);
+            //iBushActor.render(&renderDevice);
 
             glDisable(GL_CULL_FACE);
             if (renderGrass) {
@@ -620,32 +632,23 @@ namespace Terrain {
                 iGrassActor.init(&GrassMesh);
                 iGrassActor.render(&renderDevice);
             }
-            iPineLeavesActor.render(&renderDevice);
-            iTreeLeavesActor.render(&renderDevice);
-            iPalmLeavesActor.render(&renderDevice);
+            //iPineLeavesActor.render(&renderDevice);
+            //iTreeLeavesActor.render(&renderDevice);
+            //iPalmLeavesActor.render(&renderDevice);
             glEnable(GL_CULL_FACE);
-
+			
             renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
-
-            renderDevice.activePass(RenderDevice::RENDERPASS_FORWARD);
+			
+			renderDevice.activePass(RenderDevice::RENDERPASS_FORWARD);
             renderDevice.requestRendering(&Skybox, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
 
-			err = glGetError();
-			while ((err != 0)) {
-				std::cout << err;
-				err = glGetError();
-			}
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, postProcTex);
-			err = glGetError();
-			while ((err != 0)) {
-				std::cout << err;
-				err = glGetError();
-			}
-			postProc.render(&renderDevice);
+			renderDevice.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
+			oceanTimer += pSLOD->getDeltaTime();
+			//std::cout << oceanTimer << "\n";
+			postProc.render(&renderDevice, heightMapConfig.mapHeight*0.5, oceanTimer*1.5, (float)WINWIDTH/WINHEIGHT);
 			
-            //gui.processEvents();
-            //gui.testRender();
+            gui.processEvents();
+            gui.render(&renderDevice);
 
             if (debugTexture) {
                 glActiveTexture(GL_TEXTURE0);
@@ -655,11 +658,11 @@ namespace Terrain {
 
             window.swapBuffers();
 
-            updateCamera(window.mouse(), window.keyboard(), renderDevice.activeCamera());
+            updateCamera(window.mouse(), window.keyboard(), renderDevice.activeCamera(), pSLOD->getDeltaTime());
 
             if (cameraMode) {
                 camera.position(Vector3f(camera.position().x(),
-                                         map.getHeightAt(camera.position().x(), camera.position().z()) + cameraHeight,
+                                         std::max(map.getHeightAt(camera.position().x(), camera.position().z()), heightMapConfig.mapHeight*0.5f+ cameraHeight) + cameraHeight,
                                          camera.position().z()));
             }
 
@@ -691,26 +694,26 @@ namespace Terrain {
                     .mapHeight = 400, .noiseConfig = noiseConfig};
                 map.generateHeightMap(heightMapConfig);
                 placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
-                iPineActor.init(&PineMesh);
-                iPineLeavesActor.init(&PineLeavesMesh);
-                iTreeActor.init(&TreeMesh);
-                iTreeLeavesActor.init(&TreeLeavesMesh);
-                iPalmActor.init(&PalmMesh);
-                iPalmLeavesActor.init(&PalmLeavesMesh);
-                iRockActor.init(&RockMesh);
+                //iPineActor.init(&PineMesh);
+                //iPineLeavesActor.init(&PineLeavesMesh);
+                //iTreeActor.init(&TreeMesh);
+                //iTreeLeavesActor.init(&TreeLeavesMesh);
+                //iPalmActor.init(&PalmMesh);
+                //iPalmLeavesActor.init(&PalmLeavesMesh);
+                //iRockActor.init(&RockMesh);
                 iBushActor.init(&BushMesh);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F5)) {
                 window.keyboard()->keyState(Keyboard::KEY_F5, Keyboard::KEY_RELEASED);
                 map.updateHeights();
                 placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
-                iPineActor.init(&PineMesh);
-                iPineLeavesActor.init(&PineLeavesMesh);
-                iTreeActor.init(&TreeMesh);
-                iTreeLeavesActor.init(&TreeLeavesMesh);
-                iPalmActor.init(&PalmMesh);
-                iPalmLeavesActor.init(&PalmLeavesMesh);
-                iRockActor.init(&RockMesh);
+                //iPineActor.init(&PineMesh);
+                //iPineLeavesActor.init(&PineLeavesMesh);
+                //iTreeActor.init(&TreeMesh);
+                //iTreeLeavesActor.init(&TreeLeavesMesh);
+                //iPalmActor.init(&PalmMesh);
+                //iPalmLeavesActor.init(&PalmLeavesMesh);
+                //iRockActor.init(&RockMesh);
                 iBushActor.init(&BushMesh);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F6)) {
