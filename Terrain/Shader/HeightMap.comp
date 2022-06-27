@@ -149,17 +149,17 @@ void main() {
 
     float flat_mul = 0.4;
 
-    if (height > 0.0) {
+    //if (height > 0.0) {
         if (dist < mountain_radius) {
             height = height * mix(flat_mul, 2, pow(1.0 - dist / mountain_radius, 2));
         }
         else{
             height = height * flat_mul;
         }
-    }
-    else {
-        height = 0.0; // clamp water
-    }
+    //}
+    //else {
+    //    height = 0.0; // clamp water
+    //}
 
     height = (height + 1) / 2;
 

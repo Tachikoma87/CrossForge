@@ -20,20 +20,19 @@
 
 using namespace CForge;
 #define CAM_FOV 70.0
+#define WINWIDTH 1920
+#define WINHEIGHT 1080
 
 namespace Terrain {
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
                     DirectionalLight *light) {
-        uint32_t winWidth =  1280;
-        uint32_t winHeight = 720;
-
-       /* winWidth = 1200;
-        winHeight = 1200;*/
+        uint32_t winWidth = WINWIDTH;
+        uint32_t winHeight = WINHEIGHT;
 
         window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup");
         gladLoadGL();
-// 		glfwSwapInterval(0);
+		glfwSwapInterval(0);
 
         string GLError;
         GraphicsUtility::checkGLError(&GLError);
@@ -81,15 +80,15 @@ namespace Terrain {
 
 
 
-    void initDebugQuad(ScreenQuad *quad) {
+    void initDebugQuad(ScreenQuad *quad, const std::string vertSource, const std::string fragSource) {
         vector<ShaderCode *> vsSources;
         vector<ShaderCode *> fsSources;
         string errorLog;
 
         SShaderManager *shaderManager = SShaderManager::instance();
-        vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "420 core",
+        vsSources.push_back(shaderManager->createShaderCode(vertSource, "420 core",
                                                             0, "", ""));
-        fsSources.push_back(shaderManager->createShaderCode("Shader/DebugQuad.frag", "420 core",
+        fsSources.push_back(shaderManager->createShaderCode(fragSource, "420 core",
                                                             0, "", ""));
         GLShader *quadShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
         shaderManager->release();
@@ -488,8 +487,7 @@ namespace Terrain {
         sceneGraph.init(&rootTransform);
 
         ScreenQuad quad;
-        initDebugQuad(&quad);
-
+        initDebugQuad(&quad, "Shader/ScreenQuad.vert", "Shader/DebugQuad.frag");
 
         // initialize skybox
         SkyboxActor Skybox;
@@ -532,8 +530,36 @@ namespace Terrain {
         uint64_t LastFPS = CoreUtility::timestamp();
 
         uint32_t ScreenshotNumber = 0;
+		
+		// sea shader
+		
+		ScreenQuad postProc;
+		initDebugQuad(&postProc, "Shader/ScreenQuad.vert", "Shader/invert.frag");
+		
+		GLuint  postProcTex;
+		unsigned int err = 0;
+		err = glGetError();
+		while ((err != 0)) {
+			std::cout << err;
+			err = glGetError();
+		}
+		glGenTextures(1, &postProcTex);
+		glBindTexture(GL_TEXTURE_2D, postProcTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINWIDTH, WINHEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, postProcTex, 0);
+		err = glGetError();
+		while ((err != 0)) {
+			std::cout << err;
+			err = glGetError();
+		}
+		
 
         while (!window.shutdown()) {
+			renderDevice.clearBuffer();
             current_ticks = clock(); //for fps counter
 
             if (window.keyboard()->keyPressed(Keyboard::KEY_P)) {
@@ -604,8 +630,22 @@ namespace Terrain {
             renderDevice.activePass(RenderDevice::RENDERPASS_FORWARD);
             renderDevice.requestRendering(&Skybox, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
 
-            gui.processEvents();
-            gui.render(&renderDevice);
+			err = glGetError();
+			while ((err != 0)) {
+				std::cout << err;
+				err = glGetError();
+			}
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, postProcTex);
+			err = glGetError();
+			while ((err != 0)) {
+				std::cout << err;
+				err = glGetError();
+			}
+			postProc.render(&renderDevice);
+			
+            //gui.processEvents();
+            //gui.testRender();
 
             if (debugTexture) {
                 glActiveTexture(GL_TEXTURE0);
