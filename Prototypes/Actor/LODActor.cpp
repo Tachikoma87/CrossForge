@@ -1,4 +1,4 @@
-﻿#include <glad/glad.h>
+#include <glad/glad.h>
 #include "LODActor.h"
 #include "../../CForge/Graphics/RenderDevice.h"
 #include "../../CForge/Graphics/GraphicsUtility.h"
@@ -6,7 +6,7 @@
 #include "../MeshDecimate.h"
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
 
-//#define SKIP_INSTANCED_QUERIES // TODO determine skipping by time query
+#define SKIP_INSTANCED_QUERIES // TODO determine skipping by time query
 
 namespace CForge {
 	LODActor::LODActor(void) : IRenderableActor("LODActor", ATYPE_STATIC) {
@@ -58,7 +58,12 @@ namespace CForge {
 			if (amount > 1.0)
 				throw CForgeExcept("decimation stages are in wrong order");
 			
-			MeshDecimator::decimateMesh(m_LODMeshes[i-1], pLODMesh, amount);
+			bool succ = MeshDecimator::decimateMesh(m_LODMeshes[i-1], pLODMesh, amount);
+			if (!succ) {
+				m_LODStages.erase(m_LODStages.begin()+i, m_LODStages.end());
+				delete pLODMesh;
+				break;
+			}
 			m_LODMeshes.push_back(pLODMesh);
 			initiateBuffers(i);
 			
@@ -169,14 +174,19 @@ namespace CForge {
 		for (uint32_t i = 0; i < m_LODMeshes.size(); i++) {
 			if (i > 0) // do not delete the first mesh, we do not own its reference
 				delete m_LODMeshes[i];
-
-			delete m_RenderGroupUtilities[i];
+			
+			if (i < m_RenderGroupUtilities.size()) //TODO why
+				break;
+			
+			if (nullptr != m_RenderGroupUtilities[i])
+				delete m_RenderGroupUtilities[i];
+			m_RenderGroupUtilities[i] = nullptr;
 			if (nullptr != m_VertexBuffers[i])
-				delete[] m_VertexBuffers[i];
+				delete m_VertexBuffers[i];
 			m_VertexBuffers[i] = nullptr;
 			if (nullptr != m_ElementBuffers[i])
-				delete[] m_ElementBuffers[i];
-			m_ElementBuffers[i] = nullptr;	
+				delete m_ElementBuffers[i];
+			m_ElementBuffers[i] = nullptr;
 		}
 	}//Clear
 
@@ -196,6 +206,8 @@ namespace CForge {
 	void LODActor::render(RenderDevice* pRDev) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
 		
+		if (!m_faceCulling)
+			glDisable(GL_CULL_FACE);
 		if (m_isInstanced) {
 			for (uint32_t j = 0; j < m_instancedMatRef.size(); j++) {
 				if (m_instancedMatRef[j]->size() > 0) {
@@ -240,6 +252,8 @@ namespace CForge {
 				glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
 			}//for[all render groups]
 		}
+		if (!m_faceCulling)
+			glEnable(GL_CULL_FACE);
 	}//render
 	
 	void LODActor::initAABB() {
@@ -291,10 +305,10 @@ namespace CForge {
 		
 		if (m_isManualInstaned) { // all instanced at once
 			for (uint32_t i = 0; i < m_instancedMatrices.size(); i++) {
-
-#ifndef SKIP_INSTANCED_QUERIES
 				if (!fovCulling(pRDev, &m_instancedMatrices[i]))
 					continue;
+#ifndef SKIP_INSTANCED_QUERIES
+				pRDev->modelUBO()->modelMatrix(m_instancedMatrices[i]);
 				queryAABB(pRDev, m_instancedMatrices[i]);
 #else
 				m_instancedMatRef[0]->push_back(m_instancedMatrices[i]);
@@ -306,10 +320,9 @@ namespace CForge {
 			}
 		}
 		else if (m_isInstanced) { // single instance, other instances get added over SG
-
-#ifndef SKIP_INSTANCED_QUERIES
 			if (!fovCulling(pRDev, &sgMat))
 				return;
+#ifndef SKIP_INSTANCED_QUERIES
 			queryAABB(pRDev, sgMat);
 #else
 			m_instancedMatrices.push_back(sgMat);
@@ -321,6 +334,8 @@ namespace CForge {
 #endif
 		}
 		else {
+			if (!fovCulling(pRDev, &sgMat))
+				return;
 			queryAABB(pRDev, sgMat);
 		}
 	}
@@ -355,7 +370,7 @@ namespace CForge {
 		// set LOD level based on screen coverage
 		float screenCov = float(pixelCount) / m_pSLOD->getResPixAmount();
 		
-		while (level < m_LODStages.size()-1) {
+		while (level < m_LODStages.size()-2) {
 			if (screenCov > m_pSLOD->getLODPercentages()[level])
 				break;
 			level++;
@@ -369,8 +384,10 @@ namespace CForge {
 			m_instancedMatRef[level]->push_back(m_instancedMatrices.at(m_instancedMatrices.size() - 1));
 		}
 		else { // not instanced bind lod immediately
-			if (level != m_LODLevel)
+			if (level != m_LODLevel) {
+				printf("binding LOD level: %d\n", level);
 				bindLODLevel(level);
+			}
 		}
 	}
 	
@@ -494,5 +511,9 @@ namespace CForge {
 		if (camPosToObj.normalized().dot(pRDev->activeCamera()->dir())+(1.0/distance)*offset < std::cos(fov))
 			return false;
 		return true;
+	}
+
+	void LODActor::setFaceCulling(bool state) {
+		m_faceCulling = state;
 	}
 }

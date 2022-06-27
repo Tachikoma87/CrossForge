@@ -41,7 +41,7 @@ namespace Terrain {
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 
         mTexture = STextureManager::fromHandle(textureHandle);
-        erode(300);
+        //erode(300);
         delete mHeights;
         mHeights = new GLfloat[config.width * config.height];
         glGetTexImage(target, 0, format, dataType, mHeights);
@@ -132,7 +132,7 @@ namespace Terrain {
         glUniform1fv(mErosionShader->uniformLocation("BrushWeights"), brushWeights.size(), brushWeights.data());
         glUniform2iv(mErosionShader->uniformLocation("BrushOffsets"), brushOffsets.size(), brushOffsets.data());
 
-        glBindImageTexture(0, mTexture->handle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RED);
+        //glBindImageTexture(0, mTexture->handle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RED);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
         glDispatchCompute(count, 1, 1);
         // wait for compute shader to finish

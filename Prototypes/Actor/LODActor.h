@@ -1,4 +1,4 @@
-﻿/*****************************************************************************\
+/*****************************************************************************\
 *                                                                           *
 * File(s): LODActor.h and LODActor.cpp                                *
 *                                                                           *
@@ -72,6 +72,8 @@ namespace CForge {
 		std::vector<float> getLODStages();
 		void evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount);
 		
+		void setFaceCulling(bool state);
+		
 	protected:
 
 	private:
@@ -87,6 +89,7 @@ namespace CForge {
 		
 		bool m_translucent = true;
 		bool m_visible = true;
+		bool m_faceCulling = true;
 		uint32_t m_pixelCount;
 
 		std::vector<uint16_t> m_VertexProperties;

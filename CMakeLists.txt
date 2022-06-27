@@ -69,7 +69,7 @@ add_library(crossforge SHARED
 	CForge/Graphics/STextureManager.cpp 
 	CForge/Graphics/VirtualCamera.cpp
 	CForge/Graphics/GraphicsUtility.cpp
-
+	CForge/Graphics/PPBuffer.cpp
 
 	# Actor related
 	CForge/Graphics/Actors/IRenderableActor.cpp 
@@ -269,6 +269,11 @@ add_executable(Terrain
 	Terrain/src/Decoration/TreeGenerator.cpp
 	Terrain/src/Decoration/RockGenerator.cpp
 	Terrain/src/Decoration/DecoSetup.cpp
+	Terrain/src/PPScreenQuad.cpp
+	
+	Prototypes/SLOD.cpp
+	"Prototypes/Actor/LODActor.cpp"
+	"Prototypes/MeshDecimate.cpp"
 
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
 )
