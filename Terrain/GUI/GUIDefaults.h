@@ -3,7 +3,7 @@
 #include <string>
 
 struct BackgroundStyle {
-    float Alpha = 0.5f;
+    float Alpha = 0.7f;
     float Color[3] = {0.0f, 0.0f, 0.0f};
 };
 struct BorderStyle {

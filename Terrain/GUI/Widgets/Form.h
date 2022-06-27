@@ -23,6 +23,8 @@ public:
     ~FormWidget();
 
     void addOption(int OptionID, GUIInputType type, std::u32string name);
+//     template <typename T>
+//     auto addOption(int OptionID, GUIInputType type, std::u32string name);
     void setLimit(int OptionID, int higher);
     void setLimit(int OptionID, int lower, int higher);
     void setLimit(int OptionID, float higher);
@@ -32,6 +34,7 @@ public:
     void setDefault(int OptionID, bool value);
     void setDefault(int OptionID, std::u32string value);
     void setStepSize(int OptionID, float stepSize);
+    void setDropDownOptions(int OptionID, std::map<int, std::u32string> optionMap);
     void sendCallback();
 
     void changePosition(float dx, float dy) override;

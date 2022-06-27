@@ -52,6 +52,13 @@ void FormWidget::addOption(int OptionID, GUIInputType type, std::u32string name)
     updateLayout();
 //     m_background->updateSize();
 }
+// template<typename T>
+// auto FormWidget::addOption(int OptionID, GUIInputType type, std::u32string name)
+// {
+//     addOption(OptionID, type, name);
+//     return m_labels.at(OptionID)->getInputWidget<T>();
+// }
+
 void FormWidget::setLimit(int OptionID, int higher)
 {
     if (higher > 0) {
@@ -108,6 +115,12 @@ void FormWidget::setStepSize(int OptionID, float stepSize)
 {
     if (m_labels.count(OptionID) > 0) {
         m_labels[OptionID]->setStepSize(stepSize);
+    }
+}
+void FormWidget::setDropDownOptions(int OptionID, std::map<int, std::u32string> optionMap)
+{
+    if (m_labels.count(OptionID) > 0) {
+        m_labels[OptionID]->setOptions(optionMap);
     }
 }
 
