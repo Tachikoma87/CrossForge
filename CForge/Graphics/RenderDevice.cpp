@@ -279,10 +279,12 @@ namespace CForge {
 
 	void RenderDevice::activePass(RenderPass Pass, ILight *pActiveLight) {
 		
+		bool previousPassWasLOD = false;
 		// enable drawing after LOD pass
 		if (m_ActiveRenderPass == RENDERPASS_LOD /* && Pass != RENDERPASS_LOD*/) {
 			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 			glDepthMask(GL_TRUE);
+			previousPassWasLOD = true;
 		}
 		m_ActiveRenderPass = Pass;
 
@@ -314,7 +316,8 @@ namespace CForge {
 		case RENDERPASS_GEOMETRY: {
 			// bind geometry buffer
 			if (m_Config.UseGBuffer) {
-				m_GBuffer.bind();
+				if (!previousPassWasLOD)
+					m_GBuffer.bind();
 				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
 				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
