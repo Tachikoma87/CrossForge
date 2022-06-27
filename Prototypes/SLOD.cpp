@@ -9,6 +9,7 @@ namespace CForge {
 		if (nullptr == m_pInstance) {
 			m_pInstance = new SLOD();
 			m_pInstance->init();
+			m_pInstance->update();
 		}
 		m_InstanceCount++;
 		return m_pInstance;

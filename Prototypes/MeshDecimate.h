@@ -10,7 +10,7 @@ namespace CForge {
 	class MeshDecimator {
 	
 	public:
-		static void decimateMesh(const CForge::T3DMesh<float>* inMesh, CForge::T3DMesh<float>* outMesh, float amount);
+		static bool decimateMesh(const CForge::T3DMesh<float>* inMesh, CForge::T3DMesh<float>* outMesh, float amount);
 		
 		static const uint32_t m_MaxOctreeDepth = 128;
 		static const uint32_t m_MaxLeafVertexCount = 5;

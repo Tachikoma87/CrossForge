@@ -1,4 +1,4 @@
-﻿#include "MeshDecimate.h"
+#include "MeshDecimate.h"
 #include "../CForge/AssetIO/SAssetIO.h"
 #include <chrono>
 #include <iostream>
@@ -9,8 +9,9 @@ namespace CForge {
 	
 	// TODO replace std::vector<std::vector<>> with std::vector<std::vector<>*>
 	// TODO inMesh zu const& machen // cleanup split funcs
-	void MeshDecimator::decimateMesh(const CForge::T3DMesh<float>* inMesh, CForge::T3DMesh<float>* outMesh, float amount)
+	bool MeshDecimator::decimateMesh(const CForge::T3DMesh<float>* inMesh, CForge::T3DMesh<float>* outMesh, float amount)
 	{
+		printf("generating data structure\n");
 		auto start = std::chrono::high_resolution_clock::now();
 		
 		uint32_t faceCount = 0;
@@ -90,6 +91,7 @@ namespace CForge {
 		if (!iglDecRes) {
 			std::cout << "an error occured while decimating!\n";
 			//std::exit(-1);
+			return false;
 		}
 		std::cout << "AFTERWARDS:\n";
 		//std::cout << "DVnoMul\n" << DVnoMul << "\n";
@@ -166,8 +168,14 @@ namespace CForge {
 						Face.Colors[k] = newSize;
 					}
 					if (inMesh->tangentCount() > 0) {
-						newTangents.push_back(inMesh->tangent(pOldSMFace->Tangents[k]));
-						Face.Tangents[k] = newSize;
+						if (pOldSMFace->Tangents[k] != -1) {
+							newTangents.push_back(inMesh->tangent(pOldSMFace->Tangents[k]));
+							Face.Tangents[k] = newSize;
+						}
+						else {
+							newTangents.push_back(Vector3f::Zero());
+							Face.Tangents[k] = newSize;
+						}
 					}
 				}//for[face indices]
 				
@@ -187,6 +195,7 @@ namespace CForge {
 		
 		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() -start).count();
 		std::cout << "Decimation Finished, time took: " << double(microseconds)*0.001 << "ms \n";
+		return true;
 	} // decimateMesh func
 
 	bool MeshDecimator::insideAABB(T3DMesh<float>::AABB BoundingBox, Eigen::Vector3f Vertex) {
@@ -290,6 +299,7 @@ namespace CForge {
 		std::vector<uint32_t> pointsToRemove;
 		std::vector<std::vector<octreeNode*>> depthNodes;
 
+		printf("building Tree\n");
 		// construct octree
 		octreeNode* Root = new octreeNode();
 		Root->depth = 0;
@@ -309,7 +319,9 @@ namespace CForge {
 		createOctree(Root, &DV, &depthNodes);
 
 		// decimate, find targets
+		float progressDiff = DF.rows() - faceAmount;
 		while (DF.rows() - removeFaceCount > faceAmount) {
+			printf("progress: %.1f\n", removeFaceCount/progressDiff*100.0);
 			// get last largest depth node
 			std::vector<octreeNode*>* largestDepth = &(depthNodes.back());
 			octreeNode* parent = largestDepth->at(0)->parent;
