@@ -33,6 +33,8 @@ public:
 
     FormWidget* createOptionsWindow(std::u32string title, int FormID);
     TextWidget* createPlainText();
+    void registerWidgetAsPopup(BaseWidget* widget);
+    void unregisterPopup();
 
     void processEvents();
     void registerMouseDownEvent(BaseWidget* widget);
@@ -60,6 +62,7 @@ private:
         EVENT_KEYPRESS
     };
     void registerEvent(BaseWidget* widget, EventType et);
+//     void unregisterEvent(BaseWidget* widget, EventType et);
     void submitTopLevelWidget(BaseWidget* widget);
     void processMouseEvents(CForge::Mouse* mouse);
     void processKeyboardEvents(CForge::Keyboard* keyboard);
@@ -82,4 +85,5 @@ private:
         }
     };
     std::vector<TopLevelWidgetHandler*> m_TopLevelWidgets;
+    TopLevelWidgetHandler* m_Popup;
 };

@@ -256,6 +256,7 @@ add_executable(Terrain
 	Terrain/GUI/Widgets/InputCheckbox.cpp
 	Terrain/GUI/Widgets/InputText.cpp
 	Terrain/GUI/Widgets/InputSlider.cpp
+	Terrain/GUI/Widgets/InputDropDown.cpp
 	Terrain/GUI/Widgets/Label.cpp
 	Terrain/GUI/Widgets/Form.cpp
 	Terrain/GUI/Widgets/Window.cpp

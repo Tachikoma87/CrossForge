@@ -84,6 +84,9 @@ void InputSliderWidget_Text::setFloatValue(float value)
         if (defaults.RoundLabelNumber >= 0) {
             int displayValue = std::round(value * std::pow(10, defaults.RoundLabelNumber));
             std::wstring stringRep = std::to_wstring(displayValue);
+            if (stringRep.length() < defaults.RoundLabelNumber + 1) {
+                stringRep.insert(0, defaults.RoundLabelNumber - stringRep.length() + 1, L'0');
+            }
             for (int i = 0; i < stringRep.length(); i++) {
                 if (i == stringRep.length() - defaults.RoundLabelNumber && defaults.RoundLabelNumber != 0) {
                     stringValue.push_back(U'.');
