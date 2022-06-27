@@ -17,12 +17,13 @@
 #include "Examples/exampleSockets.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
-#include "Prototypes/TestScenes/MuscleAnalysis.hpp"
+//#include "Prototypes/TestScenes/MuscleAnalysis.hpp"
 #include "Prototypes/TestScenes/ForestTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/anotherTestScene.hpp"
 #include "Prototypes/TestScenes/NormalMappingTestScene.hpp"
+#include "Prototypes/TestScenes/MuscleServer.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -65,11 +66,11 @@ int main(int argc, char* argv[]) {
 		//exampleMultiViewport();
 		//exampleSockets();
 	
-
+		muscleServer();
 		//imuInputDeviceTestScene();
 		// 
 		//shadowTest();
-		vertexColorTestScene();
+		//vertexColorTestScene();
 		//forestTestScene();
 		//skelAnimTestScene();
 		

@@ -225,7 +225,7 @@ add_custom_command(
 
 
 add_executable(ExportLibrary 
-	ExportLibrary.cpp  "CForge/Internet/InternetFileStream.cpp" "CForge/Internet/InternetFileStream.h")
+	ExportLibrary.cpp )
 
 target_link_libraries(ExportLibrary
 	PRIVATE crossforge)

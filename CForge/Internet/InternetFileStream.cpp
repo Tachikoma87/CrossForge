@@ -8,7 +8,7 @@
 
 namespace CForge {
 
-	void InternetFileStream::sendFile(const char* path,uint32_t packageSize, TCPSocket sender,int32_t connection)
+	void InternetFileStream::sendFile(const char* path,uint32_t packageSize, TCPSocket &sender,int32_t connection)
 	{
 		File send_file;
 		send_file.begin(path, "rb");
@@ -51,7 +51,7 @@ namespace CForge {
 
 
 
-	void InternetFileStream::receiveFile(const char* path, TCPSocket receiver, int32_t connection, uint8_t* recvBuffer, uint32_t DataSize)
+	void InternetFileStream::receiveFile(const char* path, TCPSocket &receiver, int32_t connection, uint8_t* recvBuffer, uint32_t DataSize)
 	{
 		uint8_t ack[1];
 		uint8_t ackSize = 1;
@@ -89,7 +89,6 @@ namespace CForge {
 
 		//writing into file finished -> close file
 		s_file.end();
-		return;
 	}
 
 }
