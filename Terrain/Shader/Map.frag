@@ -119,8 +119,8 @@ void main() {
 
     vec3 color = vec3(0.0); //triMap(0, normal);
 	
-	int blendValue = 0;
-	for (int i = 0; i < LayerCount - 1; i++) {
+	int blendValue = 1;
+	for (int i = 1; i < LayerCount - 1; i++) {
 		if (hTex < LayerHeights[i])
 			break;
 		blendValue++;
