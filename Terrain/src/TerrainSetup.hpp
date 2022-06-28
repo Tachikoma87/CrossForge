@@ -23,9 +23,11 @@
 #include "../../Prototypes/Actor/LODActor.h"
 
 using namespace CForge;
-#define CAM_FOV 70.0
-#define WINWIDTH 1920
-#define WINHEIGHT 1080
+#define CAM_FOV 90.0
+int WINWIDTH = 720;
+int WINHEIGHT = 720;
+#define FULLSCREEN false
+float cameraPanSpeed = 1.0;
 
 namespace Terrain {
 
@@ -33,12 +35,22 @@ namespace Terrain {
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
                     DirectionalLight *light) {
+		
+		if (FULLSCREEN) {
+
+			const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+			WINWIDTH = mode->width;
+			WINHEIGHT = mode->height;
+		}
         uint32_t winWidth = WINWIDTH;
         uint32_t winHeight = WINHEIGHT;
 
-        window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup");
+		if (FULLSCREEN)
+			window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup", 0, 0, true);
+		else
+			window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup", 0, 0, false);
         gladLoadGL();
-		glfwSwapInterval(0);
+		//glfwSwapInterval(0);
 
         string GLError;
         GraphicsUtility::checkGLError(&GLError);
@@ -177,11 +189,9 @@ namespace Terrain {
             float spacing = 1 * scale * sizeScale;
 
             Vector3f camDir = camera.dir();
-            Vector3f camRig = camera.right();
+            Vector3f camRig = camera.right()*CAM_FOV/45.0;
             camDir.y() = 0;
             camRig.y() = 0;
-            camDir.normalize();
-            camRig.normalize();
             Vector3f A = camera.position();
             A -= camDir * 2;
             A.y() = 0;
@@ -398,9 +408,9 @@ namespace Terrain {
                 wireframe = *((bool*)Msg.Data.at(3).pData);
                 renderGrass = *((bool*)Msg.Data.at(4).pData);
                 if (*((bool*)Msg.Data.at(5).pData)) {   //'unlock framerate'
-                    glfwSwapInterval(0);
+                    //glfwSwapInterval(0);
                 } else {
-                    glfwSwapInterval(1);
+                    //glfwSwapInterval(1);
                 };
                 cameraPanSpeed = *((float*)Msg.Data.at(6).pData);
             }

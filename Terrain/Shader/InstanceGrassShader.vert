@@ -124,7 +124,7 @@ void main(){
 	N = normalize(mat3(m) * Normal);
 	T = normalize(mat3(m) * Tangent);
 	B = normalize(cross(N, T));
-	Pos = (Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(windPos, 1)).rgb;
+	Pos = windPos;
 	CameraPos = Camera.Position.xyz;
 
 	vertPos = vec3(1, 0, 0);

@@ -20,7 +20,7 @@ namespace CForge {
 		clear();
 	}//Destructor
 
-	void GLWindow::init(Vector2i Position, Vector2i Size, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion) {
+	void GLWindow::init(Vector2i Position, Vector2i Size, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion, bool Fullscreen) {
 		clear();
 		GLFWwindow* pWin = nullptr;
 
@@ -30,13 +30,13 @@ namespace CForge {
 		if(GLMajorVersion >= 3) glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
-		pWin = createGLWindow(Size.x(), Size.y(), Title, GLMajorVersion, GLMinorVersion);
+		pWin = createGLWindow(Size.x(), Size.y(), Title, GLMajorVersion, GLMinorVersion, Fullscreen);
 
 		if (nullptr == pWin) {
 			GLMajorVersion = 4;
 			GLMinorVersion = 6;
 			while (nullptr == pWin && GLMinorVersion > 1) {	
-				pWin = createGLWindow(Size.x(), Size.y(), Title, GLMajorVersion, GLMinorVersion);
+				pWin = createGLWindow(Size.x(), Size.y(), Title, GLMajorVersion, GLMinorVersion, Fullscreen);
 				GLMinorVersion -= 1;
 			}	
 		}
@@ -44,7 +44,7 @@ namespace CForge {
 		if (nullptr == pWin) {
 			GLMajorVersion = 3;
 			GLMinorVersion = 3;
-			pWin = createGLWindow(Size.x(), Size.y(), Title, GLMajorVersion, GLMinorVersion);
+			pWin = createGLWindow(Size.x(), Size.y(), Title, GLMajorVersion, GLMinorVersion, Fullscreen);
 		}
 
 		if (nullptr == pWin) {
@@ -52,7 +52,7 @@ namespace CForge {
 			#ifdef __OPENGL_ES
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ES_API);
 			#endif
-			pWin = createGLWindow(Size.x(), Size.y(), Title, 1, 0);
+			pWin = createGLWindow(Size.x(), Size.y(), Title, 1, 0, Fullscreen);
 		}		
 		if (nullptr == pWin) throw CForgeExcept("Failed to crate OpenGL window. OpenGL seems not to be available!");
 
@@ -94,10 +94,14 @@ namespace CForge {
 
 	}//initialize
 
-	GLFWwindow* GLWindow::createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion) {
+	GLFWwindow* GLWindow::createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion, bool Fullscreen) {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLMajorVersion);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLMinorVersion);
-		GLFWwindow* pRval = glfwCreateWindow(Width, Height, Title.c_str(), nullptr, nullptr);
+		GLFWwindow* pRval;
+		if (Fullscreen)
+			pRval = glfwCreateWindow(Width, Height, Title.c_str(), glfwGetPrimaryMonitor(), nullptr);
+		else
+			pRval = glfwCreateWindow(Width, Height, Title.c_str(), nullptr, nullptr);
 		m_Title = Title;
 		return pRval;
 	}//createGLWindow

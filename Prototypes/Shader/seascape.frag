@@ -186,8 +186,8 @@ void main(){
 	vec3 camDir = (inverse(Camera.ViewMatrix)*vec4(0.0,0.0,-1.0,0.0)).xyz;
 	vec3 camUp = (inverse(Camera.ViewMatrix)*vec4(0.0,1.0,0.0,0.0)).xyz;
 	
-	vec3 camSide = cross(camDir, camUp); //Camera.ViewMatrix[0].xyz;
-	float focus = 1.0 / Camera.ProjectionMatrix[0][0] * 1.15;
+	vec3 camSide = cross(camDir, camUp);
+	float focus = Camera.ProjectionMatrix[1][1];
 
 	vec3 camPos = Camera.Position.xyz - vec3(0.0,mapHeight,0.0);
 	vec3 rayDir = normalize(camSide*ndc.x + camUp*ndc.y + camDir*focus);
@@ -206,29 +206,34 @@ void main(){
 	vec3 light = normalize(vec3(-.5,1.0,0.5));
 	
 	// color
-	//vec3 oceanCol = mix(getSkyColor(dir), getSeaColor(p,n,light,dir,dist), pow(smoothstep(0.0,-0.02,dir.y),0.2));
-	vec3 oceanCol = mix(getSkyColor(dir)*0.5, getSeaColor(p,n,light,dir,dist), pow(smoothstep(0.0,-0.02,dir.y),0.2));
+	vec3 oceanCol = mix(getSkyColor(dir), getSeaColor(p,n,light,dir,dist), pow(smoothstep(0.0,-0.02,dir.y),0.2));
 	vec4 col = texture(texColor, TexCoords);
 	
+	// blending depending on water depth
 	float weight = waterDist < 5000.0 ? 1.0/(waterDist) : 1.0;
 	float distDiff = clamp(0.2*log(((1.0-weight)*(-geoWorldPos.y/(mapHeight*0.5))+weight*(distScene - waterDist)/mapHeight))+1.0,0.0,1.0);
-		
+	
 	oceanCol = oceanCol*distDiff + col.xyz*(1.0-distDiff);
 	
+	// fake SSR
 	if (distDiff > 0.0) {
-		// interpolate normal
+		// interpolate plane normal with ocean normal
 		float u = dot(camDir,vec3(0.0,1.0,0.0));
-		//float quadinterp = pow(u-0.5,2)*3.0+0.25;
 		float quadinterp = pow(u-0.5,2)*2.0+0.5;
-		//float quadinerp = pow(u-0.5,2)*(0.75/0.75)+0.75;
 		vec3 normal = (quadinterp)*vec3(0.0,1.0,0.0) + (1.0-quadinterp)*n;
-		vec3 ref = reflect(camDir,normal);
-		vec2 coord = vec2(TexCoords.x, 1.0-(-ref.y*1.5+TexCoords.y));//vec2(TexCoords.x,1.0-TexCoords.y);
-		float distDiffBlend = min(distDiff*3.0,1.0);
-		if (coord.x > 0.0 && coord.x < 1.0 && coord.y > 0.0 && coord.y < 1.0 )
+
+		//normal = vec3(0.0,1.0,0.0); // enable to view actual reflection
+		
+		// angle of reflection
+		float ref = dot(normal,camDir);
+		ref *= 1.0+(pow(abs(ref),4))*1.5; // correct view angle
+		
+		vec2 coord = vec2(TexCoords.x, 1.0-(ref*focus+TexCoords.y));
+		
+		float distDiffBlend = min(distDiff*3.0,1.0); // stronger reflections in deeper areas
+		if (coord.x > 0.0 && coord.x < 1.0 && coord.y > 0.0 && coord.y < 1.0 && coord.y > TexCoords.y) // only sample reflection above water
 			oceanCol = min(oceanCol + distDiffBlend*0.3*max(texture(texColor, coord).xyz,0.1),1.0);
 	}
 	
 	FragColor = vec4(oceanCol,0.0);
-	//FragColor = distScene > waterDist ? vec4(oceanCol,0.0) : col;
 }
