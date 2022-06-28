@@ -15,24 +15,27 @@ using namespace std;
 using namespace CForge;
 
 
-void CallbackTestClass::listen(const CallbackObject Msg)
+void CallbackTestClass::listen(const GUICallbackObject Msg)
 {
     printf("Received Callback from Form %d\n", Msg.FormID);
     for (auto x : Msg.Data) {
         switch(x.second.Type) {
-            case DATATYPE_INT:
+            case INPUTTYPE_INT:
                 printf("%d: %d\n", x.first, *(int*)x.second.pData);
                 break;
-            case DATATYPE_BOOLEAN:
+            case INPUTTYPE_BOOL:
                 printf("%d: %s\n", x.first, *(bool*)x.second.pData ? "True" : "False");
                 break;
-            case DATATYPE_STRING:
+            case INPUTTYPE_STRING:
                 printf("%d: ", x.first);
                 for (auto x : *(u32string*)x.second.pData) {
                     if (x < 127) printf("%c", (char)x);
                     else printf("[%X]", x);
                 }
                 printf("\n");
+                break;
+            case INPUTTYPE_RANGESLIDER:
+                printf("%d: %f\n", x.first, *(float*)x.second.pData);
                 break;
             default:
                 printf("%d: unhandled data type\n", x.first);
@@ -51,6 +54,10 @@ GUI::~GUI()
     for (auto x : m_TopLevelWidgets) {
         delete x->pWidget;
         delete x;
+    }
+    if (m_Popup != nullptr) {
+        delete m_Popup->pWidget;
+        delete m_Popup;
     }
     for (auto x : fontFaces) {
         delete x;
@@ -90,6 +97,8 @@ void GUI::testInit(CForge::GLWindow* pWin)
     m_pWin->character()->startListening(this);
     m_pWin->keyboard()->startListening(this);
 
+    m_Popup = nullptr;
+
 }
 void GUI::loadFonts()
 {
@@ -120,6 +129,9 @@ void GUI::render(CForge::RenderDevice* renderDevice)
 
     for (auto x : m_TopLevelWidgets) {
         x->pWidget->draw(renderDevice);
+    }
+    if (m_Popup != nullptr) {
+        m_Popup->pWidget->draw(renderDevice);
     }
 
     //terrain rendering does not work properly with enabled blending
@@ -163,12 +175,65 @@ void GUI::submitTopLevelWidget(BaseWidget* widget)
     //events can lead to the widget to be registered as top level widget
     //before it is even fully initialised. Thus we need to check if it's
     //not already there before submitting again.
+    if (m_Popup != nullptr && m_Popup->pWidget == widget) return;
     for (auto x : m_TopLevelWidgets) {
         if (x->pWidget == widget) {
             return;
         }
     }
     m_TopLevelWidgets.push_back(new TopLevelWidgetHandler(widget));
+}
+/*  This function registers a widget as popup. If a popup is registered,
+    only its and its child widget's events are processed, no other
+    widgets will receive any clicks.
+    Note however, that some restrains apply, most notably:
+      * The widget must not have any parent widget */
+void GUI::registerWidgetAsPopup(BaseWidget* widget)
+{
+    if (m_Popup != nullptr) {
+        unregisterPopup();
+    }
+    //check that it's a top level widget
+    if (widget != nullptr && widget->getTopWidget() == widget) {
+        //check if it's already registered
+        m_Popup = nullptr;
+        auto tlw = m_TopLevelWidgets.begin();
+        while (tlw != m_TopLevelWidgets.end()) {
+            if ((*tlw)->pWidget == widget) {
+                //if it does already exist, reuse its handler and remove it from the list
+                m_Popup = *tlw;
+                m_TopLevelWidgets.erase(tlw);
+                break;
+            }
+            tlw++;
+        }
+        if (m_Popup == nullptr) {
+            //if it didn't exist, create a new handler
+            //note that at the current state of the codebase, this implies NO interactivity
+            m_Popup = new TopLevelWidgetHandler(widget);
+        }
+    }
+}
+/*
+    Removes the currently registered popup if any.
+    This function deletes both the handler and the widget itself!
+    So make sure to not interact with it afterwards.
+
+    If you want to reuse your popup, a less destructive alternative method
+    needs to be implemented.
+ */
+void GUI::unregisterPopup()
+{
+    if (m_Popup != nullptr) {
+        if (focusedWidget != nullptr) {
+            if (focusedWidget->getTopWidget() == m_Popup->pWidget) {
+                focusedWidget = nullptr;
+            }
+        }
+        delete m_Popup->pWidget;
+        delete m_Popup;
+        m_Popup = nullptr;
+    }
 }
 
 void GUI::registerEvent(BaseWidget* widget, GUI::EventType et)
@@ -180,25 +245,31 @@ void GUI::registerEvent(BaseWidget* widget, GUI::EventType et)
     submitTopLevelWidget(top);
 
     //Find the right top level widget to register the event to
-    auto tlw = m_TopLevelWidgets.begin();
-    while (tlw != m_TopLevelWidgets.end()) {
-        if ((*tlw)->pWidget == top) {
-            break;
+    TopLevelWidgetHandler* tlw = nullptr;
+    if (m_Popup != nullptr && m_Popup->pWidget == top) {
+        tlw = m_Popup;
+    } else {
+        auto tlw_it = m_TopLevelWidgets.begin();
+        while (tlw_it != m_TopLevelWidgets.end()) {
+            if ((*tlw_it)->pWidget == top) {
+                tlw = *tlw_it;
+                break;
+            }
+            tlw_it++;
         }
-        tlw++;
     }
 
     //get the correct list for the event type
     vector<BaseWidget*>* list;
     switch (et) {
         case EVENT_CLICK:
-            list = &(*tlw)->eventsMouseDown;
+            list = &(tlw->eventsMouseDown);
             break;
         case EVENT_DRAG:
-            list = &(*tlw)->eventsMouseDrag;
+            list = &(tlw->eventsMouseDrag);
             break;
         case EVENT_KEYPRESS:
-            list = &(*tlw)->eventsKeyPress;
+            list = &(tlw->eventsKeyPress);
             break;
     }
 
@@ -238,6 +309,7 @@ void GUI::processEvents()
 void GUI::processMouseEvents ( CForge::Mouse* mouse )
 {
     mouseEventInfo mouseEvent;
+    mouseEvent.rawPosition = mouse->position();
     auto mpos = mouse->position();
     static bool leftHoldDown = false;
     if (mouse->buttonState(CForge::Mouse::BTN_LEFT)) {
@@ -251,22 +323,34 @@ void GUI::processMouseEvents ( CForge::Mouse* mouse )
             focusedWidget = nullptr;
 
             //First, check which top level widget the click landed in
-            auto tlw = m_TopLevelWidgets.rbegin();
-            while (tlw != m_TopLevelWidgets.rend()) {
-                if ((*tlw)->pWidget->checkHitbox(mpos)) {
-                    break;
+            TopLevelWidgetHandler* topHandle = nullptr;
+            if (m_Popup != nullptr) {
+                //There's a popup, so all input should go to that
+                if (m_Popup->pWidget->checkHitbox(mpos)) {
+                    topHandle = m_Popup;
+                } else {
+                    //TODO idea for the future:
+                    //  instead of making popups interested in all clicks the size of the application window,
+                    //  have them inherit a popup interface class and call an "click outside the popup" method
+                    return;
                 }
-                tlw++;
-            }
-            TopLevelWidgetHandler* topHandle;
-            if (tlw == m_TopLevelWidgets.rend()) {
-                //click was not within any window
-                return;
             } else {
-                //pull it to the front
-                topHandle = *tlw;
-                m_TopLevelWidgets.erase(tlw.base() - 1); //-1 because of specifics with reverse iterators
-                m_TopLevelWidgets.push_back(topHandle);
+                auto tlw = m_TopLevelWidgets.rbegin();
+                while (tlw != m_TopLevelWidgets.rend()) {
+                    if ((*tlw)->pWidget->checkHitbox(mpos)) {
+                        break;
+                    }
+                    tlw++;
+                }
+                if (tlw == m_TopLevelWidgets.rend()) {
+                    //click was not within any window
+                    return;
+                } else {
+                    //pull it to the front
+                    topHandle = *tlw;
+                    m_TopLevelWidgets.erase(tlw.base() - 1); //-1 because of specifics with reverse iterators
+                    m_TopLevelWidgets.push_back(topHandle);
+                }
             }
 
             //check the registered events
