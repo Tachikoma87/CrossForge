@@ -137,34 +137,36 @@ namespace CForge {
 		uint16_t port = 2456;
 
 
-//Client
-TCPSocket client;
-client.begin(TCPSocket::SocketType::TYPE_CLIENT, port);
-client.connectTo("127.0.0.1", port);
-InternetFileStream::sendFile("Assets/MuscleAnalysisPL/animation.bvh", (uint32_t)128, client, 0);
-//exit;
-uint8_t recvBuffer[128];
-uint32_t DataSize = 128;
-while (!(client.recvData(recvBuffer, &DataSize, 0))) {}
-InternetFileStream::receiveFile("Assets/MuscleAnalysisPL/animation_scaled.fbx", client, 0,recvBuffer,DataSize);
-while (!(client.recvData(recvBuffer, &DataSize, 0))) {}
-InternetFileStream::receiveFile("Assets/MuscleAnalysisPL/animation_scaled.sto", client, 0, recvBuffer, DataSize); //TODO:Change path to right storage file
+		//Client
+		TCPSocket client;
+		client.begin(TCPSocket::SocketType::TYPE_CLIENT, port);
+		client.connectTo("127.0.0.1", port);
+		InternetFileStream::sendFile("Assets/MuscleAnalysisPL/animation.bvh", (uint32_t)128, client, 0);
+		uint8_t recvBuffer[128];
+		uint32_t DataSize = 128; 
+		bool received = false;
+		//wait for server message
+		while (!(client.recvData(recvBuffer, &DataSize, 0))) {};
+		InternetFileStream::receiveFile("Assets/MuscleAnalysisPL/animation_scaled.fbx", client, 0,recvBuffer,DataSize);
+		while (!(client.recvData(recvBuffer, &DataSize, 0))) {};
+		InternetFileStream::receiveFile("Assets/MuscleAnalysisPL/3DGaitModel2354-scaled_MuscleAnalysis_FiberForce.sto", client, 0, recvBuffer, DataSize);
+		client.end();
 
 
-
-
-std::vector<MuscleDataInput::Muscledata> muscledata;
-		
-int frames = 0;
+		int frames = 0;
+		//load muscle files
 		std::vector<MuscleDataInput::Muscle_allocdata> ma_data;
+		std::vector<MuscleDataInput::Muscledata> muscledata;
+		MuscleDataInput::loadMuscleAllocation("Assets/MuscleAnalysisPL/Muscle_Allocation.txt", &ma_data);
+		MuscleDataInput::loadDataFile("Assets/MuscleAnalysisPL/3DGaitModel2354-scaled_MuscleAnalysis_FiberForce.sto", &muscledata,&frames);
 
 		// initialize skeletal actor (Eric) and its animation controller
 		T3DMesh<float> SkelAnim;
 		SAssetIO::load("Assets/tmp/mbmalerigmuscles.fbx", &M);
 		SAssetIO::load("Assets/MuscleAnalysisPL/animation_scaled.fbx", &SkelAnim);
 		
-		MuscleDataInput::loadMuscleAllocation("Assets/MuscleAnalysisPL/Muscle_Allocation.txt", &ma_data);
-
+		
+		
 		M.clearSkeletalAnimations();
 		M.addSkeletalAnimation(SkelAnim.getSkeletalAnimation(0), true);
 
