@@ -130,8 +130,8 @@ namespace Terrain {
         if (mouse->buttonState(Mouse::BTN_RIGHT)) {
             Vector2f MouseDelta = mouse->movement();
 
-            camera->rotY(GraphicsUtility::degToRad(MouseDelta.x()) * -0.1f * movementSpeed);
-            camera->pitch(GraphicsUtility::degToRad(MouseDelta.y()) * -0.1f * movementSpeed);
+            camera->rotY(GraphicsUtility::degToRad(MouseDelta.x()) * (-cameraPanSpeed/10.0f) * movementSpeed);
+            camera->pitch(GraphicsUtility::degToRad(MouseDelta.y()) * (-cameraPanSpeed/10.0f) * movementSpeed);
 
             mouse->movement(Eigen::Vector2f::Zero());
         }
@@ -314,7 +314,7 @@ namespace Terrain {
         
         PineMesh.clear();
         PineMesh.load("Assets/needleTree0.obj");
-        PineMesh.getMaterial(0)->TexAlbedo = "Assets/richard/Dark_Bark_baseColor.jpg";
+        PineMesh.getMaterial(0)->TexAlbedo = "Assets/richard/Dark_Bark_basecolor.jpg";
         PineMesh.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
         PineMesh.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
         PineMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstancePineShader.vert");
@@ -344,7 +344,7 @@ namespace Terrain {
 
         TreeMesh.clear();
         TreeMesh.load("Assets/tree0.obj");
-        TreeMesh.getMaterial(0)->TexAlbedo = "Assets/richard/Bark_06_baseColor.jpg";
+        TreeMesh.getMaterial(0)->TexAlbedo = "Assets/richard/Bark_06_basecolor.jpg";
         TreeMesh.getMaterial(0)->TexNormal = "Assets/richard/Bark_06_normal.jpg";
         TreeMesh.getMaterial(0)->TexDepth = "Assets/richard/Bark_06_Packed.png";
         TreeMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstancePineShader.vert");
@@ -390,8 +390,8 @@ namespace Terrain {
     bool generateNew = true;
     bool renderGrass = false;
 
-    class TerrainGUICallbackHandler : public ITListener<CallbackObject> {
-        void listen ( const CallbackObject Msg ) override {
+    class TerrainGUICallbackHandler : public ITListener<GUICallbackObject> {
+        void listen ( const GUICallbackObject Msg ) override {
             if (Msg.FormID == 1) {
                 cameraMode = *((int*)Msg.Data.at(1).pData) == 2;
                 shadows = *((bool*)Msg.Data.at(2).pData);
@@ -402,6 +402,7 @@ namespace Terrain {
                 } else {
                     glfwSwapInterval(1);
                 };
+                cameraPanSpeed = *((float*)Msg.Data.at(6).pData);
             }
         };
     };
@@ -521,16 +522,30 @@ namespace Terrain {
         FormWidget* form = gui.createOptionsWindow(U"Graphics", 1);
         form->startListening(&callbackHandler);
         form->startListening(&callbacktest);
-        form->addOption(1, DATATYPE_INT, U"Camera Mode");
-        form->setLimit(1, 1, 2);
-        form->addOption(2, DATATYPE_BOOLEAN, U"Enable Shadows");
+        form->addOption(1, INPUTTYPE_DROPDOWN, U"Camera Mode");
+        std::map<int, std::u32string> cameraModes;
+        cameraModes[1] = U"Free Floating";
+        cameraModes[2] = U"Ground Actor";
+        form->setDropDownOptions(1, cameraModes);
+        form->addOption(2, INPUTTYPE_BOOL, U"Enable Shadows");
         form->setDefault(2, false);
-        form->addOption(3, DATATYPE_BOOLEAN, U"Wireframe");
+        form->addOption(3, INPUTTYPE_BOOL, U"Wireframe");
         form->setDefault(3, false);
-        form->addOption(4, DATATYPE_BOOLEAN, U"Enable Grass");
+        form->addOption(4, INPUTTYPE_BOOL, U"Enable Grass");
         form->setDefault(4, true);
-        form->addOption(5, DATATYPE_BOOLEAN, U"Unlock Framerate");
+        form->addOption(5, INPUTTYPE_BOOL, U"Unlock Framerate");
         form->setDefault(5, false);
+        form->addOption(6, INPUTTYPE_RANGESLIDER, U"Camera Panning Speed");
+        form->setLimit(6, 0.0f, 5.0f);
+        form->setStepSize(6, 0.5f);
+        form->setDefault(6, 1);
+
+        FormWidget* form2 = gui.createOptionsWindow(U"Test", 42);
+        form2->startListening(&callbacktest);
+        form2->addOption(1, INPUTTYPE_RANGESLIDER, U"Slider Test");
+        form2->setLimit(1, 10.0f);
+        form2->setStepSize(1, 0.3f);
+        form2->setDefault(1, 1.5f);
 
         //fps counter
         TextWidget* fpsWidget = gui.createPlainText();

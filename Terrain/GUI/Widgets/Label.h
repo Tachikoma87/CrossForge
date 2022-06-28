@@ -7,17 +7,25 @@
 #include "InputNumber.h"
 #include "InputCheckbox.h"
 #include "InputText.h"
+#include "InputSlider.h"
+#include "InputDropDown.h"
 
 class LabelWidget : public BaseWidget {
 public:
-    LabelWidget(CallbackDatatype type, std::u32string labelText, GUI* rootGUIObject, BaseWidget* parent);
+    LabelWidget(GUIInputType type, std::u32string labelText, GUI* rootGUIObject, BaseWidget* parent);
     ~LabelWidget();
 
-    CallbackDatum getValue();
+    GUICallbackDatum getValue();
     void setLimit(int lower, int higher);
+    void setLimit(float lower, float higher);
     void setDefault(int value);
+    void setDefault(float value);
     void setDefault(bool value);
     void setDefault(std::u32string value);
+    void setStepSize(float stepSize);
+    void setOptions(std::map<int, std::u32string> optionMap);
+
+//     template <typename T> auto getInputWidget();
 
     float getJustification();
     void setJustification(float j);
@@ -26,7 +34,7 @@ public:
     void updateLayout() override;
     void draw(CForge::RenderDevice* renderDevice) override;
 private:
-    CallbackDatatype m_type;
+    GUIInputType m_type;
     void * m_pValue;
     TextWidget* m_pLabelText;
     BaseWidget* m_pInput;

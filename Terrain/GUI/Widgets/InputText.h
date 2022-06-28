@@ -33,12 +33,13 @@ public:
     void changePosition(float dx, float dy) override;
     void updateLayout() override;
     void draw(CForge::RenderDevice* renderDevice) override;
-private:
+protected:
     virtual bool validateInput();
+    std::u32string m_value;
+    TextWidget* m_text;
+private:
     void recalculateLayout();
 
-    TextWidget* m_text;
-    std::u32string m_value;
     struct {
         int min;
         int max;
