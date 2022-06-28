@@ -37,7 +37,7 @@ namespace CForge {
 		GLWindow(void);
 		~GLWindow(void);
 
-		void init(Eigen::Vector2i Position, Eigen::Vector2i Size, std::string WindowName, uint32_t GLMajorVersion = 0, uint32_t GLMinorVersion = 0);
+		void init(Eigen::Vector2i Position, Eigen::Vector2i Size, std::string WindowName, uint32_t GLMajorVersion = 0, uint32_t GLMinorVersion = 0, bool Fullscreen = false);
 		void clear(void);
 
 		void update(void);
@@ -58,7 +58,7 @@ namespace CForge {
 		void title(const std::string Title);
 
 	private:
-		class GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
+		class GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion, bool Fullscreen);
 
 		void* m_pHandle;
 		Keyboard m_Keyboard;
