@@ -23,8 +23,8 @@
 #include "../../Prototypes/Actor/LODActor.h"
 
 using namespace CForge;
-#define CAM_FOV 90.0
-int WINWIDTH = 720;
+float CAM_FOV = 90.0;
+int WINWIDTH = 1280;
 int WINHEIGHT = 720;
 #define FULLSCREEN false
 float cameraPanSpeed = 1.0;
@@ -400,6 +400,8 @@ namespace Terrain {
     bool generateNew = true;
     bool renderGrass = false;
 
+    VirtualCamera* cameraPointerForCallbackHandling = nullptr;
+
     class TerrainGUICallbackHandler : public ITListener<GUICallbackObject> {
         void listen ( const GUICallbackObject Msg ) override {
             if (Msg.FormID == 1) {
@@ -408,11 +410,15 @@ namespace Terrain {
                 wireframe = *((bool*)Msg.Data.at(3).pData);
                 renderGrass = *((bool*)Msg.Data.at(4).pData);
                 if (*((bool*)Msg.Data.at(5).pData)) {   //'unlock framerate'
-                    //glfwSwapInterval(0);
+                    glfwSwapInterval(0);
                 } else {
-                    //glfwSwapInterval(1);
+                    glfwSwapInterval(1);
                 };
                 cameraPanSpeed = *((float*)Msg.Data.at(6).pData);
+                CAM_FOV = *((float*)Msg.Data.at(7).pData);
+                if (cameraPointerForCallbackHandling) {
+                    cameraPointerForCallbackHandling->projectionMatrix(WINWIDTH, WINHEIGHT, GraphicsUtility::degToRad(CAM_FOV), 0.1f, 5000.0f);
+                }
             }
         };
     };
@@ -527,9 +533,11 @@ namespace Terrain {
         GUI gui = GUI();
         gui.testInit(&window);
 
+        cameraPointerForCallbackHandling = &camera;
+
         CallbackTestClass callbacktest;
         TerrainGUICallbackHandler callbackHandler;
-        FormWidget* form = gui.createOptionsWindow(U"Graphics", 1);
+        FormWidget* form = gui.createOptionsWindow(U"Graphics", 1, U"");
         form->startListening(&callbackHandler);
         form->startListening(&callbacktest);
         form->addOption(1, INPUTTYPE_DROPDOWN, U"Camera Mode");
@@ -549,13 +557,17 @@ namespace Terrain {
         form->setLimit(6, 0.0f, 5.0f);
         form->setStepSize(6, 0.5f);
         form->setDefault(6, 1);
+        form->addOption(7, INPUTTYPE_RANGESLIDER, U"Field of View");
+        form->setLimit(7, 60.0f, 120.0f);
+        form->setStepSize(7, 1.0f);
+        form->setDefault(7, 90);
 
-        FormWidget* form2 = gui.createOptionsWindow(U"Test", 42);
-        form2->startListening(&callbacktest);
-        form2->addOption(1, INPUTTYPE_RANGESLIDER, U"Slider Test");
-        form2->setLimit(1, 10.0f);
-        form2->setStepSize(1, 0.3f);
-        form2->setDefault(1, 1.5f);
+//         FormWidget* form2 = gui.createOptionsWindow(U"Test", 42);
+//         form2->startListening(&callbacktest);
+//         form2->addOption(1, INPUTTYPE_RANGESLIDER, U"Slider Test");
+//         form2->setLimit(1, 10.0f);
+//         form2->setStepSize(1, 0.3f);
+//         form2->setDefault(1, 1.5f);
 
         //fps counter
         TextWidget* fpsWidget = gui.createPlainText();

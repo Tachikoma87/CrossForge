@@ -19,7 +19,7 @@ private:
 
 class FormWidget : public BaseWidget, public CForge::ITCaller<GUICallbackObject> {
 public:
-    FormWidget(int FormID, GUI* rootGUIObject, BaseWidget* parent);
+    FormWidget(int FormID, GUI* rootGUIObject, BaseWidget* parent, std::u32string applyName = U"Apply");
     ~FormWidget();
 
     void addOption(int OptionID, GUIInputType type, std::u32string name);
@@ -37,6 +37,8 @@ public:
     void setDropDownOptions(int OptionID, std::map<int, std::u32string> optionMap);
     void sendCallback();
 
+    void childValueChanged(BaseWidget* child) override;
+
     void changePosition(float dx, float dy) override;
     void updateLayout() override;
     void draw(CForge::RenderDevice* renderDevice) override;
@@ -47,5 +49,6 @@ private:
     int m_FormID;
     std::unordered_map<int, LabelWidget*> m_labels;
     FormWidget_ApplyButton* m_ApplyButton;
+    bool dontSendCallback = false;      //used for immediate callback mode to prevent calling it unnecessarily often
 };
 

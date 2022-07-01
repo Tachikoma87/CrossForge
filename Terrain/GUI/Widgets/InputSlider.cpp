@@ -113,10 +113,12 @@ bool InputSliderWidget_Text::validateInput()
         w.push_back((wchar_t)c);
     };
     try {
-        float newValue = std::stof(w);
+        //we write it directly to m_floatValue so that setFloatValue actually does things
+        //unless it's really exactly the same value
+        m_floatValue = std::stof(w);
         //we let the "main" slider class handle making sense of the float.
         //this should call setFloatValue, thus doing everything that would need to be done here
-        m_slider->setValue(newValue);
+        m_slider->setValue(m_floatValue);
         return true;
     } catch (...) {
         return false;
@@ -173,10 +175,12 @@ void InputSliderWidget::setValue(float value)
     m_text->setFloatValue(newValue);
     float percantage = (newValue - m_limits.min) / (m_limits.max - m_limits.min);
     m_slide->setCursorPosition(percantage);
+
+    if (m_parent != nullptr) m_parent->childValueChanged(this);
 }
 void InputSliderWidget::setValueByPercentage(float sliderPercantage)
 {
-    setValue(m_limits.min + sliderPercantage*m_limits.max);
+    setValue(m_limits.min + sliderPercantage*(m_limits.max - m_limits.min));
 }
 void InputSliderWidget::setLimit(int lower, int higher)
 {
