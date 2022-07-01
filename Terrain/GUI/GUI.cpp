@@ -141,10 +141,10 @@ void GUI::render(CForge::RenderDevice* renderDevice)
     glEnable(GL_DEPTH_TEST);
 }
 
-FormWidget * GUI::createOptionsWindow(std::u32string title, int FormID)
+FormWidget * GUI::createOptionsWindow(std::u32string title, int FormID, std::u32string applyName)
 {
     WindowWidget* window = new WindowWidget(title, this, nullptr);
-    FormWidget* form = new FormWidget(FormID, this, window);
+    FormWidget* form = new FormWidget(FormID, this, window, applyName);
     window->setContentWidget(form);
     submitTopLevelWidget(window);
     //try to not have them overlap by default

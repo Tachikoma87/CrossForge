@@ -24,11 +24,15 @@ bool InputCheckboxWidget::getValue()
 void InputCheckboxWidget::setState(bool state)
 {
     m_state = state;
+
+    if (m_parent != nullptr) m_parent->childValueChanged(this);
 }
 
 void InputCheckboxWidget::onClick(mouseEventInfo)
 {
     m_state = !m_state;
+
+    if (m_parent != nullptr) m_parent->childValueChanged(this);
 }
 void InputCheckboxWidget::changePosition(float dx, float dy)
 {

@@ -75,6 +75,12 @@ bool BaseWidget::checkHitbox(Eigen::Vector2f pointerPosition)
         m_x+m_width >= pointerPosition[0] && m_y+m_height >= pointerPosition[1];
 }
 
+void BaseWidget::childValueChanged(BaseWidget* child)
+{
+    //the value of a child input widget was changed.
+    //pass it on to the parent until some widget does something with it.
+    if (m_parent != nullptr) m_parent->childValueChanged(child);
+}
 void BaseWidget::focus ( )
 {
     return;

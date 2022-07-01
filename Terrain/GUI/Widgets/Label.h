@@ -30,6 +30,8 @@ public:
     float getJustification();
     void setJustification(float j);
 
+    void childValueChanged(BaseWidget* child) override;
+
     void changePosition(float dx, float dy) override;
     void updateLayout() override;
     void draw(CForge::RenderDevice* renderDevice) override;

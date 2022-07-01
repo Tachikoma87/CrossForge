@@ -78,6 +78,8 @@ void InputNumberWidget::setValue(int value)
     positionAdjust += m_pValue->getWidth();
     m_pInc->changePosition(positionAdjust, 0);
     updateLayout();
+
+    if (m_parent != nullptr) m_parent->childValueChanged(this);
 }
 void InputNumberWidget::changeValue(int value)
 {

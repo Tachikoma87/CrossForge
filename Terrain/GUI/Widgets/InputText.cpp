@@ -49,6 +49,7 @@ bool InputTextWidget::validateInput()
     std::u32string newValue = m_text->getText();
     bool valid = newValue.length() <= m_limits.max && newValue.length() >= m_limits.min;
     if (valid) m_value = newValue;
+    if (m_parent != nullptr) m_parent->childValueChanged(this);
     return valid;
 }
 void InputTextWidget::clearText()
@@ -60,6 +61,8 @@ void InputTextWidget::setText(std::u32string text)
     m_value = text;
     m_text->setText(text);
     updateLayout();
+
+    if (m_parent != nullptr) m_parent->childValueChanged(this);
 }
 
 void InputTextWidget::focus()
