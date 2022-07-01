@@ -7,23 +7,13 @@
 namespace TempReg {
 	TempRegAppState::TempRegAppState(void) :
 		m_GuiCaptureMouse(false), m_GuiCaptureKeyboard(false), m_TakeScreenshot(false), m_glfwCursorLock(false),
-		m_MouseBtnOldState{ false }, m_MouseBtnViewportFocus(-1), m_AppInteractionMode(AppInteractionMode::VIEWING) {
-	
-		m_PreviousHoverPickResult.DT = DatasetType::NONE;
-		m_PreviousHoverPickResult.VertexID = 0;
-		m_PreviousHoverPickResult.ViewportID = 0;
-
-		m_CurrentHoverPickResult.DT = DatasetType::NONE;
-		m_CurrentHoverPickResult.VertexID = 0;
-		m_CurrentHoverPickResult.ViewportID = 0;
+		m_MouseBtnOldState{ false }, m_MouseBtnViewportFocus(-1) {
 
 	}//Constructor
 
 	TempRegAppState::~TempRegAppState() {
 
 	}//Destructor
-
-	// Setters
 
 	void TempRegAppState::queueScreenshot(bool rVal) {
 		m_TakeScreenshot = rVal;
@@ -56,25 +46,57 @@ namespace TempReg {
 		m_OldCursorPosMMB = Pos;
 	}//oldMMBCursorPos
 
-	void TempRegAppState::interactionMode(AppInteractionMode Mode) {
-		m_AppInteractionMode = Mode;
-	}//interactionMode
+	void TempRegAppState::currentPickResClick(PickingResult PickRes) {
+		m_PickResClick = PickRes;
+	}//currentPickResClick
 
-	void TempRegAppState::newHoverPickResult(DatasetType DT, uint32_t VertexID, size_t ViewportID) {
-		m_PreviousHoverPickResult.DT = m_CurrentHoverPickResult.DT;
-		m_PreviousHoverPickResult.VertexID = m_CurrentHoverPickResult.VertexID;
-		m_PreviousHoverPickResult.ViewportID = m_CurrentHoverPickResult.ViewportID;
+	void TempRegAppState::oldPickResClick(PickingResult PickRes) {
+		m_OldPickResClick = PickRes;
+	}//oldPickResClick
 
-		m_CurrentHoverPickResult.DT = DT;
-		m_CurrentHoverPickResult.VertexID = VertexID;
-		m_CurrentHoverPickResult.ViewportID = ViewportID;
-	}//newHoverPickResult
+	void TempRegAppState::currentPickResHover(PickingResult PickRes) {
+		m_PickResHover = PickRes;
+	}//currentPickResHover
 
-	void TempRegAppState::pickingSuccessful(bool Res) {
-		m_PickingSuccessful = Res;
-	}//pickingSuccessful
+	void TempRegAppState::oldPickResHover(PickingResult PickRes) {
+		m_OldPickResHover = PickRes;
+	}//oldPickResHover
 
-	//Getters
+	void TempRegAppState::manualCorrespondenceTemplate(size_t VertexID, CorrespondenceType CT) {
+		if (CT == CorrespondenceType::NONE) throw CForgeExcept("Invalid correspondence type");
+
+		m_ManualCorrespondence.TemplatePointUID = VertexID;
+		m_ManualCorrespondence.Type = CT;
+
+		m_ManualCorrTemplateReady = true;
+	}//manualCorrespondenceTemplate
+
+	void TempRegAppState::manualCorrespondenceTarget(int64_t VertexID) {
+		m_ManualCorrespondence.TargetPoint.UID = VertexID;
+		m_ManualCorrespondence.TargetPoint.IsVertex = true;
+		m_ManualCorrespondence.TargetPoint.Position = Vector3f::Zero();
+
+		m_ManualCorrTargetReady = true;
+	}//manualCorrespondenceTarget
+
+	void TempRegAppState::manualCorrespondenceTarget(Vector3f Position) {
+		m_ManualCorrespondence.TargetPoint.UID = 0;
+		m_ManualCorrespondence.TargetPoint.IsVertex = false;
+		m_ManualCorrespondence.TargetPoint.Position = Position;
+
+		m_ManualCorrTargetReady = true;
+	}//manualCorrespondenceTarget
+
+	void TempRegAppState::clearManualCorrespondence(void) {
+		m_ManualCorrespondence.TemplatePointUID = 0;
+		m_ManualCorrespondence.TargetPoint.UID = 0;
+		m_ManualCorrespondence.TargetPoint.IsVertex = false;
+		m_ManualCorrespondence.TargetPoint.Position = Vector3f::Zero();
+		m_ManualCorrespondence.Type = CorrespondenceType::NONE;
+
+		m_ManualCorrTemplateReady = false;
+		m_ManualCorrTargetReady = false;
+	}//clearManualCorrespondence
 
 	bool TempRegAppState::mouseCapturedByGui(void) const {
 		return m_GuiCaptureMouse;
@@ -109,19 +131,27 @@ namespace TempReg {
 		return m_OldCursorPosMMB;
 	}//oldMMBCursorPos
 
-	AppInteractionMode TempRegAppState::activeInteractionMode(void) const {
-		return m_AppInteractionMode;
-	}//activeInteractionMode
+	PickingResult TempRegAppState::currentPickResClick(void) const {
+		return m_PickResClick;
+	}//currentPickResClick
 
-	VertexPickResult TempRegAppState::currentHoverPickResult(void) const {
-		return m_CurrentHoverPickResult;
-	}//currentHoverPickResult
+	PickingResult TempRegAppState::oldPickResClick(void) const {
+		return m_OldPickResClick;
+	}//oldPickResClick
 
-	VertexPickResult TempRegAppState::previousHoverPickResult(void) const {
-		return m_PreviousHoverPickResult;
-	}//lastHoverPickResult
+	PickingResult TempRegAppState::currentPickResHover(void) const {
+		return m_PickResHover;
+	}//currentPickResHover
 
-	bool TempRegAppState::pickingSuccessful(void) const {
-		return m_PickingSuccessful;
-	}//pickingSuccessful
+	PickingResult TempRegAppState::oldPickResHover(void) const {
+		return m_OldPickResHover;
+	}//oldPickResHover
+
+	bool TempRegAppState::manualCorrespondenceReady(void) const {
+		return m_ManualCorrTemplateReady && m_ManualCorrTargetReady;
+	}//manualCorrespondenceReady
+
+	CorrespondencePair TempRegAppState::manualCorrespondence(void) const {
+		return m_ManualCorrespondence;
+	}//manualCorrespondence
 }

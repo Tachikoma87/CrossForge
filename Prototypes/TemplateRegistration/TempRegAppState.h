@@ -13,16 +13,49 @@ using namespace Eigen;
 
 namespace TempReg {
 	
-	enum AppInteractionMode : int8_t {
-		VIEWING = 0,	// Mode: general dataset viewing
-		CORR_PICK = 1,	// Mode: manual correspondence picking
-		VERT_INSPECT	// Mode: inspecting vertex properties
+	enum class ViewportInteractionMode {
+		VIEWING,
+		FEATURE_EDITING,
+		CORRESPONDENCE_EDITING
 	};
 
-	struct VertexPickResult {
-		DatasetType DT;
-		uint32_t VertexID;
+	struct RayMeshIntersectionResult {
+		DatasetType IntersectedDataset;
+		Vector3f IntersectionPos;
+		Vector3f BarycentricCoords;
+		int IntersectedFace;
+
+		RayMeshIntersectionResult() : 
+			IntersectedDataset(DatasetType::NONE), IntersectionPos(Vector3f::Zero()), BarycentricCoords(Vector3f::Zero()), IntersectedFace(-1) {}
+	};
+
+	struct RayPclIntersectionResult {
+		DatasetType IntersectedDataset;
+		int IntersectedPoint;
+
+		RayPclIntersectionResult() :
+			IntersectedDataset(DatasetType::NONE), IntersectedPoint(-1) {}
+	};
+
+	enum class PickingResultType {
+		NONE,
+		MESH_VERTEX,
+		PCL_POINT,
+		FEATURE_POINT,
+		CORRESPONDENCE_POINT
+	};
+
+	struct PickingResult {
 		size_t ViewportID;
+		PickingResultType ResultType;
+		DatasetType PickedDataset;
+		uint32_t PickedVertex;
+		uint32_t PickedFeaturePoint;
+		uint32_t PickedCorrPoint;
+		
+		PickingResult() :
+			ViewportID(0), PickedDataset(DatasetType::NONE), ResultType(PickingResultType::NONE),
+			PickedVertex(0), PickedFeaturePoint(0), PickedCorrPoint(0) {}
 	};
 
 	class TempRegAppState {
@@ -30,7 +63,6 @@ namespace TempReg {
 		TempRegAppState(void);
 		~TempRegAppState();
 
-		// Setters
 		void queueScreenshot(bool rVal);		
 		void lockCursor(void* pHandle);
 		void unlockCursor(void* pHandle);
@@ -38,11 +70,15 @@ namespace TempReg {
 		void mouseButtonViewportFocus(int32_t VPIndex);
 		void currentMMBCursorPos(Vector2f Pos);
 		void oldMMBCursorPos(Vector2f Pos);
-		void interactionMode(AppInteractionMode Mode);
-		void newHoverPickResult(DatasetType DT, uint32_t VertexID, size_t ViewportID);
-		void pickingSuccessful(bool Res);
+		void currentPickResClick(PickingResult PickRes);
+		void oldPickResClick(PickingResult PickRes);
+		void currentPickResHover(PickingResult PickRes);
+		void oldPickResHover(PickingResult PickRes);
+		void manualCorrespondenceTemplate(size_t VertexID, CorrespondenceType CT);
+		void manualCorrespondenceTarget(int64_t VertexID);
+		void manualCorrespondenceTarget(Vector3f Position);
+		void clearManualCorrespondence(void);
 
-		// Getters
 		bool screenshotQueued(void) const;
 		bool mouseCapturedByGui(void) const;
 		bool keyboardCapturedByGui(void) const;
@@ -51,11 +87,13 @@ namespace TempReg {
 		int32_t mouseButtonViewportFocus(void) const;
 		Vector2f currentMMBCursorPos(void) const;
 		Vector2f oldMMBCursorPos(void) const;
-		AppInteractionMode activeInteractionMode(void) const;
-		VertexPickResult currentHoverPickResult(void) const;
-		VertexPickResult previousHoverPickResult(void) const;
-		bool pickingSuccessful(void) const;
-		
+		PickingResult currentPickResClick(void) const;
+		PickingResult oldPickResClick(void) const;
+		PickingResult currentPickResHover(void) const;
+		PickingResult oldPickResHover(void) const;
+		bool manualCorrespondenceReady(void) const;
+		CorrespondencePair manualCorrespondence(void) const;
+				
 	private:
 		bool m_GuiCaptureMouse, m_GuiCaptureKeyboard;
 		bool m_TakeScreenshot;
@@ -63,9 +101,10 @@ namespace TempReg {
 		bool m_MouseBtnOldState[3]; // LMB == [0], RMB == [1], MMB == [2]
 		Vector2f m_CursorPosMMB, m_OldCursorPosMMB;
 		int32_t m_MouseBtnViewportFocus;
-		AppInteractionMode m_AppInteractionMode;
-		bool m_PickingSuccessful;
-		VertexPickResult m_CurrentHoverPickResult, m_PreviousHoverPickResult;
+		PickingResult m_PickResClick, m_OldPickResClick;
+		PickingResult m_PickResHover, m_OldPickResHover;
+		bool m_ManualCorrTemplateReady, m_ManualCorrTargetReady;
+		CorrespondencePair m_ManualCorrespondence;
 	};
 }
 

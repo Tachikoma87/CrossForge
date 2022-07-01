@@ -7,6 +7,7 @@
 
 #include <imgui.h>
 
+#include "Dataset.h"
 #include "ViewportManager.h"
 
 namespace TempReg {
@@ -17,7 +18,7 @@ namespace TempReg {
 		~GUIManager();
 
 		void init(void* pHandle, uint32_t RenderWinWidth, uint32_t RenderWinHeight);
-		void buildNextImGuiFrame(class TempRegAppState* pGlobalAppState, ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>* DatasetGeometries); //TODO
+		void buildNextImGuiFrame(class TempRegAppState& GlobalAppState, ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries); //TODO
 		void renderImGuiFrame(const bool ClearBuffer);
 		void setRenderWinSize(uint32_t RenderWinWidth, uint32_t RenderWinHeight);
 
@@ -30,6 +31,9 @@ namespace TempReg {
 		struct SideMenuState {
 			bool Unfolded;
 			bool DisplayStateChanged;
+
+			SideMenuState() : 
+				Unfolded(true), DisplayStateChanged(false) {}
 		};
 
 		struct ViewportConfigState {
@@ -41,27 +45,55 @@ namespace TempReg {
 			int VPArrTypeSelected;
 			int ActiveVPArrType;
 			std::map<int, std::vector<VPArrangementData>> VPCountToArrangementData;
+
+			ViewportConfigState() : 
+				OpenPredefConfigMenu(false), LoadConfiguration(false), VPCountSelected(-1), ActiveVPCount(-1), PrevActiveVPCount(0), VPArrTypeSelected(0), ActiveVPArrType(-1) {}
+		};
+
+		struct ShowHidePopupState {
+			bool ShowTemplate;
+			bool ShowDTemplate;
+			bool ShowTarget;
+
+			ShowHidePopupState() :
+				ShowTemplate(false), ShowDTemplate(false), ShowTarget(false) {}
+		};
+
+		struct ShadingPopupState {
+			DatasetType SelectedDataset;
+			DatasetShadingMode SelectedShadingMode;
+			bool PrimitivesEnabled;
+			bool WireframeEnabled;
+
+			ShadingPopupState() :
+				SelectedDataset(DatasetType::NONE), SelectedShadingMode(DatasetShadingMode::SOLID_COLOR), PrimitivesEnabled(true), WireframeEnabled(false) {}
+		};
+
+		struct OverlayPopupState {
+			//TODO...
+
+			OverlayPopupState() {}
 		};
 
 		struct ViewportOverlayState {
 			size_t ViewportIdx;
 			ImVec4 ContentArea; // Dear ImGui: origin (ContentArea(0), ContentArea(1)) upper left corner
 			bool ViewportSceneEmpty;
-			bool ShowTemplate;
-			bool ShowDTemplate;
-			bool ShowTarget;
+			ShowHidePopupState ShowHidePopupState;
+			ShadingPopupState ShadingPopupState;
+			//TODO: OverlayPopupState OverlayPopupState;
 		};
 
-		void buildMainMenuBar(ViewportManager* pVPMgr); //TODO
-		void buildSideMenu(ViewportManager* pVPMgr); //TODO
-		void buildViewportSection(ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>* pDatasetGeometries); //TODO
-		void buildViewportConfigPredefined(ViewportManager* pVPMgr); //TODO
+		void buildMainMenuBar(ViewportManager& VPMgr); //TODO
+		void buildSideMenu(ViewportManager& VPMgr); //TODO
+		void buildViewportSection(ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries); //TODO
+		void buildViewportConfigPredefined(ViewportManager& VPMgr); //TODO
 		void loadViewportOverlayStates(const std::vector<Vector4f>& Tiles);
 		void resizeActiveViewportOverlays(const std::vector<Vector4f>& Tiles);
-		void buildViewportOverlays(ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>* pDatasetGeometries);
+		void buildViewportOverlays(ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries);
 		void buildNoViewportsInfo(ImVec2 PosCenter);
 		void buildViewportEmptyInfo(size_t ViewportIdx, ImVec2 PosCenter);
-		void buildViewportOverlayButtonPanel(size_t VPOverlayIdx, ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>* pDatasetGeometries); //TODO
+		void buildViewportOverlayButtonPanel(size_t VPOverlayIdx, ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries); //TODO
 		
 		// Host window data
 

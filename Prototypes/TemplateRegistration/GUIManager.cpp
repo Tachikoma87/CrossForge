@@ -32,17 +32,7 @@ namespace TempReg {
 
 		setRenderWinSize(RenderWinWidth, RenderWinHeight);
 
-		m_SideMenuState.Unfolded = true;
-		m_SideMenuState.DisplayStateChanged = false;
 		m_SideMenuSize.x = (float)m_RenderWinSize[0] / 5.0f;
-
-		m_VPConfigState.OpenPredefConfigMenu = false;
-		m_VPConfigState.LoadConfiguration = false;
-		m_VPConfigState.ActiveVPCount = -1;
-		m_VPConfigState.PrevActiveVPCount = 0;
-		m_VPConfigState.ActiveVPArrType = -1;
-		m_VPConfigState.VPCountSelected = -1;
-		m_VPConfigState.VPArrTypeSelected = 0;
 
 		// temporary hack - hardcoded values
 		// -> emplace keys
@@ -88,7 +78,7 @@ namespace TempReg {
 		val->back().ArrangementType = ViewportArrangementType::FOUR_EVEN;
 	}//init
 
-	void GUIManager::buildNextImGuiFrame(TempRegAppState* pGlobalAppState, ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>* pDatasetGeometries) {
+	void GUIManager::buildNextImGuiFrame(TempRegAppState& GlobalAppState, ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -96,13 +86,13 @@ namespace TempReg {
 		// build gui windows & widgets based on GlobalAppState + ViewportManager...
 		m_VPConfigState.OpenPredefConfigMenu = false;
 
-		buildMainMenuBar(pVPMgr);
+		buildMainMenuBar(VPMgr);
 		
-		buildViewportConfigPredefined(pVPMgr);
+		buildViewportConfigPredefined(VPMgr);
 
-		buildSideMenu(pVPMgr);
+		buildSideMenu(VPMgr);
 		
-		buildViewportSection(pVPMgr, pDatasetGeometries);
+		buildViewportSection(VPMgr, DatasetGeometries);
 	}//buildNextImGuiFrame
 
 	void GUIManager::renderImGuiFrame(const bool ClearBuffer) {
@@ -117,7 +107,7 @@ namespace TempReg {
 		m_RenderWinSize[1] = RenderWinHeight;
 	}//setRenderWinSize
 
-	void GUIManager::buildMainMenuBar(ViewportManager* pVPMgr) {//TODO
+	void GUIManager::buildMainMenuBar(ViewportManager& VPMgr) {//TODO
 		if (ImGui::BeginMainMenuBar()) {
 			
 			if (ImGui::BeginMenu("File")) {
@@ -139,7 +129,7 @@ namespace TempReg {
 		}
 	}//buildMainMenuBar
 
-	void GUIManager::buildSideMenu(ViewportManager* pVPMgr) {//TODO
+	void GUIManager::buildSideMenu(ViewportManager& VPMgr) {//TODO
 		
 		m_SideMenuSize.y = (float)m_RenderWinSize[1] - m_MainMenuBarHeight;
 
@@ -199,7 +189,7 @@ namespace TempReg {
 		}		
 	}//buildSideMenu
 
-	void GUIManager::buildViewportSection(ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>* pDatasetGeometries) {
+	void GUIManager::buildViewportSection(ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {
 
 		m_ViewportSectionArea(0) = 0.0f;
 		m_ViewportSectionArea(1) = 0.0f;
@@ -225,8 +215,8 @@ namespace TempReg {
 			int ArrTypeIdx = m_VPConfigState.ActiveVPArrType;
 			auto ArrangementType = m_VPConfigState.VPCountToArrangementData.at(VPCount)[ArrTypeIdx].ArrangementType;
 
-			const auto Tiles = pVPMgr->calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
-			pVPMgr->loadViewports(Tiles);
+			const auto Tiles = VPMgr.calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
+			VPMgr.loadViewports(Tiles, DatasetGeometries);
 			loadViewportOverlayStates(Tiles);
 		}
 
@@ -238,19 +228,19 @@ namespace TempReg {
 				int ArrTypeIdx = m_VPConfigState.ActiveVPArrType;
 				auto ArrangementType = m_VPConfigState.VPCountToArrangementData.at(VPCount)[ArrTypeIdx].ArrangementType;
 
-				auto Tiles = pVPMgr->calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
-				pVPMgr->resizeActiveViewports(Tiles);
+				auto Tiles = VPMgr.calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
+				VPMgr.resizeActiveViewports(Tiles);
 				resizeActiveViewportOverlays(Tiles);
 			}
 
-			buildViewportOverlays(pVPMgr, pDatasetGeometries);
+			buildViewportOverlays(VPMgr, DatasetGeometries);
 		}
 
 		m_VPConfigState.LoadConfiguration = false;
 		m_SideMenuState.DisplayStateChanged = false;
 	}//buildViewportSection
 
-	void GUIManager::buildViewportConfigPredefined(ViewportManager* pVPMgr) {//TODO
+	void GUIManager::buildViewportConfigPredefined(ViewportManager& VPMgr) {//TODO
 		
 		if (m_VPConfigState.OpenPredefConfigMenu)
 			ImGui::OpenPopup("Choose a predefined viewport arrangement");
@@ -447,14 +437,14 @@ namespace TempReg {
 		}
 	}//resizeActiveViewportOverlays
 
-	void GUIManager::buildViewportOverlays(ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>* pDatasetGeometries) {
+	void GUIManager::buildViewportOverlays(ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {
 		
 		for (size_t i = 0; i < m_VPOStates.size(); ++i) {
 			
-			buildViewportOverlayButtonPanel(i, pVPMgr, pDatasetGeometries);
+			buildViewportOverlayButtonPanel(i, VPMgr, DatasetGeometries);
 			
 			if (m_VPOStates[i].ViewportSceneEmpty) {
-				ImVec2 PosCenter(pVPMgr->viewportCenter(i)(0), m_RenderWinSize[1] - pVPMgr->viewportCenter(i)(1));
+				ImVec2 PosCenter(VPMgr.viewportCenter(i)(0), m_RenderWinSize[1] - VPMgr.viewportCenter(i)(1));
 				buildViewportEmptyInfo(i, PosCenter);
 			}
 		}
@@ -533,140 +523,337 @@ namespace TempReg {
 		ImGui::PopStyleColor();
 	}//buildViewportEmptyInfo
 
-	void GUIManager::buildViewportOverlayButtonPanel(size_t VPOverlayIdx, ViewportManager* pVPMgr, std::map<DatasetType, DatasetGeometryData*>* pDatasetGeometries) {//TODO
+	void GUIManager::buildViewportOverlayButtonPanel(size_t VPOverlayIdx, ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {//TODO
 
-		ImGuiWindowFlags WindowFlags = ImGuiWindowFlags_NoDecoration | /*ImGuiWindowFlags_NoBackground |*/ //<- zum Test auskommentiert
+		ImGuiWindowFlags WindowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground |
 			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 
 		std::string WindowUID = "##vpoverlay_controlpanel_vp" + std::to_string(VPOverlayIdx);
 
 		ImGui::Begin(WindowUID.c_str(), nullptr, WindowFlags);
 
-		ImGui::SameLine();
-
-		ImVec2 ButtonPos;
+		ImVec2 ButtonPosOverlay, ButtonPosShading, ButtonPosShowHide;
 
 		// "Overlay" button
-		if (ImGui::Button("Overlay")) {
-			//TODO
-		}
+		ButtonPosOverlay = ImGui::GetCursorScreenPos();
+		if (ImGui::Button("Overlay"))
+			ImGui::OpenPopup("overlay_popup");
 		
-		//TODO: Overlay popup
+		ImGui::SameLine();
 
 		// "Shading" button
-		ButtonPos = ImGui::GetCursorScreenPos();
+		ButtonPosShading = ImGui::GetCursorScreenPos();
 		if (ImGui::Button("Shading"))
 			ImGui::OpenPopup("shading_popup");
 		
-		if (ImGui::BeginPopup("showhide_popup")) {
-			ImVec2 PopupPos(ButtonPos.x, ButtonPos.y + ImGui::GetFrameHeight());
-			ImGui::SetWindowPos(PopupPos);
-						
-			//TODO: radio buttons for dataset selection
-
-
-
-			ImGui::EndPopup();
-		}
-		//TODO
+		ImGui::SameLine();
 
 		// "Show/Hide" button
-		ButtonPos = ImGui::GetCursorScreenPos();
+		ButtonPosShowHide = ImGui::GetCursorScreenPos();
 		if (ImGui::Button("Show"))
 			ImGui::OpenPopup("showhide_popup");
 
+
+		// Overlay popup
+		if (ImGui::BeginPopup("overlay_popup")) {
+			ImVec2 PopupPos(ButtonPosOverlay.x, ButtonPosOverlay.y + ImGui::GetFrameHeight());
+			ImGui::SetWindowPos(PopupPos);
+
+			//TODO...
+
+			ImGui::EndPopup();
+		}// end [overlay_popup]
+		
+		// Shading popup
+		if (ImGui::BeginPopup("shading_popup")) {
+			ImVec2 PopupPos(ButtonPosShading.x, ButtonPosShading.y + ImGui::GetFrameHeight());
+			ImGui::SetWindowPos(PopupPos);
+						
+			auto& ShowTemplate = m_VPOStates[VPOverlayIdx].ShowHidePopupState.ShowTemplate;
+			auto& ShowDTemplate = m_VPOStates[VPOverlayIdx].ShowHidePopupState.ShowDTemplate;
+			auto& ShowTarget = m_VPOStates[VPOverlayIdx].ShowHidePopupState.ShowTarget;
+			auto& SelectedDataset = m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset;
+			auto& PrimitivesEnabled = m_VPOStates[VPOverlayIdx].ShadingPopupState.PrimitivesEnabled;
+			auto& WireframeEnabled = m_VPOStates[VPOverlayIdx].ShadingPopupState.WireframeEnabled;
+			
+			if (!ShowTemplate) ImGui::BeginDisabled();
+			if (ImGui::RadioButton("Original Template", SelectedDataset == DatasetType::TEMPLATE)) SelectedDataset = DatasetType::TEMPLATE;
+			if (!ShowTemplate) {
+				ImGui::EndDisabled();
+
+				ImGui::SameLine();
+
+				ImGui::TextDisabled("(?)");
+				if (ImGui::IsItemHovered()) {
+					ImGui::BeginTooltip();
+					ImGui::Text("Enable dataset to modify its shading mode");
+					ImGui::EndTooltip();
+				}
+			}
+
+			if (!ShowDTemplate) ImGui::BeginDisabled();
+			if (ImGui::RadioButton("Deformed Template", SelectedDataset == DatasetType::DTEMPLATE))	SelectedDataset = DatasetType::DTEMPLATE;
+			if (!ShowDTemplate) {	
+				ImGui::EndDisabled();
+
+				ImGui::SameLine();
+
+				ImGui::TextDisabled("(?)");
+				if (ImGui::IsItemHovered()) {
+					ImGui::BeginTooltip();
+					ImGui::Text("Enable dataset to modify its shading mode");
+					ImGui::EndTooltip();
+				}
+			}
+
+			if (!ShowTarget) ImGui::BeginDisabled();
+			if (ImGui::RadioButton("Target", SelectedDataset == DatasetType::TARGET)) SelectedDataset = DatasetType::TARGET;
+			if (!ShowTarget) {	
+				ImGui::EndDisabled();
+			
+				ImGui::SameLine();
+
+				ImGui::TextDisabled("(?)");
+				if (ImGui::IsItemHovered()) {
+					ImGui::BeginTooltip();
+					ImGui::Text("Enable dataset to modify its shading mode");
+					ImGui::EndTooltip();
+				}
+			}
+
+			ImGui::Separator();
+
+			auto& SelectedShadingMode = m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedShadingMode;
+
+			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// Single color shading
+			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+			if (SelectedDataset == DatasetType::NONE)
+				ImGui::BeginDisabled();
+
+			if (ImGui::RadioButton("Solid Color", SelectedShadingMode == DatasetShadingMode::SOLID_COLOR)) {
+				SelectedShadingMode = DatasetShadingMode::SOLID_COLOR;
+				size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
+				VPMgr.setSolidColorShading(VPIdx, SelectedDataset, true); //TODO: add color picker widget and pass chosen color to setSolidColorShading(...), add way to reset color of dataset back to default
+			}
+
+			if (SelectedDataset == DatasetType::NONE) {
+				ImGui::EndDisabled();
+
+				ImGui::SameLine();
+
+				ImGui::TextDisabled("(?)");
+				if (ImGui::IsItemHovered()) {
+					ImGui::BeginTooltip();
+					ImGui::Text("No dataset selected");
+					ImGui::EndTooltip();
+				}
+			}
+
+			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// Shading based on Hausdorff Distance
+			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+			//if (SelectedDataset == DatasetType::TARGET || SelectedDataset == DatasetType::NONE) //TODO
+			ImGui::BeginDisabled();
+
+			if (ImGui::RadioButton("Hausdorff Distance", SelectedShadingMode == DatasetShadingMode::HAUSDORFF_DISTANCE)) { //TODO: allow user to adjust the color scale (blue->turquoise->green->yellow->red) for different distance values
+				SelectedShadingMode = DatasetShadingMode::HAUSDORFF_DISTANCE;
+				//size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
+				//TODO...
+				// -> get vertex hausdorff distances from registration module: 
+				//std::vector<Vector3f> HausdorffVals = ...
+				//VPMgr.setHausdorffDistColorShading(VPIdx, SelectedDataset, HausdorffVals);
+			}
+
+			//if (SelectedDataset == DatasetType::TARGET || SelectedDataset == DatasetType::NONE) //TODO
+			ImGui::EndDisabled();
+
+			
+
+			/*if (SelectedDataset == DatasetType::NONE) {
+				ImGui::SameLine();
+
+				ImGui::TextDisabled("(?)");
+				if (ImGui::IsItemHovered()) {
+					ImGui::BeginTooltip();
+					ImGui::Text("No dataset selected");
+					ImGui::EndTooltip();
+				}
+			}
+			else if (SelectedDataset == DatasetType::TARGET) {
+				ImGui::SameLine();
+
+				ImGui::TextDisabled("(?)");
+				if (ImGui::IsItemHovered()) {
+					ImGui::BeginTooltip();
+					ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+					ImGui::TextUnformatted("Visualization of Hausdorff distance only available for original and deformed template datasets");
+					ImGui::PopTextWrapPos();
+					ImGui::EndTooltip();
+				}
+			}*/
+
+			//temporary till TODOs are finished:
+			ImGui::SameLine();
+
+			ImGui::TextDisabled("(?)");
+			if (ImGui::IsItemHovered()) {
+				ImGui::BeginTooltip();
+				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+				ImGui::TextUnformatted("TODO");
+				ImGui::PopTextWrapPos();
+				ImGui::EndTooltip();
+			}
+
+			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// Mesh specific rendering options
+			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+			if (SelectedDataset != DatasetType::NONE) {
+				if (DatasetGeometries.at(SelectedDataset).geometryType() == DatasetGeometryType::MESH) {
+
+					ImGui::Separator();
+
+					/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+					// Faces
+					/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+								
+					if (ImGui::Checkbox("Faces", &PrimitivesEnabled)) {
+						size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
+						VPMgr.enablePrimitivesActor(VPIdx, SelectedDataset, PrimitivesEnabled);
+
+						if (WireframeEnabled) {
+							if (PrimitivesEnabled) {
+								Vector3f WireframeColor = Vector3f(0.0f, 0.0f, 0.0f);
+								VPMgr.setSolidColorShading(VPIdx, SelectedDataset, false, &WireframeColor);
+							}
+							else {
+								if (SelectedShadingMode == DatasetShadingMode::SOLID_COLOR) {
+									VPMgr.setSolidColorShading(VPIdx, SelectedDataset, false);
+								}
+								else { // SelectedShadingMode == DatasetShadingMode::HAUSDORFF_DISTANCE
+									//TODO...
+								// -> get vertex hausdorff distances from registration module: 
+								//std::vector<Vector3f> HausdorffVals = ...
+								//VPMgr.setHausdorffDistColorShading(VPIdx, SelectedDataset, HausdorffVals);
+								}
+							}
+						}
+					}
+
+					/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+					// Wireframe
+					/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+					if (ImGui::Checkbox("Wireframe", &WireframeEnabled)) {
+						size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
+						VPMgr.enableWireframeActor(VPIdx, SelectedDataset, WireframeEnabled);
+
+						if (WireframeEnabled) {
+							if (PrimitivesEnabled) {
+								Vector3f WireframeColor = Vector3f(0.0f, 0.0f, 0.0f);
+								VPMgr.setSolidColorShading(VPIdx, SelectedDataset, false, &WireframeColor);
+							}
+							else {
+								if (SelectedShadingMode == DatasetShadingMode::SOLID_COLOR) {
+									VPMgr.setSolidColorShading(VPIdx, SelectedDataset, false);
+								}
+								else { // SelectedShadingMode == DatasetShadingMode::HAUSDORFF_DISTANCE
+									//TODO...
+								// -> get vertex hausdorff distances from registration module: 
+								//std::vector<Vector3f> HausdorffVals = ...
+								//VPMgr.setHausdorffDistColorShading(VPIdx, SelectedDataset, HausdorffVals);
+								}
+							}
+						}
+					}
+				}
+			}
+			ImGui::EndPopup();
+		}// end [shading_popup]
+		
+		// Show/Hide popup
 		if (ImGui::BeginPopup("showhide_popup")) {
-			ImVec2 PopupPos(ButtonPos.x, ButtonPos.y + ImGui::GetFrameHeight());
+			ImVec2 PopupPos(ButtonPosShowHide.x, ButtonPosShowHide.y + ImGui::GetFrameHeight());
 			ImGui::SetWindowPos(PopupPos);
 
 			ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
 
-			if (ImGui::MenuItem("Template", "", &m_VPOStates[VPOverlayIdx].ShowTemplate)) {
-				if (m_VPOStates[VPOverlayIdx].ShowTemplate == true) {
-					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					auto itD = pDatasetGeometries->find(DatasetType::TEMPLATE);
+			auto& ShowTemplate = m_VPOStates[VPOverlayIdx].ShowHidePopupState.ShowTemplate;
+			auto& ShowDTemplate = m_VPOStates[VPOverlayIdx].ShowHidePopupState.ShowDTemplate;
+			auto& ShowTarget = m_VPOStates[VPOverlayIdx].ShowHidePopupState.ShowTarget;
 
-					if (itD != pDatasetGeometries->end()) {
-						pVPMgr->addDatasetDisplayData(VPIdx, itD);
-						if (pVPMgr->activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) pVPMgr->arrangeDatasetDisplayDataSideBySide(VPIdx);
-						else pVPMgr->arrangeDatasetDisplayDataLayered(VPIdx);
-						m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = false;
-					}
+			if (ImGui::MenuItem("Template", "", &ShowTemplate)) {
+				if (ShowTemplate) {
+					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
+					VPMgr.showDatasetDisplayData(VPIdx, DatasetType::TEMPLATE, true);
+					if (VPMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
+					else VPMgr.arrangeDatasetDisplayDataLayered(VPIdx);
+					m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = false;
 				}
 				else {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					auto itD = pDatasetGeometries->find(DatasetType::TEMPLATE);
-					
-					if (itD != pDatasetGeometries->end()) {
-						pVPMgr->removeDatasetDisplayData(VPIdx, itD);
-						if (pVPMgr->activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) pVPMgr->arrangeDatasetDisplayDataSideBySide(VPIdx);
-						else pVPMgr->arrangeDatasetDisplayDataLayered(VPIdx);
-					}
+					VPMgr.showDatasetDisplayData(VPIdx, DatasetType::TEMPLATE, false);
+					if (VPMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
+					else VPMgr.arrangeDatasetDisplayDataLayered(VPIdx);
 
-					if (!m_VPOStates[VPOverlayIdx].ShowTemplate && !m_VPOStates[VPOverlayIdx].ShowDTemplate && !m_VPOStates[VPOverlayIdx].ShowTarget)
-						m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = true;
+					if (m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset == DatasetType::TEMPLATE)
+						m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset = DatasetType::NONE;
+
+					if (!ShowTemplate && !ShowDTemplate && !ShowTarget) m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = true;		
 				}
 			}
 
-			if (ImGui::MenuItem("Deformed Template", "", &m_VPOStates[VPOverlayIdx].ShowDTemplate)) {
-				if (m_VPOStates[VPOverlayIdx].ShowDTemplate == true) {
+			if (ImGui::MenuItem("Deformed Template", "", &ShowDTemplate)) {
+				if (ShowDTemplate) {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					auto itD = pDatasetGeometries->find(DatasetType::DTEMPLATE);
-
-					if (itD != pDatasetGeometries->end()) {
-						pVPMgr->addDatasetDisplayData(VPIdx, itD);
-						if (pVPMgr->activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) pVPMgr->arrangeDatasetDisplayDataSideBySide(VPIdx);
-						else pVPMgr->arrangeDatasetDisplayDataLayered(VPIdx);
-						m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = false;
-					}
+					VPMgr.showDatasetDisplayData(VPIdx, DatasetType::DTEMPLATE, true);
+					if (VPMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
+					else VPMgr.arrangeDatasetDisplayDataLayered(VPIdx);
+					m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = false;
 				}
 				else {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					auto itD = pDatasetGeometries->find(DatasetType::DTEMPLATE);
-					
-					if (itD != pDatasetGeometries->end()) {
-						pVPMgr->removeDatasetDisplayData(VPIdx, itD);
-						if (pVPMgr->activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) pVPMgr->arrangeDatasetDisplayDataSideBySide(VPIdx);
-						else pVPMgr->arrangeDatasetDisplayDataLayered(VPIdx);
-					}
+					VPMgr.showDatasetDisplayData(VPIdx, DatasetType::DTEMPLATE, false);
+					if (VPMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
+					else VPMgr.arrangeDatasetDisplayDataLayered(VPIdx);
 
-					if (!m_VPOStates[VPOverlayIdx].ShowTemplate && !m_VPOStates[VPOverlayIdx].ShowDTemplate && !m_VPOStates[VPOverlayIdx].ShowTarget)
-						m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = true;
+					if (m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset == DatasetType::DTEMPLATE)
+						m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset = DatasetType::NONE;
+
+					if (!ShowTemplate && !ShowDTemplate && !ShowTarget) m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = true;
 				}
 			}
 
-			if (ImGui::MenuItem("Target", "", &m_VPOStates[VPOverlayIdx].ShowTarget)) {
-				if (m_VPOStates[VPOverlayIdx].ShowTarget == true) {
+			if (ImGui::MenuItem("Target", "", &ShowTarget)) {
+				if (ShowTarget) {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					auto itD = pDatasetGeometries->find(DatasetType::TARGET);
+					VPMgr.showDatasetDisplayData(VPIdx, DatasetType::TARGET, true);
+					if (VPMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
+					else VPMgr.arrangeDatasetDisplayDataLayered(VPIdx);
+					m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = false;
 
-					if (itD != pDatasetGeometries->end()) {
-						pVPMgr->addDatasetDisplayData(VPIdx, itD);
-						if (pVPMgr->activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) pVPMgr->arrangeDatasetDisplayDataSideBySide(VPIdx);
-						else pVPMgr->arrangeDatasetDisplayDataLayered(VPIdx);
-						m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = false;
-					}
-						
 				}
 				else {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					auto itD = pDatasetGeometries->find(DatasetType::TARGET);
-					
-					if (itD != pDatasetGeometries->end()) {
-						pVPMgr->removeDatasetDisplayData(VPIdx, itD);
-						if (pVPMgr->activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) pVPMgr->arrangeDatasetDisplayDataSideBySide(VPIdx);
-						else pVPMgr->arrangeDatasetDisplayDataLayered(VPIdx);
-					}
-					
-					if (!m_VPOStates[VPOverlayIdx].ShowTemplate && !m_VPOStates[VPOverlayIdx].ShowDTemplate && !m_VPOStates[VPOverlayIdx].ShowTarget)
-						m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = true;
+
+					VPMgr.showDatasetDisplayData(VPIdx, DatasetType::TARGET, false);
+					if (VPMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
+					else VPMgr.arrangeDatasetDisplayDataLayered(VPIdx);
+
+					if (m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset == DatasetType::TARGET)
+						m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset = DatasetType::NONE;
+
+					if (!ShowTemplate && !ShowDTemplate && !ShowTarget) m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = true;
 				}
 			}
 			ImGui::PopItemFlag();
 			ImGui::EndPopup();
-		}
+		}// end [showhide_popup]
 
-		// reposition panel using size of finalized window //TODO: precompute!
+		// reposition panel using size of finalized window (precomputing this position would be better)
 		ImVec2 Pos(m_VPOStates[VPOverlayIdx].ContentArea.x + m_VPOStates[VPOverlayIdx].ContentArea.z - ImGui::GetWindowWidth(), m_VPOStates[VPOverlayIdx].ContentArea.y);
 		ImGui::SetWindowPos(Pos);
 

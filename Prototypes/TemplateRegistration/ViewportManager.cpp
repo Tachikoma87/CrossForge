@@ -11,16 +11,57 @@ namespace TempReg {
 
 		m_GlobalState.DisplayCorrespondences = false;
 		m_GlobalState.GlobalMarkers = false;
-		m_GlobalState.MarkerDisplayMode = MarkerMode::DISABLED;
 		m_GlobalState.DefaultTemplateColor = Vector3f(1.0f, 0.666f, 0.498f);	// light orange
 		m_GlobalState.DefaultTargetColor = Vector3f(0.541f, 0.784f, 1.0f);		// light blue
-
-		m_CorrespondenceMarkerGroups.reserve(128);
 	}//Constructor
 
 	ViewportManager::~ViewportManager() {
 		for (auto& it : m_DatasetModels) it.second.clear();		
 		m_DatasetModels.clear();
+
+		// clear all viewports
+		for (size_t i = 0; i < m_Viewports.size(); ++i) {
+			if (m_Viewports[i] == nullptr) continue;
+
+			clearDatasetDisplayData(i);
+
+			m_Viewports[i]->RootSGN.clear();
+			m_Viewports[i]->SG.clear();
+
+			delete m_Viewports[i];
+			m_Viewports[i] = nullptr;
+			++i;
+		}
+
+		// clear all marker data
+		//TODO: clear DefaultVertHoverMarkers
+		//TODO: clear DefaultVertSelectMarkers
+
+		for (auto& Root : m_FeatMarkerRoots) Root.second.removeAllChildren();
+		for (auto& Root : m_CorrMarkerRoots) Root.second.removeAllChildren();
+		
+		for (auto it = m_FeatMarkers.begin(); it != m_FeatMarkers.end(); ++it) {
+			for (size_t i = 0; i < it->second.size(); ++i) {
+				it->second[i].GeomSGN.clear();
+				it->second[i].TransSGN.clear();
+			}
+			it->second.clear();
+		}
+		m_FeatMarkers.clear();
+
+		for (auto it = m_CorrMarkers.begin(); it != m_CorrMarkers.end(); ++it) {
+			for (size_t i = 0; i < it->second.size(); ++i) {
+				it->second[i].GeomSGN.clear();
+				it->second[i].TransSGN.clear();
+			}
+			it->second.clear();
+		}
+		m_CorrMarkers.clear();
+
+		for (auto it = m_MarkerActors.begin(); it != m_MarkerActors.end(); ++it) {
+			it->second->release();
+		}
+		m_MarkerActors.clear();
 	}//Destructor
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -228,7 +269,7 @@ namespace TempReg {
 		return Tiles;
 	}//calculateViewportTiling
 
-	void ViewportManager::loadViewports(const std::vector<Vector4f>& Tiles) {
+	void ViewportManager::loadViewports(const std::vector<Vector4f>& Tiles, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {
 		
 		Vector4i Tile = Vector4i::Zero();
 		size_t i = 0;
@@ -250,14 +291,19 @@ namespace TempReg {
 		// add missing viewports
 		while (i < Tiles.size()) {
 			Tile = Tiles[i].array().ceil().cast<int>();
-			addViewport(Tile(0), Tile(1), Tile(2), Tile(3));			
+			addViewport(Tile(0), Tile(1), Tile(2), Tile(3), DatasetGeometries);			
 			++i;
 		}
 
 		//remove spare viewports
-		
 		while (i < ActiveVPCount) {
-			removeViewport(i);
+			clearDatasetDisplayData(i);
+
+			m_Viewports[i]->RootSGN.clear();
+			m_Viewports[i]->SG.clear();
+
+			delete m_Viewports[i];
+			m_Viewports[i] = nullptr;
 			++i;
 		}
 	}//loadViewports
@@ -287,10 +333,10 @@ namespace TempReg {
 
 	int32_t ViewportManager::mouseInViewport(Vector2f CursorPosOGL) const {
 		for (size_t i = 0; i < activeViewportCount(); ++i) {
-			Viewport* View = m_Viewports[i];
+			auto pView = m_Viewports[i];
 			
-			if (CursorPosOGL.x() >= (float)View->VP.Position.x() && CursorPosOGL.x() <= (float)View->VP.Position.x() + (float)View->VP.Size.x()) {
-				if (CursorPosOGL.y() >= (float)View->VP.Position.y() && CursorPosOGL.y() <= (float)View->VP.Position.y() + (float)View->VP.Size.y()) {
+			if (CursorPosOGL.x() >= (float)pView->VP.Position.x() && CursorPosOGL.x() <= (float)pView->VP.Position.x() + (float)pView->VP.Size.x()) {
+				if (CursorPosOGL.y() >= (float)pView->VP.Position.y() && CursorPosOGL.y() <= (float)pView->VP.Position.y() + (float)pView->VP.Size.y()) {
 					return i;
 				}
 			}
@@ -303,17 +349,55 @@ namespace TempReg {
 	// Per viewport interactions
 	//
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	void ViewportManager::updateViewport(size_t VPIndex, float FPSScale) {
 		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		
+		// process local (per viewport) & global display states...
 		auto pView = m_Viewports[VPIndex];
+				
+		// process markers 
+		for (auto& Dataset : pView->DatasetDisplayData) {
+			// -> link debug mesh markers to dataset display data of viewport (TODO comment/remove when done with tests!)
+			if (m_DEBUG_MeshMarkers.at(Dataset.first).TransSGN.parent() != nullptr)
+				m_DEBUG_MeshMarkers.at(Dataset.first).TransSGN.parent()->removeChild(&(m_DEBUG_MeshMarkers.at(Dataset.first).TransSGN));
+			pView->DatasetDisplayData.at(Dataset.first)->TransSGN.addChild(&(m_DEBUG_MeshMarkers.at(Dataset.first).TransSGN));
+			
+			// -> link default vertex hover markers to dataset display data of viewport
+			if (m_DefaultVertHoverMarkers.at(Dataset.first).TransSGN.parent() != nullptr)
+				m_DefaultVertHoverMarkers.at(Dataset.first).TransSGN.parent()->removeChild(&(m_DefaultVertHoverMarkers.at(Dataset.first).TransSGN));
+			pView->DatasetDisplayData.at(Dataset.first)->TransSGN.addChild(&(m_DefaultVertHoverMarkers.at(Dataset.first).TransSGN));
 
-		//process local (per viewport) & global view state
+			// -> link default vertex selection markers to dataset display data of viewport
+			if (m_DefaultVertSelectMarkers.at(Dataset.first).TransSGN.parent() != nullptr)
+				m_DefaultVertSelectMarkers.at(Dataset.first).TransSGN.parent()->removeChild(&(m_DefaultVertSelectMarkers.at(Dataset.first).TransSGN));
+			pView->DatasetDisplayData.at(Dataset.first)->TransSGN.addChild(&(m_DefaultVertSelectMarkers.at(Dataset.first).TransSGN));
+
+			// -> link feature pair markers to dataset display data of viewport
+			if (m_FeatMarkerRoots.at(Dataset.first).parent() != nullptr)
+				m_FeatMarkerRoots.at(Dataset.first).parent()->removeChild(&(m_FeatMarkerRoots.at(Dataset.first)));
+			Dataset.second->TransSGN.addChild(&(m_FeatMarkerRoots.at(Dataset.first)));
+
+			// -> link feature pair markers to dataset display data of viewport
+			if (m_CorrMarkerRoots.at(Dataset.first).parent() != nullptr)
+				m_CorrMarkerRoots.at(Dataset.first).parent()->removeChild(&(m_CorrMarkerRoots.at(Dataset.first)));
+			Dataset.second->TransSGN.addChild(&(m_CorrMarkerRoots.at(Dataset.first)));
+
+			// -> decide if to show linked markers
+			m_DEBUG_MeshMarkers.at(Dataset.first).TransSGN.enable(true, pView->DEBUG_ShowDebugMeshMarker.at(Dataset.first)); //TODO comment/remove when done with tests!
+			m_DefaultVertHoverMarkers.at(Dataset.first).TransSGN.enable(true, pView->ShowDefaultVertexHoverMarker.at(Dataset.first));
+			m_DefaultVertSelectMarkers.at(Dataset.first).TransSGN.enable(true, pView->ShowDefaultVertexSelectMarker.at(Dataset.first));
+			m_FeatMarkerRoots.at(Dataset.first).enable(true, pView->ShowFeatMarkers.at(Dataset.first));
+			m_CorrMarkerRoots.at(Dataset.first).enable(true, pView->ShowCorrMarkers.at(Dataset.first));
+		}
+
+		// update the scene graph for this viewport
 		pView->SG.update(FPSScale);
 	}//updateViewport
 
-	void ViewportManager::renderViewport(size_t VPIndex, CForge::RenderDevice* pRDev) {
+	void ViewportManager::renderViewport(size_t VPIndex, CForge::RenderDevice& RDev) {
 		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
-		m_Viewports[VPIndex]->SG.render(pRDev);
+		m_Viewports[VPIndex]->SG.render(&RDev);
 	}//renderViewport
 
 	Vector2i ViewportManager::viewportPosition(size_t VPIndex) const {
@@ -357,18 +441,18 @@ namespace TempReg {
 		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
 		Quaternionf Rotation = arcballRotation(VPIndex, Start, End);
 
-		for (auto& Dataset : m_Viewports[VPIndex]->ActiveDisplayData)
-			Dataset.second->DatasetTransSGN.rotation(Rotation * Dataset.second->DatasetTransSGN.rotation());
+		for (auto& Dataset : m_Viewports[VPIndex]->DatasetDisplayData)
+			Dataset.second->TransSGN.rotation(Rotation * Dataset.second->TransSGN.rotation());
 	}//viewportArcballRotate
 
 	void ViewportManager::acrballRotateAllViewports(size_t VPIndex, Vector2f Start, Vector2f End) {//TODO
 		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
 		Quaternionf Rotation = arcballRotation(VPIndex, Start, End);
 
-		for (auto View : m_Viewports) {
-			if (View == nullptr) continue;
-			for (auto& Dataset : View->ActiveDisplayData)
-				Dataset.second->DatasetTransSGN.rotation(Rotation * Dataset.second->DatasetTransSGN.rotation());
+		for (auto pView : m_Viewports) {
+			if (pView == nullptr) continue;
+			for (auto& Dataset : pView->DatasetDisplayData)
+				Dataset.second->TransSGN.rotation(Rotation * Dataset.second->TransSGN.rotation());
 		}
 	}//acrballRotateAllViewports
 
@@ -470,148 +554,111 @@ namespace TempReg {
 		m_DatasetModels.at(DT).computeAxisAlignedBoundingBox();
 	}//updateDatasetModel
 
-	void ViewportManager::addDatasetDisplayData(size_t VPIndex, std::map<DatasetType, DatasetGeometryData*>::iterator itDatasetGeom) {
-		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
-		if (itDatasetGeom->second->vertexCount() == 0) throw CForgeExcept("Dataset has no vertex data. Can not visualize it!");
-		
-		auto View = m_Viewports[VPIndex];
-		auto Inserted = View->ActiveDisplayData.insert(std::pair<DatasetType, DatasetDisplayData*>(itDatasetGeom->first, nullptr));
-		if (!Inserted.second) throw CForgeExcept("Specified DatasetType already exists!");
-		
-		DatasetDisplayData* pNewDisplayData = new DatasetDisplayData();
-		pNewDisplayData->pDatasetActor = new DatasetActor();
-		DatasetRenderMode RM = (itDatasetGeom->second->geometryType() == DatasetGeometryType::MESH) ? DatasetRenderMode::FILL : DatasetRenderMode::POINT;
-		pNewDisplayData->pDatasetActor->init(&m_DatasetModels.at(itDatasetGeom->first), RM);
-
-		// set rotation of newly added dataset to match existing ones
-		Quaternionf Rotation = Quaternionf::Identity();
-		if (View->ActiveDisplayData.size() > 1) Rotation = View->ActiveDisplayData.begin()->second->DatasetTransSGN.rotation();
-		
-		pNewDisplayData->DatasetTransSGN.init(&(View->RootSGN), Vector3f::Zero(), Rotation, Vector3f::Ones());
-		pNewDisplayData->DatasetGeomSGN.init(&(pNewDisplayData->DatasetTransSGN), pNewDisplayData->pDatasetActor);
-		
-		View->ActiveDisplayData.at(itDatasetGeom->first) = pNewDisplayData;
-	}//addDatasetDisplayData
-
-	void ViewportManager::removeDatasetDisplayData(size_t VPIndex, std::map<DatasetType, DatasetGeometryData*>::iterator itDatasetGeom) {
-		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
-
-		auto View = m_Viewports[VPIndex];
-
-		if (View->ActiveDisplayData.count(itDatasetGeom->first) == 0) return; // nothing to do
-
-		View->RootSGN.removeChild(&(View->ActiveDisplayData.at(itDatasetGeom->first)->DatasetTransSGN));
-
-		View->ActiveDisplayData.at(itDatasetGeom->first)->DatasetGeomSGN.clear();
-		View->ActiveDisplayData.at(itDatasetGeom->first)->DatasetTransSGN.clear();
-		View->ActiveDisplayData.at(itDatasetGeom->first)->pDatasetActor->release();
-
-		delete View->ActiveDisplayData.at(itDatasetGeom->first);
-		View->ActiveDisplayData.at(itDatasetGeom->first) = nullptr;
-		View->ActiveDisplayData.erase(itDatasetGeom->first);
-	}//removeDatasetDisplayData
-
-	void ViewportManager::clearDatasetDisplayData(size_t VPIndex) {
-		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
-
-		auto View = m_Viewports[VPIndex];
-
-		for (auto it = View->ActiveDisplayData.begin(); it != View->ActiveDisplayData.end(); ++it) {
-			if (it->second == nullptr) continue;
-
-			View->RootSGN.removeChild(&(it->second->DatasetTransSGN));
-
-			it->second->DatasetGeomSGN.clear();
-			it->second->DatasetTransSGN.clear();
-			it->second->pDatasetActor->release();
-			
-			delete it->second;
-			it->second = nullptr;
-		}
-		View->ActiveDisplayData.clear();
-	}//removeAllDatasetDisplayData
-
-	void ViewportManager::updateDatasetDisplayData(size_t VPIndex, std::map<DatasetType, DatasetGeometryData*>::iterator itDatasetGeom) { //TODO
+	void ViewportManager::updateDatasetDisplayData(size_t VPIndex, std::map<DatasetType, DatasetGeometryData>::iterator itDatasetGeom) { //TODO
 		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
 		
-		auto View = m_Viewports[VPIndex];
+		auto pView = m_Viewports[VPIndex];
 
 		//TODO...
 
 	}//updateDatasetDisplayData
 
-	void ViewportManager::showDatasetDisplayData(size_t VPIndex, std::map<DatasetType, DatasetGeometryData*>::iterator itDatasetGeom, bool Show) {
+	void ViewportManager::showDatasetDisplayData(size_t VPIndex, DatasetType DT, bool Show) {
 		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
-
-		auto View = m_Viewports[VPIndex];
-		View->ActiveDisplayData.at(itDatasetGeom->first)->DatasetGeomSGN.enable(true, Show);
+		m_Viewports[VPIndex]->DatasetDisplayData.at(DT)->TransSGN.enable(true, Show);
 	}//showDatasetDisplayData
 
-	void ViewportManager::setSolidShading(size_t VPIndex, std::map<DatasetType, DatasetGeometryData*>::iterator itDatasetGeom) {
+	void ViewportManager::enableWireframeActor(size_t VPIndex, DatasetType DT, bool Active) {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		m_Viewports[VPIndex]->DatasetDisplayData.at(DT)->WireframeGeomSGN.enable(true, Active);
+	}//enableWireframeActor
+
+	void ViewportManager::enablePrimitivesActor(size_t VPIndex, DatasetType DT, bool Active) {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		m_Viewports[VPIndex]->DatasetDisplayData.at(DT)->PrimitivesGeomSGN.enable(true, Active);
+	}//enablePrimitivesActor
+
+	void ViewportManager::setSolidColorShading(size_t VPIndex, DatasetType DT, bool PrimitivesActor, Vector3f* Color) {
 		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
 
-		Viewport* View = m_Viewports[VPIndex];
-		auto DType = itDatasetGeom->first;
+		auto pView = m_Viewports[VPIndex];
 		std::vector<Vector3f> Colors;
 
-		switch (DType) {
+		switch (DT) {
 		case DatasetType::TEMPLATE:
-		case DatasetType::DTEMPLATE: for (uint32_t i = 0; i < itDatasetGeom->second->vertexCount(); ++i) Colors.push_back(m_GlobalState.DefaultTemplateColor); break;
-		case DatasetType::TARGET: for (uint32_t i = 0; i < itDatasetGeom->second->vertexCount(); ++i) Colors.push_back(m_GlobalState.DefaultTargetColor); break;
+		case DatasetType::DTEMPLATE: {
+			if (Color != nullptr) for (uint32_t i = 0; i < m_DatasetModels.at(DT).vertexCount(); ++i) Colors.push_back(*Color);
+			else for (uint32_t i = 0; i < m_DatasetModels.at(DT).vertexCount(); ++i) Colors.push_back(m_GlobalState.DefaultTemplateColor);
+			break;
+		}
+		case DatasetType::TARGET: {
+			if (Color != nullptr) for (uint32_t i = 0; i < m_DatasetModels.at(DT).vertexCount(); ++i) Colors.push_back(*Color);
+			else for (uint32_t i = 0; i < m_DatasetModels.at(DT).vertexCount(); ++i) Colors.push_back(m_GlobalState.DefaultTargetColor); 
+			break;
+		}
 		case DatasetType::NONE: throw CForgeExcept("DatasetType not initialized"); break;
 		default: break;
 		}
 
-		m_DatasetModels.at(itDatasetGeom->first).colors(&Colors);
+		m_DatasetModels.at(DT).colors(&Colors);
 		Colors.clear();
 
-		//update DatasetActor
-		auto* DisplayData = View->ActiveDisplayData.at(itDatasetGeom->first);
-		//DisplayData->DatasetTransSGN.removeChild(&(DisplayData->DatasetGeomSGN));
-		//DisplayData->DatasetGeomSGN.clear();
-		DisplayData->pDatasetActor->release();
-
-		DisplayData->pDatasetActor = new DatasetActor();
-		DatasetRenderMode RM = (itDatasetGeom->second->geometryType() == DatasetGeometryType::MESH) ? DatasetRenderMode::FILL : DatasetRenderMode::POINT;
-		DisplayData->pDatasetActor->init(&m_DatasetModels.at(itDatasetGeom->first), RM);
-		//DisplayData->DatasetGeomSGN.init(&(DisplayData->DatasetTransSGN), DisplayData->pDatasetActor);
-		DisplayData->DatasetGeomSGN.actor(DisplayData->pDatasetActor);
-	}//setSolidShading
+		// update DatasetActor specified by PrimitivesActor boolean
+		auto pDisplayData = pView->DatasetDisplayData.at(DT);
+		DatasetRenderMode RM;
+		
+		if (PrimitivesActor) {
+			RM = pView->DatasetDisplayData.at(DT)->pPrimitivesActor->renderMode();
+			//DisplayData->TransSGN.removeChild(&(DisplayData->PrimitivesGeomSGN));
+			//DisplayData->PrimitivesGeomSGN.clear();
+			pDisplayData->pPrimitivesActor->release();
+			pDisplayData->pPrimitivesActor = new DatasetActor();
+			pDisplayData->pPrimitivesActor->init(&m_DatasetModels.at(DT), RM);
+			//DisplayData->PrimitivesGeomSGN.init(&(DisplayData->TransSGN), DisplayData->pPrimitivesActor);
+			pDisplayData->PrimitivesGeomSGN.actor(pDisplayData->pPrimitivesActor);
+		}
+		else {
+			RM = pView->DatasetDisplayData.at(DT)->pWireframeActor->renderMode();
+			//DisplayData->TransSGN.removeChild(&(DisplayData->WireframeGeomSGN));
+			//DisplayData->WireframeGeomSGN.clear();
+			pDisplayData->pWireframeActor->release();
+			pDisplayData->pWireframeActor = new DatasetActor();
+			pDisplayData->pWireframeActor->init(&m_DatasetModels.at(DT), RM);
+			//DisplayData->WireframeGeomSGN.init(&(DisplayData->TransSGN), DisplayData->pWireframeActor);
+			pDisplayData->WireframeGeomSGN.actor(pDisplayData->pWireframeActor);
+		}		
+	}//setSolidColorShading
 	
-	void ViewportManager::setHausdorffShading(size_t VPIndex, std::map<DatasetType, DatasetGeometryData*>::iterator itDatasetGeom, std::vector<Vector3f>& VertexColors) {
-		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
-		if (VertexColors.size() != itDatasetGeom->second->vertexCount()) throw CForgeExcept("Size mismatch: VertexColors.size() != itDatasetGeom->second.vertexCount()");
-		
-		Viewport* View = m_Viewports[VPIndex];
-		m_DatasetModels.at(itDatasetGeom->first).colors(&VertexColors);
+	//TODO: change to support pPrimitivesActor and pWireframeActor!
+	//void ViewportManager::setHausdorffDistColorShading(size_t VPIndex, DatasetType DT, std::vector<float>& HausdorffVals) {
+	//			
+	//	if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+	//	if (HausdorffVals.size() != m_DatasetModels.at(DT).vertexCount()) throw CForgeExcept("Size mismatch: VertexColors.size() != m_DatasetModels.at(DT).vertexCount()");
+	//	
+	//	auto pView = m_Viewports[VPIndex];
 
-		//update DatasetActor
-		auto* DisplayData = View->ActiveDisplayData.at(itDatasetGeom->first);
-		//DisplayData->DatasetTransSGN.removeChild(&(DisplayData->DatasetGeomSGN));
-		//DisplayData->DatasetGeomSGN.clear();
-		DisplayData->pDatasetActor->release();
-		
-		DisplayData->pDatasetActor = new DatasetActor();
-		DatasetRenderMode RM = (itDatasetGeom->second->geometryType() == DatasetGeometryType::MESH) ? DatasetRenderMode::FILL : DatasetRenderMode::POINT;
-		DisplayData->pDatasetActor->init(&m_DatasetModels.at(itDatasetGeom->first), RM);
-		//DisplayData->DatasetGeomSGN.init(&(DisplayData->DatasetTransSGN), DisplayData->pDatasetActor);
-		DisplayData->DatasetGeomSGN.actor(DisplayData->pDatasetActor);
-	}//setHausdorffShading
+	//	auto VertexColors = calculateHausdorffVertexColors(HausdorffVals); //TODO
+	//	m_DatasetModels.at(DT).colors(&VertexColors);
 
-	void ViewportManager::renderMode(size_t VPIndex, std::map<DatasetType, DatasetGeometryData*>::iterator itDatasetGeom, DatasetRenderMode RM) {
-		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
-		if ((RM == DatasetRenderMode::FILL || RM == DatasetRenderMode::LINE) && itDatasetGeom->second->geometryType() == DatasetGeometryType::POINTCLOUD) 
-			throw CForgeExcept("Incompatible DatasetRenderMode used: FILL/LINE on point cloud");
+	//	//update DatasetActor
+	//	auto* DisplayData = pView->DatasetDisplayData.at(DT);
+	//	DatasetRenderMode RM = pView->DatasetDisplayData.at(DT)->pDatasetActor->renderMode();
 
-		Viewport* View = m_Viewports[VPIndex];
-		View->ActiveDisplayData.at(itDatasetGeom->first)->pDatasetActor->renderMode(RM);
-	}//renderMode
+	//	//DisplayData->TransSGN.removeChild(&(DisplayData->DatasetGeomSGN));
+	//	//DisplayData->DatasetGeomSGN.clear();
+	//	DisplayData->pDatasetActor->release();
+	//	
+	//	DisplayData->pDatasetActor = new DatasetActor();
+	//	DisplayData->pDatasetActor->init(&m_DatasetModels.at(DT), RM);
+	//	//DisplayData->DatasetGeomSGN.init(&(DisplayData->TransSGN), DisplayData->pDatasetActor);
+	//	DisplayData->DatasetGeomSGN.actor(DisplayData->pDatasetActor);
+	//}//setHausdorffDistColorShading
 
 	void ViewportManager::setDatasetDisplayDataArrangement(size_t VPIndex, DisplayDataArrangementMode Arrangement) {
 		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
 
-		auto View = m_Viewports[VPIndex];
-		View->DisplayDataArrangement = Arrangement;
+		auto pView = m_Viewports[VPIndex];
+		pView->DisplayDataArrangement = Arrangement;
 		if (Arrangement == DisplayDataArrangementMode::LAYERED) arrangeDatasetDisplayDataLayered(VPIndex);
 		else arrangeDatasetDisplayDataSideBySide(VPIndex);
 	}//setDatasetDisplayDataArrangement
@@ -619,53 +666,86 @@ namespace TempReg {
 	void ViewportManager::arrangeDatasetDisplayDataLayered(size_t VPIndex) {
 		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
 
-		auto View = m_Viewports[VPIndex];
+		auto pView = m_Viewports[VPIndex];
 
-		for (auto it = View->ActiveDisplayData.begin(); it != View->ActiveDisplayData.end(); ++it)
-			it->second->DatasetTransSGN.translation(Vector3f::Zero());
+		for (auto it = pView->DatasetDisplayData.begin(); it != pView->DatasetDisplayData.end(); ++it)
+			it->second->TransSGN.translation(Vector3f::Zero());
 		
-		View->DisplayDataArrangement = DisplayDataArrangementMode::LAYERED;
+		pView->DisplayDataArrangement = DisplayDataArrangementMode::LAYERED;
 	}//arrangeDatasetDisplayDataLayered
 
 	void ViewportManager::arrangeDatasetDisplayDataSideBySide(size_t VPIndex) {
 		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
 
-		auto View = m_Viewports[VPIndex];
+		auto pView = m_Viewports[VPIndex];
 
-		// update positions of all existing datasets
-		// -> sum up x-axes of all bounding boxes
+		// update positions of all existing datasets	
+		bool TemplateShown = false;
+		bool DTemplateShown = false;
+		bool TargetShown = false;
 		float XWidthTotal = 0.0f;
-		for (auto it = View->ActiveDisplayData.begin(); it != View->ActiveDisplayData.end(); ++it)
-			XWidthTotal += m_DatasetModels.at(it->first).aabb().Max.x() - m_DatasetModels.at(it->first).aabb().Min.x();
-
+		float MaxExtentTemplate = -1.0f;
+		float MaxExtentDTemplate = -1.0f;
+		float MaxExtentTarget = -1.0f;
+		
+		// -> sum up biggest extents of bounding box of each displayed dataset
+		auto pDisplayData = pView->DatasetDisplayData.at(DatasetType::TEMPLATE);
+		pDisplayData->TransSGN.enabled(nullptr, &TemplateShown);
+		if (TemplateShown) {
+			auto& Model = m_DatasetModels.at(DatasetType::TEMPLATE);
+			Vector3f Extents = (Model.aabb().Max - Model.aabb().Min).cwiseAbs();
+			MaxExtentTemplate = Extents(0);
+			if (Extents(1) > MaxExtentTemplate) MaxExtentTemplate = Extents(1);
+			if (Extents(2) > MaxExtentTemplate) MaxExtentTemplate = Extents(2);
+			XWidthTotal += MaxExtentTemplate;
+		}
+		
+		pDisplayData = pView->DatasetDisplayData.at(DatasetType::DTEMPLATE);
+		pDisplayData->TransSGN.enabled(nullptr, &DTemplateShown);
+		if (DTemplateShown) {
+			auto& Model = m_DatasetModels.at(DatasetType::DTEMPLATE);
+			Vector3f Extents = (Model.aabb().Max - Model.aabb().Min).cwiseAbs();
+			MaxExtentDTemplate = Extents(0);
+			if (Extents(1) > MaxExtentDTemplate) MaxExtentDTemplate = Extents(1);
+			if (Extents(2) > MaxExtentDTemplate) MaxExtentDTemplate = Extents(2);
+			XWidthTotal += MaxExtentDTemplate;
+		}
+		
+		pDisplayData = pView->DatasetDisplayData.at(DatasetType::TARGET);
+		pDisplayData->TransSGN.enabled(nullptr, &TargetShown);
+		if (TargetShown) {
+			auto& Model = m_DatasetModels.at(DatasetType::TARGET);
+			Vector3f Extents = (Model.aabb().Max - Model.aabb().Min).cwiseAbs();
+			MaxExtentTarget = Extents(0);
+			if (Extents(1) > MaxExtentTarget) MaxExtentTarget = Extents(1);
+			if (Extents(2) > MaxExtentTarget) MaxExtentTarget = Extents(2);
+			XWidthTotal += MaxExtentTarget;
+		}
+		
 		// -> center arrangement on world space origin
 		float XStart = -(XWidthTotal * 0.5f);
-		auto it = View->ActiveDisplayData.find(DatasetType::TEMPLATE);
-		if (it != View->ActiveDisplayData.end()) {
-			auto BB = m_DatasetModels.at(it->first).aabb();
-			Vector3f Position = Vector3f(XStart + ((BB.Max.x() - BB.Min.x()) * 0.5f), 0.0f, 0.0f);
-			it->second->DatasetTransSGN.translation(Position);
-
-			XStart += (BB.Max.x() - BB.Min.x());
+				
+		if (TemplateShown) {
+			auto BB = m_DatasetModels.at(DatasetType::TEMPLATE).aabb();
+			Vector3f Position = Vector3f(XStart + (MaxExtentTemplate * 0.5f), 0.0f, 0.0f);
+			pView->DatasetDisplayData.at(DatasetType::TEMPLATE)->TransSGN.translation(Position);
+			XStart += MaxExtentTemplate;
+		}
+				
+		if (DTemplateShown) {
+			auto BB = m_DatasetModels.at(DatasetType::DTEMPLATE).aabb();
+			Vector3f Position = Vector3f(XStart + (MaxExtentDTemplate * 0.5f), 0.0f, 0.0f);
+			pView->DatasetDisplayData.at(DatasetType::DTEMPLATE)->TransSGN.translation(Position);
+			XStart += MaxExtentDTemplate;
+		}
+				
+		if (TargetShown) {
+			auto BB = m_DatasetModels.at(DatasetType::TARGET).aabb();
+			Vector3f Position = Vector3f(XStart + (MaxExtentTarget * 0.5f), 0.0f, 0.0f);
+			pView->DatasetDisplayData.at(DatasetType::TARGET)->TransSGN.translation(Position);
 		}
 
-		it = View->ActiveDisplayData.find(DatasetType::DTEMPLATE);
-		if (it != View->ActiveDisplayData.end()) {
-			auto BB = m_DatasetModels.at(it->first).aabb();
-			Vector3f Position = Vector3f(XStart + ((BB.Max.x() - BB.Min.x()) * 0.5f), 0.0f, 0.0f);
-			it->second->DatasetTransSGN.translation(Position);
-
-			XStart += (BB.Max.x() - BB.Min.x());
-		}
-
-		it = View->ActiveDisplayData.find(DatasetType::TARGET);
-		if (it != View->ActiveDisplayData.end()) {
-			auto BB = m_DatasetModels.at(it->first).aabb();
-			Vector3f Position = Vector3f(XStart + ((BB.Max.x() - BB.Min.x()) * 0.5f), 0.0f, 0.0f);
-			it->second->DatasetTransSGN.translation(Position);
-		}
-
-		View->DisplayDataArrangement = DisplayDataArrangementMode::SIDE_BY_SIDE;
+		pView->DisplayDataArrangement = DisplayDataArrangementMode::SIDE_BY_SIDE;
 	}//arrangeDatasetDispalyDataSideBySide
 
 	DisplayDataArrangementMode ViewportManager::activeDatasetDisplayDataArrangement(size_t VPIndex) const {
@@ -676,20 +756,23 @@ namespace TempReg {
 	std::vector<DatasetType> ViewportManager::activeDatasetTypes(size_t VPIndex) const {
 		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
 
-		Viewport* View = m_Viewports[VPIndex];
+		auto pView = m_Viewports[VPIndex];
 		std::vector<DatasetType> ActiveTypes;
 
-		for (auto it = View->ActiveDisplayData.begin(); it != View->ActiveDisplayData.end(); ++it)
-			ActiveTypes.push_back(it->first);
-		
+		for (auto it = pView->DatasetDisplayData.begin(); it != pView->DatasetDisplayData.end(); ++it) {
+			bool DatasetShown;
+			it->second->TransSGN.enabled(nullptr, &DatasetShown);
+			if (DatasetShown) ActiveTypes.push_back(it->first);
+		}
+
 		return ActiveTypes;
 	}//activeDatasetTypes
 
 	Matrix4f ViewportManager::datasetModelMatrix(size_t VPIndex, DatasetType DT) const {
 		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
 		
-		auto View = m_Viewports[VPIndex];
-		if (View->ActiveDisplayData.count(DT) == 0) {
+		auto pView = m_Viewports[VPIndex];
+		if (pView->DatasetDisplayData.count(DT) == 0) {
 			std::string Type;
 			if (DT == DatasetType::TEMPLATE) Type = "TEMPLATE";
 			if (DT == DatasetType::DTEMPLATE) Type = "DTEMPLATE";
@@ -697,18 +780,24 @@ namespace TempReg {
 			throw CForgeExcept("Dataset " + Type + " not active");
 		}
 
+		Vector3f DatasetTranslation = Vector3f::Zero();
+		Quaternionf DatasetRotation = Quaternionf::Identity();
+		Vector3f DatasetScaling = Vector3f::Ones();
+		pView->DatasetDisplayData.at(DT)->TransSGN.buildTansformation(&DatasetTranslation, &DatasetRotation, &DatasetScaling);
+
 		Matrix4f TransMat = Matrix4f::Identity();
-		TransMat.block<3, 1>(0, 3) = View->ActiveDisplayData.at(DT)->DatasetTransSGN.translation();
+		TransMat(0, 3) = DatasetTranslation(0);
+		TransMat(1, 3) = DatasetTranslation(1);
+		TransMat(2, 3) = DatasetTranslation(2);
 
 		Matrix4f RotMat = Matrix4f::Identity();
-		Matrix3f RotQuatToMat = View->ActiveDisplayData.at(DT)->DatasetTransSGN.rotation().toRotationMatrix();
-		RotMat.block<3, 3>(0, 0) = RotQuatToMat/*.transpose()*/;
+		Matrix3f RotQuatToMat = DatasetRotation.toRotationMatrix();
+		RotMat.block<3, 3>(0, 0) = RotQuatToMat;
 
 		Matrix4f ScaleMat = Matrix4f::Identity();
-		Vector3f Scale = View->ActiveDisplayData.at(DT)->DatasetTransSGN.scale();
-		ScaleMat(0, 0) = Scale(0);
-		ScaleMat(1, 1) = Scale(1);
-		ScaleMat(2, 2) = Scale(2);
+		ScaleMat(0, 0) = DatasetScaling(0);
+		ScaleMat(1, 1) = DatasetScaling(1);
+		ScaleMat(2, 2) = DatasetScaling(2);
 
 		Matrix4f Model = TransMat * RotMat * ScaleMat;
 		return Model;
@@ -720,170 +809,473 @@ namespace TempReg {
 	//
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void ViewportManager::initVertexMarkerModels(std::string Filepath) {
+	void ViewportManager::initMarkerData(std::string Filepath) {
 		CForge::T3DMesh<float> RawMesh;
 		CForge::SAssetIO::load(Filepath, &RawMesh);
-		CForge::SceneUtilities::setMeshShader(&RawMesh, 0.4f, 0.0f);
+		CForge::SceneUtilities::setMeshShader(&RawMesh, 1.0f, 0.0f);
 		RawMesh.computePerVertexNormals();
 
-		Vector3f MarkerColor;
+		Vector3f Color;
 		std::vector<Vector3f> Colors;
 
-		// Initialize marker model for MarkerMode::DEFAULT_HOVER
-		MarkerColor = Vector3f(1.0f, 1.0f, 1.0f); // white #ffffff
-		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors.push_back(MarkerColor);
+		// Initialize marker model for MarkerColor::DEFAULT_VERTEX_HOVERING
+		Color = Vector3f(1.0f, 1.0f, 1.0f); // white #ffffff
+		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors.push_back(Color);
 		RawMesh.colors(&Colors);
-		m_MarkerActors.insert(std::pair<MarkerMode, CForge::StaticActor*>(MarkerMode::DEFAULT_HOVER, nullptr));
+		m_MarkerActors.insert(std::pair<MarkerColor, CForge::StaticActor*>(MarkerColor::DEFAULT_VERTEX_HOVERING, nullptr));
 		CForge::StaticActor* pNewMarkerActor = new CForge::StaticActor();
 		pNewMarkerActor->init(&RawMesh);
-		m_MarkerActors.at(MarkerMode::DEFAULT_HOVER) = pNewMarkerActor;
+		m_MarkerActors.at(MarkerColor::DEFAULT_VERTEX_HOVERING) = pNewMarkerActor;
 
-		// Initialize marker model for MarkerMode::DEFAULT_SELECTION
-		MarkerColor = Vector3f(1.0f, 0.956f, 0.478f); // light yellow #fff47a
-		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors[i] = MarkerColor;
+		// Initialize marker model for MarkerColor::DEFAULT_VERTEX_SELECTION
+		Color = Vector3f(1.0f, 0.956f, 0.478f); // light yellow #fff47a
+		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors[i] = Color;
 		RawMesh.colors(&Colors);
-		m_MarkerActors.insert(std::pair<MarkerMode, CForge::StaticActor*>(MarkerMode::DEFAULT_SELECTION, nullptr));
+		m_MarkerActors.insert(std::pair<MarkerColor, CForge::StaticActor*>(MarkerColor::DEFAULT_VERTEX_SELECTION, nullptr));
 		pNewMarkerActor = new CForge::StaticActor(); 
 		pNewMarkerActor->init(&RawMesh);
-		m_MarkerActors.at(MarkerMode::DEFAULT_SELECTION) = pNewMarkerActor;
+		m_MarkerActors.at(MarkerColor::DEFAULT_VERTEX_SELECTION) = pNewMarkerActor;
 
-		// Initialize marker model for MarkerMode::CORRESPONDENCE_PAIRS_IDLE
-		MarkerColor = Vector3f(0.980f, 0.772f, 0.0f); // orange #fac500
-		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors[i] = MarkerColor;
+		// Initialize marker model for MarkerColor::FEATURE_IDLE
+		Color = Vector3f(0.137f, 0.341f, 0.843f); // blue #2357d7
+		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors[i] = Color;
 		RawMesh.colors(&Colors);
-		m_MarkerActors.insert(std::pair<MarkerMode, CForge::StaticActor*>(MarkerMode::CORRESPONDENCE_PAIRS_IDLE, nullptr));
+		m_MarkerActors.insert(std::pair<MarkerColor, CForge::StaticActor*>(MarkerColor::FEATURE_IDLE, nullptr));
 		pNewMarkerActor = new CForge::StaticActor();
 		pNewMarkerActor->init(&RawMesh);
-		m_MarkerActors.at(MarkerMode::CORRESPONDENCE_PAIRS_IDLE) = pNewMarkerActor;
+		m_MarkerActors.at(MarkerColor::FEATURE_IDLE) = pNewMarkerActor;
 
-		// Initialize marker model for MarkerMode::CORRESPONDENCE_PAIRS_SELECTION
-		MarkerColor = Vector3f(1.0f, 0.956f, 0.478f); // light yellow #fff47a
-		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors[i] = MarkerColor;
+		// Initialize marker model for MarkerColor::FEATURE_HOVERED
+		Color = Vector3f(0.643f, 0.733f, 0.956f); // light blue #a4bbf4
+		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors[i] = Color;
 		RawMesh.colors(&Colors);
-		m_MarkerActors.insert(std::pair<MarkerMode, CForge::StaticActor*>(MarkerMode::CORRESPONDENCE_PAIRS_SELECTION, nullptr));
+		m_MarkerActors.insert(std::pair<MarkerColor, CForge::StaticActor*>(MarkerColor::FEATURE_HOVERED, nullptr));
 		pNewMarkerActor = new CForge::StaticActor();
 		pNewMarkerActor->init(&RawMesh);
-		m_MarkerActors.at(MarkerMode::CORRESPONDENCE_PAIRS_SELECTION) = pNewMarkerActor;
-	}//initVertexMarkers
+		m_MarkerActors.at(MarkerColor::FEATURE_HOVERED) = pNewMarkerActor;
 
-	void ViewportManager::placeSimpleMarker(size_t VPIndex, std::map<DatasetType, DatasetGeometryData*>::iterator itDatasetGeom, MarkerMode MM, uint32_t VertexID) {
-		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
-		if (MM != MarkerMode::DEFAULT_HOVER && MM != MarkerMode::DEFAULT_SELECTION) throw CForgeExcept("MarkerMode incompatible");
+		// Initialize marker model for MarkerColor::FEATURE_SELECTED
+		Color = Vector3f(0.078f, 1.0f, 0.960f); // bright turquoise #14fff5
+		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors[i] = Color;
+		RawMesh.colors(&Colors);
+		m_MarkerActors.insert(std::pair<MarkerColor, CForge::StaticActor*>(MarkerColor::FEATURE_SELECTED, nullptr));
+		pNewMarkerActor = new CForge::StaticActor();
+		pNewMarkerActor->init(&RawMesh);
+		m_MarkerActors.at(MarkerColor::FEATURE_SELECTED) = pNewMarkerActor;
 
-		auto View = m_Viewports[VPIndex];
+		// Initialize marker model for MarkerColor::CORRESPONDENCE_IDLE
+		Color = Vector3f(0.980f, 0.772f, 0.0f); // orange #fac500
+		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors[i] = Color;
+		RawMesh.colors(&Colors);
+		m_MarkerActors.insert(std::pair<MarkerColor, CForge::StaticActor*>(MarkerColor::CORRESPONDENCE_IDLE, nullptr));
+		pNewMarkerActor = new CForge::StaticActor();
+		pNewMarkerActor->init(&RawMesh);
+		m_MarkerActors.at(MarkerColor::CORRESPONDENCE_IDLE) = pNewMarkerActor;
 
-		if (View->DefaultMarkers.at(MM).SGData.TransSGN.parent() == nullptr) { // marker not yet initialized
-			View->DefaultMarkers.at(MM).SGData.TransSGN.init(&(View->ActiveDisplayData.at(itDatasetGeom->first)->DatasetTransSGN), itDatasetGeom->second->vertex(VertexID), 
-				Quaternionf::Identity(), Vector3f(0.1f, 0.1f, 0.1f));
-			View->DefaultMarkers.at(MM).SGData.GeomSGN.init(&(View->DefaultMarkers.at(MM).SGData.TransSGN), m_MarkerActors.at(MM));
-			View->DefaultMarkers.at(MM).DT = itDatasetGeom->first;
+		// Initialize marker model for MarkerColor::CORRESPONDENCE_HOVERED
+		Color = Vector3f(1.0f, 0.949f, 0.760f); // light orange #fff2c2
+		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors[i] = Color;
+		RawMesh.colors(&Colors);
+		m_MarkerActors.insert(std::pair<MarkerColor, CForge::StaticActor*>(MarkerColor::CORRESPONDENCE_HOVERED, nullptr));
+		pNewMarkerActor = new CForge::StaticActor();
+		pNewMarkerActor->init(&RawMesh);
+		m_MarkerActors.at(MarkerColor::CORRESPONDENCE_HOVERED) = pNewMarkerActor;
+
+		// Initialize marker model for MarkerColor::CORRESPONDENCE_SELECTED
+		Color = Vector3f(1.0f, 0.956f, 0.478f); // light yellow #fff47a
+		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors[i] = Color;
+		RawMesh.colors(&Colors);
+		m_MarkerActors.insert(std::pair<MarkerColor, CForge::StaticActor*>(MarkerColor::CORRESPONDENCE_SELECTED, nullptr));
+		pNewMarkerActor = new CForge::StaticActor();
+		pNewMarkerActor->init(&RawMesh);
+		m_MarkerActors.at(MarkerColor::CORRESPONDENCE_SELECTED) = pNewMarkerActor;
+
+		// Initialize marker model for MarkerColor::DEBUG
+		Color = Vector3f(1.0f, 0.160f, 0.937f); // bright pink #ff29ef
+		for (uint32_t i = 0; i < RawMesh.vertexCount(); i++) Colors[i] = Color;
+		RawMesh.colors(&Colors);
+		m_MarkerActors.insert(std::pair<MarkerColor, CForge::StaticActor*>(MarkerColor::DEBUG, nullptr));
+		pNewMarkerActor = new CForge::StaticActor();
+		pNewMarkerActor->init(&RawMesh);
+		m_MarkerActors.at(MarkerColor::DEBUG) = pNewMarkerActor;
+
+		CForge::StaticActor* pMarkerActor = m_MarkerActors.at(MarkerColor::DEFAULT_VERTEX_HOVERING);
+		m_DefaultVertHoverMarkers.try_emplace(DatasetType::TEMPLATE);
+		m_DefaultVertHoverMarkers.try_emplace(DatasetType::DTEMPLATE);
+		m_DefaultVertHoverMarkers.try_emplace(DatasetType::TARGET);
+		for (auto& M : m_DefaultVertHoverMarkers) {
+			M.second.TransSGN.init(nullptr);
+			M.second.TransSGN.scale(Vector3f(0.05f, 0.05f, 0.05f));
+			M.second.GeomSGN.init(&(M.second.TransSGN), pMarkerActor);
 		}
-		else {// marker is already initialized
-			if (View->DefaultMarkers.at(MM).DT == itDatasetGeom->first) { // move to new vertex on same dataset
-				View->DefaultMarkers.at(MM).SGData.TransSGN.translation(itDatasetGeom->second->vertex(VertexID));
-			}
-			else { // move to new vertex on different dataset
-				View->ActiveDisplayData.at(View->DefaultMarkers.at(MM).DT)->DatasetTransSGN.removeChild(&(View->DefaultMarkers.at(MM).SGData.TransSGN));
-				View->ActiveDisplayData.at(itDatasetGeom->first)->DatasetTransSGN.addChild(&(View->DefaultMarkers.at(MM).SGData.TransSGN));
-				View->DefaultMarkers.at(MM).SGData.TransSGN.translation(itDatasetGeom->second->vertex(VertexID));
-				View->DefaultMarkers.at(MM).DT = itDatasetGeom->first;
-			}
-		}		
-	}//placeSimpleMarker
-	
-	void ViewportManager::hideSimpleMarker(size_t VPIndex, MarkerMode MM, bool Hide) {
-		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
-		m_Viewports[VPIndex]->DefaultMarkers.at(MM).SGData.GeomSGN.enable(true, Hide);
-	}//hideSimpleMarker
-	
-	void ViewportManager::removeSimpleMarker(size_t VPIndex, MarkerMode MM) {
-		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
 
-		auto View = m_Viewports[VPIndex];
-		View->ActiveDisplayData.at(View->DefaultMarkers.at(MM).DT)->DatasetTransSGN.removeChild(&(View->DefaultMarkers.at(MM).SGData.TransSGN));
-		View->DefaultMarkers.at(MM).SGData.GeomSGN.clear();
-		View->DefaultMarkers.at(MM).SGData.TransSGN.clear();
-		View->DefaultMarkers.at(MM).DT = DatasetType::NONE;
-	}//removeSimpleMarker
-	
-	int64_t ViewportManager::addCorrespondenceMarkerGroupTemplate(std::map<DatasetType, DatasetGeometryData*>::iterator itDatasetGeom, uint32_t VertexID, int64_t CorrMarkerGroup = (int64_t)-1) {		
-		if (CorrMarkerGroup < -1 || CorrMarkerGroup > m_CorrespondenceMarkerGroups.size()) throw IndexOutOfBoundsExcept("CorrMarkerGroup");
+		pMarkerActor = m_MarkerActors.at(MarkerColor::DEFAULT_VERTEX_SELECTION);
+		m_DefaultVertSelectMarkers.try_emplace(DatasetType::TEMPLATE);
+		m_DefaultVertSelectMarkers.try_emplace(DatasetType::DTEMPLATE);
+		m_DefaultVertSelectMarkers.try_emplace(DatasetType::TARGET);
+		for (auto& M : m_DefaultVertSelectMarkers) {
+			M.second.TransSGN.init(nullptr);
+			M.second.TransSGN.scale(Vector3f(0.05f, 0.05f, 0.05f));
+			M.second.GeomSGN.init(&(M.second.TransSGN), pMarkerActor);
+		}
+
+		pMarkerActor = m_MarkerActors.at(MarkerColor::DEBUG);
+		m_DEBUG_MeshMarkers.try_emplace(DatasetType::TEMPLATE);
+		m_DEBUG_MeshMarkers.try_emplace(DatasetType::DTEMPLATE);
+		m_DEBUG_MeshMarkers.try_emplace(DatasetType::TARGET);
+		for (auto& M : m_DEBUG_MeshMarkers) {
+			M.second.TransSGN.init(nullptr);
+			M.second.TransSGN.scale(Vector3f(0.05f, 0.05f, 0.05f));
+			M.second.GeomSGN.init(&(M.second.TransSGN), pMarkerActor);
+		}
 		
-		int64_t CGID = -1;		
-		if (CorrMarkerGroup == -1) { // create new correspondence marker group
-			if (!m_FreeCorrMarkerGroups.empty()) {
-				CGID = m_FreeCorrMarkerGroups.top();
-				m_FreeCorrMarkerGroups.pop();
-			}
-			else {
-				CGID = m_CorrespondenceMarkerGroups.size();
-				m_CorrespondenceMarkerGroups.push_back(CorrespondenceMarkerGroup());
-			}
-			m_CorrespondenceMarkerGroups[CGID].MM = MarkerMode::CORRESPONDENCE_PAIRS_SELECTION;
-			m_CorrespondenceMarkerGroups[CGID].TemplateVertexID = VertexID;
-			m_CorrespondenceMarkerGroups[CGID].ReadyForUse = false;
-		}
-		else { // add to existing correspondence marker group
-			m_CorrespondenceMarkerGroups[CorrMarkerGroup].MM = MarkerMode::CORRESPONDENCE_PAIRS_SELECTION;
-			m_CorrespondenceMarkerGroups[CorrMarkerGroup].TemplateVertexID = VertexID;
-			m_CorrespondenceMarkerGroups[CorrMarkerGroup].ReadyForUse = true;
+		m_FeatMarkerRoots.insert(std::pair<DatasetType, CForge::SGNTransformation>(DatasetType::TEMPLATE, CForge::SGNTransformation()));
+		m_FeatMarkerRoots.insert(std::pair<DatasetType, CForge::SGNTransformation>(DatasetType::DTEMPLATE, CForge::SGNTransformation()));
+		m_FeatMarkerRoots.insert(std::pair<DatasetType, CForge::SGNTransformation>(DatasetType::TARGET, CForge::SGNTransformation()));
+		for (auto& Root : m_FeatMarkerRoots) Root.second.init(nullptr);
 
-			for (auto View : m_Viewports)
-				View->NewCorrMarkerGroups.push(CorrMarkerGroup);
+		m_CorrMarkerRoots.insert(std::pair<DatasetType, CForge::SGNTransformation>(DatasetType::TEMPLATE, CForge::SGNTransformation()));
+		m_CorrMarkerRoots.insert(std::pair<DatasetType, CForge::SGNTransformation>(DatasetType::DTEMPLATE, CForge::SGNTransformation()));
+		m_CorrMarkerRoots.insert(std::pair<DatasetType, CForge::SGNTransformation>(DatasetType::TARGET, CForge::SGNTransformation()));
+		for (auto& Root : m_CorrMarkerRoots) Root.second.init(nullptr);
+
+		for (auto& M : m_FeatMarkers) M.second.reserve(256);
+		for (auto& M : m_CorrMarkers) M.second.reserve(256);
+	}//initMarkerData
+
+	void ViewportManager::placeDefaultVertexHoverMarker(size_t VPIndex, DatasetType DT, const Vector3f VertexPos) {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		m_DefaultVertHoverMarkers.at(DT).TransSGN.translation(VertexPos); // move marker to current vertex position
+	}//placeDefaultVertexHoverMarker
+
+	void ViewportManager::placeDefaultVertSelectMarker(size_t VPIndex, DatasetType DT, const Vector3f VertexPos) {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		m_DefaultVertSelectMarkers.at(DT).TransSGN.translation(VertexPos); // move marker to current vertex position
+	}//placeDefaultVertSelectMarker
+
+	bool ViewportManager::showDefaultVertexHoverMarkerOnDataset(size_t VPIndex, DatasetType DT) const {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		return m_Viewports[VPIndex]->ShowDefaultVertexHoverMarker.at(DT);
+	}//showDefaultVertexHoverMarkerOnDataset
+
+	void ViewportManager::showDefaultVertexHoverMarkerOnDataset(size_t VPIndex, DatasetType DT, bool Show) {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		m_Viewports[VPIndex]->ShowDefaultVertexHoverMarker.at(DT) = Show;
+	}//showDefaultVertexHoverMarkerOnDataset
+
+	bool ViewportManager::showDefaultVertSelectMarkerOnDataset(size_t VPIndex, DatasetType DT) const {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		return m_Viewports[VPIndex]->ShowDefaultVertexSelectMarker.at(DT);
+	}//showDefaultVertSelectMarkerOnDataset
+
+	void ViewportManager::showDefaultVertSelectMarkerOnDataset(size_t VPIndex, DatasetType DT, bool Show) {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		m_Viewports[VPIndex]->ShowDefaultVertexSelectMarker.at(DT) = Show;
+	}//showDefaultVertSelectMarkerOnDataset
+
+	void ViewportManager::addFeatMarkerTemplate(size_t FeatPointID, const Vector3f MarkerPos) {
+		if (m_TemplateFeatIDLookup.count(FeatPointID) > 0) return; // marker already exists, nothing to do
+
+		// Place markers on template and deformed template
+		int64_t InternalID = -1;
+		if (!m_FreeFeatMarkersTemplate.empty()) {
+			InternalID = *m_FreeFeatMarkersTemplate.begin();
+			m_FreeFeatMarkersTemplate.erase(m_FreeFeatMarkersTemplate.begin());
 		}
-		return CGID;
-	}//addCorrespondenceMarkerGroupTemplate
+		else {
+			InternalID = m_FeatMarkers.at(DatasetType::TEMPLATE).size();
+			m_FeatMarkers.at(DatasetType::TEMPLATE).push_back(MarkerSGData());
+		}
+
+		// create scene graph data for template and deformed template
+		CForge::StaticActor* pMarkerActor = m_MarkerActors.at(MarkerColor::FEATURE_IDLE);
+
+		m_FeatMarkers.at(DatasetType::TEMPLATE)[InternalID].TransSGN.init(&(m_FeatMarkerRoots.at(DatasetType::TEMPLATE)), MarkerPos);
+		m_FeatMarkers.at(DatasetType::DTEMPLATE)[InternalID].TransSGN.init(&(m_FeatMarkerRoots.at(DatasetType::DTEMPLATE)), MarkerPos);
+		m_FeatMarkers.at(DatasetType::TEMPLATE)[InternalID].GeomSGN.init(&(m_FeatMarkers.at(DatasetType::TEMPLATE)[InternalID].TransSGN), pMarkerActor);
+		m_FeatMarkers.at(DatasetType::DTEMPLATE)[InternalID].GeomSGN.init(&(m_FeatMarkers.at(DatasetType::DTEMPLATE)[InternalID].TransSGN), pMarkerActor);
+
+		m_TemplateFeatIDLookup.insert(std::pair<size_t, size_t>(FeatPointID, InternalID));
+	}//addFeatMarkerTemplate
 	
-	int64_t ViewportManager::addCorrespondenceMarkerGroupTarget(std::map<DatasetType, DatasetGeometryData*>::iterator itDatasetGeom, uint32_t VertexID, int64_t CorrMarkerGroup = (int64_t)-1) {
-		if (CorrMarkerGroup < -1 || CorrMarkerGroup > m_CorrespondenceMarkerGroups.size()) throw IndexOutOfBoundsExcept("CorrMarkerGroup");
+	void ViewportManager::addCorrMarkerTemplate(size_t CorrPointID, const Vector3f MarkerPos) {
+		if (m_TemplateCorrIDLookup.count(CorrPointID) > 0) return; // marker already exists, nothing to do
+
+		// Place markers on template and deformed template
+		int64_t InternalID = -1;
+		if (!m_FreeCorrMarkersTemplate.empty()) {
+			InternalID = *m_FreeCorrMarkersTemplate.begin();
+			m_FreeCorrMarkersTemplate.erase(m_FreeCorrMarkersTemplate.begin());
+		}
+		else {
+			InternalID = m_CorrMarkers.at(DatasetType::TEMPLATE).size();
+			m_CorrMarkers.at(DatasetType::TEMPLATE).push_back(MarkerSGData());
+		}
+
+		// create scene graph data for template and deformed template
+		CForge::StaticActor* pMarkerActor = m_MarkerActors.at(MarkerColor::CORRESPONDENCE_IDLE);
+
+		m_CorrMarkers.at(DatasetType::TEMPLATE)[InternalID].TransSGN.init(&(m_CorrMarkerRoots.at(DatasetType::TEMPLATE)), MarkerPos);
+		m_CorrMarkers.at(DatasetType::DTEMPLATE)[InternalID].TransSGN.init(&(m_CorrMarkerRoots.at(DatasetType::DTEMPLATE)), MarkerPos);
+		m_CorrMarkers.at(DatasetType::TEMPLATE)[InternalID].GeomSGN.init(&(m_CorrMarkers.at(DatasetType::TEMPLATE)[InternalID].TransSGN), pMarkerActor);
+		m_CorrMarkers.at(DatasetType::DTEMPLATE)[InternalID].GeomSGN.init(&(m_CorrMarkers.at(DatasetType::DTEMPLATE)[InternalID].TransSGN), pMarkerActor);
+
+		m_TemplateCorrIDLookup.insert(std::pair<size_t, size_t>(CorrPointID, InternalID));
+	}//addCorrMarkerTemplate
+
+	void ViewportManager::addFeatMarkerTarget(size_t FeatPointID, const Vector3f MarkerPos) {
+		// Place marker on target if necessary
+		// m_TargetFeatIDLookup.count(TargetPointID) > 0 if a marker of this type already exists at given position 
+		// (i.e. a previously added pair of feature points added a marker on the target at the same position, adding another marker would mean 
+		// unnecessary overlap; TargetMarkerIDs are computed externally)
+		if (m_TargetFeatIDLookup.count(FeatPointID) > 0) return;
+
+		CForge::StaticActor* pMarkerActor = m_MarkerActors.at(MarkerColor::FEATURE_IDLE);
+		int64_t InternalID = -1;
+		if (!m_FreeFeatMarkersTarget.empty()) {
+			InternalID = *m_FreeFeatMarkersTarget.begin();
+			m_FreeFeatMarkersTarget.erase(m_FreeFeatMarkersTarget.begin());
+		}
+		else {
+			InternalID = m_FeatMarkers.at(DatasetType::TARGET).size();
+			m_FeatMarkers.at(DatasetType::TARGET).push_back(MarkerSGData());
+		}
+
+		// create scene graph data for target
+		m_FeatMarkers.at(DatasetType::TARGET)[InternalID].TransSGN.init(&(m_FeatMarkerRoots.at(DatasetType::TARGET)), MarkerPos);
+		m_FeatMarkers.at(DatasetType::TARGET)[InternalID].GeomSGN.init(&(m_FeatMarkers.at(DatasetType::TARGET)[InternalID].TransSGN), pMarkerActor);
+
+		m_TargetFeatIDLookup.insert(std::pair<size_t, size_t>(FeatPointID, InternalID));
+	}//addFeatMarkerTarget
 		
-		int64_t CGID = -1;
-		if (CorrMarkerGroup == -1) { // create new correspondence marker group
-			if (!m_FreeCorrMarkerGroups.empty()) {
-				CGID = m_FreeCorrMarkerGroups.top();
-				m_FreeCorrMarkerGroups.pop();
-			}
-			else {
-				CGID = m_CorrespondenceMarkerGroups.size();
-				m_CorrespondenceMarkerGroups.push_back(CorrespondenceMarkerGroup());
+	void ViewportManager::addCorrMarkerTarget(size_t CorrPointID, const Vector3f MarkerPos) {
+		// Place marker on target if necessary
+		// m_TargetCorrIDLookup.count(TargetPointID) > 0 if a marker of this type already exists at given position 
+		// (i.e. a previously added pair of correspondence points added a marker on the target at the same position, adding another marker would mean 
+		// unnecessary overlap; TargetMarkerIDs are computed externally)
+		if (m_TargetCorrIDLookup.count(CorrPointID) > 0) return;
+		
+		CForge::StaticActor* pMarkerActor = m_MarkerActors.at(MarkerColor::CORRESPONDENCE_IDLE);
+		int64_t InternalID = -1;
+		if (!m_FreeCorrMarkersTarget.empty()) {
+			InternalID = *m_FreeCorrMarkersTarget.begin();
+			m_FreeCorrMarkersTarget.erase(m_FreeCorrMarkersTarget.begin());
+		}
+		else {
+			InternalID = m_CorrMarkers.at(DatasetType::TARGET).size();
+			m_CorrMarkers.at(DatasetType::TARGET).push_back(MarkerSGData());
+		}
+
+		// create scene graph data for target
+		m_CorrMarkers.at(DatasetType::TARGET)[InternalID].TransSGN.init(&(m_CorrMarkerRoots.at(DatasetType::TARGET)), MarkerPos);
+		m_CorrMarkers.at(DatasetType::TARGET)[InternalID].GeomSGN.init(&(m_CorrMarkers.at(DatasetType::TARGET)[InternalID].TransSGN), pMarkerActor);
+
+		m_TargetCorrIDLookup.insert(std::pair<size_t, size_t>(CorrPointID, InternalID));
+	}//addCorrMarkerTarget
+
+	void ViewportManager::removeFeatMarkerTemplate(size_t FeatPointID) {
+		auto InternalID = m_TemplateFeatIDLookup.find(FeatPointID);
+		if (InternalID == m_TemplateFeatIDLookup.end()) return;
+		
+		m_FeatMarkerRoots.at(DatasetType::TEMPLATE).removeChild(&(m_FeatMarkers.at(DatasetType::TEMPLATE)[InternalID->second].TransSGN));
+		m_FeatMarkerRoots.at(DatasetType::DTEMPLATE).removeChild(&(m_FeatMarkers.at(DatasetType::DTEMPLATE)[InternalID->second].TransSGN));
+		
+		m_FeatMarkers.at(DatasetType::TEMPLATE)[InternalID->second].GeomSGN.clear();
+		m_FeatMarkers.at(DatasetType::TEMPLATE)[InternalID->second].TransSGN.clear();
+		m_FeatMarkers.at(DatasetType::DTEMPLATE)[InternalID->second].GeomSGN.clear();
+		m_FeatMarkers.at(DatasetType::DTEMPLATE)[InternalID->second].TransSGN.clear();
+
+		m_FreeFeatMarkersTemplate.insert(InternalID->second);
+		m_TemplateFeatIDLookup.erase(InternalID);
+	}//removeFeatMarkerTemplate
+
+	void ViewportManager::removeCorrMarkerTemplate(size_t CorrPointID) {
+		auto InternalID = m_TemplateCorrIDLookup.find(CorrPointID);
+		if (InternalID == m_TemplateCorrIDLookup.end()) return;
+		
+		m_CorrMarkerRoots.at(DatasetType::TEMPLATE).removeChild(&(m_CorrMarkers.at(DatasetType::TEMPLATE)[InternalID->second].TransSGN));
+		m_CorrMarkerRoots.at(DatasetType::DTEMPLATE).removeChild(&(m_CorrMarkers.at(DatasetType::DTEMPLATE)[InternalID->second].TransSGN));
+		
+		m_CorrMarkers.at(DatasetType::TEMPLATE)[InternalID->second].GeomSGN.clear();
+		m_CorrMarkers.at(DatasetType::TEMPLATE)[InternalID->second].TransSGN.clear();
+		m_CorrMarkers.at(DatasetType::DTEMPLATE)[InternalID->second].GeomSGN.clear();
+		m_CorrMarkers.at(DatasetType::DTEMPLATE)[InternalID->second].TransSGN.clear();
+
+		m_FreeCorrMarkersTemplate.insert(InternalID->second);
+		m_TemplateCorrIDLookup.erase(InternalID);
+	}//removeCorrMarkerTemplate
+
+	void ViewportManager::removeFeatMarkerTarget(size_t FeatPointID) {
+		auto InternalID = m_TargetFeatIDLookup.find(FeatPointID);
+		if (InternalID == m_TargetFeatIDLookup.end()) return;
+
+		m_FeatMarkerRoots.at(DatasetType::TARGET).removeChild(&(m_FeatMarkers.at(DatasetType::TARGET)[InternalID->second].TransSGN));
+
+		m_FeatMarkers.at(DatasetType::TARGET)[InternalID->second].GeomSGN.clear();
+		m_FeatMarkers.at(DatasetType::TARGET)[InternalID->second].TransSGN.clear();
+
+		m_FreeFeatMarkersTarget.insert(InternalID->second);
+		m_TargetFeatIDLookup.erase(InternalID);
+	}//removeFeatMarkerTarget
+
+	void ViewportManager::removeCorrMarkerTarget(size_t CorrPointID) {
+		auto InternalID = m_TargetCorrIDLookup.find(CorrPointID);
+		if (InternalID == m_TargetCorrIDLookup.end()) return;
+
+		m_CorrMarkerRoots.at(DatasetType::TARGET).removeChild(&(m_CorrMarkers.at(DatasetType::TARGET)[InternalID->second].TransSGN));
+
+		m_CorrMarkers.at(DatasetType::TARGET)[InternalID->second].GeomSGN.clear();
+		m_CorrMarkers.at(DatasetType::TARGET)[InternalID->second].TransSGN.clear();
+
+		m_FreeCorrMarkersTarget.insert(InternalID->second);
+		m_TargetCorrIDLookup.erase(InternalID);
+	}//removeCorrMarkerTarget
+
+	void ViewportManager::clearFeatMarkers(void) {
+		m_FeatMarkerRoots.at(DatasetType::TEMPLATE).removeAllChildren();
+		m_FeatMarkerRoots.at(DatasetType::DTEMPLATE).removeAllChildren();
+		m_FeatMarkerRoots.at(DatasetType::TARGET).removeAllChildren();
+
+		for (auto& M : m_FeatMarkers) {
+			for (auto& Marker : M.second) {
+				Marker.GeomSGN.clear();
+				Marker.TransSGN.clear();
 			}			
-			m_CorrespondenceMarkerGroups[CGID].MM = MarkerMode::CORRESPONDENCE_PAIRS_SELECTION;
-			m_CorrespondenceMarkerGroups[CGID].TargetVertexID = VertexID;
-			m_CorrespondenceMarkerGroups[CGID].ReadyForUse = false;
+			M.second.clear();
 		}
-		else { // add to existing correspondence marker group
-			m_CorrespondenceMarkerGroups[CorrMarkerGroup].MM = MarkerMode::CORRESPONDENCE_PAIRS_SELECTION;
-			m_CorrespondenceMarkerGroups[CorrMarkerGroup].TargetVertexID = VertexID;
-			m_CorrespondenceMarkerGroups[CorrMarkerGroup].ReadyForUse = true;
 
-			for (auto View : m_Viewports)
-				View->NewCorrMarkerGroups.push(CorrMarkerGroup);
+		m_FreeFeatMarkersTemplate.clear();
+		m_FreeFeatMarkersTarget.clear();
+
+		m_TemplateFeatIDLookup.clear();
+		m_TargetFeatIDLookup.clear();
+	}//clearFeatMarkers
+
+	void ViewportManager::clearCorrMarkers(void) {
+		m_CorrMarkerRoots.at(DatasetType::TEMPLATE).removeAllChildren();
+		m_CorrMarkerRoots.at(DatasetType::DTEMPLATE).removeAllChildren();
+		m_CorrMarkerRoots.at(DatasetType::TARGET).removeAllChildren();
+
+		for (auto& M : m_CorrMarkers) {
+			for (auto& Marker : M.second) {
+				Marker.GeomSGN.clear();
+				Marker.TransSGN.clear();
+			}
+			M.second.clear();
 		}
-		return CGID;
-	}//addCorrespondenceMarkerGroupTarget
+
+		m_FreeCorrMarkersTemplate.clear();
+		m_FreeCorrMarkersTarget.clear();
+
+		m_TemplateCorrIDLookup.clear();
+		m_TargetCorrIDLookup.clear();
+	}//clearCorrMarkers
+
+	void ViewportManager::updateFeatMarkerPosition(DatasetType DT, size_t FeatPointID, const Vector3f MarkerPos) {
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType defined");
+
+		const auto& CorrIDLookup = (DT == DatasetType::TARGET) ? m_TargetFeatIDLookup : m_TemplateFeatIDLookup;
+
+		auto MarkerID = CorrIDLookup.find(FeatPointID);
+		if (MarkerID == CorrIDLookup.end()) throw CForgeExcept("Could not find marker for specified FeatPointID");
+		
+		m_FeatMarkers.at(DT)[MarkerID->second].TransSGN.translation(MarkerPos);
+	}//updateFeatMarkerPosition
 	
-	void ViewportManager::removeCorrespondenceMarkerGroup(int64_t CorrMarkerGroup) {
-		if (CorrMarkerGroup < 0 || CorrMarkerGroup > m_CorrespondenceMarkerGroups.size()) throw IndexOutOfBoundsExcept("CorrMarkerGroup");
+	void ViewportManager::updateCorrMarkerPosition(DatasetType DT, size_t CorrPointID, const Vector3f MarkerPos) {
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType defined");
+				
+		const auto& CorrIDLookup = (DT == DatasetType::TARGET) ? m_TargetCorrIDLookup : m_TemplateCorrIDLookup;
+		
+		auto MarkerID = CorrIDLookup.find(CorrPointID);
+		if (MarkerID == CorrIDLookup.end()) throw CForgeExcept("Could not find marker for specified CorrPointID");
 
-		m_CorrespondenceMarkerGroups[CorrMarkerGroup].MM = MarkerMode::DISABLED;
-		m_CorrespondenceMarkerGroups[CorrMarkerGroup].TemplateVertexID = 0;
-		m_CorrespondenceMarkerGroups[CorrMarkerGroup].TargetVertexID = 0;
-		m_CorrespondenceMarkerGroups[CorrMarkerGroup].TargetMarkerPos = Vector3f::Zero();
-		m_CorrespondenceMarkerGroups[CorrMarkerGroup].ReadyForUse = false;
-		m_FreeCorrMarkerGroups.push(CorrMarkerGroup);
-	}
+		m_CorrMarkers.at(DT)[MarkerID->second].TransSGN.translation(MarkerPos);
+	}//updateCorrMarkerPosition
+
+	bool ViewportManager::showFeatMarkersOnDataset(size_t VPIndex, DatasetType DT) const {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		return m_Viewports[VPIndex]->ShowFeatMarkers.at(DT);
+	}//showFeatMarkersOnDataset
 	
-	void ViewportManager::removeCorrespondenceMarkerSGData(size_t VPIndex, int64_t CorrMarkerGroup) { //TODO
+	void ViewportManager::showFeatMarkersOnDataset(size_t VPIndex, DatasetType DT, bool Show) {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		m_Viewports[VPIndex]->ShowFeatMarkers.at(DT) = Show;
+	}//showFeatMarkersOnDataset
+	
+	bool ViewportManager::showCorrMarkersOnDataset(size_t VPIndex, DatasetType DT) const {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		return m_Viewports[VPIndex]->ShowCorrMarkers.at(DT);
+	}//showCorrMarkersOnDataset
+	
+	void ViewportManager::showCorrMarkersOnDataset(size_t VPIndex, DatasetType DT, bool Show) {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		m_Viewports[VPIndex]->ShowCorrMarkers.at(DT) = Show;
+	}//showCorrMarkersOnDataset
 
-	}
+	void ViewportManager::markerModeFeatMarkerPair(DatasetType DT, size_t TemplatePointID, size_t TargetPointID, MarkerMode MM) {
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		if (MM == MarkerMode::DEBUG_MESH_MARKER || MM == MarkerMode::NONE) throw CForgeExcept("Invalid MarkerMode");
+		if (m_TemplateFeatIDLookup.count(TemplatePointID) == 0) throw CForgeExcept("TemplatePointID does not exist");
+		if (m_TargetFeatIDLookup.count(TargetPointID) == 0) throw CForgeExcept("TargetPointID does not exist");
 
-	void ViewportManager::loadCorrespondenceMarkers(size_t VPIndex) { //TODO
+		size_t TemplateInternalID = m_TemplateFeatIDLookup.at(TemplatePointID);
+		size_t TargetInternalID = m_TargetFeatIDLookup.at(TargetPointID);
 
-	}
+		CForge::StaticActor* pMarkerActor = nullptr;
+		switch (MM) {
+		case MarkerMode::IDLE: pMarkerActor = m_MarkerActors.at(MarkerColor::FEATURE_IDLE); break;
+		case MarkerMode::HOVERED: pMarkerActor = m_MarkerActors.at(MarkerColor::FEATURE_HOVERED); break;
+		case MarkerMode::SELECTED: pMarkerActor = m_MarkerActors.at(MarkerColor::FEATURE_SELECTED); break;
+		}
+		
+		m_FeatMarkers.at(DatasetType::TEMPLATE)[TemplateInternalID].GeomSGN.actor(pMarkerActor);
+		m_FeatMarkers.at(DatasetType::DTEMPLATE)[TemplateInternalID].GeomSGN.actor(pMarkerActor);
+		m_FeatMarkers.at(DatasetType::TARGET)[TargetInternalID].GeomSGN.actor(pMarkerActor);
+	}//markerModeFeatMarkerPair
 
-	void ViewportManager::displayCorrespondenceMarkers(size_t VPIndex, bool Show) { //TODO
+	void ViewportManager::markerModeCorrMarkerPair(DatasetType DT, size_t TemplatePointID, size_t TargetPointID, MarkerMode MM) {
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		if (MM == MarkerMode::DEBUG_MESH_MARKER || MM == MarkerMode::NONE) throw CForgeExcept("Invalid MarkerMode");
+		if (m_TemplateCorrIDLookup.count(TemplatePointID) == 0) throw CForgeExcept("TemplatePointID does not exist");
+		if (m_TargetCorrIDLookup.count(TargetPointID) == 0) throw CForgeExcept("TargetPointID does not exist");
 
-	}
+		size_t TemplateInternalID = m_TemplateCorrIDLookup.at(TemplatePointID);
+		size_t TargetInternalID = m_TargetCorrIDLookup.at(TargetPointID);
+
+		CForge::StaticActor* pMarkerActor = nullptr;
+		switch (MM) {
+		case MarkerMode::IDLE: pMarkerActor = m_MarkerActors.at(MarkerColor::CORRESPONDENCE_IDLE); break;
+		case MarkerMode::HOVERED: pMarkerActor = m_MarkerActors.at(MarkerColor::CORRESPONDENCE_HOVERED); break;
+		case MarkerMode::SELECTED: pMarkerActor = m_MarkerActors.at(MarkerColor::CORRESPONDENCE_SELECTED); break;
+		}
+
+		m_CorrMarkers.at(DatasetType::TEMPLATE)[TemplateInternalID].GeomSGN.actor(pMarkerActor);
+		m_CorrMarkers.at(DatasetType::DTEMPLATE)[TemplateInternalID].GeomSGN.actor(pMarkerActor);
+		m_CorrMarkers.at(DatasetType::TARGET)[TargetInternalID].GeomSGN.actor(pMarkerActor);
+	}//markerModeCorrMarkerPair
+	
+	void ViewportManager::DEBUG_placeMeshMarker(size_t VPIndex, DatasetType DT, Vector3f Pos) {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		m_DEBUG_MeshMarkers.at(DT).TransSGN.translation(Pos);
+	}//DEBUG_placeMeshMarker
+
+	void ViewportManager::DEBUG_showMeshMarkerOnDataset(size_t VPIndex, DatasetType DT, bool Show) {
+		if (VPIndex > activeViewportCount()) throw IndexOutOfBoundsExcept("VPIndex");
+		if (DT == DatasetType::NONE) throw CForgeExcept("Invalid DatasetType");
+		m_Viewports[VPIndex]->DEBUG_ShowDebugMeshMarker.at(DT) = Show;
+	}//DEBUG_showMeshMarkerOnDataset
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -891,20 +1283,22 @@ namespace TempReg {
 	//
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	int32_t ViewportManager::addViewport(int VPPositionX, int VPPositionY, int VPSizeX, int VPSizeY) {		
-		int32_t Idx = -1;
+	int32_t ViewportManager::addViewport(int VPPositionX, int VPPositionY, int VPSizeX, int VPSizeY, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {
+		int32_t VPIdx = -1;
+		int32_t MIdx = -1;
 		for (size_t i = 0; i < m_Viewports.size(); ++i) {
 			if (m_Viewports[i] == nullptr) {
-				Idx = i;
+				VPIdx = i;
+				MIdx = i;
 				break;
 			}
 		}
-		if (Idx < 0) {
-			Idx = m_Viewports.size();
+		if (VPIdx < 0) {
+			VPIdx = m_Viewports.size();
 			m_Viewports.push_back(nullptr);
 		 }
 		
-		Viewport* pView = new Viewport();
+		auto pView = new Viewport();
 
 		pView->VP.Position(0) = VPPositionX;
 		pView->VP.Position(1) = VPPositionY;
@@ -917,30 +1311,103 @@ namespace TempReg {
 		pView->RootSGN.init(nullptr);
 		pView->SG.init(&pView->RootSGN);
 		pView->DisplayDataArrangement = DisplayDataArrangementMode::SIDE_BY_SIDE;
-
-		pView->DefaultMarkers.insert(std::pair<MarkerMode, SimpleMarker>(MarkerMode::DEFAULT_HOVER, SimpleMarker()));
-		pView->DefaultMarkers.insert(std::pair<MarkerMode, SimpleMarker>(MarkerMode::DEFAULT_SELECTION, SimpleMarker()));
-
+		
 		pView->Cam.init(Vector3f(0.0f, 0.0f, 15.0f), Vector3f::UnitY());
 		pView->Cam.projectionMatrix(pView->VP.Size.x(), pView->VP.Size.y(), CForge::GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
 
-		m_Viewports[Idx] = pView;
+		for (auto it = DatasetGeometries.begin(); it != DatasetGeometries.end(); ++it)
+			addDatasetDisplayData(pView, it->first, it->second.geometryType());
 
-		return Idx;
+		for (auto& Dataset : pView->DatasetDisplayData) {
+			pView->ShowDefaultVertexHoverMarker.insert(std::pair<DatasetType, bool>(Dataset.first, false));
+			pView->ShowDefaultVertexSelectMarker.insert(std::pair<DatasetType, bool>(Dataset.first, false));
+			pView->DEBUG_ShowDebugMeshMarker.insert(std::pair<DatasetType, bool>(Dataset.first, false)); //TODO: comment/remove when done with testing
+			pView->ShowFeatMarkers.insert(std::pair<DatasetType, bool>(Dataset.first, false));
+			pView->ShowCorrMarkers.insert(std::pair<DatasetType, bool>(Dataset.first, false));
+		}
+
+		m_Viewports[VPIdx] = pView;
+		return VPIdx;
 	}//addViewport
 
-	void ViewportManager::removeViewport(size_t VPIndex) {
-		if (VPIndex > m_Viewports.size()) throw IndexOutOfBoundsExcept("VPIndex");
-		if (m_Viewports[VPIndex] == nullptr) return;
+	void ViewportManager::addDatasetDisplayData(Viewport* pVP, DatasetType DT, DatasetGeometryType GT) {
+		if (pVP == nullptr) throw NullpointerExcept("pVP");
+		if (DT == DatasetType::NONE) throw CForgeExcept("DatasetType not initialized");
 
-		clearDatasetDisplayData(VPIndex);
+		auto Inserted = pVP->DatasetDisplayData.insert(std::pair<DatasetType, DatasetDisplayData*>(DT, nullptr));
+		if (!Inserted.second) throw CForgeExcept("Specified DatasetType already exists!");
 
-		m_Viewports[VPIndex]->RootSGN.clear();
-		m_Viewports[VPIndex]->SG.clear();
+		DatasetDisplayData* pNewDisplayData = new DatasetDisplayData();
+		pNewDisplayData->pPrimitivesActor = new DatasetActor();
+		DatasetRenderMode RM = (GT == DatasetGeometryType::MESH) ? DatasetRenderMode::FILL : DatasetRenderMode::POINT;
 
-		delete m_Viewports[VPIndex];
-		m_Viewports[VPIndex] = nullptr;
-	}//removeViewport
+		std::vector<Vector3f> Colors;
+		switch (DT) {
+		case DatasetType::TEMPLATE:
+		case DatasetType::DTEMPLATE: for (uint32_t i = 0; i < m_DatasetModels.at(DT).vertexCount(); ++i) Colors.push_back(m_GlobalState.DefaultTemplateColor); break;
+		case DatasetType::TARGET: for (uint32_t i = 0; i < m_DatasetModels.at(DT).vertexCount(); ++i) Colors.push_back(m_GlobalState.DefaultTargetColor); break;
+		default: break;
+		}
+		m_DatasetModels.at(DT).colors(&Colors);
+		Colors.clear();
+
+		pNewDisplayData->pPrimitivesActor->init(&m_DatasetModels.at(DT), RM);
+
+		if (GT == DatasetGeometryType::MESH) {
+			pNewDisplayData->pWireframeActor = new DatasetActor();
+		
+			for (uint32_t i = 0; i < m_DatasetModels.at(DT).vertexCount(); ++i) 
+				Colors.push_back(Vector3f(0.0f, 0.0f, 0.0f));
+			
+			m_DatasetModels.at(DT).colors(&Colors);
+			Colors.clear();
+
+			pNewDisplayData->pWireframeActor->init(&m_DatasetModels.at(DT), DatasetRenderMode::LINE);
+		}
+		else {
+			pNewDisplayData->pWireframeActor = nullptr;
+		}
+		
+		// set rotation of newly added dataset to match existing ones
+		Quaternionf Rotation = Quaternionf::Identity();
+		if (pVP->DatasetDisplayData.size() > 1) Rotation = pVP->DatasetDisplayData.begin()->second->TransSGN.rotation();
+
+		pNewDisplayData->TransSGN.init(&(pVP->RootSGN), Vector3f::Zero(), Rotation, Vector3f::Ones());
+		pNewDisplayData->PrimitivesGeomSGN.init(&(pNewDisplayData->TransSGN), pNewDisplayData->pPrimitivesActor);
+		if (GT == DatasetGeometryType::MESH) {
+			pNewDisplayData->WireframeGeomSGN.init(&(pNewDisplayData->TransSGN), pNewDisplayData->pWireframeActor);
+			pNewDisplayData->WireframeGeomSGN.enable(true, false);
+		}
+
+		pNewDisplayData->TransSGN.enable(true, false);
+		
+		pVP->DatasetDisplayData.at(DT) = pNewDisplayData;
+	}//addDatasetDisplayData
+
+	void ViewportManager::clearDatasetDisplayData(size_t VPIndex) {
+		auto pView = m_Viewports[VPIndex];
+
+		for (auto it = pView->DatasetDisplayData.begin(); it != pView->DatasetDisplayData.end(); ++it) {
+			if (it->second == nullptr) continue;
+
+			pView->RootSGN.removeChild(&(it->second->TransSGN));
+
+			it->second->PrimitivesGeomSGN.clear();
+			it->second->WireframeGeomSGN.clear();
+			it->second->TransSGN.clear();
+			it->second->pPrimitivesActor->release();
+			if (it->second->pWireframeActor != nullptr)
+				it->second->pWireframeActor->release();
+
+			delete it->second;
+			it->second = nullptr;
+		}
+		pView->DatasetDisplayData.clear();
+	}//clearDatasetDisplayData
+
+	//std::vector<Vector3f> ViewportManager::calculateHausdorffVertexColors(std::vector<float>& HausdorffVals) { //TODO
+	//	//TODO
+	//}//calculateHausdorffVertexColors
 
 	Quaternionf ViewportManager::arcballRotation(size_t VPIndex, Vector2f CursorPosStartOGL, Vector2f CursorPosEndOGL) {
 		if (VPIndex > m_Viewports.size()) throw IndexOutOfBoundsExcept("VPIndex");
