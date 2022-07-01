@@ -25,6 +25,7 @@ public:
     virtual bool checkHitbox(Eigen::Vector2f pointerPosition);
     
     //Events (need some more thought put into them)
+    virtual void childValueChanged(BaseWidget* child);
     virtual void focus();
     virtual void focusLost();
     virtual void onClick(mouseEventInfo);

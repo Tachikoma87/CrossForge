@@ -132,7 +132,7 @@ void InputDropDownWidget_Popup::draw(CForge::RenderDevice* renderDevice)
 InputDropDownWidget::InputDropDownWidget(GUI* rootGUIObject, BaseWidget* parent) : BaseWidget(rootGUIObject, parent)
 {
     m_pDisplay = new TextWidget(m_root, this);
-    m_pDisplay->setText(U"...");
+    m_pDisplay->setText(U"... ▾");
 
     m_width = m_pDisplay->getWidth();
     m_height = m_pDisplay->getHeight();
@@ -156,9 +156,10 @@ void InputDropDownWidget::setValue(int value)
 {
     if (m_options.count(value) > 0) {
         m_value = value;
-        m_pDisplay->setText(m_options.at(value) + U" ...");
+        m_pDisplay->setText(m_options.at(value) + U" ▾");
         updateLayout();
     }
+    if (m_parent != nullptr) m_parent->childValueChanged(this);
 }
 void InputDropDownWidget::setOptions(std::map<int, std::u32string> optionMap)
 {
@@ -167,7 +168,7 @@ void InputDropDownWidget::setOptions(std::map<int, std::u32string> optionMap)
         setValue(m_options.begin()->first);
     } else {
         m_value = 0;
-        m_pDisplay->setText(U"...");
+        m_pDisplay->setText(U"... ▾");
         updateLayout();
     }
 }

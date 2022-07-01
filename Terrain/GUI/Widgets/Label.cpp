@@ -231,6 +231,12 @@ void LabelWidget::setJustification(float j)
     }
 }
 
+void LabelWidget::childValueChanged(BaseWidget* child)
+{
+    //replace with this LabelWidget
+    if (m_parent != nullptr) m_parent->childValueChanged(this);
+}
+
 void LabelWidget::changePosition(float dx, float dy)
 {
     m_x += dx;
