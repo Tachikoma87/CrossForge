@@ -510,7 +510,7 @@ namespace Terrain {
 		glBindBuffer(GL_UNIFORM_BUFFER, windUBO);
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 4, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 4, windUBO);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 5, windUBO);
 		setWindUBO(windUBO, windVec, 0);
         srand((unsigned int)time(NULL));
 

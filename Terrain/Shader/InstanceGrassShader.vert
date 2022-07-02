@@ -10,7 +10,7 @@ layout(std140) uniform ModelData{
 	mat4 ModelMatrix;
 };
 
-layout (std140, binding = 4) uniform DekoData {
+layout (std140, binding = 5) uniform DekoData {
 	vec3 wind;
 	float time;
 };
