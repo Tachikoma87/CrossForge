@@ -26,7 +26,10 @@ namespace CForge {
 	}//initialize
 
 	void RenderGroupUtility::clear(void) {
-		for (auto& i : m_RenderGroups) delete i;
+		for (auto& i : m_RenderGroups) {
+			i->Material.clear();
+			delete i;
+		}
 		m_RenderGroups.clear();
 	}//clear
 
