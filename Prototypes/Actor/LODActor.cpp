@@ -62,6 +62,7 @@ namespace CForge {
 			if (!succ) {
 				m_LODStages.erase(m_LODStages.begin()+i, m_LODStages.end());
 				delete pLODMesh;
+				m_LODMeshes.push_back(nullptr);
 				break;
 			}
 			m_LODMeshes.push_back(pLODMesh);
@@ -70,9 +71,17 @@ namespace CForge {
 			m_instLODMats = new std::vector<Eigen::Matrix4f>();
 			m_instancedMatRef.push_back(m_instLODMats);
 		}
+		for (uint32_t i = 1; i < m_LODMeshes.size(); i++) {
+			if (m_LODMeshes[i] == nullptr) {
+				m_LODMeshes.resize(i);
+				break;
+			}
+			delete m_LODMeshes[i];
+			m_LODMeshes[i] = nullptr;
+		}
 		
-		m_LODMeshes[0]->computeAxisAlignedBoundingBox();
-		m_aabb = m_LODMeshes[0]->aabb();
+		pMesh->computeAxisAlignedBoundingBox();
+		m_aabb = pMesh->aabb();
 		initAABB();
 	}//initialize
 
@@ -89,7 +98,7 @@ namespace CForge {
 			uint32_t BufferSize = 0;
 			
 			m_VertexUtility.buildBuffer(pMesh->vertexCount(), (void**)&pBuffer, &BufferSize, pMesh);
-						
+			
 			m_VertexBuffers.push_back(pBuffer);
 			m_VertexBufferSizes.push_back(BufferSize);
 			}
@@ -171,22 +180,24 @@ namespace CForge {
 		m_VertexUtility.clear();
 		m_RenderGroupUtility.clear();
 
-		for (uint32_t i = 0; i < m_LODMeshes.size(); i++) {
-			if (i > 0) // do not delete the first mesh, we do not own its reference
-				delete m_LODMeshes[i];
-			
-			if (i < m_RenderGroupUtilities.size()) //TODO why
-				break;
-			
-			if (nullptr != m_RenderGroupUtilities[i])
+		for (uint32_t i = 0; i < m_RenderGroupUtilities.size(); i++) {
+			if (nullptr != m_RenderGroupUtilities[i]) {
+				m_RenderGroupUtilities[i]->clear();
 				delete m_RenderGroupUtilities[i];
-			m_RenderGroupUtilities[i] = nullptr;
-			if (nullptr != m_VertexBuffers[i])
+				m_RenderGroupUtilities[i] = nullptr;
+			}
+		}
+		for (uint32_t i = 0; i < m_VertexBuffers.size(); i++) {
+			if (nullptr != m_VertexBuffers[i]) {
 				delete m_VertexBuffers[i];
-			m_VertexBuffers[i] = nullptr;
-			if (nullptr != m_ElementBuffers[i])
+				m_VertexBuffers[i] = nullptr;
+			}
+		}
+		for (uint32_t i = 0; i < m_ElementBuffers.size(); i++) {
+			if (nullptr != m_ElementBuffers[i]) {
 				delete m_ElementBuffers[i];
-			m_ElementBuffers[i] = nullptr;
+				m_ElementBuffers[i] = nullptr;
+			}
 		}
 	}//Clear
 

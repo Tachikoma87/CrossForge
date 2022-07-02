@@ -320,8 +320,10 @@ namespace CForge {
 
 		// decimate, find targets
 		float progressDiff = DF.rows() - faceAmount;
+		printf("progress:\n");
 		while (DF.rows() - removeFaceCount > faceAmount) {
-			printf("progress: %.1f\n", removeFaceCount/progressDiff*100.0);
+			printf("\r");
+			printf("%.1f", removeFaceCount/progressDiff*100.0);
 			// get last largest depth node
 			std::vector<octreeNode*>* largestDepth = &(depthNodes.back());
 			octreeNode* parent = largestDepth->at(0)->parent;
@@ -360,6 +362,7 @@ namespace CForge {
 			if (depthNodes.back().empty())
 				depthNodes.pop_back();
 		}
+		printf("\n");
 
 		std::vector<uint32_t> DuFVec;
 		// remove faces from DF

@@ -158,7 +158,8 @@ namespace CForge {
 		Skydome.init(&M);
 		M.clear();
 
-		SAssetIO::load("Assets/Dragon_0.02.obj", &M);
+		//SAssetIO::load("museumAssets/Dragon_0.02.obj", &M);
+		SAssetIO::load("Assets/sphere.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		M.computePerVertexNormals();
 		Cube.init(&M);
