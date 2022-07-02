@@ -10,7 +10,7 @@ layout(std140) uniform ModelData{
 	mat4 ModelMatrix;
 };
 
-layout (std140, binding = 4) uniform DekoData {
+layout (std140, binding = 5) uniform DekoData {
 	vec3 wind;
 	float time;
 };
@@ -129,7 +129,7 @@ void main(){
 	N = normalize(mat3(m) * Normal);
 	T = normalize(mat3(m) * Tangent);
 	B = normalize(cross(N, T));
-	Pos = (m * vec4(Position, 1)).rgb;
+	Pos = windPos; //(m * vec4(Position, 1)).rgb;
 	CameraPos = Camera.Position.xyz;
 
 
