@@ -189,7 +189,7 @@ namespace Terrain {
             float spacing = 1 * scale * sizeScale;
 
             Vector3f camDir = camera.dir();
-            Vector3f camRig = camera.right()*CAM_FOV/45.0;
+            Vector3f camRig = camera.right()*std::fmin(std::fmax(std::tan(GraphicsUtility::degToRad(CAM_FOV)*0.5),0.0),10.0)*3.0;
             camDir.y() = 0;
             camRig.y() = 0;
             Vector3f A = camera.position();

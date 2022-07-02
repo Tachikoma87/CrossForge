@@ -49,9 +49,11 @@ namespace CForge {
 
 	void STextureManager::destroy(GLTexture2D* pTex) {
 		if (nullptr == pTex) throw NullpointerExcept("pTex");
+		bool contained = false;
 		for (auto &i : m_pInstance->m_Textures) {
 			if (nullptr == i) continue;
 			if (i->Tex.objectID() == pTex->objectID()) {
+				contained = true;
 				if (i->ReferenceCount == 1) {
 					delete i;
 					i = nullptr;
@@ -61,7 +63,8 @@ namespace CForge {
 				}
 			}
 		}//for[all textures
-
+		if(!contained) //texture is not in scope of texture manager
+			delete pTex;
 	}//destroy
 
 	STextureManager::STextureManager(void): CForgeObject("STextureManager") {
