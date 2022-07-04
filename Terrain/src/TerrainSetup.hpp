@@ -84,15 +84,16 @@ namespace Terrain {
         camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(CAM_FOV), 0.1f, 5000.0f);
         renderDevice->activeCamera(camera);
 
-        Vector3f sunPos = Vector3f(400.0f, 400.0f, 400.0f);
-        sun->init(sunPos, (-sunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 7.5f);
-        auto projection = GraphicsUtility::perspectiveProjection(winWidth, winHeight, GraphicsUtility::degToRad(45.0f),  1.0f, 1000.0f);
-        const uint32_t ShadowMapDim = 512;
-        sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(400, 400), 1.0f, 1000.0f);
+        Vector3f sunPos = Vector3f(-200.0f, 400.0f, 50.0f);
+		Vector3f sunDir = Vector3f(-1.0,1.0,1.0);
+		//Vector3f sunPos = Vector3f(-5.0f, 15.0f, 35.0f);
+        sun->init(sunPos, -sunDir.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
+        const uint32_t ShadowMapDim = 4096; //2048;
+        sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(500, 500), -100.0f, 750.0f);
         renderDevice->addLight(sun);
 
-        Vector3f lightPos = Vector3f(-400.0f, 200.0f, -400.0f);
-        light->init(lightPos, -lightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.0f);
+        //Vector3f lightPos = Vector3f(-400.0f, 200.0f, -400.0f);
+        light->init(sunPos, -sunDir.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
         renderDevice->addLight(light);
     }
 
@@ -626,11 +627,6 @@ namespace Terrain {
 			map.update(mapCenterX, mapCenterY);
             //map.update(camera.position().x(), camera.position().z());
 
-            if (shadows) {
-                renderDevice.activePass(RenderDevice::RENDERPASS_SHADOW, &sun);
-                sceneGraph.render(&renderDevice);
-            }
-
             renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			
             if (wireframe) {
@@ -652,10 +648,11 @@ namespace Terrain {
 			iPineLeavesActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
 			iTreeLeavesActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
 			iPalmLeavesActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
-
 			
+			renderDevice.LODSG_assemble();
+
 			renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			renderDevice.renderLODSG();
+			renderDevice.LODSG_render();
             //Deko instances
             //iPineActor.render(&renderDevice);
             //iTreeActor.render(&renderDevice);
@@ -673,6 +670,12 @@ namespace Terrain {
             //iTreeLeavesActor.render(&renderDevice);
             //iPalmLeavesActor.render(&renderDevice);
             glEnable(GL_CULL_FACE);
+
+			renderDevice.activePass(RenderDevice::RENDERPASS_SHADOW, &sun);
+			map.renderMap(&renderDevice);
+			renderDevice.LODSG_render();
+
+			renderDevice.LODSG_clear();
 			
             renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
 			

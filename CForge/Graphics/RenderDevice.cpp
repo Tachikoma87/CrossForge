@@ -107,6 +107,17 @@ namespace CForge {
 					SLogger::log(ErrorLog);
 					throw CForgeExcept("Building shadow pass shader failed. See log for details.");
 				}
+				VSSources.clear();
+				FSSources.clear();
+				pSC = pSMan->createShaderCode("Shader/InstancedShadowPassShader.vert", "330 core", ShaderCode::CONF_LIGHTING, "highp", "highp");
+				VSSources.push_back(pSC);
+				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.frag", "330 core", 0, "highp", "highp");
+				FSSources.push_back(pSC);
+				m_pShadowPassShaderInstanced = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
+				if (nullptr == m_pShadowPassShaderInstanced || !ErrorLog.empty()) {
+					SLogger::log(ErrorLog);
+					throw CForgeExcept("Building shadow pass shader failed. See log for details.");
+				}
 
 				pSMan->release();
 			}//if[lighting pass]
@@ -138,17 +149,12 @@ namespace CForge {
 		if (m_ActiveRenderPass == RENDERPASS_LOD) {
 			// automatic instanced rendering
 			// TODO make aabb mesh global instead of per actor?
-			if (pActor->isInstanced()) {
-				pActor->testAABBvis(this, ModelMat);
+			if (pActor->className().compare("LODActor") != 0) {
+				m_LODSGActors.push_back(pActor);
+				m_LODSGTransformations.push_back(ModelMat);
 			}
 			else {
-				if (pActor->className().compare("LODActor") != 0) {
-					m_LODSGActors.push_back(pActor);
-					m_LODSGTransformations.push_back(ModelMat);
-				}
-				else {
-					pActor->testAABBvis(this, ModelMat);
-				}
+				pActor->testAABBvis(this, ModelMat);
 			}
 		}
 		else
@@ -282,7 +288,7 @@ namespace CForge {
 		
 		bool previousPassWasLOD = false;
 		// enable drawing after LOD pass
-		if (m_ActiveRenderPass == RENDERPASS_LOD /* && Pass != RENDERPASS_LOD*/) {
+		if (m_ActiveRenderPass == RENDERPASS_LOD/* && Pass != RENDERPASS_LOD*/) {
 			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 			glDepthMask(GL_TRUE);
 			previousPassWasLOD = true;
@@ -320,7 +326,6 @@ namespace CForge {
 				if (!previousPassWasLOD)
 					m_GBuffer.bind();
 				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
-				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
 			}
 		}break;
@@ -333,7 +338,7 @@ namespace CForge {
 				//glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
 				m_PPBuffer.bind();
 				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
 
 				activeShader(m_pDeferredLightingPassShader);
@@ -478,19 +483,29 @@ namespace CForge {
 	GLShader* RenderDevice::shadowPassShader(void) {
 		return m_pShadowPassShader;
 	}//shadowPassShader
-	
-	void RenderDevice::renderLODSG()
+
+	GLShader* RenderDevice::shadowPassShaderInstanced(void) {
+		return m_pShadowPassShaderInstanced;
+	}//shadowPassShader
+
+	void RenderDevice::LODSG_render()
 	{
-		fetchQueryResults();
-		AssembleLODSG();
-		
 		for (uint32_t i = 0; i < m_LODSGActors.size(); i++) {
 			requestRendering(m_LODSGActors[i], m_LODSGTransformations[i]);
+		}
+	}
+
+	void RenderDevice::LODSG_clear()
+	{
+		for (uint32_t i = 0; i < m_LODSGActors.size(); i++) {
 			m_LODSGActors[i]->setLODSG(false);
+			m_LODSGActors[i]->clearMatRef();
 		}
 		m_LODSGActors.clear();
 		m_LODSGTransformations.clear();
+		LODQueryContainers.clear();
 	}
+
 	void RenderDevice::clearBuffer()
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -532,7 +547,8 @@ namespace CForge {
 		LODQueryContainers.push_back(container);
 	}
 	
-	void RenderDevice::AssembleLODSG() {
+	void RenderDevice::LODSG_assemble() {
+		fetchQueryResults();
 		for (uint32_t i = 0; i < LODQueryContainers.size(); i++) {
 			LODQueryContainer* cont = &LODQueryContainers[i];
 			IRenderableActor* pActor = cont->pActor;
@@ -565,7 +581,6 @@ namespace CForge {
 				m_LODSGActors.push_back(cont->pActor);
 			}
 		}
-		LODQueryContainers.clear();
 	}
 	
 	void RenderDevice::LODSGPushBack(IRenderableActor* pActor, Eigen::Matrix4f mat) {

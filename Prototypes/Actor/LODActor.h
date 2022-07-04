@@ -73,6 +73,7 @@ namespace CForge {
 		void evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount);
 		
 		void setFaceCulling(bool state);
+		void clearMatRef();
 		
 	protected:
 

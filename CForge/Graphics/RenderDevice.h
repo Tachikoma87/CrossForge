@@ -114,7 +114,7 @@ namespace CForge {
 		GLShader* shadowPassShader(void);
 		
 		//
-		void renderLODSG();
+		void LODSG_render();
 		void clearBuffer();
 		void setModelMatrix(Eigen::Matrix4f matrix);
 		UBOInstancedData* getInstancedUBO();
@@ -123,6 +123,9 @@ namespace CForge {
 		void LODSGPushBack(IRenderableActor* pActor, Eigen::Matrix4f mat);
 		
 		PPBuffer getPPBuffer();
+		GLShader* shadowPassShaderInstanced(void);
+		void LODSG_assemble();
+		void LODSG_clear();
 		//
 		
 	protected:
@@ -161,6 +164,7 @@ namespace CForge {
 		ScreenQuad m_ScreenQuad;
 		GLShader* m_pDeferredLightingPassShader;
 		GLShader* m_pShadowPassShader;
+		GLShader* m_pShadowPassShaderInstanced;
 	private:
 		
 		// container assigning an actor <-> transform a query
@@ -170,8 +174,6 @@ namespace CForge {
 			Eigen::Matrix4f transform;
 			uint32_t pixelCount = 0;
 		};
-		
-		void AssembleLODSG();
 		
 		// SceneGraph actors and transformations for rendering
 		std::vector<IRenderableActor*> m_LODSGActors;
