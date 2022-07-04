@@ -91,7 +91,7 @@ namespace CForge {
 		const std::string TextureNormalName = "TexNormal";
 		const std::string TextureDepthName = "TexDepth";
 		const std::string TextureShadow0Name = "TexShadow[0]";
-		const std::string TextureShadow1Name = "TexSHadow[1]";
+		const std::string TextureShadow1Name = "TexShadow[1]";
 		const std::string TextureShadow2Name = "TexShadow[2]";
 		const std::string TextureShadow3Name = "TexShadow[3]";
 		const std::string TextureMorphTargetDataName = "MorphTargetDataBuffer";

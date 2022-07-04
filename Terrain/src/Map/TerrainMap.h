@@ -39,6 +39,7 @@ namespace Terrain {
         void clear();
         void initShader();
         void generateClipMapTiles();
+		void initShadowPassShader();
 
         ClipMap mClipMap;
         HeightMap mHeightMap;
@@ -52,5 +53,6 @@ namespace Terrain {
 		vector<TileActor> m_TileActors;
 		UBOInstancedData mUBOinstances;
 		uint32_t m_CurrentInstanceAmount = 0;
+		GLShader* m_pShadowPassShaderMap;
     };
 }

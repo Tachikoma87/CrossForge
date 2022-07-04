@@ -158,8 +158,8 @@ namespace CForge {
 		Skydome.init(&M);
 		M.clear();
 
-		//SAssetIO::load("museumAssets/Dragon_0.02.obj", &M);
-		SAssetIO::load("Assets/sphere.obj", &M);
+		SAssetIO::load("museumAssets/Dragon_0.02.obj", &M);
+		//SAssetIO::load("Assets/sphere.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		M.computePerVertexNormals();
 		Cube.init(&M);
@@ -200,7 +200,9 @@ namespace CForge {
 
 		ScreenQuad ppquad;
 		initPPQuad(&ppquad);
-
+		
+		T2DImage<uint8_t> shadowBufTex;
+		
 		while (!RenderWin.shutdown()) {
 			RDev.clearBuffer();
 			RenderWin.update();
@@ -214,13 +216,17 @@ namespace CForge {
 
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
 			SG.render(&RDev);
+			
+			Sun.retrieveDepthBuffer(&shadowBufTex);
+			//AssetIO::store("testMeshOut.jpg",&shadowBufTex);
+			//return;
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			RDev.activePass(RenderDevice::RENDERPASS_LOD);
 			SG.render(&RDev);
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			RDev.renderLODSG();
+			//RDev.renderLODSG();
 			//SG.render(&RDev);
 
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);

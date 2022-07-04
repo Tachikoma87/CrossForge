@@ -235,7 +235,7 @@ namespace CForge {
 						for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
 							if (i->pShader == nullptr) continue;
 							if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-								pRDev->activeShader(pRDev->shadowPassShader());
+								pRDev->activeShader(pRDev->shadowPassShaderInstanced());
 							}
 							else {
 								pRDev->activeShader(i->pShader);
@@ -245,10 +245,11 @@ namespace CForge {
 						} //for [render groups]
 					} //for [maxInstances]
 				} //if [instances exist]
-				m_instancedMatRef[j]->clear();
+				//if (pRDev->activePass() != RenderDevice::RENDERPASS_SHADOW)
+				//m_instancedMatRef[j]->clear();
 			}
-			if (!m_isManualInstaned)
-				m_instancedMatrices.clear();
+			//if (!m_isManualInstaned && pRDev->activePass() != RenderDevice::RENDERPASS_SHADOW)
+			//	m_instancedMatrices.clear();
 		} else {
 			m_VertexArray.bind();
 			for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
@@ -526,5 +527,12 @@ namespace CForge {
 
 	void LODActor::setFaceCulling(bool state) {
 		m_faceCulling = state;
+	}
+
+	void LODActor::clearMatRef() {
+		for (uint32_t i = 0; i < m_instancedMatRef.size(); i++)
+			m_instancedMatRef[i]->clear();
+		if (!m_isManualInstaned)
+			m_instancedMatrices.clear();
 	}
 }
