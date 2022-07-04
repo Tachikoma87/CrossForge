@@ -42,6 +42,8 @@ namespace Terrain {
         }
 
         mTextures.generateMipmap();
+
+		initShadowPassShader();
     }
 
     TerrainMap::~TerrainMap() {
@@ -102,18 +104,33 @@ namespace Terrain {
 	}
 	
 	void TerrainMap::renderMap(RenderDevice* pRDev) {
-		prepareRender(pRDev);
-		uint32_t BindingPoint = mShader->uboBindingPoint(GLShader::DEFAULTUBO_INSTANCE);
-		if (GL_INVALID_INDEX != BindingPoint) {
-			mUBOinstances.bind(BindingPoint);
+		if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+			pRDev->activeShader(m_pShadowPassShaderMap);
+			glActiveTexture(GL_TEXTURE0);
+			mHeightMap.bindTexture();
+			
+			glUniform1i(m_pShadowPassShaderMap->uniformLocation("HeightMap"), 0);
+			glUniform1f(m_pShadowPassShaderMap->uniformLocation("MapHeight"), mHeightMap.getConfig().mapHeight);
+			uint32_t BindingPoint = m_pShadowPassShaderMap->uboBindingPoint(GLShader::DEFAULTUBO_INSTANCE);
+			if (GL_INVALID_INDEX != BindingPoint) {
+				mUBOinstances.bind(BindingPoint);
+			}
+			glDisable(GL_CULL_FACE);
+		}
+		else {
+			prepareRender(pRDev);
+			uint32_t BindingPoint = mShader->uboBindingPoint(GLShader::DEFAULTUBO_INSTANCE);
+			if (GL_INVALID_INDEX != BindingPoint) {
+				mUBOinstances.bind(BindingPoint);
+			}
 		}
 		for (uint32_t i = 0; i < m_TileActors.size(); i++) {
-			
 			uint32_t instanceIndex = 0;
 			for (uint32_t j = 0; j < mTileNodes.size(); j++) {
 				TileNode::TileData data = mTileNodes[j]->getTileData();
 				if (data.variant == i) {
-					mUBOinstances.setInstance(&mTileNodes[j]->m_trans, instanceIndex);
+					Eigen::Matrix4f mat = (mTileNodes[j]->m_trans);
+					mUBOinstances.setInstance(&mat, instanceIndex);
 					instanceIndex++;
 				}
 			}
@@ -123,6 +140,10 @@ namespace Terrain {
 			}
 			m_CurrentInstanceAmount = instanceIndex;
 			m_TileActors[i].render(pRDev);
+		}
+		if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+			pRDev->activeShader(pRDev->shadowPassShader()); //TODO dirty fix
+			glEnable(GL_CULL_FACE);
 		}
 	}
 
@@ -247,4 +268,26 @@ namespace Terrain {
     void TerrainMap::updateHeights() {
         mHeightMap.updateHeights();
     }
+
+	
+	void TerrainMap::initShadowPassShader() {
+		SShaderManager* pSMan = SShaderManager::instance();
+		string ErrorLog;
+
+		std::vector<ShaderCode*> VSSources;
+		std::vector<ShaderCode*> FSSources;
+		ShaderCode* pSC = nullptr;
+
+		pSC = pSMan->createShaderCode("Shader/MapShadow.vert", "330 core", ShaderCode::CONF_LIGHTING, "highp", "highp");
+		VSSources.push_back(pSC);
+		pSC = pSMan->createShaderCode("Shader/ShadowPassShader.frag", "330 core", 0, "highp", "highp");
+		FSSources.push_back(pSC);
+		m_pShadowPassShaderMap = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
+		if (nullptr == m_pShadowPassShaderMap || !ErrorLog.empty()) {
+			SLogger::log(ErrorLog);
+			throw CForgeExcept("Building shadow pass shader failed. See log for details.");
+		}
+
+		pSMan->release();
+	}
 }

@@ -57,7 +57,7 @@ namespace CForge {
 
 		// light stuff
 		if (m_LightConfig.DirLightCount == 0) {
-			removeDefine("DIRECTIONAL_LIGHTS");		
+			removeDefine("DIRECTIONAL_LIGHTS");
 		}
 		else {
 			addDefine("DIRECTIONAL_LIGHTS");
@@ -85,7 +85,7 @@ namespace CForge {
 			removeDefine("PCF_SHADOWS");
 		}
 		else {
-			addDefine("PDF_SHADOWS");	
+			addDefine("PCF_SHADOWS");
 			changeConst("const int PCFFilterSize", to_string(pConfig->PCFSize));
 		}
 

@@ -232,7 +232,7 @@ namespace CForge {
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			//SG.render(&RDev);
 
-			RDev.renderLODSG();
+			//RDev.renderLODSG();
 
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);

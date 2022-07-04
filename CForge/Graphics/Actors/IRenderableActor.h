@@ -61,6 +61,7 @@ namespace CForge {
 		bool isInLODSG();
 		// used set check if actor is already contained in LODSG
 		void setLODSG(bool inside);
+		virtual void clearMatRef();
 		//
 		
 	protected:

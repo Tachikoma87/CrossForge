@@ -114,4 +114,8 @@ namespace CForge {
 	void IRenderableActor::evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount) {
 	
 	}
+
+	void IRenderableActor::clearMatRef() {
+
+	}
 }//name space
