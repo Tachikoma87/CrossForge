@@ -168,12 +168,11 @@ add_executable(CForgeSandbox
 	Prototypes/Camera/StripPhoto.cpp 
 	Prototypes/Camera/StripPhotoCamera.cpp
 
-	#Prototypes/Internet/TCPSocket.cpp 
-	#Prototypes/Internet/UDPSocket.cpp
-
 	Prototypes/Misc/IMUCameraController.cpp
 
 	Prototypes/Assets/GLTFIO.cpp
+
+	Prototypes/MeshProcessing/SurfaceSampler.cpp
 	)
 
 
