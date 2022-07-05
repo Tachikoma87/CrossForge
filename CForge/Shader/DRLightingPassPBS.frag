@@ -108,7 +108,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float Roughness){
 
 #ifdef DIRECTIONAL_LIGHTS
 float shadowCalculationDirectionalLight(vec3 FragPosWorldSpace, vec3 Normal, vec3 LightDir, uint LightIndex){
-	float Rval = 0.2f; // no shadow
+	float Rval = 0.0f; // no shadow
 	int ShadowIndex = DirLights.ShadowIDs[LightIndex].x;
 	if(ShadowIndex != -1){
 		float bias = max(10.0*ShadowBias * (1.0 - dot(Normal, LightDir)), ShadowBias);
@@ -127,13 +127,13 @@ float shadowCalculationDirectionalLight(vec3 FragPosWorldSpace, vec3 Normal, vec
 		for(int x = -PCFFilterSize; x <= PCFFilterSize; ++x){
 			for(int y = -PCFFilterSize; y <= PCFFilterSize; ++y){
 				float pcfDepth = texture(TexShadow[0], ProjCoords.xy + vec2(x,y) * TexelSize).r;
-				Rval += CurrentDepth - bias > pcfDepth ? 1.0 : 0.2;
+				Rval += CurrentDepth - bias > pcfDepth ? 0.8 : 0.0;
 			}
 		}
 		Rval /= float((PCFFilterSize*2 +1) * (PCFFilterSize*2 + 1));
 		#else
 		// simple computations 
-		Rval = (CurrentDepth - bias > ClosestDepth) ? 1.0 : 0.2;
+		Rval = (CurrentDepth - bias > ClosestDepth) ? 0.8 : 0.0;
 		#endif
 	}
 	return Rval;
@@ -208,7 +208,7 @@ void main(){
 	// compute directional lights contribution
 	for(uint i=0U; i < DirLightCount; ++i){
 		// calculate per-light radiance
-		vec3 L = -DirLights.Directions[i].xyz;
+		vec3 L = normalize(-DirLights.Directions[i].xyz);
 		vec3 H = normalize(V + L);
 		float Shadow = shadowCalculationDirectionalLight(WorldPos, N, L, i);
 		vec3 Radiance = DirLights.Colors[i].w * DirLights.Colors[i].xyz; // color * intensity
