@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <CForge/Graphics/Lights/DirectionalLight.h>
+#include <CForge/Graphics/Lights/PointLight.h>
 #include <CForge/Graphics/GraphicsUtility.h>
 #include <CForge/Graphics/SceneGraph/SceneGraph.h>
 #include <CForge/Graphics/Shader/SShaderManager.h>
@@ -26,7 +27,7 @@ using namespace CForge;
 float CAM_FOV = 90.0;
 int WINWIDTH = 1280;
 int WINHEIGHT = 720;
-#define FULLSCREEN false
+#define FULLSCREEN true
 float cameraPanSpeed = 1.0;
 
 namespace Terrain {
@@ -34,7 +35,7 @@ namespace Terrain {
 	RenderDevice::RenderDeviceConfig renderConfig;
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
-                    DirectionalLight *light) {
+                    PointLight *light) {
 		
 		if (FULLSCREEN) {
 
@@ -57,7 +58,7 @@ namespace Terrain {
         if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
         //RenderDevice::RenderDeviceConfig renderConfig;
-        renderConfig.DirectionalLightsCount = 2;
+        renderConfig.DirectionalLightsCount = 1;
         renderConfig.PointLightsCount = 0;
         renderConfig.SpotLightsCount = 0;
         renderConfig.ExecuteLightingPass = true;
@@ -69,10 +70,10 @@ namespace Terrain {
         renderDevice->init(&renderConfig);
 
         ShaderCode::LightConfig lightConfig;
-        lightConfig.DirLightCount = 2;
+        lightConfig.DirLightCount = 1;
         lightConfig.PCFSize = 1;
         lightConfig.PointLightCount = 0;
-        lightConfig.ShadowBias = 0.0004f;
+        lightConfig.ShadowBias = 0.0003f;
         lightConfig.ShadowMapCount = 1;
         lightConfig.SpotLightCount = 0;
         SShaderManager *shaderManager = SShaderManager::instance();
@@ -88,13 +89,13 @@ namespace Terrain {
 		Vector3f sunDir = Vector3f(-1.0,1.0,1.0);
 		//Vector3f sunPos = Vector3f(-5.0f, 15.0f, 35.0f);
         sun->init(sunPos, -sunDir.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
-        const uint32_t ShadowMapDim = 4096; //2048;
+        const uint32_t ShadowMapDim = 8192;//4096; //2048;
         sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(500, 500), -100.0f, 750.0f);
         renderDevice->addLight(sun);
 
         //Vector3f lightPos = Vector3f(-400.0f, 200.0f, -400.0f);
-        light->init(sunPos, -sunDir.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
-        renderDevice->addLight(light);
+        //light->init(sunPos, -sunDir.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f, Vector3f(0.0f, 0.0f, 0.0f));
+        //renderDevice->addLight(light);
     }
 
 
@@ -436,7 +437,8 @@ namespace Terrain {
         GLWindow window;
         RenderDevice renderDevice;
         VirtualCamera camera;
-        DirectionalLight sun, light;
+        DirectionalLight sun;
+		PointLight light;
         initCForge(&window, &renderDevice, &camera, &sun, &light);
 
         SGNTransformation rootTransform;
