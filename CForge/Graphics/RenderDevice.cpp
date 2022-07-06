@@ -149,7 +149,7 @@ namespace CForge {
 		if (m_ActiveRenderPass == RENDERPASS_LOD) {
 			// automatic instanced rendering
 			// TODO make aabb mesh global instead of per actor?
-			if (pActor->className().compare("LODActor") != 0) {
+			if (pActor->className().compare("IRenderableActor::LODActor") != 0) {
 				m_LODSGActors.push_back(pActor);
 				m_LODSGTransformations.push_back(ModelMat);
 			}
@@ -559,13 +559,20 @@ namespace CForge {
 			
 			// calculate distance bounding sphere border to camera
 			Eigen::Vector3f Translation = Eigen::Vector3f(cont->transform.data()[12], cont->transform.data()[13], cont->transform.data()[14]);
-			float aabbRadius = std::max(std::abs(pActor->getAABB().Max.norm()), std::abs(pActor->getAABB().Min.norm()));
+			Eigen::Affine3f affine(cont->transform);
+
+			Vector3f scaledAABBMax = affine * pActor->getAABB().Max;
+			Vector3f scaledAABBMin = affine * pActor->getAABB().Min;
+			float aabbRadius = std::max(std::abs(scaledAABBMax.norm()), std::abs(scaledAABBMin.norm()));
 			float distance = (Translation - m_pActiveCamera->position()).norm() - aabbRadius;
+			
+			printf("%d\n",cont->pixelCount);
 			
 			// set pixel count to max if cam is inside BB, due to backface culling
 			if (distance < 0.0)
 				cont->pixelCount = UINT32_MAX;
-			
+
+			printf("%d\n",cont->pixelCount);
 			// sets LOD level, and transform matrix when instanced
 			cont->pActor->evaluateQueryResult(cont->transform, cont->pixelCount);
 			
@@ -592,5 +599,11 @@ namespace CForge {
 		return m_PPBuffer;
 	}
 	
-	
+	std::vector<IRenderableActor*> RenderDevice::getLODSGActors() {
+		return m_LODSGActors;
+	}
+
+	std::vector<Eigen::Matrix4f> RenderDevice::getLODSGTrans() {
+		return m_LODSGTransformations;
+	}
 }//name space

@@ -126,6 +126,9 @@ namespace CForge {
 		GLShader* shadowPassShaderInstanced(void);
 		void LODSG_assemble();
 		void LODSG_clear();
+
+		std::vector<IRenderableActor*> getLODSGActors();
+		std::vector<Eigen::Matrix4f> getLODSGTrans();
 		//
 		
 	protected:

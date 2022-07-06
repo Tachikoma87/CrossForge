@@ -44,8 +44,23 @@
 #include "../SLOD.h"
 #include "../MeshDecimate.h"
 
+#include <iostream>
+#include <filesystem>
+
 using namespace Eigen;
 using namespace std;
+
+//https://stackoverflow.com/questions/11635/case-insensitive-string-comparison-in-c
+bool iequals(const string& a, const string& b)
+{
+	unsigned int sz = a.size();
+	if (b.size() != sz)
+		return false;
+	for (unsigned int i = 0; i < sz; ++i)
+		if (tolower(a[i]) != tolower(b[i]))
+			return false;
+	return true;
+}
 
 namespace CForge {
 
@@ -88,16 +103,16 @@ namespace CForge {
 		std::string WindowTitle = "CForge - Minimum Graphics Setup";
 		float FPS = 60.0f;
 
-		bool const LowRes = false;
+		bool const LowRes = true;
 
 		uint32_t WinWidth = 1920;
 		uint32_t WinHeight = 1080;
 
 		if (LowRes) {
-			WinWidth = 720;
-			WinHeight = 576;
+			WinWidth = 1280;
+			WinHeight = 1024;
 		}
-
+		pSLOD->setResolution(Vector2i(WinWidth,WinHeight));
 		// create an OpenGL capable windows
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
@@ -117,13 +132,14 @@ namespace CForge {
 		Config.UseGBuffer = true;
 		RDev.init(&Config);
 
+		uint32_t shadowMapRes = /*//8192;//4096;/*/1024;//*/
 		// configure and initialize shader configuration device
 		ShaderCode::LightConfig LC;
 		LC.DirLightCount = 1;
 		LC.PointLightCount = 1;
 		LC.SpotLightCount = 0;
 		LC.PCFSize = 1;
-		LC.ShadowBias = 0.0004f;
+		LC.ShadowBias = 0.00004f/shadowMapRes*1024; //dynamic bias?
 		LC.ShadowMapCount = 1;
 		pSMan->configShader(LC);
 
@@ -139,8 +155,8 @@ namespace CForge {
 		PointLight BGLight;
 		Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
 		// sun will cast shadows
-		Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
-		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
+		Sun.initShadowCasting(shadowMapRes, shadowMapRes, GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
+		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.0f, Vector3f(0.0f, 0.0f, 0.0f));
 
 		// set camera and lights
 		RDev.activeCamera(&Cam);
@@ -150,7 +166,6 @@ namespace CForge {
 		// load skydome and a textured cube
 		T3DMesh<float> M;
 		StaticActor Skydome;
-		LODActor Cube;
 
 		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
@@ -158,12 +173,12 @@ namespace CForge {
 		Skydome.init(&M);
 		M.clear();
 
-		SAssetIO::load("museumAssets/Dragon_0.02.obj", &M);
+		//SAssetIO::load("museumAssets/Dragon_0.02.obj", &M);
 		//SAssetIO::load("Assets/sphere.obj", &M);
-		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
-		M.computePerVertexNormals();
-		Cube.init(&M);
-		M.clear();
+		//SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
+		//M.computePerVertexNormals();
+		//Cube.init(&M);
+		//M.clear();
 
 		// build scene graph
 		SceneGraph SG;
@@ -176,20 +191,51 @@ namespace CForge {
 		SkydomeSGN.init(&RootSGN, &Skydome);
 		SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
 
-		// add cube
-		SGNGeometry CubeSGN;
-		SGNTransformation CubeTransformSGN;
-		CubeTransformSGN.init(&RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
-		CubeTransformSGN.scale(Vector3f(0.05,0.05,0.05));
-		CubeTransformSGN.rotation((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()));
-		CubeSGN.init(&CubeTransformSGN, &Cube);
+		std::vector<LODActor*> museumActors;
+		std::vector<SGNGeometry*> museumSGNG;
+		std::vector<SGNTransformation*> museumSGNT;
+		
+		uint32_t modelAmount = 0;
+		std::string path = "museumAssets/";
+		for (const auto& entry : std::filesystem::directory_iterator(path)) {
+			std::cout << entry.path() << std::endl;
+			bool accepted = false;
+			std::string extension = entry.path().extension().string();
+			std::cout << extension << "\n";
+			accepted = iequals(extension,".obj")
+			        || iequals(extension,".stl");
+			
+			if (accepted) {
+				modelAmount++;
+				// load model
+				SAssetIO::load(entry.path().string().c_str(), &M);
+				SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
+				M.computePerVertexNormals();
+				M.computeAxisAlignedBoundingBox();
+				LODActor* newAct = new LODActor();
+				newAct->init(&M);
+				museumActors.push_back(newAct);
+				M.clear();
+				
+				// add actor to scene
+				SGNGeometry* SGN = new SGNGeometry();
+				SGNTransformation* TransformSGN = new SGNTransformation();
+				museumSGNG.push_back(SGN);
+				museumSGNT.push_back(TransformSGN);
+				
+				float x = (float)(modelAmount%3)*4.0-7.5;
+				float y = (float)(modelAmount/3)*4.0-7.5;
 
+				T3DMesh<float>::AABB aabb = M.aabb();
 
-		//// rotate about the y-axis at 45 degree every second
-		//Quaternionf R;
-		//R = AngleAxisf(GraphicsUtility::degToRad(45.0f / 60.0f), Vector3f::UnitY());
-		//CubeTransformSGN.rotationDelta(R);
-
+				float scale = 1.0/aabb.diagonal().norm()*5.0;
+				TransformSGN->init(&RootSGN, Vector3f(x, -aabb.Min.y()*scale, y));
+				TransformSGN->scale(Vector3f(scale,scale,scale));
+				//TransformSGN->rotation((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()));
+				SGN->init(TransformSGN, newAct);
+			}
+		}
+		
 		// stuff for performance monitoring
 		uint64_t LastFPSPrint = CoreUtility::timestamp();
 		int32_t FPSCount = 0;
@@ -213,11 +259,7 @@ namespace CForge {
 			float Step = (pKeyboard->keyState(Keyboard::KEY_Q) == 0) ? 0.1f : 1.0f;
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(),0.4*Step,1.0,1.0f / pSLOD->getDeltaTime());
 
-
-			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-			SG.render(&RDev);
-			
-			Sun.retrieveDepthBuffer(&shadowBufTex);
+			//Sun.retrieveDepthBuffer(&shadowBufTex);
 			//AssetIO::store("testMeshOut.jpg",&shadowBufTex);
 			//return;
 
@@ -225,18 +267,42 @@ namespace CForge {
 			RDev.activePass(RenderDevice::RENDERPASS_LOD);
 			SG.render(&RDev);
 
+			RDev.LODSG_assemble();
+			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
+			glDisable(GL_CULL_FACE);
+			RDev.LODSG_render();
+			glEnable(GL_CULL_FACE);
+
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			//RDev.renderLODSG();
-			//SG.render(&RDev);
+			RDev.LODSG_render();
 
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
-
+			
+			//render debug aabb
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDisable(GL_CULL_FACE);
+			glLineWidth(2);
+			for (uint32_t i = 0; i < RDev.getLODSGActors().size(); i++) {
+				if (RDev.getLODSGActors()[i]->className().compare("IRenderableActor::LODActor") == 0) {
+					LODActor* act = (LODActor*) RDev.getLODSGActors()[i];
+					uint8_t lvl = act->getLODLevel();
+					glColorMask(lvl&1,lvl&2,lvl&4,GL_TRUE);
+					RDev.setModelMatrix(RDev.getLODSGTrans()[i]);
+					act->renderAABB(&RDev);
+				}
+			}
+			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+			glEnable(GL_CULL_FACE);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			
 			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
 			ppquad.render(&RDev);
 
 			RenderWin.swapBuffers();
+			
+			RDev.LODSG_clear();
 
 			FPSCount++;
 			if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {
@@ -255,6 +321,13 @@ namespace CForge {
 		}//while[main loop]
 
 		pSMan->release();
+		
+		//release museum actors
+		for (uint32_t i = 0; i < museumActors.size(); i++) {
+			delete museumActors[i];
+			delete museumSGNG[i];
+			delete museumSGNT[i];
+		}
 
 	}//exampleMinimumGraphicsSetup
 
