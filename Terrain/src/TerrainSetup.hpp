@@ -427,6 +427,9 @@ namespace Terrain {
 
     void TerrainSetup() {
 
+		SLOD* pSLOD = SLOD::instance();
+		pSLOD->setLODLevels(std::vector<float> {1.0});
+		
         float cameraHeight = 2;
 
         if (richard) {
@@ -593,7 +596,6 @@ namespace Terrain {
 		iPalmLeavesActor.setFaceCulling(false);
 		iTreeLeavesActor.setFaceCulling(false);
 		
-		SLOD* pSLOD = SLOD::instance();
 		pSLOD->setResolution(Vector2i(WINWIDTH,WINHEIGHT));
 
         while (!window.shutdown()) {
@@ -651,9 +653,8 @@ namespace Terrain {
 			iTreeLeavesActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
 			iPalmLeavesActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
 			
-			renderDevice.LODSG_assemble();
-
 			renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			renderDevice.LODSG_assemble();
 			renderDevice.LODSG_render();
             //Deko instances
             //iPineActor.render(&renderDevice);

@@ -68,4 +68,8 @@ namespace CForge {
 	void SLOD::clear(void) {
 
 	}//initialize
+
+	void SLOD::setLODLevels(std::vector<float> levels) {
+		LODLevels = levels;
+	}
 }

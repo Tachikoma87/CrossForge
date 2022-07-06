@@ -378,10 +378,11 @@ namespace CForge {
 		
 		if (pixelCount == 0)
 			return;
-		
+
+		printf("pixelCount			%d\n", pixelCount);
 		// set LOD level based on screen coverage
 		float screenCov = float(pixelCount) / m_pSLOD->getResPixAmount();
-		
+		printf("screenCov			%f\n", screenCov);
 		while (level < m_LODStages.size()-2) {
 			if (screenCov > m_pSLOD->getLODPercentages()[level])
 				break;
@@ -510,7 +511,11 @@ namespace CForge {
 	
 	bool LODActor::fovCulling(RenderDevice* pRDev, Eigen::Matrix4f* mat) {
 		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
-		float aabbRadius = std::max(std::abs(getAABB().Max.norm()), std::abs(getAABB().Min.norm()));
+
+		Eigen::Affine3f affine(*mat);
+		Eigen::Vector3f scaledAABBMax = affine * getAABB().Max;
+		Eigen::Vector3f scaledAABBMin = affine * getAABB().Min;
+		float aabbRadius = std::max(std::abs(scaledAABBMax.norm()), std::abs(scaledAABBMin.norm()));
 		float distance = (Translation - pRDev->activeCamera()->position()).norm() - aabbRadius;
 		if (distance < 0.0)
 			return true;
