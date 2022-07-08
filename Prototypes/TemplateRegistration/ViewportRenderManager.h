@@ -1,5 +1,5 @@
-#ifndef __TEMPREG_VIEWPORTMANAGER_H__
-#define __TEMPREG_VIEWPORTMANAGER_H__
+#ifndef __TEMPREG_VIEWPORTRENDERMANAGER_H__
+#define __TEMPREG_VIEWPORTRENDERMANAGER_H__
 
 #include "../../CForge/AssetIO/T3DMesh.hpp"
 #include "../../CForge/Graphics/RenderDevice.h"
@@ -12,9 +12,13 @@
 
 #include <map>
 #include <set>
-//#include <functional>
 
-#include "Dataset.h"
+#include "Dataset/DatasetCommon.h"
+#include "Dataset/DatasetGeometryData.h"
+#include "Dataset/DatasetDisplayData.h"
+#include "Dataset/Markers/DatasetMarkerCommon.h"
+#include "Dataset/Markers/DatasetMarkerInstance.h"
+#include "Dataset/Markers/DatasetMarkerCloud.h"
 
 using namespace Eigen;
 
@@ -46,28 +50,8 @@ namespace TempReg {
 		LAYERED,
 		SIDE_BY_SIDE
 	};
-
-	enum class MarkerColor {
-		DEFAULT_VERTEX_HOVERING,
-		DEFAULT_VERTEX_SELECTION,
-		FEATURE_IDLE,
-		FEATURE_HOVERED,
-		FEATURE_SELECTED,
-		CORRESPONDENCE_IDLE,
-		CORRESPONDENCE_HOVERED,
-		CORRESPONDENCE_SELECTED,
-		DEBUG
-	};
-
-	enum class MarkerMode {
-		NONE,
-		IDLE,
-		HOVERED,
-		SELECTED,
-		DEBUG_MESH_MARKER
-	};
-
-	class ViewportManager {
+	
+	class ViewportRenderManager {
 	public:
 		struct GlobalViewportState {
 			bool GlobalMarkers; // Toggle whether vertex markers should be displayed across all active DatasetViews or only within the Viewport containing the mouse cursor
@@ -80,8 +64,8 @@ namespace TempReg {
 				GlobalMarkers(false), DisplayCorrespondences(false) {}
 		};
 
-		ViewportManager(size_t MaxViewportCount);
-		~ViewportManager();
+		ViewportRenderManager(size_t MaxViewportCount);
+		~ViewportRenderManager();
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// 
@@ -137,8 +121,8 @@ namespace TempReg {
 		
 		void updateDatasetDisplayData(size_t VPIndex, std::map<DatasetType, DatasetGeometryData>::iterator itDatasetGeom); //TODO
 		void showDatasetDisplayData(size_t VPIndex, DatasetType DT, bool Show);
-		void enableWireframeActor(size_t VPIndex, DatasetType DT, bool Active);
-		void enablePrimitivesActor(size_t VPIndex, DatasetType DT, bool Active);
+		void enableWireframeActor(size_t VPIndex, DatasetType DT, bool Show);
+		void enablePrimitivesActor(size_t VPIndex, DatasetType DT, bool Show);
 		void setSolidColorShading(size_t VPIndex, DatasetType DT, bool PrimitivesActor, Vector3f* Color = nullptr); //TODO: test
 		//TODO: requires methods from registration module, DO NOT USE YET
 		//void setHausdorffDistColorShading(size_t VPIndex, DatasetType DT, std::vector<float>& HausdorffVals); //TODO: change to support pPrimitivesActor and pWireframeActor; calculateHausdorffVetexColors(...) + testing
@@ -156,12 +140,12 @@ namespace TempReg {
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		void initMarkerData(std::string Filepath);
-		void placeDefaultVertexHoverMarker(size_t VPIndex, DatasetType DT, const Vector3f VertexPos);
-		void placeDefaultVertSelectMarker(size_t VPIndex, DatasetType DT, const Vector3f VertexPos);
-		bool showDefaultVertexHoverMarkerOnDataset(size_t VPIndex, DatasetType DT) const;
-		void showDefaultVertexHoverMarkerOnDataset(size_t VPIndex, DatasetType DT, bool Show);
-		bool showDefaultVertSelectMarkerOnDataset(size_t VPIndex, DatasetType DT) const;
-		void showDefaultVertSelectMarkerOnDataset(size_t VPIndex, DatasetType DT, bool Show);
+		void placeDefaultHoverMarker(DatasetType DT, const Vector3f VertexPos);
+		void placeDefaultSelectMarker(DatasetType DT, const Vector3f VertexPos, MarkerColor MC);
+		bool showDefaultHoverMarkerOnDataset(size_t VPIndex, DatasetType DT) const;
+		void showDefaultHoverMarkerOnDataset(size_t VPIndex, DatasetType DT, bool Show);
+		bool showDefaultSelectMarkerOnDataset(size_t VPIndex, DatasetType DT) const;
+		void showDefaultSelectMarkerOnDataset(size_t VPIndex, DatasetType DT, bool Show);
 		void addFeatMarkerTemplate(size_t FeatPointID, const Vector3f MarkerPos);
 		void addCorrMarkerTemplate(size_t CorrPointID, const Vector3f MarkerPos);
 		void addFeatMarkerTarget(size_t FeatPointID, const Vector3f MarkerPos);
@@ -178,22 +162,20 @@ namespace TempReg {
 		void showFeatMarkersOnDataset(size_t VPIndex, DatasetType DT, bool Show);
 		bool showCorrMarkersOnDataset(size_t VPIndex, DatasetType DT) const;
 		void showCorrMarkersOnDataset(size_t VPIndex, DatasetType DT, bool Show);
-		void markerModeFeatMarkerPair(DatasetType DT, size_t TemplatePointID, size_t TargetPointID, MarkerMode MM);
-		void markerModeCorrMarkerPair(DatasetType DT, size_t TemplatePointID, size_t TargetPointID, MarkerMode MM);
-		void DEBUG_placeMeshMarker(size_t VPIndex, DatasetType DT, const Vector3f Pos);
+		void markerModeFeatMarkerPair(size_t TemplatePointID, size_t TargetPointID, MarkerMode MM);
+		void markerModeCorrMarkerPair(size_t TemplatePointID, size_t TargetPointID, MarkerMode MM);
+		void markerModeFeatMarkerTemplate(size_t TemplatePointID, MarkerMode MM);
+		void markerModeCorrMarkerTemplate(size_t TemplatePointID, MarkerMode MM);
+		void markerModeFeatMarkerTarget(size_t TargetPointID, MarkerMode MM);
+		void markerModeCorrMarkerTarget(size_t TargetPointID, MarkerMode MM);
+		MarkerMode markerModeCorrMarkerTemplate(size_t TemplatePointID) const;
+		MarkerMode markerModeCorrMarkerTarget(size_t TemplatePointID) const;
+		MarkerMode markerModeFeatMarkerTemplate(size_t TemplatePointID) const;
+		MarkerMode markerModeFeatMarkerTarget(size_t TemplatePointID) const;
+		void DEBUG_placeMeshMarker(DatasetType DT, const Vector3f Pos);
 		void DEBUG_showMeshMarkerOnDataset(size_t VPIndex, DatasetType DT, bool Show);
 
 	private:
-		struct MarkerSGData {
-			CForge::SGNTransformation TransSGN; //TODO: try again with only GeomSGN to save space! (if it works, remove MarkerSGData struct entirely!)
-			CForge::SGNGeometry GeomSGN;
-
-			MarkerSGData() {
-				TransSGN.clear();
-				GeomSGN.clear();
-			}
-		};
-
 		struct Viewport {
 			CForge::RenderDevice::Viewport VP;
 
@@ -204,8 +186,8 @@ namespace TempReg {
 			std::map<DatasetType, DatasetDisplayData*> DatasetDisplayData;
 		
 			// vertex markers
-			std::map<DatasetType, bool> ShowDefaultVertexHoverMarker;
-			std::map<DatasetType, bool> ShowDefaultVertexSelectMarker;
+			std::map<DatasetType, bool> ShowDefaultHoverMarker;
+			std::map<DatasetType, bool> ShowDefaultSelectMarker;
 			std::map<DatasetType, bool> DEBUG_ShowDebugMeshMarker;
 			std::map<DatasetType, bool> ShowFeatMarkers;
 			std::map<DatasetType, bool> ShowCorrMarkers;
@@ -245,28 +227,13 @@ namespace TempReg {
 		ViewportArrangementType m_ActiveViewportArrangement;
 
 		// vertex markers:
-		std::map<DatasetType, MarkerSGData> m_DefaultVertHoverMarkers;
-		std::map<DatasetType, MarkerSGData> m_DefaultVertSelectMarkers;
-		std::map<DatasetType, MarkerSGData> m_DEBUG_MeshMarkers;
+		std::map<DatasetType, DatasetMarkerInstance> m_DefaultHoverMarkers;
+		std::map<DatasetType, DatasetMarkerInstance> m_DefaultSelectMarkers;
+		std::map<DatasetType, DatasetMarkerInstance> m_DEBUG_MeshMarkers;
 
-		// roots for each cloud of "paired markers" (= feature point pairs, correspondence point pairs); per dataset
-		// used to connect each cloud of markers to a specific viewport during rendering
-		std::map<DatasetType, CForge::SGNTransformation> m_FeatMarkerRoots;
-		std::map<DatasetType, CForge::SGNTransformation> m_CorrMarkerRoots;
-		
-		// lists existing markers per dataset (markers for simple vertex selection, feature points, correspondence points)
-		std::map<DatasetType, std::vector<MarkerSGData>> m_FeatMarkers;
-		std::map<DatasetType, std::vector<MarkerSGData>> m_CorrMarkers;
-		
-		// Lookup tables providing assignments: external ID -> internal marker ID for template (deformed template) and target
-		// NOTE: Only used for manual creation / removal of correspondence pairs; completely new correspondence configurations 
-		// (such as those created by the registration algorithm itself) will ignore these lookup tables and instead overwrite existing markers
-		std::map<size_t, size_t> m_TemplateFeatIDLookup, m_TargetFeatIDLookup;
-		std::map<size_t, size_t> m_TemplateCorrIDLookup, m_TargetCorrIDLookup;
-		
-		// lists free slots per vector in m_FeatMarkers and m_CorrMarkers; smallest index first; same free slots for a correspondence / feature point pair across all vectors
-		std::set<size_t> m_FreeFeatMarkersTemplate, m_FreeFeatMarkersTarget;
-		std::set<size_t> m_FreeCorrMarkersTemplate, m_FreeCorrMarkersTarget;
+		// Clouds of markers (here feature point markers, correspondence point markers) per dataset
+		std::map<DatasetType, DatasetMarkerCloud> m_FeatMarkerClouds;
+		std::map<DatasetType, DatasetMarkerCloud> m_CorrMarkerClouds;
 	};
 }
 

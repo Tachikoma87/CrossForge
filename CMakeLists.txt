@@ -169,11 +169,17 @@ add_executable(CForgeSandbox
 	Prototypes/Misc/IMUCameraController.cpp
 
 	Prototypes/Assets/GLTFIO.cpp
-		
+	
 	Prototypes/TemplateRegistration/TempRegAppState.cpp
-	Prototypes/TemplateRegistration/ViewportManager.cpp
+	Prototypes/TemplateRegistration/ViewportRenderManager.cpp
+	Prototypes/TemplateRegistration/ViewportInputManager.cpp
 	Prototypes/TemplateRegistration/GUIManager.cpp
-	Prototypes/TemplateRegistration/Dataset.cpp
+	Prototypes/TemplateRegistration/Dataset/DatasetGeometryData.cpp
+	Prototypes/TemplateRegistration/Dataset/DatasetDisplayData.cpp
+	Prototypes/TemplateRegistration/Dataset/DatasetActor.cpp
+	Prototypes/TemplateRegistration/Dataset/CorrespondenceStorage.cpp
+	Prototypes/TemplateRegistration/Dataset/Markers/DatasetMarkerInstance.cpp
+	Prototypes/TemplateRegistration/Dataset/Markers/DatasetMarkerCloud.cpp
 	)
 
 

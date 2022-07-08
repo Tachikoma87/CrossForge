@@ -7,8 +7,9 @@
 
 #include <imgui.h>
 
-#include "Dataset.h"
-#include "ViewportManager.h"
+#include "ViewportRenderManager.h"
+#include "Dataset/DatasetCommon.h"
+#include "Dataset/DatasetGeometryData.h"
 
 namespace TempReg {
 
@@ -18,7 +19,7 @@ namespace TempReg {
 		~GUIManager();
 
 		void init(void* pHandle, uint32_t RenderWinWidth, uint32_t RenderWinHeight);
-		void buildNextImGuiFrame(class TempRegAppState& GlobalAppState, ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries); //TODO
+		void buildNextImGuiFrame(class TempRegAppState& GlobalAppState, ViewportRenderManager& VPRMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries); //TODO
 		void renderImGuiFrame(const bool ClearBuffer);
 		void setRenderWinSize(uint32_t RenderWinWidth, uint32_t RenderWinHeight);
 
@@ -84,16 +85,16 @@ namespace TempReg {
 			//TODO: OverlayPopupState OverlayPopupState;
 		};
 
-		void buildMainMenuBar(ViewportManager& VPMgr); //TODO
-		void buildSideMenu(ViewportManager& VPMgr); //TODO
-		void buildViewportSection(ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries); //TODO
-		void buildViewportConfigPredefined(ViewportManager& VPMgr); //TODO
+		void buildMainMenuBar(ViewportRenderManager& VPRMgr); //TODO
+		void buildSideMenu(ViewportRenderManager& VPRMgr); //TODO
+		void buildViewportSection(ViewportRenderManager& VPRMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries); //TODO
+		void buildViewportConfigPredefined(ViewportRenderManager& VPRMgr); //TODO
 		void loadViewportOverlayStates(const std::vector<Vector4f>& Tiles);
 		void resizeActiveViewportOverlays(const std::vector<Vector4f>& Tiles);
-		void buildViewportOverlays(ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries);
+		void buildViewportOverlays(ViewportRenderManager& VPRMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries);
 		void buildNoViewportsInfo(ImVec2 PosCenter);
 		void buildViewportEmptyInfo(size_t ViewportIdx, ImVec2 PosCenter);
-		void buildViewportOverlayButtonPanel(size_t VPOverlayIdx, ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries); //TODO
+		void buildViewportOverlayButtonPanel(size_t VPOverlayIdx, ViewportRenderManager& VPRMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries); //TODO
 		
 		// Host window data
 

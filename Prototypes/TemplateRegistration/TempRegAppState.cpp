@@ -6,7 +6,7 @@
 
 namespace TempReg {
 	TempRegAppState::TempRegAppState(void) :
-		m_GuiCaptureMouse(false), m_GuiCaptureKeyboard(false), m_TakeScreenshot(false), m_glfwCursorLock(false),
+		m_VPInteractionMode(ViewportInteractionMode::VIEWING), m_GuiCaptureMouse(false), m_GuiCaptureKeyboard(false), m_TakeScreenshot(false), m_glfwCursorLock(false),
 		m_MouseBtnOldState{ false }, m_MouseBtnViewportFocus(-1) {
 
 	}//Constructor
@@ -29,74 +29,56 @@ namespace TempReg {
 		m_glfwCursorLock = false;
 	}//unlockCursor
 
-	void TempRegAppState::oldMouseButtonState(CForge::Mouse::Button Btn, bool Down) {
+	void TempRegAppState::prevMouseButtonState(CForge::Mouse::Button Btn, bool Down) {
 		if (Btn < CForge::Mouse::BTN_LEFT || Btn > CForge::Mouse::BTN_MIDDLE) throw IndexOutOfBoundsExcept("Btn");
 		m_MouseBtnOldState[Btn] = Down;
-	}//mouseButtonOldState
+	}//prevMouseButtonState
+
+	void TempRegAppState::viewportInteractionMode(ViewportInteractionMode Mode) {
+		m_VPInteractionMode = Mode;
+	}//viewportInteractionMode
 
 	void TempRegAppState::mouseButtonViewportFocus(int32_t VPIndex) {
 		m_MouseBtnViewportFocus = VPIndex;
 	}//mouseButtonViewportFocus
 
-	void TempRegAppState::currentMMBCursorPos(Vector2f Pos) {
+	void TempRegAppState::currMMBCursorPos(Vector2f Pos) {
 		m_CursorPosMMB = Pos;
-	}//currentMMBCursorPos
+	}//currMMBCursorPos
 
-	void TempRegAppState::oldMMBCursorPos(Vector2f Pos) {
+	void TempRegAppState::prevMMBCursorPos(Vector2f Pos) {
 		m_OldCursorPosMMB = Pos;
-	}//oldMMBCursorPos
+	}//prevMMBCursorPos
 
-	void TempRegAppState::currentPickResClick(PickingResult PickRes) {
-		m_PickResClick = PickRes;
-	}//currentPickResClick
+	void TempRegAppState::rayIntersectionResult(const RayIntersectionResult Res) {
+		m_RayIntersectRes = Res;
+	}//rayIntersectionResult
 
-	void TempRegAppState::oldPickResClick(PickingResult PickRes) {
-		m_OldPickResClick = PickRes;
-	}//oldPickResClick
+	//void TempRegAppState::rayIntersectionResult(DatasetType DT, DatasetGeometryType GT, int IntersectedFace, int IntersectedVertex, Vector3f IntersectionPos, Vector3f BarycentricCoords) {
+	//	m_RayIntersectRes.Dataset = DT;
+	//	m_RayIntersectRes.GeometryType = GT;
+	//	m_RayIntersectRes.Face = IntersectedFace;
+	//	m_RayIntersectRes.Vertex = IntersectedVertex;
+	//	m_RayIntersectRes.IntersectionPos = IntersectionPos;
+	//	m_RayIntersectRes.BarycentricCoords = BarycentricCoords;
+	//}//rayIntersectionResult
 
-	void TempRegAppState::currentPickResHover(PickingResult PickRes) {
-		m_PickResHover = PickRes;
-	}//currentPickResHover
+	void TempRegAppState::clearRayIntersectionResult(void) {
+		m_RayIntersectRes.Dataset = DatasetType::NONE;
+		m_RayIntersectRes.GeometryType = DatasetGeometryType::MESH;
+		m_RayIntersectRes.Face = -1;
+		m_RayIntersectRes.Vertex = -1;
+		m_RayIntersectRes.IntersectionPos = Vector3f::Zero();
+		m_RayIntersectRes.BarycentricCoords = Vector3f::Zero();
+	}//clearRayIntersectionResult
 
-	void TempRegAppState::oldPickResHover(PickingResult PickRes) {
-		m_OldPickResHover = PickRes;
-	}//oldPickResHover
+	void TempRegAppState::prevSelectRes(PickingResult Res) {
+		m_OldSelectRes = Res;
+	}//prevSelectRes
 
-	void TempRegAppState::manualCorrespondenceTemplate(size_t VertexID, CorrespondenceType CT) {
-		if (CT == CorrespondenceType::NONE) throw CForgeExcept("Invalid correspondence type");
-
-		m_ManualCorrespondence.TemplatePointUID = VertexID;
-		m_ManualCorrespondence.Type = CT;
-
-		m_ManualCorrTemplateReady = true;
-	}//manualCorrespondenceTemplate
-
-	void TempRegAppState::manualCorrespondenceTarget(int64_t VertexID) {
-		m_ManualCorrespondence.TargetPoint.UID = VertexID;
-		m_ManualCorrespondence.TargetPoint.IsVertex = true;
-		m_ManualCorrespondence.TargetPoint.Position = Vector3f::Zero();
-
-		m_ManualCorrTargetReady = true;
-	}//manualCorrespondenceTarget
-
-	void TempRegAppState::manualCorrespondenceTarget(Vector3f Position) {
-		m_ManualCorrespondence.TargetPoint.UID = 0;
-		m_ManualCorrespondence.TargetPoint.IsVertex = false;
-		m_ManualCorrespondence.TargetPoint.Position = Position;
-
-		m_ManualCorrTargetReady = true;
-	}//manualCorrespondenceTarget
-
-	void TempRegAppState::clearManualCorrespondence(void) {
-		m_ManualCorrespondence.TemplatePointUID = 0;
-		m_ManualCorrespondence.TargetPoint.UID = 0;
-		m_ManualCorrespondence.TargetPoint.IsVertex = false;
-		m_ManualCorrespondence.TargetPoint.Position = Vector3f::Zero();
-		m_ManualCorrespondence.Type = CorrespondenceType::NONE;
-
-		m_ManualCorrTemplateReady = false;
-		m_ManualCorrTargetReady = false;
-	}//clearManualCorrespondence
+	void TempRegAppState::prevHoverRes(PickingResult Res) {
+		m_OldHoverRes = Res;
+	}//prevHoverRes
 
 	bool TempRegAppState::mouseCapturedByGui(void) const {
 		return m_GuiCaptureMouse;
@@ -114,44 +96,36 @@ namespace TempReg {
 		return m_glfwCursorLock;
 	}//cursorLocked
 
-	bool TempRegAppState::oldMouseButtonState(CForge::Mouse::Button Btn) const {
+	bool TempRegAppState::prevMouseButtonState(CForge::Mouse::Button Btn) const {
 		if (Btn <= CForge::Mouse::BTN_UNKNOWN || Btn > CForge::Mouse::BTN_MIDDLE) throw IndexOutOfBoundsExcept("Btn");
 		return m_MouseBtnOldState[Btn];
-	}//mouseButtonOldState
+	}//prevMouseButtonState
+
+	ViewportInteractionMode TempRegAppState::viewportInteractionMode(void) const {
+		return m_VPInteractionMode;
+	}//viewportInteractionMode
 
 	int32_t TempRegAppState::mouseButtonViewportFocus(void) const {
 		return m_MouseBtnViewportFocus;
 	}//mouseButtonViewportFocus
 
-	Vector2f TempRegAppState::currentMMBCursorPos(void) const {
+	Vector2f TempRegAppState::currMMBCursorPos(void) const {
 		return m_CursorPosMMB;
-	}//currentMMBCursorPos
+	}//currMMBCursorPos
 
-	Vector2f TempRegAppState::oldMMBCursorPos(void) const {
+	Vector2f TempRegAppState::prevMMBCursorPos(void) const {
 		return m_OldCursorPosMMB;
-	}//oldMMBCursorPos
+	}//prevMMBCursorPos
 
-	PickingResult TempRegAppState::currentPickResClick(void) const {
-		return m_PickResClick;
-	}//currentPickResClick
+	const TempRegAppState::RayIntersectionResult& TempRegAppState::rayIntersectionResult(void) const {
+		return m_RayIntersectRes;
+	}//rayIntersectionResult
 
-	PickingResult TempRegAppState::oldPickResClick(void) const {
-		return m_OldPickResClick;
-	}//oldPickResClick
+	const TempRegAppState::PickingResult& TempRegAppState::prevSelectRes(void) const {
+		return m_OldSelectRes;
+	}//prevSelectRes
 
-	PickingResult TempRegAppState::currentPickResHover(void) const {
-		return m_PickResHover;
-	}//currentPickResHover
-
-	PickingResult TempRegAppState::oldPickResHover(void) const {
-		return m_OldPickResHover;
-	}//oldPickResHover
-
-	bool TempRegAppState::manualCorrespondenceReady(void) const {
-		return m_ManualCorrTemplateReady && m_ManualCorrTargetReady;
-	}//manualCorrespondenceReady
-
-	CorrespondencePair TempRegAppState::manualCorrespondence(void) const {
-		return m_ManualCorrespondence;
-	}//manualCorrespondence
+	const TempRegAppState::PickingResult& TempRegAppState::prevHoverRes(void) const {
+		return m_OldHoverRes;
+	}//prevHoverRes
 }

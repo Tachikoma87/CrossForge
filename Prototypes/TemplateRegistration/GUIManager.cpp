@@ -78,21 +78,21 @@ namespace TempReg {
 		val->back().ArrangementType = ViewportArrangementType::FOUR_EVEN;
 	}//init
 
-	void GUIManager::buildNextImGuiFrame(TempRegAppState& GlobalAppState, ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {
+	void GUIManager::buildNextImGuiFrame(TempRegAppState& GlobalAppState, ViewportRenderManager& VPRMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		// build gui windows & widgets based on GlobalAppState + ViewportManager...
+		// build gui windows & widgets based on GlobalAppState + ViewportRenderManager...
 		m_VPConfigState.OpenPredefConfigMenu = false;
 
-		buildMainMenuBar(VPMgr);
+		buildMainMenuBar(VPRMgr);
 		
-		buildViewportConfigPredefined(VPMgr);
+		buildViewportConfigPredefined(VPRMgr);
 
-		buildSideMenu(VPMgr);
+		buildSideMenu(VPRMgr);
 		
-		buildViewportSection(VPMgr, DatasetGeometries);
+		buildViewportSection(VPRMgr, DatasetGeometries);
 	}//buildNextImGuiFrame
 
 	void GUIManager::renderImGuiFrame(const bool ClearBuffer) {
@@ -107,7 +107,7 @@ namespace TempReg {
 		m_RenderWinSize[1] = RenderWinHeight;
 	}//setRenderWinSize
 
-	void GUIManager::buildMainMenuBar(ViewportManager& VPMgr) {//TODO
+	void GUIManager::buildMainMenuBar(ViewportRenderManager& VPRMgr) {//TODO
 		if (ImGui::BeginMainMenuBar()) {
 			
 			if (ImGui::BeginMenu("File")) {
@@ -129,7 +129,7 @@ namespace TempReg {
 		}
 	}//buildMainMenuBar
 
-	void GUIManager::buildSideMenu(ViewportManager& VPMgr) {//TODO
+	void GUIManager::buildSideMenu(ViewportRenderManager& VPRMgr) {//TODO
 		
 		m_SideMenuSize.y = (float)m_RenderWinSize[1] - m_MainMenuBarHeight;
 
@@ -189,7 +189,7 @@ namespace TempReg {
 		}		
 	}//buildSideMenu
 
-	void GUIManager::buildViewportSection(ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {
+	void GUIManager::buildViewportSection(ViewportRenderManager& VPRMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {
 
 		m_ViewportSectionArea(0) = 0.0f;
 		m_ViewportSectionArea(1) = 0.0f;
@@ -215,8 +215,8 @@ namespace TempReg {
 			int ArrTypeIdx = m_VPConfigState.ActiveVPArrType;
 			auto ArrangementType = m_VPConfigState.VPCountToArrangementData.at(VPCount)[ArrTypeIdx].ArrangementType;
 
-			const auto Tiles = VPMgr.calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
-			VPMgr.loadViewports(Tiles, DatasetGeometries);
+			const auto Tiles = VPRMgr.calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
+			VPRMgr.loadViewports(Tiles, DatasetGeometries);
 			loadViewportOverlayStates(Tiles);
 		}
 
@@ -228,19 +228,19 @@ namespace TempReg {
 				int ArrTypeIdx = m_VPConfigState.ActiveVPArrType;
 				auto ArrangementType = m_VPConfigState.VPCountToArrangementData.at(VPCount)[ArrTypeIdx].ArrangementType;
 
-				auto Tiles = VPMgr.calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
-				VPMgr.resizeActiveViewports(Tiles);
+				auto Tiles = VPRMgr.calculateViewportTiling(ArrangementType, m_ViewportSectionArea);
+				VPRMgr.resizeActiveViewports(Tiles);
 				resizeActiveViewportOverlays(Tiles);
 			}
 
-			buildViewportOverlays(VPMgr, DatasetGeometries);
+			buildViewportOverlays(VPRMgr, DatasetGeometries);
 		}
 
 		m_VPConfigState.LoadConfiguration = false;
 		m_SideMenuState.DisplayStateChanged = false;
 	}//buildViewportSection
 
-	void GUIManager::buildViewportConfigPredefined(ViewportManager& VPMgr) {//TODO
+	void GUIManager::buildViewportConfigPredefined(ViewportRenderManager& VPRMgr) {//TODO
 		
 		if (m_VPConfigState.OpenPredefConfigMenu)
 			ImGui::OpenPopup("Choose a predefined viewport arrangement");
@@ -437,14 +437,14 @@ namespace TempReg {
 		}
 	}//resizeActiveViewportOverlays
 
-	void GUIManager::buildViewportOverlays(ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {
+	void GUIManager::buildViewportOverlays(ViewportRenderManager& VPRMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {
 		
 		for (size_t i = 0; i < m_VPOStates.size(); ++i) {
 			
-			buildViewportOverlayButtonPanel(i, VPMgr, DatasetGeometries);
+			buildViewportOverlayButtonPanel(i, VPRMgr, DatasetGeometries);
 			
 			if (m_VPOStates[i].ViewportSceneEmpty) {
-				ImVec2 PosCenter(VPMgr.viewportCenter(i)(0), m_RenderWinSize[1] - VPMgr.viewportCenter(i)(1));
+				ImVec2 PosCenter(VPRMgr.viewportCenter(i)(0), m_RenderWinSize[1] - VPRMgr.viewportCenter(i)(1));
 				buildViewportEmptyInfo(i, PosCenter);
 			}
 		}
@@ -523,7 +523,7 @@ namespace TempReg {
 		ImGui::PopStyleColor();
 	}//buildViewportEmptyInfo
 
-	void GUIManager::buildViewportOverlayButtonPanel(size_t VPOverlayIdx, ViewportManager& VPMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {//TODO
+	void GUIManager::buildViewportOverlayButtonPanel(size_t VPOverlayIdx, ViewportRenderManager& VPRMgr, std::map<DatasetType, DatasetGeometryData>& DatasetGeometries) {//TODO
 
 		ImGuiWindowFlags WindowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground |
 			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
@@ -635,7 +635,7 @@ namespace TempReg {
 			if (ImGui::RadioButton("Solid Color", SelectedShadingMode == DatasetShadingMode::SOLID_COLOR)) {
 				SelectedShadingMode = DatasetShadingMode::SOLID_COLOR;
 				size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-				VPMgr.setSolidColorShading(VPIdx, SelectedDataset, true); //TODO: add color picker widget and pass chosen color to setSolidColorShading(...), add way to reset color of dataset back to default
+				VPRMgr.setSolidColorShading(VPIdx, SelectedDataset, true); //TODO: add color picker widget and pass chosen color to setSolidColorShading(...), add way to reset color of dataset back to default
 			}
 
 			if (SelectedDataset == DatasetType::NONE) {
@@ -664,7 +664,7 @@ namespace TempReg {
 				//TODO...
 				// -> get vertex hausdorff distances from registration module: 
 				//std::vector<Vector3f> HausdorffVals = ...
-				//VPMgr.setHausdorffDistColorShading(VPIdx, SelectedDataset, HausdorffVals);
+				//VPRMgr.setHausdorffDistColorShading(VPIdx, SelectedDataset, HausdorffVals);
 			}
 
 			//if (SelectedDataset == DatasetType::TARGET || SelectedDataset == DatasetType::NONE) //TODO
@@ -722,22 +722,22 @@ namespace TempReg {
 								
 					if (ImGui::Checkbox("Faces", &PrimitivesEnabled)) {
 						size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-						VPMgr.enablePrimitivesActor(VPIdx, SelectedDataset, PrimitivesEnabled);
+						VPRMgr.enablePrimitivesActor(VPIdx, SelectedDataset, PrimitivesEnabled);
 
 						if (WireframeEnabled) {
 							if (PrimitivesEnabled) {
 								Vector3f WireframeColor = Vector3f(0.0f, 0.0f, 0.0f);
-								VPMgr.setSolidColorShading(VPIdx, SelectedDataset, false, &WireframeColor);
+								VPRMgr.setSolidColorShading(VPIdx, SelectedDataset, false, &WireframeColor);
 							}
 							else {
 								if (SelectedShadingMode == DatasetShadingMode::SOLID_COLOR) {
-									VPMgr.setSolidColorShading(VPIdx, SelectedDataset, false);
+									VPRMgr.setSolidColorShading(VPIdx, SelectedDataset, false);
 								}
 								else { // SelectedShadingMode == DatasetShadingMode::HAUSDORFF_DISTANCE
 									//TODO...
 								// -> get vertex hausdorff distances from registration module: 
 								//std::vector<Vector3f> HausdorffVals = ...
-								//VPMgr.setHausdorffDistColorShading(VPIdx, SelectedDataset, HausdorffVals);
+								//VPRMgr.setHausdorffDistColorShading(VPIdx, SelectedDataset, HausdorffVals);
 								}
 							}
 						}
@@ -749,22 +749,22 @@ namespace TempReg {
 
 					if (ImGui::Checkbox("Wireframe", &WireframeEnabled)) {
 						size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-						VPMgr.enableWireframeActor(VPIdx, SelectedDataset, WireframeEnabled);
+						VPRMgr.enableWireframeActor(VPIdx, SelectedDataset, WireframeEnabled);
 
 						if (WireframeEnabled) {
 							if (PrimitivesEnabled) {
 								Vector3f WireframeColor = Vector3f(0.0f, 0.0f, 0.0f);
-								VPMgr.setSolidColorShading(VPIdx, SelectedDataset, false, &WireframeColor);
+								VPRMgr.setSolidColorShading(VPIdx, SelectedDataset, false, &WireframeColor);
 							}
 							else {
 								if (SelectedShadingMode == DatasetShadingMode::SOLID_COLOR) {
-									VPMgr.setSolidColorShading(VPIdx, SelectedDataset, false);
+									VPRMgr.setSolidColorShading(VPIdx, SelectedDataset, false);
 								}
 								else { // SelectedShadingMode == DatasetShadingMode::HAUSDORFF_DISTANCE
 									//TODO...
 								// -> get vertex hausdorff distances from registration module: 
 								//std::vector<Vector3f> HausdorffVals = ...
-								//VPMgr.setHausdorffDistColorShading(VPIdx, SelectedDataset, HausdorffVals);
+								//VPRMgr.setHausdorffDistColorShading(VPIdx, SelectedDataset, HausdorffVals);
 								}
 							}
 						}
@@ -788,16 +788,16 @@ namespace TempReg {
 			if (ImGui::MenuItem("Template", "", &ShowTemplate)) {
 				if (ShowTemplate) {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					VPMgr.showDatasetDisplayData(VPIdx, DatasetType::TEMPLATE, true);
-					if (VPMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
-					else VPMgr.arrangeDatasetDisplayDataLayered(VPIdx);
+					VPRMgr.showDatasetDisplayData(VPIdx, DatasetType::TEMPLATE, true);
+					if (VPRMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPRMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
+					else VPRMgr.arrangeDatasetDisplayDataLayered(VPIdx);
 					m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = false;
 				}
 				else {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					VPMgr.showDatasetDisplayData(VPIdx, DatasetType::TEMPLATE, false);
-					if (VPMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
-					else VPMgr.arrangeDatasetDisplayDataLayered(VPIdx);
+					VPRMgr.showDatasetDisplayData(VPIdx, DatasetType::TEMPLATE, false);
+					if (VPRMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPRMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
+					else VPRMgr.arrangeDatasetDisplayDataLayered(VPIdx);
 
 					if (m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset == DatasetType::TEMPLATE)
 						m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset = DatasetType::NONE;
@@ -809,16 +809,16 @@ namespace TempReg {
 			if (ImGui::MenuItem("Deformed Template", "", &ShowDTemplate)) {
 				if (ShowDTemplate) {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					VPMgr.showDatasetDisplayData(VPIdx, DatasetType::DTEMPLATE, true);
-					if (VPMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
-					else VPMgr.arrangeDatasetDisplayDataLayered(VPIdx);
+					VPRMgr.showDatasetDisplayData(VPIdx, DatasetType::DTEMPLATE, true);
+					if (VPRMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPRMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
+					else VPRMgr.arrangeDatasetDisplayDataLayered(VPIdx);
 					m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = false;
 				}
 				else {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					VPMgr.showDatasetDisplayData(VPIdx, DatasetType::DTEMPLATE, false);
-					if (VPMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
-					else VPMgr.arrangeDatasetDisplayDataLayered(VPIdx);
+					VPRMgr.showDatasetDisplayData(VPIdx, DatasetType::DTEMPLATE, false);
+					if (VPRMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPRMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
+					else VPRMgr.arrangeDatasetDisplayDataLayered(VPIdx);
 
 					if (m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset == DatasetType::DTEMPLATE)
 						m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset = DatasetType::NONE;
@@ -830,18 +830,18 @@ namespace TempReg {
 			if (ImGui::MenuItem("Target", "", &ShowTarget)) {
 				if (ShowTarget) {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
-					VPMgr.showDatasetDisplayData(VPIdx, DatasetType::TARGET, true);
-					if (VPMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
-					else VPMgr.arrangeDatasetDisplayDataLayered(VPIdx);
+					VPRMgr.showDatasetDisplayData(VPIdx, DatasetType::TARGET, true);
+					if (VPRMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPRMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
+					else VPRMgr.arrangeDatasetDisplayDataLayered(VPIdx);
 					m_VPOStates[VPOverlayIdx].ViewportSceneEmpty = false;
 
 				}
 				else {
 					size_t VPIdx = m_VPOStates[VPOverlayIdx].ViewportIdx;
 
-					VPMgr.showDatasetDisplayData(VPIdx, DatasetType::TARGET, false);
-					if (VPMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
-					else VPMgr.arrangeDatasetDisplayDataLayered(VPIdx);
+					VPRMgr.showDatasetDisplayData(VPIdx, DatasetType::TARGET, false);
+					if (VPRMgr.activeDatasetDisplayDataArrangement(VPIdx) == DisplayDataArrangementMode::SIDE_BY_SIDE) VPRMgr.arrangeDatasetDisplayDataSideBySide(VPIdx);
+					else VPRMgr.arrangeDatasetDisplayDataLayered(VPIdx);
 
 					if (m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset == DatasetType::TARGET)
 						m_VPOStates[VPOverlayIdx].ShadingPopupState.SelectedDataset = DatasetType::NONE;
