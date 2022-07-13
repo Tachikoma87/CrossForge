@@ -32,9 +32,11 @@ namespace CForge {
 		
 		static bool insideAABB(T3DMesh<float>::AABB BoundingBox, Eigen::Vector3f Vertex);
 		static void releaseOctree(octreeNode* root);
-		static void createOctree(octreeNode* pNode, Eigen::MatrixXd* DV, std::vector<std::vector<octreeNode*>>* depthNodes);
-		static bool decimateOctree(Eigen::MatrixXd& DV, Eigen::MatrixXi& DF, Eigen::VectorXi* DuF, Eigen::VectorXi* DuV, uint32_t faceAmount);
-		static std::vector<uint32_t> joinPoints(Eigen::MatrixXd* DV, Eigen::MatrixXi* DF, const std::vector<uint32_t>& targets);
+		static void createOctree(octreeNode* pNode, Eigen::MatrixXd* DV, std::vector<std::unordered_map<octreeNode*,bool>>* depthNodes);
+		static bool decimateOctree(Eigen::MatrixXd& DV, Eigen::MatrixXi& DF, Eigen::VectorXi* DuF, Eigen::VectorXi* DuV,
+		                           uint32_t faceAmount, std::vector<std::vector<uint32_t>*> DVnoMulUsedInTri);
+		static void joinPoints(Eigen::MatrixXd* DV, Eigen::MatrixXi* DF, const std::vector<uint32_t>& targets,
+		                       const std::vector<std::vector<uint32_t>*>& DVnoMulUsedInTri, std::vector<uint32_t>* removedFaces);
 
 		MeshDecimator(void);
 		~MeshDecimator(void);

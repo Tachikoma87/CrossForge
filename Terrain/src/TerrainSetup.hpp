@@ -25,9 +25,9 @@
 
 using namespace CForge;
 float CAM_FOV = 90.0;
-int WINWIDTH = 1280;
-int WINHEIGHT = 720;
-#define FULLSCREEN true
+int WINWIDTH = 1920;
+int WINHEIGHT = 1080;
+#define FULLSCREEN false
 float cameraPanSpeed = 1.0;
 
 namespace Terrain {
