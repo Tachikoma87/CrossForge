@@ -2,10 +2,26 @@
 #include "../CForge/AssetIO/SAssetIO.h"
 #include <chrono>
 #include <iostream>
+#include <unordered_map>
+#include <functional>
 
 using namespace Eigen;
 
 namespace CForge {
+
+	template <typename Scalar, int Rows, int Cols>
+	struct std::hash<Eigen::Matrix<Scalar, Rows, Cols>> {
+		// https://wjngkoh.wordpress.com/2015/03/04/c-hash-function-for-eigen-matrix-and-vector/
+		size_t operator()(const Eigen::Matrix<Scalar, Rows, Cols>& matrix) const {
+			size_t seed = 0;
+			for (size_t i = 0; i < matrix.size(); ++i) {
+				Scalar elem = *(matrix.data() + i);
+				seed ^=
+					std::hash<Scalar>()(elem) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+			}
+			return seed;
+		}
+	};
 	
 	// TODO replace std::vector<std::vector<>> with std::vector<std::vector<>*>
 	// TODO inMesh zu const& machen // cleanup split funcs
@@ -31,17 +47,17 @@ namespace CForge {
 		std::vector<std::vector<uint32_t>> vertUsedInTri;
 		vertUsedInTri.resize(DV.rows());
 		
-		std::vector<std::vector<uint32_t>> submeshTriangles; // contains Triangle IDs
+		std::vector<std::unordered_map<uint32_t,bool>> submeshTriangles; // contains Triangle IDs
 		// add all faces from submeshes
 		uint32_t startIndex = 0;
 		for (uint32_t i = 0; i < inMesh->submeshCount(); i++) {
 			const CForge::T3DMesh<float>::Submesh* submesh = inMesh->getSubmesh(i);
-			std::vector<uint32_t> triIdx;
+			std::unordered_map<uint32_t,bool> triIdx;
 			
 			auto faces = submesh->Faces;
 			
 			for (uint32_t j = 0; j < faces.size(); j++) {
-				triIdx.push_back(startIndex + j);
+				triIdx[startIndex + j] = true;
 				Eigen::Vector3i subMVert(faces[j].Vertices[0], faces[j].Vertices[1], faces[j].Vertices[2]);
 				for (uint8_t k = 0; k < 3; k++) {
 					vertUsedInTri[faces[j].Vertices[k]].push_back(startIndex + j);
@@ -56,18 +72,35 @@ namespace CForge {
 		//std::cout << "DV\n" << DV << "\n";
 		//std::cout << "DF\n" << DF << "\n";
 		
+		// datastructure for faster octree decimation
+		std::vector<std::vector<uint32_t>*> DVnoMulUsedInTri;
+		
 		// merge points together
 		std::vector<Eigen::Vector3d> DVnoMulVec;
+		std::unordered_map<Eigen::Vector3d, uint32_t> DVnoMulVecMap;
+		uint32_t index = 0;
+		
 		for (uint32_t i = 0; i < DV.rows(); i++) {
 			
 			Eigen::Vector3d vert = DV.row(i);
-			int32_t idx = DVnoMulVec.size();
-			auto itr = std::find(DVnoMulVec.begin(), DVnoMulVec.end(), vert);
-			if (itr == DVnoMulVec.end()) { // vertex not contained, create new index
+			int32_t idx;// = DVnoMulVec.size();
+			auto itr = DVnoMulVecMap.find(vert);
+			//auto itr = std::find(DVnoMulVec.begin(), DVnoMulVec.end(), vert);
+			if (itr == DVnoMulVecMap.end()) { // vertex not contained, create new index
+				DVnoMulVecMap[vert] = index;
 				DVnoMulVec.push_back(vert);
-				idx = DVnoMulVec.size() - 1;
-			} else
-				idx = itr - DVnoMulVec.begin();
+				idx = index;//DVnoMulVec.size() - 1;
+				
+				std::vector<uint32_t>* newVec = new std::vector<uint32_t>(vertUsedInTri[i]);
+				DVnoMulUsedInTri.push_back(newVec);
+				index++;
+			}
+			else {
+				idx = DVnoMulVecMap[vert]; //itr - DVnoMulVec.begin();
+				int a = 1;
+				std::vector<uint32_t>* vec = DVnoMulUsedInTri[idx];
+				vec->insert(vec->end(), vertUsedInTri[i].begin(), vertUsedInTri[i].end());
+			}
 			
 			// reindex face
 			for (uint32_t triIdx : vertUsedInTri[i]) {
@@ -87,7 +120,7 @@ namespace CForge {
 		//std::cout << "DV\n" << DV << "\n";
 		//std::cout << "DF\n" << DF << "\n";
 		//bool iglDecRes = igl::decimate(DVnoMul, DF, amount*DF.rows(), DVnoMul, DF, DuF, DuV);
-		bool iglDecRes = decimateOctree(DVnoMul, DF, &DuF, &DuV, amount*DF.rows());
+		bool iglDecRes = decimateOctree(DVnoMul, DF, &DuF, &DuV, amount*DF.rows(), DVnoMulUsedInTri);
 		if (!iglDecRes) {
 			std::cout << "an error occured while decimating!\n";
 			//std::exit(-1);
@@ -130,16 +163,23 @@ namespace CForge {
 			std::vector<uint32_t> faces; // list of triangle IDs of Decimated Mesh corresponding to submesh
 			uint32_t newTriAmount = 0;
 			// only add used faces
-			for (uint32_t j = 0; j < submeshTriangles[i].size(); j++) {
-				uint32_t triID = submeshTriangles[i][j];
-				for (uint32_t k = 0; k < DuF.size(); k++) {
-					if (DuF[k] == triID) {
-						faces.push_back(triID);
-						newTriAmount++;
-						break;
-					}
-				} // for used tris
-			} // for old submesh tris
+			for (uint32_t k = 0; k < DuF.size(); k++) {
+				
+				auto itr = submeshTriangles[i].find(DuF[k]);
+				if (itr != submeshTriangles[i].end()) {
+					faces.push_back(DuF[k]);
+					newTriAmount++;
+				}
+				
+				//for (uint32_t j = 0; j < submeshTriangles[i].size(); j++) {
+				//	uint32_t triID = submeshTriangles[i][j];
+				//	if (DuF[k] == triID) {
+				//		faces.push_back(triID);
+				//		newTriAmount++;
+				//		break;
+				//	}
+				//} // for old submesh tris
+			} // for used tris
 			
 			std::vector<std::vector<Eigen::Vector4i>> newUVWs; //TODO rename newUVs conflict
 			
@@ -193,6 +233,10 @@ namespace CForge {
 		outMesh->textureCoordinates(&newUVs);
 		outMesh->colors(&newColors);
 		
+		for (uint32_t i = 0; i < DVnoMulUsedInTri.size(); i++) {
+			delete DVnoMulUsedInTri[i];
+		}
+		
 		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() -start).count();
 		std::cout << "Decimation Finished, time took: " << double(microseconds)*0.001 << "ms \n";
 		return true;
@@ -214,7 +258,7 @@ namespace CForge {
 		delete root;
 	}
 
-	void MeshDecimator::createOctree(octreeNode* pNode, Eigen::MatrixXd* DV, std::vector<std::vector<octreeNode*>>* depthNodes) {
+	void MeshDecimator::createOctree(octreeNode* pNode, Eigen::MatrixXd* DV, std::vector<std::unordered_map<octreeNode*,bool>>* depthNodes) {
 		// Proposed steps for creating the octree.
 		// Step 1: Create all 8 AABBs of the respective octants
 		Vector3f Maxs[8];
@@ -269,8 +313,8 @@ namespace CForge {
 		for (uint8_t i = 0; i < 8; ++i) {
 			if (pNode->childs[i]->VertexIDs.size() != 0) {
 				while (depthNodes->size() < pNode->childs[i]->depth)
-					depthNodes->push_back(std::vector<octreeNode*>()); // TODO this does not look safe, pls change
-				depthNodes->at(pNode->childs[i]->depth - 1).push_back(pNode->childs[i]);
+					depthNodes->push_back(std::unordered_map<octreeNode*,bool>()); // TODO this does not look safe, pls change
+				depthNodes->at(pNode->childs[i]->depth - 1)[pNode->childs[i]] = true;
 			}
 		}//for[octants]
 
@@ -290,14 +334,15 @@ namespace CForge {
 	}
 
 
-	bool MeshDecimator::decimateOctree(Eigen::MatrixXd& DV, Eigen::MatrixXi& DF, Eigen::VectorXi* DuF, Eigen::VectorXi* DuV, uint32_t faceAmount) {
+	bool MeshDecimator::decimateOctree(Eigen::MatrixXd& DV, Eigen::MatrixXi& DF, Eigen::VectorXi* DuF, Eigen::VectorXi* DuV, uint32_t faceAmount, std::vector<std::vector<uint32_t>*> DVnoMulUsedInTri) {
 		if (DV.size() == 0 || DF.size() == 0)
 			return false;
 
 		uint32_t removeFaceCount = 0;
 		std::vector<uint32_t> facesToRemove;
+		std::unordered_map<uint32_t, bool> facesToRemoveMap;
 		std::vector<uint32_t> pointsToRemove;
-		std::vector<std::vector<octreeNode*>> depthNodes;
+		std::vector<std::unordered_map<octreeNode*,bool>> depthNodes;
 
 		printf("building Tree\n");
 		// construct octree
@@ -325,8 +370,13 @@ namespace CForge {
 			printf("\r");
 			printf("%.1f", removeFaceCount/progressDiff*100.0);
 			// get last largest depth node
-			std::vector<octreeNode*>* largestDepth = &(depthNodes.back());
-			octreeNode* parent = largestDepth->at(0)->parent;
+			std::unordered_map<octreeNode*,bool>* largestDepth = &(depthNodes.back());
+			
+			//auto itr = largestDepth->begin(); // the first element seems random enough? xd
+			//std::advance(itr, rand()%largestDepth->size());
+			octreeNode* parent = largestDepth->begin()->first->parent;
+			
+			//octreeNode* parent = largestDepth->at(rand()%largestDepth->size())->parent; // pick a random child to make decimation uniform
 			if (!parent)
 				break;
 			//largestDepth->pop_back();
@@ -342,7 +392,8 @@ namespace CForge {
 						targetPoints.push_back(vertID);
 					}
 					// remove child pointer from depth list
-					largestDepth->erase(std::remove(largestDepth->begin(), largestDepth->end(), child), largestDepth->end());
+					//largestDepth->erase(std::remove(largestDepth->begin(), largestDepth->end(), child), largestDepth->end());
+					largestDepth->erase(child);
 
 					delete child;
 					parent->childs[i] = nullptr;
@@ -351,9 +402,16 @@ namespace CForge {
 
 			pointsToRemove.insert(std::end(pointsToRemove), std::next(std::begin(targetPoints)), std::end(targetPoints));
 			
-			std::vector<uint32_t> addedFaces = joinPoints(&DV, &DF, targetPoints);
-			facesToRemove.insert(std::end(facesToRemove), std::begin(addedFaces), std::end(addedFaces));
-			removeFaceCount = facesToRemove.size();
+			std::vector<uint32_t> addedFaces;
+			joinPoints(&DV, &DF, targetPoints, DVnoMulUsedInTri, &addedFaces);
+			for (uint32_t i = 0; i < addedFaces.size(); i++) {
+				facesToRemoveMap[addedFaces[i]] = true;
+			}
+			removeFaceCount += addedFaces.size();
+			
+			// old concat
+			//facesToRemove.insert(std::end(facesToRemove), std::begin(addedFaces), std::end(addedFaces));
+			//removeFaceCount = facesToRemove.size();
 
 			// push back new node
 			parent->VertexIDs.push_back(targetPoints[0]);
@@ -367,8 +425,11 @@ namespace CForge {
 		std::vector<uint32_t> DuFVec;
 		// remove faces from DF
 		for (uint32_t i = 0; i < DF.rows(); i++) {
-			if (std::find(facesToRemove.begin(), facesToRemove.end(), i) == facesToRemove.end())
+			auto itr = facesToRemoveMap.find(i);
+			if (itr == facesToRemoveMap.end())
 				DuFVec.push_back(i);
+			//if (std::find(facesToRemove.begin(), facesToRemove.end(), i) == facesToRemove.end())
+			//	DuFVec.push_back(i);
 		}
 		Eigen::MatrixXi newDF = Eigen::MatrixXi(DuFVec.size(), 3);
 		*DuF = Eigen::VectorXi(DuFVec.size());
@@ -383,9 +444,13 @@ namespace CForge {
 		// TODO redo same with points // TODO check if necessary
 		// free octree
 		for (uint32_t i = 0; i < depthNodes.size(); i++) {
-			for (uint32_t j = 0; j < depthNodes[i].size(); j++) {
-				delete depthNodes[i][j];
+			for (auto& itr : depthNodes[i]) {
+				delete itr.first;
 			}
+			
+			//for (uint32_t j = 0; j < depthNodes[i].size(); j++) {
+			//	delete depthNodes[i][j];
+			//}
 		}
 		delete Root;
 		//releaseOctree(Root);
@@ -393,9 +458,10 @@ namespace CForge {
 	}
 
 	// merges points and returns vector of faces to remove
-	std::vector<uint32_t> MeshDecimator::joinPoints(Eigen::MatrixXd* DV, Eigen::MatrixXi* DF, const std::vector<uint32_t>& targets) {
+	void MeshDecimator::joinPoints(Eigen::MatrixXd* DV, Eigen::MatrixXi* DF, const std::vector<uint32_t>& targets,
+	                               const std::vector<std::vector<uint32_t>*>& DVnoMulUsedInTri, std::vector<uint32_t>* removedFaces) {
 
-		std::vector<uint32_t> removedFaces;
+		//std::vector<uint32_t> removedFaces;
 		// calculate new Point position
 		Eigen::Vector3f newPoint = Eigen::Vector3f::Zero();
 		for (uint32_t i = 0; i < targets.size(); i++) {
@@ -408,15 +474,57 @@ namespace CForge {
 		//for (uint32_t i = 0; i < targets.size(); i++) {
 		//	DV->row(targets[i]) = newPoint.cast<double>();
 		//}
-
+		
+		
+#if true
+		for (uint32_t i = 0; i < targets.size(); i++) {
+			std::vector<uint32_t>* triangles = DVnoMulUsedInTri[targets[i]];
+			for (uint32_t j = 0; j < triangles->size(); j++) {
+				for (uint8_t k = 0; k < 3; k++) {
+					if (DF->row(triangles->at(j))[k] == targets[i])
+						DF->row(triangles->at(j))[k] = targets[0];
+				}
+			}
+		}
+		// check which triangles got removed
+		for (uint32_t i = 0; i < targets.size(); i++) {
+			std::vector<uint32_t>* triangles = DVnoMulUsedInTri[targets[i]];
+			for (uint32_t j = 0; j < triangles->size(); j++) {
+				Eigen::Vector3i tri = DF->row(triangles->at(j));
+				bool contained = tri[0] == tri[1] // if at least one vertex is doubled remove tri
+				              || tri[1] == tri[2]
+				              || tri[2] == tri[0];
+				bool triple = tri[0] == tri[1] && tri[1] == tri[2] && tri[0] == tri[2];
+				if (contained) {
+					if (!triple) { // keep vertices outside targets in mind
+						uint32_t index = tri[0] == tri[1] ? tri[2] : (tri[1] == tri[2] ? tri[0] : tri[1]);
+						std::vector<uint32_t>* outsideVert = DVnoMulUsedInTri[index];
+						std::vector<uint32_t>::iterator it = std::find(outsideVert->begin(), outsideVert->end(), triangles->at(j));
+						if(it != outsideVert->end())
+							outsideVert->erase(it);
+					}
+					if (std::find(removedFaces->begin(), removedFaces->end(), triangles->at(j)) == removedFaces->end())
+						removedFaces->push_back(triangles->at(j));
+					triangles->erase(triangles->begin()+j);
+					j--;
+				}
+			}
+		}
+		for (uint32_t i = 1; i < targets.size(); i++) {
+			std::vector<uint32_t>* triangles = DVnoMulUsedInTri[targets[i]];
+			std::vector<uint32_t>* vec = DVnoMulUsedInTri[targets[0]];
+			vec->insert(vec->end(), triangles->begin(), triangles->end());
+			DVnoMulUsedInTri[targets[i]]->clear(); // empty
+		}
+#else
 		// TODO make search faster by using bidirectional ref vert to tri
 		for (uint32_t i = 0; i < DF->rows(); i++) {
 			// check if tri contains more than 2 points in targets
-			Eigen::Vector3i tri = DF->row(i);
+			//Eigen::Vector3i tri = DF->row(i);
 
 			uint8_t contained = 0;
 			for (uint8_t j = 0; j < 3; j++) {
-				if (std::find(targets.begin(), targets.end(), tri[j]) != targets.end()) {
+				if (std::find(targets.begin(), targets.end(), DF->row(i)[j]) != targets.end()) {
 					// new point is in tri contained
 					contained++;
 					// point index to first target (new index of merged point)
@@ -432,8 +540,8 @@ namespace CForge {
 				removedFaces.push_back(i);
 			}
 		}
-
-		return removedFaces;
+#endif
+		//return removedFaces;
 	}
 
 	MeshDecimator::MeshDecimator(void) {

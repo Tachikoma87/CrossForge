@@ -194,7 +194,8 @@ namespace CForge {
 		std::vector<LODActor*> museumActors;
 		std::vector<SGNGeometry*> museumSGNG;
 		std::vector<SGNTransformation*> museumSGNT;
-		
+
+		bool Wireframe = false;
 		uint32_t modelAmount = 0;
 		std::string path = "museumAssets/";
 		for (const auto& entry : std::filesystem::directory_iterator(path)) {
@@ -248,6 +249,8 @@ namespace CForge {
 		initPPQuad(&ppquad);
 		
 		T2DImage<uint8_t> shadowBufTex;
+
+		bool renderLODAABB = true;
 		
 		while (!RenderWin.shutdown()) {
 			RDev.clearBuffer();
@@ -255,6 +258,12 @@ namespace CForge {
 			pSLOD->update();
 			SG.update(1.0f);
 
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
+				Wireframe = !Wireframe;
+			}
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
+				renderLODAABB = !renderLODAABB;
+			}
 			Keyboard* pKeyboard = RenderWin.keyboard();
 			float Step = (pKeyboard->keyState(Keyboard::KEY_Q) == 0) ? 0.1f : 1.0f;
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(),0.4*Step,1.0,1.0f / pSLOD->getDeltaTime());
@@ -274,28 +283,34 @@ namespace CForge {
 			glEnable(GL_CULL_FACE);
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			if (Wireframe) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glLineWidth(1);
+			}
 			RDev.LODSG_render();
-
+			if (Wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 			
 			//render debug aabb
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			glDisable(GL_CULL_FACE);
-			glLineWidth(2);
-			for (uint32_t i = 0; i < RDev.getLODSGActors().size(); i++) {
-				if (RDev.getLODSGActors()[i]->className().compare("IRenderableActor::LODActor") == 0) {
-					LODActor* act = (LODActor*) RDev.getLODSGActors()[i];
-					uint8_t lvl = act->getLODLevel();
-					glColorMask(lvl&1,lvl&2,lvl&4,GL_TRUE);
-					RDev.setModelMatrix(RDev.getLODSGTrans()[i]);
-					act->renderAABB(&RDev);
+			if (renderLODAABB) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glDisable(GL_CULL_FACE);
+				glLineWidth(2);
+				for (uint32_t i = 0; i < RDev.getLODSGActors().size(); i++) {
+					if (RDev.getLODSGActors()[i]->className().compare("IRenderableActor::LODActor") == 0) {
+						LODActor* act = (LODActor*) RDev.getLODSGActors()[i];
+						uint8_t lvl = act->getLODLevel();
+						glColorMask(lvl&4,lvl&2,lvl&1,GL_TRUE);
+						RDev.setModelMatrix(RDev.getLODSGTrans()[i]);
+						act->renderAABB(&RDev);
+					}
 				}
+				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+				glEnable(GL_CULL_FACE);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
-			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-			glEnable(GL_CULL_FACE);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			
 			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
 			ppquad.render(&RDev);
