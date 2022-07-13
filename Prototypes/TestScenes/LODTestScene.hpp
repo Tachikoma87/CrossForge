@@ -38,7 +38,7 @@
 
 #include "../Actor/LODActor.h"
 
-#include "../LODHandler.h"
+//#include "../LODHandler.h"
 #include "../SLOD.h"
 #include "../MeshDecimate.h"
 #include <chrono>
@@ -49,6 +49,38 @@ using namespace std;
 
 namespace CForge {
 
+	void initPPQuad2(ScreenQuad *quad) {
+		vector<ShaderCode *> vsSources;
+		vector<ShaderCode *> fsSources;
+		string errorLog;
+
+		SShaderManager *shaderManager = SShaderManager::instance();
+		vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "420 core",
+			0, "", ""));
+
+		"";
+		const char* fragmentShaderSource = "#version 420 core\n"
+			"layout (std140) uniform CameraData{			 \n"
+			"mat4 ViewMatrix;								 \n"
+			"mat4 ProjectionMatrix;							 \n"
+			"vec4 Position;									 \n"
+			"}Camera;										 \n"
+			"layout(binding=0) uniform sampler2D texColor;	 \n"
+			"layout(binding=1) uniform sampler2D texPosition;\n"
+			"layout(binding=2) uniform sampler2D texNormal;	 \n"
+			"in vec2 TexCoords;\n"
+			"out vec4 FragColor;\n"
+			"void main()\n"
+			"{\n"
+			"	FragColor = vec4(vec3(texture(texColor, TexCoords)), 1.0);\n"
+			"}\n\0";
+		fsSources.push_back(shaderManager->createShaderCode(fragmentShaderSource, "420 core",
+			0, "", ""));
+		GLShader *quadShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
+		shaderManager->release();
+
+		quad->init(0, 0, 1, 1, quadShader);
+	}
 	//void setMeshShader(T3DMesh<float>* pM, float Roughness, float Metallic) {
 	//	for (uint32_t i = 0; i < pM->materialCount(); ++i) {
 	//		T3DMesh<float>::Material* pMat = pM->getMaterial(i);
@@ -129,12 +161,12 @@ namespace CForge {
 		LODActor Cube;
 
 		T3DMesh<float> M;
-		LODHandler lodHandler;
+		//LODHandler lodHandler;
 
 		//SAssetIO::load("Assets/tree0.obj", &M);
 		//lodHandler.generateLODmodels("Assets/tree0.obj");
 		
-		SAssetIO::load("Assets/mirror/mirror.obj", &M);
+		//SAssetIO::load("Assets/mirror/mirror.obj", &M);
 		//T3DMesh<float> M2;
 
 		//SGNGeometry MirrorSGN;
@@ -144,7 +176,7 @@ namespace CForge {
 		//Mirror2.init(&M2);
 		
 		//SAssetIO::load("Assets/blub/blub.obj", &M); // complexMan, blub/blub
-		//SAssetIO::load("Assets/man/cube.obj", &M);
+		SAssetIO::load("museumAssets/Dragon_0.1.obj", &M);
 		//lodHandler.generateLODmodels("Assets/testMeshOut.obj");
 		//SAssetIO::load("Assets/cubeSep.obj", &M);
 		//lodHandler.generateLODmodels("Assets/cubeSep.obj");
@@ -181,6 +213,8 @@ namespace CForge {
 		glLineWidth(GLfloat(1.0f));
 		
 		uint32_t cubeLODlevel = 0;
+		ScreenQuad ppquad;
+		initPPQuad2(&ppquad);
 		
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
@@ -238,6 +272,9 @@ namespace CForge {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+
+			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
+			ppquad.render(&RDev);
 
 			RenderWin.swapBuffers();
 
