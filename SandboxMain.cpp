@@ -99,9 +99,9 @@ int main(int argc, char* argv[]) {
 		SLogger::logException(e);
 		printf("Exception occurred. See Log.");
 	}
-	catch (...) {
+	/*catch (...) {
 		printf("A not handled exception occurred!\n");
-	}
+	}*/
 
 	if(nullptr != pDev) pDev->release();
 	

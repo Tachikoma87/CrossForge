@@ -39,7 +39,7 @@ namespace CForge {
 		*/
 		struct Face {
 			int32_t Vertices[3];
-
+			
 			Face(void) {
 				CoreUtility::memset(Vertices, -1, 3);
 			}

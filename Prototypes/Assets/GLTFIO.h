@@ -19,9 +19,11 @@
 #define __CFORGE_GLTFIO_H__
 
 #include "../../CForge/AssetIO/I3DMeshIO.h"
+#include <tiny_gltf.h>
+
 
 namespace CForge {
-	class GLTFIO {
+class GLTFIO {
 	public:
 		GLTFIO(void);
 		~GLTFIO(void);
@@ -30,10 +32,101 @@ namespace CForge {
 		void store(const std::string Filepath, const T3DMesh<float>* pMesh);
 		
 		void release(void);
-		bool accepted(const std::string Filepath, I3DMeshIO::Operation Op);
+		static bool accepted(const std::string Filepath, I3DMeshIO::Operation Op);
+
+		static int componentCount(const int type);
+
+		static int sizeOfGltfComponentType(const int componentType);
 
 	protected:
+		std::string filePath;
 
+		tinygltf::Model model;
+		T3DMesh<float>* pMesh;
+
+		// Data for every primitive is stored in a separate vector.
+		
+		std::vector<Eigen::Matrix<float, 3, 1>> coord;
+		std::vector<Eigen::Matrix<float, 3, 1>> normal;
+		std::vector<Eigen::Matrix<float, 3, 1>> tangent;
+		std::vector<Eigen::Matrix<float, 3, 1>> texCoord;
+		std::vector<Eigen::Matrix<float, 4, 1>> color;
+		std::vector<Eigen::Matrix<float, 4, 1>> joint;
+		std::vector<Eigen::Matrix<float, 4, 1>> weight;
+
+		std::vector<unsigned long> offsets;
+		unsigned long materialIndex;
+
+		template<class T>
+		void getAccessorDataScalar(const int accessor, std::vector<T>* pData) {
+			Accessor acc = model.accessors[accessor];
+			BufferView buffView = model.bufferViews[acc.bufferView];
+			Buffer buff = model.buffers[buffView.buffer];
+
+			if (acc.type != TINYGLTF_TYPE_SCALAR) {
+				std::cout << "accessor should be scalar" << std::endl;
+				return;
+			};
+
+			int typeSize = sizeOfGltfComponentType(acc.componentType);
+
+			T* raw_data = (T*)buff.data.data();
+
+			for (int i = 0; i < acc.count; i++) {
+				int index = buffView.byteOffset / typeSize + acc.byteOffset / typeSize + i;
+
+				pData->push_back(raw_data[index]);
+			}
+		}
+
+		template<class T>
+		void getAccessorData(const int accessor, std::vector<std::vector<T>>* pData) {
+			Accessor acc = model.accessors[accessor];
+			BufferView buffView = model.bufferViews[acc.bufferView];
+			Buffer buff = model.buffers[buffView.buffer];
+
+			if (acc.type == TINYGLTF_TYPE_SCALAR) {
+				std::cout << "accessor should not be scalar" << std::endl;
+				return;
+			};
+
+			int typeSize = sizeOfGltfComponentType(acc.componentType);
+
+			if (typeSize != sizeof(T)) {
+				std::cout << "component type does not match vector type!" << std::endl;
+			}
+
+			int nComponents = componentCount(acc.type);
+
+			T* raw_data = (T*)buff.data.data();
+
+			for (int i = 0; i < acc.count; i++) {
+				std::vector<T>* toAdd = new std::vector<T>;
+
+				int index = buffView.byteOffset / typeSize + acc.byteOffset / typeSize + i * nComponents;
+
+				for (int k = 0; k < nComponents; k++) {
+					toAdd->push_back(raw_data[index + k]);
+				}
+				pData->push_back(*toAdd);
+			}
+		}
+
+		void readMeshes();
+
+		void readPrimitive(tinygltf::Primitive* pPrimitive);
+
+		void readAttributes(tinygltf::Primitive* pPrimitive);
+
+		void writeSubMeshes(tinygltf::Primitive* pPrimitive);
+		
+		void readFaces(tinygltf::Primitive* pPrimitive, std::vector<T3DMesh<float>::Face>* faces);
+
+		void readMaterial(const int materialIndex, T3DMesh<float>::Material* pMaterial);
+
+		std::string getTexturePath(const int textureIndex);
+
+		void readSkeletalAnimations();
 	};//GLTFIO
 
 }//name space
