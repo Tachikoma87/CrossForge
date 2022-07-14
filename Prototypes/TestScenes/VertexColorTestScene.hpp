@@ -125,7 +125,11 @@ namespace CForge {
 		// initialize skeletal actor (Eric) and its animation controller
 		T3DMesh<float> SkelAnim;
 		SAssetIO::load("Assets/tmp/mbmalerigmusclessym.fbx", &M);
-		SAssetIO::load("Assets/tmp/animation_scaled.fbx", &SkelAnim);
+		//SAssetIO::load("Assets/tmp/animation_scaled.fbx", &SkelAnim);
+		//SAssetIO::load("MyAssets/animation_scaled.glb", &SkelAnim);
+		SAssetIO::load("MyAssets/Kniebeuge falsch-001.bvh", &SkelAnim);
+
+
 
 		M.clearSkeletalAnimations();
 		M.addSkeletalAnimation(SkelAnim.getSkeletalAnimation(0), true);
@@ -211,12 +215,13 @@ namespace CForge {
 
 			// if user hits key 1, animation will be played
 			// if user also presses shift, animation speed is doubled
-			float AnimationSpeed = 1.0f;
+			float AnimationSpeed = 1.0f; // 1000.0f / 24.0f;
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed = 2.0f;
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 				SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
 				Eric.activeAnimation(pAnim);
 			}
+
 
 			// interpolate color
 			float Alpha = float(CoreUtility::timestamp() - LastColorChange) / 2500.0f;
