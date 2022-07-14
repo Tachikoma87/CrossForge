@@ -118,11 +118,13 @@ class GLTFIO {
 
 		void readAttributes(tinygltf::Primitive* pPrimitive);
 
-		void writeSubMeshes(tinygltf::Primitive* pPrimitive);
+		void readSubMeshes(tinygltf::Primitive* pPrimitive);
 		
 		void readFaces(tinygltf::Primitive* pPrimitive, std::vector<T3DMesh<float>::Face>* faces);
 
 		void readMaterial(const int materialIndex, T3DMesh<float>::Material* pMaterial);
+
+		void readNodes(std::vector<T3DMesh<float>::Bone*>* pBones);
 
 		std::string getTexturePath(const int textureIndex);
 

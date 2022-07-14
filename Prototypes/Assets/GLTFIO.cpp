@@ -152,7 +152,7 @@ namespace CForge {
 	void GLTFIO::readPrimitive(Primitive* pPrimitive) {
 		readAttributes(pPrimitive);
 
-		writeSubMeshes(pPrimitive);
+		readSubMeshes(pPrimitive);
 	}
 
 	void GLTFIO::readAttributes(Primitive* pPrimitive) {
@@ -164,13 +164,13 @@ namespace CForge {
 				getAccessorData(keyValuePair.second, &positions);
 
 				for (auto pos : positions) {
-					Eigen::Matrix<float, 3, 1>* mat = new Eigen::Matrix<float, 3, 1>;
+					Eigen::Matrix<float, 3, 1> mat;
 
-					mat[0][0] = pos[0];
-					mat[0][1] = pos[1];
-					mat[0][2] = pos[2];
+					mat(0) = pos[0];
+					mat(1) = pos[1];
+					mat(2) = pos[2];
 
-					coord.push_back(*mat);
+					coord.push_back(mat);
 
 					counter++;
 				}
@@ -183,13 +183,13 @@ namespace CForge {
 				getAccessorData(keyValuePair.second, &normals);
 
 				for (auto pos : normals) {
-					Eigen::Matrix<float, 3, 1>* mat = new Eigen::Matrix<float, 3, 1>;
+					Eigen::Matrix<float, 3, 1> mat;
 
-					mat[0][0] = pos[0];
-					mat[0][1] = pos[1];
-					mat[0][2] = pos[2];
+					mat(0) = pos[0];
+					mat(1) = pos[1];
+					mat(2) = pos[2];
 
-					normal.push_back(*mat);
+					normal.push_back(mat);
 				}
 
 				continue;
@@ -200,13 +200,13 @@ namespace CForge {
 				getAccessorData(keyValuePair.second, &tangents);
 
 				for (auto pos : tangents) {
-					Eigen::Matrix<float, 3, 1>* mat = new Eigen::Matrix<float, 3, 1>;
+					Eigen::Matrix<float, 3, 1> mat;
 
-					mat[0][0] = pos[0];
-					mat[0][1] = pos[1];
-					mat[0][2] = pos[2];
+					mat(0) = pos[0];
+					mat(1) = pos[1];
+					mat(2) = pos[2];
 
-					tangent.push_back(*mat);
+					tangent.push_back(mat);
 				}
 
 				continue;
@@ -226,12 +226,12 @@ namespace CForge {
 				getAccessorData(keyValuePair.second, &texcoords);
 
 				for (auto pos : texcoords) {
-					Eigen::Matrix<float, 3, 1>* mat = new Eigen::Matrix<float, 3, 1>;
+					Eigen::Matrix<float, 3, 1> mat;
 
-					mat[0][0] = pos[0];
-					mat[0][1] = pos[1];
+					mat(0) = pos[0];
+					mat(1) = pos[1];
 
-					texCoord.push_back(*mat);
+					texCoord.push_back(mat);
 				}
 
 				continue;
@@ -251,14 +251,14 @@ namespace CForge {
 				getAccessorData(keyValuePair.second, &texcoords);
 
 				for (auto pos : texcoords) {
-					Eigen::Matrix<float, 4, 1>* mat = new Eigen::Matrix<float, 4, 1>;
+					Eigen::Matrix<float, 4, 1> mat;
 
-					mat[0][0] = pos[0];
-					mat[0][1] = pos[1];
-					mat[0][2] = pos[2];
-					mat[0][3] = pos[3];
+					mat(0) = pos[0];
+					mat(1) = pos[1];
+					mat(2) = pos[2];
+					mat(3) = pos[3];
 
-					joint.push_back(*mat);
+					joint.push_back(mat);
 				}
 
 				continue;
@@ -278,14 +278,14 @@ namespace CForge {
 				getAccessorData(keyValuePair.second, &texcoords);
 
 				for (auto pos : texcoords) {
-					Eigen::Matrix<float, 4, 1>* mat = new Eigen::Matrix<float, 4, 1>;
+					Eigen::Matrix<float, 4, 1> mat;
 
-					mat[0][0] = pos[0];
-					mat[0][1] = pos[1];
-					mat[0][2] = pos[2];
-					mat[0][3] = pos[3];
+					mat(0) = pos[0];
+					mat(1) = pos[1];
+					mat(2) = pos[2];
+					mat(3) = pos[3];
 
-					weight.push_back(*mat);
+					weight.push_back(mat);
 				}
 
 				continue;
@@ -305,24 +305,26 @@ namespace CForge {
 				getAccessorData(keyValuePair.second, &texcoords);
 
 				for (auto pos : texcoords) {
-					Eigen::Matrix<float, 4, 1>* mat = new Eigen::Matrix<float, 4, 1>;
+					Eigen::Matrix<float, 4, 1> mat;
 
-					mat[0][0] = pos[0];
-					mat[0][1] = pos[1];
-					mat[0][2] = pos[2];
-					mat[0][3] = pos[3];
+					mat(0) = pos[0];
+					mat(1) = pos[1];
+					mat(2) = pos[2];
+					mat(3) = pos[3];
 
-					color.push_back(*mat);
+					color.push_back(mat);
 				}
 
 				continue;
 			}
 		}//for attributes
 
+		for (int i = normal.size(); i < coord.size(); i++) normal.push_back(*(new Eigen::Matrix<float, 3, 1>));
+
 		offsets.push_back(counter);
 	}
 
-	void GLTFIO::writeSubMeshes(Primitive* pPrimitive) {
+	void GLTFIO::readSubMeshes(Primitive* pPrimitive) {
 		T3DMesh<float>::Submesh* pSubMesh = new T3DMesh<float>::Submesh;
 
 		std::vector<T3DMesh<float>::Face> faces;
@@ -401,14 +403,12 @@ namespace CForge {
 		pMaterial->Roughness = gltfMaterial.pbrMetallicRoughness.roughnessFactor;
 
 
-		Eigen::Vector4f* pCol = new Eigen::Vector4f;
+		pMaterial->Color[0] = gltfMaterial.pbrMetallicRoughness.baseColorFactor[0];
+		pMaterial->Color[1] = gltfMaterial.pbrMetallicRoughness.baseColorFactor[1];
+		pMaterial->Color[2] = gltfMaterial.pbrMetallicRoughness.baseColorFactor[2];
+		pMaterial->Color[3] = gltfMaterial.pbrMetallicRoughness.baseColorFactor[3];
 
-		(*pCol)[0] = gltfMaterial.pbrMetallicRoughness.baseColorFactor[0];
-		(*pCol)[1] = gltfMaterial.pbrMetallicRoughness.baseColorFactor[1];
-		(*pCol)[2] = gltfMaterial.pbrMetallicRoughness.baseColorFactor[2];
-		(*pCol)[3] = gltfMaterial.pbrMetallicRoughness.baseColorFactor[3];
-
-		pMaterial->Color = *pCol;
+		
 
 		pMaterial->TexAlbedo = getTexturePath(gltfMaterial.pbrMetallicRoughness.baseColorTexture.index);
 		pMaterial->TexNormal = getTexturePath(gltfMaterial.normalTexture.index);
@@ -428,7 +428,47 @@ namespace CForge {
 	}
 
 	void GLTFIO::readSkeletalAnimations() {
-		
+		std::vector<T3DMesh<float>::Bone*>* pBones = new std::vector<T3DMesh<float>::Bone*>;
+
+		readNodes(pBones);
+
+		pMesh->bones(pBones, false);
+	}
+
+	void GLTFIO::readNodes(std::vector<T3DMesh<float>::Bone*>* pBones) {
+		for (int i = 0; i < model.nodes.size(); i++) {
+			Node node = model.nodes[i];
+
+			T3DMesh<float>::Bone* pBone = new T3DMesh<float>::Bone;
+			pBone->ID = i;
+
+			pBone->Name = node.name;
+
+			if (node.translation.size() > 0) {
+				pBone->Position(0) = node.translation[0];
+				pBone->Position(1) = node.translation[1];
+				pBone->Position(2) = node.translation[2];
+			}
+			
+			pBones->push_back(pBone);
+		}
+
+
+		// Do a second pass to link all bones together.
+
+		for (int i = 0; i < model.nodes.size(); i++) {
+			std::vector<T3DMesh<float>::Bone*> children;
+
+			auto pBone = pBones->at(i);
+
+			for (auto c : model.nodes[i].children) {
+				auto pChild = pBones->at(c);
+				pChild->pParent = pBones->at(i);
+				children.push_back(pBones->at(c));
+			}
+
+			pBone->Children = children;
+		}
 	}
 
 	int GLTFIO::sizeOfGltfComponentType(const int componentType) {
