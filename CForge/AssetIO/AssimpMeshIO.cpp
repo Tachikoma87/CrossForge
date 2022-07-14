@@ -32,7 +32,10 @@ namespace CForge {
 	void AssimpMeshIO::load(const std::string Filepath, T3DMesh<float> *pMesh){
 		const aiScene *pScene = m_Importer.ReadFile(Filepath, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_LimitBoneWeights | aiProcess_OptimizeGraph | aiProcess_ValidateDataStructure);
 
-		if (nullptr == pScene) throw CForgeExcept("Failed to load model from resource " + Filepath);
+		if (nullptr == pScene) {
+			std::string ErrorMsg = m_Importer.GetErrorString();
+			throw CForgeExcept("Failed to load model from resource " + Filepath + "\n\t" + ErrorMsg);		
+		}
 
 		try {
 			aiSceneTo3DMesh(pScene, pMesh, File::removeFilename(Filepath));
@@ -265,7 +268,7 @@ namespace CForge {
 			pSkelAnim->Name = pAnim->mName.C_Str();
 
 			// create keyframe for every bone
-			for (uint32_t k = 0; k < /*Bones.size()*/ pAnim->mNumChannels; k++) {
+			for (uint32_t k = 0; k < std::max((uint32_t)Bones.size(), pAnim->mNumChannels); k++) {
 				pSkelAnim->Keyframes.push_back(new T3DMesh<float>::BoneKeyframes());
 				pSkelAnim->Keyframes[k]->ID = k;
 			}//for[all bones]

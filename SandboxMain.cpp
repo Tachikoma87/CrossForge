@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 
 	try {
 		//exampleMinimumGraphicsSetup();
-		//exampleSkeletalAnimation();
+		exampleSkeletalAnimation();
 		//exampleMorphTargetAnimation(); 
 		//exampleSkybox();
 		//exampleMultiViewport();
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
 		//assetGLTFTestScene();
 		//anotherTestScene();	
 		//normalMappingTestScene();
-		surfaceSamplerTestScene();
+		//surfaceSamplerTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

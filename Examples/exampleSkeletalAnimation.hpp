@@ -164,13 +164,13 @@ namespace CForge {
 			SG.update(60.0f/FPS);
 
 			// this will progress all active skeletal animations for this controller
-			Controller.update(FPS / 60.0f);
+			Controller.update(60.0f/FPS);
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
 
 			// if user hits key 1, animation will be played
 			// if user also presses shift, animation speed is doubled
-			float AnimationSpeed = 1.0f;
+			float AnimationSpeed = 1000/60.0f;
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
