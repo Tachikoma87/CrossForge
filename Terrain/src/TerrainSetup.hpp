@@ -568,12 +568,24 @@ namespace Terrain {
         form->setStepSize(7, 1.0f);
         form->setDefault(7, 90);
 
-//         FormWidget* form2 = gui.createOptionsWindow(U"Test", 42);
-//         form2->startListening(&callbacktest);
-//         form2->addOption(1, INPUTTYPE_RANGESLIDER, U"Slider Test");
-//         form2->setLimit(1, 10.0f);
-//         form2->setStepSize(1, 0.3f);
-//         form2->setDefault(1, 1.5f);
+        FormWidget* form2 = gui.createOptionsWindow(U"Test", 42);
+        form2->startListening(&callbacktest);
+//         form2->addOption(1, INPUTTYPE_INT, U"InputNumberWidget");
+//         form2->setLimit(1, 10);
+//         form2->addOption(2, INPUTTYPE_BOOL, U"InputCheckboxWidget");
+//         form2->addOption(3, INPUTTYPE_STRING, U"InputTextWidget");
+//         form2->setLimit(3, 5);
+//         form2->setDefault(3, std::u32string(U"Text"));
+//         form2->addOption(5, INPUTTYPE_RANGESLIDER, U"InputSliderWidget");
+//         form2->setLimit(5, 10);
+//         form2->setStepSize(5, 0.3f);
+//         form2->setDefault(5, 1.5f);
+        form2->addOption(4, INPUTTYPE_DROPDOWN, U"InputDropDownWidget");
+        std::map<int, std::u32string> testDropdown;
+        testDropdown[1] = U"First Option";
+        testDropdown[2] = U"Second Option";
+        testDropdown[3] = U"Third Option";
+        form2->setDropDownOptions(4, testDropdown);
 
         //fps counter
         TextWidget* fpsWidget = gui.createPlainText();
