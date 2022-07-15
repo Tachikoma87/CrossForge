@@ -7,8 +7,6 @@
 
 using namespace Eigen;
 
-namespace CForge {
-
 	template <typename Scalar, int Rows, int Cols>
 	struct std::hash<Eigen::Matrix<Scalar, Rows, Cols>> {
 		// https://wjngkoh.wordpress.com/2015/03/04/c-hash-function-for-eigen-matrix-and-vector/
@@ -22,6 +20,10 @@ namespace CForge {
 			return seed;
 		}
 	};
+
+namespace CForge {
+
+
 	
 	// TODO replace std::vector<std::vector<>> with std::vector<std::vector<>*>
 	// TODO inMesh zu const& machen // cleanup split funcs
