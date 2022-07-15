@@ -123,7 +123,7 @@ void LabelWidget::setLimit(int lower, int higher)
             (*(InputTextWidget*)m_pInput).setLimit(lower, higher);
             break;
         case INPUTTYPE_RANGESLIDER:
-            (*(InputNumberWidget*)m_pInput).setLimit(lower, higher);
+            (*(InputSliderWidget*)m_pInput).setLimit(lower, higher);
             break;
         /*case INPUTTYPE_DROPDOWN:
             //A dropdown is limited by its given options instead

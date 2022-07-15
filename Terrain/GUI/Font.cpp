@@ -4,6 +4,9 @@
 #include <string>
 #include <math.h>
 
+#include <iostream>
+#include <fstream>
+
 #include <glad/glad.h>
 #include "CForge/Graphics/Shader/GLShader.h"
 #include <CForge/Graphics/GLVertexArray.h>
@@ -291,12 +294,15 @@ void FontFace::prepareCharMap()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    delete[] mapBuffer;
-
     //output glyph map to check alignment
 //     CForge::T2DImage<uint8_t> glyphMapImage;
 //     CForge::GraphicsUtility::retrieveColorTexture(textureID, &glyphMapImage);
 //     CForge::AssetIO::store("Assets/font.png", &glyphMapImage);
+    std::ofstream binFile("font.bin", std::ios::out | std::ios::binary);
+    binFile.write((char*)mapBuffer, mapWidth*mapHeight);
+    binFile.close();
+
+    delete[] mapBuffer;
 }
 
 glyph_t FontFace::getGlyph(char32_t character)
