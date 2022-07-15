@@ -126,7 +126,7 @@ void InputNumberWidget::onKeyPress(char32_t character)
         enteredNumber *= -1;
         m_negativeInput = false;
     }
-    if (newValue > 0) {
+    if (newValue >= 0) {
         newValue = newValue * 10 + enteredNumber;
     } else {
         newValue = newValue * 10 - enteredNumber;
