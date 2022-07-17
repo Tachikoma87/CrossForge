@@ -20,7 +20,7 @@ using namespace CForge;
 namespace Terrain {
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
-                    DirectionalLight *light) {
+                    DirectionalLight *light, float nearPlane, float farPlane) {
         uint32_t winWidth = 5120 / 2 / 2;
         uint32_t winHeight = 1440 / 2;
 
@@ -59,14 +59,14 @@ namespace Terrain {
 
         camera->init(Vector3f(.0f, 400.0f, 100.0f), Vector3f::UnitY());
         camera->pitch(GraphicsUtility::degToRad(-15.0f));
-        camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 5000.0f);
+        camera->projectionMatrix(winWidth, winHeight, GraphicsUtility::degToRad(45.0f), nearPlane, farPlane);
         renderDevice->activeCamera(camera);
 
         Vector3f sunPos = Vector3f(400.0f, 400.0f, 400.0f);
         sun->init(sunPos, (-sunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 7.5f);
-        auto projection = GraphicsUtility::perspectiveProjection(winWidth, winHeight, GraphicsUtility::degToRad(45.0f),  1.0f, 1000.0f);
+        auto projection = GraphicsUtility::perspectiveProjection(winWidth, winHeight, GraphicsUtility::degToRad(45.0f),  nearPlane, farPlane);
         const uint32_t ShadowMapDim = 512;
-        sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(400, 400), 1.0f, 1000.0f);
+        sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(400, 400), nearPlane, farPlane);
         renderDevice->addLight(sun);
 
         Vector3f lightPos = Vector3f(-400.0f, 200.0f, -400.0f);
@@ -97,7 +97,7 @@ namespace Terrain {
 
         float MovementScale = 0.1f;
         if (keyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) || keyboard->keyPressed(Keyboard::KEY_RIGHT_SHIFT)) {
-            MovementScale = 0.3f;
+            MovementScale = 2.0f;
         }
         if (keyboard->keyPressed(Keyboard::KEY_Q)) {
             MovementScale = 0.02f;
@@ -288,6 +288,7 @@ namespace Terrain {
         }
     }
 
+
     void loadNewDekoObjects(bool generateNew, DekoMesh &PineMesh, DekoMesh &PineLeavesMesh, DekoMesh &PalmMesh, DekoMesh &PalmLeavesMesh, DekoMesh &TreeMesh, DekoMesh &TreeLeavesMesh, DekoMesh &GrassMesh, DekoMesh &RockMesh, DekoMesh& BushMesh) {
         if (generateNew) {
             TreeGenerator::generateTrees(TreeGenerator::Needle, 1, "Assets/needleTree");
@@ -376,7 +377,7 @@ namespace Terrain {
         bool generateNew = false;
         bool renderGrass = false;
         bool renderOcean = true;
-        bool oceanOnly = true;
+        bool oceanOnly = false;
 
         float cameraHeight = 2;
 
@@ -385,14 +386,13 @@ namespace Terrain {
             return;
         }
 
-
-
-
         GLWindow window;
         RenderDevice renderDevice;
         VirtualCamera camera;
         DirectionalLight sun, light;
-        initCForge(&window, &renderDevice, &camera, &sun, &light);
+        float nearPlane = 1.0f;
+        float farPlane = 5000.0f;
+        initCForge(&window, &renderDevice, &camera, &sun, &light, nearPlane, farPlane);
 
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);
@@ -412,16 +412,21 @@ namespace Terrain {
 
         SceneGraph sceneGraph;
 
-    
-        OceanSimulation oceanSimulation(256, 1000, 40, Vector2f(1.0f, 1.0f), 40);
-        OceanObject oceanObject(256);
-
+        OceanSimulation oceanSimulation(256, 500, 40, Vector2f(1.0f, 1.0f), 50);
+        OceanObject oceanObject(256, 100, 3, 1, 1, 1, 10, nearPlane, farPlane);
+        OceanSimulation::eTextures selectedTexture = OceanSimulation::DISPLACEMENT;
+        bool pause = false;
 
         oceanSimulation.initOceanSimulation();
         oceanObject.init();
 
-        /*
+        //renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+        //oceanObject.attatchBuffer();
 
+
+
+
+        /*
         DekoMesh PineMesh;
         InstanceActor iPineActor;
         DekoMesh PineLeavesMesh;
@@ -471,7 +476,6 @@ namespace Terrain {
         */
         srand((unsigned int)time(NULL));
         
-
         sceneGraph.init(&rootTransform);
 
         ScreenQuad quad;
@@ -576,6 +580,9 @@ namespace Terrain {
             renderDevice.requestRendering(&Skybox, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
 
             if (renderOcean) {
+                renderDevice.gBuffer()->blitDepthBuffer(5120 / 4, 1440 / 2);
+                oceanObject.copyFBO(renderDevice.gBuffer()->retrieveFrameBuffer(), 5120 / 4, 1440 / 2);
+
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -586,10 +593,14 @@ namespace Terrain {
                 }
 
 
-                oceanSimulation.updateWaterSimulation(current_ticks / 60.0 / 100);
+                oceanSimulation.updateWaterSimulation(current_ticks / (float)CLOCKS_PER_SEC / 5 * (pause ? 0 : 1));
                 glDisable(GL_CULL_FACE);
+
+               
+
                 glBindImageTexture(0, oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-                oceanObject.render(&renderDevice);
+                glBindImageTexture(1, oceanSimulation.mTextures[oceanSimulation.NORMALS], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+                oceanObject.render(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC / 25 * (pause ? 0 : 1));
                 glEnable(GL_CULL_FACE);
 
                 if (wireframe) {
@@ -602,12 +613,11 @@ namespace Terrain {
             if (debugTexture) {
                 glActiveTexture(GL_TEXTURE0);
                 map.bindTexture();
-                glBindTexture(GL_TEXTURE_2D, oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT]);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                glBindTexture(GL_TEXTURE_2D, oceanSimulation.mTextures[selectedTexture]);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 quad.render(&renderDevice);
             }
-
 
             window.swapBuffers();
 
@@ -618,6 +628,24 @@ namespace Terrain {
                                          map.getHeightAt(camera.position().x(), camera.position().z()) + cameraHeight,
                                          camera.position().z()));
             }
+
+            if (window.keyboard()->keyPressed(Keyboard::KEY_1)) {
+                window.keyboard()->keyState(Keyboard::KEY_1, Keyboard::KEY_RELEASED);
+                selectedTexture = OceanSimulation::H0;
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_2)) {
+                window.keyboard()->keyState(Keyboard::KEY_2, Keyboard::KEY_RELEASED);
+                selectedTexture = OceanSimulation::DISPLACEMENT;
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_3)) {
+                window.keyboard()->keyState(Keyboard::KEY_3, Keyboard::KEY_RELEASED);
+                selectedTexture = OceanSimulation::NORMALS;
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_P)) {
+                window.keyboard()->keyState(Keyboard::KEY_P, Keyboard::KEY_RELEASED);
+                pause = !pause;
+            }
+
 
             if (window.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
                 window.closeWindow();

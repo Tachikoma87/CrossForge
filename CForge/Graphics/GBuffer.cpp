@@ -52,12 +52,24 @@ namespace CForge {
 		glBindTexture(GL_TEXTURE_2D, m_TexAlbedo);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_TexAlbedo, 0);
 
 		uint32_t Attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 		glDrawBuffers(3, Attachments);
+		
+		// create texture for depth/stencil data
+		glGenTextures(1, &m_TexDepth);
+		glBindTexture(GL_TEXTURE_2D, m_TexDepth);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_Width, m_Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_TexDepth, 0);
 
+
+		/*
 		// generate Renerbuffer
 		glGenRenderbuffers(1, &m_Renderbuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, m_Renderbuffer);
@@ -65,8 +77,10 @@ namespace CForge {
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_Renderbuffer);
+		*/
 
-		if (GL_FRAMEBUFFER_COMPLETE != glCheckFramebufferStatus(GL_FRAMEBUFFER)) throw CForgeExcept("Generating framebuffer for gBuffer failed!");
+
+		//if (GL_FRAMEBUFFER_COMPLETE != glCheckFramebufferStatus(GL_FRAMEBUFFER)) throw CForgeExcept("Generating framebuffer for gBuffer failed!");
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}//initialize
@@ -156,5 +170,9 @@ namespace CForge {
 		delete[] pBuffer;
 
 	}//retrieveAlbedoBuffer
+
+	uint32_t GBuffer::retrieveFrameBuffer() {
+		return m_Framebuffer;
+	}
 
 }//name space

@@ -3,11 +3,11 @@
 #define M_G 9.81
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
-layout(rgba32f, binding = 0) uniform image2D textureHdx;
-layout(rgba32f, binding = 1) uniform image2D textureHdy;
-layout(rgba32f, binding = 2) uniform image2D textureHdz;
-layout(rgba32f, binding = 3) uniform image2D textureH0;
-layout(rgba32f, binding = 4) uniform image2D textureH0inverse;
+layout(rgba32f, binding = 0) uniform image2D textureHDX_HDZ;
+layout(rgba32f, binding = 1) uniform image2D textureHDY_DXZ;
+layout(rgba32f, binding = 2) uniform image2D textureDYX_DYZ;
+layout(rgba32f, binding = 3) uniform image2D textureDXX_DZZ;
+layout(rgba32f, binding = 4) uniform image2D textureH0;
 
 uniform int gridSize;
 uniform int horizontalDimension;
@@ -51,7 +51,7 @@ void main()
 	float w = sqrt(mag * M_G);
 
 	vec2 h0 = imageLoad(textureH0, pixel_pos).rg;
-	vec2 h0inverse = imageLoad(textureH0inverse, pixel_pos).rg;
+	vec2 h0inverse = imageLoad(textureH0, pixel_pos).ba;
 
 	complex fourier_cmp = complex(h0.x, h0.y);
 	complex fourier_cmp_conj = conj(complex(h0inverse.x, h0inverse.y));
@@ -62,17 +62,27 @@ void main()
 	complex exp_iwt = complex(cos_w_t, sin_w_t);
 	complex exp_iwt_inv = complex(cos_w_t, -sin_w_t);
 
-	complex h_k_t_dy = add(mul(fourier_cmp, exp_iwt), mul(fourier_cmp_conj, exp_iwt_inv));
+	complex dy = add(mul(fourier_cmp, exp_iwt), mul(fourier_cmp_conj, exp_iwt_inv));
+	complex dx = mul(complex(0.0, -k.x / mag), dy);
+	complex dz = mul(complex(0.0, -k.y / mag), dy);
 
-	complex dx = complex(0.0, -k.x / mag);
-	complex h_k_t_dx = mul(dx, h_k_t_dy);
+	complex dxz = mul(complex(-k.x * k.y / mag, 0.0), dy);
 
-	complex dy = complex(0.0, -k.y / mag);
-	complex h_k_t_dz = mul(dy, h_k_t_dy);
+	complex dyx = mul(complex(0.0, k.x), dy);
+	complex dyz = mul(complex(0.0, k.y), dy);
+	complex dxx = mul(complex(-k.x * k.x / mag, 0.0), dy);
+	complex dzz = mul(complex(-k.y * k.y / mag, 0.0), dy);
 
-	imageStore(textureHdy, pixel_pos, vec4(h_k_t_dy.real, h_k_t_dy.im, 0, 1));
 	
-	imageStore(textureHdx, pixel_pos, vec4(h_k_t_dx.real, h_k_t_dx.im, 0, 1));
+	imageStore(textureHDX_HDZ, pixel_pos, vec4(dx.real, dx.im, dz.real, dz.im));
+	imageStore(textureHDY_DXZ, pixel_pos, vec4(dy.real, dy.im, dxz.real, dxz.im));
+	imageStore(textureDYX_DYZ, pixel_pos, vec4(dyx.real, dyx.im, dyz.real, dyz.im));
+	imageStore(textureDXX_DZZ, pixel_pos, vec4(dxx.real, dxx.im, dzz.real, dzz.im));
 	
-	imageStore(textureHdz, pixel_pos, vec4(h_k_t_dz.real, h_k_t_dz.im, 0, 1));
+	/*
+	imageStore(textureHDX_HDZ, pixel_pos, vec4(dx.real - dz.im, 0, dz.real + dx.im, 0));
+	imageStore(textureHDY_DXZ, pixel_pos, vec4(dy.real - dxz.im, 0, dxz.real + dy.im, 0));
+	imageStore(textureDYX_DYZ, pixel_pos, vec4(dyx.real - dyz.im, 0, dyz.real + dyx.im, 0));
+	imageStore(textureDXX_DZZ, pixel_pos, vec4(dxx.real - dzz.im, 0, dzz.real + dxx.im, 0));
+	*/
 }

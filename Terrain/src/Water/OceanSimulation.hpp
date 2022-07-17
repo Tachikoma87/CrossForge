@@ -9,6 +9,7 @@
 #include <iostream>
 #include "./OceanObject.hpp"
 
+
 using namespace CForge;
 using namespace std;
 
@@ -33,12 +34,13 @@ public:
 		mWindVelocity = windVelocity;
 	}
 
+
 	enum eTextures {
 		H0,
-		H0_INVERSE,
-		Hdx,
-		Hdy,
-		Hdz,
+		HDX_HDZ,
+		HDY_DXZ,
+		DYX_DYZ,
+		DXX_DZZ,
 		TWIDDLE_INDICES,
 		DISPLACEMENT,
 		NORMALS,
@@ -64,15 +66,16 @@ public:
 		// calc H(k, t)
 		updateHdTexture(timeCount);
 
-		for (int i = Hdx; i <= Hdz; i++) {
+		for (int i = HDX_HDZ; i <= HDY_DXZ; i++) {
 			// reverse fft calculation
+			mPingPong = 0;
 			butterflyOperation(i);
 			// final height displacement
 			calcDisplacement(i);
 		}
+
+		calcNormals();
 	}
-
-
 
 private:
 	GLShader* mPreCompShader;
@@ -80,6 +83,7 @@ private:
 	GLShader* mButterFlyTextureShader;
 	GLShader* mButterFlyShader;
 	GLShader* mInversionShader;
+	GLShader* mNormalsShader;
 
 	GLuint mBitReversedIndices;
 
@@ -114,17 +118,35 @@ private:
 		csSources.clear();
 		csSources.push_back(shaderManager->createShaderCode("Shader/InversionShader.comp", "430", 0, "", ""));
 		mInversionShader = shaderManager->buildComputeShader(&csSources, &errorLog);
+		csSources.clear();
+		csSources.push_back(shaderManager->createShaderCode("Shader/CalcNormals.comp", "430", 0, "", ""));
+		mNormalsShader = shaderManager->buildComputeShader(&csSources, &errorLog);
 		shaderManager->release();
 	}
 
+
+
 	void initTextures() {
+		std:vector<float> randomBuffer;
+		std::default_random_engine generator;
+		std::normal_distribution<float> d(0, 1);
+		for (int i = 0; i < mGridSize * mGridSize * 4; i++) {
+			randomBuffer.push_back(d(generator));
+		}
+
+
 		for (int i = 0; i < TEXTURES_AMOUNT; i++) {
 			glGenTextures(1, &mTextures[i]);
 			glBindTexture(GL_TEXTURE_2D, mTextures[i]);
 			glTextureParameteri(mTextures[i], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTextureParameteri(mTextures[i], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			if (i == TWIDDLE_INDICES) {
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, ((int)log2(mGridSize)), mGridSize, 0, GL_RGBA, GL_FLOAT, NULL);
+			}
+			else if (i == H0) {
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, mGridSize, mGridSize, 0, GL_RGBA, GL_FLOAT, randomBuffer.data());
 			}
 			else {
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, mGridSize, mGridSize, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -132,20 +154,15 @@ private:
 		}
 	}
 
+
 	void preCalcH0() {
 		// bind shader + texures
 		glActiveTexture(GL_TEXTURE0);
-		glActiveTexture(GL_TEXTURE1);
 
 		mPreCompShader->bind();
-		glBindImageTexture(0, mTextures[H0], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-		glBindImageTexture(1, mTextures[H0_INVERSE], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+		glBindImageTexture(0, mTextures[H0], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
 		// init uniforms
-		int randomOffset1 = mPreCompShader->uniformLocation("randomOffset1");
-		int randomOffset2 = mPreCompShader->uniformLocation("randomOffset2");
-		int randomOffset3 = mPreCompShader->uniformLocation("randomOffset3");
-		int randomOffset4 = mPreCompShader->uniformLocation("randomOffset4");
 		int gridSize = mPreCompShader->uniformLocation("gridSize");
 		int horizontalDimension = mPreCompShader->uniformLocation("horizontalDimension");
 		int amplitude = mPreCompShader->uniformLocation("amplitude");
@@ -153,11 +170,6 @@ private:
 		int windVelocity = mPreCompShader->uniformLocation("windVelocity");
 
 		// set uniforms
-		srand(time(NULL));
-		glUniform2f(randomOffset1, randF(0, 1000), randF(0, 1000));
-		glUniform2f(randomOffset2, randF(0, 1000), randF(0, 1000));
-		glUniform2f(randomOffset3, randF(0, 1000), randF(0, 1000));
-		glUniform2f(randomOffset4, randF(0, 1000), randF(0, 1000));
 		glUniform1i(gridSize, mGridSize);
 		glUniform1i(horizontalDimension, mHorizontalDimension);
 		glUniform1f(amplitude, mAmplitude);
@@ -213,11 +225,11 @@ private:
 		// bind shader + texures
 		mRenderLoopShader->bind();
 
-		glBindImageTexture(0, mTextures[Hdx], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-		glBindImageTexture(1, mTextures[Hdy], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-		glBindImageTexture(2, mTextures[Hdz], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-		glBindImageTexture(3, mTextures[H0], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-		glBindImageTexture(4, mTextures[H0_INVERSE], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+		glBindImageTexture(0, mTextures[HDX_HDZ], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+		glBindImageTexture(1, mTextures[HDY_DXZ], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+		glBindImageTexture(2, mTextures[DYX_DYZ], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+		glBindImageTexture(3, mTextures[DXX_DZZ], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+		glBindImageTexture(4, mTextures[H0], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 
 		int horizontalDimension = mRenderLoopShader->uniformLocation("horizontalDimension");
 		int time = mRenderLoopShader->uniformLocation("time");
@@ -280,11 +292,31 @@ private:
 
 		glUniform1i(gridSize, mGridSize);
 		glUniform1i(pingpong, mPingPong);
-		glUniform1i(text, texture - Hdx);
+		glUniform1i(text, texture - HDX_HDZ);
+
+		glDispatchCompute(mGridSize / 8, mGridSize / 8, 1);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
+	}
+
+	void calcNormals() {
+		mNormalsShader->bind();
+
+		glBindImageTexture(0, mTextures[DISPLACEMENT], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+		glBindImageTexture(1, mTextures[NORMALS], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
 		glDispatchCompute(mGridSize / 8, mGridSize / 8, 1);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 	}
 };
+
+
+
+
+
+
+
+
+
+
 
 

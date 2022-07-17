@@ -1,4 +1,5 @@
 #version 430 core
+#define M_PI 3.1415926535897932384626433832795
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
@@ -19,35 +20,27 @@ void main() {
 	float perm = perms[index];
 
 	float h = imageLoad(pingpong == 0 ? texturePingpong0 : texturePingpong1, pos).r;
+	float h2 = imageLoad(pingpong == 0 ? texturePingpong0 : texturePingpong1, pos).b;
 
 	float displacement = perm * (h / float(gridSize * gridSize));
-	vec3 oldColor = imageLoad(textureDisplacement, pos).rgb;
+	float displacement2 = perm * (h2 / float(gridSize * gridSize));
 
-	vec3 newColor = oldColor;
+	vec4 oldColor = imageLoad(textureDisplacement, pos).rgba;
+	vec4 oldColor2 = imageLoad(textureNormals, pos).rgba;
 
 	if (text == 0) {
-		newColor = vec3(displacement, oldColor.yz);
+		imageStore(textureDisplacement, pos, vec4(displacement, 0, displacement2, 0));
 	}
 	else if (text == 1) {
-		newColor = vec3(oldColor.x, displacement, oldColor.z);
+		imageStore(textureDisplacement, pos, vec4(oldColor.r, displacement, oldColor.b, 0));
+		imageStore(textureNormals, pos, vec4(displacement2, 0, 0, 0));
 	}
 	else if (text == 2) {
-		newColor = vec3(oldColor.xy, displacement);
+		imageStore(textureNormals, pos, vec4(displacement, displacement2, 0, 0));
+	}
+	else if (text == 3) {
+		imageStore(textureNormals, pos, vec4(oldColor2.rg, displacement, displacement2));
+		imageStore(textureDisplacement, pos, vec4(oldColor.rgb, (1 + displacement) * (1 + displacement2) - oldColor2.r * oldColor2.g));
 	}
 
-	imageStore(textureDisplacement, pos, vec4(newColor, 1));
-
-
-	oldColor = imageLoad(textureNormals, pos).rgb;
-
-	newColor = oldColor;
-
-	if (text == 3) {
-		newColor = vec3(displacement, 1, oldColor.b);
-	}
-	else if (text == 4) {
-		newColor = vec3(oldColor.r, 1, displacement);
-	}
-
-	imageStore(textureNormals, pos, vec4(newColor, 1));
 }

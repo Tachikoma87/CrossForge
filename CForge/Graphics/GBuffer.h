@@ -54,6 +54,8 @@ namespace CForge{
 		void retrieveNormalBuffer(T2DImage<uint8_t>* pImg);
 		void retrieveAlbedoBuffer(T2DImage<uint8_t>* pImg);
 
+		uint32_t retrieveFrameBuffer();
+
 	protected:
 		uint32_t m_Framebuffer;
 		uint32_t m_Renderbuffer;
@@ -61,6 +63,7 @@ namespace CForge{
 		uint32_t m_TexPosition;
 		uint32_t m_TexNormal;
 		uint32_t m_TexAlbedo;
+		uint32_t m_TexDepth;
 
 		uint32_t m_Width;
 		uint32_t m_Height;
