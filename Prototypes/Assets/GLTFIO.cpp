@@ -347,7 +347,7 @@ namespace CForge {
 		getAccessorDataScalar(accessorIndex, &indices);
 
 		unsigned long offset = 0;
-		for (auto i : offsets) offset += i;
+		for (int i = 0; i < offsets.size() - 1; i++) offset += i;
 
 		if (pPrimitive->mode == TINYGLTF_MODE_TRIANGLES) {
 			for (auto i : indices) {
@@ -412,7 +412,7 @@ namespace CForge {
 
 		pMaterial->TexAlbedo = getTexturePath(gltfMaterial.pbrMetallicRoughness.baseColorTexture.index);
 		pMaterial->TexNormal = getTexturePath(gltfMaterial.normalTexture.index);
-		pMaterial->TexDepth = getTexturePath(gltfMaterial.occlusionTexture.index);
+		// pMaterial->TexDepth = getTexturePath(gltfMaterial.occlusionTexture.index);
 	}
 
 	std::string GLTFIO::getTexturePath(const int textureIndex) {

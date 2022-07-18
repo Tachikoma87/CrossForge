@@ -133,11 +133,13 @@ namespace CForge {
 		SAssetIO::load("Assets/ExampleScenes/TexturedCube.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		M.computePerVertexNormals();
-		Cube.init(&M);
+		// Cube.init(&M);
 		M.clear();
 
 		GLTFIO gltfio;
 		gltfio.load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &testModel);
+		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);
+		Cube.init(&testModel);
 
 		// build scene graph
 		SceneGraph SG;
@@ -158,7 +160,7 @@ namespace CForge {
 
 		// rotate about the y-axis at 45 degree every second
 		Quaternionf R;
-		R = AngleAxisf(GraphicsUtility::degToRad(45.0f / 60.0f), Vector3f::UnitY());
+		R = AngleAxisf(GraphicsUtility::degToRad(45.0f / 1000.0f), Vector3f::UnitY());
 		CubeTransformSGN.rotationDelta(R);
 
 		// stuff for performance monitoring
