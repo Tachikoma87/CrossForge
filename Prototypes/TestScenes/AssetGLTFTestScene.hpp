@@ -157,6 +157,7 @@ namespace CForge {
 		SGNTransformation CubeTransformSGN;
 		CubeTransformSGN.init(&RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
 		CubeSGN.init(&CubeTransformSGN, &Cube);
+		// CubeSGN.scale(Eigen::Vector3f(2.0f, 2.0f, 2.0f));
 
 		// rotate about the y-axis at 45 degree every second
 		Quaternionf R;
@@ -184,6 +185,7 @@ namespace CForge {
 			SG.render(&RDev);
 
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			//SG.render(&RDev);
 
 			RenderWin.swapBuffers();
 

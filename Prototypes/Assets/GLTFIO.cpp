@@ -291,7 +291,7 @@ namespace CForge {
 				continue;
 			}
 
-			if (keyValuePair.first.find("WEIGHTS") != std::string::npos) {
+			if (keyValuePair.first.find("COLOR") != std::string::npos) {
 				int n = -1;
 
 				auto s = keyValuePair.first.substr(8);
@@ -322,6 +322,8 @@ namespace CForge {
 		for (int i = normal.size(); i < coord.size(); i++) normal.push_back(*(new Eigen::Matrix<float, 3, 1>));
 
 		offsets.push_back(counter);
+
+		std::cout << "  " << counter << " vertices" << std::endl;
 	}
 
 	void GLTFIO::readSubMeshes(Primitive* pPrimitive) {
@@ -350,46 +352,42 @@ namespace CForge {
 		for (int i = 0; i < offsets.size() - 1; i++) offset += i;
 
 		if (pPrimitive->mode == TINYGLTF_MODE_TRIANGLES) {
-			for (auto i : indices) {
-				T3DMesh<float>::Face* face = new T3DMesh<float>::Face;
+			for (int i = 0; i < indices.size(); i += 3) {
+				T3DMesh<float>::Face face;
 
-				face->Vertices[0] = (int32_t)(offset + (3 * i));
-				face->Vertices[1] = (int32_t)(offset + (3 * i) + 1);
-				face->Vertices[2] = (int32_t)(offset + (3 * i) + 2);
+				face.Vertices[0] = (int32_t)(offset + indices[i]);
+				face.Vertices[1] = (int32_t)(offset + indices[i + 1]);
+				face.Vertices[2] = (int32_t)(offset + indices[i + 2]);
 
-				faces->push_back(*face);
+				faces->push_back(face);
 			}
 
 			return;
 		}
 
 		if (pPrimitive->mode == TINYGLTF_MODE_TRIANGLE_STRIP) {
-			std::vector<T3DMesh<float>::Face>* faces = new std::vector<T3DMesh<float>::Face>;
+			for (int i = 0; i < indices.size(); i++) {
+				T3DMesh<float>::Face face;
 
-			for (auto i : indices) {
-				T3DMesh<float>::Face* face = new T3DMesh<float>::Face;
+				face.Vertices[0] = (int32_t)(offset + indices[i]);
+				face.Vertices[1] = (int32_t)(offset + indices[i + (1 + i % 2)]);
+				face.Vertices[2] = (int32_t)(offset + indices[i + (2 - i % 2)]);
 
-				face->Vertices[0] = (int32_t)(offset + i);
-				face->Vertices[1] = (int32_t)(offset + i + (1 + i % 2));
-				face->Vertices[2] = (int32_t)(offset + i + (2 - i % 2));
-
-				faces->push_back(*face);
+				faces->push_back(face);
 			}
 
 			return;
 		}
 
 		if (pPrimitive->mode == TINYGLTF_MODE_TRIANGLE_FAN) {
-			std::vector<T3DMesh<float>::Face>* faces = new std::vector<T3DMesh<float>::Face>;
+			for (int i = 0; i < indices.size(); i += 3) {
+				T3DMesh<float>::Face face;
 
-			for (auto i : indices) {
-				T3DMesh<float>::Face* face = new T3DMesh<float>::Face;
+				face.Vertices[0] = (int32_t)(offset + indices[i + 1]);
+				face.Vertices[1] = (int32_t)(offset + indices[i + 2]);
+				face.Vertices[2] = (int32_t)(offset + indices[0]);
 
-				face->Vertices[0] = (int32_t)(offset + i + 1);
-				face->Vertices[1] = (int32_t)(offset + i + 2);
-				face->Vertices[2] = (int32_t)(offset);
-
-				faces->push_back(*face);
+				faces->push_back(face);
 			}
 
 			return;
@@ -398,6 +396,8 @@ namespace CForge {
 
 	void GLTFIO::readMaterial(const int materialIndex, T3DMesh<float>::Material* pMaterial) {
 		Material gltfMaterial = model.materials[materialIndex];
+
+		pMaterial->ID = materialIndex;
 
 		pMaterial->Metallic = gltfMaterial.pbrMetallicRoughness.metallicFactor;
 		pMaterial->Roughness = gltfMaterial.pbrMetallicRoughness.roughnessFactor;
