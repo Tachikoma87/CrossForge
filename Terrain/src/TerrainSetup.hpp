@@ -13,6 +13,7 @@
 
 #include "../GUI/GUI.h"
 #include "../GUI/Widgets/Form.h"
+#include <wchar.h>
 
 //#include "../../Prototypes/Graphics/SkyboxActor.h"
 #include "../../CForge/Graphics/Actors/SkyboxActor.h"
@@ -589,8 +590,7 @@ namespace Terrain {
 
         //fps counter
         TextWidget* fpsWidget = gui.createPlainText();
-        fpsWidget->setText(U"FPS: 0");
-        fpsWidget->setPosition(window.width()-fpsWidget->getWidth(), 0);
+        fpsWidget->setTextAlign(TextWidget::ALIGN_RIGHT);
         int32_t FPSCount = 0;
         clock_t current_ticks, delta_ticks;
         clock_t fps = 60;
@@ -845,9 +845,12 @@ namespace Terrain {
                 FPSCount = 0;
                 LastFPS = CoreUtility::timestamp();
 //                 printf("FPS: %d\n", fps);
-                std::u32string text = U"FPS: ";
-                for (auto c : std::to_wstring(fps)) {
-                    text.push_back((char32_t)c);
+                wchar_t text_wstring[100] = {0};
+                int charcount = swprintf(text_wstring, 100, L"FPS: %d\nZweite Zeile", fps);
+                std::u32string text;
+                //ugly cast to u32string from wchar[]
+                for (int i = 0; i < charcount; i++) {
+                    text.push_back((char32_t)text_wstring[i]);
                 }
                 fpsWidget->setText(text);
                 fpsWidget->setPosition(window.width()-fpsWidget->getWidth(), 0);

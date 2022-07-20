@@ -52,6 +52,7 @@ const std::u32string CharactersToLoadIntoTexture = U" !\"#$%&'()*+,-./0123456789
 struct WidgetStyle {
     int WithinWidgetPadding = 5;
     int TextPadding = 3;
+    int TextLineGap = 0;    //padding between two subsequent lines in a multiline text widget
 };
 struct InputTextStyle {
     float WrongInputColor[3] = {1.0f, 0.5f, 0.5f};
