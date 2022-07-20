@@ -118,4 +118,15 @@ namespace CForge {
 	void IRenderableActor::clearMatRef() {
 
 	}
+
+	float IRenderableActor::getAABBradius(const Eigen::Matrix4f& mat) {
+		Eigen::Affine3f affine(mat);
+		affine.data()[12] = 0.0;
+		affine.data()[13] = 0.0;
+		affine.data()[14] = 0.0;
+		Eigen::Vector3f scaledAABBMax = affine * getAABB().Max;
+		Eigen::Vector3f scaledAABBMin = affine * getAABB().Min;
+		float aabbRadius = std::max(std::abs(scaledAABBMax.norm()), std::abs(scaledAABBMin.norm()));
+		return aabbRadius;
+	}
 }//name space

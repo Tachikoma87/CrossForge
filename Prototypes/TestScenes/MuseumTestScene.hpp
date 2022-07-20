@@ -100,6 +100,7 @@ namespace CForge {
 	void museumTestScene(void) {
 		SShaderManager* pSMan = SShaderManager::instance();
 		SLOD* pSLOD = SLOD::instance();
+		LODHandler lodHandler;
 		std::string WindowTitle = "CForge - Minimum Graphics Setup";
 		float FPS = 60.0f;
 
@@ -213,6 +214,19 @@ namespace CForge {
 				SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 				M.computePerVertexNormals();
 				M.computeAxisAlignedBoundingBox();
+				
+				float triangleSize = lodHandler.getTriSizeInfo(M,LODHandler::TRI_S_AVG);
+				std::cout << triangleSize << "\n";
+				
+				// get 2 longest sides of aabb
+				Eigen::Vector3f diag = M.aabb().diagonal();
+				float a = max(diag.x(),max(diag.y(),diag.z()));
+				float b = diag.x()+diag.y()+diag.z()-a-min(diag.x(),min(diag.y(),diag.z()));
+				
+				float aabbTriRatio = triangleSize / (a*b);
+				std::cout << a*b << "\n";
+				std::cout << aabbTriRatio << "\n";
+				
 				LODActor* newAct = new LODActor();
 				newAct->init(&M);
 				museumActors.push_back(newAct);
@@ -234,8 +248,12 @@ namespace CForge {
 				TransformSGN->scale(Vector3f(scale,scale,scale));
 				//TransformSGN->rotation((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()));
 				SGN->init(TransformSGN, newAct);
+				
+				lodHandler.generateLODmodels(entry.path().string(),newAct->getLODStages(), newAct->getLODPercentages());
 			}
 		}
+		
+		lodHandler.waitForLODgeneration();
 		
 		// stuff for performance monitoring
 		uint64_t LastFPSPrint = CoreUtility::timestamp();

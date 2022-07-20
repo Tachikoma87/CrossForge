@@ -288,8 +288,10 @@ add_executable(Terrain
 	Prototypes/SLOD.cpp
 	"Prototypes/Actor/LODActor.cpp"
 	"Prototypes/MeshDecimate.cpp"
+	"Prototypes/LODHandler.cpp"
 
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
+	"${CMAKE_SOURCE_DIR}/thirdparty/tinyxml2/tinyxml2.cpp"
 )
 
 if(WIN32)
