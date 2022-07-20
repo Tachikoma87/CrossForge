@@ -35,7 +35,8 @@ public:
 
     int renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::GLVertexArray* vao);
 //     void computeBBox(std::u32string text, FT_Vector* positions, FT_BBox* pbbox);
-    int computeStringWidth(std::u32string text);
+    int computeStringWidth(std::u32string text, int maxWidth = -1);
+    int computeStringWidthMultiline(std::u32string text, std::vector<std::u32string>* lines, int maxWidth = -1, int maxLines = -1);
 
     //for render loop
     void bind();
@@ -66,13 +67,15 @@ public:
     void setRenderSize(uint32_t w, uint32_t h);   //Size of the window/framebuffer it gets rendered to
     void render(CForge::RenderDevice* pRDev);
     float getTextSize();
-    int computeStringWidth(std::u32string textString);
+    int getTextWidth();
+    int computeStringWidth(std::u32string textString);  //deprecated, better access the font directly if possible
 private:
     FontFace* m_pFont;
     CForge::GLShader* m_pShader;
     CForge::GLBuffer m_VertexBuffer;
     CForge::GLVertexArray m_VertexArray;
     int m_numVertices;
+    int m_width;
     Eigen::Matrix4f m_projection;
     float textSize;
     float textColor[3];
