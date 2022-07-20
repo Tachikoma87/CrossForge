@@ -468,7 +468,7 @@ namespace CForge {
 				pSM = new Submesh();
 				pSM->init(pSubmesh);
 			}
-			m_Submeshes.push_back(pSM);			
+			m_Submeshes.push_back(pSM);
 		}//addSubmesh
 
 		void addMaterial(Material* pMat, bool Copy) {

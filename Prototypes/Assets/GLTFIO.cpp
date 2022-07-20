@@ -449,6 +449,8 @@ namespace CForge {
 				pBone->Position(1) = node.translation[1];
 				pBone->Position(2) = node.translation[2];
 			}
+
+			pBone->pParent = nullptr;
 			
 			pBones->push_back(pBone);
 		}
