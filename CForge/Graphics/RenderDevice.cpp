@@ -562,13 +562,13 @@ namespace CForge {
 			float aabbRadius = pActor->getAABBradius(cont->transform);
 			float distance = (Translation - m_pActiveCamera->position()).norm() - aabbRadius;
 			
-			printf("pixel: %d dist: %f\n",cont->pixelCount, distance);
+// 			printf("pixel: %d dist: %f\n",cont->pixelCount, distance);
 			
 			// set pixel count to max if cam is inside BB, due to backface culling
 			if (distance < 0.0)
 				cont->pixelCount = UINT32_MAX;
 
-			printf("%d\n",cont->pixelCount);
+// 			printf("%d\n",cont->pixelCount);
 			// sets LOD level, and transform matrix when instanced
 			cont->pActor->evaluateQueryResult(cont->transform, cont->pixelCount);
 			
