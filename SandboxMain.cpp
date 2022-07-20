@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 		//assetGLTFTestScene();
 		//skyboxTestScene();
 		//LODTestScene();
-		museumTestScene();
+		MuseumTestScene().museumTestScene();
 		//MinimumGraphicalSetup();
 		//shadowTest();
 		//morphTargetAnimTestScene();

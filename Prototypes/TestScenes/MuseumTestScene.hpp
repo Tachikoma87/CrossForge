@@ -44,6 +44,10 @@
 #include "../SLOD.h"
 #include "../MeshDecimate.h"
 
+//since the includes of the GUI source files are so convoluted, this is enough to pull in the entirety of the GUI
+//(or more like, the entirety of classes we would want to interface with)
+#include "Terrain/GUI/Widgets/Form.h"
+
 #include <iostream>
 #include <filesystem>
 
@@ -62,7 +66,11 @@ bool iequals(const string& a, const string& b)
 	return true;
 }
 
-namespace CForge {
+
+using namespace CForge;
+
+class MuseumTestScene : public ITListener<GUICallbackObject> {
+public:
 
 	void initPPQuad(ScreenQuad *quad) {
 		vector<ShaderCode *> vsSources;
@@ -196,7 +204,6 @@ namespace CForge {
 		std::vector<SGNGeometry*> museumSGNG;
 		std::vector<SGNTransformation*> museumSGNT;
 
-		bool Wireframe = false;
 		uint32_t modelAmount = 0;
 		std::string path = "museumAssets/";
 		for (const auto& entry : std::filesystem::directory_iterator(path)) {
@@ -268,7 +275,25 @@ namespace CForge {
 		
 		T2DImage<uint8_t> shadowBufTex;
 
-		bool renderLODAABB = true;
+		GUI gui = GUI();
+        gui.testInit(&RenderWin);
+
+		FormWidget* form = gui.createOptionsWindow ( U"Graphics", 1, U"" );
+		form->startListening ( this );
+		form->addOption ( GUI_WIREFRAME, INPUTTYPE_BOOL, U"Wireframe" );
+		form->setDefault ( GUI_WIREFRAME, false );
+		form->addOption ( GUI_RENDER_AABB, INPUTTYPE_BOOL, U"Render LOD AABBs" );
+		form->setDefault ( GUI_RENDER_AABB, false );
+		form->addOption ( GUI_FRAMERATE, INPUTTYPE_BOOL, U"Unlock Framerate" );
+		form->setDefault ( GUI_FRAMERATE, false );
+		form->addOption ( GUI_CAMERA_PANNING, INPUTTYPE_RANGESLIDER, U"Camera Panning Speed" );
+		form->setLimit ( GUI_CAMERA_PANNING, 0.0f, 5.0f );
+		form->setStepSize ( GUI_CAMERA_PANNING, 0.5f );
+		form->setDefault ( GUI_CAMERA_PANNING, 1 );
+//         form->addOption ( 7, INPUTTYPE_RANGESLIDER, U"Field of View" );
+//         form->setLimit ( 7, 60.0f, 120.0f );
+//         form->setStepSize ( 7, 1.0f );
+//         form->setDefault(7, 90);
 		
 		while (!RenderWin.shutdown()) {
 			RDev.clearBuffer();
@@ -284,7 +309,7 @@ namespace CForge {
 			}
 			Keyboard* pKeyboard = RenderWin.keyboard();
 			float Step = (pKeyboard->keyState(Keyboard::KEY_Q) == 0) ? 0.1f : 1.0f;
-			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(),0.4*Step,1.0,1.0f / pSLOD->getDeltaTime());
+			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(), 0.4*Step, cameraPanningAcceleration, 1.0f / pSLOD->getDeltaTime());
 
 			//Sun.retrieveDepthBuffer(&shadowBufTex);
 			//AssetIO::store("testMeshOut.jpg",&shadowBufTex);
@@ -333,6 +358,10 @@ namespace CForge {
 			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
 			ppquad.render(&RDev);
 
+// 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+			gui.processEvents();
+			gui.render(&RDev);
+
 			RenderWin.swapBuffers();
 			
 			RDev.LODSG_clear();
@@ -364,6 +393,36 @@ namespace CForge {
 
 	}//exampleMinimumGraphicsSetup
 
-}
+	void listen ( const GUICallbackObject Msg ) override {
+		if (Msg.FormID == 1) {
+// 			cameraMode = *((int*)Msg.Data.at(1).pData) == 2;
+// 			shadows = *((bool*)Msg.Data.at(2).pData);
+			Wireframe = *((bool*)Msg.Data.at(GUI_WIREFRAME).pData);
+			renderLODAABB = *((bool*)Msg.Data.at(GUI_RENDER_AABB).pData);
+			if (*((bool*)Msg.Data.at(GUI_FRAMERATE).pData)) {   //'unlock framerate'
+				glfwSwapInterval(0);
+			} else {
+				glfwSwapInterval(1);
+			};
+			cameraPanningAcceleration = *((float*)Msg.Data.at(GUI_CAMERA_PANNING).pData);
+// 			CAM_FOV = *((float*)Msg.Data.at(7).pData);
+// 			if (cameraPointerForCallbackHandling) {
+// 				cameraPointerForCallbackHandling->projectionMatrix(WINWIDTH, WINHEIGHT, GraphicsUtility::degToRad(CAM_FOV), 0.1f, 5000.0f);
+// 			}
+		}
+	};
+
+private:
+	enum GUISettings : int {
+		GUI_WIREFRAME,
+		GUI_RENDER_AABB,
+		GUI_FRAMERATE,
+		GUI_CAMERA_PANNING,
+		GUI_FOV
+	};
+	bool Wireframe = false;
+	bool renderLODAABB = true;
+	float cameraPanningAcceleration = 1;
+};
 
 #endif
