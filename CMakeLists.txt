@@ -184,6 +184,19 @@ add_executable(CForgeSandbox
 	#Prototypes/Assets/GLTFSDKIO.cpp
 	"Prototypes/Actor/LODActor.cpp"
 	"Prototypes/MeshDecimate.cpp"
+
+	Terrain/GUI/GUI.cpp
+	Terrain/GUI/WidgetBackground.cpp
+	Terrain/GUI/Widget.cpp
+	Terrain/GUI/Font.cpp
+	Terrain/GUI/Widgets/InputNumber.cpp
+	Terrain/GUI/Widgets/InputCheckbox.cpp
+	Terrain/GUI/Widgets/InputText.cpp
+	Terrain/GUI/Widgets/InputSlider.cpp
+	Terrain/GUI/Widgets/InputDropDown.cpp
+	Terrain/GUI/Widgets/Label.cpp
+	Terrain/GUI/Widgets/Form.cpp
+	Terrain/GUI/Widgets/Window.cpp
 )
 
 if(WIN32)
@@ -194,6 +207,7 @@ if(WIN32)
 		#PRIVATE igl::common 
 		${OpenCV_LIBS}
 		ws2_32
+		${FREETYPE_LIBRARIES}
 	)
 endif (WIN32)
 
@@ -207,6 +221,7 @@ if(UNIX)
 		${OpenCV_LIBS}
 		PRIVATE gpiod
 		PRIVATE dl
+		${FREETYPE_LIBRARIES}
 	)
 endif(UNIX)
 
