@@ -23,7 +23,7 @@ namespace CForge {
 		void setLODLevels(std::vector<float> levels);
 
 		bool forceHighLOD = false;
-		float LODOffset = 4.0;
+		float LODOffset = 0.25;
 		
 	protected:
 		SLOD(void);
