@@ -404,10 +404,10 @@ namespace CForge {
 		if (pixelCount == 0)
 			return;
 
-		printf("pixelCount			%d\n", pixelCount);
+// 		printf("pixelCount			%d\n", pixelCount);
 		// set LOD level based on screen coverage
 		float screenCov = float(pixelCount) / m_pSLOD->getResPixAmount();
-		printf("screenCov			%f\n", screenCov);
+// 		printf("screenCov			%f\n", screenCov);
 		
 		std::vector<float> percentages;
 		if (m_LODPercentages.size() < m_LODStages.size())

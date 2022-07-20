@@ -50,6 +50,7 @@
 
 #include <iostream>
 #include <filesystem>
+#include <wchar.h>
 
 using namespace Eigen;
 using namespace std;
@@ -281,19 +282,22 @@ public:
 		FormWidget* form = gui.createOptionsWindow ( U"Graphics", 1, U"" );
 		form->startListening ( this );
 		form->addOption ( GUI_WIREFRAME, INPUTTYPE_BOOL, U"Wireframe" );
-		form->setDefault ( GUI_WIREFRAME, false );
+		form->setDefault ( GUI_WIREFRAME, Wireframe );
 		form->addOption ( GUI_RENDER_AABB, INPUTTYPE_BOOL, U"Render LOD AABBs" );
-		form->setDefault ( GUI_RENDER_AABB, false );
+		form->setDefault ( GUI_RENDER_AABB, renderLODAABB );
 		form->addOption ( GUI_FRAMERATE, INPUTTYPE_BOOL, U"Unlock Framerate" );
 		form->setDefault ( GUI_FRAMERATE, false );
 		form->addOption ( GUI_CAMERA_PANNING, INPUTTYPE_RANGESLIDER, U"Camera Panning Speed" );
 		form->setLimit ( GUI_CAMERA_PANNING, 0.0f, 5.0f );
 		form->setStepSize ( GUI_CAMERA_PANNING, 0.5f );
-		form->setDefault ( GUI_CAMERA_PANNING, 1 );
+		form->setDefault ( GUI_CAMERA_PANNING, cameraPanningAcceleration );
 //         form->addOption ( 7, INPUTTYPE_RANGESLIDER, U"Field of View" );
 //         form->setLimit ( 7, 60.0f, 120.0f );
 //         form->setStepSize ( 7, 1.0f );
 //         form->setDefault(7, 90);
+
+		TextWidget* fpsWidget = gui.createPlainText();
+		fpsWidget->setTextAlign(TextWidget::ALIGN_RIGHT);
 		
 		while (!RenderWin.shutdown()) {
 			RDev.clearBuffer();
@@ -370,11 +374,22 @@ public:
 			if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {
 				char Buf[64];
 				sprintf(Buf, "FPS: %d\n", FPSCount);
+
+				wchar_t text_wstring[100] = {0};
+				int charcount = swprintf(text_wstring, 100, L"FPS: %d\nZweite Zeile", FPSCount);
+				std::u32string text;
+				//ugly cast to u32string from wchar[]
+				for (int i = 0; i < charcount; i++) {
+					text.push_back((char32_t)text_wstring[i]);
+				}
+				fpsWidget->setText(text);
+				fpsWidget->setPosition(RenderWin.width()-fpsWidget->getWidth(), 0);
+
 				FPS = float(FPSCount);
 				FPSCount = 0;
 				LastFPSPrint = CoreUtility::timestamp();
 
-				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
+// 				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
 			}
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
