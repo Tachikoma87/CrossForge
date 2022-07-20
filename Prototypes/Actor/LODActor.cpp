@@ -5,6 +5,7 @@
 #include "../../CForge/Core/SLogger.h"
 #include "../MeshDecimate.h"
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
+#include "../LODHandler.h"
 
 #define SKIP_INSTANCED_QUERIES // TODO determine skipping by time query
 
@@ -26,6 +27,10 @@ namespace CForge {
 	void LODActor::init(T3DMesh<float>* pMesh, bool isInstanced, bool manualyInstanced) {
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 		if (pMesh->vertexCount() == 0) throw CForgeExcept("Mesh contains no vertex data");
+		
+		pMesh->computeAxisAlignedBoundingBox();
+		m_aabb = pMesh->aabb();
+		initAABB();
 		
 		m_VertexArray.init();
 		//m_translucent = isTranslucent;
@@ -71,18 +76,36 @@ namespace CForge {
 			m_instLODMats = new std::vector<Eigen::Matrix4f>();
 			m_instancedMatRef.push_back(m_instLODMats);
 		}
-		for (uint32_t i = 1; i < m_LODMeshes.size(); i++) {
+		
+		float previousRatio = 1.0;
+		float percOffset = 1.0; // TODO make global
+		m_LODPercentages.push_back(0.5);
+		
+		for (uint32_t i = 0; i < m_LODMeshes.size(); i++) {
 			if (m_LODMeshes[i] == nullptr) {
 				m_LODMeshes.resize(i);
 				break;
 			}
-			delete m_LODMeshes[i];
-			m_LODMeshes[i] = nullptr;
+			
+			// calculate LOD percentages
+			float triangleSize = LODHandler::getTriSizeInfo(*m_LODMeshes[i],LODHandler::TRI_S_AVG);
+			// get 2 longest sides of aabb
+			Eigen::Vector3f diag = pMesh->aabb().diagonal();
+			float a = std::max(diag.x(),std::max(diag.y(),diag.z()));
+			float b = diag.x()+diag.y()+diag.z()-a-std::min(diag.x(),std::min(diag.y(),diag.z()));
+			
+			// ratio of triangle size to biggest BB side
+			float aabbTriRatio = triangleSize / (a*b);
+
+			if (i > 0) {
+				// makes triangle size
+				m_LODPercentages.push_back(m_LODPercentages[0]*previousRatio/(aabbTriRatio*percOffset));
+				
+				delete m_LODMeshes[i];
+				m_LODMeshes[i] = nullptr;
+			} else
+				previousRatio = aabbTriRatio;
 		}
-		
-		pMesh->computeAxisAlignedBoundingBox();
-		m_aabb = pMesh->aabb();
-		initAABB();
 	}//initialize
 
 	void LODActor::init(T3DMesh<float>* pMesh, const std::vector<float>& LODStages, bool isInstanced, bool manualyInstanced) {
@@ -133,7 +156,9 @@ namespace CForge {
 	}
 
 	void LODActor::bindLODLevel(uint32_t level) {
-
+		if (level == m_LODLevel)
+			return;
+		
 		m_VertexArray.unbind();
 		try {
 			m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, m_VertexBuffers[level], m_VertexBufferSizes[level]);
@@ -383,8 +408,15 @@ namespace CForge {
 		// set LOD level based on screen coverage
 		float screenCov = float(pixelCount) / m_pSLOD->getResPixAmount();
 		printf("screenCov			%f\n", screenCov);
+		
+		std::vector<float> percentages;
+		if (m_LODPercentages.size() < m_LODStages.size())
+			percentages = m_pSLOD->getLODPercentages();
+		else
+			percentages = m_LODPercentages;
+		
 		while (level < m_LODStages.size()-2) {
-			if (screenCov > m_pSLOD->getLODPercentages()[level])
+			if (screenCov > (percentages)[level]/m_pSLOD->LODOffset)
 				break;
 			level++;
 		}
@@ -508,14 +540,15 @@ namespace CForge {
 	std::vector<float> LODActor::getLODStages() {
 		return m_LODStages;
 	}
-	
+
+	std::vector<float> LODActor::getLODPercentages() {
+		return m_LODPercentages;
+	}
+
 	bool LODActor::fovCulling(RenderDevice* pRDev, Eigen::Matrix4f* mat) {
 		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
 
-		Eigen::Affine3f affine(*mat);
-		Eigen::Vector3f scaledAABBMax = affine * getAABB().Max;
-		Eigen::Vector3f scaledAABBMin = affine * getAABB().Min;
-		float aabbRadius = std::max(std::abs(scaledAABBMax.norm()), std::abs(scaledAABBMin.norm()));
+		float aabbRadius = getAABBradius(*mat);
 		float distance = (Translation - pRDev->activeCamera()->position()).norm() - aabbRadius;
 		if (distance < 0.0)
 			return true;

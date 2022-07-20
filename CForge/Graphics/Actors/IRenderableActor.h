@@ -62,6 +62,8 @@ namespace CForge {
 		// used set check if actor is already contained in LODSG
 		void setLODSG(bool inside);
 		virtual void clearMatRef();
+
+		float getAABBradius(const Eigen::Matrix4f& mat);
 		//
 		
 	protected:
