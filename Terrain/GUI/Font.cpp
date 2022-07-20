@@ -162,7 +162,7 @@ int FontFace::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::G
 //     }
 //     *pbbox = bbox;
 // }
-int FontFace::computeStringWidth(std::u32string text)
+int FontFace::computeStringWidth(std::u32string text, int maxWidth)
 {
     int pen_x = 0;
     bool use_kerning = FT_HAS_KERNING(face);
@@ -179,6 +179,67 @@ int FontFace::computeStringWidth(std::u32string text)
     }
     return pen_x;
 }
+int FontFace::computeStringWidthMultiline(std::u32string text, std::vector<std::u32string>* lines, int maxWidth, int maxLines)
+{
+    int ellipsis = 0;
+    if (maxWidth > 0) {
+        ellipsis = 3 * getGlyph(U'.').advanceWidth;
+    }
+    int pen_x = 0;
+    bool use_kerning = FT_HAS_KERNING(face);
+    int previous_glyph_index = 0;
+    std::u32string currentLine;
+    int maxLineWidth = 0;
+    int numLines = 1;
+    for (int i = 0; i < text.length(); i++) {
+        if (text[i] == u'\n') {
+            //start a new line
+            lines->push_back(currentLine);
+            currentLine.clear();
+            maxLineWidth = std::max(maxLineWidth, pen_x);
+            pen_x = 0;
+            numLines++;
+            continue;
+        }
+        glyph_t glyph = getGlyph(text[i]);
+        //consider kerning values for nicer output
+        if (use_kerning && previous_glyph_index && glyph.index) {
+            FT_Vector delta;
+            FT_Get_Kerning(face, previous_glyph_index, glyph.index, FT_KERNING_DEFAULT, &delta);
+            pen_x += delta.x >> 6; //spacing values are returned in 1/64th of a pixel
+        }
+        if (maxWidth > 0 && pen_x + (glyph.advanceWidth >> 6) > maxWidth) {
+            //new line or cut off
+            if (maxLines > 0 && numLines >= maxLines) {
+                //cut off
+                while (pen_x + ellipsis > maxWidth && !currentLine.empty()) {
+                    pen_x -= getGlyph(currentLine.back()).advanceWidth >> 6;
+                    currentLine.pop_back();
+                }
+                pen_x += ellipsis;
+                currentLine += U"...";
+                break;
+            } else {
+                // new line
+                lines->push_back(currentLine);
+                currentLine.clear();
+                maxLineWidth = std::max(maxLineWidth, pen_x);
+                pen_x = 0;
+                numLines++;
+            }
+        }
+        pen_x += glyph.advanceWidth >> 6;
+        currentLine.push_back(text[i]);
+    }
+
+    //don't forget the last line that was started
+    lines->push_back(currentLine);
+    maxLineWidth = std::max(maxLineWidth, pen_x);
+
+    return maxLineWidth;
+}
+
+
 void FontFace::prepareCharMap()
 {
     //CharactersToLoadIntoTexture is defined in GUIDefaults.h
@@ -390,6 +451,7 @@ void TextLine::setText(std::u32string text)
 {
     //TODO: clean up old buffers if necessary?
     m_numVertices = m_pFont->renderString(text, &m_VertexBuffer, &m_VertexArray);
+    m_width = m_pFont->computeStringWidth(text);
 }
 
 void TextLine::setPosition(float x, float y)
@@ -448,6 +510,10 @@ void TextLine::render(CForge::RenderDevice* pRDev)
 float TextLine::getTextSize()
 {
     return textSize;
+}
+int TextLine::getTextWidth()
+{
+    return m_width;
 }
 int TextLine::computeStringWidth(std::u32string textString)
 {

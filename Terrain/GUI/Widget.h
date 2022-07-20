@@ -56,15 +56,26 @@ public:
     void setText(std::u32string textString);
     std::u32string getText();
     void changeText(char32_t character);
-    void changeFont(FontFace* newFont);
+//     void changeFont(FontFace* newFont);
     void changeFont(GUI::FontStyles style);
-    void setPosition(float x, float y);
+//     void setPosition(float x, float y);
     void changePosition(float dx, float dy);
     void setColor(float r, float g, float b);
     void setColor(float color[3]);
+
+    enum TextAlign {
+        ALIGN_LEFT,
+        ALIGN_CENTER,
+        ALIGN_RIGHT
+    };
+    void setTextAlign(TextAlign align);     //for now only applied at next text change
+
     void draw(CForge::RenderDevice* renderDevice);
 private:
     std::u32string m_text;
-    TextLine* m_pText;
+//     TextLine* m_pText;
+    std::vector<TextLine*> m_TextLines;
     int m_padding;
+    GUI::FontStyles m_FontStyle;
+    TextAlign m_Align;
 };
