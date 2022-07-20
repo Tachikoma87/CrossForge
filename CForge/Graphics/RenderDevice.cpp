@@ -559,14 +559,10 @@ namespace CForge {
 			
 			// calculate distance bounding sphere border to camera
 			Eigen::Vector3f Translation = Eigen::Vector3f(cont->transform.data()[12], cont->transform.data()[13], cont->transform.data()[14]);
-			Eigen::Affine3f affine(cont->transform);
-
-			Vector3f scaledAABBMax = affine * pActor->getAABB().Max;
-			Vector3f scaledAABBMin = affine * pActor->getAABB().Min;
-			float aabbRadius = std::max(std::abs(scaledAABBMax.norm()), std::abs(scaledAABBMin.norm()));
+			float aabbRadius = pActor->getAABBradius(cont->transform);
 			float distance = (Translation - m_pActiveCamera->position()).norm() - aabbRadius;
 			
-			printf("%d\n",cont->pixelCount);
+			printf("pixel: %d dist: %f\n",cont->pixelCount, distance);
 			
 			// set pixel count to max if cam is inside BB, due to backface culling
 			if (distance < 0.0)

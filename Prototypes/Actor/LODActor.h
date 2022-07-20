@@ -70,10 +70,12 @@ namespace CForge {
 		const std::vector<Eigen::Matrix4f>* getInstanceMatrices(uint32_t level);
 		
 		std::vector<float> getLODStages();
+		std::vector<float> getLODPercentages();
 		void evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount);
 		
 		void setFaceCulling(bool state);
 		void clearMatRef();
+
 		
 	protected:
 
@@ -86,7 +88,8 @@ namespace CForge {
 		
 		std::vector<T3DMesh<float>*> m_LODMeshes;
 		std::vector<float> m_LODStages;
-		uint32_t m_LODLevel;
+		std::vector<float> m_LODPercentages;
+		int32_t m_LODLevel = -1;
 		
 		bool m_translucent = true;
 		bool m_visible = true;
