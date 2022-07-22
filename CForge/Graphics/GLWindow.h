@@ -21,8 +21,20 @@
 #include "../Core/CForgeObject.h"
 #include "../Input/Keyboard.h"
 #include "../Input/Mouse.h"
+#include "../Core/ITCaller.hpp"
 
 namespace CForge {
+
+	struct GLWindowMsg {
+		enum MsgCode {
+			MC_RESIZE = 0,
+		};
+
+		MsgCode Code;
+		void* pHandle;
+		Eigen::Vector4i iParam;
+		Eigen::Vector4f fParam;
+	};
 
 	/**
 	* \brief A system window that also provides an OpenGL context. Powered by the GLFW library.
@@ -31,7 +43,7 @@ namespace CForge {
 	* \todo Think about better names for shutdown and closeWindow
 	* \todo Implement callback system for window changes
 	*/
-	class CFORGE_API GLWindow: public CForgeObject {
+	class CFORGE_API GLWindow: public CForgeObject, public ITCaller<GLWindowMsg> {
 	public:
 		GLWindow(void);
 		~GLWindow(void);
@@ -60,14 +72,15 @@ namespace CForge {
 	private:
 		class GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
 
-		
-
 		void* m_pHandle;
 		Keyboard m_Keyboard;
 		Mouse m_Mouse;
 		class SInputManager* m_pInputMan;
 
 		std::string m_Title; ///< The windows title
+
+		static void sizeCallback(class GLFWwindow* pHandle, int32_t Width, int32_t Height);
+		static std::map<GLWindow*, class GLFWwindow*> m_WindowList;
 
 	};//GLWindow
 
