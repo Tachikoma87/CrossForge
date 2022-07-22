@@ -79,56 +79,49 @@ namespace CForge {
 		SkeletalActor Eric;
 
 		T3DMesh<float> M;
-		SAssetIO::load("Assets/TexturedGround.fbx", &M);
+		SAssetIO::load("MyAssets/TexturedGround.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
+		M.computePerVertexNormals();
+		M.computePerVertexTangents();
 		Ground.init(&M);
 		M.clear();
 
-		SAssetIO::load("Assets/TexturedCube.fbx", &M);
+		SAssetIO::load("Assets/ExampleScenes/TexturedUnitCube.gltf", &M);
 		SceneUtilities::setMeshShader(&M, 0.6f, 0.04f);
 		Cube.init(&M);
 		M.clear();
 
-		SAssetIO::load("Assets/TexturedSphere.fbx", &M);
+		SAssetIO::load("Assets/ExampleScenes/TexturedUnitCube.gltf", &M);
 		SceneUtilities::setMeshShader(&M, 0.6f, 0.04f);
 		Sphere.init(&M);
 		M.clear();
 
-		SAssetIO::load("Assets/Meeting Room/Armchair/Armchair.obj", &M);
+		SAssetIO::load("MyAssets/Armchair/Armchair.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		M.computePerVertexNormals();
 		Armchair.init(&M);
 		M.clear();
 
-		/*SAssetIO::load("Assets/Head/Pasha_guard_head.obj", &M);
-		setMeshShader(&M, 0.6f, 0.04f);
-		M.computePerVertexNormals();
-		Head.init(&M);
-		M.clear();*/
-
-		SAssetIO::load("Assets/Meeting Room/Picture/Picture.obj", &M);
-		SceneUtilities::setMeshShader(&M, 0.2f, 0.1f);
-		M.computePerVertexNormals();
-		Picture.init(&M);
-		M.clear();
 
 		SkeletalAnimationController EricAnimController;
-		//SAssetIO::load("Assets/Skel/Eric_Anim.fbx", &M);
+		//SAssetIO::load("MyAssets/Eric_Anim.fbx", &M);
 		//SAssetIO::load("Assets/Skel/SmplMale_test.fbx", &M);
-		SAssetIO::load("Assets/Skel/ExportTest2.fbx", &M);
+		SAssetIO::load("MyAssets/ManMulti.fbx", &M);
+
 		SceneUtilities::setMeshShader(&M, 0.6f, 0.04f);
 
-		M.getMaterial(0)->TexAlbedo = "Assets/Skel/MHTextures/young_lightskinned_male_diffuse2.png";
-		M.getMaterial(1)->TexAlbedo = "Assets/Skel/MHTextures/brown_eye.png";
-		M.getMaterial(2)->TexAlbedo = "Assets/Skel/MHTextures/male_casualsuit04_diffuse.png";
-		M.getMaterial(3)->TexAlbedo = "Assets/Skel/MHTextures/shoes06_diffuse.png";
+		M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_male_diffuse2.png";
+		M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
+		M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/male_casualsuit04_diffuse.png";
+		M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
 
-		if (M.normalCount() == 0) M.computePerVertexNormals();
+		M.computePerVertexNormals();
+		M.computePerVertexTangents();
 		EricAnimController.init(&M, true);
 		Eric.init(&M, &EricAnimController);
 		M.clear();
 
-		SkeletalAnimationController::Animation* pEricAnim = EricAnimController.createAnimation(6, 1.0f, 0.0f);
+		SkeletalAnimationController::Animation* pEricAnim = EricAnimController.createAnimation(0, 1.0f, 0.0f);
 		//SkeletalAnimationController::Animation* pEricAnim = EricAnimController.createAnimation(0, 1.0f, 0.0f);
 		Eric.activeAnimation(pEricAnim);
 
@@ -240,8 +233,6 @@ namespace CForge {
 		SGNTransformation Armchair01Transform;
 		SGNGeometry Armchair01SGN;
 
-
-
 		SGNRoot.init(nullptr, Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Quaternionf::Identity(), Eigen::Vector3f::Ones());
 		GroundSGN.init(&SGNRoot, &Ground, GroundPos, GroundRot, GroundScale);
 
@@ -275,7 +266,7 @@ namespace CForge {
 
 		SG.init(&SGNRoot);
 
-		const uint32_t ObjCount = 0;
+		const uint32_t ObjCount = 500;
 		const uint32_t ObjTypeCount = 2;
 		std::vector<uint32_t> ObjType;
 		std::vector<Eigen::Vector3f> ObjPositions;
