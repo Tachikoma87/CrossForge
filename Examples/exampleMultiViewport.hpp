@@ -18,240 +18,176 @@
 #ifndef __CFORGE_EXAMPLEMULTIVIEWPORT_HPP__
 #define __CFORGE_EXAMPLEMULTIVIEWPORT_HPP__
 
-#include "../CForge/AssetIO/SAssetIO.h"
-#include "../CForge/Graphics/Shader/SShaderManager.h"
-#include "../CForge/Graphics/STextureManager.h"
-
-#include "../CForge/Graphics/GLWindow.h"
-#include "../CForge/Graphics/GraphicsUtility.h"
-#include "../CForge/Graphics/RenderDevice.h"
-
-#include "../CForge/Graphics/Lights/DirectionalLight.h"
-#include "../CForge/Graphics/Lights/PointLight.h"
-
-#include "../CForge/Graphics/SceneGraph/SceneGraph.h"
-#include "../CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "../CForge/Graphics/SceneGraph/SGNTransformation.h"
-
-#include "../CForge/Graphics/Actors/StaticActor.h"
-
-#include "SceneUtilities.hpp"
+#include "exampleSceneBase.hpp"
 
 using namespace Eigen;
 using namespace std;
 
 namespace CForge {
 
-	void exampleMultiViewport(void) {
-		SShaderManager* pSMan = SShaderManager::instance();
+	class ExampleMultiViewport : public ExampleSceneBase {
+	public:
+		ExampleMultiViewport(void) {
+			m_RenderBufferScale = 2; // only half resolution of render buffer (GBuffer)
+		}//Constructor
 
-		std::string WindowTitle = "CForge - Multi Viewport Example";
-		float FPS = 60.0f;
+		~ExampleMultiViewport(void) {
+			clear();
+		}//Destructor
 
-		bool const LowRes = false;
-		bool const HighRes = false;
+		void init(void) {
 
-		uint32_t WinWidth = 1280;
-		uint32_t WinHeight = 720;
+			initWindowAndRenderDevice();
+			initCameraAndLights();
 
-		uint32_t GBufferWidth = 1280 / 2;
-		uint32_t GBufferHeight = 720 / 2;
+			// load skydome and a textured cube
+			T3DMesh<float> M;
+			
+			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
+			setMeshShader(&M, 0.8f, 0.04f);
+			M.computePerVertexNormals();
+			m_Skydome.init(&M);
+			M.clear();
 
-		if (LowRes) {
-			WinWidth = 720;
-			WinHeight = 576;
-		}
-		if (HighRes) {
-			WinWidth = 1920;
-			WinHeight = 1080;
-		}
+			SAssetIO::load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &M);
+			setMeshShader(&M, 0.2f, 0.24f);
+			M.computePerVertexNormals();
+			M.computePerVertexTangents();
+			m_Helmet.init(&M);
+			M.clear();
 
+			// build scene graphs (one for every viewport)
 
+			float Speed = 10.0f; // Degree per second
+			Quaternionf HelmetRotationDeltas[4];
+			HelmetRotationDeltas[0] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitX());
+			HelmetRotationDeltas[1] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitY());
+			HelmetRotationDeltas[2] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitZ());
+			HelmetRotationDeltas[3] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f(1.0f, 1.0f, 1.0f).normalized());
 
-		// create an OpenGL capable windows
-		GLWindow RenderWin;
-		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
+			for (uint8_t i = 0; i < 4; ++i) {
+				m_RootSGNs[i].init(nullptr);
+				m_SGs[i].init(&m_RootSGNs[i]);
 
-		// configure and initialize rendering pipeline
-		RenderDevice RDev;
-		RenderDevice::RenderDeviceConfig Config;
-		Config.DirectionalLightsCount = 1;
-		Config.PointLightsCount = 1;
-		Config.SpotLightsCount = 0;
-		Config.ExecuteLightingPass = true;
-		Config.GBufferHeight = GBufferHeight;
-		Config.GBufferWidth = GBufferWidth;
-		Config.pAttachedWindow = &RenderWin;
-		Config.PhysicallyBasedShading = true;
-		Config.UseGBuffer = true;
-		RDev.init(&Config);
+				// add skydome
+				m_DomeGeomSGNs[i].init(&m_RootSGNs[i], &m_Skydome, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(50.0f, 50.0f, 50.0f));
+				// add helmet
+				m_HelmetTransSGNs[i].init(&m_RootSGNs[i], Vector3f(0.0f, 3.5f, 0.0f));
+				m_HelmetGeomSGNs[i].init(&m_HelmetTransSGNs[i], &m_Helmet, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(3.0f, 3.0f, 3.0f));
 
-		// configure and initialize shader configuration device
-		ShaderCode::LightConfig LC;
-		LC.DirLightCount = 1;
-		LC.PointLightCount = 1;
-		LC.SpotLightCount = 0;
-		LC.PCFSize = 1;
-		LC.ShadowBias = 0.0004f;
-		LC.ShadowMapCount = 1;
-		pSMan->configShader(LC);
+				// let the helmets spin
+				m_HelmetTransSGNs[i].rotationDelta(HelmetRotationDeltas[i]);
+			}
 
-		// initialize camera
-		VirtualCamera Cam;
-		Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
-		Cam.projectionMatrix(GBufferWidth, GBufferHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+			// we need one viewport for the GBuffer		
+			m_GBufferVP.Position = Vector2i(0, 0);	
+			m_GBufferVP.Size = Vector2i(m_RenderDev.gBuffer()->width(), m_RenderDev.gBuffer()->height());
+			m_RenderDev.viewport(RenderDevice::RENDERPASS_GEOMETRY, m_GBufferVP);
 
-		// initialize sun (key lights) and back ground light (fill light)
-		Vector3f SunPos = Vector3f(-5.0f, 15.0f, 35.0f);
-		Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -30.0f);
-		DirectionalLight Sun;
-		PointLight BGLight;
-		Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
-		// sun will cast shadows
-		Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
-		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
+			updateViewportsAndCamera();
 
-		// set camera and lights
-		RDev.activeCamera(&Cam);
-		RDev.addLight(&Sun);
-		RDev.addLight(&BGLight);
+			// stuff for performance monitoring
+			uint64_t LastFPSPrint = CoreUtility::timestamp();
+			int32_t FPSCount = 0;
 
-		// load skydome and a textured cube
-		T3DMesh<float> M;
-		StaticActor Skydome;
-		StaticActor Helmet;
+			std::string GLError = "";
+			GraphicsUtility::checkGLError(&GLError);
+			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
+		}//initialize
 
-		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
-		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
-		M.computePerVertexNormals();
-		Skydome.init(&M);
-		M.clear();
+		void clear(void) {
+			ExampleSceneBase::clear();
+		}//clear
 
-		SAssetIO::load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &M);
-		SceneUtilities::setMeshShader(&M, 0.2f, 0.24f);
-		M.computePerVertexNormals();
-		M.computePerVertexTangents();
-		Helmet.init(&M);
-		M.clear();
+		void run(void) {
+			while (!m_RenderWin.shutdown()) {
+				m_RenderWin.update();
+				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
-		// build scene graphs (one for every viewport)
-		SceneGraph SGs[4];
-		SGNTransformation RootSGNs[4];
+				// perform rendering for the 4 viewports
+				for (uint8_t i = 0; i < 4; ++i) {
+					m_SGs[i].update(60.0f / m_FPS);
 
-		//SGNTransformation DomeTransSGNs[4];
-		SGNTransformation HelmetTransSGNs[4];
-		SGNGeometry DomeGeomSGNs[4];
-		SGNGeometry HelmetGeomSGNs[4];
+					// render scene as usual
+					//m_RenderDev.viewport(RenderDevice::RENDERPASS_GEOMETRY, m_GBufferVP);
+					m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+					m_SGs[i].render(&m_RenderDev);
+					m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+					m_SGs[i].render(&m_RenderDev);
 
-		float Speed = 10.0f; // Degree per second
-		Quaternionf HelmetRotationDeltas[4];
-		HelmetRotationDeltas[0] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitX());
-		HelmetRotationDeltas[1] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitY());
-		HelmetRotationDeltas[2] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitZ());
-		HelmetRotationDeltas[3] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f(1.0f, 1.0f, 1.0f).normalized());
+					// set viewport and perform lighting pass
+					// this will produce the correct tile in the final output window (backbuffer to be specific)
+					m_RenderDev.viewport(RenderDevice::RENDERPASS_LIGHTING, m_VPs[i]);
+					m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING, nullptr, (i == 0) ? true : false);
+				}
 
-		for (uint8_t i = 0; i < 4; ++i) {
-			RootSGNs[i].init(nullptr);
-			SGs[i].init(&RootSGNs[i]);
+				m_RenderWin.swapBuffers();
 
-			// add skydome
-			DomeGeomSGNs[i].init(&RootSGNs[i], &Skydome, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(5.0f, 5.0f, 5.0f));
-			// add helmet
-			HelmetTransSGNs[i].init(&RootSGNs[i], Vector3f(0.0f, 6.5f, 0.0f));
-			HelmetGeomSGNs[i].init(&HelmetTransSGNs[i], &Helmet, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(5.0f, 5.0f, 5.0f));
+				updateFPS();
+				defaultKeyboardUpdate(m_RenderWin.keyboard());
 
-			// let the helmets spin
-			HelmetTransSGNs[i].rotationDelta(HelmetRotationDeltas[i]);	
-		}
+			}//while[main loop]
+		}//run
+	protected:
 
-		// we need one viewport for the GBuffer
-		RenderDevice::Viewport GBufferVP;
-		GBufferVP.Position = Vector2i(0, 0);
-		GBufferVP.Size = Vector2i(GBufferWidth, GBufferHeight);
-		
-		
-		// stuff for performance monitoring
-		uint64_t LastFPSPrint = CoreUtility::timestamp();
-		int32_t FPSCount = 0;
-
-		std::string GLError = "";
-		GraphicsUtility::checkGLError(&GLError);
-		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
-
-		// main rendering loop
-		while (!RenderWin.shutdown()) {
-			RenderWin.update();
-			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
-
-			uint32_t RenderWinWidth = RenderWin.width();
-			uint32_t RenderWinHeight = RenderWin.height();
-
-			Cam.projectionMatrix(RenderWinWidth, RenderWinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+		void updateViewportsAndCamera(void) {
+			uint32_t RenderWinWidth = m_RenderWin.width();
+			uint32_t RenderWinHeight = m_RenderWin.height();
 
 			uint32_t Margin = 14;
-			Vector2i VPSize = Vector2i(RenderWinWidth / 2, RenderWinHeight / 2) - 2 * Vector2i(Margin, Margin) + Vector2i(Margin/2, Margin/2);
+			Vector2i VPSize = Vector2i(RenderWinWidth / 2, RenderWinHeight / 2) - 2 * Vector2i(Margin, Margin) + Vector2i(Margin / 2, Margin / 2);
 
-			RenderDevice::Viewport VPs[4];
 			// Top left
-			VPs[0].Position = Vector2i(0, RenderWinHeight / 2) + Vector2i(Margin, Margin/2);
+			m_VPs[0].Position = Vector2i(0, RenderWinHeight / 2) + Vector2i(Margin, Margin / 2);
 			// top right
-			VPs[1].Position = Vector2i(RenderWinWidth / 2, RenderWinHeight / 2) + Vector2i(Margin/2, Margin/2);
+			m_VPs[1].Position = Vector2i(RenderWinWidth / 2, RenderWinHeight / 2) + Vector2i(Margin / 2, Margin / 2);
 			// bottom left
-			VPs[2].Position = Vector2i(Margin, Margin);
+			m_VPs[2].Position = Vector2i(Margin, Margin);
 			// bottom right
-			VPs[3].Position = Vector2i(RenderWinWidth / 2, 0) + Vector2i(Margin/2, Margin);
-			for (uint8_t i = 0; i < 4; ++i) VPs[i].Size = VPSize;
+			m_VPs[3].Position = Vector2i(RenderWinWidth / 2, 0) + Vector2i(Margin / 2, Margin);
+			for (uint8_t i = 0; i < 4; ++i) m_VPs[i].Size = VPSize;
+
+			m_Cam.projectionMatrix(m_VPs[0].Size[0], m_VPs[0].Size[1], GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+
+			m_GBufferVP.Size = Vector2i(m_RenderDev.gBuffer()->width(), m_RenderDev.gBuffer()->height());
+			m_RenderDev.viewport(RenderDevice::RENDERPASS_GEOMETRY, m_GBufferVP);
+
+			// viewport for forward pass (required for correct screenshots)
+			RenderDevice::Viewport VFPass;
+			VFPass.Position = Vector2i(0, 0);
+			VFPass.Size = Vector2i(RenderWinWidth, RenderWinHeight);
+			m_RenderDev.viewport(RenderDevice::RENDERPASS_FORWARD, VFPass);
+
+		}//updateViewports
+
+		void listen(GLWindowMsg Msg) {
+			ExampleSceneBase::listen(Msg);
+
+			updateViewportsAndCamera();
+		}
+
+		StaticActor m_Skydome;
+		StaticActor m_Helmet;
+
+		SceneGraph m_SGs[4];
+		SGNTransformation m_RootSGNs[4];
+
+		SGNTransformation m_HelmetTransSGNs[4];
+		SGNGeometry m_DomeGeomSGNs[4];
+		SGNGeometry m_HelmetGeomSGNs[4];
+
+		// required viewports
+		RenderDevice::Viewport m_GBufferVP;
+		RenderDevice::Viewport m_VPs[4];
+	};//ExampleMultiViewport
 
 
-			// perform rendering for the 4 viewports
-			for (uint8_t i = 0; i < 4; ++i) {
-				SGs[i].update(60.0f / FPS);
+	void exampleMultiViewport(void) {
 
-				// render scene as usual
-				RDev.viewport(GBufferVP);
-				RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-				SGs[i].render(&RDev);
-				RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-				SGs[i].render(&RDev);
-
-				// set viewport and perform lighting pass
-				// this will produce the correct tile in the final output window (backbuffer to be specific)
-				RDev.viewport(VPs[i]);
-				RDev.activePass(RenderDevice::RENDERPASS_LIGHTING, nullptr, (i==0) ? true : false);
-			}
-
-
-
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_F10, true)) {
-				RenderDevice::Viewport V;
-				V.Position = Vector2i(0, 0);
-				V.Size = Vector2i(RenderWinWidth, RenderWinHeight);
-				RDev.viewport(V);
-				RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
-				SceneUtilities::takeScreenshot("Screenshot.jpg");
-			}
-
-			RenderWin.swapBuffers();
-
-			FPSCount++;
-			if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {
-				char Buf[64];
-				sprintf(Buf, "FPS: %d\n", FPSCount);
-				FPS = float(FPSCount);
-				FPSCount = 0;
-				LastFPSPrint = CoreUtility::timestamp();
-
-				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
-			}
-
-			
-
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
-				RenderWin.closeWindow();
-			}
-		}//while[main loop]
-
-		pSMan->release();
+		ExampleMultiViewport Ex;
+		Ex.init();
+		Ex.run();
+		Ex.clear();
 
 	}//exampleMultiViewport
 
