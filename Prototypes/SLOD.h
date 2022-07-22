@@ -23,7 +23,7 @@ namespace CForge {
 		void setLODLevels(std::vector<float> levels);
 
 		bool forceHighLOD = false;
-		float LODOffset = 0.25;
+		float LODOffset = 1.0;
 		
 	protected:
 		SLOD(void);
@@ -43,7 +43,8 @@ namespace CForge {
 		//bool forceSLOD = false; //TODO
 		//bool m_preferLowLOD = false;
 		
-		std::vector<float> LODLevels = /*{1.0, 0.9}; //*/{1.0, 0.75, 0.5, 0.25, 0.125, 0.0625, 0.031, 0.0155};
+		//std::vector<float> LODLevels = /*{1.0, 0.9}; //*/{1.0, 0.75, 0.5, 0.25, 0.125, 0.0625, 0.031, 0.0155};
+		std::vector<float> LODLevels = /*{1.0, 0.9}; //*/{1.0, 0.75, 0.5, 0.5/2, 0.5/2/2, 0.5/2/2/2, 0.5/2/2/2/2, 0.5/2/2/2/2/2, 0.5/2/2/2/2/2/2, 0.5/2/2/2/2/2/2/2};
 		//std::vector<float> LODLevels = {1.0};
 		//std::vector<float> LODPercentages = {FLT_EPSILON};
 		//std::vector<float> LODPercentages = { 0.5, 0.4, 0.25, 0.125, 0.0625, 0.03125 };
