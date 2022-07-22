@@ -114,7 +114,7 @@ namespace CForge {
 		for (int i = 0; i < model.bufferViews.size(); i++) {
 			std::cout << "BufferView offset: " << model.bufferViews[i].byteOffset << std::endl;
 		}
-
+		
 		readMeshes();
 
 		readSkeletalAnimations();
@@ -397,7 +397,7 @@ namespace CForge {
 	void GLTFIO::readMaterial(const int materialIndex, T3DMesh<float>::Material* pMaterial) {
 		Material gltfMaterial = model.materials[materialIndex];
 
-		pMaterial->ID = materialIndex;
+		// pMaterial->ID = materialIndex;
 
 		pMaterial->Metallic = gltfMaterial.pbrMetallicRoughness.metallicFactor;
 		pMaterial->Roughness = gltfMaterial.pbrMetallicRoughness.roughnessFactor;
@@ -413,6 +413,12 @@ namespace CForge {
 		pMaterial->TexAlbedo = getTexturePath(gltfMaterial.pbrMetallicRoughness.baseColorTexture.index);
 		pMaterial->TexNormal = getTexturePath(gltfMaterial.normalTexture.index);
 		// pMaterial->TexDepth = getTexturePath(gltfMaterial.occlusionTexture.index);
+
+		pMaterial->VertexShaderGeometryPass.push_back("Shader/BasisGeometryPass.vert");
+		pMaterial->FragmentShaderGeometryPass.push_back("Shader/BasicGeometryPass.frag");
+
+		pMaterial->VertexShaderShadowPass.push_back("Shader/ShadowPassShader.vert");
+		pMaterial->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");
 	}
 
 	std::string GLTFIO::getTexturePath(const int textureIndex) {
@@ -517,6 +523,9 @@ namespace CForge {
 		}
 	}
 
+
+
+	
 	void GLTFIO::store(const std::string Filepath, const T3DMesh<float>* pMesh) {
 
 	}//store

@@ -139,6 +139,7 @@ namespace CForge {
 		GLTFIO gltfio;
 		gltfio.load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &testModel);
 		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);
+		testModel.bones(&std::vector<T3DMesh<float>::Bone*>(), false);
 		testModel.computePerVertexNormals();
 		Cube.init(&testModel);
 		testModel.clear();
