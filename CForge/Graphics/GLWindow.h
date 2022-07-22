@@ -69,6 +69,9 @@ namespace CForge {
 
 		void setCharacterCallback(class GLFWindow* pWin, uint32_t Codepoint);
 
+		void vsync(bool Enable, int8_t ThrottleFactor = 1);
+		bool vsync(int8_t *pThrottleFactor = nullptr)const;
+
 	private:
 		class GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
 
@@ -76,6 +79,9 @@ namespace CForge {
 		Keyboard m_Keyboard;
 		Mouse m_Mouse;
 		class SInputManager* m_pInputMan;
+
+		bool m_VSync;
+		int8_t m_ThrottleFactor;
 
 		std::string m_Title; ///< The windows title
 

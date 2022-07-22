@@ -114,6 +114,7 @@ namespace CForge {
 
 		glfwSetWindowSizeCallback((GLFWwindow*)this->m_pHandle, sizeCallback);
 		m_WindowList.insert(std::pair<GLWindow*, GLFWwindow*>(this, pWin));
+		vsync(true);
 
 	}//initialize
 
@@ -186,5 +187,22 @@ namespace CForge {
 		m_Title = Title;
 		glfwSetWindowTitle((GLFWwindow*)m_pHandle, m_Title.c_str());
 	}//title
+
+	void GLWindow::vsync(bool Enable, int8_t ThrottleFactor) {
+		if (Enable) {
+			glfwSwapInterval((ThrottleFactor >= 0) ? ThrottleFactor : 1);
+			m_ThrottleFactor = ThrottleFactor;
+			m_VSync = true;
+		}
+		else {
+			glfwSwapInterval(0);
+			m_VSync = false;
+		}
+	}//vsync
+
+	bool GLWindow::vsync(int8_t *pThrottleFactor)const {
+		if (nullptr != pThrottleFactor) (*pThrottleFactor) = m_ThrottleFactor;
+		return m_VSync;
+	}//vsync
 
 }//name space
