@@ -553,9 +553,17 @@ namespace CForge {
 		if (distance < 0.0)
 			return true;
 		
-		Eigen::Vector3f center = getAABB().Min*0.5+getAABB().Max*0.5;
+		// TODO function?
+		Eigen::Affine3f affine(*mat);
+		affine.data()[12] = 0.0;
+		affine.data()[13] = 0.0;
+		affine.data()[14] = 0.0;
+		Eigen::Vector3f scaledAABBMax = affine * getAABB().Max;
+		Eigen::Vector3f scaledAABBMin = affine * getAABB().Min;
+		
+		Eigen::Vector3f center = scaledAABBMin*0.5+scaledAABBMax*0.5;
 		Eigen::Vector3f camPosToObj = Translation+center-pRDev->activeCamera()->position();
-		float offset = getAABB().diagonal().norm()*0.5 * 0.1;
+		float offset = aabbRadius*0.1;
 
 		float fov = pRDev->activeCamera()->getFOV();
 		if (camPosToObj.normalized().dot(pRDev->activeCamera()->dir())+(1.0/distance)*offset < std::cos(fov))

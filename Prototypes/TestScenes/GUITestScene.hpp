@@ -15,8 +15,8 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_MUSEUMTESTSCENE_HPP__
-#define __CFORGE_MUSEUMTESTSCENE_HPP__
+#ifndef __CFORGE_GUITESTSCENE_HPP__
+#define __CFORGE_GUITESTSCENE_HPP__
 
 #include "../../CForge/AssetIO/SAssetIO.h"
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
@@ -57,9 +57,8 @@ using namespace std;
 
 using namespace CForge;
 
-class MuseumTestScene : public ITListener<GUICallbackObject> {
+class GUITestScene : public ITListener<GUICallbackObject> {
 public:
-
 	//https://stackoverflow.com/questions/11635/case-insensitive-string-comparison-in-c
 	bool iequals(const string& a, const string& b)
 	{
@@ -105,7 +104,7 @@ public:
 		quad->init(0, 0, 1, 1, quadShader);
 	}
 
-	void museumTestScene(void) {
+	void guiTestScene(void) {
 		SShaderManager* pSMan = SShaderManager::instance();
 		pSLOD = SLOD::instance();
 		LODHandler lodHandler;
@@ -142,7 +141,7 @@ public:
 		RDev.init(&Config);
 
 		uint32_t shadowMapRes = /*//8192;//4096;/*/1024;//*/
-		// configure and initialize shader configuration device
+														// configure and initialize shader configuration device
 		ShaderCode::LightConfig LC;
 		LC.DirLightCount = 1;
 		LC.PointLightCount = 1;
@@ -182,13 +181,6 @@ public:
 		Skydome.init(&M);
 		M.clear();
 
-		//SAssetIO::load("museumAssets/Dragon_0.02.obj", &M);
-		//SAssetIO::load("Assets/sphere.obj", &M);
-		//SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
-		//M.computePerVertexNormals();
-		//Cube.init(&M);
-		//M.clear();
-
 		// build scene graph
 		SceneGraph SG;
 		SGNTransformation RootSGN;
@@ -199,72 +191,6 @@ public:
 		SGNGeometry SkydomeSGN;
 		SkydomeSGN.init(&RootSGN, &Skydome);
 		SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
-
-		std::vector<LODActor*> museumActors;
-		std::vector<SGNGeometry*> museumSGNG;
-		std::vector<SGNTransformation*> museumSGNT;
-
-		uint32_t modelAmount = 0;
-		std::string path = "museumAssets/";
-		for (const auto& entry : std::filesystem::directory_iterator(path)) {
-			std::cout << entry.path() << std::endl;
-			bool accepted = false;
-			std::string extension = entry.path().extension().string();
-			std::cout << extension << "\n";
-			accepted = iequals(extension,".obj")
-			        || iequals(extension,".stl")
-			        || iequals(extension,".fbx")
-			        || iequals(extension,".ply");
-			
-			if (accepted) {
-				modelAmount++;
-				// load model
-				SAssetIO::load(entry.path().string().c_str(), &M);
-				SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
-				M.computePerVertexNormals();
-				M.computeAxisAlignedBoundingBox();
-				
-				float triangleSize = lodHandler.getTriSizeInfo(M,LODHandler::TRI_S_AVG);
-				std::cout << triangleSize << "\n";
-				
-				// get 2 longest sides of aabb
-				Eigen::Vector3f diag = M.aabb().diagonal();
-				float a = max(diag.x(),max(diag.y(),diag.z()));
-				float b = diag.x()+diag.y()+diag.z()-a-min(diag.x(),min(diag.y(),diag.z()));
-				
-				float aabbTriRatio = triangleSize / (a*b);
-				std::cout << a*b << "\n";
-				std::cout << aabbTriRatio << "\n";
-				
-				LODActor* newAct = new LODActor();
-				newAct->init(&M);
-				museumActors.push_back(newAct);
-				M.clear();
-				
-				// add actor to scene
-				SGNGeometry* SGN = new SGNGeometry();
-				SGNTransformation* TransformSGN = new SGNTransformation();
-				museumSGNG.push_back(SGN);
-				museumSGNT.push_back(TransformSGN);
-				
-				float x = (float)(modelAmount%4)*6.0-7.5;
-				float y = (float)(modelAmount/4)*6.0-7.5;
-
-				T3DMesh<float>::AABB aabb = M.aabb();
-
-				float scale = 1.0/aabb.diagonal().norm()*5.0;
-				TransformSGN->init(&RootSGN, Vector3f(x, -aabb.Min.y()*scale, y));
-				TransformSGN->scale(Vector3f(scale,scale,scale));
-				Eigen::Vector3f center = -(aabb.Max*0.5+0.5*aabb.Min);
-				TransformSGN->translation(TransformSGN->translation()+Eigen::Vector3f(center.x(),0.0,center.z())*scale);
-				//TransformSGN->rotation((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()));
-				SGN->init(TransformSGN, newAct);
-				
-				lodHandler.generateLODmodels(entry.path().string(),newAct->getLODStages(), newAct->getLODPercentages());
-			}
-		}
-		
-		lodHandler.waitForLODgeneration();
 		
 		// stuff for performance monitoring
 		uint64_t LastFPSPrint = CoreUtility::timestamp();
@@ -276,11 +202,11 @@ public:
 
 		ScreenQuad ppquad;
 		initPPQuad(&ppquad);
-		
+
 		T2DImage<uint8_t> shadowBufTex;
 
 		GUI gui = GUI();
-        gui.testInit(&RenderWin);
+		gui.testInit(&RenderWin);
 
 		FormWidget* form = gui.createOptionsWindow ( U"Graphics", 1, U"" );
 		form->startListening ( this );
@@ -298,14 +224,14 @@ public:
 		form->setLimit ( GUI_LODOFFSET, 0.0f, 5.0f );
 		form->setStepSize ( GUI_LODOFFSET, 0.1f );
 		form->setDefault ( GUI_LODOFFSET, pSLOD->LODOffset );
-//         form->addOption ( 7, INPUTTYPE_RANGESLIDER, U"Field of View" );
-//         form->setLimit ( 7, 60.0f, 120.0f );
-//         form->setStepSize ( 7, 1.0f );
-//         form->setDefault(7, 90);
+		//         form->addOption ( 7, INPUTTYPE_RANGESLIDER, U"Field of View" );
+		//         form->setLimit ( 7, 60.0f, 120.0f );
+		//         form->setStepSize ( 7, 1.0f );
+		//         form->setDefault(7, 90);
 
 		TextWidget* fpsWidget = gui.createPlainText();
 		fpsWidget->setTextAlign(TextWidget::ALIGN_RIGHT);
-		
+
 		while (!RenderWin.shutdown()) {
 			RDev.clearBuffer();
 			RenderWin.update();
@@ -321,10 +247,6 @@ public:
 			Keyboard* pKeyboard = RenderWin.keyboard();
 			float Step = (pKeyboard->keyState(Keyboard::KEY_Q) == 0) ? 0.1f : 1.0f;
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(), 0.4*Step, cameraPanningAcceleration, 1.0f / pSLOD->getDeltaTime());
-
-			//Sun.retrieveDepthBuffer(&shadowBufTex);
-			//AssetIO::store("testMeshOut.jpg",&shadowBufTex);
-			//return;
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			RDev.activePass(RenderDevice::RENDERPASS_LOD);
@@ -346,7 +268,7 @@ public:
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
-			
+
 			//render debug aabb
 			if (renderLODAABB) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -365,16 +287,15 @@ public:
 				glEnable(GL_CULL_FACE);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
-			
+
 			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
 			ppquad.render(&RDev);
 
-// 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 			gui.processEvents();
 			gui.render(&RDev);
 
 			RenderWin.swapBuffers();
-			
+
 			RDev.LODSG_clear();
 
 			FPSCount++;
@@ -396,7 +317,7 @@ public:
 				FPSCount = 0;
 				LastFPSPrint = CoreUtility::timestamp();
 
-// 				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
+				// 				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
 			}
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
@@ -405,20 +326,13 @@ public:
 		}//while[main loop]
 
 		pSMan->release();
-		
-		//release museum actors
-		for (uint32_t i = 0; i < museumActors.size(); i++) {
-			delete museumActors[i];
-			delete museumSGNG[i];
-			delete museumSGNT[i];
-		}
 
 	}//exampleMinimumGraphicsSetup
 
 	void listen ( const GUICallbackObject Msg ) override {
 		if (Msg.FormID == 1) {
-// 			cameraMode = *((int*)Msg.Data.at(1).pData) == 2;
-// 			shadows = *((bool*)Msg.Data.at(2).pData);
+			// 			cameraMode = *((int*)Msg.Data.at(1).pData) == 2;
+			// 			shadows = *((bool*)Msg.Data.at(2).pData);
 			Wireframe = *((bool*)Msg.Data.at(GUI_WIREFRAME).pData);
 			renderLODAABB = *((bool*)Msg.Data.at(GUI_RENDER_AABB).pData);
 			if (*((bool*)Msg.Data.at(GUI_FRAMERATE).pData)) {   //'unlock framerate'
@@ -427,10 +341,10 @@ public:
 				glfwSwapInterval(1);
 			};
 			cameraPanningAcceleration = *((float*)Msg.Data.at(GUI_CAMERA_PANNING).pData);
-// 			CAM_FOV = *((float*)Msg.Data.at(7).pData);
-// 			if (cameraPointerForCallbackHandling) {
-// 				cameraPointerForCallbackHandling->projectionMatrix(WINWIDTH, WINHEIGHT, GraphicsUtility::degToRad(CAM_FOV), 0.1f, 5000.0f);
-// 			}
+			// 			CAM_FOV = *((float*)Msg.Data.at(7).pData);
+			// 			if (cameraPointerForCallbackHandling) {
+			// 				cameraPointerForCallbackHandling->projectionMatrix(WINWIDTH, WINHEIGHT, GraphicsUtility::degToRad(CAM_FOV), 0.1f, 5000.0f);
+			// 			}
 
 			pSLOD->LODOffset = *((float*)Msg.Data.at(GUI_LODOFFSET).pData);
 		}
