@@ -83,7 +83,7 @@ namespace CForge {
 		LC.DirLightCount = 1;
 		LC.PointLightCount = 1;
 		LC.SpotLightCount = 0;
-		LC.PCFSize = 0;
+		LC.PCFSize = 1;
 		LC.ShadowBias = 0.00001f;
 		LC.ShadowMapCount = 1;
 		pSMan->configShader(LC);
@@ -197,12 +197,12 @@ namespace CForge {
 		SkydomeSGN.rotation(Rot);
 
 		// generate a forest
-		const uint32_t TreeCount = 4000;
+		const uint32_t TreeCount = 200;
 		SGNGeometry* pTreeNodes = new SGNGeometry[TreeCount];
 		SGNTransformation* pTreeTransNodes = new SGNTransformation[TreeCount];
 
-		float MinPlane = -200.0f;
-		float MaxPlane = 200.0f;
+		float MinPlane = -40.0f;
+		float MaxPlane = 40.0f;
 
 		for (uint32_t i = 0; i < TreeCount; ++i) {
 

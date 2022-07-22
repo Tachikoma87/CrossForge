@@ -78,6 +78,7 @@ namespace CForge {
 		m_pSMan = SShaderManager::instance();
 		m_pTexMan = STextureManager::instance();
 
+
 #ifdef _WIN32
 		m_pGPIO = nullptr;
 #else
