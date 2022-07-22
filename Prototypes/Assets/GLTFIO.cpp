@@ -229,7 +229,7 @@ namespace CForge {
 					Eigen::Matrix<float, 3, 1> mat;
 
 					mat(0) = pos[0];
-					mat(1) = pos[1];
+					mat(1) = 1.0f - pos[1];
 
 					texCoord.push_back(mat);
 				}
