@@ -67,6 +67,7 @@ add_library(crossforge SHARED
 	CForge/Graphics/STextureManager.cpp 
 	CForge/Graphics/VirtualCamera.cpp
 	CForge/Graphics/GraphicsUtility.cpp
+	
 
 
 	# Actor related

@@ -11,6 +11,27 @@
 using namespace Eigen;
 
 namespace CForge {
+
+	std::map<GLWindow*, GLFWwindow*> GLWindow::m_WindowList;
+
+	void GLWindow::sizeCallback(GLFWwindow* pHandle, int Width, int Height) {
+		
+		// find corresponding window
+		for (auto i : m_WindowList) {
+			if (i.second == pHandle) {
+				// create message
+				GLWindowMsg Msg;
+				Msg.pHandle = (void*)i.first;
+				Msg.Code = GLWindowMsg::MC_RESIZE;
+				Msg.iParam[0] = Width;
+				Msg.iParam[1] = Height;
+				i.first->broadcast(Msg);
+			}
+		}//for[available windows]
+
+	}//sizeCallback
+
+
 	GLWindow::GLWindow(void): CForgeObject("GLWindow") {
 		m_pHandle = nullptr;
 		m_pInputMan = nullptr;
@@ -76,6 +97,7 @@ namespace CForge {
 		glEndQuery = (PFNGLENDQUERYPROC)glfwGetProcAddress("glEndQuery");
 		glGetQueryObjectuiv = (PFNGLGETQUERYOBJECTUIVPROC)glfwGetProcAddress("glGetQueryObjectuiv");
 #endif
+
 		glViewport(0, 0, Size.x(), Size.y());
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
@@ -89,6 +111,9 @@ namespace CForge {
 		m_Keyboard.init(pWin);
 		m_pInputMan->registerDevice(pWin, &m_Keyboard);
 		m_pInputMan->registerDevice(pWin, &m_Mouse);
+
+		glfwSetWindowSizeCallback((GLFWwindow*)this->m_pHandle, sizeCallback);
+		m_WindowList.insert(std::pair<GLWindow*, GLFWwindow*>(this, pWin));
 
 	}//initialize
 
