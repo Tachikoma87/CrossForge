@@ -22,8 +22,6 @@
 #include "Prototypes/TestScenes/ForestTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
-#include "Prototypes/TestScenes/anotherTestScene.hpp"
-#include "Prototypes/TestScenes/NormalMappingTestScene.hpp"
 #include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
 
 using namespace CForge;
@@ -66,20 +64,15 @@ int main(int argc, char* argv[]) {
 		//exampleMultiViewport();
 		//exampleSkeletalAnimation(); 
 		//exampleSkybox();
-		exampleSockets();
+		//exampleSockets();
 	
-
-		//imuInputDeviceTestScene();
-		// 
-		//shadowTest();
-		//vertexColorTestScene();
-		//forestTestScene();
 		//skelAnimTestScene();
+		//imuInputDeviceTestScene();
+		//vertexColorTestScene();
+		//shadowTest();	
+		//forestTestScene();
+		surfaceSamplerTestScene();
 		
-		//assetGLTFTestScene();
-		//anotherTestScene();	
-		//normalMappingTestScene();
-		//surfaceSamplerTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

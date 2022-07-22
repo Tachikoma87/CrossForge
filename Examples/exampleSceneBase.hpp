@@ -133,6 +133,14 @@ namespace CForge {
 			LC.ShadowBias = 0.00001f;
 			LC.ShadowMapCount = 1;
 			m_pShaderMan->configShader(LC);
+
+			ShaderCode::PostProcessingConfig PPC;
+			PPC.Exposure = 1.0f;
+			PPC.Gamma = 2.2f;
+			PPC.Saturation = 1.1f;
+			PPC.Brightness = 1.05f;
+			PPC.Contrast = 1.05f;
+			m_pShaderMan->configShader(PPC);
 		}//initWindowAndRenderDevice
 
 		virtual void initCameraAndLights(void) {
