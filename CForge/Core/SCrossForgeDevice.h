@@ -77,7 +77,7 @@ namespace CForge {
 		class SGPIO* m_pGPIO; ///< GPIO instance
 		class SAssetIO* m_pAssIO; ///< Asset importer/exporter instance
 		class STextureManager* m_pTexMan; ///< Texture manager
-		class SShaderManager* m_pSMan;
+		class SShaderManager* m_pSMan;	///< Shader manager
 
 		std::vector<CForgeObject*> m_RegisteredObjects;
 		std::list<uint32_t> m_FreeObjSlots;

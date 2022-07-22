@@ -9,6 +9,7 @@
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
 
+#include "Examples/exampleSceneBase.hpp"
 #include "Examples/exampleMinimumGraphicsSetup.hpp"
 #include "Examples/exampleSkeletalAnimation.hpp"
 #include "Examples/exampleMorphTargetAnimation.hpp"
@@ -59,12 +60,13 @@ int main(int argc, char* argv[]) {
 
 
 	try {
+		//exampleSceneBase();
 		//exampleMinimumGraphicsSetup();
-		exampleSkeletalAnimation();
-		//exampleMorphTargetAnimation(); 
-		//exampleSkybox();
+		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
-		//exampleSockets();
+		//exampleSkeletalAnimation(); 
+		//exampleSkybox();
+		exampleSockets();
 	
 
 		//imuInputDeviceTestScene();
