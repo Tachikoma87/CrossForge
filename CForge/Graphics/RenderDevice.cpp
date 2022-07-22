@@ -56,8 +56,11 @@ namespace CForge {
 		m_LightsUBO.init(m_Config.DirectionalLightsCount, m_Config.PointLightsCount, m_Config.SpotLightsCount);
 
 		if (pConfig->pAttachedWindow != nullptr) {
-			m_Viewport.Position = Vector2i(0, 0);
-			m_Viewport.Size = Vector2i(pConfig->pAttachedWindow->width(), pConfig->pAttachedWindow->height());
+			
+			m_Viewport[RENDERPASS_LIGHTING].Position = Vector2i(0, 0);
+			m_Viewport[RENDERPASS_LIGHTING].Size = Vector2i(pConfig->pAttachedWindow->width(), pConfig->pAttachedWindow->height());
+			m_Viewport[RENDERPASS_FORWARD].Position = Vector2i(0, 0);
+			m_Viewport[RENDERPASS_FORWARD].Size = Vector2i(pConfig->pAttachedWindow->width(), pConfig->pAttachedWindow->height());
 		}
 
 		// use GBuffer?
@@ -113,8 +116,9 @@ namespace CForge {
 
 				pSMan->release();
 			}//if[lighting pass]
-			m_Viewport.Size = Vector2i(pConfig->GBufferWidth, pConfig->GBufferHeight);
-			m_Viewport.Position = Vector2i(0, 0);
+
+			m_Viewport[RENDERPASS_GEOMETRY].Size = Vector2i(pConfig->GBufferWidth, pConfig->GBufferHeight);
+			m_Viewport[RENDERPASS_GEOMETRY].Position = Vector2i(0, 0);
 
 		}//if[GBuffer]
 
@@ -193,10 +197,11 @@ namespace CForge {
 	}//activeMaterial
 
 	void RenderDevice::activeCamera(VirtualCamera* pCamera) {
-		if (nullptr != m_pActiveCamera) {
-			m_pActiveCamera->stopListening(this);
-		}
+		
 		if (pCamera != m_pActiveCamera) {
+			if (nullptr != m_pActiveCamera) {
+				m_pActiveCamera->stopListening(this);
+			}
 			m_pActiveCamera = pCamera;
 			m_CameraUBO.viewMatrix(m_pActiveCamera->cameraMatrix());
 			m_CameraUBO.projectionMatrix(m_pActiveCamera->projectionMatrix());
@@ -291,7 +296,7 @@ namespace CForge {
 			// bind geometry buffer
 			if (m_Config.UseGBuffer) {
 				m_GBuffer.bind();
-				glViewport(m_Viewport.Position.x(), m_Viewport.Position.y(), m_Viewport.Size.x(), m_Viewport.Size.y());
+				glViewport(m_Viewport[RENDERPASS_GEOMETRY].Position.x(), m_Viewport[RENDERPASS_GEOMETRY].Position.y(), m_Viewport[RENDERPASS_GEOMETRY].Size.x(), m_Viewport[RENDERPASS_GEOMETRY].Size.y());
 				if(ClearBuffer) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
 			}
@@ -302,7 +307,7 @@ namespace CForge {
 			}
 
 			if (m_Config.ExecuteLightingPass) {
-				glViewport(m_Viewport.Position.x(), m_Viewport.Position.y(), m_Viewport.Size.x(), m_Viewport.Size.y());
+				glViewport(m_Viewport[RENDERPASS_LIGHTING].Position.x(), m_Viewport[RENDERPASS_LIGHTING].Position.y(), m_Viewport[RENDERPASS_LIGHTING].Size.x(), m_Viewport[RENDERPASS_LIGHTING].Size.y());
 				if(ClearBuffer) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
 
@@ -333,7 +338,7 @@ namespace CForge {
 				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 				m_GBuffer.blitDepthBuffer(m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				glViewport(m_Viewport.Position.x(), m_Viewport.Position.y(), m_Viewport.Size.x(), m_Viewport.Size.y());
+				glViewport(m_Viewport[RENDERPASS_FORWARD].Position.x(), m_Viewport[RENDERPASS_FORWARD].Position.y(), m_Viewport[RENDERPASS_FORWARD].Size.x(), m_Viewport[RENDERPASS_FORWARD].Size.y());
 			}
 		}break;
 		default: break;
@@ -431,12 +436,18 @@ namespace CForge {
 		return m_pShadowPassShader;
 	}//shadowPassShader
 
-	void RenderDevice::viewport(Viewport VP) {
-		m_Viewport = VP;
+	void RenderDevice::viewport(RenderPass Pass, Viewport VP) {
+		if (Pass <= RENDERPASS_UNKNOWN || Pass >= RENDERPASS_COUNT) {
+			for (uint8_t i = 0; i < RENDERPASS_COUNT; ++i) m_Viewport[i] = VP;
+		}
+		else {
+			m_Viewport[Pass] = VP;
+		}
 	}//viewport
 
-	RenderDevice::Viewport RenderDevice::viewport(void)const {
-		return m_Viewport;
+	RenderDevice::Viewport RenderDevice::viewport(RenderPass Pass)const {
+		if (Pass <= RENDERPASS_UNKNOWN || Pass >= RENDERPASS_COUNT) throw IndexOutOfBoundsExcept("Pass");
+		return m_Viewport[Pass];
 	}//viewport
 
 }//name space
