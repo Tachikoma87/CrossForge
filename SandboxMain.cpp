@@ -17,6 +17,7 @@
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/LODTestScene.hpp"
 #include "Prototypes/TestScenes/MuseumTestScene.hpp"
+#include "Prototypes/TestScenes/GUITestScene.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
@@ -72,6 +73,7 @@ int main(int argc, char* argv[]) {
 		//assetGLTFTestScene();
 		//skyboxTestScene();
 		//LODTestScene();
+		//GUITestScene().guiTestScene();
 		MuseumTestScene().museumTestScene();
 		//MinimumGraphicalSetup();
 		//shadowTest();

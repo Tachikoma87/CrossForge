@@ -166,17 +166,17 @@ namespace CForge {
 		//SAssetIO::load("Assets/tree0.obj", &M);
 		//lodHandler.generateLODmodels("Assets/tree0.obj");
 		
-		//SAssetIO::load("Assets/mirror/mirror.obj", &M);
-		//T3DMesh<float> M2;
+		SAssetIO::load("Assets/mirror/mirror.obj", &M);
+		T3DMesh<float> M2;
 
-		//SGNGeometry MirrorSGN;
-		//LODActor Mirror2;
-		//SAssetIO::load("Assets/mirror/mirror.001.obj", &M2);
-		//SceneUtilities::setMeshShader(&M2, 0.1f, 0.04f);
-		//Mirror2.init(&M2);
+		SGNGeometry MirrorSGN;
+		LODActor Mirror2;
+		SAssetIO::load("Assets/mirror/mirror.001.obj", &M2);
+		SceneUtilities::setMeshShader(&M2, 0.1f, 0.04f);
+		Mirror2.init(&M2);
 		
 		//SAssetIO::load("Assets/blub/blub.obj", &M); // complexMan, blub/blub
-		SAssetIO::load("museumAssets/Dragon_0.1.obj", &M);
+		//SAssetIO::load("museumAssets/Dragon_0.1.obj", &M);
 		//lodHandler.generateLODmodels("Assets/testMeshOut.obj");
 		//SAssetIO::load("Assets/cubeSep.obj", &M);
 		//lodHandler.generateLODmodels("Assets/cubeSep.obj");
@@ -195,7 +195,7 @@ namespace CForge {
 
 		CubeTransformSGN.init(nullptr);
 		CubeSGN.init(&CubeTransformSGN, &Cube);
-		//MirrorSGN.init(&CubeTransformSGN, &Mirror2);
+		MirrorSGN.init(&CubeTransformSGN, &Mirror2);
 		SGTest.init(&CubeTransformSGN);
 		
 		//SAssetIO::store("Assets/testMeshOut.obj", &testMesh);
