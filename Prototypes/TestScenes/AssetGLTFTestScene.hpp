@@ -138,9 +138,11 @@ namespace CForge {
 		
 		GLTFIO gltfio;
 		gltfio.load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &testModel);
-		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);
-		testModel.bones(&std::vector<T3DMesh<float>::Bone*>(), false);
+		//AssetIO::load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &testModel);
+		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);	
+		testModel.getMaterial(0)->ID = 0;
 		testModel.computePerVertexNormals();
+		testModel.bones(&std::vector<T3DMesh<float>::Bone*>(), false);
 		Cube.init(&testModel);
 		testModel.clear();
 
@@ -160,7 +162,7 @@ namespace CForge {
 		SGNTransformation CubeTransformSGN;
 		CubeTransformSGN.init(&RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
 		CubeSGN.init(&CubeTransformSGN, &Cube);
-		// CubeSGN.scale(Eigen::Vector3f(2.0f, 2.0f, 2.0f));
+		//CubeSGN.scale(Eigen::Vector3f(2.0f, 2.0f, 2.0f));
 
 		// rotate about the y-axis at 45 degree every second
 		Quaternionf R;

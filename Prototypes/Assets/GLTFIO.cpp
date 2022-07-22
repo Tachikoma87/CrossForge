@@ -414,11 +414,12 @@ namespace CForge {
 		pMaterial->TexNormal = getTexturePath(gltfMaterial.normalTexture.index);
 		// pMaterial->TexDepth = getTexturePath(gltfMaterial.occlusionTexture.index);
 
-		pMaterial->VertexShaderGeometryPass.push_back("Shader/BasisGeometryPass.vert");
+		// actuall, don't do this here
+		/*pMaterial->VertexShaderGeometryPass.push_back("Shader/BasicGeometryPass.vert");
 		pMaterial->FragmentShaderGeometryPass.push_back("Shader/BasicGeometryPass.frag");
 
 		pMaterial->VertexShaderShadowPass.push_back("Shader/ShadowPassShader.vert");
-		pMaterial->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");
+		pMaterial->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");*/
 	}
 
 	std::string GLTFIO::getTexturePath(const int textureIndex) {
