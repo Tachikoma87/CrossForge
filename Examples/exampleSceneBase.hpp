@@ -35,6 +35,7 @@
 #include "../CForge/Graphics/SceneGraph/SGNTransformation.h"
 
 #include "../CForge/Graphics/Actors/StaticActor.h"
+#include "../CForge/Graphics/Actors/SkyboxActor.h"
 
 using namespace Eigen;
 using namespace std;
@@ -162,6 +163,32 @@ namespace CForge {
 			m_RenderDev.addLight(&m_BGLight);
 		}//initCameraAndLights
 
+		void initSkybox(void) {
+
+			vector<string> ClearSky;
+			ClearSky.push_back("Assets/ExampleScenes/skybox/bluecloud_rt.jpg");
+			ClearSky.push_back("Assets/ExampleScenes/skybox/bluecloud_lf.jpg");
+			ClearSky.push_back("Assets/ExampleScenes/skybox/bluecloud_up.jpg");
+			ClearSky.push_back("Assets/ExampleScenes/skybox/bluecloud_dn.jpg");
+			ClearSky.push_back("Assets/ExampleScenes/skybox/bluecloud_ft.jpg");
+			ClearSky.push_back("Assets/ExampleScenes/skybox/bluecloud_bk.jpg");
+			m_Skybox.init(ClearSky[0], ClearSky[1], ClearSky[2], ClearSky[3], ClearSky[4], ClearSky[5]);
+
+			// set initialize color adjustment values
+			m_Skybox.brightness(1.15f);
+			m_Skybox.contrast(1.0f);
+			m_Skybox.saturation(1.2f);
+
+			// create scene graph for the Skybox
+			m_SkyboxTransSGN.init(nullptr);
+			m_SkyboxGeomSGN.init(&m_SkyboxTransSGN, &m_Skybox);
+			m_SkyboxSG.init(&m_SkyboxTransSGN);
+
+			Quaternionf Rot;
+			Rot = AngleAxisf(GraphicsUtility::degToRad(-0.25f / 60.0f), Vector3f::UnitY());
+			m_SkyboxTransSGN.rotationDelta(Rot);
+		}//initSkybox
+
 		virtual void updateFPS(void) {
 			m_FPSCount++;
 			if (CoreUtility::timestamp() - m_LastFPSPrint > 1000U) {
@@ -247,6 +274,7 @@ namespace CForge {
 		SceneGraph m_SG;
 		VirtualCamera m_Cam;
 
+		// Performance monitoring
 		float m_FPS;
 		uint64_t m_LastFPSPrint;
 		uint32_t m_FPSCount;
@@ -255,6 +283,12 @@ namespace CForge {
 		PointLight m_BGLight; ///< Background light
 
 		uint32_t m_ScreenshotCount;
+
+		// Skybox
+		SkyboxActor m_Skybox;
+		SceneGraph m_SkyboxSG;
+		SGNTransformation m_SkyboxTransSGN;
+		SGNGeometry m_SkyboxGeomSGN;
 
 	};//ExampleMinimumGraphicsSetup
 
