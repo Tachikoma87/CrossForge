@@ -28,7 +28,6 @@ using namespace CForge;
 using namespace Eigen;
 
 
-
 int main(int argc, char* argv[]) {
 #ifdef WIN32
 	_CrtMemState S1, S2, S3;
@@ -66,12 +65,15 @@ int main(int argc, char* argv[]) {
 		//exampleSkybox();
 		//exampleSockets();
 	
+		//forestTestScene();	
+		//imuInputDeviceTestScene();	 
 		//skelAnimTestScene();
-		//imuInputDeviceTestScene();
-		//vertexColorTestScene();
 		//shadowTest();	
-		//forestTestScene();
-		surfaceSamplerTestScene();
+		//surfaceSamplerTestScene();
+
+
+
+		vertexColorTestScene();
 		
 	}
 	catch (const CrossForgeException & e) {
