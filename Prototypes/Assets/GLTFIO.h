@@ -43,7 +43,7 @@ class GLTFIO {
 
 		tinygltf::Model model;
 		T3DMesh<float>* pMesh;
-
+		const T3DMesh<float>* pCMesh;
 		// Data for every primitive is stored in a separate vector.
 		
 		std::vector<Eigen::Matrix<float, 3, 1>> coord;
@@ -129,6 +129,11 @@ class GLTFIO {
 		std::string getTexturePath(const int textureIndex);
 
 		void readSkeletalAnimations();
+
+		
+		void writeMeshes();
+
+		void writeSubmesh(const int submeshIndex);
 	};//GLTFIO
 
 }//name space

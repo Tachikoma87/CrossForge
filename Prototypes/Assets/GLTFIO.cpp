@@ -528,15 +528,118 @@ namespace CForge {
 
 	
 	void GLTFIO::store(const std::string Filepath, const T3DMesh<float>* pMesh) {
+		this->pCMesh = pMesh;
 
+		coord.clear();
+		normal.clear();
+		tangent.clear();
+		texCoord.clear();
+		color.clear();
+		joint.clear();
+		weight.clear();
+
+		offsets.clear();
+
+		filePath = Filepath;
+
+		writeMeshes();
+
+		TinyGLTF writer;
+
+		writer.WriteGltfSceneToFile(&model, Filepath);
 	}//store
 
+	void GLTFIO::writeMeshes() {
+		for (int i = 0; i < pCMesh->submeshCount(); i++) {
+			writeSubmesh(i);
+		}
+	}//writeMeshes
+	
+	void GLTFIO::writeSubmesh(const int submeshIndex) {
+		const T3DMesh<float>::Submesh* pSubmesh = pCMesh->getSubmesh(submeshIndex);
+
+		int32_t min = -1;
+		int32_t max = -1;
+
+		std::vector<int32_t> indices;
+
+		for (int i = 0; i < pSubmesh->Faces.size(); i++) {
+			auto face = pSubmesh->Faces[i];
+
+			for (int j = 0; j < 3; j++) {
+				int32_t index = face.Vertices[j];
+
+				if (min == -1 || index < min) {
+					min = index;
+				}
+				
+				if (max == -1 || index > max) {
+					max = index;
+				}
+
+				indices.push_back(index);
+			}
+		}
+
+		for (int i = 0; i < indices.size(); i++) {
+			auto pos = pCMesh->vertex(indices[i]);
+			coord[indices[i] - min] = pos;
+			
+			if (pCMesh->normalCount() > 0) {
+				// fill up to index
+				for (int k = normal.size(); k < indices[i] - min; k++) {
+					Eigen::Vector3f vec3;
+					normal.push_back(vec3);
+				}
+				auto norm = pCMesh->normal(indices[i]);
+				normal[indices[i] - min] = norm;
+			}
+			
+			if (pCMesh->tangentCount() > 0) {
+				// fill up to index
+				for (int k = tangent.size(); k < indices[i] - min; k++) {
+					Eigen::Vector3f vec3;
+					tangent.push_back(vec3);
+				}
+				auto tan = pCMesh->tangent(indices[i]);
+				tangent[indices[i] - min] = tan;
+			}
+			
+			if (pCMesh->textureCoordinatesCount() < 0) {
+				// fill up to index
+				for (int k = texCoord.size(); k < indices[i] - min; k++) {
+					Eigen::Vector3f vec3;
+					texCoord.push_back(vec3);
+				}
+				auto tex = pCMesh->textureCoordinate(indices[i]);
+				texCoord[indices[i] - min] = tex;
+			}
+			
+			if (pCMesh->colorCount() < 0) {
+				// fill up to index
+				for (int k = color.size(); k < indices[i] - min; k++) {
+					Eigen::Vector4f vec4;
+					color.push_back(vec4);
+				}
+				auto meshCol = pCMesh->color(indices[i]);
+				Eigen::Vector4f col;
+				col(0) = meshCol(0);
+				col(1) = meshCol(1);
+				col(2) = meshCol(2);
+				col(3) = meshCol(3);
+				color[indices[i] - min] = col;
+			}
+			
+			indices[i] -= min;
+		}
+	}
+	
 	void GLTFIO::release(void) {
 		delete this;
 	}//release
 
 	bool GLTFIO::accepted(const std::string Filepath, I3DMeshIO::Operation Op) {
-		return (Filepath.find(".glb") != std::string::npos);
+		return (Filepath.find(".glb") != std::string::npos || Filepath.find(".gltf") != std::string::npos);
 	}//accepted
 
 }//name space
