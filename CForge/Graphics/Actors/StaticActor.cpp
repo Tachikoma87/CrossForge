@@ -95,8 +95,8 @@ namespace CForge {
 			switch (pRDev->activePass()) {
 			case RenderDevice::RENDERPASS_SHADOW: {
 				if (nullptr == i->pShaderShadowPass) continue;
-				//pRDev->activeShader(i->pShaderShadowPass);
-
+				pRDev->activeShader(i->pShaderShadowPass);
+				pRDev->activeMaterial(&i->Material);
 			}break;
 			case RenderDevice::RENDERPASS_GEOMETRY: {
 				if (nullptr == i->pShaderGeometryPass) continue;
@@ -109,16 +109,6 @@ namespace CForge {
 				pRDev->activeMaterial(&i->Material);
 			}break;
 			}
-
-			/*if (i->pShader == nullptr) continue;
-
-			if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-				pRDev->activeShader(pRDev->shadowPassShader());
-			}
-			else {
-				pRDev->activeShader(i->pShader);
-				pRDev->activeMaterial(&i->Material);
-			}*/
 			glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
 		}//for[all render groups]
 

@@ -180,6 +180,12 @@ namespace CForge {
 				}
 			}//for[shadow casting lights]
 
+			// set active light
+			if (m_pActiveShadowLight != nullptr) {
+				uint32_t ActiveLightID = m_pActiveShader->uniformLocation("ActiveLightID");
+				if (GL_INVALID_INDEX != ActiveLightID) glUniform1ui(ActiveLightID, m_pActiveShadowLight->UBOIndex);
+			}
+			
 			// update material UBO
 			updateMaterial();
 		}//if[different shader]
@@ -267,6 +273,8 @@ namespace CForge {
 	void RenderDevice::activePass(RenderPass Pass, ILight *pActiveLight, bool ClearBuffer) {
 		m_ActiveRenderPass = Pass;
 
+		m_pActiveShadowLight = nullptr;
+
 		// change state?
 		switch (m_ActiveRenderPass) {
 		case RENDERPASS_SHADOW: {
@@ -290,6 +298,8 @@ namespace CForge {
 				uint32_t Loc = m_pActiveShader->uniformLocation("ActiveLightID");
 				glUniform1ui(Loc, pAL->UBOIndex);
 				glCullFace(GL_FRONT); // cull front face to solve peter-panning shadow artifact
+
+				m_pActiveShadowLight = pAL;
 			}
 		}break;
 		case RENDERPASS_GEOMETRY: {
@@ -316,6 +326,9 @@ namespace CForge {
 				uint32_t LocNormal = m_pDeferredLightingPassShader->uniformLocation(GLShader::DEFAULTTEX_NORMAL);
 				uint32_t LocAlbedo = m_pDeferredLightingPassShader->uniformLocation(GLShader::DEFAULTTEX_ALBEDO);
 
+				uint32_t LocShadow1 = m_pDeferredLightingPassShader->uniformLocation(GLShader::DEFAULTTEX_SHADOW0);
+				uint32_t LocShadow2 = m_pDeferredLightingPassShader->uniformLocation(GLShader::DEFAULTTEX_SHADOW1);
+
 				if (LocPos != GL_INVALID_INDEX) {
 					m_GBuffer.bindTexture(GBuffer::COMP_POSITION, LocPos);
 					glUniform1i(LocPos, LocPos);
@@ -328,6 +341,13 @@ namespace CForge {
 					m_GBuffer.bindTexture(GBuffer::COMP_ALBEDO, LocAlbedo);
 					glUniform1i(LocAlbedo, LocAlbedo);
 				}
+				if (m_ShadowCastingLights.size() > 0 && LocShadow1 != GL_INVALID_INDEX) {
+					m_ShadowCastingLights[0]->pLight->bindShadowTexture(m_pActiveShader, GLShader::DEFAULTTEX_SHADOW0);
+				}
+				if (m_ShadowCastingLights.size() > 1 && LocShadow2 != GL_INVALID_INDEX) {
+					m_ShadowCastingLights[1]->pLight->bindShadowTexture(m_pActiveShader, GLShader::DEFAULTTEX_SHADOW1);
+				}
+
 
 				requestRendering(&m_ScreenQuad, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
 			}

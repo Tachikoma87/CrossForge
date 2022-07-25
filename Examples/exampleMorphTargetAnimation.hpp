@@ -100,7 +100,7 @@ namespace CForge {
 				m_SG.update(60.0f / m_FPS);
 
 				// progres morph target animations
-				m_MTController.update(m_FPS / 60.0f);
+				m_MTController.update(60.0f/m_FPS);
 
 				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 				Keyboard* pKeyboard = m_RenderWin.keyboard();
