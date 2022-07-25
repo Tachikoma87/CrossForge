@@ -68,12 +68,9 @@ int main(int argc, char* argv[]) {
 		//forestTestScene();	
 		//imuInputDeviceTestScene();	 
 		//skelAnimTestScene();
-		//shadowTest();	
+		shadowTest();	
 		//surfaceSamplerTestScene();
-
-
-
-		vertexColorTestScene();
+		//vertexColorTestScene();
 		
 	}
 	catch (const CrossForgeException & e) {

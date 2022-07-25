@@ -48,7 +48,7 @@ namespace CForge {
 		GLWindow(void);
 		~GLWindow(void);
 
-		void init(Eigen::Vector2i Position, Eigen::Vector2i Size, std::string WindowName, uint32_t GLMajorVersion = 0, uint32_t GLMinorVersion = 0);
+		void init(Eigen::Vector2i Position, Eigen::Vector2i Size, std::string WindowTitle, uint32_t Multisample = 0, uint32_t GLMajorVersion = 0, uint32_t GLMinorVersion = 0);
 		void clear(void);
 
 		void update(void);
