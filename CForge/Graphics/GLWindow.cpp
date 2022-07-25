@@ -41,7 +41,7 @@ namespace CForge {
 		clear();
 	}//Destructor
 
-	void GLWindow::init(Vector2i Position, Vector2i Size, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion) {
+	void GLWindow::init(Vector2i Position, Vector2i Size, std::string WindowTitle, uint32_t Multisample, uint32_t GLMajorVersion, uint32_t GLMinorVersion) {
 		clear();
 		GLFWwindow* pWin = nullptr;
 
@@ -51,13 +51,17 @@ namespace CForge {
 		if(GLMajorVersion >= 3) glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
-		pWin = createGLWindow(Size.x(), Size.y(), Title, GLMajorVersion, GLMinorVersion);
+		if (Multisample > 0) {
+			glfwWindowHint(GLFW_SAMPLES, Multisample);
+		}
+
+		pWin = createGLWindow(Size.x(), Size.y(), WindowTitle, GLMajorVersion, GLMinorVersion);
 
 		if (nullptr == pWin) {
 			GLMajorVersion = 4;
 			GLMinorVersion = 6;
 			while (nullptr == pWin && GLMinorVersion > 1) {	
-				pWin = createGLWindow(Size.x(), Size.y(), Title, GLMajorVersion, GLMinorVersion);
+				pWin = createGLWindow(Size.x(), Size.y(), WindowTitle, GLMajorVersion, GLMinorVersion);
 				GLMinorVersion -= 1;
 			}	
 		}
@@ -65,7 +69,7 @@ namespace CForge {
 		if (nullptr == pWin) {
 			GLMajorVersion = 3;
 			GLMinorVersion = 3;
-			pWin = createGLWindow(Size.x(), Size.y(), Title, GLMajorVersion, GLMinorVersion);
+			pWin = createGLWindow(Size.x(), Size.y(), WindowTitle, GLMajorVersion, GLMinorVersion);
 		}
 
 		if (nullptr == pWin) {
@@ -73,7 +77,7 @@ namespace CForge {
 			#ifdef __OPENGL_ES
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ES_API);
 			#endif
-			pWin = createGLWindow(Size.x(), Size.y(), Title, 1, 0);
+			pWin = createGLWindow(Size.x(), Size.y(), WindowTitle, 1, 0);
 		}		
 		if (nullptr == pWin) throw CForgeExcept("Failed to crate OpenGL window. OpenGL seems not to be available!");
 
@@ -102,6 +106,8 @@ namespace CForge {
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
+
+		if (Multisample > 0) glEnable(GL_MULTISAMPLE);
 
 		m_pHandle = pWin;
 

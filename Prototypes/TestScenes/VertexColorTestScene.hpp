@@ -58,7 +58,23 @@ namespace CForge {
 
 		void init(void) {
 			initWindowAndRenderDevice();
-			initCameraAndLights();
+			// initialize camera
+			m_Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
+			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+
+			// initialize sun (key light) and back ground light (fill light)
+			Vector3f SunPos = Vector3f(25.0f, 25.0f, 75.0f);
+			Vector3f SunLookAt = Vector3f(0.0f, 0.0f, 20.0f);
+			Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -30.0f);
+			m_Sun.init(SunPos, (SunLookAt - SunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
+			// sun will cast shadows
+			m_Sun.initShadowCasting(1024*2, 1024*2, GraphicsUtility::orthographicProjection(40.0f, 40.0f, 1.0f, 1000.0f));
+			m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
+
+			// set camera and lights
+			m_RenderDev.activeCamera(&m_Cam);
+			m_RenderDev.addLight(&m_Sun);
+			m_RenderDev.addLight(&m_BGLight);
 
 			m_Cam.position(Vector3f(20.0f, 5.0f, 45.0f));
 			m_Cam.lookAt(Vector3f(10.0f, 5.0f, 35.0f), Vector3f(0.0f, 4.0f, 25.0f), Vector3f::UnitY());
@@ -68,7 +84,7 @@ namespace CForge {
 			LC.PointLightCount = 1;
 			LC.SpotLightCount = 0;
 			LC.PCFSize = 1;
-			LC.ShadowBias = 0.00001f;
+			LC.ShadowBias = 0.0001f;
 			LC.ShadowMapCount = 1;
 			m_pShaderMan->configShader(LC);
 
@@ -130,7 +146,7 @@ namespace CForge {
 
 			// add skeletal actor to scene graph (Eric)
 			
-			m_EricTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 0.0f, -20.0f));
+			m_EricTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 0.0f, 20.0f));
 			m_EricSGN.init(&m_EricTransformSGN, &m_Eric);
 			m_EricSGN.scale(Vector3f(HumanScale, HumanScale, HumanScale));
 			Quaternionf R;

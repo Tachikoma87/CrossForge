@@ -152,6 +152,8 @@ namespace CForge {
 		GLShader* m_pShadowPassShader;
 
 		Viewport m_Viewport[RENDERPASS_COUNT];
+
+		ActiveLight* m_pActiveShadowLight;
 	private:
 
 	};//RenderDevice
