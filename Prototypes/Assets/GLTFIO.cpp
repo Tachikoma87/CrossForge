@@ -118,7 +118,7 @@ namespace CForge {
 		readMeshes();
 
 		readSkeletalAnimations();
-
+		
 		std::cout << "END" << std::endl;
 
 	}//load
@@ -530,6 +530,9 @@ namespace CForge {
 	void GLTFIO::store(const std::string Filepath, const T3DMesh<float>* pMesh) {
 		this->pCMesh = pMesh;
 
+		Model emptyModel;
+		model = emptyModel;
+
 		coord.clear();
 		normal.clear();
 		tangent.clear();
@@ -550,13 +553,34 @@ namespace CForge {
 	}//store
 
 	void GLTFIO::writeMeshes() {
+		//every mesh will hold a single primitive with the submesh data.
 		for (int i = 0; i < pCMesh->submeshCount(); i++) {
-			writeSubmesh(i);
+			writePrimitive(i);
 		}
 	}//writeMeshes
 	
-	void GLTFIO::writeSubmesh(const int submeshIndex) {
-		const T3DMesh<float>::Submesh* pSubmesh = pCMesh->getSubmesh(submeshIndex);
+	void GLTFIO::writePrimitive(const int meshIndex) {
+		Buffer buffer;
+		model.buffers.push_back(buffer);
+		Mesh mesh;
+		model.meshes.push_back(mesh);
+		Primitive primitive;
+		model.meshes[meshIndex].primitives.push_back(primitive);
+		
+		prepareAttributeArrays(meshIndex);
+		writeAttributes(meshIndex);
+	}//writeSubmesh
+	
+	void GLTFIO::prepareAttributeArrays(const int meshIndex) {
+		const T3DMesh<float>::Submesh* pSubmesh = pCMesh->getSubmesh(meshIndex);
+
+		coord.clear();
+		normal.clear();
+		tangent.clear();
+		texCoord.clear();
+		color.clear();
+		joint.clear();
+		weight.clear();
 
 		int32_t min = -1;
 		int32_t max = -1;
@@ -572,7 +596,7 @@ namespace CForge {
 				if (min == -1 || index < min) {
 					min = index;
 				}
-				
+
 				if (max == -1 || index > max) {
 					max = index;
 				}
@@ -584,7 +608,7 @@ namespace CForge {
 		for (int i = 0; i < indices.size(); i++) {
 			auto pos = pCMesh->vertex(indices[i]);
 			coord[indices[i] - min] = pos;
-			
+
 			if (pCMesh->normalCount() > 0) {
 				// fill up to index
 				for (int k = normal.size(); k < indices[i] - min; k++) {
@@ -594,7 +618,7 @@ namespace CForge {
 				auto norm = pCMesh->normal(indices[i]);
 				normal[indices[i] - min] = norm;
 			}
-			
+
 			if (pCMesh->tangentCount() > 0) {
 				// fill up to index
 				for (int k = tangent.size(); k < indices[i] - min; k++) {
@@ -604,7 +628,7 @@ namespace CForge {
 				auto tan = pCMesh->tangent(indices[i]);
 				tangent[indices[i] - min] = tan;
 			}
-			
+
 			if (pCMesh->textureCoordinatesCount() < 0) {
 				// fill up to index
 				for (int k = texCoord.size(); k < indices[i] - min; k++) {
@@ -614,7 +638,7 @@ namespace CForge {
 				auto tex = pCMesh->textureCoordinate(indices[i]);
 				texCoord[indices[i] - min] = tex;
 			}
-			
+
 			if (pCMesh->colorCount() < 0) {
 				// fill up to index
 				for (int k = color.size(); k < indices[i] - min; k++) {
@@ -629,11 +653,89 @@ namespace CForge {
 				col(3) = meshCol(3);
 				color[indices[i] - min] = col;
 			}
-			
+
 			indices[i] -= min;
 		}
+
 	}
-	
+
+	void GLTFIO::writeAttributes(const int meshIndex) {
+		Primitive* pPrimitive = &(model.meshes[meshIndex].primitives[0]);
+		
+		int bufferIndex = model.buffers.size() - 1;
+		int accessorIndex = model.accessors.size();
+
+		std::vector<std::vector<float>> data;
+
+		pPrimitive->attributes.emplace("POSITION", accessorIndex++);
+		for (auto pos : coord) {
+			std::vector<float> tmp;
+			for (int i = 0; i < 3; i++) {
+				tmp.push_back(pos(i));
+			}
+			data.push_back(tmp);
+		}
+
+		writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC3, &data);
+		data.clear();
+		
+		if (normal.size() > 0) {
+			pPrimitive->attributes.emplace("NORMAL", accessorIndex++);
+			for (auto n : normal) {
+				std::vector<float> tmp;
+				for (int i = 0; i < 3; i++) {
+					tmp.push_back(n(i));
+				}
+				data.push_back(tmp);
+			}
+
+			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC3, &data);
+			data.clear();
+		}
+		
+		if (tangent.size() > 0) {
+			pPrimitive->attributes.emplace("TANGENT", accessorIndex);
+			for (auto t: tangent) {
+				std::vector<float> tmp;
+				for (int i = 0; i < 3; i++) {
+					tmp.push_back(t(i));
+				}
+				data.push_back(tmp);
+			}
+
+			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC3, &data);
+			data.clear();
+		}
+		
+		if (texCoord.size() > 0) {
+			pPrimitive->attributes.emplace("TEXCOORD_0", accessorIndex);
+			for (auto t : texCoord) {
+				std::vector<float> tmp;
+				for (int i = 0; i < 2; i++) {
+					tmp.push_back(t(i));
+				}
+				data.push_back(tmp);
+			}
+
+			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC2, &data);
+			data.clear();
+		}
+
+		if (color.size() > 0) {
+			pPrimitive->attributes.emplace("COLOR_0", accessorIndex);
+			for (auto c : color) {
+				std::vector<float> tmp;
+				for (int i = 0; i < 4; i++) {
+					tmp.push_back(c(i));
+				}
+				data.push_back(tmp);
+			}
+
+			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC4, &data);
+			data.clear();
+		}
+	}
+
 	void GLTFIO::release(void) {
 		delete this;
 	}//release

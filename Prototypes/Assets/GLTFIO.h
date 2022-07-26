@@ -112,6 +112,64 @@ class GLTFIO {
 			}
 		}
 
+		template<class T>
+		void writeAccessorDataScalar(const int bufferIndex, const int componentType, std::vector<T>* pData) {
+			Buffer* pBuffer = &model.buffers[bufferIndex];
+
+			Accessor accessor;
+
+			accessor.bufferView = model.bufferViews.size();
+			accessor.byteOffset = 0;
+			accessor.componentType = componentType;
+			accessor.type = TINYGLTF_TYPE_SCALAR;
+
+			model.accessors.push_back(accessor);
+
+			BufferView bufferView;
+
+			bufferView.byteOffset = pBuffer->data.size();
+			bufferView.buffer = bufferIndex;
+			bufferView.byteLength = pData->size() * sizeof(T);
+
+			model.bufferViews.push_back(bufferView);
+
+			for (int i = 0; i < pData->size(); i++) {
+				for (int k = 0; k < sizeof(T); k++) {
+					pBuffer->data.push_back(((char*)&(*pData)[i])[k]);
+				}
+			}
+		}
+
+		template<class T>
+		void writeAccessorData(const int bufferIndex, const int type, std::vector<std::vector<T>>* pData) {
+			Buffer* pBuffer = &model.buffers[bufferIndex];
+
+			Accessor accessor;
+
+			accessor.bufferView = model.bufferViews.size();
+			accessor.byteOffset = 0;
+			accessor.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
+			accessor.type = type;
+
+			model.accessors.push_back(accessor);
+
+			BufferView bufferView;
+
+			bufferView.byteOffset = pBuffer->data.size();
+			bufferView.buffer = bufferIndex;
+			bufferView.byteLength = pData->size() * sizeof(T) * componentCount(type);
+
+			model.bufferViews.push_back(bufferView);
+
+			for (int i = 0; i < pData->size(); i++) {
+				for (int j = 0; j < (*pData)[i].size(); j++) {
+					for (int k = 0; k < sizeof(T); k++) {
+						pBuffer->data.push_back(((char*)&((*pData)[i][j]))[k]);
+					}
+				}
+			}
+		}
+
 		void readMeshes();
 
 		void readPrimitive(tinygltf::Primitive* pPrimitive);
@@ -133,7 +191,11 @@ class GLTFIO {
 		
 		void writeMeshes();
 
-		void writeSubmesh(const int submeshIndex);
+		void writePrimitive(const int meshIndex);
+
+		void writeAttributes(const int meshIndex);
+
+		void prepareAttributeArrays(const int meshIndex);
 	};//GLTFIO
 
 }//name space
