@@ -191,11 +191,15 @@ class GLTFIO {
 		
 		void writeMeshes();
 
-		void writePrimitive(const int meshIndex);
+		void writePrimitive();
 
-		void writeAttributes(const int meshIndex);
+		void writeAttributes();
 
-		void prepareAttributeArrays(const int meshIndex);
+		void prepareAttributeArrays();
+
+		void writeMaterial();
+
+		int writeTexture(const std::string path);
 	};//GLTFIO
 
 }//name space

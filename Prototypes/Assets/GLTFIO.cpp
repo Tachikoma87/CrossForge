@@ -555,23 +555,28 @@ namespace CForge {
 	void GLTFIO::writeMeshes() {
 		//every mesh will hold a single primitive with the submesh data.
 		for (int i = 0; i < pCMesh->submeshCount(); i++) {
-			writePrimitive(i);
+			writePrimitive();
 		}
 	}//writeMeshes
 	
-	void GLTFIO::writePrimitive(const int meshIndex) {
+	void GLTFIO::writePrimitive() {
 		Buffer buffer;
 		model.buffers.push_back(buffer);
 		Mesh mesh;
 		model.meshes.push_back(mesh);
 		Primitive primitive;
+		
+		int meshIndex = model.meshes.size() - 1;
+
 		model.meshes[meshIndex].primitives.push_back(primitive);
 		
-		prepareAttributeArrays(meshIndex);
-		writeAttributes(meshIndex);
+		prepareAttributeArrays();
+		writeAttributes();
+		writeMaterial();
 	}//writeSubmesh
 	
-	void GLTFIO::prepareAttributeArrays(const int meshIndex) {
+	void GLTFIO::prepareAttributeArrays() {
+		int meshIndex = model.meshes.size() - 1;
 		const T3DMesh<float>::Submesh* pSubmesh = pCMesh->getSubmesh(meshIndex);
 
 		coord.clear();
@@ -606,12 +611,17 @@ namespace CForge {
 		}
 
 		for (int i = 0; i < indices.size(); i++) {
+			// fill up to index
+			for (int k = coord.size(); k <= indices[i] - min; k++) {
+				Eigen::Vector3f vec3;
+				coord.push_back(vec3);
+			}
 			auto pos = pCMesh->vertex(indices[i]);
 			coord[indices[i] - min] = pos;
 
 			if (pCMesh->normalCount() > 0) {
 				// fill up to index
-				for (int k = normal.size(); k < indices[i] - min; k++) {
+				for (int k = normal.size(); k <= indices[i] - min; k++) {
 					Eigen::Vector3f vec3;
 					normal.push_back(vec3);
 				}
@@ -621,7 +631,7 @@ namespace CForge {
 
 			if (pCMesh->tangentCount() > 0) {
 				// fill up to index
-				for (int k = tangent.size(); k < indices[i] - min; k++) {
+				for (int k = tangent.size(); k <= indices[i] - min; k++) {
 					Eigen::Vector3f vec3;
 					tangent.push_back(vec3);
 				}
@@ -631,7 +641,7 @@ namespace CForge {
 
 			if (pCMesh->textureCoordinatesCount() < 0) {
 				// fill up to index
-				for (int k = texCoord.size(); k < indices[i] - min; k++) {
+				for (int k = texCoord.size(); k <= indices[i] - min; k++) {
 					Eigen::Vector3f vec3;
 					texCoord.push_back(vec3);
 				}
@@ -641,7 +651,7 @@ namespace CForge {
 
 			if (pCMesh->colorCount() < 0) {
 				// fill up to index
-				for (int k = color.size(); k < indices[i] - min; k++) {
+				for (int k = color.size(); k <= indices[i] - min; k++) {
 					Eigen::Vector4f vec4;
 					color.push_back(vec4);
 				}
@@ -657,9 +667,12 @@ namespace CForge {
 			indices[i] -= min;
 		}
 
+		writeAccessorDataScalar(model.buffers.size() - 1, TINYGLTF_COMPONENT_TYPE_INT, &indices);
+
 	}
 
-	void GLTFIO::writeAttributes(const int meshIndex) {
+	void GLTFIO::writeAttributes() {
+		int meshIndex = model.meshes.size() - 1;
 		Primitive* pPrimitive = &(model.meshes[meshIndex].primitives[0]);
 		
 		int bufferIndex = model.buffers.size() - 1;
@@ -694,7 +707,7 @@ namespace CForge {
 		}
 		
 		if (tangent.size() > 0) {
-			pPrimitive->attributes.emplace("TANGENT", accessorIndex);
+			pPrimitive->attributes.emplace("TANGENT", accessorIndex++);
 			for (auto t: tangent) {
 				std::vector<float> tmp;
 				for (int i = 0; i < 3; i++) {
@@ -708,7 +721,7 @@ namespace CForge {
 		}
 		
 		if (texCoord.size() > 0) {
-			pPrimitive->attributes.emplace("TEXCOORD_0", accessorIndex);
+			pPrimitive->attributes.emplace("TEXCOORD_0", accessorIndex++);
 			for (auto t : texCoord) {
 				std::vector<float> tmp;
 				for (int i = 0; i < 2; i++) {
@@ -722,7 +735,7 @@ namespace CForge {
 		}
 
 		if (color.size() > 0) {
-			pPrimitive->attributes.emplace("COLOR_0", accessorIndex);
+			pPrimitive->attributes.emplace("COLOR_0", accessorIndex++);
 			for (auto c : color) {
 				std::vector<float> tmp;
 				for (int i = 0; i < 4; i++) {
@@ -734,6 +747,62 @@ namespace CForge {
 			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC4, &data);
 			data.clear();
 		}
+	}
+
+	void GLTFIO::writeMaterial() {
+		int meshIndex = model.meshes.size() - 1;
+
+		T3DMesh<float>::Submesh* pSubmesh = pMesh->getSubmesh(meshIndex);
+
+		T3DMesh<float>::Material* pMaterial = pMesh->getMaterial(pSubmesh->Material);
+
+		Material gltfMaterial;
+
+		gltfMaterial.pbrMetallicRoughness.metallicFactor = pMaterial->Metallic;
+		gltfMaterial.pbrMetallicRoughness.roughnessFactor = pMaterial->Roughness;
+
+		gltfMaterial.normalTexture.index = writeTexture(pMaterial->TexNormal);
+		
+		gltfMaterial.pbrMetallicRoughness.baseColorTexture.index = writeTexture(pMaterial->TexAlbedo);
+	}
+
+	int GLTFIO::writeTexture(const std::string path) {
+		std::filesystem::path texPath(path);
+		std::filesystem::path gltfFilePath(filePath);
+
+		auto parent = gltfFilePath.parent_path();
+		auto possibleTexPath = parent / (texPath.filename());
+
+		if (!std::filesystem::exists(possibleTexPath)) {
+			std::filesystem::copy(texPath, possibleTexPath);
+		}
+
+		std::string uri = possibleTexPath.filename().string();
+
+		Texture gltfTexture;
+		
+		gltfTexture.source = model.images.size();
+		
+		Image gltfImage;
+		
+		gltfImage.uri = uri;
+
+		model.images.push_back(gltfImage);
+		
+		gltfTexture.sampler = model.samplers.size();
+
+		Sampler gltfSampler;
+		
+		gltfSampler.magFilter = TINYGLTF_TEXTURE_FILTER_LINEAR;
+		gltfSampler.minFilter = TINYGLTF_TEXTURE_FILTER_LINEAR;
+		gltfSampler.wrapS = TINYGLTF_TEXTURE_WRAP_REPEAT;
+		gltfSampler.wrapT = TINYGLTF_TEXTURE_WRAP_REPEAT;
+
+		model.samplers.push_back(gltfSampler);
+
+		model.textures.push_back(gltfTexture);
+
+		return model.textures.size() - 1;
 	}
 
 	void GLTFIO::release(void) {
