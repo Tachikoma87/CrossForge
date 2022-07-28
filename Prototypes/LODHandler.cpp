@@ -2,6 +2,8 @@
 #include "../../CForge/Core/SLogger.h"
 #include "../thirdparty/tinyxml2/tinyxml2.h"
 #include "../CForge/AssetIO/SAssetIO.h"
+#include "MeshDecimate.h"
+#include "Examples/SceneUtilities.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -18,12 +20,6 @@ namespace CForge {
 		//clear();
 	}//Destructor
 	
-	void LODHandler::generateLODmodels(const std::string Filepath) {
-		
-		std::vector<float> pDecAmount = *pSLOD->getLevels();
-		this->generateLODmodels(Filepath, pDecAmount, std::vector<float>()); // TODO
-	}
-
 	std::string LODHandler::assembleFolderPath(const std::string Filepath) {
 		std::string base_filename = Filepath.substr(Filepath.find_last_of("/\\") + 1);
 		// get rid of filetype
@@ -33,10 +29,10 @@ namespace CForge {
 		return folderpath + base_filename + "/";
 	}
 	
-	void LODHandler::generateLODmodels(const std::string Filepath, const std::vector<float>& decimateAmount, const std::vector<float>& triBBratios) {
+	void LODHandler::loadLODmeshes(LODActor* pActor, const std::string Filepath, const std::vector<float>& decimateAmount, const std::vector<float>& triBBratios) {
 		if (Filepath.empty()) throw CForgeExcept("Empty filepath specified");
-
-		std::vector<float> pDecAmount = decimateAmount;
+		
+		std::vector<float> decAmount = decimateAmount;
 		
 		std::string lodFolderpath = assembleFolderPath(Filepath);
 		std::string metaFilePath = lodFolderpath + "meta.xml";
@@ -46,33 +42,98 @@ namespace CForge {
 			std::filesystem::create_directory(lodFolderpath);
 		}
 		
-		bool forceCreate = false;
-		
+		std::vector<T3DMesh<float>*> LODMeshes;
+		LODMeshes.push_back(pActor->getLODMeshes()[0]);
+
+		bool forceCreate = pSLOD->forceLODregeneration;
 		// create Metafile
 		if (!std::filesystem::exists(metaFilePath) || forceCreate) { // metafile does not exist
-			writeMetaFile(metaFilePath, pDecAmount, triBBratios);
+			generateAndStoreLOD(&LODMeshes, &decAmount, Filepath);
 		}
 		else { // metafile already exists
 			std::vector<float> values;
 			std::vector<float> triBBratios;
 			bool suc = readMetaFile(metaFilePath, &values,&triBBratios);
-			
-			for (uint32_t i = 0; i < values.size(); i++) {
-				std::string base_filename = Filepath.substr(Filepath.find_last_of("/\\") + 1);
-				base_filename = base_filename.substr(0, base_filename.find_first_of("."));
-				std::string modelPath = lodFolderpath + base_filename + std::to_string(i) + ".obj";
-				std::cout << modelPath << "\n";
-				//SAssetIO::load()
-			}
-			
-			
-			std::cout << "\nread values are:\n";
-			for (float x : values)
-				std::cout << x << "\n";
+
+			bool stagesEqual = std::equal(values.begin(), values.end(), decimateAmount.begin());
+			if (!stagesEqual || suc) { // decimation values unequel, regenerate LOD
+				generateAndStoreLOD(&LODMeshes, &decAmount, Filepath);
+			} else {
+				for (uint32_t i = 1; i < values.size(); i++) {
+					std::string modelPath = getModelPath(Filepath, i);
+					//std::cout << modelPath << "\n";
+				
+					if (!std::filesystem::exists(modelPath)) { // mesh does not exist, regenerate LOD
+						LODMeshes.erase(LODMeshes.begin()+1, LODMeshes.end()); // remove existing models except the original
+						generateAndStoreLOD(&LODMeshes, &decAmount, Filepath);
+						break;
+					}
+				
+					T3DMesh<float>* M = new T3DMesh<float>();
+					SAssetIO::load(modelPath, M);
+					SceneUtilities::setMeshShader(M, pActor->getLODMeshes()[0]->getMaterial(0)->Roughness, pActor->getLODMeshes()[0]->getMaterial(0)->Metallic);
+					M->computePerVertexNormals(); // TODO check?
+					LODMeshes.push_back(M);
+				} // for stages
+			} // if models can be loaded
+		}
+		
+		pActor->setLODmeshes(LODMeshes); // TODO
+	}
+
+	void LODHandler::generateAndStoreLOD(std::vector<T3DMesh<float>*>* LODmeshes, std::vector<float>* stages, std::string Filepath) {
+		std::string lodFolderpath = assembleFolderPath(Filepath);
+		std::string metaFilePath = lodFolderpath + "meta.xml";
+		generateLODMeshes(LODmeshes, stages);
+		storeLODMeshes(*LODmeshes, Filepath);
+		writeMetaFile(metaFilePath, *stages, std::vector<float>());
+	}
+
+	void LODHandler::storeLODMeshes(std::vector<T3DMesh<float>*> meshes, std::string Filepath) {
+		for (uint32_t i = 1; i < meshes.size(); i++) {
+			std::string path = getModelPath(Filepath, i);
+			//std::cout << "storeLODMeshes: " << path << "\n"; //TODO
+			SAssetIO::store(path, (meshes[i]));
 		}
 	}
 	
-	bool LODHandler::checkLODmodel(const std::string metaFilePath) // TODO remove?
+	std::string LODHandler::getModelPath(const std::string Filepath, uint32_t index) {
+		std::string lodFolderpath = assembleFolderPath(Filepath);
+		std::string base_filename = Filepath.substr(Filepath.find_last_of("/\\") + 1);
+		base_filename = base_filename.substr(0, base_filename.find_first_of("."));
+		return lodFolderpath + base_filename + std::to_string(index) + ".obj";
+	}
+	
+	// TODO remove?
+	void LODHandler::loadLODmeshes(LODActor* pActor, const std::string Filepath) {
+		
+		std::vector<float> pDecAmount = *pSLOD->getLevels();
+		this->loadLODmeshes(pActor, Filepath, pDecAmount, std::vector<float>()); // TODO
+	}
+	
+	void LODHandler::generateLODMeshes(std::vector<T3DMesh<float>*>* LODmeshes, std::vector<float>* stages) {
+		// TODO parallelise generation
+		for (uint32_t i = 1; i < stages->size(); i++) {
+			T3DMesh<float>* pLODMesh = new T3DMesh<float>();
+			float amount = float((*stages)[i]) / (*stages)[i-1];
+			if (amount > 1.0)
+				throw CForgeExcept("decimation stages are in wrong order");
+
+			bool succ = MeshDecimator::decimateMesh((*LODmeshes)[i-1], pLODMesh, amount);
+			
+			if (!succ) { // decimation failed due to to few triangles to decimate
+				// delete unavailable stages
+				stages->erase((*stages).begin()+i, stages->end());
+				delete pLODMesh;
+				//LODmeshes->push_back(nullptr); // TODO ?
+				break;
+			}
+			LODmeshes->push_back(pLODMesh);
+		}
+	}
+	
+	
+	bool LODHandler::checkLODmodel(const std::string metaFilePath)
 	{
 		// TODO open  Metafile and check valid object
 		if (!std::filesystem::exists(metaFilePath)) {
@@ -113,7 +174,7 @@ namespace CForge {
 		tinyxml2::XMLElement* percAmounts = doc.NewElement("triBBratio");
 		head->InsertEndChild(percAmounts);
 		// append reduction value for each level
-		for (uint8_t i = 0; i < decimateAmount.size(); i++) {
+		for (uint8_t i = 0; i < triBBratios.size(); i++) {
 			tinyxml2::XMLElement* percAmount = doc.NewElement("level");
 			percAmount->SetAttribute("stage", i+1);
 			percAmount->SetText(triBBratios.at(i));
@@ -129,7 +190,8 @@ namespace CForge {
 		triBBratios->clear();
 		
 		tinyxml2::XMLDocument doc;
-		std::cout << doc.LoadFile(metaFilePath.c_str());
+		if(doc.LoadFile(metaFilePath.c_str()) != 0)
+			return false;
 		tinyxml2::XMLElement* lodElem = doc.FirstChildElement("lod");
 		tinyxml2::XMLElement* levels = lodElem->FirstChildElement("levels");
 		uint32_t stages = atoi(levels->GetText());
@@ -154,7 +216,7 @@ namespace CForge {
 			}
 		}
 
-		return false;
+		return true;
 	}
 
 	float LODHandler::getTriSizeInfo(CForge::T3DMesh<float>& pMesh, TriSizeInfo type) {
@@ -197,9 +259,5 @@ namespace CForge {
 		}
 		
 		return ret;
-	}
-
-	void LODHandler::waitForLODgeneration() {
-
 	}
 }

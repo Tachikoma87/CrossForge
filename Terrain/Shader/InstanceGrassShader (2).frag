@@ -1,25 +1,28 @@
-#version 420 core
+#version 330 core 
 
-layout (std140) uniform CameraData{
-	mat4 ViewMatrix;
-	mat4 ProjectionMatrix;
-	vec4 Position;
-}Camera;
+//#version 300 es
+//precision lowp float;
 
-layout(std140) uniform ModelData{
-	mat4 ModelMatrix;
-};
+layout(location = 0) out vec4 gPosition;
+layout(location = 1) out vec4 gNormal;
+layout(location = 2) out vec4 gAlbedoSpec;
 
-layout (std140, binding = 5) uniform DekoData {
-	vec3 wind;
-	float time;
-};
+layout (std140) uniform MaterialData{
+	vec4 Color;
+	float Metallic;
+	float Roughness;
+	float AO; // ambient occlusion
+	float Padding;
+}Material;
 
-#define MAX_INSTANCE_COUNT 500
+uniform sampler2D TexAlbedo;
+uniform sampler2D TexDepth;
 
-layout(std140) uniform InstancedData{
-	mat4 instancedMat[MAX_INSTANCE_COUNT];
-};
+in vec3 Pos;
+in vec3 N;
+in vec2 UV;
+in vec3 worldSpacePos;
+in vec3 vertPos;
 
 //	Classic Perlin 3D Noise 
 //	by Stefan Gustavson
@@ -97,44 +100,17 @@ float cnoise(vec3 P){
   return 2.2 * n_xyz;
 }
 
-layout (location = 0) in vec3 Position;
-layout (location = 1) in vec3 Normal;
-layout (location = 2) in vec3 Tangent;
-layout (location = 3) in vec3 UVW;
-//layout (location = 4) in mat4 instanceMatrix;
-
-out vec3 Pos;
-out vec3 N;
-out vec3 B;
-out vec3 T;
-out vec2 UV;
-out vec3 CameraPos;
-out vec3 worldSpacePos;
-out vec3 vertPos;
 
 
 void main(){
-	
-	mat4 m = mat4(vec4(1, 0, 0, 0), vec4(0, 1, 0, 0), vec4(0, 0, 1, 0), vec4(0, 0, 0, 1));
-
-	m = instancedMat[gl_InstanceID];
-
-	vec3 windPos = (m * vec4(Position, 1)).xyz;
-	float noiseValue = cnoise((vec3(windPos) + vec3(1, 0, 0) * time) / 10);
-	if (Position.y > 0.2) {
-		windPos += (noiseValue - 0.3) * wind;
+	if (texture(TexDepth, UV).r < 0.5) {
+	discard;
 	}
-	worldSpacePos = windPos;
 
-	// Normal, Tangent, BiTangent, Position, CameraPosition in WorldSpace
-	N = normalize(mat3(m) * Normal);
-	T = normalize(mat3(m) * Tangent);
-	B = normalize(cross(N, T));
-	Pos = windPos;
-	CameraPos = Camera.Position.xyz;
-
-	vertPos = vec3(1, 0, 0);
-
-	UV = UVW.xy;
-	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(windPos, 1);
+	float scale = 10;
+	float noiseValue = cnoise(worldSpacePos / scale) / 4;
+	
+	gPosition = vec4(Pos, 0.0);
+	gNormal = vec4(N, 0.0);
+	gAlbedoSpec = vec4(texture(TexAlbedo, UV).rgb, 0) * (1 - noiseValue) + vec4(220 / 255.0, 210 / 255.0, 25 / 255.0, 0) * noiseValue;;
 }

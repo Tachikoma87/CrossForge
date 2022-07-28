@@ -127,13 +127,13 @@ float shadowCalculationDirectionalLight(vec3 FragPosWorldSpace, vec3 Normal, vec
 		for(int x = -PCFFilterSize; x <= PCFFilterSize; ++x){
 			for(int y = -PCFFilterSize; y <= PCFFilterSize; ++y){
 				float pcfDepth = texture(TexShadow[0], ProjCoords.xy + vec2(x,y) * TexelSize).r;
-				Rval += CurrentDepth - bias > pcfDepth ? 0.8 : 0.0;
+				Rval += CurrentDepth - bias > pcfDepth ? 1.0 : 0.0;
 			}
 		}
 		Rval /= float((PCFFilterSize*2 +1) * (PCFFilterSize*2 + 1));
 		#else
 		// simple computations 
-		Rval = (CurrentDepth - bias > ClosestDepth) ? 0.8 : 0.0;
+		Rval = (CurrentDepth - bias > ClosestDepth) ? 1.0 : 0.0;
 		#endif
 	}
 	return Rval;
@@ -261,7 +261,7 @@ void main(){
 	}//for[spot lights]
 	#endif
 
-	vec3 Ambient = vec3(0.03) * Albedo * Ao;
+	vec3 Ambient = vec3(0.1) * Albedo * 1.0;
 	vec3 Col = Ambient + /*(1.0 - Ao)**/ Lo;
 
 	// Tone Mapping (Reinhardt operator)
