@@ -91,7 +91,8 @@ namespace Terrain {
 		//Vector3f sunPos = Vector3f(-5.0f, 15.0f, 35.0f);
         sun->init(sunPos, -sunDir.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
         const uint32_t ShadowMapDim = 8192;//4096; //2048;
-        sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(500, 500), -100.0f, 750.0f);
+		//sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(500, 500), -250.0f, 800.0f);
+		sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(500, 500), -100.0f, 700.0f);
         renderDevice->addLight(sun);
 
         //Vector3f lightPos = Vector3f(-400.0f, 200.0f, -400.0f);
@@ -179,7 +180,7 @@ namespace Terrain {
         return !(has_neg && has_pos);
     }
 
-    void updateGrass(InstanceActor& iGrassActor, TerrainMap& map, VirtualCamera& camera) {
+    void updateGrass(LODActor& iGrassActor, TerrainMap& map, VirtualCamera& camera) {
         iGrassActor.clearInstances();
         float sizeScale = 0.5;
         for (int i = 3; i > 0; i--) {
@@ -229,7 +230,7 @@ namespace Terrain {
     }
 
 
-    void placeDekoElements(TerrainMap &map, LODActor &iPineActor, LODActor &iPineLeavesActor, LODActor &iTreeActor, LODActor &iTreeLeavesActor, LODActor &iPalmActor, LODActor &iPalmLeavesActor, LODActor &iRockActor, InstanceActor& iBushActor) {
+    void placeDekoElements(TerrainMap &map, LODActor &iPineActor, LODActor &iPineLeavesActor, LODActor &iTreeActor, LODActor &iTreeLeavesActor, LODActor &iPalmActor, LODActor &iPalmLeavesActor, LODActor &iRockActor, LODActor& iBushActor) {
         iPineActor.clearInstances();
         iPineLeavesActor.clearInstances();
         iTreeActor.clearInstances();
@@ -382,7 +383,7 @@ namespace Terrain {
         GrassMesh.getMaterial(0)->TexAlbedo = "Assets/richard/grass_color.jpg";
         GrassMesh.getMaterial(0)->TexDepth = "Assets/richard/grassAlpha.png";
         GrassMesh.getMaterial(0)->VertexShaderSources.push_back("Shader/InstanceGrassShader.vert");
-        GrassMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader.frag");
+        GrassMesh.getMaterial(0)->FragmentShaderSources.push_back("Shader/InstanceGrassShader (2).frag");
 
         RockMesh.clear();
         RockMesh.load("Assets/rock0.obj");
@@ -479,9 +480,9 @@ namespace Terrain {
         DekoMesh TreeLeavesMesh;
 		LODActor iTreeLeavesActor;
         DekoMesh GrassMesh;
-		InstanceActor iGrassActor;
+		LODActor iGrassActor;
         DekoMesh BushMesh;
-		InstanceActor iBushActor;
+		LODActor iBushActor;
         DekoMesh RockMesh;
 		LODActor iRockActor;
 
@@ -502,8 +503,8 @@ namespace Terrain {
         iPalmLeavesActor.init(&PalmLeavesMesh, true, true);
 		printf("iRockActor\n");
         iRockActor.init(&RockMesh, true, true);
-        iGrassActor.init(&GrassMesh);
-        iBushActor.init(&BushMesh);
+		iGrassActor.init(&GrassMesh, true, true);
+		iBushActor.init(&BushMesh, true, true);
         
         //wind
 		Vector3f windVec = Vector3f(1, 0, 0);
@@ -609,6 +610,7 @@ namespace Terrain {
 		iTreeLeavesActor.setFaceCulling(false);
 		
 		pSLOD->setResolution(Vector2i(WINWIDTH,WINHEIGHT));
+		bool shadowMapRendered = false;
 
         while (!window.shutdown()) {
 			pSLOD->update();
@@ -664,6 +666,7 @@ namespace Terrain {
 			iPineLeavesActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
 			iTreeLeavesActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
 			iPalmLeavesActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
+			iGrassActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
 			
 			renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			renderDevice.LODSG_assemble();
@@ -678,18 +681,24 @@ namespace Terrain {
             glDisable(GL_CULL_FACE);
             if (renderGrass) {
                 updateGrass(iGrassActor, map, camera);
-                iGrassActor.init(&GrassMesh);
+                //iGrassActor.init(&GrassMesh);
                 iGrassActor.render(&renderDevice);
             }
             //iPineLeavesActor.render(&renderDevice);
             //iTreeLeavesActor.render(&renderDevice);
             //iPalmLeavesActor.render(&renderDevice);
             glEnable(GL_CULL_FACE);
-
-			renderDevice.activePass(RenderDevice::RENDERPASS_SHADOW, &sun);
-			map.renderMap(&renderDevice);
-			renderDevice.LODSG_render();
-
+			
+			//if (!shadowMapRendered) {
+				renderDevice.activePass(RenderDevice::RENDERPASS_SHADOW, &sun);
+				map.renderMap(&renderDevice);
+				renderDevice.LODSG_render();
+				if (renderGrass) {
+					iGrassActor.render(&renderDevice);
+				}
+				shadowMapRendered = true;
+			//}
+			
 			renderDevice.LODSG_clear();
 			
             renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
@@ -789,33 +798,25 @@ namespace Terrain {
                 iPalmLeavesActor.clearInstances();
                 iRockActor.clearInstances();
                 iBushActor.clearInstances();
-                iPineActor.init(&PineMesh);
-                iPineLeavesActor.init(&PineLeavesMesh);
-                iTreeActor.init(&TreeMesh);
-                iTreeLeavesActor.init(&TreeLeavesMesh);
-                iPalmActor.init(&PalmMesh);
-                iPalmLeavesActor.init(&PalmLeavesMesh);
-                iRockActor.init(&RockMesh);
-                iBushActor.init(&BushMesh);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F9)) {
                 window.keyboard()->keyState(Keyboard::KEY_F9, Keyboard::KEY_RELEASED);
                 renderGrass = !renderGrass;
             }
-            if (false && window.keyboard()->keyPressed(Keyboard::KEY_F10)) {
-                window.keyboard()->keyState(Keyboard::KEY_F10, Keyboard::KEY_RELEASED);
-                loadNewDekoObjects(generateNew, PineMesh, PineLeavesMesh, PalmMesh, PalmLeavesMesh, TreeMesh, TreeLeavesMesh, GrassMesh, RockMesh, BushMesh);
+            //if (false && window.keyboard()->keyPressed(Keyboard::KEY_F10)) {
+            //    window.keyboard()->keyState(Keyboard::KEY_F10, Keyboard::KEY_RELEASED);
+            //    loadNewDekoObjects(generateNew, PineMesh, PineLeavesMesh, PalmMesh, PalmLeavesMesh, TreeMesh, TreeLeavesMesh, GrassMesh, RockMesh, BushMesh);
 
-                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
-                iPineActor.init(&PineMesh);
-                iPineLeavesActor.init(&PineLeavesMesh);
-                iTreeActor.init(&TreeMesh);
-                iTreeLeavesActor.init(&TreeLeavesMesh);
-                iPalmActor.init(&PalmMesh);
-                iPalmLeavesActor.init(&PalmLeavesMesh);
-                iRockActor.init(&RockMesh);
-                iBushActor.init(&BushMesh);
-            }
+            //    placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
+            //    iPineActor.init(&PineMesh);
+            //    iPineLeavesActor.init(&PineLeavesMesh);
+            //    iTreeActor.init(&TreeMesh);
+            //    iTreeLeavesActor.init(&TreeLeavesMesh);
+            //    iPalmActor.init(&PalmMesh);
+            //    iPalmLeavesActor.init(&PalmLeavesMesh);
+            //    iRockActor.init(&RockMesh);
+            //    iBushActor.init(&BushMesh);
+            //}
 
             if (window.keyboard()->keyPressed(Keyboard::KEY_O)) {
                 window.keyboard()->keyState(Keyboard::KEY_O, Keyboard::KEY_RELEASED);

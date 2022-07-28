@@ -52,30 +52,42 @@ namespace CForge {
 		uint32_t materialCount(void)const;
 		RenderMaterial* material(uint32_t level);
 		
-		void bindLODLevel(uint32_t index);
+		// TODO houston we need some cleanup
+
 		uint32_t getLODLevel();
+		std::vector<T3DMesh<float>*> getLODMeshes();
+		std::vector<float> getLODStages();
+		std::vector<float> getLODPercentages();
+
+		void setFaceCulling(bool state);
+		/**
+		* manual LOD generation without LODHandler
+		*/
+		void generateLODSModells();
 		bool isTranslucent();
 		bool isVisible();
+
+		void bindLODLevel(uint32_t index);
 
 		T3DMesh<float>::AABB getAABB();
 		void testAABBvis(class RenderDevice* pRDev, Eigen::Matrix4f sgMat);
 		void renderAABB(class RenderDevice* pRDev);
 		void queryAABB(RenderDevice* pRDev, Eigen::Matrix4f transform);
+		void evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount);
 		
+		// instancing
 		void initInstancing(bool manualInstanced);
 		void addInstance(Eigen::Matrix4f matrix);
 		void clearInstances();
 		void changeInstance(uint32_t index, Eigen::Matrix4f mat);
 		void setInstanceMatrices(std::vector<Eigen::Matrix4f> matrices);
 		const std::vector<Eigen::Matrix4f>* getInstanceMatrices(uint32_t level);
-		
-		std::vector<float> getLODStages();
-		std::vector<float> getLODPercentages();
-		void evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount);
-		
-		void setFaceCulling(bool state);
 		void clearMatRef();
-
+		
+		void setLODmeshes(std::vector<T3DMesh<float>*> meshes);
+		void freeLODMeshes();
+		void calculateLODPercentages();
+		void initiateLODBuffers();
 		
 	protected:
 

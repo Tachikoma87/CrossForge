@@ -51,11 +51,13 @@
 #include <iostream>
 #include <filesystem>
 #include <wchar.h>
+#include <thread>
 
 using namespace Eigen;
 using namespace std;
 
 using namespace CForge;
+#define THREADS 8
 
 class MuseumTestScene : public ITListener<GUICallbackObject> {
 public:
@@ -203,9 +205,12 @@ public:
 		std::vector<LODActor*> museumActors;
 		std::vector<SGNGeometry*> museumSGNG;
 		std::vector<SGNTransformation*> museumSGNT;
-
+		
+		std::vector<T3DMesh<float>*> meshes;
 		uint32_t modelAmount = 0;
 		std::string path = "museumAssets/";
+		std::thread generationThreads[THREADS-1];
+		
 		for (const auto& entry : std::filesystem::directory_iterator(path)) {
 			std::cout << entry.path() << std::endl;
 			bool accepted = false;
@@ -219,27 +224,29 @@ public:
 			if (accepted) {
 				modelAmount++;
 				// load model
-				SAssetIO::load(entry.path().string().c_str(), &M);
-				SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
-				M.computePerVertexNormals();
-				M.computeAxisAlignedBoundingBox();
+				T3DMesh<float>* M = new T3DMesh<float>();
+				meshes.push_back(M);
+				SAssetIO::load(entry.path().string().c_str(), M);
+				SceneUtilities::setMeshShader(M, 0.1f, 0.04f);
+				M->computePerVertexNormals();
+				M->computeAxisAlignedBoundingBox();
 				
-				float triangleSize = lodHandler.getTriSizeInfo(M,LODHandler::TRI_S_AVG);
-				std::cout << triangleSize << "\n";
-				
-				// get 2 longest sides of aabb
-				Eigen::Vector3f diag = M.aabb().diagonal();
-				float a = max(diag.x(),max(diag.y(),diag.z()));
-				float b = diag.x()+diag.y()+diag.z()-a-min(diag.x(),min(diag.y(),diag.z()));
-				
-				float aabbTriRatio = triangleSize / (a*b);
-				std::cout << a*b << "\n";
-				std::cout << aabbTriRatio << "\n";
+				//float triangleSize = lodHandler.getTriSizeInfo(*M,LODHandler::TRI_S_AVG);
+				//std::cout << triangleSize << "\n";
+				//
+				//// get 2 longest sides of aabb
+				//Eigen::Vector3f diag = M->aabb().diagonal();
+				//float a = max(diag.x(),max(diag.y(),diag.z()));
+				//float b = diag.x()+diag.y()+diag.z()-a-min(diag.x(),min(diag.y(),diag.z()));
+				//
+				//float aabbTriRatio = triangleSize / (a*b);
+				//std::cout << a*b << "\n";
+				//std::cout << aabbTriRatio << "\n";
 				
 				LODActor* newAct = new LODActor();
-				newAct->init(&M);
+				newAct->init(M);
 				museumActors.push_back(newAct);
-				M.clear();
+				//M->clear();
 				
 				// add actor to scene
 				SGNGeometry* SGN = new SGNGeometry();
@@ -250,7 +257,7 @@ public:
 				float x = (float)(modelAmount%4)*6.0-7.5;
 				float y = (float)(modelAmount/4)*6.0-7.5;
 
-				T3DMesh<float>::AABB aabb = M.aabb();
+				T3DMesh<float>::AABB aabb = M->aabb();
 
 				float scale = 1.0/aabb.diagonal().norm()*5.0;
 				TransformSGN->init(&RootSGN, Vector3f(x, -aabb.Min.y()*scale, y));
@@ -259,12 +266,53 @@ public:
 				TransformSGN->translation(TransformSGN->translation()+Eigen::Vector3f(center.x(),0.0,center.z())*scale);
 				//TransformSGN->rotation((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()));
 				SGN->init(TransformSGN, newAct);
+				//LODHandler().loadLODmeshes(newAct, entry.path().string(), *pSLOD->getLevels(), std::vector<float>());
+				bool gotThread = false;
+				while (!gotThread) {
+					for (uint32_t i = 0; i < THREADS-1; i++) {
+						if (!generationThreads[i].joinable()) { // thread available
+							generationThreads[i] = std::thread([=]{LODHandler().loadLODmeshes(newAct, entry.path().string(), *pSLOD->getLevels(), std::vector<float>());});
+							gotThread = true;
+							break;
+						}
+					}
+				}
 				
-				lodHandler.generateLODmodels(entry.path().string(),newAct->getLODStages(), newAct->getLODPercentages());
+				//newAct->calculateLODPercentages();
 			}
 		}
+		for (uint32_t i = 0; i < THREADS-1; i++) {
+			if (generationThreads[i].joinable())
+				generationThreads[i].join();
+		}
 		
-		lodHandler.waitForLODgeneration();
+		for (uint32_t i = 0; i < museumActors.size(); i++) {
+			auto newAct = museumActors[i];
+			bool gotThread = false;
+			while (!gotThread) {
+				for (uint32_t i = 0; i < THREADS-1; i++) {
+					if (!generationThreads[i].joinable()) { // thread available
+						generationThreads[i] = std::thread([=]{newAct->calculateLODPercentages();});
+						gotThread = true;
+						break;
+					}
+				}
+			}
+		}
+		for (uint32_t i = 0; i < THREADS-1; i++) {
+			if (generationThreads[i].joinable())
+				generationThreads[i].join();
+		}
+
+		for (uint32_t i = 0; i < museumActors.size(); i++) {
+			auto newAct = museumActors[i];
+			newAct->initiateLODBuffers();
+			newAct->freeLODMeshes();
+		}
+		for (uint32_t i = 0; i < meshes.size(); i++) {
+			delete meshes[i];
+			meshes[i] = nullptr;
+		}
 		
 		// stuff for performance monitoring
 		uint64_t LastFPSPrint = CoreUtility::timestamp();
@@ -320,7 +368,8 @@ public:
 			}
 			Keyboard* pKeyboard = RenderWin.keyboard();
 			float Step = (pKeyboard->keyState(Keyboard::KEY_Q) == 0) ? 0.1f : 1.0f;
-			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(), 0.4*Step, cameraPanningAcceleration, 1.0f / pSLOD->getDeltaTime());
+			Step *= 60.0/(1.0/pSLOD->getDeltaTime());
+			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(), 0.4*Step, cameraPanningAcceleration, 50.0);
 
 			//Sun.retrieveDepthBuffer(&shadowBufTex);
 			//AssetIO::store("testMeshOut.jpg",&shadowBufTex);

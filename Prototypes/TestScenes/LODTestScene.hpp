@@ -167,13 +167,17 @@ namespace CForge {
 		//lodHandler.generateLODmodels("Assets/tree0.obj");
 		
 		SAssetIO::load("Assets/mirror/mirror.obj", &M);
-		T3DMesh<float> M2;
+		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
+		Cube.init(&M);
+		Cube.generateLODSModells();
 
+		T3DMesh<float> M2;
 		SGNGeometry MirrorSGN;
 		LODActor Mirror2;
 		SAssetIO::load("Assets/mirror/mirror.001.obj", &M2);
 		SceneUtilities::setMeshShader(&M2, 0.1f, 0.04f);
 		Mirror2.init(&M2);
+		Mirror2.generateLODSModells();
 		
 		//SAssetIO::load("Assets/blub/blub.obj", &M); // complexMan, blub/blub
 		//SAssetIO::load("museumAssets/Dragon_0.1.obj", &M);
@@ -183,9 +187,7 @@ namespace CForge {
 		//SAssetIO::load("Assets/submeshTest.obj", &M);
 		//lodHandler.generateLODmodels("Assets/submeshTest.obj");
 
-		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		//M.computePerVertexNormals();
-		Cube.init(&M);
 
 		//T3DMesh<float> testMesh;
 		//MeshDecimator::decimateMesh(&M, &testMesh, 0.5);
@@ -225,12 +227,12 @@ namespace CForge {
 				cubeLODlevel++;
 				cubeLODlevel %= /*2;//*/6;
 				Cube.bindLODLevel(cubeLODlevel);
-				//Mirror2.bindLODLevel(cubeLODlevel);
+				Mirror2.bindLODLevel(cubeLODlevel);
 			}
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
 				cubeLODlevel = std::max(0, int32_t(cubeLODlevel)-1);
 				Cube.bindLODLevel(cubeLODlevel);
-				//Mirror2.bindLODLevel(cubeLODlevel);
+				Mirror2.bindLODLevel(cubeLODlevel);
 			}
 
 			//R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());

@@ -6,6 +6,7 @@
 #include "../MeshDecimate.h"
 #include "../../CForge/Graphics/Shader/SShaderManager.h"
 #include "../LODHandler.h"
+#include <iostream>
 
 #define SKIP_INSTANCED_QUERIES // TODO determine skipping by time query
 
@@ -56,13 +57,24 @@ namespace CForge {
 		std::vector<Eigen::Matrix4f>* m_instLODMats = new std::vector<Eigen::Matrix4f>();
 		m_instancedMatRef.push_back(m_instLODMats);
 		
+		//if (m_pSLOD->forceLODregeneration)
+		//	generateLODSModells();
+	}//initialize
+
+	void LODActor::init(T3DMesh<float>* pMesh, const std::vector<float>& LODStages, bool isInstanced, bool manualyInstanced) {
+		m_LODStages = LODStages;
+		init(pMesh, isInstanced, manualyInstanced);
+	}//initialize
+	
+	void LODActor::generateLODSModells() {
+
 		// TODO parallelise generation
 		for (uint32_t i = 1; i < m_LODStages.size(); i++) {
 			T3DMesh<float>* pLODMesh = new T3DMesh<float>();
 			float amount = float(m_LODStages[i]) / m_LODStages[i-1];
 			if (amount > 1.0)
 				throw CForgeExcept("decimation stages are in wrong order");
-			
+
 			bool succ = MeshDecimator::decimateMesh(m_LODMeshes[i-1], pLODMesh, amount);
 			if (!succ) {
 				m_LODStages.erase(m_LODStages.begin()+i, m_LODStages.end());
@@ -72,46 +84,95 @@ namespace CForge {
 			}
 			m_LODMeshes.push_back(pLODMesh);
 			initiateBuffers(i);
-			
-			m_instLODMats = new std::vector<Eigen::Matrix4f>();
+
+			std::vector<Eigen::Matrix4f>* m_instLODMats = new std::vector<Eigen::Matrix4f>();
 			m_instancedMatRef.push_back(m_instLODMats);
 		}
-		
+
 		float previousRatio = 1.0;
-		float percOffset = 1.0; // TODO make global
 		m_LODPercentages.push_back(0.5);
-		
+
 		for (uint32_t i = 0; i < m_LODMeshes.size(); i++) {
 			if (m_LODMeshes[i] == nullptr) {
 				m_LODMeshes.resize(i);
 				break;
 			}
-			
+
 			// calculate LOD percentages
 			float triangleSize = LODHandler::getTriSizeInfo(*m_LODMeshes[i],LODHandler::TRI_S_AVG);
 			// get 2 longest sides of aabb
-			Eigen::Vector3f diag = pMesh->aabb().diagonal();
+			Eigen::Vector3f diag = m_LODMeshes[0]->aabb().diagonal();
 			float a = std::max(diag.x(),std::max(diag.y(),diag.z()));
 			float b = diag.x()+diag.y()+diag.z()-a-std::min(diag.x(),std::min(diag.y(),diag.z()));
-			
+
 			// ratio of triangle size to biggest BB side
 			float aabbTriRatio = triangleSize / (a*b);
 
 			if (i > 0) {
 				// makes triangle size
-				m_LODPercentages.push_back(m_LODPercentages[0]*previousRatio/(aabbTriRatio*percOffset));
-				
+				m_LODPercentages.push_back(m_LODPercentages[0]*previousRatio/(aabbTriRatio));
+
 				delete m_LODMeshes[i];
 				m_LODMeshes[i] = nullptr;
 			} else
 				previousRatio = aabbTriRatio;
 		}
-	}//initialize
+	}
+	
+	void LODActor::calculateLODPercentages() {
 
-	void LODActor::init(T3DMesh<float>* pMesh, const std::vector<float>& LODStages, bool isInstanced, bool manualyInstanced) {
-		m_LODStages = LODStages;
-		init(pMesh, isInstanced, manualyInstanced);
-	}//initialize
+		float previousRatio = 1.0;
+		m_LODPercentages.push_back(0.5);
+
+		for (uint32_t i = 0; i < m_LODMeshes.size(); i++) {
+			if (m_LODMeshes[i] == nullptr) {
+				m_LODMeshes.resize(i);
+				break;
+			}
+
+			// calculate LOD percentages
+			float triangleSize = LODHandler::getTriSizeInfo(*m_LODMeshes[i],LODHandler::TRI_S_AVG);
+			// get 2 longest sides of aabb
+			Eigen::Vector3f diag = m_LODMeshes[0]->aabb().diagonal();
+			float a = std::max(diag.x(),std::max(diag.y(),diag.z()));
+			float b = diag.x()+diag.y()+diag.z()-a-std::min(diag.x(),std::min(diag.y(),diag.z()));
+
+			// ratio of triangle size to biggest BB side
+			float aabbTriRatio = triangleSize / (a*b);
+
+			if (i > 0) {
+				// makes triangle size
+				m_LODPercentages.push_back(m_LODPercentages[0]*previousRatio/(aabbTriRatio));
+
+				//delete m_LODMeshes[i];
+				//m_LODMeshes[i] = nullptr;
+			} else
+				previousRatio = aabbTriRatio;
+		}
+	}
+	
+	void LODActor::setLODmeshes(std::vector<T3DMesh<float>*> meshes) {
+		for (uint32_t i = 1; i < meshes.size(); i++) {
+			m_LODMeshes.push_back(meshes[i]);
+			std::vector<Eigen::Matrix4f>* m_instLODMats = new std::vector<Eigen::Matrix4f>();
+			m_instancedMatRef.push_back(m_instLODMats);
+		}
+	}
+	
+	void LODActor::freeLODMeshes() {
+		for (uint32_t i = 0; i < m_LODMeshes.size(); i++) {
+			if (i > 0)
+				delete m_LODMeshes[i];
+			m_LODMeshes[i] = nullptr;
+		}
+		//m_LODMeshes.clear(); // TODO ?
+	}
+	
+	void LODActor::initiateLODBuffers() {
+		for (uint32_t i = 1; i < m_LODMeshes.size(); i++) {
+			initiateBuffers(i);
+		}
+	}
 
 	void LODActor::initiateBuffers(uint32_t level) {
 		auto pMesh = m_LODMeshes[level];
@@ -415,7 +476,7 @@ namespace CForge {
 		else
 			percentages = m_LODPercentages;
 		
-		while (level < m_LODStages.size()-2) {
+		while (level < m_LODStages.size()-1) {
 			if (screenCov > (percentages)[level]/m_pSLOD->LODOffset)
 				break;
 			level++;
@@ -430,7 +491,7 @@ namespace CForge {
 		}
 		else { // not instanced bind lod immediately
 			if (level != m_LODLevel) {
-				printf("binding LOD level: %d\n", level);
+				//printf("binding LOD level: %d\n", level);
 				bindLODLevel(level);
 			}
 		}
@@ -550,6 +611,7 @@ namespace CForge {
 
 		float aabbRadius = getAABBradius(*mat);
 		float distance = (Translation - pRDev->activeCamera()->position()).norm() - aabbRadius;
+		//std::cout << distance << "\n";
 		if (distance < 0.0)
 			return true;
 		
@@ -580,5 +642,9 @@ namespace CForge {
 			m_instancedMatRef[i]->clear();
 		if (!m_isManualInstaned)
 			m_instancedMatrices.clear();
+	}
+
+	std::vector<T3DMesh<float>*> LODActor::getLODMeshes() {
+		return m_LODMeshes;
 	}
 }
