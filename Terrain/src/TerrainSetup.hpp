@@ -91,8 +91,8 @@ namespace Terrain {
 		//Vector3f sunPos = Vector3f(-5.0f, 15.0f, 35.0f);
         sun->init(sunPos, -sunDir.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
         const uint32_t ShadowMapDim = 8192;//4096; //2048;
-		//sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(500, 500), -250.0f, 800.0f);
-		sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(500, 500), -100.0f, 700.0f);
+		sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(500, 500), -500.0f, 800.0f);
+		//sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(500, 500), -100.0f, 700.0f);
         renderDevice->addLight(sun);
 
         //Vector3f lightPos = Vector3f(-400.0f, 200.0f, -400.0f);
