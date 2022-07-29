@@ -239,7 +239,7 @@ namespace CForge {
 			delete DVnoMulUsedInTri[i];
 		}
 		
-		outMesh->computePerVertexNormals();
+		//outMesh->computePerVertexNormals();
 		
 		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() -start).count();
 		std::cout << "Decimation Finished, time took: " << double(microseconds)*0.001 << "ms \n";

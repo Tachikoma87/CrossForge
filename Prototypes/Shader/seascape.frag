@@ -1,3 +1,4 @@
+// https://www.shadertoy.com/view/Ms2SD1
 /*
  * "Seascape" by Alexander Alekseev aka TDM - 2014
  * License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
@@ -176,6 +177,60 @@ float heightMapTracing(vec3 ori, vec3 dir, out vec3 p) {
 	}
 	return tmid;
 }
+// https://www.shadertoy.com/view/WtyfR1
+// SSAO (Screen Space AO) - by moranzcw - 2021
+// Email: moranzcw@gmail.com
+// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+
+#define PI 3.14159265359
+#define AOradius 0.005
+#define Samples 64.0
+
+// --------------------------------------
+// oldschool rand() from Visual Studio
+// --------------------------------------
+int   seed = 1;
+void  srand(int s ) { seed = s; }
+int   rand(void)  { seed=seed*0x343fd+0x269ec3; return (seed>>16)&32767; }
+float frand(void) { return float(rand())/32767.0; }
+// --------------------------------------
+// hash by Hugo Elias
+// --------------------------------------
+int hash( int n ) { n=(n<<13)^n; return n*(n*n*15731+789221)+1376312589; }
+
+vec3 sphereVolumeRandPoint()
+{
+	vec3 p = vec3(frand(),frand(),frand()) * 2.0 - 1.0;
+	while(length(p)>1.0)
+	{
+		p = vec3(frand(),frand(),frand()) * 2.0 - 1.0;
+	}
+	return p;
+}
+
+float depth(vec2 coord)
+{
+	vec2 uv = coord;
+	return min(1.0,length(texture(texPosition, uv).xyz - Camera.Position.xyz)/1000.0);
+}
+
+float SSAO(vec2 coord)
+{
+	float cd = depth(coord);
+	float screenRadius = 0.5 * (AOradius / cd) * (16.0/9.0);
+	float li = 0.0;
+	float count = 0.0;
+	for(float i=0.0; i<Samples; i++)
+	{
+		vec3 p = sphereVolumeRandPoint() * frand();
+		vec2 sp = vec2(coord.x + p.x * screenRadius, coord.y + p.y * screenRadius);
+		float d = depth(sp);
+		float at = pow(length(p)-1.0, 2.0);
+		li += step(cd + p.z * AOradius, d) * at;
+		count += at;
+	}
+	return max(0.0,min(1.0,(li / count)+0.5));
+}
 
 void main(){
 	vec2 uv = TexCoords;
@@ -234,6 +289,10 @@ void main(){
 		if (coord.x > 0.0 && coord.x < 1.0 && coord.y > 0.0 && coord.y < 1.0 && coord.y > TexCoords.y) // only sample reflection above water
 			oceanCol = min(oceanCol + distDiffBlend*0.3*max(texture(texColor, coord).xyz,0.1),1.0);
 	}
+	
+	//SSAO
+	float ao = SSAO(TexCoords);
+	oceanCol *= vec3(pow(ao,2.0)*1.0);
 	
 	FragColor = vec4(oceanCol,0.0);
 }

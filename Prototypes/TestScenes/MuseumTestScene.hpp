@@ -57,7 +57,7 @@ using namespace Eigen;
 using namespace std;
 
 using namespace CForge;
-#define THREADS 8
+#define THREADS 2
 
 class MuseumTestScene : public ITListener<GUICallbackObject> {
 public:
@@ -209,7 +209,13 @@ public:
 		std::vector<T3DMesh<float>*> meshes;
 		uint32_t modelAmount = 0;
 		std::string path = "museumAssets/";
-		std::thread generationThreads[THREADS-1];
+		std::thread generationThreads[THREADS];
+		std::atomic<bool>* generationThreadsDone[THREADS];
+		LODActor* generationThreadActors[THREADS];
+		for (uint32_t i = 0; i < THREADS; i++) {
+			generationThreadsDone[i] = new std::atomic<bool>(true);
+			generationThreadActors[i] = nullptr;
+		}
 		
 		for (const auto& entry : std::filesystem::directory_iterator(path)) {
 			std::cout << entry.path() << std::endl;
@@ -269,9 +275,24 @@ public:
 				//LODHandler().loadLODmeshes(newAct, entry.path().string(), *pSLOD->getLevels(), std::vector<float>());
 				bool gotThread = false;
 				while (!gotThread) {
-					for (uint32_t i = 0; i < THREADS-1; i++) {
-						if (!generationThreads[i].joinable()) { // thread available
-							generationThreads[i] = std::thread([=]{LODHandler().loadLODmeshes(newAct, entry.path().string(), *pSLOD->getLevels(), std::vector<float>());});
+					for (uint32_t i = 0; i < THREADS; i++) {
+						std::atomic<bool>* done = generationThreadsDone[i];
+						if (*done) { // thread available
+							if (generationThreads[i].joinable()) {
+								generationThreads[i].join();
+								generationThreadActors[i]->initiateLODBuffers();
+								generationThreadActors[i]->freeLODMeshes();
+								generationThreadActors[i] = nullptr;
+							}
+							*done = false;
+							LODActor** pActor = &(generationThreadActors[i]);
+							*pActor = newAct;
+							generationThreads[i] = std::thread([=] {
+								LODHandler().loadLODmeshes(newAct, entry.path().string(), *pSLOD->getLevels(), std::vector<float>());
+								newAct->calculateLODPercentages();
+								*done = true;
+							});
+							
 							gotThread = true;
 							break;
 						}
@@ -281,34 +302,20 @@ public:
 				//newAct->calculateLODPercentages();
 			}
 		}
-		for (uint32_t i = 0; i < THREADS-1; i++) {
-			if (generationThreads[i].joinable())
+		for (uint32_t i = 0; i < THREADS; i++) {
+			if (generationThreads[i].joinable()) {
 				generationThreads[i].join();
-		}
-		
-		for (uint32_t i = 0; i < museumActors.size(); i++) {
-			auto newAct = museumActors[i];
-			bool gotThread = false;
-			while (!gotThread) {
-				for (uint32_t i = 0; i < THREADS-1; i++) {
-					if (!generationThreads[i].joinable()) { // thread available
-						generationThreads[i] = std::thread([=]{newAct->calculateLODPercentages();});
-						gotThread = true;
-						break;
-					}
-				}
+				generationThreadActors[i]->initiateLODBuffers();
+				generationThreadActors[i]->freeLODMeshes();
+				generationThreadActors[i] = nullptr;
 			}
 		}
-		for (uint32_t i = 0; i < THREADS-1; i++) {
-			if (generationThreads[i].joinable())
-				generationThreads[i].join();
-		}
 
-		for (uint32_t i = 0; i < museumActors.size(); i++) {
-			auto newAct = museumActors[i];
-			newAct->initiateLODBuffers();
-			newAct->freeLODMeshes();
-		}
+		//for (uint32_t i = 0; i < museumActors.size(); i++) {
+		//	auto newAct = museumActors[i];
+		//	newAct->initiateLODBuffers();
+		//	newAct->freeLODMeshes();
+		//}
 		for (uint32_t i = 0; i < meshes.size(); i++) {
 			delete meshes[i];
 			meshes[i] = nullptr;

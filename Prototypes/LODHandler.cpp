@@ -44,7 +44,13 @@ namespace CForge {
 		
 		std::vector<T3DMesh<float>*> LODMeshes;
 		LODMeshes.push_back(pActor->getLODMeshes()[0]);
-
+		
+		if (pSLOD->skipMeshLoader) {
+			generateLODMeshes(&LODMeshes,&decAmount);
+			pActor->setLODmeshes(LODMeshes);
+			return;
+		}
+		
 		bool forceCreate = pSLOD->forceLODregeneration;
 		// create Metafile
 		if (!std::filesystem::exists(metaFilePath) || forceCreate) { // metafile does not exist
