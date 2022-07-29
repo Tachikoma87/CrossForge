@@ -4,6 +4,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/Exporter.hpp>
 #include "../../CForge/Core/SLogger.h"
+#include <unordered_map>
 
 
 using namespace Assimp;
@@ -333,6 +334,7 @@ namespace CForge {
 
 		for (uint32_t i = 0; i < pMesh->submeshCount(); ++i) {
 			std::vector<int32_t> VertexIDs;
+			std::unordered_map<int32_t, bool> VertexIDsMap; 
 
 			aiMesh* pM = pScene->mMeshes[i];
 
@@ -352,9 +354,13 @@ namespace CForge {
 				pM->mFaces[k] = F;
 
 				// collect vertex ids
-				if (VertexIDs.end() == std::find(VertexIDs.begin(), VertexIDs.end(), pSub->Faces[k].Vertices[0])) VertexIDs.push_back(pSub->Faces[k].Vertices[0]);
-				if (VertexIDs.end() == std::find(VertexIDs.begin(), VertexIDs.end(), pSub->Faces[k].Vertices[1])) VertexIDs.push_back(pSub->Faces[k].Vertices[1]);
-				if (VertexIDs.end() == std::find(VertexIDs.begin(), VertexIDs.end(), pSub->Faces[k].Vertices[2])) VertexIDs.push_back(pSub->Faces[k].Vertices[2]);
+				for (uint8_t i = 0; i < 3; i++) {
+					auto itr = VertexIDsMap.find(pSub->Faces[k].Vertices[i]);
+					if (itr == VertexIDsMap.end()) {
+						VertexIDsMap[pSub->Faces[k].Vertices[i]] = true;
+						VertexIDs.push_back(pSub->Faces[k].Vertices[i]);
+					}
+				}
 
 			}//for[faces]
 			pM->mNumFaces = pSub->Faces.size();
