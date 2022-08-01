@@ -114,6 +114,8 @@ class GLTFIO {
 
 		template<class T>
 		void writeAccessorDataScalar(const int bufferIndex, const int componentType, std::vector<T>* pData) {
+			std::cout << "write accessor size: " << pData->size() << ", scalar" << std::endl;
+			
 			Buffer* pBuffer = &model.buffers[bufferIndex];
 
 			Accessor accessor;
@@ -142,6 +144,8 @@ class GLTFIO {
 
 		template<class T>
 		void writeAccessorData(const int bufferIndex, const int type, std::vector<std::vector<T>>* pData) {
+			std::cout << "write accessor size: " << pData->size() << ", vec " << (*pData)[0].size() << std::endl;
+
 			Buffer* pBuffer = &model.buffers[bufferIndex];
 
 			Accessor accessor;

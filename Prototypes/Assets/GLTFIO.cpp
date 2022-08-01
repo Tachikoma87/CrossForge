@@ -639,7 +639,7 @@ namespace CForge {
 				tangent[indices[i] - min] = tan;
 			}
 
-			if (pCMesh->textureCoordinatesCount() < 0) {
+			if (pCMesh->textureCoordinatesCount() > 0) {
 				// fill up to index
 				for (int k = texCoord.size(); k <= indices[i] - min; k++) {
 					Eigen::Vector3f vec3;
@@ -649,7 +649,7 @@ namespace CForge {
 				texCoord[indices[i] - min] = tex;
 			}
 
-			if (pCMesh->colorCount() < 0) {
+			if (pCMesh->colorCount() > 0) {
 				// fill up to index
 				for (int k = color.size(); k <= indices[i] - min; k++) {
 					Eigen::Vector4f vec4;
@@ -668,6 +668,14 @@ namespace CForge {
 		}
 
 		writeAccessorDataScalar(model.buffers.size() - 1, TINYGLTF_COMPONENT_TYPE_INT, &indices);
+
+		std::cout << "coord " << coord.size() << std::endl;
+		std::cout << "normal " << normal.size() << std::endl;
+		std::cout << "tangent " << tangent.size() << std::endl;
+		std::cout << "texCoord " << texCoord.size() << std::endl;
+		std::cout << "color " << color.size() << std::endl;
+		std::cout << "joint " << joint.size() << std::endl;
+		std::cout << "weight " << weight.size() << std::endl;
 
 	}
 
@@ -764,6 +772,10 @@ namespace CForge {
 		gltfMaterial.normalTexture.index = writeTexture(pMaterial->TexNormal);
 		
 		gltfMaterial.pbrMetallicRoughness.baseColorTexture.index = writeTexture(pMaterial->TexAlbedo);
+
+		model.meshes[meshIndex].primitives[0].material = model.materials.size();
+
+		model.materials.push_back(gltfMaterial);
 	}
 
 	int GLTFIO::writeTexture(const std::string path) {
