@@ -3,6 +3,7 @@
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+
 #include <tiny_gltf.h>
 #include <iostream>
 #include <filesystem>
@@ -549,11 +550,21 @@ namespace CForge {
 
 		TinyGLTF writer;
 
-		writer.WriteGltfSceneToFile(&model, Filepath);
+		writer.WriteGltfSceneToFile(&model, Filepath, false, false, true, false);
 	}//store
 
 	void GLTFIO::writeMeshes() {
-		//every mesh will hold a single primitive with the submesh data.
+		//Every texture will use this basic sampler.
+		Sampler gltfSampler;
+
+		gltfSampler.magFilter = TINYGLTF_TEXTURE_FILTER_LINEAR;
+		gltfSampler.minFilter = TINYGLTF_TEXTURE_FILTER_LINEAR;
+		gltfSampler.wrapS = TINYGLTF_TEXTURE_WRAP_REPEAT;
+		gltfSampler.wrapT = TINYGLTF_TEXTURE_WRAP_REPEAT;
+
+		model.samplers.push_back(gltfSampler);
+		
+		//Every mesh will hold a single primitive with the submesh data.
 		for (int i = 0; i < pCMesh->submeshCount(); i++) {
 			writePrimitive();
 		}
@@ -761,7 +772,7 @@ namespace CForge {
 		int meshIndex = model.meshes.size() - 1;
 
 		T3DMesh<float>::Submesh* pSubmesh = pMesh->getSubmesh(meshIndex);
-
+		
 		T3DMesh<float>::Material* pMaterial = pMesh->getMaterial(pSubmesh->Material);
 
 		Material gltfMaterial;
@@ -798,19 +809,11 @@ namespace CForge {
 		Image gltfImage;
 		
 		gltfImage.uri = uri;
+		gltfImage.mimeType = "image/jpeg";
 
 		model.images.push_back(gltfImage);
 		
-		gltfTexture.sampler = model.samplers.size();
-
-		Sampler gltfSampler;
-		
-		gltfSampler.magFilter = TINYGLTF_TEXTURE_FILTER_LINEAR;
-		gltfSampler.minFilter = TINYGLTF_TEXTURE_FILTER_LINEAR;
-		gltfSampler.wrapS = TINYGLTF_TEXTURE_WRAP_REPEAT;
-		gltfSampler.wrapT = TINYGLTF_TEXTURE_WRAP_REPEAT;
-
-		model.samplers.push_back(gltfSampler);
+		gltfTexture.sampler = 0;
 
 		model.textures.push_back(gltfTexture);
 
