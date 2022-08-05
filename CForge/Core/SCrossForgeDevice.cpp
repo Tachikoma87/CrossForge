@@ -148,7 +148,9 @@ namespace CForge {
 		uint32_t Index = pObj->objectID();
 		if (Index >= m_RegisteredObjects.size()) {
 			m_Mutex.unlock();
-			throw IndexOutOfBoundsExcept("Index of registered object!");
+			//TODO: LODActor
+// 			throw IndexOutOfBoundsExcept("Index of registered object!");
+			return;
 		}
 		/*if (m_RegisteredObjects[Index] != pObj) {
 			m_Mutex.unlock();

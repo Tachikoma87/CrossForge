@@ -21,6 +21,7 @@ void CallbackTestClass::listen(const GUICallbackObject Msg)
     for (auto x : Msg.Data) {
         switch(x.second.Type) {
             case INPUTTYPE_INT:
+            case INPUTTYPE_DROPDOWN:
                 printf("%d: %d\n", x.first, *(int*)x.second.pData);
                 break;
             case INPUTTYPE_BOOL:
@@ -65,7 +66,7 @@ GUI::~GUI()
     FT_Done_FreeType(library);
 }
 
-void GUI::testInit(CForge::GLWindow* pWin)
+void GUI::init (CForge::GLWindow* pWin)
 {
     //Compile the shaders
 
