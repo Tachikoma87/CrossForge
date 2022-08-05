@@ -222,8 +222,8 @@ public:
 		form->setDefault ( GUI_CAMERA_PANNING, cameraPanningAcceleration );
 		form->addOption ( GUI_LODOFFSET, INPUTTYPE_RANGESLIDER, U"LOD Offest" );
 		form->setLimit ( GUI_LODOFFSET, 0.0f, 5.0f );
-		form->setStepSize ( GUI_LODOFFSET, 0.1f );
-		form->setDefault ( GUI_LODOFFSET, pSLOD->LODOffset );
+		//form->setStepSize ( GUI_LODOFFSET, 0.1f );
+		//form->setDefault ( GUI_LODOFFSET, pSLOD->LODOffset );
 		//         form->addOption ( 7, INPUTTYPE_RANGESLIDER, U"Field of View" );
 		//         form->setLimit ( 7, 60.0f, 120.0f );
 		//         form->setStepSize ( 7, 1.0f );
@@ -346,7 +346,7 @@ public:
 			// 				cameraPointerForCallbackHandling->projectionMatrix(WINWIDTH, WINHEIGHT, GraphicsUtility::degToRad(CAM_FOV), 0.1f, 5000.0f);
 			// 			}
 
-			pSLOD->LODOffset = *((float*)Msg.Data.at(GUI_LODOFFSET).pData);
+			// TODO pSLOD->LODOffset = *((float*)Msg.Data.at(GUI_LODOFFSET).pData);
 		}
 	};
 

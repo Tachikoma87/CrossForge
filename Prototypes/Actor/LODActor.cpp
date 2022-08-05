@@ -8,7 +8,7 @@
 #include "../LODHandler.h"
 #include <iostream>
 
-//#define SKIP_INSTANCED_QUERIES // TODO determine skipping by time query
+#define SKIP_INSTANCED_QUERIES // TODO make changeable using SLOD
 
 namespace CForge {
 	LODActor::LODActor(void) : IRenderableActor("LODActor", ATYPE_STATIC) {
@@ -90,36 +90,7 @@ namespace CForge {
 			m_instancedMatRef.push_back(m_instLODMats);
 		}
 
-		float previousRatio = 1.0;
-		float triangleSizeB = LODHandler::getTriSizeInfo(*m_LODMeshes[0],LODHandler::TRI_S_AVG);
-
-		m_LODPercentages.push_back(1.0);
-
-		for (uint32_t i = 1; i < m_LODMeshes.size(); i++) {
-			if (m_LODMeshes[i] == nullptr) {
-				m_LODMeshes.resize(i);
-				break;
-			}
-
-			// calculate LOD percentages
-			float triangleSize = LODHandler::getTriSizeInfo(*m_LODMeshes[i],LODHandler::TRI_S_AVG);
-			// get 2 longest sides of aabb
-			//Eigen::Vector3f diag = m_LODMeshes[0]->aabb().diagonal();
-			//float a = std::max(diag.x(),std::max(diag.y(),diag.z()));
-			//float b = diag.x()+diag.y()+diag.z()-a-std::min(diag.x(),std::min(diag.y(),diag.z()));
-
-			// ratio of triangle size to biggest BB side
-			//float aabbTriRatio = triangleSize / (a*b);
-
-			//if (i > 0) {
-			// makes triangle size
-			m_LODPercentages.push_back(m_LODPercentages[0]*triangleSizeB/triangleSize);
-
-			//delete m_LODMeshes[i];
-			//m_LODMeshes[i] = nullptr;
-			//} else
-			//	previousRatio = aabbTriRatio;
-		}
+		calculateLODPercentages();
 		
 		for (uint32_t i = 1; i < m_LODMeshes.size(); i++) {
 			delete m_LODMeshes[i];
@@ -128,36 +99,17 @@ namespace CForge {
 	}
 	
 	void LODActor::calculateLODPercentages() {
+		
+		// get surface area of biggest AABB side
+		Eigen::Vector3f diag = m_LODMeshes[0]->aabb().diagonal();
+		float a = std::max(diag.x(),std::max(diag.y(),diag.z()));
+		float b = diag.x()+diag.y()+diag.z()-a-std::min(diag.x(),std::min(diag.y(),diag.z()));
+		float side = (a*b);
 
-		float previousRatio = 1.0;
-		m_LODPercentages.push_back(1.0);
-
-		float triangleSizeB = LODHandler::getTriSizeInfo(*m_LODMeshes[0],LODHandler::TRI_S_AVG);
-
-		for (uint32_t i = 1; i < m_LODMeshes.size(); i++) {
-			if (m_LODMeshes[i] == nullptr) {
-				m_LODMeshes.resize(i);
-				break;
-			}
-
-			// calculate LOD percentages
+		for (uint32_t i = 0; i < m_LODMeshes.size(); i++) {
+			
 			float triangleSize = LODHandler::getTriSizeInfo(*m_LODMeshes[i],LODHandler::TRI_S_AVG);
-			// get 2 longest sides of aabb
-			//Eigen::Vector3f diag = m_LODMeshes[0]->aabb().diagonal();
-			//float a = std::max(diag.x(),std::max(diag.y(),diag.z()));
-			//float b = diag.x()+diag.y()+diag.z()-a-std::min(diag.x(),std::min(diag.y(),diag.z()));
-
-			// ratio of triangle size to biggest BB side
-			//float aabbTriRatio = triangleSize / (a*b);
-
-			//if (i > 0) {
-				// makes triangle size
-				m_LODPercentages.push_back(m_LODPercentages[0]*triangleSizeB/triangleSize);
-
-				//delete m_LODMeshes[i];
-				//m_LODMeshes[i] = nullptr;
-			//} else
-			//	previousRatio = aabbTriRatio;
+			m_LODPercentages.push_back(triangleSize/side);
 		}
 	}
 	
@@ -485,8 +437,10 @@ namespace CForge {
 		else
 			percentages = m_LODPercentages;
 		
+		float ratio = (float) m_pSLOD->TriangleSize/m_pSLOD->getResPixAmount();
+		
 		while (level < m_LODStages.size()-1) {
-			if (screenCov > (percentages)[level]/m_pSLOD->LODOffset)
+			if (screenCov*percentages[level] > ratio)
 				break;
 			level++;
 		}

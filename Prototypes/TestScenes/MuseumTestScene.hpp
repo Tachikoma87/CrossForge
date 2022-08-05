@@ -114,7 +114,7 @@ public:
 		std::string WindowTitle = "CForge - Minimum Graphics Setup";
 		float FPS = 60.0f;
 
-		bool const LowRes = true;
+		bool const LowRes = false;
 
 		uint32_t WinWidth = 1920;
 		uint32_t WinHeight = 1080;
@@ -350,9 +350,9 @@ public:
 		form->setStepSize ( GUI_CAMERA_PANNING, 0.5f );
 		form->setDefault ( GUI_CAMERA_PANNING, cameraPanningAcceleration );
 		form->addOption ( GUI_LODOFFSET, INPUTTYPE_RANGESLIDER, U"LOD Offest" );
-		form->setLimit ( GUI_LODOFFSET, 0.0f, 5.0f );
-		form->setStepSize ( GUI_LODOFFSET, 0.1f );
-		form->setDefault ( GUI_LODOFFSET, pSLOD->LODOffset );
+		form->setLimit ( GUI_LODOFFSET, 1.0f, (float) WinWidth*WinHeight );
+		form->setStepSize ( GUI_LODOFFSET, 1.0f ); // TODO
+		form->setDefault ( GUI_LODOFFSET, (float) pSLOD->TriangleSize );
 //         form->addOption ( 7, INPUTTYPE_RANGESLIDER, U"Field of View" );
 //         form->setLimit ( 7, 60.0f, 120.0f );
 //         form->setStepSize ( 7, 1.0f );
@@ -526,7 +526,7 @@ public:
 // 				cameraPointerForCallbackHandling->projectionMatrix(WINWIDTH, WINHEIGHT, GraphicsUtility::degToRad(CAM_FOV), 0.1f, 5000.0f);
 // 			}
 
-			pSLOD->LODOffset = *((float*)Msg.Data.at(GUI_LODOFFSET).pData);
+			pSLOD->TriangleSize = (int) *((float*)Msg.Data.at(GUI_LODOFFSET).pData);
 		}
 	};
 
