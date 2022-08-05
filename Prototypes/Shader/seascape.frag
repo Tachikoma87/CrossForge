@@ -23,7 +23,7 @@ uniform float aspectRatio;
 in vec2 TexCoords;
 out vec4 FragColor;
 
-float infinity = 1.0 / 0.0;
+const float infinity = 1.0 / 0.0;
 
 const int NUM_STEPS = 4;
 const float PI	 	= 3.141592;
@@ -42,6 +42,9 @@ const vec3 SEA_BASE = vec3(0.0,0.09,0.18);
 const vec3 SEA_WATER_COLOR = vec3(0.8,0.9,0.6)*0.6;
 #define SEA_TIME (1.0 + uTime * SEA_SPEED)
 const mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
+
+const bool globalAO = false;
+const bool randAO = false;
 
 // math
 mat3 fromEuler(vec3 ang) {
@@ -269,7 +272,7 @@ void main(){
 	float distDiff = clamp(0.2*log(((1.0-weight)*(-geoWorldPos.y/(mapHeight*0.5))+weight*(distScene - waterDist)/mapHeight))+1.0,0.0,1.0);
 	
 	oceanCol = oceanCol*distDiff + col.xyz*(1.0-distDiff);
-	
+		
 	// fake SSR
 	if (distDiff > 0.0) {
 		// interpolate plane normal with ocean normal
@@ -288,11 +291,24 @@ void main(){
 		float distDiffBlend = min(distDiff*3.0,1.0); // stronger reflections in deeper areas
 		if (coord.x > 0.0 && coord.x < 1.0 && coord.y > 0.0 && coord.y < 1.0 && coord.y > TexCoords.y) // only sample reflection above water
 			oceanCol = min(oceanCol + distDiffBlend*0.3*max(texture(texColor, coord).xyz,0.1),1.0);
-	}
+	} 
 	
 	//SSAO
-	float ao = SSAO(TexCoords);
-	oceanCol *= vec3(pow(ao,2.0)*1.0);
+	float ao = 1.0;
+	if (!globalAO) {
+		if (randAO) {
+			ivec2 q = ivec2(TexCoords*vec2(1920,1080));
+			int iFrame = int(uTime*144);			
+			srand( hash(q.x+hash(q.y+hash(1117*(iFrame)))));
+		}
+		if (distScene < waterDist && abs(geoWorldPos.x) > 0.001)
+			ao = max(SSAO(TexCoords),clamp((-geoWorldPos.y*0.1+1.25),0.0,1.0));
+		else
+			ao = 1.0;
+	} else 
+		ao = SSAO(TexCoords);
+	ao = pow(ao,2.0)*1.0;
 	
-	FragColor = vec4(oceanCol,0.0);
+	
+	FragColor = vec4(oceanCol*ao,0.0);
 }
