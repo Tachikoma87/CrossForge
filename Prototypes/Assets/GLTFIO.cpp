@@ -1,4 +1,4 @@
-#include "GLTFIO.h"
+﻿#include "GLTFIO.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -343,11 +343,39 @@ namespace CForge {
 		pMesh->addSubmesh(pSubMesh, false);
 	}
 
+	void GLTFIO::readIndices(const int accessorIndex, std::vector<int>* pIndices) {
+		Accessor acc = model.accessors[accessorIndex];
+		
+		if (acc.componentType == TINYGLTF_COMPONENT_TYPE_INT) {
+			getAccessorDataScalar(accessorIndex, pIndices);
+		}
+		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_BYTE) {
+			std::vector<char> data;
+			getAccessorDataScalar(accessorIndex, &data);
+			for (auto i : data) pIndices->push_back((int) i);
+		}
+		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+			std::vector<unsigned char> data;
+			getAccessorDataScalar(accessorIndex, &data);
+			for (auto i : data) pIndices->push_back((int)i);
+		}
+		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_SHORT) {
+			std::vector<short> data;
+			getAccessorDataScalar(accessorIndex, &data);
+			for (auto i : data) pIndices->push_back((int)i);
+		}
+		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+			std::vector<unsigned short> data;
+			getAccessorDataScalar(accessorIndex, &data);
+			for (auto i : data) pIndices->push_back((int)i);
+		}
+	}
+
 	void GLTFIO::readFaces(Primitive* pPrimitive, std::vector<T3DMesh<float>::Face>* faces) {
 		int accessorIndex = pPrimitive->indices;
 
-		std::vector<unsigned short> indices;
-		getAccessorDataScalar(accessorIndex, &indices);
+		std::vector<int> indices;
+		readIndices(accessorIndex, &indices);
 
 		unsigned long offset = 0;
 		for (int i = 0; i < offsets.size() - 1; i++) offset += i;
@@ -547,7 +575,7 @@ namespace CForge {
 		filePath = Filepath;
 
 		writeMeshes();
-
+		
 		TinyGLTF writer;
 
 		writer.WriteGltfSceneToFile(&model, Filepath, false, false, true, false);
@@ -657,6 +685,7 @@ namespace CForge {
 					texCoord.push_back(vec3);
 				}
 				auto tex = pCMesh->textureCoordinate(indices[i]);
+				tex(1) = 1.0f - tex(1);
 				texCoord[indices[i] - min] = tex;
 			}
 
@@ -679,6 +708,7 @@ namespace CForge {
 		}
 
 		writeAccessorDataScalar(model.buffers.size() - 1, TINYGLTF_COMPONENT_TYPE_INT, &indices);
+		model.meshes[meshIndex].primitives[0].indices = model.accessors.size() - 1;
 
 		std::cout << "coord " << coord.size() << std::endl;
 		std::cout << "normal " << normal.size() << std::endl;
@@ -740,13 +770,17 @@ namespace CForge {
 		}
 		
 		if (texCoord.size() > 0) {
+			int count = 0;
 			pPrimitive->attributes.emplace("TEXCOORD_0", accessorIndex++);
-			for (auto t : texCoord) {
+			for (auto tex : texCoord) {
 				std::vector<float> tmp;
 				for (int i = 0; i < 2; i++) {
-					tmp.push_back(t(i));
+					tmp.push_back(tex(i));
+					if (count == 0) std::cout << tex(i) << " ";
 				}
 				data.push_back(tmp);
+				if (count == 0) std::cout << std::endl;
+				count++;
 			}
 
 			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC2, &data);
@@ -809,7 +843,6 @@ namespace CForge {
 		Image gltfImage;
 		
 		gltfImage.uri = uri;
-		gltfImage.mimeType = "image/jpeg";
 
 		model.images.push_back(gltfImage);
 		

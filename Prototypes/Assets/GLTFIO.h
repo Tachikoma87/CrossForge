@@ -124,6 +124,7 @@ class GLTFIO {
 			accessor.byteOffset = 0;
 			accessor.componentType = componentType;
 			accessor.type = TINYGLTF_TYPE_SCALAR;
+			accessor.count = pData->size();
 
 			model.accessors.push_back(accessor);
 
@@ -137,7 +138,7 @@ class GLTFIO {
 
 			for (int i = 0; i < pData->size(); i++) {
 				for (int k = 0; k < sizeof(T); k++) {
-					pBuffer->data.push_back(((char*)&(*pData)[i])[k]);
+					pBuffer->data.push_back(((unsigned char*)&(*pData)[i])[k]);
 				}
 			}
 		}
@@ -154,6 +155,7 @@ class GLTFIO {
 			accessor.byteOffset = 0;
 			accessor.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
 			accessor.type = type;
+			accessor.count = pData->size();
 
 			model.accessors.push_back(accessor);
 
@@ -164,11 +166,12 @@ class GLTFIO {
 			bufferView.byteLength = pData->size() * sizeof(T) * componentCount(type);
 
 			model.bufferViews.push_back(bufferView);
+			
 
 			for (int i = 0; i < pData->size(); i++) {
 				for (int j = 0; j < (*pData)[i].size(); j++) {
 					for (int k = 0; k < sizeof(T); k++) {
-						pBuffer->data.push_back(((char*)&((*pData)[i][j]))[k]);
+						pBuffer->data.push_back(((unsigned char*)&((*pData)[i][j]))[k]);
 					}
 				}
 			}
@@ -182,6 +185,8 @@ class GLTFIO {
 
 		void readSubMeshes(tinygltf::Primitive* pPrimitive);
 		
+		void readIndices(const int accessorIndex, std::vector<int>* pIndices);
+
 		void readFaces(tinygltf::Primitive* pPrimitive, std::vector<T3DMesh<float>::Face>* faces);
 
 		void readMaterial(const int materialIndex, T3DMesh<float>::Material* pMaterial);
