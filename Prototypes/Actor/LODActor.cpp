@@ -76,7 +76,7 @@ namespace CForge {
 				throw CForgeExcept("decimation stages are in wrong order");
 
 			bool succ = MeshDecimator::decimateMesh(m_LODMeshes[i-1], pLODMesh, amount);
-			if (!succ) {
+			if (!succ || pLODMesh->vertexCount() < 3) {
 				m_LODStages.erase(m_LODStages.begin()+i, m_LODStages.end());
 				delete pLODMesh;
 				//m_LODMeshes.push_back(nullptr);
@@ -91,9 +91,11 @@ namespace CForge {
 		}
 
 		float previousRatio = 1.0;
-		m_LODPercentages.push_back(0.5);
+		float triangleSizeB = LODHandler::getTriSizeInfo(*m_LODMeshes[0],LODHandler::TRI_S_AVG);
 
-		for (uint32_t i = 0; i < m_LODMeshes.size(); i++) {
+		m_LODPercentages.push_back(1.0);
+
+		for (uint32_t i = 1; i < m_LODMeshes.size(); i++) {
 			if (m_LODMeshes[i] == nullptr) {
 				m_LODMeshes.resize(i);
 				break;
@@ -107,23 +109,28 @@ namespace CForge {
 			//float b = diag.x()+diag.y()+diag.z()-a-std::min(diag.x(),std::min(diag.y(),diag.z()));
 
 			// ratio of triangle size to biggest BB side
-			float aabbTriRatio = triangleSize;// / (a*b);
+			//float aabbTriRatio = triangleSize / (a*b);
 
-			if (i > 0) {
-				// makes triangle size
-				m_LODPercentages.push_back(m_LODPercentages[0]*previousRatio/(aabbTriRatio));
+			//if (i > 0) {
+			// makes triangle size
+			m_LODPercentages.push_back(m_LODPercentages[0]*triangleSizeB/triangleSize);
 
-				delete m_LODMeshes[i];
-				m_LODMeshes[i] = nullptr;
-			} else
-				previousRatio = aabbTriRatio;
+			//delete m_LODMeshes[i];
+			//m_LODMeshes[i] = nullptr;
+			//} else
+			//	previousRatio = aabbTriRatio;
+		}
+		
+		for (uint32_t i = 1; i < m_LODMeshes.size(); i++) {
+			delete m_LODMeshes[i];
+			m_LODMeshes[i] = nullptr;
 		}
 	}
 	
 	void LODActor::calculateLODPercentages() {
 
 		float previousRatio = 1.0;
-		m_LODPercentages.push_back(0.5);
+		m_LODPercentages.push_back(1.0);
 
 		float triangleSizeB = LODHandler::getTriSizeInfo(*m_LODMeshes[0],LODHandler::TRI_S_AVG);
 
@@ -249,7 +256,6 @@ namespace CForge {
 			return;
 		}
 		
-		//m_VertexArray.clear();
 		m_VertexArray.bind();
 		setBufferData();
 		m_VertexArray.unbind();

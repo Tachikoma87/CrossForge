@@ -26,14 +26,14 @@
 
 using namespace CForge;
 float CAM_FOV = 90.0;
-int WINWIDTH = 1920;
-int WINHEIGHT = 1080;
+int WINWIDTH = 1280;
+int WINHEIGHT = 720;
 #define FULLSCREEN false
 float cameraPanSpeed = 1.0;
 
 namespace Terrain {
-
-	RenderDevice::RenderDeviceConfig renderConfig;
+class TerrainSetup : public ITListener<GUICallbackObject> {
+public:
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
                     PointLight *light) {
@@ -46,6 +46,8 @@ namespace Terrain {
 		}
         uint32_t winWidth = WINWIDTH;
         uint32_t winHeight = WINHEIGHT;
+
+//         glfwWindowHint(GLFW_SAMPLES, 4);
 
 		if (FULLSCREEN)
 			window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup", 0, 0, true);
@@ -395,39 +397,51 @@ namespace Terrain {
     }
 
 
-    bool wireframe = false;
-    bool debugTexture = false;
-    bool shadows = false;
-    bool richard = false;
-    bool erode = false;
-    bool cameraMode = false;
-    bool generateNew = true;
-    bool renderGrass = false;
-
-    VirtualCamera* cameraPointerForCallbackHandling = nullptr;
-
-    class TerrainGUICallbackHandler : public ITListener<GUICallbackObject> {
-        void listen ( const GUICallbackObject Msg ) override {
-            if (Msg.FormID == 1) {
-                cameraMode = *((int*)Msg.Data.at(1).pData) == 2;
-                shadows = *((bool*)Msg.Data.at(2).pData);
-                wireframe = *((bool*)Msg.Data.at(3).pData);
-                renderGrass = *((bool*)Msg.Data.at(4).pData);
-                if (*((bool*)Msg.Data.at(5).pData)) {   //'unlock framerate'
-                    glfwSwapInterval(0);
-                } else {
-                    glfwSwapInterval(1);
-                };
-                cameraPanSpeed = *((float*)Msg.Data.at(6).pData);
-                CAM_FOV = *((float*)Msg.Data.at(7).pData);
-                if (cameraPointerForCallbackHandling) {
-                    cameraPointerForCallbackHandling->projectionMatrix(WINWIDTH, WINHEIGHT, GraphicsUtility::degToRad(CAM_FOV), 0.1f, 5000.0f);
-                }
-            }
-        };
+    void listen ( const GUICallbackObject Msg ) override {
+        if (Msg.FormID == 1) {
+            //GRAPHICS SETTINGS
+            cameraMode = *((int*)Msg.Data.at(GUI_CAMERAMODE).pData) == 2;
+            shadows = *((bool*)Msg.Data.at(GUI_SHADOWS).pData);
+            wireframe = *((bool*)Msg.Data.at(GUI_WIREFRAME).pData);
+            renderGrass = *((bool*)Msg.Data.at(GUI_RENDERGRASS).pData);
+            if (*((bool*)Msg.Data.at(GUI_UNLOCKEDFRAMERATE).pData)) {   //'unlock framerate'
+                glfwSwapInterval(0);
+            } else {
+                glfwSwapInterval(1);
+            };
+            cameraPanSpeed = *((float*)Msg.Data.at(GUI_CAMERASPEED).pData);
+            CAM_FOV = *((float*)Msg.Data.at(GUI_FOV).pData);
+            camera.projectionMatrix(WINWIDTH, WINHEIGHT, GraphicsUtility::degToRad(CAM_FOV), 0.1f, 5000.0f);
+        } else if (Msg.FormID == 2) {
+            //GENERATE NEW TERRAIN
+            const int seed = *((int*)Msg.Data.at(GUI_TERRAIN_SEED).pData);
+            const float scale = *((float*)Msg.Data.at(GUI_TERRAIN_SCALE).pData);
+            const int octaves = *((int*)Msg.Data.at(GUI_TERRAIN_OCTAVES).pData);
+            const float persistance = *((float*)Msg.Data.at(GUI_TERRAIN_PERSISTANCE).pData);
+            const float lacunarity = *((float*)Msg.Data.at(GUI_TERRAIN_LACUNARITY).pData);
+            const float height = *((float*)Msg.Data.at(GUI_TERRAIN_HEIGHT).pData);
+            noiseConfig = {
+                .seed = seed == 0 ? static_cast<uint32_t>(rand()) : seed,
+                .scale = scale,
+                .octaves = static_cast<uint32_t>(octaves),
+                .persistence = persistance,
+                .lacunarity = lacunarity};
+            heightMapConfig = {.width = 1024, .height = 1024,
+                .mapHeight = height, .noiseConfig = noiseConfig};
+            mapPointer->generateHeightMap(heightMapConfig);
+            placeDekoElements(*mapPointer, *piPineActor, *piPineLeavesActor, *piTreeActor, *piTreeLeavesActor, *piPalmActor, *piPalmLeavesActor, *piRockActor, *piBushActor);
+            //iPineActor.init(&PineMesh);
+            //iPineLeavesActor.init(&PineLeavesMesh);
+            //iTreeActor.init(&TreeMesh);
+            //iTreeLeavesActor.init(&TreeLeavesMesh);
+            //iPalmActor.init(&PalmMesh);
+            //iPalmLeavesActor.init(&PalmLeavesMesh);
+            //iRockActor.init(&RockMesh);
+//             iBushActor.init(&BushMesh);
+        }
     };
 
-    void TerrainSetup() {
+    TerrainSetup() {
 
 		SLOD* pSLOD = SLOD::instance();
 		pSLOD->setLODLevels(std::vector<float> {1.0});
@@ -439,11 +453,6 @@ namespace Terrain {
             return;
         }
 
-        GLWindow window;
-        RenderDevice renderDevice;
-        VirtualCamera camera;
-        DirectionalLight sun;
-		PointLight light;
         initCForge(&window, &renderDevice, &camera, &sun, &light);
 
         SGNTransformation rootTransform;
@@ -451,40 +460,41 @@ namespace Terrain {
 		//ClipMap::ClipMapConfig clipMapConfig = { .sideLength = 16, .levelCount = 5 };
 		ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 4, .levelCount = 6};
 		//ClipMap::ClipMapConfig clipMapConfig = { .sideLength = 128, .levelCount = 5 };
-		HeightMap::NoiseConfig noiseConfig = {.seed = static_cast<uint32_t>(rand()),
-            .scale = 1.0f,
-            .octaves = 10,
-            .persistence = 0.5f,
-            .lacunarity = 2.0f};
-        HeightMap::HeightMapConfig heightMapConfig = {.width = 1024 / 1 , .height = 1024 / 1,
-                                                      .mapHeight = 400, .noiseConfig = noiseConfig};
 
         TerrainMap map = TerrainMap(&rootTransform);
+        mapPointer = &map;
         map.generateClipMap(clipMapConfig);    
         map.generateHeightMap(heightMapConfig);
 
         SceneGraph sceneGraph;
 
-        
-
         DekoMesh PineMesh;
         LODActor iPineActor;
         DekoMesh PineLeavesMesh;
-		LODActor iPineLeavesActor;
+        LODActor iPineLeavesActor;
         DekoMesh PalmMesh;
-		LODActor iPalmActor;
+        LODActor iPalmActor;
         DekoMesh PalmLeavesMesh;
-		LODActor iPalmLeavesActor;
+        LODActor iPalmLeavesActor;
         DekoMesh TreeMesh;
-		LODActor iTreeActor;
+        LODActor iTreeActor;
         DekoMesh TreeLeavesMesh;
-		LODActor iTreeLeavesActor;
+        LODActor iTreeLeavesActor;
         DekoMesh GrassMesh;
-		LODActor iGrassActor;
+        LODActor iGrassActor;
         DekoMesh BushMesh;
-		LODActor iBushActor;
+        LODActor iBushActor;
         DekoMesh RockMesh;
-		LODActor iRockActor;
+        LODActor iRockActor;
+        piPineActor = &iPineActor;
+        piPineLeavesActor = &iPineLeavesActor;
+        piPalmActor = &iPalmActor;
+        piPalmLeavesActor = &iPalmLeavesActor;
+        piTreeActor = &iTreeActor;
+        piTreeLeavesActor = &iTreeLeavesActor;
+        piGrassActor = &iGrassActor;
+        piBushActor = &iBushActor;
+        piRockActor = &iRockActor;
 
         loadNewDekoObjects(generateNew, PineMesh, PineLeavesMesh, PalmMesh, PalmLeavesMesh, TreeMesh, TreeLeavesMesh, GrassMesh, RockMesh, BushMesh);
 
@@ -539,38 +549,63 @@ namespace Terrain {
         Skybox.init(BoxTexs[0], BoxTexs[1], BoxTexs[2], BoxTexs[3], BoxTexs[4], BoxTexs[5]);
 
         GUI gui = GUI();
-        gui.testInit(&window);
-
-        cameraPointerForCallbackHandling = &camera;
+        gui.init (&window);
 
         CallbackTestClass callbacktest;
-        TerrainGUICallbackHandler callbackHandler;
         FormWidget* form = gui.createOptionsWindow(U"Graphics", 1, U"");
-        form->startListening(&callbackHandler);
+        form->startListening(this);
         form->startListening(&callbacktest);
-        form->addOption(1, INPUTTYPE_DROPDOWN, U"Camera Mode");
+        form->addOption(GUI_CAMERAMODE, INPUTTYPE_DROPDOWN, U"Camera Mode");
         std::map<int, std::u32string> cameraModes;
         cameraModes[1] = U"Free Floating";
         cameraModes[2] = U"Ground Actor";
-        form->setDropDownOptions(1, cameraModes);
-        form->addOption(2, INPUTTYPE_BOOL, U"Enable Shadows");
-        form->setDefault(2, false);
-        form->addOption(3, INPUTTYPE_BOOL, U"Wireframe");
-        form->setDefault(3, false);
-        form->addOption(4, INPUTTYPE_BOOL, U"Enable Grass");
-        form->setDefault(4, true);
-        form->addOption(5, INPUTTYPE_BOOL, U"Unlock Framerate");
-        form->setDefault(5, false);
-        form->addOption(6, INPUTTYPE_RANGESLIDER, U"Camera Panning Speed");
-        form->setLimit(6, 0.0f, 5.0f);
-        form->setStepSize(6, 0.5f);
-        form->setDefault(6, 1);
-        form->addOption(7, INPUTTYPE_RANGESLIDER, U"Field of View");
-        form->setLimit(7, 60.0f, 120.0f);
-        form->setStepSize(7, 1.0f);
-        form->setDefault(7, 90);
+        form->setDropDownOptions(GUI_CAMERAMODE, cameraModes);
+        form->addOption(GUI_SHADOWS, INPUTTYPE_BOOL, U"Enable Shadows");
+        form->setDefault(GUI_SHADOWS, shadows);
+        form->addOption(GUI_WIREFRAME, INPUTTYPE_BOOL, U"Wireframe");
+        form->setDefault(GUI_WIREFRAME, wireframe);
+        form->addOption(GUI_RENDERGRASS, INPUTTYPE_BOOL, U"Enable Grass");
+        form->setDefault(GUI_RENDERGRASS, renderGrass);
+        form->addOption(GUI_UNLOCKEDFRAMERATE, INPUTTYPE_BOOL, U"Unlock Framerate");
+        form->setDefault(GUI_UNLOCKEDFRAMERATE, false);
+        form->addOption(GUI_CAMERASPEED, INPUTTYPE_RANGESLIDER, U"Camera Panning Speed");
+        form->setLimit(GUI_CAMERASPEED, 0.0f, 5.0f);
+        form->setStepSize(GUI_CAMERASPEED, 0.5f);
+        form->setDefault(GUI_CAMERASPEED, 1);
+        form->addOption(GUI_FOV, INPUTTYPE_RANGESLIDER, U"Field of View");
+        form->setLimit(GUI_FOV, 60.0f, 120.0f);
+        form->setStepSize(GUI_FOV, 1.0f);
+        form->setDefault(GUI_FOV, CAM_FOV);
 
-        FormWidget* form2 = gui.createOptionsWindow(U"Test", 42);
+        //re-use the form variable for other windows because after the setup,
+        //the widget's pointer not very useful for us (and it's easier to copy/paste)
+        form = gui.createOptionsWindow(U"Terrain", 2, U"Generate");
+        form->startListening(this);
+        form->startListening(&callbacktest);
+        form->addOption(GUI_TERRAIN_HEIGHT, INPUTTYPE_RANGESLIDER, U"Terrain Height");
+        form->setLimit(GUI_TERRAIN_HEIGHT, 0.0f, 1000.0f);
+        form->setStepSize(GUI_TERRAIN_HEIGHT, 10.0f);
+        form->setDefault(GUI_TERRAIN_HEIGHT, heightMapConfig.mapHeight);
+        form->addOption(GUI_TERRAIN_SEED, INPUTTYPE_INT, U"Noise Seed\n(0 for random)");
+        form->setLimit(GUI_TERRAIN_SEED, 0, 1000000);  //1 million isn't an int's max value but should be enough for this
+        form->setDefault(GUI_TERRAIN_SEED, 0);
+        form->addOption(GUI_TERRAIN_SCALE, INPUTTYPE_RANGESLIDER, U"Noise Scale");
+        form->setLimit(GUI_TERRAIN_SCALE, 0.0f, 5.0f);
+        form->setStepSize(GUI_TERRAIN_SCALE, 0.1f);
+        form->setDefault(GUI_TERRAIN_SCALE, noiseConfig.scale);
+        form->addOption(GUI_TERRAIN_OCTAVES, INPUTTYPE_INT, U"Noise Octaves");
+        form->setLimit(GUI_TERRAIN_OCTAVES, 0, 20);  //1 million isn't an int's max value but should be enough for this
+        form->setDefault(GUI_TERRAIN_OCTAVES, (int)noiseConfig.octaves);
+        form->addOption(GUI_TERRAIN_PERSISTANCE, INPUTTYPE_RANGESLIDER, U"Noise Persistance");
+        form->setLimit(GUI_TERRAIN_PERSISTANCE, 0.0f, 1.0f);
+        form->setStepSize(GUI_TERRAIN_PERSISTANCE, 0.05f);
+        form->setDefault(GUI_TERRAIN_PERSISTANCE, noiseConfig.persistence);
+        form->addOption(GUI_TERRAIN_LACUNARITY, INPUTTYPE_RANGESLIDER, U"Noise Lacunarity");
+        form->setLimit(GUI_TERRAIN_LACUNARITY, 0.0f, 10.0f);
+        form->setStepSize(GUI_TERRAIN_LACUNARITY, 0.1f);
+        form->setDefault(GUI_TERRAIN_LACUNARITY, noiseConfig.lacunarity);
+
+/*        FormWidget* form2 = gui.createOptionsWindow(U"Test", 42);
         form2->startListening(&callbacktest);
 //         form2->addOption(1, INPUTTYPE_INT, U"InputNumberWidget");
 //         form2->setLimit(1, 10);
@@ -587,7 +622,7 @@ namespace Terrain {
         testDropdown[1] = U"First Option";
         testDropdown[2] = U"Second Option";
         testDropdown[3] = U"Third Option";
-        form2->setDropDownOptions(4, testDropdown);
+        form2->setDropDownOptions(4, testDropdown);*/
 
         //fps counter
         TextWidget* fpsWidget = gui.createPlainText();
@@ -691,12 +726,14 @@ namespace Terrain {
 			
 			//if (!shadowMapRendered) {
 				renderDevice.activePass(RenderDevice::RENDERPASS_SHADOW, &sun);
+//             if (shadows) {
 				map.renderMap(&renderDevice);
 				renderDevice.LODSG_render();
 				if (renderGrass) {
 					iGrassActor.render(&renderDevice);
 				}
 				shadowMapRendered = true;
+//             }
 			//}
 			
 			renderDevice.LODSG_clear();
@@ -865,5 +902,57 @@ namespace Terrain {
             }*/
         }
     }
+private:
+    enum GUI_OPTIONS {
+        GUI_WIREFRAME,
+        GUI_RENDERGRASS,
+        GUI_CAMERAMODE,
+        GUI_SHADOWS,
+        GUI_UNLOCKEDFRAMERATE,
+        GUI_CAMERASPEED,
+        GUI_FOV,
+
+        GUI_TERRAIN_SEED,
+        GUI_TERRAIN_SCALE,
+        GUI_TERRAIN_OCTAVES,
+        GUI_TERRAIN_PERSISTANCE,
+        GUI_TERRAIN_LACUNARITY,
+        GUI_TERRAIN_HEIGHT,
+    };
+
+    bool wireframe = false;
+    bool debugTexture = false;
+    bool shadows = false;
+    bool richard = false;
+    bool erode = false;
+    bool cameraMode = false;
+    bool generateNew = true;
+    bool renderGrass = false;
+
+    TerrainMap* mapPointer;
+    HeightMap::NoiseConfig noiseConfig = {.seed = static_cast<uint32_t>(rand()),
+        .scale = 1.0f,
+        .octaves = 10,
+        .persistence = 0.5f,
+        .lacunarity = 2.0f};
+    HeightMap::HeightMapConfig heightMapConfig = {.width = 1024 / 1 , .height = 1024 / 1,
+                                                  .mapHeight = 400, .noiseConfig = noiseConfig};
+    LODActor* piPineActor;
+    LODActor* piPineLeavesActor;
+    LODActor* piPalmActor;
+    LODActor* piPalmLeavesActor;
+    LODActor* piTreeActor;
+    LODActor* piTreeLeavesActor;
+    LODActor* piGrassActor;
+    LODActor* piBushActor;
+    LODActor* piRockActor;
+
+    GLWindow window;
+	RenderDevice::RenderDeviceConfig renderConfig;
+    RenderDevice renderDevice;
+    VirtualCamera camera;
+    DirectionalLight sun;
+    PointLight light;
+};
 }
 

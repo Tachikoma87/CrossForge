@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 		//exampleMorphTargetAnimation(); 
 		//shadowTest();
 		//vertexColorTestScene();
-		//forestTestScene();
+		forestTestScene();
 		//skelAnimTestScene();
 
 		//imuInputDeviceTestScene();
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 		//skyboxTestScene();
 		//LODTestScene();
 		//GUITestScene().guiTestScene();
-		MuseumTestScene().museumTestScene();
+		//MuseumTestScene().museumTestScene();
 		//MinimumGraphicalSetup();
 		//shadowTest();
 		//morphTargetAnimTestScene();

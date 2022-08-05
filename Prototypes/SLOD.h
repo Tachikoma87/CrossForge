@@ -24,6 +24,7 @@ namespace CForge {
 
 		//bool forceHighLOD = false;
 		float LODOffset = 4.0;
+		float TriangleScreenRatio = 1.0;
 		bool storeLOD = true;
 		bool skipMeshLoader = false;
 		bool forceLODregeneration = false;
