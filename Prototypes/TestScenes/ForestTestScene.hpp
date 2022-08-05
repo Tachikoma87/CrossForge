@@ -39,6 +39,7 @@
 
 #include "../Actor/LODActor.h"
 #include "../SLOD.h"
+#include "../MeshDecimate.h"
 
 #include <GLFW/glfw3.h>
 
@@ -48,6 +49,39 @@ using namespace std;
 
 
 namespace CForge {
+
+	void initPPQuadForestTestScene(ScreenQuad *quad) {
+		vector<ShaderCode *> vsSources;
+		vector<ShaderCode *> fsSources;
+		string errorLog;
+
+		SShaderManager *shaderManager = SShaderManager::instance();
+		vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "420 core",
+			0, "", ""));
+
+		"";
+		const char* fragmentShaderSource = "#version 420 core\n"
+			"layout (std140) uniform CameraData{			 \n"
+			"mat4 ViewMatrix;								 \n"
+			"mat4 ProjectionMatrix;							 \n"
+			"vec4 Position;									 \n"
+			"}Camera;										 \n"
+			"layout(binding=0) uniform sampler2D texColor;	 \n"
+			"layout(binding=1) uniform sampler2D texPosition;\n"
+			"layout(binding=2) uniform sampler2D texNormal;	 \n"
+			"in vec2 TexCoords;\n"
+			"out vec4 FragColor;\n"
+			"void main()\n"
+			"{\n"
+			"	FragColor = vec4(vec3(texture(texColor, TexCoords)), 1.0);\n"
+			"}\n\0";
+		fsSources.push_back(shaderManager->createShaderCode(fragmentShaderSource, "420 core",
+			0, "", ""));
+		GLShader *quadShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
+		shaderManager->release();
+
+		quad->init(0, 0, 1, 1, quadShader);
+	}
 
 	void forestTestScene(void) {
 		SShaderManager* pSMan = SShaderManager::instance();
@@ -132,14 +166,15 @@ namespace CForge {
 		M.clear();
 
 
-		AssetIO::load("Assets/tree0.obj", &M);
-		//AssetIO::load("Assets/tmp/lowpolytree.obj", &M);
+		//AssetIO::load("Assets/tree0.obj", &M);
+		AssetIO::load("Assets/tmp/lowpolytree.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.94f);
 		M.computePerVertexNormals();
 		for (uint32_t i = 0; i < M.materialCount(); i++) {
 			M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
 		}
 		Tree1.init(&M, true);
+		Tree1.generateLODModells();
 		M.clear();
 
 		AssetIO::load("Assets/tmp/Lowpoly_tree_sample.obj", &M);
@@ -149,7 +184,9 @@ namespace CForge {
 			M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
 		}
 		Tree2.init(&M, true);
+		Tree2.generateLODModells();
 		M.clear();
+		
 
 		// build scene graph
 		SceneGraph SG;
@@ -212,7 +249,9 @@ namespace CForge {
 		std::string GLError = "";
 		GraphicsUtility::checkGLError(&GLError);
 		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
-
+		
+		ScreenQuad PPQuad;
+		initPPQuadForestTestScene(&PPQuad);
 
 		// start main loop
 		while (!RenderWin.shutdown()) {
@@ -222,23 +261,28 @@ namespace CForge {
 			RDev.clearBuffer();
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
-			
-			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-			SG.render(&RDev);
+
+			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			
 			RDev.activePass(RenderDevice::RENDERPASS_LOD);
 			SG.render(&RDev);
+
+			RDev.LODSG_assemble();
+			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
+			RDev.LODSG_render();
 			
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			//SG.render(&RDev);
-
-			//RDev.renderLODSG();
-
+			RDev.LODSG_render();
+			
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 			
-			//RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
-
+			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
+			PPQuad.render(&RDev);
+			
+			RDev.LODSG_clear();
+			RenderWin.swapBuffers();
+			
 			//if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
 			//	static int32_t ScreenshotCount = 0;
 			//	T2DImage<uint8_t> Img;
@@ -251,9 +295,6 @@ namespace CForge {
 
 			//	ScreenshotCount++;
 			//}
-
-			RenderWin.swapBuffers();
-			
 
 			FPSCount++;
 			if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {

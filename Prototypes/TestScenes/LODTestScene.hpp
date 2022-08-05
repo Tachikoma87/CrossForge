@@ -169,7 +169,7 @@ namespace CForge {
 		SAssetIO::load("Assets/mirror/mirror.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		Cube.init(&M);
-		Cube.generateLODSModells();
+		Cube.generateLODModells();
 
 		T3DMesh<float> M2;
 		SGNGeometry MirrorSGN;
@@ -177,7 +177,17 @@ namespace CForge {
 		SAssetIO::load("Assets/mirror/mirror.001.obj", &M2);
 		SceneUtilities::setMeshShader(&M2, 0.1f, 0.04f);
 		Mirror2.init(&M2);
-		Mirror2.generateLODSModells();
+		Mirror2.generateLODModells();
+
+		LODActor MirrorJoined;
+		T3DMesh<float> M3;
+		SGNGeometry MirrorJoinedSGN;
+		//SAssetIO::load("Assets/mirror/mirrorJoined.obj", &M3);
+		SAssetIO::load("museumAssets/Dragon_0.1.obj", &M3);
+		//SAssetIO::load("Assets/blub/blub.obj", &M3);
+		SceneUtilities::setMeshShader(&M3, 0.1f, 0.04f);
+		MirrorJoined.init(&M3);
+		MirrorJoined.generateLODModells();
 		
 		//SAssetIO::load("Assets/blub/blub.obj", &M); // complexMan, blub/blub
 		//SAssetIO::load("museumAssets/Dragon_0.1.obj", &M);
@@ -196,8 +206,11 @@ namespace CForge {
 		//Cube.init(&testMesh);
 
 		CubeTransformSGN.init(nullptr);
+		
+		bool joined = false;
 		CubeSGN.init(&CubeTransformSGN, &Cube);
 		MirrorSGN.init(&CubeTransformSGN, &Mirror2);
+		//MirrorJoinedSGN.init(&CubeTransformSGN, &MirrorJoined);
 		SGTest.init(&CubeTransformSGN);
 		
 		//SAssetIO::store("Assets/testMeshOut.obj", &testMesh);
@@ -228,11 +241,22 @@ namespace CForge {
 				cubeLODlevel %= /*2;//*/6;
 				Cube.bindLODLevel(cubeLODlevel);
 				Mirror2.bindLODLevel(cubeLODlevel);
+				MirrorJoined.bindLODLevel(cubeLODlevel);
 			}
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
 				cubeLODlevel = std::max(0, int32_t(cubeLODlevel)-1);
 				Cube.bindLODLevel(cubeLODlevel);
 				Mirror2.bindLODLevel(cubeLODlevel);
+				MirrorJoined.bindLODLevel(cubeLODlevel);
+			}
+			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) {
+				CubeTransformSGN.removeAllChildren();
+				if (joined) {
+					CubeSGN.init(&CubeTransformSGN, &Cube);
+					MirrorSGN.init(&CubeTransformSGN, &Mirror2);
+				} else
+					MirrorJoinedSGN.init(&CubeTransformSGN, &MirrorJoined);
+				joined = !joined;
 			}
 
 			//R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());
