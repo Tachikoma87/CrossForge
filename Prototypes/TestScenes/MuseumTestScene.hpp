@@ -120,8 +120,8 @@ public:
 		uint32_t WinHeight = 1080;
 
 		if (LowRes) {
-			WinWidth = 1280;
-			WinHeight = 1024;
+			WinWidth = 960;
+			WinHeight = 540;
 		}
 		pSLOD->setResolution(Vector2i(WinWidth,WinHeight));
 		// create an OpenGL capable windows
@@ -358,7 +358,44 @@ public:
 //         form->setStepSize ( 7, 1.0f );
 //         form->setDefault(7, 90);
 
-		TextWidget* fpsWidget = gui.createPlainText();
+		FormWidget* form2 = gui.createOptionsWindow(U"WindowWidget", 1);
+//         form2->startListening(&callbacktest);
+        form2->addOption(1, INPUTTYPE_INT, U"InputNumberWidget");
+        form2->setLimit(1, 10);
+        form2->addOption(2, INPUTTYPE_BOOL, U"InputCheckboxWidget");
+        form2->addOption(3, INPUTTYPE_STRING, U"InputTextWidget");
+        form2->setLimit(3, 5);
+        form2->setDefault(3, std::u32string(U"Text"));
+        form2->addOption(5, INPUTTYPE_RANGESLIDER, U"InputSliderWidget");
+        form2->setLimit(5, 10);
+        form2->setStepSize(5, 0.3f);
+        form2->setDefault(5, 1.5f);
+        form2->addOption(4, INPUTTYPE_DROPDOWN, U"InputDropDownWidget");
+        std::map<int, std::u32string> testDropdown;
+        testDropdown[1] = U"First Option";
+        testDropdown[2] = U"Second Option";
+        testDropdown[3] = U"Third Option";
+        form2->setDropDownOptions(4, testDropdown);
+
+		form2 = gui.createOptionsWindow(U"WindowWidget", 42, U"");
+//         form2->startListening(&callbacktest);
+//         form2->addOption(1, INPUTTYPE_INT, U"InputNumberWidget");
+//         form2->setLimit(1, 10);
+//         form2->addOption(2, INPUTTYPE_BOOL, U"InputCheckboxWidget");
+//         form2->addOption(3, INPUTTYPE_STRING, U"InputTextWidget");
+//         form2->setLimit(3, 5);
+//         form2->setDefault(3, std::u32string(U"Text"));
+        form2->addOption(5, INPUTTYPE_RANGESLIDER, U"InputSliderWidget");
+        form2->setLimit(5, 10);
+        form2->setStepSize(5, 0.3f);
+        form2->setDefault(5, 1.5f);
+//         form2->addOption(4, INPUTTYPE_DROPDOWN, U"InputDropDownWidget");
+//         form2->setDropDownOptions(4, testDropdown);
+
+		TextWidget* ww = gui.createTextWindow(U"WindowWidget");
+		ww->setText(U"Ein WindowWidget welches ein\neinfaches TextWidget beherbergt.");
+
+		TextWidget* fpsWidget = gui.createTextWindow(U"Information");
 		fpsWidget->setTextAlign(TextWidget::ALIGN_RIGHT);
 		
 		while (!RenderWin.shutdown()) {
@@ -439,14 +476,14 @@ public:
 				sprintf(Buf, "FPS: %d\n", FPSCount);
 
 				wchar_t text_wstring[100] = {0};
-				int charcount = swprintf(text_wstring, 100, L"FPS: %d\nZweite Zeile", FPSCount);
+				int charcount = swprintf(text_wstring, 100, L"FPS: %d", FPSCount);
 				std::u32string text;
 				//ugly cast to u32string from wchar[]
 				for (int i = 0; i < charcount; i++) {
 					text.push_back((char32_t)text_wstring[i]);
 				}
 				fpsWidget->setText(text);
-				fpsWidget->setPosition(RenderWin.width()-fpsWidget->getWidth(), 0);
+// 				fpsWidget->setPosition(RenderWin.width()-fpsWidget->getWidth(), 0);
 
 				FPS = float(FPSCount);
 				FPSCount = 0;
