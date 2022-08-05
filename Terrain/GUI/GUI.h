@@ -33,6 +33,7 @@ public:
 
     FormWidget* createOptionsWindow(std::u32string title, int FormID, std::u32string applyName = U"Apply");
     TextWidget* createPlainText();
+    TextWidget* createTextWindow(std::u32string title);
     void registerWidgetAsPopup(BaseWidget* widget);
     void unregisterPopup();
 
