@@ -21,6 +21,7 @@ void CallbackTestClass::listen(const GUICallbackObject Msg)
     for (auto x : Msg.Data) {
         switch(x.second.Type) {
             case INPUTTYPE_INT:
+            case INPUTTYPE_DROPDOWN:
                 printf("%d: %d\n", x.first, *(int*)x.second.pData);
                 break;
             case INPUTTYPE_BOOL:
@@ -65,7 +66,7 @@ GUI::~GUI()
     FT_Done_FreeType(library);
 }
 
-void GUI::testInit(CForge::GLWindow* pWin)
+void GUI::init (CForge::GLWindow* pWin)
 {
     //Compile the shaders
 
@@ -167,6 +168,28 @@ TextWidget * GUI::createPlainText()
 {
     TextWidget* text = new TextWidget(this, nullptr);
     submitTopLevelWidget(text);
+    return text;
+}
+TextWidget * GUI::createTextWindow(std::u32string title)
+{
+    WindowWidget* window = new WindowWidget(title, this, nullptr);
+    TextWidget* text = new TextWidget(this, nullptr);
+    window->setContentWidget(text);
+    submitTopLevelWidget(window);
+    //try to not have them overlap by default
+    float x = 0;
+    float y = 0;
+    float h = 0;
+    for (int i = 0; i < m_TopLevelWidgets.size() - 1; i++) {
+        x += m_TopLevelWidgets[i]->pWidget->getWidth();
+        h = std::max(h, m_TopLevelWidgets[i]->pWidget->getWidth());
+        if (x > m_pWin->width()) {
+            x = 0;
+            y += h;
+            h = 0;
+        };
+    }
+    window->setPosition(x, y);
     return text;
 }
 
