@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 		//exampleMorphTargetAnimation(); 
 		//shadowTest();
 		//vertexColorTestScene();
-		forestTestScene();
+		//forestTestScene();
 		//skelAnimTestScene();
 
 		//imuInputDeviceTestScene();
@@ -78,6 +78,10 @@ int main(int argc, char* argv[]) {
 		//MinimumGraphicalSetup();
 		//shadowTest();
 		//morphTargetAnimTestScene();
+
+		//forestTestScene();
+		//LODTestScene();
+		MuseumTestScene().museumTestScene();
 	}
 	catch (const CrossForgeException& e) {
 		SLogger::logException(e);
