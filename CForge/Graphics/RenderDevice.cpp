@@ -553,10 +553,6 @@ namespace CForge {
 			LODQueryContainer* cont = &LODQueryContainers[i];
 			IRenderableActor* pActor = cont->pActor;
 			
-			// instance is not visiable, so we cull it
-			if (cont->pixelCount == 0)
-				continue;
-			
 			// calculate distance bounding sphere border to camera
 			Eigen::Vector3f Translation = Eigen::Vector3f(cont->transform.data()[12], cont->transform.data()[13], cont->transform.data()[14]);
 			float aabbRadius = pActor->getAABBradius(cont->transform);
@@ -568,7 +564,10 @@ namespace CForge {
 			if (distance < 0.0)
 				cont->pixelCount = UINT32_MAX;
 
-// 			printf("%d\n",cont->pixelCount);
+			// instance is not visiable, so we cull it
+			if (cont->pixelCount == 0)
+				continue;
+//			printf("%d\n",cont->pixelCount);
 			// sets LOD level, and transform matrix when instanced
 			cont->pActor->evaluateQueryResult(cont->transform, cont->pixelCount);
 			

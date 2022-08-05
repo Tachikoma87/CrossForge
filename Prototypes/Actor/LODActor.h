@@ -63,7 +63,7 @@ namespace CForge {
 		/**
 		* manual LOD generation without LODHandler
 		*/
-		void generateLODSModells();
+		void generateLODModells();
 		bool isTranslucent();
 		bool isVisible();
 
