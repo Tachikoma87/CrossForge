@@ -206,7 +206,7 @@ public:
 		T2DImage<uint8_t> shadowBufTex;
 
 		GUI gui = GUI();
-		gui.testInit(&RenderWin);
+		gui.init (&RenderWin);
 
 		FormWidget* form = gui.createOptionsWindow ( U"Graphics", 1, U"" );
 		form->startListening ( this );
