@@ -118,6 +118,10 @@ namespace CForge {
 		
 		readMeshes();
 
+		readNodes();
+
+		readSkinningData();
+
 		readSkeletalAnimations();
 		
 		std::cout << "END" << std::endl;
@@ -437,18 +441,12 @@ namespace CForge {
 		pMaterial->Color[2] = gltfMaterial.pbrMetallicRoughness.baseColorFactor[2];
 		pMaterial->Color[3] = gltfMaterial.pbrMetallicRoughness.baseColorFactor[3];
 
-		
 
 		pMaterial->TexAlbedo = getTexturePath(gltfMaterial.pbrMetallicRoughness.baseColorTexture.index);
 		pMaterial->TexNormal = getTexturePath(gltfMaterial.normalTexture.index);
-		// pMaterial->TexDepth = getTexturePath(gltfMaterial.occlusionTexture.index);
-
-		// actuall, don't do this here
-		/*pMaterial->VertexShaderGeometryPass.push_back("Shader/BasicGeometryPass.vert");
-		pMaterial->FragmentShaderGeometryPass.push_back("Shader/BasicGeometryPass.frag");
-
-		pMaterial->VertexShaderShadowPass.push_back("Shader/ShadowPassShader.vert");
-		pMaterial->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");*/
+		pMaterial->TexMetallicRoughness = getTexturePath(gltfMaterial.pbrMetallicRoughness.metallicRoughnessTexture.index);
+		pMaterial->TexOcclusion = getTexturePath(gltfMaterial.occlusionTexture.index);
+		pMaterial->TexEmissive = getTexturePath(gltfMaterial.emissiveTexture.index);
 	}
 
 	std::string GLTFIO::getTexturePath(const int textureIndex) {
@@ -464,14 +462,39 @@ namespace CForge {
 	}
 
 	void GLTFIO::readSkeletalAnimations() {
-		std::vector<T3DMesh<float>::Bone*>* pBones = new std::vector<T3DMesh<float>::Bone*>;
+		
+	}
+	
+	void GLTFIO::readSkinningData() {
+		for (Skin skin : model.skins) {
+			std::vector<std::vector<float>> inverseBindMatrices;
 
-		readNodes(pBones);
+			getAccessorData(skin.inverseBindMatrices, &inverseBindMatrices);
 
-		pMesh->bones(pBones, false);
+			std::vector<Eigen::Matrix4f> offsetMatrices;
+			
+			for (auto vec : inverseBindMatrices) {
+				Eigen::Matrix4f offsetMatrix;
+				
+				for (int i = 0; i < vec.size(); i++) {
+					offsetMatrix(i % 4, i / 4) = vec[i];
+				}
+
+				offsetMatrices.push_back(offsetMatrix);
+			}
+
+			int counter = 0;
+
+			for (int i : skin.joints) {
+				pMesh->getBone(i)->OffsetMatrix = offsetMatrices[counter];
+				counter++;
+			}
+		}
 	}
 
-	void GLTFIO::readNodes(std::vector<T3DMesh<float>::Bone*>* pBones) {
+	void GLTFIO::readNodes() {
+		std::vector<T3DMesh<float>::Bone*>* pBones = new std::vector<T3DMesh<float>::Bone*>;
+		
 		for (int i = 0; i < model.nodes.size(); i++) {
 			Node node = model.nodes[i];
 
@@ -485,6 +508,8 @@ namespace CForge {
 				pBone->Position(1) = node.translation[1];
 				pBone->Position(2) = node.translation[2];
 			}
+
+			//Offset matrices will be set later in readSkinningData().
 
 			pBone->pParent = nullptr;
 			
@@ -507,6 +532,8 @@ namespace CForge {
 
 			pBone->Children = children;
 		}
+
+		pMesh->bones(pBones, false);
 	}
 
 	int GLTFIO::sizeOfGltfComponentType(const int componentType) {
@@ -815,8 +842,10 @@ namespace CForge {
 		gltfMaterial.pbrMetallicRoughness.roughnessFactor = pMaterial->Roughness;
 
 		gltfMaterial.normalTexture.index = writeTexture(pMaterial->TexNormal);
-		
 		gltfMaterial.pbrMetallicRoughness.baseColorTexture.index = writeTexture(pMaterial->TexAlbedo);
+		gltfMaterial.pbrMetallicRoughness.metallicRoughnessTexture.index = writeTexture(pMaterial->TexMetallicRoughness);
+		gltfMaterial.emissiveTexture.index = writeTexture(pMaterial->TexEmissive);
+		gltfMaterial.occlusionTexture.index = writeTexture(pMaterial->TexOcclusion);
 
 		model.meshes[meshIndex].primitives[0].material = model.materials.size();
 
@@ -851,6 +880,10 @@ namespace CForge {
 		model.textures.push_back(gltfTexture);
 
 		return model.textures.size() - 1;
+	}
+
+	void GLTFIO::writeNodes() {
+		
 	}
 
 	void GLTFIO::release(void) {

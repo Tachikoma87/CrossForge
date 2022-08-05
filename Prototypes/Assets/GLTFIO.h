@@ -191,11 +191,13 @@ class GLTFIO {
 
 		void readMaterial(const int materialIndex, T3DMesh<float>::Material* pMaterial);
 
-		void readNodes(std::vector<T3DMesh<float>::Bone*>* pBones);
+		void readNodes();
 
 		std::string getTexturePath(const int textureIndex);
 
 		void readSkeletalAnimations();
+
+		void readSkinningData();
 
 		
 		void writeMeshes();
@@ -209,6 +211,8 @@ class GLTFIO {
 		void writeMaterial();
 
 		int writeTexture(const std::string path);
+
+		void writeNodes();
 	};//GLTFIO
 
 }//name space

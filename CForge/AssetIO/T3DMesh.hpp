@@ -76,9 +76,15 @@ namespace CForge {
 			Eigen::Vector4f Color;
 			float Metallic;
 			float Roughness;
+
 			std::string TexAlbedo;
 			std::string TexNormal;
 			std::string TexDepth;
+			
+			// added for gltf
+			std::string TexMetallicRoughness;
+			std::string TexEmissive;
+			std::string TexOcclusion;
 
 			std::vector<std::string> VertexShaderGeometryPass;
 			std::vector<std::string> FragmentShaderGeometryPass;
@@ -95,6 +101,9 @@ namespace CForge {
 				TexAlbedo = "";
 				TexNormal = "";
 				TexDepth = "";
+				TexMetallicRoughness = "";
+				TexEmissive = "";
+				TexOcclusion = "";
 				Metallic = 0.0f;
 				Roughness = 0.8f;
 
