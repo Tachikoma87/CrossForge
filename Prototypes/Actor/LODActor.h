@@ -85,6 +85,7 @@ namespace CForge {
 		void clearMatRef();
 		
 		void setLODmeshes(std::vector<T3DMesh<float>*> meshes);
+		void setLODStages(std::vector<float> vec);
 		void freeLODMeshes();
 		void calculateLODPercentages();
 		void initiateLODBuffers();

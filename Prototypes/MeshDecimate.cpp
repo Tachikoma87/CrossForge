@@ -498,19 +498,21 @@ namespace CForge {
 				bool contained = tri[0] == tri[1] // if at least one vertex is doubled remove tri
 				              || tri[1] == tri[2]
 				              || tri[2] == tri[0];
-				bool triple = tri[0] == tri[1] && tri[1] == tri[2] && tri[0] == tri[2];
+				bool triple = tri[0] == tri[1] && tri[1] == tri[2];
 				if (contained) {
 					if (!triple) { // keep vertices outside targets in mind
 						uint32_t index = tri[0] == tri[1] ? tri[2] : (tri[1] == tri[2] ? tri[0] : tri[1]);
 						std::vector<uint32_t>* outsideVert = DVnoMulUsedInTri[index];
-						std::vector<uint32_t>::iterator it = std::find(outsideVert->begin(), outsideVert->end(), triangles->at(j));
-						if(it != outsideVert->end())
-							outsideVert->erase(it);
+						if (outsideVert != triangles) {
+							std::vector<uint32_t>::iterator it = std::find(outsideVert->begin(), outsideVert->end(), triangles->at(j));
+							if(it != outsideVert->end())
+								outsideVert->erase(it);
+						}
 					}
 					if (std::find(removedFaces->begin(), removedFaces->end(), triangles->at(j)) == removedFaces->end())
 						removedFaces->push_back(triangles->at(j));
 					triangles->erase(triangles->begin()+j);
-					j--;
+					j = 0;
 					//j = -1;
 				}
 			}

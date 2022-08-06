@@ -58,7 +58,7 @@ namespace CForge {
 		}
 		else { // metafile already exists
 			std::vector<float> values;
-			std::vector<float> triBBratios;
+			std::vector<float> triBBratios; // TODO unused remove
 			bool suc = readMetaFile(metaFilePath, &values,&triBBratios);
 
 			bool stagesEqual = std::equal(values.begin(), values.end(), decimateAmount.begin());
@@ -81,6 +81,7 @@ namespace CForge {
 					M->computePerVertexNormals(); // TODO check?
 					LODMeshes.push_back(M);
 				} // for stages
+				pActor->setLODStages(values);
 			} // if models can be loaded
 		}
 		
@@ -126,8 +127,13 @@ namespace CForge {
 				throw CForgeExcept("decimation stages are in wrong order");
 
 			bool succ = MeshDecimator::decimateMesh((*LODmeshes)[i-1], pLODMesh, amount);
+			bool faceless = false;
+			for (uint32_t j = 0; j < pLODMesh->submeshCount(); j++) {
+				if (pLODMesh->getSubmesh(j)->Faces.size() < 1)
+					faceless = true;
+			}
 			
-			if (!succ) { // decimation failed due to to few triangles to decimate
+			if (!succ || pLODMesh->vertexCount() < 3 || faceless) { // decimation failed due to to few triangles to decimate
 				// delete unavailable stages
 				stages->erase((*stages).begin()+i, stages->end());
 				delete pLODMesh;
