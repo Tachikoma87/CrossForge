@@ -29,6 +29,7 @@ float CAM_FOV = 90.0;
 int WINWIDTH = 1280;
 int WINHEIGHT = 720;
 #define FULLSCREEN false
+#define LOD false
 float cameraPanSpeed = 1.0;
 
 namespace Terrain {
@@ -444,8 +445,11 @@ public:
     TerrainSetup() {
 
 		SLOD* pSLOD = SLOD::instance();
-		pSLOD->setLODLevels(std::vector<float> {1.0});
 		
+		if (!LOD) {
+			pSLOD->setLODLevels(std::vector<float>{1.0});
+		}
+
         float cameraHeight = 2;
 
         if (richard) {
@@ -515,7 +519,18 @@ public:
         iRockActor.init(&RockMesh, true, true);
 		iGrassActor.init(&GrassMesh, true, true);
 		iBushActor.init(&BushMesh, true, true);
-        
+
+		if (LOD) {
+			piPineActor->generateLODModells();
+			piPineLeavesActor->generateLODModells();
+			piPalmActor->generateLODModells();
+			piPalmLeavesActor->generateLODModells();
+			piTreeActor->generateLODModells();
+			piTreeLeavesActor->generateLODModells();
+			piGrassActor->generateLODModells();
+			piRockActor->generateLODModells();
+		}
+		
         //wind
 		Vector3f windVec = Vector3f(1, 0, 0);
 		float windAngle = 0;

@@ -76,7 +76,13 @@ namespace CForge {
 				throw CForgeExcept("decimation stages are in wrong order");
 
 			bool succ = MeshDecimator::decimateMesh(m_LODMeshes[i-1], pLODMesh, amount);
-			if (!succ || pLODMesh->vertexCount() < 3) {
+			bool faceless = false;
+			for (uint32_t j = 0; j < pLODMesh->submeshCount(); j++) {
+				if (pLODMesh->getSubmesh(j)->Faces.size() < 1)
+					faceless = true;
+			}
+
+			if (!succ || pLODMesh->vertexCount() < 3 || faceless) { // decimation failed due to to few triangles to decimate
 				m_LODStages.erase(m_LODStages.begin()+i, m_LODStages.end());
 				delete pLODMesh;
 				//m_LODMeshes.push_back(nullptr);
@@ -565,6 +571,10 @@ namespace CForge {
 		return m_LODStages;
 	}
 
+	void LODActor::setLODStages(std::vector<float> vec) {
+		m_LODStages = vec;
+	}
+
 	std::vector<float> LODActor::getLODPercentages() {
 		return m_LODPercentages;
 	}
@@ -588,10 +598,12 @@ namespace CForge {
 		
 		Eigen::Vector3f center = scaledAABBMin*0.5+scaledAABBMax*0.5;
 		Eigen::Vector3f camPosToObj = Translation+center-pRDev->activeCamera()->position();
-		float offset = aabbRadius*0.1;
-
+		
+		Eigen::Vector3f ObjToDir = (pRDev->activeCamera()->dir()*camPosToObj.norm())-camPosToObj;
+		camPosToObj += ObjToDir.normalized()*aabbRadius;
+		
 		float fov = pRDev->activeCamera()->getFOV();
-		if (camPosToObj.normalized().dot(pRDev->activeCamera()->dir())+(1.0/distance)*offset < std::cos(fov))
+		if (camPosToObj.normalized().dot(pRDev->activeCamera()->dir()) < std::cos(fov))
 			return false;
 		return true;
 	}
