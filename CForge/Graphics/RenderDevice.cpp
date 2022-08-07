@@ -549,6 +549,7 @@ namespace CForge {
 	
 	void RenderDevice::LODSG_assemble() {
 		fetchQueryResults();
+		//printf("\n");
 		for (uint32_t i = 0; i < LODQueryContainers.size(); i++) {
 			LODQueryContainer* cont = &LODQueryContainers[i];
 			IRenderableActor* pActor = cont->pActor;
@@ -568,6 +569,7 @@ namespace CForge {
 			if (cont->pixelCount == 0)
 				continue;
 //			printf("%d\n",cont->pixelCount);
+			//printf("object: %d\n", pActor->objectID());
 			// sets LOD level, and transform matrix when instanced
 			cont->pActor->evaluateQueryResult(cont->transform, cont->pixelCount);
 			

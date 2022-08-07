@@ -9,6 +9,7 @@
 #include <iostream>
 
 #define SKIP_INSTANCED_QUERIES // TODO make changeable using SLOD
+#define M_PI 3.1415926535
 
 namespace CForge {
 	LODActor::LODActor(void) : IRenderableActor("LODActor", ATYPE_STATIC) {
@@ -324,7 +325,7 @@ namespace CForge {
 	void LODActor::initAABB() {
 		
 		// create Shader
-		const char* vertexShaderSource = "#version 330 core\n"
+		const char* vertexShaderSource = "#version 420 core\n"
 			"layout(std140) uniform CameraData {\n"
 			"	mat4 ViewMatrix;\n"
 			"	mat4 ProjectionMatrix;\n"
@@ -338,7 +339,7 @@ namespace CForge {
 			"{\n"
 			"   gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * ModelMatrix * vec4(VertPosition.x, VertPosition.y, VertPosition.z, 1.0);\n"
 			"}\0";
-		const char* fragmentShaderSource = "#version 330 core\n"
+		const char* fragmentShaderSource = "#version 420 core\n"
 			"layout(early_fragment_tests) in;\n"
 			"out vec4 FragColor;\n"
 			"void main()\n"
@@ -350,8 +351,8 @@ namespace CForge {
 		uint8_t ConfigOptions = 0;
 		ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
 
-		ShaderCode* pVertC = shaderManager->createShaderCode(vertexShaderSource, "330", ConfigOptions, "highp", "highp");
-		ShaderCode* pFragC = shaderManager->createShaderCode(fragmentShaderSource, "330", ConfigOptions, "highp", "highp");
+		ShaderCode* pVertC = shaderManager->createShaderCode(vertexShaderSource, "420", ConfigOptions, "highp", "highp");
+		ShaderCode* pFragC = shaderManager->createShaderCode(fragmentShaderSource, "420", ConfigOptions, "highp", "highp");
 		std::vector<ShaderCode*> VSSources;
 		std::vector<ShaderCode*> FSSources;
 		VSSources.push_back(pVertC);
@@ -434,7 +435,7 @@ namespace CForge {
 
 // 		printf("pixelCount			%d\n", pixelCount);
 		// set LOD level based on screen coverage
-		float screenCov = float(pixelCount) / m_pSLOD->getResPixAmount();
+		float screenCov = float(pixelCount);// / m_pSLOD->getResPixAmount();
 // 		printf("screenCov			%f\n", screenCov);
 		
 		std::vector<float> percentages;
@@ -443,7 +444,7 @@ namespace CForge {
 		else
 			percentages = m_LODPercentages;
 		
-		float ratio = (float) m_pSLOD->TriangleSize/m_pSLOD->getResPixAmount();
+		float ratio = (float) m_pSLOD->TriangleSize; ///m_pSLOD->getResPixAmount();
 		
 		while (level < m_LODStages.size()-1) {
 			if (screenCov*percentages[level] > ratio)
@@ -583,10 +584,10 @@ namespace CForge {
 		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
 
 		float aabbRadius = getAABBradius(*mat);
-		float distance = (Translation - pRDev->activeCamera()->position()).norm() - aabbRadius;
-		//std::cout << distance << "\n";
-		if (distance < 0.0)
-			return true;
+		//float distance = (Translation - pRDev->activeCamera()->position()).norm() - aabbRadius;
+		////std::cout << distance << "\n";
+		//if (distance < 0.0)
+		//	return true;
 		
 		// TODO function?
 		Eigen::Affine3f affine(*mat);
@@ -599,11 +600,10 @@ namespace CForge {
 		Eigen::Vector3f center = scaledAABBMin*0.5+scaledAABBMax*0.5;
 		Eigen::Vector3f camPosToObj = Translation+center-pRDev->activeCamera()->position();
 		
-		Eigen::Vector3f ObjToDir = (pRDev->activeCamera()->dir()*camPosToObj.norm())-camPosToObj;
-		camPosToObj += ObjToDir.normalized()*aabbRadius;
+		float BSborderAngle = 2.0*std::asin(aabbRadius/(2.0*camPosToObj.norm()));
 		
 		float fov = pRDev->activeCamera()->getFOV();
-		if (camPosToObj.normalized().dot(pRDev->activeCamera()->dir()) < std::cos(fov))
+		if (std::acos(camPosToObj.normalized().dot(pRDev->activeCamera()->dir())) - (BSborderAngle) > (fov))
 			return false;
 		return true;
 	}
