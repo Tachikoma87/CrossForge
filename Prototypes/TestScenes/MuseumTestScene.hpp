@@ -143,7 +143,7 @@ public:
 		Config.UseGBuffer = true;
 		RDev.init(&Config);
 
-		uint32_t shadowMapRes = /*//8192;//4096;/*/1024;//*/
+		uint32_t shadowMapRes = /*/*/8192;//4096;/*/1024;//*/
 		// configure and initialize shader configuration device
 		ShaderCode::LightConfig LC;
 		LC.DirLightCount = 1;
@@ -470,14 +470,11 @@ public:
 			RenderWin.swapBuffers();
 			
 			RDev.LODSG_clear();
-
-			FPSCount++;
-			if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {
-				char Buf[64];
-				sprintf(Buf, "FPS: %d\n", FPSCount);
-
+			
+			if (CoreUtility::timestamp() - LastFPSPrint > 250U) {
+				
 				wchar_t text_wstring[100] = {0};
-				int charcount = swprintf(text_wstring, 100, L"FPS: %d", FPSCount);
+				int charcount = swprintf(text_wstring, 100, L"FPS: %f\n Frametime: %f", 1.0/pSLOD->getDeltaTime(), pSLOD->getDeltaTime());
 				std::u32string text;
 				//ugly cast to u32string from wchar[]
 				for (int i = 0; i < charcount; i++) {
@@ -485,12 +482,9 @@ public:
 				}
 				fpsWidget->setText(text);
 				fpsWidget->setPosition(RenderWin.width()-fpsWidget->getWidth(), 0);
-
-				FPS = float(FPSCount);
-				FPSCount = 0;
+				
 				LastFPSPrint = CoreUtility::timestamp();
-
-// 				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
+				
 			}
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {

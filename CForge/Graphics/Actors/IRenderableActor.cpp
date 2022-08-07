@@ -126,6 +126,10 @@ namespace CForge {
 		affine.data()[14] = 0.0;
 		Eigen::Vector3f scaledAABBMax = affine * getAABB().Max;
 		Eigen::Vector3f scaledAABBMin = affine * getAABB().Min;
+		Eigen::Vector3f center = scaledAABBMin*0.5+scaledAABBMax*0.5;
+		scaledAABBMax -= center;
+		scaledAABBMin -= center;
+
 		float aabbRadius = std::max(std::abs(scaledAABBMax.norm()), std::abs(scaledAABBMin.norm()));
 		return aabbRadius;
 	}
