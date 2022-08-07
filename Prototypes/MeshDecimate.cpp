@@ -480,7 +480,7 @@ namespace CForge {
 		//}
 		
 		
-#if true // TODO causes holes
+#if true // TODO causes minor holes
 		for (uint32_t i = 0; i < targets.size(); i++) {
 			std::vector<uint32_t>* triangles = DVnoMulUsedInTri[targets[i]];
 			for (uint32_t j = 0; j < triangles->size(); j++) {
@@ -513,7 +513,6 @@ namespace CForge {
 						removedFaces->push_back(triangles->at(j));
 					triangles->erase(triangles->begin()+j);
 					j = 0;
-					//j = -1;
 				}
 			}
 		}

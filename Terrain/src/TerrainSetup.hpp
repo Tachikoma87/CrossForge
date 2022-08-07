@@ -741,14 +741,14 @@ public:
 			
 			//if (!shadowMapRendered) {
 				renderDevice.activePass(RenderDevice::RENDERPASS_SHADOW, &sun);
-//             if (shadows) {
-				map.renderMap(&renderDevice);
-				renderDevice.LODSG_render();
-				if (renderGrass) {
-					iGrassActor.render(&renderDevice);
+				if (shadows) {
+					map.renderMap(&renderDevice);
+					renderDevice.LODSG_render();
+					if (renderGrass) {
+						iGrassActor.render(&renderDevice);
+					}
+					shadowMapRendered = true;
 				}
-				shadowMapRendered = true;
-//             }
 			//}
 			
 			renderDevice.LODSG_clear();
@@ -899,7 +899,7 @@ public:
                 LastFPS = CoreUtility::timestamp();
 //                 printf("FPS: %d\n", fps);
                 wchar_t text_wstring[100] = {0};
-                int charcount = swprintf(text_wstring, 100, L"FPS: %d\nZweite Zeile", fps);
+                int charcount = swprintf(text_wstring, 100, L"FPS: %d", fps);
                 std::u32string text;
                 //ugly cast to u32string from wchar[]
                 for (int i = 0; i < charcount; i++) {
@@ -937,7 +937,7 @@ private:
 
     bool wireframe = false;
     bool debugTexture = false;
-    bool shadows = false;
+    bool shadows = true;
     bool richard = false;
     bool erode = false;
     bool cameraMode = false;
