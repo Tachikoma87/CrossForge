@@ -64,9 +64,9 @@ class GLTFIO {
 			Buffer buff = model.buffers[buffView.buffer];
 
 			if (acc.type != TINYGLTF_TYPE_SCALAR) {
-				std::cout << "accessor should be scalar" << std::endl;
+				std::cout << "Called getAccessorDataScalar on a non scalar accessor!" << std::endl;
 				return;
-			};
+			}
 
 			int typeSize = sizeOfGltfComponentType(acc.componentType);
 
@@ -85,10 +85,15 @@ class GLTFIO {
 			BufferView buffView = model.bufferViews[acc.bufferView];
 			Buffer buff = model.buffers[buffView.buffer];
 
-			if (acc.type == TINYGLTF_TYPE_SCALAR) {
-				std::cout << "accessor should not be scalar" << std::endl;
+			if (buffView.byteStride > 0) {
+				std::cout << "TODO: byteStride in buffer view " << acc.bufferView << " is greater than 0!" << std::endl;
 				return;
-			};
+			}
+
+			if (acc.type == TINYGLTF_TYPE_SCALAR) {
+				std::cout << "Called getAccessorData on a scalar accessor!" << std::endl;
+				return;
+			}
 
 			int typeSize = sizeOfGltfComponentType(acc.componentType);
 
@@ -111,7 +116,11 @@ class GLTFIO {
 				pData->push_back(*toAdd);
 			}
 		}
-
+		
+		void getAccessorData(const int accessor, std::vector<Eigen::Vector3f>* pData);
+		
+		void getAccessorData(const int accessor, std::vector<Eigen::Vector4f>* pData);
+		
 		template<class T>
 		void writeAccessorDataScalar(const int bufferIndex, const int componentType, std::vector<T>* pData) {
 			std::cout << "write accessor size: " << pData->size() << ", scalar" << std::endl;

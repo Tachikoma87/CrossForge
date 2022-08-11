@@ -464,10 +464,45 @@ namespace CForge {
 	void GLTFIO::readSkeletalAnimations() {
 		T3DMesh<float>::SkeletalAnimation* pAnim;
 
+		int id_counter = 0;
+
 		for (Animation animation : model.animations) {
 			pAnim = new T3DMesh<float>::SkeletalAnimation;
 
 			pAnim->Name = animation.name;
+
+			std::vector<T3DMesh<float>::BoneKeyframes*> keyframes;
+
+			for (AnimationChannel channel : animation.channels) {
+				T3DMesh<float>::BoneKeyframes* pBoneKF = nullptr;
+
+				for (auto frame : keyframes) {
+					if (frame->BoneID == channel.target_node) {
+						pBoneKF = frame;
+						break;
+					}
+				}
+
+				if (pBoneKF == nullptr) {
+					pBoneKF = new T3DMesh<float>::BoneKeyframes;
+					pBoneKF->BoneID = channel.target_node;
+					pBoneKF->ID = id_counter++;
+				}
+
+				if (channel.target_path == "translation") {
+					std::vector<float> timeValues;
+					std::vector<Eigen::Vector3f> translations;
+
+					getAccessorDataScalar(animation.samplers[channel.sampler].input, &timeValues);
+					getAccessorData(animation.samplers[channel.sampler].output, &translations);
+				}
+				else if (channel.target_path == "rotation") {
+
+				}
+				else if (channel.target_path == "scale") {
+
+				}
+			}
 
 			pMesh->addSkeletalAnimation(pAnim, false);
 		}
@@ -902,4 +937,37 @@ namespace CForge {
 		return (Filepath.find(".glb") != std::string::npos || Filepath.find(".gltf") != std::string::npos);
 	}//accepted
 
+
+	void GLTFIO::getAccessorData(const int accessor, std::vector<Eigen::Vector3f>* pData) {
+		std::vector<std::vector<float>> vData;
+
+		getAccessorData(accessor, &vData);
+
+		for (std::vector<float> v : vData) {
+			Eigen::Vector3f vec;
+
+			vec(0) = v[0];
+			vec(1) = v[1];
+			vec(2) = v[2];
+
+			pData->push_back(vec);
+		}
+	}
+
+	void GLTFIO::getAccessorData(const int accessor, std::vector<Eigen::Vector4f>* pData) {
+		std::vector<std::vector<float>> vData;
+
+		getAccessorData(accessor, &vData);
+
+		for (auto v : vData) {
+			Eigen::Vector4f vec;
+
+			vec(0) = v[0];
+			vec(1) = v[1];
+			vec(2) = v[2];
+			vec(3) = v[3];
+
+			pData->push_back(vec);
+		}
+	}
 }//name space
