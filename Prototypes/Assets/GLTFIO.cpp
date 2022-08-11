@@ -462,7 +462,15 @@ namespace CForge {
 	}
 
 	void GLTFIO::readSkeletalAnimations() {
-		
+		T3DMesh<float>::SkeletalAnimation* pAnim;
+
+		for (Animation animation : model.animations) {
+			pAnim = new T3DMesh<float>::SkeletalAnimation;
+
+			pAnim->Name = animation.name;
+
+			pMesh->addSkeletalAnimation(pAnim, false);
+		}
 	}
 	
 	void GLTFIO::readSkinningData() {
