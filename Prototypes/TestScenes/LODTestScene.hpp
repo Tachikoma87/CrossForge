@@ -302,6 +302,7 @@ namespace CForge {
 			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
 			ppquad.render(&RDev);
 
+			RDev.PPBufferFinalize();
 			RenderWin.swapBuffers();
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {

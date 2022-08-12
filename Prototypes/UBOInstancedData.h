@@ -43,7 +43,7 @@ namespace CForge {
 		uint32_t getMaxInstanceCount();
 
 	protected:
-		uint32_t m_maxInstanceCount = 500;
+		uint32_t m_maxInstanceCount = 0;
 		GLBuffer m_Buffer;
 		uint32_t m_instanceCount;
 	};//UBOModelData

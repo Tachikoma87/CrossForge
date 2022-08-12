@@ -26,8 +26,8 @@
 
 using namespace CForge;
 float CAM_FOV = 90.0;
-int WINWIDTH = 1280;
-int WINHEIGHT = 720;
+int WINWIDTH = 1920;
+int WINHEIGHT = 1080;
 #define FULLSCREEN false
 #define LOD false
 float cameraPanSpeed = 1.0;
@@ -91,10 +91,11 @@ public:
 
         Vector3f sunPos = Vector3f(-200.0f, 400.0f, 50.0f);
 		Vector3f sunDir = Vector3f(-1.0,1.0,1.0);
+		sunDir.normalize();
 		//Vector3f sunPos = Vector3f(-5.0f, 15.0f, 35.0f);
-        sun->init(sunPos, -sunDir.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
-        const uint32_t ShadowMapDim = 8192;//4096; //2048;
-		sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(500, 500), -500.0f, 800.0f);
+		sun->init(sunDir*450.0, -sunDir, Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
+		const uint32_t ShadowMapDim = 2*8192;//4096; //2048;
+		sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(1000, 1000), -500.0f, 800.0f);
 		//sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(500, 500), -100.0f, 700.0f);
         renderDevice->addLight(sun);
 
@@ -439,7 +440,12 @@ public:
             //iPalmLeavesActor.init(&PalmLeavesMesh);
             //iRockActor.init(&RockMesh);
 //             iBushActor.init(&BushMesh);
-        }
+        } else if (Msg.FormID == 3) {
+			sunAngleY = *((float*)Msg.Data.at(GUI_LIGHTING_DIRECTION).pData);
+			sunAngleX = *((float*)Msg.Data.at(GUI_LIGHTING_TIME).pData);
+			sunAuto = *((bool*)Msg.Data.at(GUI_LIGHTING_AUTO).pData);
+			sunTime = 0.0;
+		}
     };
 
     TerrainSetup() {
@@ -518,6 +524,7 @@ public:
 		printf("iRockActor\n");
         iRockActor.init(&RockMesh, true, true);
 		iGrassActor.init(&GrassMesh, true, true);
+		//iGrassActor.m_castShadows = false;
 		iBushActor.init(&BushMesh, true, true);
 
 		if (LOD) {
@@ -552,16 +559,16 @@ public:
         ScreenQuad quad;
         initDebugQuad(&quad, "Shader/ScreenQuad.vert", "Shader/DebugQuad.frag");
 
-        // initialize skybox
-        SkyboxActor Skybox;
-        std::vector<string> BoxTexs;
-        BoxTexs.push_back("Assets/skybox/right.jpg");
-        BoxTexs.push_back("Assets/skybox/left.jpg");
-        BoxTexs.push_back("Assets/skybox/top.jpg");
-        BoxTexs.push_back("Assets/skybox/bottom.jpg");
-        BoxTexs.push_back("Assets/skybox/back.jpg");
-        BoxTexs.push_back("Assets/skybox/front.jpg");
-        Skybox.init(BoxTexs[0], BoxTexs[1], BoxTexs[2], BoxTexs[3], BoxTexs[4], BoxTexs[5]);
+		// initialize skybox
+		//SkyboxActor Skybox;
+		//std::vector<string> BoxTexs;
+		//BoxTexs.push_back("Assets/skybox/right.jpg");
+		//BoxTexs.push_back("Assets/skybox/left.jpg");
+		//BoxTexs.push_back("Assets/skybox/top.jpg");
+		//BoxTexs.push_back("Assets/skybox/bottom.jpg");
+		//BoxTexs.push_back("Assets/skybox/back.jpg");
+		//BoxTexs.push_back("Assets/skybox/front.jpg");
+		//Skybox.init(BoxTexs[0], BoxTexs[1], BoxTexs[2], BoxTexs[3], BoxTexs[4], BoxTexs[5]);
 
         GUI gui = GUI();
         gui.init (&window);
@@ -620,6 +627,20 @@ public:
         form->setStepSize(GUI_TERRAIN_LACUNARITY, 0.1f);
         form->setDefault(GUI_TERRAIN_LACUNARITY, noiseConfig.lacunarity);
 
+		form = gui.createOptionsWindow(U"Lighting", 3, U"");
+		form->startListening(this);
+		form->startListening(&callbacktest);
+		form->addOption(GUI_LIGHTING_DIRECTION, INPUTTYPE_RANGESLIDER, U"Sun Direction");
+		form->setLimit(GUI_LIGHTING_DIRECTION, 0.0f, 360.0f);
+		form->setStepSize(GUI_LIGHTING_DIRECTION, 1.0f);
+		form->setDefault(GUI_LIGHTING_DIRECTION, sunAngleY);
+		form->addOption(GUI_LIGHTING_TIME, INPUTTYPE_RANGESLIDER, U"Sun Time");
+		form->setLimit(GUI_LIGHTING_TIME, 0.0f, 360.0f);
+		form->setStepSize(GUI_LIGHTING_TIME, 1.0f);
+		form->setDefault(GUI_LIGHTING_TIME, sunAngleX);
+		form->addOption(GUI_LIGHTING_AUTO, INPUTTYPE_BOOL, U"Auto Timer");
+		form->setDefault(GUI_LIGHTING_AUTO, sunAuto);
+
 /*        FormWidget* form2 = gui.createOptionsWindow(U"Test", 42);
         form2->startListening(&callbacktest);
 //         form2->addOption(1, INPUTTYPE_INT, U"InputNumberWidget");
@@ -652,18 +673,41 @@ public:
 		
 		// sea shader
 		PPScreenQuad postProc;
-		initDebugQuad(&postProc, "Shader/ScreenQuad.vert", "Shader/seascape.frag");
-		double oceanTimer = 0.0;
+		PPSQ_SSAO ppSSAO;
+		initDebugQuad(&postProc, "Shader/ScreenQuad.vert", "Shader/sunSkyClouds.frag");
+		initDebugQuad(&ppSSAO, "Shader/ScreenQuad.vert", "Shader/ssao.frag");
+		float oceanTimer = 0.0;
 		
 		iPineLeavesActor.setFaceCulling(false);
 		iPalmLeavesActor.setFaceCulling(false);
 		iTreeLeavesActor.setFaceCulling(false);
 		
 		pSLOD->setResolution(Vector2i(WINWIDTH,WINHEIGHT));
-		bool shadowMapRendered = false;
-
         while (!window.shutdown()) {
 			pSLOD->update();
+			
+			if (sunAuto)
+				sunTime += pSLOD->getDeltaTime()*0.1;
+			
+			// update sun
+			Eigen::Vector4f sd = GraphicsUtility::rotationMatrix(Quaternionf(AngleAxisf(sunAngleY/180.0*3.141592,Vector3f(0.0,1.0,0.0))))
+			                     * GraphicsUtility::rotationMatrix(Quaternionf(AngleAxisf(sunAngleX/180.0*3.141592+sunTime,Vector3f(1.0,0.0,0.0))))
+			                     * Eigen::Vector4f(0.0,0.0,-1.0,1.0);
+			Eigen::Vector3f sunDir(sd[0],sd[1],sd[2]);
+
+			//renderDevice.removeLight(&sun);
+			sun.position(sunDir*450.0);
+			sun.direction(-sunDir);
+			sun.color(Vector3f(1.0,1.0,1.0));
+			float intensity = std::max(sunDir.dot(Vector3f(0.0,1.0,0.0)),0.0f);
+			sun.intensity(intensity*7.5);
+			sun.color(Vector3f(1.0,1.0,1.0) * intensity + Vector3f(1.0,0.0,0.0)*(1.0-intensity));
+			//sun.init(sunDir*450.0, -sunDir, Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
+			//const uint32_t ShadowMapDim = 8192;//4096; //2048;
+			//sun.initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(1000, 1000), -500.0f, 800.0f);
+			//sun->initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(500, 500), -100.0f, 700.0f);
+			renderDevice.updateLight(&sun);
+			
 			
 			renderDevice.clearBuffer();
             current_ticks = clock(); //for fps counter
@@ -739,29 +783,29 @@ public:
             //iPalmLeavesActor.render(&renderDevice);
             glEnable(GL_CULL_FACE);
 			
-			//if (!shadowMapRendered) {
-				renderDevice.activePass(RenderDevice::RENDERPASS_SHADOW, &sun);
-				if (shadows) {
-					map.renderMap(&renderDevice);
-					renderDevice.LODSG_render();
-					if (renderGrass) {
-						iGrassActor.render(&renderDevice);
-					}
-					shadowMapRendered = true;
+			renderDevice.activePass(RenderDevice::RENDERPASS_SHADOW, &sun);
+			if (sunDir.dot(Vector3f(0.0,1.0,0.0)) > 0.0 && shadows) {
+				map.renderMap(&renderDevice);
+				renderDevice.LODSG_render();
+				if (renderGrass) {
+					//iGrassActor.render(&renderDevice);
 				}
-			//}
+			}
 			
 			renderDevice.LODSG_clear();
 			
             renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
 			
 			renderDevice.activePass(RenderDevice::RENDERPASS_FORWARD);
-            renderDevice.requestRendering(&Skybox, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
+			//renderDevice.requestRendering(&Skybox, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
 
 			renderDevice.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
 			oceanTimer += pSLOD->getDeltaTime();
 			//std::cout << oceanTimer << "\n";
-			postProc.render(&renderDevice, heightMapConfig.mapHeight*0.5, oceanTimer*1.5, (float)WINWIDTH/WINHEIGHT);
+			ppSSAO.render(&renderDevice, oceanTimer, Eigen::Vector2i(WINWIDTH,WINHEIGHT));
+			
+			renderDevice.PPBufferUpdate();
+			postProc.render(&renderDevice, heightMapConfig.mapHeight*0.5, oceanTimer*1.5, (float)WINWIDTH/WINHEIGHT, sunDir, Eigen::Vector2i(WINWIDTH,WINHEIGHT));
 			
             gui.processEvents();
             gui.render(&renderDevice);
@@ -771,16 +815,19 @@ public:
                 map.bindTexture();
                 quad.render(&renderDevice);
             }
-
+			
+			//renderDevice.PPBuffersSwap();
+			renderDevice.PPBufferFinalize();
             window.swapBuffers();
 
             updateCamera(window.mouse(), window.keyboard(), renderDevice.activeCamera(), pSLOD->getDeltaTime());
 
-            if (cameraMode) {
-                camera.position(Vector3f(camera.position().x(),
-                                         std::max(map.getHeightAt(camera.position().x(), camera.position().z()), heightMapConfig.mapHeight*0.5f+ cameraHeight) + cameraHeight,
-                                         camera.position().z()));
-            }
+			if (cameraMode) {
+				camera.position(Vector3f(camera.position().x(),
+			                             map.getHeightAt(camera.position().x(), camera.position().z()) + cameraHeight,
+			                             //std::max(map.getHeightAt(camera.position().x(), camera.position().z()), heightMapConfig.mapHeight*0.5f+ cameraHeight) + cameraHeight,
+			                             camera.position().z()));
+			}
 
             if (window.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
                 window.closeWindow();
@@ -933,6 +980,10 @@ private:
         GUI_TERRAIN_PERSISTANCE,
         GUI_TERRAIN_LACUNARITY,
         GUI_TERRAIN_HEIGHT,
+		
+		GUI_LIGHTING_DIRECTION,
+		GUI_LIGHTING_TIME,
+		GUI_LIGHTING_AUTO,
     };
 
     bool wireframe = false;
@@ -943,7 +994,12 @@ private:
     bool cameraMode = false;
     bool generateNew = true;
     bool renderGrass = false;
-
+	
+	float sunAngleX = 0.0;
+	float sunAngleY = 0.0;
+	float sunTime = 0.0;
+	bool sunAuto = false;
+	
     TerrainMap* mapPointer;
     HeightMap::NoiseConfig noiseConfig = {.seed = static_cast<uint32_t>(rand()),
         .scale = 1.0f,
