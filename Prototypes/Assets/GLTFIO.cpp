@@ -7,6 +7,7 @@
 #include <tiny_gltf.h>
 #include <iostream>
 #include <filesystem>
+#include <algorithm>
 
 //using namespace tinygltf;
 
@@ -493,7 +494,7 @@ namespace CForge {
 					std::vector<float> timeValues;
 					std::vector<Eigen::Vector3f> translations;
 
-					getAccessorDataScalar(animation.samplers[channel.sampler].input, &timeValues);
+					getAccessorDataScalarFloat(animation.samplers[channel.sampler].input, &timeValues);
 					getAccessorData(animation.samplers[channel.sampler].output, &translations);
 				}
 				else if (channel.target_path == "rotation") {
@@ -937,6 +938,45 @@ namespace CForge {
 		return (Filepath.find(".glb") != std::string::npos || Filepath.find(".gltf") != std::string::npos);
 	}//accepted
 
+	//reads normalized integers and returns floats
+	void GLTFIO::getAccessorDataScalarFloat(const int accessor, std::vector<float>* pData) {
+		Accessor acc = model.accessors[accessor];
+		
+		if (acc.componentType == TINYGLTF_COMPONENT_TYPE_BYTE) {
+			std::vector<char> normalizedData;
+			getAccessorDataScalar(accessor, &normalizedData);
+			for (auto d : normalizedData) {
+				pData->push_back(std::max(d / 127.0f, -1.0f));
+			}
+		}
+		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+			std::vector<unsigned char> normalizedData;
+			getAccessorDataScalar(accessor, &normalizedData);
+			for (auto d : normalizedData) {
+				pData->push_back(d / 255.0f);
+			}
+		}
+		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_SHORT) {
+			std::vector<short> normalizedData;
+			getAccessorDataScalar(accessor, &normalizedData);
+			for (auto d : normalizedData) {
+				pData->push_back(std::max(d / 32767.0f, -1.0f));
+			}
+		}
+		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+			std::vector<unsigned short> normalizedData;
+			getAccessorDataScalar(accessor, &normalizedData);
+			for (auto d : normalizedData) {
+				pData->push_back(d / 65535.0f);
+			}
+		}
+		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+			getAccessorDataScalar(accessor, pData);
+		}
+		else {
+			std::cout << "Unsupported component type for normalized integer conversion: " << acc.componentType << std::endl;
+		}
+	}
 
 	void GLTFIO::getAccessorData(const int accessor, std::vector<Eigen::Vector3f>* pData) {
 		std::vector<std::vector<float>> vData;

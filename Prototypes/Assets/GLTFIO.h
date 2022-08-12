@@ -79,6 +79,8 @@ class GLTFIO {
 			}
 		}
 
+		void getAccessorDataScalarFloat(const int accessor, std::vector<float>* pData);
+
 		template<class T>
 		void getAccessorData(const int accessor, std::vector<std::vector<T>>* pData) {
 			Accessor acc = model.accessors[accessor];
