@@ -324,6 +324,7 @@ public:
 		// stuff for performance monitoring
 		uint64_t LastFPSPrint = CoreUtility::timestamp();
 		int32_t FPSCount = 0;
+		float FPSmean = 0.0;
 
 		std::string GLError = "";
 		GraphicsUtility::checkGLError(&GLError);
@@ -467,14 +468,18 @@ public:
 			gui.processEvents();
 			gui.render(&RDev);
 
+			RDev.PPBufferFinalize();
 			RenderWin.swapBuffers();
 			
 			RDev.LODSG_clear();
 			
-			if (CoreUtility::timestamp() - LastFPSPrint > 250U) {
+			FPSCount++;
+			FPSmean += pSLOD->getDeltaTime();
+			if (CoreUtility::timestamp() - LastFPSPrint > 100U) {
 				
 				wchar_t text_wstring[100] = {0};
-				int charcount = swprintf(text_wstring, 100, L"FPS: %f\n Frametime: %f", 1.0/pSLOD->getDeltaTime(), pSLOD->getDeltaTime());
+				FPSmean /= FPSCount;
+				int charcount = swprintf(text_wstring, 100, L"FPS: %f\n Frametime: %f", 1.0/FPSmean, FPSmean);
 				std::u32string text;
 				//ugly cast to u32string from wchar[]
 				for (int i = 0; i < charcount; i++) {
@@ -484,7 +489,8 @@ public:
 				fpsWidget->setPosition(RenderWin.width()-fpsWidget->getWidth(), 0);
 				
 				LastFPSPrint = CoreUtility::timestamp();
-				
+				FPSmean = 0.0;
+				FPSCount = 0;
 			}
 
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {

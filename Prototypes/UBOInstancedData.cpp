@@ -1,4 +1,5 @@
 #include "UBOInstancedData.h"
+#include <glad/glad.h>
 
 
 namespace CForge {
@@ -13,7 +14,12 @@ namespace CForge {
 
 	void UBOInstancedData::init() {
 		clear();
-		//m_instanceCount = instanceCount;
+		GLint max_block_size;
+		glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &max_block_size);
+		//printf("max block: %d \n", max_block_size);
+		m_maxInstanceCount = (max_block_size*8)/32/16;
+		//printf("instance: %d \n", m_maxInstanceCount);
+		
 		m_Buffer.init(GLBuffer::BTYPE_UNIFORM, GLBuffer::BUSAGE_DYNAMIC_DRAW, nullptr, size());
 	}//initialize
 

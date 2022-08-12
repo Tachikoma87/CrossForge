@@ -26,6 +26,11 @@ namespace CForge {
 	*/
 	class CFORGE_API PPScreenQuad : public ScreenQuad {
 	public:
-		void render(RenderDevice* pRDev, float mapHeight, float uTime, float aspectRatio);
+		void render(RenderDevice* pRDev, float mapHeight, float uTime, float aspectRatio, Eigen::Vector3f sunDir, Eigen::Vector2i resolution);
+	};//ScreenQuad
+	
+	class CFORGE_API PPSQ_SSAO : public ScreenQuad {
+	public:
+		void render(RenderDevice* pRDev, float uTime, Eigen::Vector2i resolution);
 	};//ScreenQuad
 }//name space

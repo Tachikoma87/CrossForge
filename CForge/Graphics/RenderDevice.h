@@ -113,6 +113,12 @@ namespace CForge {
 
 		GLShader* shadowPassShader(void);
 		
+		void updateLight(ILight* pLight);
+		
+		// updates PPBuffer texture
+		void PPBufferUpdate();
+		// blits PPBuffer to zero
+		void PPBufferFinalize();
 		//
 		void LODSG_render();
 		void clearBuffer();
@@ -122,7 +128,6 @@ namespace CForge {
 		void fetchQueryResults();
 		void LODSGPushBack(IRenderableActor* pActor, Eigen::Matrix4f mat);
 		
-		PPBuffer getPPBuffer();
 		GLShader* shadowPassShaderInstanced(void);
 		void LODSG_assemble();
 		void LODSG_clear();
@@ -169,7 +174,8 @@ namespace CForge {
 		GLShader* m_pShadowPassShader;
 		GLShader* m_pShadowPassShaderInstanced;
 	private:
-		
+
+		ActiveLight* findActiveLight(ILight* pLight);
 		// container assigning an actor <-> transform a query
 		struct LODQueryContainer {
 			GLuint queryID = 0;
@@ -183,7 +189,9 @@ namespace CForge {
 		std::vector<Eigen::Matrix4f> m_LODSGTransformations;
 
 		std::vector<LODQueryContainer> LODQueryContainers;
-		PPBuffer m_PPBuffer;
+		CForge::PPBuffer m_PPBuffer1;
+		CForge::PPBuffer m_PPBuffer2;
+		bool m_PP1TexBound = true;
 	};//RenderDevice
 }//name space
 

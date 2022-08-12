@@ -281,6 +281,8 @@ namespace CForge {
 			PPQuad.render(&RDev);
 			
 			RDev.LODSG_clear();
+			
+			RDev.PPBufferFinalize();
 			RenderWin.swapBuffers();
 			
 			//if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {

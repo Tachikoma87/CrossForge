@@ -60,6 +60,7 @@ namespace CForge {
 		std::vector<float> getLODPercentages();
 
 		void setFaceCulling(bool state);
+		bool m_castShadows = true;
 		/**
 		* manual LOD generation without LODHandler
 		*/
