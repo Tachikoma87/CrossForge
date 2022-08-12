@@ -65,7 +65,8 @@ namespace CForge {
 				m_Config.GBufferWidth = 1280;
 			}
 			m_GBuffer.init(m_Config.GBufferWidth, m_Config.GBufferHeight);
-			m_PPBuffer.init(m_Config.GBufferWidth, m_Config.GBufferHeight);
+			m_PPBuffer1.init(m_Config.GBufferWidth, m_Config.GBufferHeight);
+			m_PPBuffer2.init(m_Config.GBufferWidth, m_Config.GBufferHeight);
 
 			if (m_Config.ExecuteLightingPass) {
 				m_ScreenQuad.init(0.0f, 0.0f, 1.0f, 1.0f, nullptr);
@@ -336,7 +337,7 @@ namespace CForge {
 
 			if (m_Config.ExecuteLightingPass) {
 				//glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
-				m_PPBuffer.bind();
+				m_PPBuffer1.bind();
 				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
 				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
@@ -364,10 +365,10 @@ namespace CForge {
 		case RENDERPASS_FORWARD: {
 			if (m_Config.UseGBuffer) {
 				// blit depth buffer
-				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_PPBuffer.getFramebufferIndex());
+				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_PPBuffer1.getFramebufferIndex());
 				//m_GBuffer.blitDepthBuffer(m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
 				m_GBuffer.blitDepthBuffer(m_GBuffer.width(), m_GBuffer.height());
-				glBindFramebuffer(GL_FRAMEBUFFER, m_PPBuffer.getFramebufferIndex());
+				glBindFramebuffer(GL_FRAMEBUFFER, m_PPBuffer1.getFramebufferIndex());
 				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
 				//glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
 			}
@@ -383,11 +384,12 @@ namespace CForge {
 		}break;
 		case RENDERPASS_POSTPROCESSING: {
 			if (m_Config.UseGBuffer) {
-				m_PPBuffer.bindTexture(PPBuffer::COMP,0);
+				m_PPBuffer1.bindTexture(PPBuffer::COMP,0);
 				m_GBuffer.bindTexture(GBuffer::COMP_POSITION, 1);
 				m_GBuffer.bindTexture(GBuffer::COMP_NORMAL, 2);
 				
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glBindFramebuffer(GL_FRAMEBUFFER, m_PPBuffer2.getFramebufferIndex());
+				clearBuffer();
 				glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
 			}
 		}break;
@@ -395,6 +397,33 @@ namespace CForge {
 		}
 
 	}//activePass
+
+	void RenderDevice::PPBufferUpdate() {
+		PPBuffer* texBuffer = &m_PPBuffer1;
+		PPBuffer* drawBuffer = &m_PPBuffer2;
+
+		glBindFramebuffer(GL_FRAMEBUFFER, texBuffer->getFramebufferIndex());
+		clearBuffer();
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, texBuffer->getFramebufferIndex());
+		drawBuffer->blitColorBuffer(m_GBuffer.width(), m_GBuffer.height());
+
+		m_PPBuffer1.bindTexture(PPBuffer::COMP,0);
+		m_GBuffer.bindTexture(GBuffer::COMP_POSITION, 1);
+		m_GBuffer.bindTexture(GBuffer::COMP_NORMAL, 2);
+		glBindFramebuffer(GL_FRAMEBUFFER, drawBuffer->getFramebufferIndex());
+		clearBuffer();
+		glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
+	}
+
+	void RenderDevice::PPBufferFinalize() {
+		PPBuffer* drawBuffer = &m_PPBuffer2;
+		
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		drawBuffer->blitColorBuffer(m_GBuffer.width(), m_GBuffer.height());
+		
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
+	}
 
 	void RenderDevice::addLight(ILight* pLight) {
 		if (nullptr == pLight) throw NullpointerExcept("pLight");
@@ -455,6 +484,39 @@ namespace CForge {
 		}//if[cast shadows]
 		
 	}//addLight
+	
+	void RenderDevice::updateLight(ILight* pLight) {
+		ActiveLight* pAL = findActiveLight(pLight);
+		m_LightsUBO.updateLight(pLight, pAL->UBOIndex);
+		if (pLight->castsShadows()) {
+			m_ShadowCastingLights[pAL->ShadowIndex] = pAL;
+			
+			m_LightsUBO.shadowID(pAL->ShadowIndex, pLight->type(), pAL->UBOIndex);
+			Matrix4f LightSpaceMatrix = pAL->pLight->projectionMatrix() * pAL->pLight->viewMatrix();
+			m_LightsUBO.lightSpaceMatrix(LightSpaceMatrix, pAL->pLight->type(), pAL->UBOIndex);
+					
+		}//if[cast shadows]
+	}
+
+	RenderDevice::ActiveLight* RenderDevice::findActiveLight(ILight* pLight) {
+		
+		std::vector<ActiveLight*>* lightList;
+		switch (pLight->type()) {
+			case ILight::LIGHT_DIRECTIONAL: lightList = &m_ActiveDirLights; break;
+			case ILight::LIGHT_POINT:       lightList = &m_ActivePointLights; break;
+			case ILight::LIGHT_SPOT:        lightList = &m_ActiveSpotLights; break;
+			default: throw CForgeExcept("Invalid light type encountered!"); break;
+		}
+		
+		ActiveLight* aLight = nullptr;
+		for (uint32_t i = 0; i < lightList->size(); i++) {
+			if ((*lightList)[i]->pLight == pLight) {
+				aLight = (*lightList)[i];
+				break;
+			}
+		}
+		return aLight;
+	}
 
 	void RenderDevice::removeLight(ILight* pLight) {
 		if (nullptr == pLight) throw NullpointerExcept("pLight");
@@ -592,10 +654,6 @@ namespace CForge {
 		m_LODSGTransformations.push_back(mat);
 	}
 
-	PPBuffer RenderDevice::getPPBuffer() {
-		return m_PPBuffer;
-	}
-	
 	std::vector<IRenderableActor*> RenderDevice::getLODSGActors() {
 		return m_LODSGActors;
 	}

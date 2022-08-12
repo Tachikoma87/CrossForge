@@ -270,6 +270,10 @@ namespace CForge {
 	
 	void LODActor::render(RenderDevice* pRDev) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
+
+		if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW && !m_castShadows) {
+			return;
+		}
 		
 		if (!m_faceCulling)
 			glDisable(GL_CULL_FACE);
