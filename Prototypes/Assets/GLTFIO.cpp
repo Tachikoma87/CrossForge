@@ -473,13 +473,19 @@ namespace CForge {
 			pAnim->Name = animation.name;
 
 			std::vector<T3DMesh<float>::BoneKeyframes*> keyframes;
+			std::vector<int> inputAccessors;
+
+			float duration = -1;
 
 			for (AnimationChannel channel : animation.channels) {
 				T3DMesh<float>::BoneKeyframes* pBoneKF = nullptr;
+				int input = animation.samplers[channel.sampler].input;
 
-				for (auto frame : keyframes) {
-					if (frame->BoneID == channel.target_node) {
-						pBoneKF = frame;
+				//A new BoneKeyFrames object is needed for every BoneID and Timestamps vector.
+
+				for (int i = 0; i < keyframes.size(); i++) {
+					if (keyframes[i]->BoneID == channel.target_node && inputAccessors[i] == input) {
+						pBoneKF = keyframes[i];
 						break;
 					}
 				}
@@ -488,22 +494,45 @@ namespace CForge {
 					pBoneKF = new T3DMesh<float>::BoneKeyframes;
 					pBoneKF->BoneID = channel.target_node;
 					pBoneKF->ID = id_counter++;
+					keyframes.push_back(pBoneKF);
+					inputAccessors.push_back(input);
 				}
+
+				std::vector<float> timeValues;
+				getAccessorDataScalarFloat(input, &timeValues);
+				pBoneKF->Timestamps = timeValues;
+
+				for (auto t : timeValues) duration = std::max(duration, t);
 
 				if (channel.target_path == "translation") {
-					std::vector<float> timeValues;
 					std::vector<Eigen::Vector3f> translations;
+					int output = animation.samplers[channel.sampler].output;
 
-					getAccessorDataScalarFloat(animation.samplers[channel.sampler].input, &timeValues);
-					getAccessorData(animation.samplers[channel.sampler].output, &translations);
+					getAccessorData(output, &translations);
+					
+					pBoneKF->Positions = translations;
 				}
 				else if (channel.target_path == "rotation") {
+					std::vector<Eigen::Quaternionf> rotations;
+					int output = animation.samplers[channel.sampler].output;
 
+					getAccessorData(output, &rotations);
+
+					pBoneKF->Rotations = rotations;
 				}
 				else if (channel.target_path == "scale") {
+					std::vector<Eigen::Vector3f> scalings;
+					int output = animation.samplers[channel.sampler].output;
 
+					getAccessorData(output, &scalings);
+
+					pBoneKF->Scalings = scalings;
 				}
 			}
+
+			pAnim->Keyframes = keyframes;
+
+			pAnim->Duration = duration;
 
 			pMesh->addSkeletalAnimation(pAnim, false);
 		}
@@ -981,7 +1010,7 @@ namespace CForge {
 	void GLTFIO::getAccessorData(const int accessor, std::vector<Eigen::Vector3f>* pData) {
 		std::vector<std::vector<float>> vData;
 
-		getAccessorData(accessor, &vData);
+		getAccessorDataFloat(accessor, &vData);
 
 		for (std::vector<float> v : vData) {
 			Eigen::Vector3f vec;
@@ -997,7 +1026,7 @@ namespace CForge {
 	void GLTFIO::getAccessorData(const int accessor, std::vector<Eigen::Vector4f>* pData) {
 		std::vector<std::vector<float>> vData;
 
-		getAccessorData(accessor, &vData);
+		getAccessorDataFloat(accessor, &vData);
 
 		for (auto v : vData) {
 			Eigen::Vector4f vec;
@@ -1009,5 +1038,61 @@ namespace CForge {
 
 			pData->push_back(vec);
 		}
+	}
+
+	void GLTFIO::getAccessorData(const int accessor, std::vector<Eigen::Quaternionf>* pData) {
+		std::vector<std::vector<float>> vData;
+
+		getAccessorDataFloat(accessor, &vData);
+
+		for (auto v : vData) {
+			Eigen::Quaternionf quat(v[3], v[0], v[1], v[2]);
+
+			pData->push_back(quat);
+		}
+	}
+
+	//Construct floats from normalized integers.
+	void GLTFIO::getAccessorDataFloat(const int accessor, std::vector<std::vector<float>>* pData) {
+		Accessor acc = model.accessors[accessor];
+
+		if (acc.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) getAccessorData(accessor, pData);
+		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_BYTE) {
+			std::vector<std::vector<char>> normalizedData;
+			getAccessorData(accessor, &normalizedData);
+			for (auto e : normalizedData) {
+				std::vector<float> toAdd;
+				for (auto d : e) toAdd.push_back(std::max(d / 127.0f, -1.0f));
+				pData->push_back(toAdd);
+			}
+		}
+		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+			std::vector<std::vector<unsigned char>> normalizedData;
+			getAccessorData(accessor, &normalizedData);
+			for (auto e : normalizedData) {
+				std::vector<float> toAdd;
+				for (auto d : e) toAdd.push_back(d / 255.0f);
+				pData->push_back(toAdd);
+			}
+		}
+		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_SHORT) {
+			std::vector<std::vector<short>> normalizedData;
+			getAccessorData(accessor, &normalizedData);
+			for (auto e : normalizedData) {
+				std::vector<float> toAdd;
+				for (auto d : e) toAdd.push_back(std::max(d / 32767.0f, -1.0f));
+				pData->push_back(toAdd);
+			}
+		}
+		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+			std::vector<std::vector<unsigned short>> normalizedData;
+			getAccessorData(accessor, &normalizedData);
+			for (auto e : normalizedData) {
+				std::vector<float> toAdd;
+				for (auto d : e) toAdd.push_back(d / 65535.0f);
+				pData->push_back(toAdd);
+			}
+		}
+		else std::cout << "Unsupported component type: " << acc.componentType << " for normalized integer conversion!" << std::endl;
 	}
 }//name space

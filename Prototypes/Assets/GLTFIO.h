@@ -118,10 +118,14 @@ class GLTFIO {
 				pData->push_back(*toAdd);
 			}
 		}
+
+		void getAccessorDataFloat(const int accessor, std::vector<std::vector<float>>* pData);
 		
 		void getAccessorData(const int accessor, std::vector<Eigen::Vector3f>* pData);
-		
+
 		void getAccessorData(const int accessor, std::vector<Eigen::Vector4f>* pData);
+
+		void getAccessorData(const int accessor, std::vector<Eigen::Quaternionf>* pData);
 		
 		template<class T>
 		void writeAccessorDataScalar(const int bufferIndex, const int componentType, std::vector<T>* pData) {
