@@ -20,6 +20,7 @@
 
 #include "../../CForge/AssetIO/I3DMeshIO.h"
 #include <tiny_gltf.h>
+#include <algorithm>
 
 
 namespace CForge {
@@ -73,7 +74,7 @@ class GLTFIO {
 			T* raw_data = (T*)buff.data.data();
 
 			for (int i = 0; i < acc.count; i++) {
-				int index = buffView.byteOffset / typeSize + acc.byteOffset / typeSize + i;
+				int index = buffView.byteOffset / typeSize + acc.byteOffset / typeSize + i * (1 + buffView.byteStride / typeSize);
 
 				pData->push_back(raw_data[index]);
 			}
@@ -86,11 +87,6 @@ class GLTFIO {
 			Accessor acc = model.accessors[accessor];
 			BufferView buffView = model.bufferViews[acc.bufferView];
 			Buffer buff = model.buffers[buffView.buffer];
-
-			if (buffView.byteStride > 0) {
-				std::cout << "TODO: byteStride in buffer view " << acc.bufferView << " is greater than 0!" << std::endl;
-				return;
-			}
 
 			if (acc.type == TINYGLTF_TYPE_SCALAR) {
 				std::cout << "Called getAccessorData on a scalar accessor!" << std::endl;
@@ -110,7 +106,7 @@ class GLTFIO {
 			for (int i = 0; i < acc.count; i++) {
 				std::vector<T>* toAdd = new std::vector<T>;
 
-				int index = buffView.byteOffset / typeSize + acc.byteOffset / typeSize + i * nComponents;
+				int index = buffView.byteOffset / typeSize + acc.byteOffset / typeSize + i * (nComponents + buffView.byteStride / typeSize);
 
 				for (int k = 0; k < nComponents; k++) {
 					toAdd->push_back(raw_data[index + k]);
