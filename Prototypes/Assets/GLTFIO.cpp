@@ -969,6 +969,45 @@ namespace CForge {
 		return (Filepath.find(".glb") != std::string::npos || Filepath.find(".gltf") != std::string::npos);
 	}//accepted
 
+	void GLTFIO::getSparseAccessorData(const int accessor, std::vector<int32_t>* pIndices, std::vector<std::vector<float>>* pData) {
+		Accessor acc = model.accessors[accessor];
+		
+		if (!acc.sparse.isSparse) {
+			std::cout << "Accessor is not sparse" << std::endl;
+			
+			return;
+		}
+
+		BufferView buffView = model.bufferViews[acc.bufferView];
+		Buffer buff = model.buffers[buffView.buffer];
+
+		int component_count = componentCount(acc.type);
+		
+		int index_type = acc.sparse.indices.componentType;
+		int index_type_size = sizeOfGltfComponentType(index_type);
+		int index_byte_offset = acc.sparse.indices.byteOffset;
+		BufferView index_buff_view = model.bufferViews[acc.sparse.indices.bufferView];
+		Buffer index_buff = model.buffers[index_buff_view.buffer];
+
+		int value_type = acc.componentType;
+		int value_type_size = sizeOfGltfComponentType(acc.componentType);
+		int value_byte_offset = acc.sparse.values.byteOffset;
+		BufferView value_buff_view = model.bufferViews[acc.sparse.values.bufferView];
+		Buffer value_buff = model.buffers[value_buff_view.buffer];
+		
+		
+
+		//read index data
+
+		if (index_type == TINYGLTF_COMPONENT_TYPE_BYTE) {
+			std::vector<char> indices;
+			readBuffer(index_buff.data.data(), acc.sparse.count, acc.byteOffset + index_byte_offset, 1, false, 0, &indices);
+			for (int i = 0; i < acc.sparse.count; i++) {
+				pIndices->push_back((int32_t)(indices[i]));
+			}
+		}
+	}
+	
 	//reads normalized integers and returns floats
 	void GLTFIO::getAccessorDataScalarFloat(const int accessor, std::vector<float>* pData) {
 		Accessor acc = model.accessors[accessor];
@@ -1014,15 +1053,7 @@ namespace CForge {
 
 		getAccessorDataFloat(accessor, &vData);
 
-		for (std::vector<float> v : vData) {
-			Eigen::Vector3f vec;
-
-			vec(0) = v[0];
-			vec(1) = v[1];
-			vec(2) = v[2];
-
-			pData->push_back(vec);
-		}
+		toVec3f(&vData, pData);
 	}
 
 	void GLTFIO::getAccessorData(const int accessor, std::vector<Eigen::Vector4f>* pData) {
@@ -1030,16 +1061,7 @@ namespace CForge {
 
 		getAccessorDataFloat(accessor, &vData);
 
-		for (auto v : vData) {
-			Eigen::Vector4f vec;
-
-			vec(0) = v[0];
-			vec(1) = v[1];
-			vec(2) = v[2];
-			vec(3) = v[3];
-
-			pData->push_back(vec);
-		}
+		toVec4f(&vData, pData);
 	}
 
 	void GLTFIO::getAccessorData(const int accessor, std::vector<Eigen::Quaternionf>* pData) {
@@ -1047,11 +1069,7 @@ namespace CForge {
 
 		getAccessorDataFloat(accessor, &vData);
 
-		for (auto v : vData) {
-			Eigen::Quaternionf quat(v[3], v[0], v[1], v[2]);
-
-			pData->push_back(quat);
-		}
+		toQuatf(&vData, pData);
 	}
 
 	//Construct floats from normalized integers.
@@ -1096,5 +1114,36 @@ namespace CForge {
 			}
 		}
 		else std::cout << "Unsupported component type: " << acc.componentType << " for normalized integer conversion!" << std::endl;
+	}
+
+	void GLTFIO::toVec3f(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector3f>* pOut) {
+		for (auto e : *pIn) {
+			Eigen::Vector3f vec;
+
+			vec(0) = e[0];
+			vec(1) = e[1];
+			vec(2) = e[2];
+			pOut->push_back(vec);
+		}
+	}
+
+	void GLTFIO::toVec4f(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector4f>* pOut) {
+		for (auto e : *pIn) {
+			Eigen::Vector4f vec;
+
+			vec(0) = e[0];
+			vec(1) = e[1];
+			vec(2) = e[2];
+			vec(3) = e[3];
+			pOut->push_back(vec);
+		}
+	}
+
+	void GLTFIO::toQuatf(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Quaternionf>* pOut) {
+		for (auto e : *pIn) {
+			Eigen::Quaternionf quat(e[3], e[0], e[1], e[2]);
+
+			pOut->push_back(quat);
+		}
 	}
 }//name space

@@ -39,6 +39,12 @@ class GLTFIO {
 
 		static int sizeOfGltfComponentType(const int componentType);
 
+		static void toVec3f(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector3f>* pOut);
+
+		static void toVec4f(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector4f>* pOut);
+
+		static void toQuatf(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Quaternionf>* pOut);
+
 	protected:
 		std::string filePath;
 
@@ -57,6 +63,33 @@ class GLTFIO {
 
 		std::vector<unsigned long> offsets;
 		unsigned long materialIndex;
+
+		template<class T>
+		void readBuffer(unsigned char* pBuffer, const int element_count, const int offset, const int component_count, const bool is_matrix, const int stride, std::vector<T>* pData) {
+			T* raw_data = (T*)pBuffer;
+
+			int type_size = sizeof(T);
+			
+			int column_size = component_count;
+			int column_size_with_padding = component_count;
+			
+			if (is_matrix) {
+				//A matrix is stored in column major order in glTF.
+				//Every column has to start at an index which is a multiple 4.
+				//Padding bytes have to be inserted to fill the gaps.
+				column_size = std::sqrt(component_count) * type_size;
+				column_size_with_padding = column_size + (4 - column_size) % 4;
+			}
+
+			for (int i = 0; i < element_count; i++) {
+				int index = offset / type_size + i * (column_size_with_padding + stride / typeSize);
+
+				for (int k = 0; k < column_size_with_padding; k++) {
+					if (is_matrix && k >= column_size) continue;
+					pData->push_back(raw_data[index + k]);
+				}
+			}
+		}
 
 		template<class T>
 		void getAccessorDataScalar(const int accessor, std::vector<T>* pData) {
@@ -114,6 +147,8 @@ class GLTFIO {
 				pData->push_back(*toAdd);
 			}
 		}
+
+		void getSparseAccessorData(const int accessor, std::vector<int32_t>* pIndices, std::vector<std::vector<float>>* pData);
 
 		void getAccessorDataFloat(const int accessor, std::vector<std::vector<float>>* pData);
 		
