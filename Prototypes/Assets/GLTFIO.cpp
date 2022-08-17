@@ -116,14 +116,16 @@ namespace CForge {
 		for (int i = 0; i < model.bufferViews.size(); i++) {
 			std::cout << "BufferView offset: " << model.bufferViews[i].byteOffset << std::endl;
 		}
-		
-		readMeshes();
 
 		readNodes();
+		
+		readMeshes();
 
 		readSkinningData();
 
 		readSkeletalAnimations();
+
+		readMorphTargets();
 		
 		std::cout << "END" << std::endl;
 
@@ -253,18 +255,11 @@ namespace CForge {
 				//TODO: support multiple joints
 				if (n != 0) continue;
 
-				std::vector<std::vector<float>> texcoords;
-				getAccessorData(keyValuePair.second, &texcoords);
+				std::vector<Eigen::Vector4f> accJoints;
+				getAccessorData(keyValuePair.second, &accJoints);
 
-				for (auto pos : texcoords) {
-					Eigen::Matrix<float, 4, 1> mat;
-
-					mat(0) = pos[0];
-					mat(1) = pos[1];
-					mat(2) = pos[2];
-					mat(3) = pos[3];
-
-					joint.push_back(mat);
+				for (auto j : accJoints) {
+					joint.push_back(j);
 				}
 
 				continue;
@@ -280,18 +275,11 @@ namespace CForge {
 				//TODO: support multiple weights
 				if (n != 0) continue;
 
-				std::vector<std::vector<float>> texcoords;
-				getAccessorData(keyValuePair.second, &texcoords);
+				std::vector<Eigen::Vector4f> accWeights;
+				getAccessorData(keyValuePair.second, &accWeights);
 
-				for (auto pos : texcoords) {
-					Eigen::Matrix<float, 4, 1> mat;
-
-					mat(0) = pos[0];
-					mat(1) = pos[1];
-					mat(2) = pos[2];
-					mat(3) = pos[3];
-
-					weight.push_back(mat);
+				for (auto w : accWeights) {
+					weight.push_back(w);
 				}
 
 				continue;
@@ -307,25 +295,35 @@ namespace CForge {
 				//TODO: support multiple colors
 				if (n != 0) continue;
 
-				std::vector<std::vector<float>> texcoords;
-				getAccessorData(keyValuePair.second, &texcoords);
+				std::vector<Eigen::Vector4f> accColors;
+				getAccessorData(keyValuePair.second, &accColors);
 
-				for (auto pos : texcoords) {
-					Eigen::Matrix<float, 4, 1> mat;
-
-					mat(0) = pos[0];
-					mat(1) = pos[1];
-					mat(2) = pos[2];
-					mat(3) = pos[3];
-
-					color.push_back(mat);
+				for (auto c : accColors) {
+					color.push_back(c);
 				}
 
 				continue;
 			}
 		}//for attributes
 
-		for (int i = normal.size(); i < coord.size(); i++) normal.push_back(*(new Eigen::Matrix<float, 3, 1>));
+		//fill up the rest of the attributes with default values
+		for (int i = normal.size(); i < coord.size(); i++) normal.push_back(*(new Eigen::Vector3f));
+		for (int i = tangent.size(); i < coord.size(); i++) tangent.push_back(*(new Eigen::Vector3f));
+		for (int i = texCoord.size(); i < coord.size(); i++) texCoord.push_back(*(new Eigen::Vector3f));
+		for (int i = joint.size(); i < coord.size(); i++) joint.push_back(*(new Eigen::Vector4f));
+		for (int i = weight.size(); i < coord.size(); i++) weight.push_back(*(new Eigen::Vector4f));
+		for (int i = color.size(); i < coord.size(); i++) color.push_back(*(new Eigen::Vector4f));
+		
+		//set vertex influences and weights for bones
+		for (int i = 0; i < joint.size(); i++) {
+			for (int j = 0; j < 4; j++) {
+				int32_t index = (int32_t)joint[i](j);
+				if (index < 0) continue;
+				auto pBone = pMesh->getBone(index);
+				pBone->VertexInfluences.push_back(i);
+				pBone->VertexWeights.push_back(weight[i](j));
+			}
+		}
 
 		offsets.push_back(counter);
 
@@ -565,6 +563,10 @@ namespace CForge {
 		}
 	}
 
+	void GLTFIO::readMorphTargets() {
+		
+	}
+
 	void GLTFIO::readNodes() {
 		std::vector<T3DMesh<float>::Bone*>* pBones = new std::vector<T3DMesh<float>::Bone*>;
 		
@@ -590,7 +592,7 @@ namespace CForge {
 		}
 
 
-		// Do a second pass to link all bones together.
+		//Do a second pass to link all bones together.
 
 		for (int i = 0; i < model.nodes.size(); i++) {
 			std::vector<T3DMesh<float>::Bone*> children;

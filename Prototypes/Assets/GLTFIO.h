@@ -210,6 +210,8 @@ class GLTFIO {
 
 		void readSkinningData();
 
+		void readMorphTargets();
+
 		
 		void writeMeshes();
 
