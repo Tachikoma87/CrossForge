@@ -655,6 +655,17 @@ namespace CForge {
 		}
 	}
 
+	bool GLTFIO::componentIsMatrix(const int type) {
+		switch (type) {
+		case TINYGLTF_TYPE_MAT2:
+		case TINYGLTF_TYPE_MAT3:
+		case TINYGLTF_TYPE_MAT4:
+			return true;
+		}
+
+		return false;
+	}
+
 
 
 	
@@ -978,9 +989,6 @@ namespace CForge {
 			return;
 		}
 
-		BufferView buffView = model.bufferViews[acc.bufferView];
-		Buffer buff = model.buffers[buffView.buffer];
-
 		int component_count = componentCount(acc.type);
 		
 		int index_type = acc.sparse.indices.componentType;
@@ -1006,6 +1014,38 @@ namespace CForge {
 				pIndices->push_back((int32_t)(indices[i]));
 			}
 		}
+		else if (index_type == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+			std::vector<unsigned char> indices;
+			readBuffer(index_buff.data.data(), acc.sparse.count, acc.byteOffset + index_byte_offset, 1, false, 0, &indices);
+			for (int i = 0; i < acc.sparse.count; i++) {
+				pIndices->push_back((int32_t)(indices[i]));
+			}
+		}
+		else if (index_type == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+			std::vector<unsigned short> indices;
+			readBuffer(index_buff.data.data(), acc.sparse.count, acc.byteOffset + index_byte_offset, 1, false, 0, &indices);
+			for (int i = 0; i < acc.sparse.count; i++) {
+				pIndices->push_back((int32_t)(indices[i]));
+			}
+		}
+		else if (index_type == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT) {
+			std::vector<uint32_t> indices;
+			readBuffer(index_buff.data.data(), acc.sparse.count, acc.byteOffset + index_byte_offset, 1, false, 0, &indices);
+			for (int i = 0; i < acc.sparse.count; i++) {
+				pIndices->push_back((int32_t)(indices[i]));
+			}
+		}
+		else if (index_type == TINYGLTF_COMPONENT_TYPE_INT) {
+			readBuffer(index_buff.data.data(), acc.sparse.count, acc.byteOffset + index_byte_offset, 1, false, 0, pIndices);
+		}
+		else {
+			std::cout << "Unsupported index type" << std::endl;
+		}
+
+		
+		//read value data
+
+		readBuffer(value_buff.data.data(), acc.sparse.count, acc.byteOffset + value_byte_offset, component_count, componentIsMatrix(acc.type), 0, pData);
 	}
 	
 	//reads normalized integers and returns floats
