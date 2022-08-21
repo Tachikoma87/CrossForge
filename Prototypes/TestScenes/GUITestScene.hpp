@@ -296,7 +296,7 @@ public:
 
 			RenderWin.swapBuffers();
 
-			RDev.LODSG_clear();
+			//RDev.LODSG_clear();
 
 			FPSCount++;
 			if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {

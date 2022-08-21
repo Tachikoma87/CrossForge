@@ -102,6 +102,12 @@ namespace CForge {
 	void IRenderableActor::setLODSG(bool inside) {
 		m_isInLODSG = inside;
 	}
+	bool IRenderableActor::isInQueryContainer() {
+		return m_isInQSG;
+	}
+	void IRenderableActor::setQSG(bool inside) {
+		m_isInQSG = inside;
+	}
 
 	void IRenderableActor::bindLODLevel(uint32_t level) {
 

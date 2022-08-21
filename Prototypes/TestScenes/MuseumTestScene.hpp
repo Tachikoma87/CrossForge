@@ -351,7 +351,7 @@ public:
 		form->setStepSize ( GUI_CAMERA_PANNING, 0.5f );
 		form->setDefault ( GUI_CAMERA_PANNING, cameraPanningAcceleration );
 		form->addOption ( GUI_LODOFFSET, INPUTTYPE_RANGESLIDER, U"LOD Offest" );
-		form->setLimit ( GUI_LODOFFSET, 0.0f, (float) WinWidth*WinHeight );
+		form->setLimit ( GUI_LODOFFSET, 0.0f, 100.0 );
 		form->setStepSize ( GUI_LODOFFSET, 1.0f ); // TODO
 		form->setDefault ( GUI_LODOFFSET, (float) pSLOD->TriangleSize );
 //         form->addOption ( 7, INPUTTYPE_RANGESLIDER, U"Field of View" );
@@ -471,7 +471,7 @@ public:
 			RDev.PPBufferFinalize();
 			RenderWin.swapBuffers();
 			
-			RDev.LODSG_clear();
+			//RDev.LODSG_clear();
 			
 			FPSCount++;
 			FPSmean += pSLOD->getDeltaTime();
