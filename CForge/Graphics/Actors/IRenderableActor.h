@@ -61,6 +61,8 @@ namespace CForge {
 		bool isInLODSG();
 		// used set check if actor is already contained in LODSG
 		void setLODSG(bool inside);
+		bool isInQueryContainer();
+		void setQSG(bool inside);
 		virtual void clearMatRef();
 
 		float getAABBradius(const Eigen::Matrix4f& mat);
@@ -86,6 +88,7 @@ namespace CForge {
 		bool m_isInstanced = false;
 		bool m_isManualInstaned = false;
 		bool m_isInLODSG = false;
+		bool m_isInQSG = false;
 		//
 		
 	private:

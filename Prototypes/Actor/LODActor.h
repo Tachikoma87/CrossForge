@@ -94,6 +94,14 @@ namespace CForge {
 	protected:
 
 	private:
+		bool storeOnVRAM = true;
+		GLVertexArray* m_pVertexArray; ///< the vertex array
+		std::vector<GLVertexArray*> m_pVertexArrays;
+		std::vector<GLBuffer*> m_pVertexBuffers;
+		std::vector<GLBuffer*> m_pElementBuffers;
+		
+		void setBufferData(void);
+		
 		void initiateBuffers(uint32_t level);
 		bool fovCulling(RenderDevice* pRDev, Eigen::Matrix4f* mat);
 		

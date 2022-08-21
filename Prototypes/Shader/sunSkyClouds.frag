@@ -785,20 +785,22 @@ void main(){
 		}
 	} else { // underwater
 		vec2 coord = refract(dir,n,0.680678).xy*0.5;
-		weight = 1.0/(1.0+waterDist);
+		weight = max(0.0,1.0/(1.0-waterDist*0.01));
 		
 		vec2 refractNoise = clamp(coord*(0.035+0.005*(1.0-weight))+TexCoords*(0.965-0.005*(weight)),0.0,1.0);
 		
-		// coord is oddly exactly what i was looking for
-		vec2 waterNoise = vec2(TexCoords.x+sin(uTime*noise(coord*2.0))*0.005,TexCoords.y+cos(uTime*noise(coord.yx*2.0))*0.005);
+		float time = uTime*0.1; //cos(uTime*0.5)*10.0+20.0;
+		vec2 waterNoise = TexCoords + vec2(sin(uTime)*noise(TexCoords*5.0+time)*0.01,cos(uTime)*noise(TexCoords.yx*5.0+time)*0.01)*(distDiff);
 		refractNoise = clamp(refractNoise,0.0,1.0);
 		waterNoise  = clamp(waterNoise,0.0,1.0);
-		vec3 scnCol = texture(texColor, refractNoise).xyz;
+		vec3 scnCol = abs(waterDist) < abs(distScene) ? texture(texColor, refractNoise).xyz : texture(texColor, waterNoise).xyz;
 		scnCol = length(scnCol) == 0.0 ? sscSky.xyz : scnCol;
 		
+		//distDiff = distDiff + max(0.0,(1.0-weight)-distDiff);
+		
 		oceanCol = abs(waterDist) < abs(distScene)
-		           ? oceanCol+scnCol*0.5*sDot
-		           : texture(texColor, waterNoise).xyz*(1.0-distDiff)+(distDiff)*(SEA_BASE);
+		           ? oceanCol*(1.0-weight)+(weight)*scnCol
+		           : scnCol*(1.0-distDiff)+(distDiff)*(SEA_BASE);
 	}
 
 	FragColor = vec4(oceanCol,0.0);
