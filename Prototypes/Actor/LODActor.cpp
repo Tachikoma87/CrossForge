@@ -34,7 +34,7 @@ namespace CForge {
 		m_aabb = pMesh->aabb();
 		initAABB();
 		
-		m_VertexArray.init();
+		//m_VertexArray.init();
 		//m_translucent = isTranslucent;
 		m_isInstanced = isInstanced || manualyInstanced;
 		m_isManualInstaned = manualyInstanced;
@@ -146,80 +146,132 @@ namespace CForge {
 	void LODActor::initiateBuffers(uint32_t level) {
 		auto pMesh = m_LODMeshes[level];
 
-		try {
-			uint8_t* pBuffer = nullptr;
-			uint32_t BufferSize = 0;
-			
-			m_VertexUtility.buildBuffer(pMesh->vertexCount(), (void**)&pBuffer, &BufferSize, pMesh);
-			
-			m_VertexBuffers.push_back(pBuffer);
-			m_VertexBufferSizes.push_back(BufferSize);
+		if (storeOnVRAM) {
+			m_pVertexArrays.push_back(new GLVertexArray());
+			m_pVertexArrays.back()->init();
+			m_pVertexBuffers.push_back(new GLBuffer());
+			m_pElementBuffers.push_back(new GLBuffer());
+			try {
+				uint8_t* pBuffer = nullptr;
+				uint32_t BufferSize = 0;
+				m_VertexUtility.buildBuffer(pMesh->vertexCount(), (void**)&pBuffer, &BufferSize, pMesh);
+				m_pVertexBuffers.back()->init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
+				if(nullptr != pBuffer) delete[] pBuffer;
+				pBuffer = nullptr;
+				BufferSize = 0;
 			}
-		catch (CrossForgeException& e) {
-			SLogger::logException(e);
-			return;
-		}
-		catch (...) {
-			SLogger::log("Unknown exception occurred during vertex buffer creation!");
-			return;
-		}
+			catch (CrossForgeException& e) {
+				SLogger::logException(e);
+				return;
+			}
+			catch (...) {
+				SLogger::log("Unknown exception occurred during vertex buffer creation!");
+				return;
+			}
 
-		// build render groups and element array
-		try {
-			uint8_t* pBuffer = nullptr;
-			uint32_t BufferSize = 0;
-			RenderGroupUtility* RGU = new RenderGroupUtility();
-			RGU->init(pMesh, (void**)&pBuffer, &BufferSize);
-			m_RenderGroupUtilities.push_back(RGU);
+			// build render groups and element array
+			try {
+				uint8_t* pBuffer = nullptr;
+				uint32_t BufferSize = 0;
+				RenderGroupUtility* RGU = new RenderGroupUtility();
+				RGU->init(pMesh, (void**)&pBuffer, &BufferSize);
+				m_RenderGroupUtilities.push_back(RGU);
+				m_pElementBuffers.back()->init(GLBuffer::BTYPE_INDEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
+				m_ElementBufferSizes.push_back(BufferSize);
+				if(nullptr != pBuffer) delete[] pBuffer;
+				pBuffer = nullptr;
+				BufferSize = 0;
+			}
+			catch (CrossForgeException& e) {
+				SLogger::logException(e);
+				return;
+			}
+			catch (...) {
+				SLogger::log("Unknown exception occurred during building of index buffer!");
+				return;
+			}
+		} else {
+			try {
+				uint8_t* pBuffer = nullptr;
+				uint32_t BufferSize = 0;
 			
-			m_ElementBuffers.push_back(pBuffer);
-			m_ElementBufferSizes.push_back(BufferSize);
-		}
-		catch (CrossForgeException& e) {
-			SLogger::logException(e);
-			return;
-		}
-		catch (...) {
-			SLogger::log("Unknown exception occurred during building of index buffer!");
-			return;
+				m_VertexUtility.buildBuffer(pMesh->vertexCount(), (void**)&pBuffer, &BufferSize, pMesh);
+				
+				m_VertexBuffers.push_back(pBuffer);
+				m_VertexBufferSizes.push_back(BufferSize);
+				}
+			catch (CrossForgeException& e) {
+				SLogger::logException(e);
+				return;
+			}
+			catch (...) {
+				SLogger::log("Unknown exception occurred during vertex buffer creation!");
+				return;
+			}
+
+			// build render groups and element array
+			try {
+				uint8_t* pBuffer = nullptr;
+				uint32_t BufferSize = 0;
+				RenderGroupUtility* RGU = new RenderGroupUtility();
+				RGU->init(pMesh, (void**)&pBuffer, &BufferSize);
+				m_RenderGroupUtilities.push_back(RGU);
+			
+				m_ElementBuffers.push_back(pBuffer);
+				m_ElementBufferSizes.push_back(BufferSize);
+			}
+			catch (CrossForgeException& e) {
+				SLogger::logException(e);
+				return;
+			}
+			catch (...) {
+				SLogger::log("Unknown exception occurred during building of index buffer!");
+				return;
+			}
 		}
 	}
 
-	void LODActor::bindLODLevel(uint32_t level) {
+	void LODActor::bindLODLevel(uint32_t level) { // TODO m_VertexArray
 		if (level == m_LODLevel)
 			return;
-		
-		m_VertexArray.unbind();
-		try {
-			m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, m_VertexBuffers[level], m_VertexBufferSizes[level]);
-		}
-		catch (CrossForgeException& e) {
-			SLogger::logException(e);
-			return;
-		}
-		catch (...) {
-			SLogger::log("Unknown exception occurred during vertex buffer creation!");
-			return;
-		}
-
-		// build render groups and element array
-		try {
-			m_ElementBuffer.init(GLBuffer::BTYPE_INDEX, GLBuffer::BUSAGE_STATIC_DRAW, m_ElementBuffers[level], m_ElementBufferSizes[level]);
-		}
-		catch (CrossForgeException& e) {
-			SLogger::logException(e);
-			return;
-		}
-		catch (...) {
-			SLogger::log("Unknown exception occurred during building of index buffer!");
-			return;
-		}
-		
-		m_VertexArray.bind();
-		setBufferData();
-		m_VertexArray.unbind();
-		
 		m_LODLevel = level;
+		
+		if (storeOnVRAM) {
+			m_pVertexArray = m_pVertexArrays[level];
+			m_pVertexArray->bind();
+			setBufferData();
+			m_pVertexArray->unbind();
+		} else {
+			m_pVertexArray->unbind();
+			try {
+				m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, m_VertexBuffers[level], m_VertexBufferSizes[level]);
+			}
+			catch (CrossForgeException& e) {
+				SLogger::logException(e);
+				return;
+			}
+			catch (...) {
+				SLogger::log("Unknown exception occurred during vertex buffer creation!");
+				return;
+			}
+
+			// build render groups and element array
+			try {
+				m_ElementBuffer.init(GLBuffer::BTYPE_INDEX, GLBuffer::BUSAGE_STATIC_DRAW, m_ElementBuffers[level], m_ElementBufferSizes[level]);
+			}
+			catch (CrossForgeException& e) {
+				SLogger::logException(e);
+				return;
+			}
+			catch (...) {
+				SLogger::log("Unknown exception occurred during building of index buffer!");
+				return;
+			}
+		
+			m_pVertexArray->bind();
+			setBufferData();
+			m_pVertexArray->unbind();
+		}
 	}
 
 	uint32_t LODActor::getLODLevel() {
@@ -229,7 +281,7 @@ namespace CForge {
 	void LODActor::clear(void) {
 		m_VertexBuffer.clear();
 		m_ElementBuffer.clear();
-		m_VertexArray.clear();
+		m_pVertexArray->clear();
 
 		m_VertexUtility.clear();
 		m_RenderGroupUtility.clear();
@@ -251,6 +303,27 @@ namespace CForge {
 			if (nullptr != m_ElementBuffers[i]) {
 				delete m_ElementBuffers[i];
 				m_ElementBuffers[i] = nullptr;
+			}
+		}
+		
+		if (storeOnVRAM) {
+			for (uint32_t i = 0; i < m_pVertexArrays.size(); i++) {
+				if (nullptr != m_pVertexArrays[i]) {
+					delete m_pVertexArrays[i];
+					m_pVertexArrays[i] = nullptr;
+				}
+			}
+			for (uint32_t i = 0; i < m_pVertexBuffers.size(); i++) {
+				if (nullptr != m_pVertexBuffers[i]) {
+					delete m_pVertexBuffers[i];
+					m_pVertexBuffers[i] = nullptr;
+				}
+			}
+			for (uint32_t i = 0; i < m_pElementBuffers.size(); i++) {
+				if (nullptr != m_pElementBuffers[i]) {
+					delete m_pElementBuffers[i];
+					m_pElementBuffers[i] = nullptr;
+				}
 			}
 		}
 	}//Clear
@@ -282,7 +355,7 @@ namespace CForge {
 				if (m_instancedMatRef[j]->size() > 0) {
 					
 					bindLODLevel(j);
-					m_VertexArray.bind();
+					m_pVertexArray->bind();
 					uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
 					
 					for (uint32_t k = 0; k < m_instancedMatRef[j]->size(); k += maxInstances) {
@@ -303,13 +376,9 @@ namespace CForge {
 						} //for [render groups]
 					} //for [maxInstances]
 				} //if [instances exist]
-				//if (pRDev->activePass() != RenderDevice::RENDERPASS_SHADOW)
-				//m_instancedMatRef[j]->clear();
 			}
-			//if (!m_isManualInstaned && pRDev->activePass() != RenderDevice::RENDERPASS_SHADOW)
-			//	m_instancedMatrices.clear();
 		} else {
-			m_VertexArray.bind();
+			m_pVertexArray->bind();
 			for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
 				if (i->pShader == nullptr) continue;
 				if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
@@ -319,7 +388,7 @@ namespace CForge {
 					pRDev->activeShader(i->pShader);
 					pRDev->activeMaterial(&i->Material);
 				}
-				glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
+				glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBufferSizes[m_LODLevel] / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
 			}//for[all render groups]
 		}
 		if (!m_faceCulling)
@@ -378,13 +447,23 @@ namespace CForge {
 				if (!fovCulling(pRDev, &m_instancedMatrices[i]))
 					continue;
 #ifndef SKIP_INSTANCED_QUERIES
-				pRDev->modelUBO()->modelMatrix(m_instancedMatrices[i]);
-				queryAABB(pRDev, m_instancedMatrices[i]);
+				if (pRDev->queriesReady()) {
+					pRDev->modelUBO()->modelMatrix(m_instancedMatrices[i]);
+					queryAABB(pRDev, m_instancedMatrices[i]);
+				}
 #else
-				m_instancedMatRef[0]->push_back(m_instancedMatrices[i]);
-				if (!this->isInLODSG()) {
-					pRDev->LODSGPushBack(this, Eigen::Matrix4f::Identity());
-					this->setLODSG(true);
+				if (pRDev->queriesReady()) {
+					m_instancedMatRef[0]->push_back(m_instancedMatrices[i]);
+					if (!this->isInQueryContainer()) {
+						RenderDevice::LODQueryContainer container;
+						container.pixelCount = UINT32_MAX;
+						container.queryID = 0;
+						container.pActor = this;
+						container.transform = Eigen::Matrix4f::Identity();
+						pRDev->LODQueryContainerPushBack(container);
+						//pRDev->LODSGPushBack(this, Eigen::Matrix4f::Identity());
+						this->setQSG(true);
+					}
 				}
 #endif
 			}
@@ -393,20 +472,30 @@ namespace CForge {
 			if (!fovCulling(pRDev, &sgMat))
 				return;
 #ifndef SKIP_INSTANCED_QUERIES
-			queryAABB(pRDev, sgMat);
+			if (pRDev->queriesReady())
+				queryAABB(pRDev, sgMat);
 #else
-			m_instancedMatrices.push_back(sgMat);
-			m_instancedMatRef[0]->push_back(m_instancedMatrices.at(m_instancedMatrices.size()-1));
-			if (!this->isInLODSG()) {
-				pRDev->LODSGPushBack(this, Eigen::Matrix4f::Identity());
-				this->setLODSG(true);
+			if (pRDev->queriesReady()) {
+				m_instancedMatrices.push_back(sgMat);
+				m_instancedMatRef[0]->push_back(m_instancedMatrices.at(m_instancedMatrices.size()-1));
+				if (!this->isInQueryContainer()) {
+					RenderDevice::LODQueryContainer container;
+					container.pixelCount = UINT32_MAX;
+					container.queryID = 0;
+					container.pActor = this;
+					container.transform = Eigen::Matrix4f::Identity();
+					pRDev->LODQueryContainerPushBack(container);
+					//pRDev->LODSGPushBack(this, Eigen::Matrix4f::Identity());
+					this->setQSG(true);
+				}
 			}
 #endif
 		}
 		else {
 			if (!fovCulling(pRDev, &sgMat))
 				return;
-			queryAABB(pRDev, sgMat);
+			if (pRDev->queriesReady())
+				queryAABB(pRDev, sgMat);
 		}
 	}
 	
@@ -416,14 +505,12 @@ namespace CForge {
 		glBeginQuery(GL_SAMPLES_PASSED, queryID);
 
 		if (!glIsQuery(queryID)) {
+			CForgeExcept("query generation failed");
 			// fetch current queries if no more are available
 			pRDev->fetchQueryResults();
 			glGenQueries(1, &queryID);
 			glBeginQuery(GL_SAMPLES_PASSED, queryID);
 		}
-
-		//if (!glIsQuery(queryID))
-		//	CForgeExcept("could not generate gl query");
 		
 		pRDev->LODQueryContainerPushBack(queryID, this, transform);
 	
@@ -588,10 +675,6 @@ namespace CForge {
 		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
 
 		float aabbRadius = getAABBradius(*mat);
-		//float distance = (Translation - pRDev->activeCamera()->position()).norm() - aabbRadius;
-		////std::cout << distance << "\n";
-		//if (distance < 0.0)
-		//	return true;
 		
 		// TODO function?
 		Eigen::Affine3f affine(*mat);
@@ -603,6 +686,9 @@ namespace CForge {
 		
 		Eigen::Vector3f center = scaledAABBMin*0.5+scaledAABBMax*0.5;
 		Eigen::Vector3f camPosToObj = Translation+center-pRDev->activeCamera()->position();
+		
+		if (camPosToObj.norm()-aabbRadius < 0.0)
+			return true;
 		
 		float BSborderAngle = 2.0*std::asin(aabbRadius/(2.0*camPosToObj.norm()));
 		
@@ -626,4 +712,55 @@ namespace CForge {
 	std::vector<T3DMesh<float>*> LODActor::getLODMeshes() {
 		return m_LODMeshes;
 	}
+
+	void LODActor::setBufferData(void) {
+
+		// bind array and index buffer
+		if (storeOnVRAM) {
+			m_pVertexBuffers[m_LODLevel]->bind();
+			m_pElementBuffers[m_LODLevel]->bind();
+		} else {
+			m_VertexBuffer.bind();
+			m_ElementBuffer.bind();
+		}
+		// position array
+		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_POSITION)) {
+			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION));
+			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)(m_VertexUtility.offset(VertexUtility::VPROP_POSITION)));
+		}
+
+		// normal array
+		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_NORMAL)) {
+			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_NORMAL));
+			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_NORMAL), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)m_VertexUtility.offset(VertexUtility::VPROP_NORMAL));
+		}
+
+		// tangent array
+		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_TANGENT)) {
+			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_TANGENT));
+			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_TANGENT), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)m_VertexUtility.offset(VertexUtility::VPROP_TANGENT));
+		}
+
+		// texture coordinates
+		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_UVW)) {
+			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW));
+			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)m_VertexUtility.offset(VertexUtility::VPROP_UVW));
+		}
+
+		// vertex colors
+		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_COLOR)) {
+			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_COLOR));
+			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_COLOR), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)m_VertexUtility.offset(VertexUtility::VPROP_COLOR));
+		}
+
+		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_BONEINDICES)) {
+			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_INDICES));
+			glVertexAttribIPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_INDICES), 4, GL_INT, m_VertexUtility.vertexSize(), (const void*)m_VertexUtility.offset(VertexUtility::VPROP_BONEINDICES));
+		}
+
+		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_BONEWEIGHTS)) {
+			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_WEIGHTS));
+			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_WEIGHTS), 4, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (const void*)m_VertexUtility.offset(VertexUtility::VPROP_BONEWEIGHTS));
+		}
+	}//setBufferData
 }

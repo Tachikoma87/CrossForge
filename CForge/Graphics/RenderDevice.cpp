@@ -151,8 +151,17 @@ namespace CForge {
 			// automatic instanced rendering
 			// TODO make aabb mesh global instead of per actor?
 			if (pActor->className().compare("IRenderableActor::LODActor") != 0) {
-				m_LODSGActors.push_back(pActor);
-				m_LODSGTransformations.push_back(ModelMat);
+				if (m_queriesReady) {
+					LODQueryContainer container;
+					container.pixelCount = UINT32_MAX;
+					container.queryID = 0;
+					container.pActor = pActor;
+					container.transform = ModelMat;
+					LODQueryContainers.push_back(container);
+					
+					/*m_LODSGActors.push_back(pActor);
+					m_LODSGTransformations.push_back(ModelMat);*/
+				}
 			}
 			else {
 				pActor->testAABBvis(this, ModelMat);
@@ -565,7 +574,6 @@ namespace CForge {
 		}
 		m_LODSGActors.clear();
 		m_LODSGTransformations.clear();
-		LODQueryContainers.clear();
 	}
 
 	void RenderDevice::clearBuffer()
@@ -588,17 +596,29 @@ namespace CForge {
 			GLuint pixelCount;
 			GLint queryState;
 			GLuint queryID = queryContainer->queryID;
-			if (!glIsQuery(queryID) || queryContainer->pixelCount != 0)
+			if (queryID == 0)
 				continue;
+			
+			//if (!glIsQuery(queryID) || queryContainer->pixelCount != 0)
+			//	continue;
 			do {
 				glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
 			} while (!queryState);
+			
+			//glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
+			//if (!queryState) {
+			//	//TODO
+			//	m_queriesReady = false;
+			//	return;
+			//}
+
 			glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &pixelCount);
 			glDeleteQueries(1, &queryID);
 			
 			queryContainer->pixelCount = pixelCount;
 			queryContainer->queryID = 0;
 		}
+		m_queriesReady = true;
 	}
 
 	void RenderDevice::LODQueryContainerPushBack(GLuint queryID, IRenderableActor* pActor, Eigen::Matrix4f transform) {
@@ -608,10 +628,17 @@ namespace CForge {
 		container.transform = transform;
 		LODQueryContainers.push_back(container);
 	}
+
+	void RenderDevice::LODQueryContainerPushBack(LODQueryContainer container) {
+		LODQueryContainers.push_back(container);
+	}
 	
 	void RenderDevice::LODSG_assemble() {
 		fetchQueryResults();
+		/*if (!m_queriesReady)
+			return;*/
 		//printf("\n");
+		//LODSG_clear();
 		for (uint32_t i = 0; i < LODQueryContainers.size(); i++) {
 			LODQueryContainer* cont = &LODQueryContainers[i];
 			IRenderableActor* pActor = cont->pActor;
@@ -646,7 +673,9 @@ namespace CForge {
 				cont->pActor->setLODSG(true);
 				m_LODSGActors.push_back(cont->pActor);
 			}
+			cont->pActor->setQSG(false);
 		}
+		LODQueryContainers.clear();
 	}
 	
 	void RenderDevice::LODSGPushBack(IRenderableActor* pActor, Eigen::Matrix4f mat) {
@@ -660,5 +689,9 @@ namespace CForge {
 
 	std::vector<Eigen::Matrix4f> RenderDevice::getLODSGTrans() {
 		return m_LODSGTransformations;
+	}
+
+	bool RenderDevice::queriesReady() {
+		return m_queriesReady;
 	}
 }//name space

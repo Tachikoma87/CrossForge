@@ -280,7 +280,7 @@ namespace CForge {
 			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
 			PPQuad.render(&RDev);
 			
-			RDev.LODSG_clear();
+			//RDev.LODSG_clear();
 			
 			RDev.PPBufferFinalize();
 			RenderWin.swapBuffers();
