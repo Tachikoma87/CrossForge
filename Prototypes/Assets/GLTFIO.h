@@ -142,7 +142,7 @@ class GLTFIO {
 			}
 		}
 
-		void getSparseAccessorData(const int accessor, std::vector<int32_t>* pIndices, std::vector<std::vector<float>>* pData);
+		int32_t getSparseAccessorData(const int accessor, std::vector<int32_t>* pIndices, std::vector<std::vector<float>>* pData);
 
 		void getAccessorDataFloat(const int accessor, std::vector<std::vector<float>>* pData);
 		

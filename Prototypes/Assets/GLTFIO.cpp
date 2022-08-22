@@ -155,6 +155,7 @@ namespace CForge {
 		pMesh->normals(pNormal);
 		pMesh->tangents(pTangent);
 		pMesh->textureCoordinates(pTexCoord);
+		pMesh->textureCoordinates(pTexCoord);
 	}
 
 	void GLTFIO::readPrimitive(Primitive* pPrimitive) {
@@ -170,7 +171,7 @@ namespace CForge {
 			if (keyValuePair.first == "POSITION") {
 				std::vector<std::vector<float>> positions;
 				getAccessorData(keyValuePair.second, &positions);
-
+				
 				for (auto pos : positions) {
 					Eigen::Matrix<float, 3, 1> mat;
 
@@ -564,7 +565,74 @@ namespace CForge {
 	}
 
 	void GLTFIO::readMorphTargets() {
+		int offset_index = 0;
 		
+		for (auto m : model.meshes) {
+			for (auto p : m.primitives) {
+				for (auto t : p.targets) {
+					T3DMesh<float>::MorphTarget* pMorphtTarget = new T3DMesh<float>::MorphTarget;
+
+					pMorphtTarget->ID = offset_index;
+
+					int32_t buff_view = -1;
+					
+					for (auto keyValuePair : t) {
+						if (keyValuePair.first == "POSITION") {
+							std::vector<std::vector<float>> data;
+							std::vector<Eigen::Vector3f> position_offsets;
+							std::vector<int32_t> indices;
+							
+							int32_t index_buff_view = getSparseAccessorData(keyValuePair.second, &indices, &data);
+							toVec3f(&data, &position_offsets);
+							
+							pMorphtTarget->VertexOffsets = position_offsets;
+
+							if (buff_view == -1) {
+								buff_view = index_buff_view;
+								
+								int32_t offset = 0;
+								for (int i = 0; i < offset_index; i++) offset += offsets[i];
+
+								for (int i = 0; i < indices.size(); i++) indices[i] += offset;
+
+								pMorphtTarget->VertexIDs = indices;
+							}
+							else if (buff_view != index_buff_view) {
+								std::cout << "Morph target vertex indices are not in the same buffer view." << std::endl;
+							}
+						}
+						else if (keyValuePair.first == "NORMAL") {
+							std::vector<std::vector<float>> data;
+							std::vector<Eigen::Vector3f> normal_offsets;
+							std::vector<int32_t> indices;
+							
+							int32_t index_buff_view = getSparseAccessorData(keyValuePair.second, &indices, &data);
+							toVec3f(&data, &normal_offsets);
+							
+							pMorphtTarget->NormalOffsets = normal_offsets;
+
+							if (buff_view == -1) {
+								buff_view = index_buff_view;
+
+								int32_t offset = 0;
+								for (int i = 0; i < offset_index; i++) offset += offsets[i];
+
+								for (int i = 0; i < indices.size(); i++) indices[i] += offset;
+
+								pMorphtTarget->VertexIDs = indices;
+							}
+							else if (buff_view != index_buff_view) {
+								std::cout << "Morph target vertex indices are not in the same buffer view." << std::endl;
+							}
+						}
+					}
+					
+					pMesh->addMorphTarget(pMorphtTarget, false);
+				}
+				
+				offset_index += 1;
+			}
+		}
 	}
 
 	void GLTFIO::readNodes() {
@@ -980,13 +1048,15 @@ namespace CForge {
 		return (Filepath.find(".glb") != std::string::npos || Filepath.find(".gltf") != std::string::npos);
 	}//accepted
 
-	void GLTFIO::getSparseAccessorData(const int accessor, std::vector<int32_t>* pIndices, std::vector<std::vector<float>>* pData) {
+
+	//returns indices buffer view to identify index data
+	int32_t GLTFIO::getSparseAccessorData(const int accessor, std::vector<int32_t>* pIndices, std::vector<std::vector<float>>* pData) {
 		Accessor acc = model.accessors[accessor];
 		
 		if (!acc.sparse.isSparse) {
 			std::cout << "Accessor is not sparse" << std::endl;
 			
-			return;
+			return -1;
 		}
 
 		int component_count = componentCount(acc.type);
@@ -1046,6 +1116,8 @@ namespace CForge {
 		//read value data
 
 		readBuffer(value_buff.data.data(), acc.sparse.count, acc.byteOffset + value_byte_offset, component_count, componentIsMatrix(acc.type), 0, pData);
+
+		return acc.sparse.indices.bufferView;
 	}
 	
 	//reads normalized integers and returns floats
