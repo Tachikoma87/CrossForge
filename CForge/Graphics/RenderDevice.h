@@ -193,6 +193,7 @@ namespace CForge {
 		std::vector<Eigen::Matrix4f> m_LODSGTransformations;
 
 		std::vector<LODQueryContainer> LODQueryContainers;
+		CForge::PPBuffer* m_PPBuffera;
 		CForge::PPBuffer m_PPBuffer1;
 		CForge::PPBuffer m_PPBuffer2;
 		bool m_PP1TexBound = true;
