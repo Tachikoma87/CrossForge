@@ -159,6 +159,11 @@ class GLTFIO {
 		void getAccessorData(const int accessor, std::vector<Eigen::Quaternionf>* pData);
 		
 		template<class T>
+		void writeBuffer(unsigned char* pBuffer, const int element_count, const int offset, const int component_count, const bool is_matrix, const int stride, std::vector<T>* pData) {
+			
+		}
+
+		template<class T>
 		void writeAccessorDataScalar(const int bufferIndex, const int componentType, std::vector<T>* pData) {
 			std::cout << "write accessor size: " << pData->size() << ", scalar" << std::endl;
 			

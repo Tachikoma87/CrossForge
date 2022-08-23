@@ -1019,6 +1019,10 @@ namespace CForge {
 
 			newNode.name = pBone->Name;
 			
+			newNode.translation.push_back(pBone->Position(0));
+			newNode.translation.push_back(pBone->Position(1));
+			newNode.translation.push_back(pBone->Position(2));
+			
 			model.nodes.push_back(newNode);
 		}
 
@@ -1287,6 +1291,8 @@ namespace CForge {
 
 //TODO
 /*
+* writeSparseAccessorData
+* writeBuffer zur Vereinfachung
 * Wo muss Rotation und Scale pro Node hin? Bone hat nur Position und Offsetmatrix.
 * Skelettanimationen schreiben.
 * Morph targets schreiben.
