@@ -601,16 +601,16 @@ namespace CForge {
 			
 			//if (!glIsQuery(queryID) || queryContainer->pixelCount != 0)
 			//	continue;
-			do {
+			/*do {
 				glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
-			} while (!queryState);
+			} while (!queryState);*/
 			
-			//glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
-			//if (!queryState) {
-			//	//TODO
-			//	m_queriesReady = false;
-			//	return;
-			//}
+			glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
+			if (!queryState) {
+				//TODO
+				m_queriesReady = false;
+				return;
+			}
 
 			glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &pixelCount);
 			glDeleteQueries(1, &queryID);
@@ -635,10 +635,10 @@ namespace CForge {
 	
 	void RenderDevice::LODSG_assemble() {
 		fetchQueryResults();
-		/*if (!m_queriesReady)
-			return;*/
+		if (!m_queriesReady)
+			return;
 		//printf("\n");
-		//LODSG_clear();
+		LODSG_clear();
 		for (uint32_t i = 0; i < LODQueryContainers.size(); i++) {
 			LODQueryContainer* cont = &LODQueryContainers[i];
 			IRenderableActor* pActor = cont->pActor;
