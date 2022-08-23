@@ -41,7 +41,7 @@ const float SEA_HEIGHT = 0.6;
 const float SEA_CHOPPY = 4.0;
 const float SEA_SPEED = 0.8;
 const float SEA_FREQ = 0.16;
-const vec3 SEA_BASE = vec3(0.0,0.09,0.18);
+vec3 SEA_BASE = vec3(0.0,0.09,0.18);
 const vec3 SEA_WATER_COLOR = vec3(0.8,0.9,0.6)*0.6;
 #define SEA_TIME (1.0 + uTime * SEA_SPEED)
 const mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
@@ -135,8 +135,8 @@ vec3 getSeaColor(vec3 p, vec3 n, vec3 l, vec3 eye, vec3 dist) {
 	float fresnel = clamp(1.0 - dot(n,-eye), 0.0, 1.0);
 	fresnel = pow(fresnel,3.0) * 0.5;
 		
-	vec3 reflected = vec3(0.37, 0.55, 1.0); //getSkyColor(reflect(eye,n));
-	vec3 refracted = SEA_BASE + diffuse(n,l,80.0) * SEA_WATER_COLOR * 0.12; 
+	vec3 reflected = (SEA_BASE.y/0.18+SEA_BASE.z/0.36)*vec3(0.37, 0.55, 1.0); //getSkyColor(reflect(eye,n));
+	vec3 refracted = SEA_BASE + diffuse(n,l,80.0) * SEA_WATER_COLOR * 0.12;
 	
 	vec3 color = mix(refracted,reflected,fresnel);
 	
@@ -657,6 +657,9 @@ void main(){
 
 	vec3 rayDir = normalize(camSide*ndc.x + camUp*ndc.y + camDir*focus);
 	
+	float sDot = abs(dot(sunDir,vec3(0.0,1.0,0.0)));
+	SEA_BASE *= sDot;
+	
 	//FragColor = raymarch(rayDir, camPos);
 	
 	float distScene = length(geoWorldPos - camPos);
@@ -747,7 +750,6 @@ void main(){
 	
 	/////////////////////////////////////////////////////////////////////////// OCEAN
 	
-	float sDot = abs(dot(sunDir,vec3(0.0,1.0,0.0)));
 	lightColor = lightColor*sDot + (1.0-sDot)*vec3(1.0,0.584,0.0);
 	// color
 	vec3 oceanCol = mix(sscSky.xyz, getSeaColor(sign(camPos.y)*p,sign(camPos.y)*n,sign(camPos.y)*light,sign(camPos.y)*dir,dist), pow(smoothstep(0.0,-0.02,sign(camPos.y)*dir.y),0.2));
@@ -759,7 +761,7 @@ void main(){
 		oceanCol = oceanCol*distDiff + col.xyz*(1.0-distDiff);
 		
 		// fake SSR
-		if (distDiff > 0.0 && camPos.y > 0.0) {
+		if (distDiff > 0.0 && camPos.y > 0.0 && waterDist < 5000.0) {
 			// interpolate plane normal with ocean normal
 			float u = abs(dot(camDir,vec3(0.0,1.0,0.0)));
 			float quadinterp = pow(u-0.5,2)*2.0+0.5;

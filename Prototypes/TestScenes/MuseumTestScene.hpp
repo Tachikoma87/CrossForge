@@ -400,6 +400,9 @@ public:
 		TextWidget* fpsWidget = gui.createPlainText();
 		fpsWidget->setTextAlign(TextWidget::ALIGN_RIGHT);
 		
+		double FPSTmean = 0.0;
+		uint64_t FPSTCount = 0;
+		
 		while (!RenderWin.shutdown()) {
 			RDev.clearBuffer();
 			RenderWin.update();
@@ -472,6 +475,9 @@ public:
 			RenderWin.swapBuffers();
 			
 			//RDev.LODSG_clear();
+
+			FPSTCount++;
+			FPSTmean += pSLOD->getDeltaTime();
 			
 			FPSCount++;
 			FPSmean += pSLOD->getDeltaTime();
@@ -506,7 +512,9 @@ public:
 			delete museumSGNG[i];
 			delete museumSGNT[i];
 		}
-
+		
+		FPSTmean /= FPSTCount;
+		std::cout << "FPSTmean: " << FPSTmean << "\n";
 	}//exampleMinimumGraphicsSetup
 
 	void listen ( const GUICallbackObject Msg ) override {
