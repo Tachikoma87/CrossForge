@@ -911,26 +911,16 @@ namespace CForge {
 		std::vector<std::vector<float>> data;
 
 		pPrimitive->attributes.emplace("POSITION", accessorIndex++);
-		for (auto pos : coord) {
-			std::vector<float> tmp;
-			for (int i = 0; i < 3; i++) {
-				tmp.push_back(pos(i));
-			}
-			data.push_back(tmp);
-		}
+
+		fromVec3f(&coord, &data);
 
 		writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC3, &data);
 		data.clear();
 		
 		if (normal.size() > 0) {
 			pPrimitive->attributes.emplace("NORMAL", accessorIndex++);
-			for (auto n : normal) {
-				std::vector<float> tmp;
-				for (int i = 0; i < 3; i++) {
-					tmp.push_back(n(i));
-				}
-				data.push_back(tmp);
-			}
+			
+			fromVec3f(&normal, &data);
 
 			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC3, &data);
 			data.clear();
@@ -938,31 +928,17 @@ namespace CForge {
 		
 		if (tangent.size() > 0) {
 			pPrimitive->attributes.emplace("TANGENT", accessorIndex++);
-			for (auto t: tangent) {
-				std::vector<float> tmp;
-				for (int i = 0; i < 3; i++) {
-					tmp.push_back(t(i));
-				}
-				data.push_back(tmp);
-			}
+			
+			fromVec3f(&tangent, &data);
 
 			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC3, &data);
 			data.clear();
 		}
 		
 		if (texCoord.size() > 0) {
-			int count = 0;
 			pPrimitive->attributes.emplace("TEXCOORD_0", accessorIndex++);
-			for (auto tex : texCoord) {
-				std::vector<float> tmp;
-				for (int i = 0; i < 2; i++) {
-					tmp.push_back(tex(i));
-					if (count == 0) std::cout << tex(i) << " ";
-				}
-				data.push_back(tmp);
-				if (count == 0) std::cout << std::endl;
-				count++;
-			}
+			
+			fromVec3f(&texCoord, &data);
 
 			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC2, &data);
 			data.clear();
@@ -970,13 +946,8 @@ namespace CForge {
 
 		if (color.size() > 0) {
 			pPrimitive->attributes.emplace("COLOR_0", accessorIndex++);
-			for (auto c : color) {
-				std::vector<float> tmp;
-				for (int i = 0; i < 4; i++) {
-					tmp.push_back(c(i));
-				}
-				data.push_back(tmp);
-			}
+			
+			fromVec4f(&color, &data);
 
 			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC4, &data);
 			data.clear();
@@ -1037,7 +1008,29 @@ namespace CForge {
 	}
 
 	void GLTFIO::writeNodes() {
+		std::map<T3DMesh<float>::Bone*, int> boneMap;
 		
+		for (int i = 0; i < pCMesh->boneCount(); i++) {
+			Node newNode;
+			
+			auto pBone = pCMesh->getBone(i);
+
+			boneMap.emplace(pBone, i);
+
+			newNode.name = pBone->Name;
+			
+			model.nodes.push_back(newNode);
+		}
+
+		//Do a second pass to set node children.
+
+		for (int i = 0; i < model.nodes.size(); i++) {
+			auto pBone = pCMesh->getBone(i);
+
+			for (auto c : pBone->Children) {
+				model.nodes[i].children.push_back(boneMap[c]);
+			}
+		}
 	}
 
 	void GLTFIO::release(void) {
@@ -1258,4 +1251,46 @@ namespace CForge {
 			pOut->push_back(quat);
 		}
 	}
+
+	void GLTFIO::fromVec3f(std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut) {
+		for (auto e : *pIn) {
+			std::vector<float> toAdd;
+			toAdd.push_back(e(0));
+			toAdd.push_back(e(1));
+			toAdd.push_back(e(2));
+			pOut->push_back(toAdd);
+		}
+	}
+
+	void GLTFIO::fromVec4f(std::vector<Eigen::Vector4f>* pIn, std::vector<std::vector<float>>* pOut) {
+		for (auto e : *pIn) {
+			std::vector<float> toAdd;
+			toAdd.push_back(e(0));
+			toAdd.push_back(e(1));
+			toAdd.push_back(e(2));
+			toAdd.push_back(e(3));
+			pOut->push_back(toAdd);
+		}
+	}
+
+	void GLTFIO::fromQuatf(std::vector<Eigen::Quaternionf>* pIn, std::vector<std::vector<float>>* pOut) {
+		for (auto e : *pIn) {
+			std::vector<float> toAdd;
+			toAdd.push_back(e.x());
+			toAdd.push_back(e.y());
+			toAdd.push_back(e.z());
+			toAdd.push_back(e.w());
+			pOut->push_back(toAdd);
+		}
+	}
 }//name space
+
+//TODO
+/*
+* Wo muss Rotation und Scale pro Node hin? Bone hat nur Position und Offsetmatrix.
+* Skelettanimationen schreiben.
+* Morph targets schreiben.
+* Eingebettete Texturen unterstützen.
+* Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes?
+* Was passiert mit morph target Attributen mit unterschiedlichen Indices?
+*/

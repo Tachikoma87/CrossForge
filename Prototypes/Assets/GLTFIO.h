@@ -47,6 +47,12 @@ class GLTFIO {
 
 		static void toQuatf(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Quaternionf>* pOut);
 
+		static void fromVec3f(std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut);
+
+		static void fromVec4f(std::vector<Eigen::Vector4f>* pIn, std::vector<std::vector<float>>* pOut);
+
+		static void fromQuatf(std::vector<Eigen::Quaternionf>* pIn, std::vector<std::vector<float>>* pOut);
+
 	protected:
 		std::string filePath;
 
