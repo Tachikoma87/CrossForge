@@ -1015,7 +1015,8 @@ namespace CForge {
 			
 			auto pBone = pCMesh->getBone(i);
 
-			boneMap.emplace(pBone, i);
+			//TODO Fehler beheben
+			//boneMap.emplace(pBone, i);
 
 			newNode.name = pBone->Name;
 			
