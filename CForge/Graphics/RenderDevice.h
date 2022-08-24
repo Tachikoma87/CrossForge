@@ -120,11 +120,19 @@ namespace CForge {
 		// blits PPBuffer to zero
 		void PPBufferFinalize();
 		//
+		struct LODQueryContainer {
+			GLuint queryID = 0;
+			IRenderableActor* pActor;
+			Eigen::Matrix4f transform;
+			GLint pixelCount = -1;
+		};
+
 		void LODSG_render();
 		void clearBuffer();
 		void setModelMatrix(Eigen::Matrix4f matrix);
 		UBOInstancedData* getInstancedUBO();
 		void LODQueryContainerPushBack(GLuint queryID, IRenderableActor* pActor, Eigen::Matrix4f transform);
+		void LODQueryContainerPushBack(LODQueryContainer container);
 		void fetchQueryResults();
 		void LODSGPushBack(IRenderableActor* pActor, Eigen::Matrix4f mat);
 		
@@ -177,12 +185,6 @@ namespace CForge {
 
 		ActiveLight* findActiveLight(ILight* pLight);
 		// container assigning an actor <-> transform a query
-		struct LODQueryContainer {
-			GLuint queryID = 0;
-			IRenderableActor* pActor;
-			Eigen::Matrix4f transform;
-			uint32_t pixelCount = 0;
-		};
 		
 		// SceneGraph actors and transformations for rendering
 		std::vector<IRenderableActor*> m_LODSGActors;

@@ -23,6 +23,7 @@
 #include "RenderGroupUtility.h"
 #include "../GLBuffer.h"
 #include "../GLVertexArray.h"
+#include <glad/glad.h>
 
 namespace CForge {
 
@@ -53,7 +54,7 @@ namespace CForge {
 		virtual T3DMesh<float>::AABB getAABB();
 		virtual void bindLODLevel(uint32_t level);
 		//virtual std::vector<float> getLODStages();
-		virtual void evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount);
+		virtual void evaluateQueryResult(Eigen::Matrix4f mat, GLint pixelCount);
 		bool isInstanced();
 		bool isManualInstanced();
 
@@ -63,7 +64,8 @@ namespace CForge {
 		void setLODSG(bool inside);
 		virtual void clearMatRef();
 
-		float getAABBradius(const Eigen::Matrix4f& mat);
+		inline float getAABBradius(const Eigen::Matrix4f& mat);
+		inline Eigen::Vector3f getAABBcenter(const Eigen::Matrix4f& mat);
 		//
 		
 	protected:

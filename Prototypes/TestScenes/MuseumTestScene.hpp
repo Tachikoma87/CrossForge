@@ -57,7 +57,8 @@ using namespace Eigen;
 using namespace std;
 
 using namespace CForge;
-#define THREADS 2
+#define THREADS 6
+#define LOD_RENDERING true // make sure to change the corresponding macro in LODActor.cpp
 
 class MuseumTestScene : public ITListener<GUICallbackObject> {
 public:
@@ -127,6 +128,7 @@ public:
 		// create an OpenGL capable windows
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
+		glfwSwapInterval(0);
 		gladLoadGL();
 
 		// configure and initialize rendering pipeline
@@ -289,7 +291,9 @@ public:
 							*pActor = newAct;
 							generationThreads[i] = std::thread([=] {
 								LODHandler().loadLODmeshes(newAct, entry.path().string(), *pSLOD->getLevels(), std::vector<float>());
+#if LOD_RENDERING
 								newAct->calculateLODPercentages();
+#endif
 								*done = true;
 							});
 							
@@ -305,8 +309,12 @@ public:
 		for (uint32_t i = 0; i < THREADS; i++) {
 			if (generationThreads[i].joinable()) {
 				generationThreads[i].join();
+#if LOD_RENDERING
 				generationThreadActors[i]->initiateLODBuffers();
+#endif
 				generationThreadActors[i]->freeLODMeshes();
+				delete meshes[i];
+				meshes[i] = nullptr;
 				generationThreadActors[i] = nullptr;
 			}
 		}
@@ -316,15 +324,16 @@ public:
 		//	newAct->initiateLODBuffers();
 		//	newAct->freeLODMeshes();
 		//}
-		for (uint32_t i = 0; i < meshes.size(); i++) {
-			delete meshes[i];
-			meshes[i] = nullptr;
-		}
 		
 		// stuff for performance monitoring
 		uint64_t LastFPSPrint = CoreUtility::timestamp();
+		uint64_t FPSTCount = 0;
+		double FPSTmean = 0.0;
+
 		int32_t FPSCount = 0;
 		float FPSmean = 0.0;
+		double prevFPS = -1.0;
+		double FPSTerr = 0.0;
 
 		std::string GLError = "";
 		GraphicsUtility::checkGLError(&GLError);
@@ -351,7 +360,7 @@ public:
 		form->setStepSize ( GUI_CAMERA_PANNING, 0.5f );
 		form->setDefault ( GUI_CAMERA_PANNING, cameraPanningAcceleration );
 		form->addOption ( GUI_LODOFFSET, INPUTTYPE_RANGESLIDER, U"LOD Offest" );
-		form->setLimit ( GUI_LODOFFSET, 0.0f, (float) WinWidth*WinHeight );
+		form->setLimit ( GUI_LODOFFSET, 0.0f, 100.0 );
 		form->setStepSize ( GUI_LODOFFSET, 1.0f ); // TODO
 		form->setDefault ( GUI_LODOFFSET, (float) pSLOD->TriangleSize );
 //         form->addOption ( 7, INPUTTYPE_RANGESLIDER, U"Field of View" );
@@ -420,28 +429,36 @@ public:
 			//Sun.retrieveDepthBuffer(&shadowBufTex);
 			//AssetIO::store("testMeshOut.jpg",&shadowBufTex);
 			//return;
-
+#if LOD_RENDERING
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			RDev.activePass(RenderDevice::RENDERPASS_LOD);
 			SG.render(&RDev);
 
 			RDev.LODSG_assemble();
+#endif
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-			glDisable(GL_CULL_FACE);
+#if LOD_RENDERING
 			RDev.LODSG_render();
-			glEnable(GL_CULL_FACE);
+#else
+			SG.render(&RDev);
+#endif
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			if (Wireframe) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				glLineWidth(1);
 			}
+#if LOD_RENDERING
 			RDev.LODSG_render();
+#else
+			SG.render(&RDev);
+#endif
 			if (Wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 			
+#if LOD_RENDERING
 			//render debug aabb
 			if (renderLODAABB) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -460,6 +477,7 @@ public:
 				glEnable(GL_CULL_FACE);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
+#endif
 			
 			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
 			ppquad.render(&RDev);
@@ -471,10 +489,17 @@ public:
 			RDev.PPBufferFinalize();
 			RenderWin.swapBuffers();
 			
+#if LOD_RENDERING
 			RDev.LODSG_clear();
-			
+#endif
 			FPSCount++;
 			FPSmean += pSLOD->getDeltaTime();
+			
+			FPSTCount++;
+			FPSTmean += pSLOD->getDeltaTime();
+			if (prevFPS > 0.0) {
+				FPSTerr += abs(1.0/pSLOD->getDeltaTime() - 1.0/prevFPS);
+			}
 			if (CoreUtility::timestamp() - LastFPSPrint > 100U) {
 				
 				wchar_t text_wstring[100] = {0};
@@ -496,8 +521,16 @@ public:
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				RenderWin.closeWindow();
 			}
+			if (FPSTCount > 60)
+				prevFPS = pSLOD->getDeltaTime();
 		}//while[main loop]
-
+		
+		FPSTmean /= FPSTCount;
+		FPSTerr /= FPSTCount-61;
+		std::cout << "FPSTmean: " << FPSTmean << "\n";
+		std::cout << "FPSTerr: " << FPSTerr << "\n";
+		std::cout << "FPSTerr2: " << FPSTerr/(1.0/FPSTmean) << "\n";
+		
 		pSMan->release();
 		
 		//release museum actors
@@ -540,7 +573,7 @@ private:
 		GUI_FOV
 	};
 	bool Wireframe = false;
-	bool renderLODAABB = true;
+	bool renderLODAABB = false;
 	float cameraPanningAcceleration = 1;
 	SLOD* pSLOD;
 };

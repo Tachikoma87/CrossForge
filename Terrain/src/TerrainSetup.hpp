@@ -29,7 +29,8 @@ float CAM_FOV = 90.0;
 int WINWIDTH = 1920;
 int WINHEIGHT = 1080;
 #define FULLSCREEN false
-#define LOD false
+#define FOVCULLING true
+#define LOD_RENDERING false // make sure to change the corresponding macro in LODActor.cpp
 float cameraPanSpeed = 1.0;
 
 namespace Terrain {
@@ -55,7 +56,7 @@ public:
 		else
 			window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup", 0, 0, false);
         gladLoadGL();
-		//glfwSwapInterval(0);
+		glfwSwapInterval(0);
 
         string GLError;
         GraphicsUtility::checkGLError(&GLError);
@@ -404,6 +405,7 @@ public:
             //GRAPHICS SETTINGS
             cameraMode = *((int*)Msg.Data.at(GUI_CAMERAMODE).pData) == 2;
             shadows = *((bool*)Msg.Data.at(GUI_SHADOWS).pData);
+			ssao = *((bool*)Msg.Data.at(GUI_SSAO).pData);
             wireframe = *((bool*)Msg.Data.at(GUI_WIREFRAME).pData);
             renderGrass = *((bool*)Msg.Data.at(GUI_RENDERGRASS).pData);
             if (*((bool*)Msg.Data.at(GUI_UNLOCKEDFRAMERATE).pData)) {   //'unlock framerate'
@@ -452,9 +454,11 @@ public:
 
 		SLOD* pSLOD = SLOD::instance();
 		
-		if (!LOD) {
-			pSLOD->setLODLevels(std::vector<float>{1.0});
-		}
+#if LOD_RENDERING
+		
+#else
+		pSLOD->setLODLevels(std::vector<float>{1.0});
+#endif
 
         float cameraHeight = 2;
 
@@ -527,7 +531,7 @@ public:
 		//iGrassActor.m_castShadows = false;
 		iBushActor.init(&BushMesh, true, true);
 
-		if (LOD) {
+#if LOD_RENDERING
 			piPineActor->generateLODModells();
 			piPineLeavesActor->generateLODModells();
 			piPalmActor->generateLODModells();
@@ -536,7 +540,7 @@ public:
 			piTreeLeavesActor->generateLODModells();
 			piGrassActor->generateLODModells();
 			piRockActor->generateLODModells();
-		}
+#endif
 		
         //wind
 		Vector3f windVec = Vector3f(1, 0, 0);
@@ -584,6 +588,8 @@ public:
         form->setDropDownOptions(GUI_CAMERAMODE, cameraModes);
         form->addOption(GUI_SHADOWS, INPUTTYPE_BOOL, U"Enable Shadows");
         form->setDefault(GUI_SHADOWS, shadows);
+		form->addOption(GUI_SSAO, INPUTTYPE_BOOL, U"Enable SSAO");
+		form->setDefault(GUI_SSAO, ssao);
         form->addOption(GUI_WIREFRAME, INPUTTYPE_BOOL, U"Wireframe");
         form->setDefault(GUI_WIREFRAME, wireframe);
         form->addOption(GUI_RENDERGRASS, INPUTTYPE_BOOL, U"Enable Grass");
@@ -668,6 +674,12 @@ public:
         clock_t fps = 60;
 
         uint64_t LastFPS = CoreUtility::timestamp();
+		uint64_t FPSTCount = 0;
+		double FPSTmean = 0.0;
+		
+		double prevFPS = -1.0;
+		double FPSTerr = 0.0;
+		
 
         uint32_t ScreenshotNumber = 0;
 		
@@ -752,6 +764,7 @@ public:
 				map.renderMap(&renderDevice);
             }
 			
+#if FOVCULLING || LOD_RENDERING
 			renderDevice.activePass(RenderDevice::RENDERPASS_LOD);
 			iPineActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
 			iTreeActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
@@ -763,37 +776,53 @@ public:
 			iGrassActor.testAABBvis(&renderDevice, Eigen::Matrix4f::Zero());
 			
 			renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			
 			renderDevice.LODSG_assemble();
 			renderDevice.LODSG_render();
+#else
             //Deko instances
-            //iPineActor.render(&renderDevice);
-            //iTreeActor.render(&renderDevice);
-            //iPalmActor.render(&renderDevice);
-            //iRockActor.render(&renderDevice);
-            //iBushActor.render(&renderDevice);
-
+            iPineActor.render(&renderDevice);
+            iTreeActor.render(&renderDevice);
+            iPalmActor.render(&renderDevice);
+            iRockActor.render(&renderDevice);
+            iBushActor.render(&renderDevice);
+            iPineLeavesActor.render(&renderDevice);
+            iTreeLeavesActor.render(&renderDevice);
+            iPalmLeavesActor.render(&renderDevice);
+#endif
             glDisable(GL_CULL_FACE);
             if (renderGrass) {
                 updateGrass(iGrassActor, map, camera);
                 //iGrassActor.init(&GrassMesh);
                 iGrassActor.render(&renderDevice);
             }
-            //iPineLeavesActor.render(&renderDevice);
-            //iTreeLeavesActor.render(&renderDevice);
-            //iPalmLeavesActor.render(&renderDevice);
             glEnable(GL_CULL_FACE);
 			
 			renderDevice.activePass(RenderDevice::RENDERPASS_SHADOW, &sun);
 			if (sunDir.dot(Vector3f(0.0,1.0,0.0)) > 0.0 && shadows) {
 				map.renderMap(&renderDevice);
+
+#if FOVCULLING || LOD_RENDERING
 				renderDevice.LODSG_render();
+#else
+				//Deko instances
+				iPineActor.render(&renderDevice);
+				iTreeActor.render(&renderDevice);
+				iPalmActor.render(&renderDevice);
+				iRockActor.render(&renderDevice);
+				iBushActor.render(&renderDevice);
+				iPineLeavesActor.render(&renderDevice);
+				iTreeLeavesActor.render(&renderDevice);
+				iPalmLeavesActor.render(&renderDevice);
+#endif
 				if (renderGrass) {
 					//iGrassActor.render(&renderDevice);
 				}
 			}
 			
+#if FOVCULLING || LOD_RENDERING
 			renderDevice.LODSG_clear();
-			
+#endif
             renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
 			
 			renderDevice.activePass(RenderDevice::RENDERPASS_FORWARD);
@@ -802,9 +831,10 @@ public:
 			renderDevice.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
 			oceanTimer += pSLOD->getDeltaTime();
 			//std::cout << oceanTimer << "\n";
-			ppSSAO.render(&renderDevice, oceanTimer, Eigen::Vector2i(WINWIDTH,WINHEIGHT));
-			
-			renderDevice.PPBufferUpdate();
+			if (ssao) {
+				ppSSAO.render(&renderDevice, oceanTimer, Eigen::Vector2i(WINWIDTH,WINHEIGHT));
+				renderDevice.PPBufferUpdate();
+			}
 			postProc.render(&renderDevice, heightMapConfig.mapHeight*0.5, oceanTimer*1.5, (float)WINWIDTH/WINHEIGHT, sunDir, Eigen::Vector2i(WINWIDTH,WINHEIGHT));
 			
             gui.processEvents();
@@ -939,6 +969,12 @@ public:
 
             //FPS counter
             FPSCount++;
+			
+			FPSTCount++;
+			FPSTmean += pSLOD->getDeltaTime();
+			if (prevFPS > 0.0) {
+				FPSTerr += abs(1.0/pSLOD->getDeltaTime() - 1.0/prevFPS);
+			}
 
             if (CoreUtility::timestamp() - LastFPS > 1000) {
                 fps = FPSCount;
@@ -955,14 +991,16 @@ public:
                 fpsWidget->setText(text);
                 fpsWidget->setPosition(window.width()-fpsWidget->getWidth(), 0);
             }
-
-           /* delta_ticks = clock() - current_ticks;
-            if (delta_ticks > 0)
-                fps = CLOCKS_PER_SEC / delta_ticks;
-            if (FPSCount % 60 == 0) {
-                cout << fps << endl;
-            }*/
+			if (FPSTCount > 60)
+				prevFPS = pSLOD->getDeltaTime();
         }
+		
+		FPSTmean /= FPSTCount;
+		FPSTerr /= FPSTCount-61;
+		std::cout << "FPSTmean: " << FPSTmean << "\n";
+		std::cout << "FPSTerr: " << FPSTerr << "\n";
+		std::cout << "FPSTerr2: " << FPSTerr/(1.0/FPSTmean) << "\n";
+		pSLOD->release();
     }
 private:
     enum GUI_OPTIONS {
@@ -970,6 +1008,7 @@ private:
         GUI_RENDERGRASS,
         GUI_CAMERAMODE,
         GUI_SHADOWS,
+		GUI_SSAO,
         GUI_UNLOCKEDFRAMERATE,
         GUI_CAMERASPEED,
         GUI_FOV,
@@ -989,13 +1028,14 @@ private:
     bool wireframe = false;
     bool debugTexture = false;
     bool shadows = true;
+	bool ssao = true;
     bool richard = false;
     bool erode = false;
     bool cameraMode = false;
     bool generateNew = true;
     bool renderGrass = false;
 	
-	float sunAngleX = 0.0;
+	float sunAngleX = 60.0;
 	float sunAngleY = 0.0;
 	float sunTime = 0.0;
 	bool sunAuto = false;

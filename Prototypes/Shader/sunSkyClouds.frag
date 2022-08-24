@@ -41,7 +41,7 @@ const float SEA_HEIGHT = 0.6;
 const float SEA_CHOPPY = 4.0;
 const float SEA_SPEED = 0.8;
 const float SEA_FREQ = 0.16;
-const vec3 SEA_BASE = vec3(0.0,0.09,0.18);
+vec3 SEA_BASE = vec3(0.0,0.09,0.18);
 const vec3 SEA_WATER_COLOR = vec3(0.8,0.9,0.6)*0.6;
 #define SEA_TIME (1.0 + uTime * SEA_SPEED)
 const mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
@@ -135,7 +135,7 @@ vec3 getSeaColor(vec3 p, vec3 n, vec3 l, vec3 eye, vec3 dist) {
 	float fresnel = clamp(1.0 - dot(n,-eye), 0.0, 1.0);
 	fresnel = pow(fresnel,3.0) * 0.5;
 		
-	vec3 reflected = vec3(0.37, 0.55, 1.0); //getSkyColor(reflect(eye,n));
+	vec3 reflected = (SEA_BASE.y/0.18+SEA_BASE.z/0.36)*vec3(0.37, 0.55, 1.0); //getSkyColor(reflect(eye,n));
 	vec3 refracted = SEA_BASE + diffuse(n,l,80.0) * SEA_WATER_COLOR * 0.12; 
 	
 	vec3 color = mix(refracted,reflected,fresnel);
@@ -656,6 +656,8 @@ void main(){
 	float focus = Camera.ProjectionMatrix[1][1];
 
 	vec3 rayDir = normalize(camSide*ndc.x + camUp*ndc.y + camDir*focus);
+	float sDot = abs(dot(sunDir,vec3(0.0,1.0,0.0)));
+	SEA_BASE *= sDot;
 	
 	//FragColor = raymarch(rayDir, camPos);
 	
@@ -747,7 +749,6 @@ void main(){
 	
 	/////////////////////////////////////////////////////////////////////////// OCEAN
 	
-	float sDot = abs(dot(sunDir,vec3(0.0,1.0,0.0)));
 	lightColor = lightColor*sDot + (1.0-sDot)*vec3(1.0,0.584,0.0);
 	// color
 	vec3 oceanCol = mix(sscSky.xyz, getSeaColor(sign(camPos.y)*p,sign(camPos.y)*n,sign(camPos.y)*light,sign(camPos.y)*dir,dist), pow(smoothstep(0.0,-0.02,sign(camPos.y)*dir.y),0.2));
@@ -785,20 +786,22 @@ void main(){
 		}
 	} else { // underwater
 		vec2 coord = refract(dir,n,0.680678).xy*0.5;
-		weight = 1.0/(1.0+waterDist);
+		weight = max(0.0,1.0/(1.0-waterDist*0.01));
 		
 		vec2 refractNoise = clamp(coord*(0.035+0.005*(1.0-weight))+TexCoords*(0.965-0.005*(weight)),0.0,1.0);
 		
-		// coord is oddly exactly what i was looking for
-		vec2 waterNoise = vec2(TexCoords.x+sin(uTime*noise(coord*2.0))*0.005,TexCoords.y+cos(uTime*noise(coord.yx*2.0))*0.005);
+		float time = uTime*0.1; //cos(uTime*0.5)*10.0+20.0;
+		vec2 waterNoise = TexCoords + vec2(sin(uTime)*noise(TexCoords*5.0+time)*0.01,cos(uTime)*noise(TexCoords.yx*5.0+time)*0.01)*(distDiff);
 		refractNoise = clamp(refractNoise,0.0,1.0);
 		waterNoise  = clamp(waterNoise,0.0,1.0);
-		vec3 scnCol = texture(texColor, refractNoise).xyz;
+		vec3 scnCol = abs(waterDist) < abs(distScene) ? texture(texColor, refractNoise).xyz : texture(texColor, waterNoise).xyz;
 		scnCol = length(scnCol) == 0.0 ? sscSky.xyz : scnCol;
 		
+		//distDiff = distDiff + max(0.0,(1.0-weight)-distDiff);
+		
 		oceanCol = abs(waterDist) < abs(distScene)
-		           ? oceanCol+scnCol*0.5*sDot
-		           : texture(texColor, waterNoise).xyz*(1.0-distDiff)+(distDiff)*(SEA_BASE);
+		           ? oceanCol*(1.0-weight)+(weight)*scnCol
+		           : scnCol*(1.0-distDiff)+(distDiff)*(SEA_BASE);
 	}
 
 	FragColor = vec4(oceanCol,0.0);

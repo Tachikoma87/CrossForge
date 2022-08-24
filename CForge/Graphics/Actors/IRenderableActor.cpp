@@ -111,7 +111,7 @@ namespace CForge {
 
 	}
 
-	void IRenderableActor::evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount) {
+	void IRenderableActor::evaluateQueryResult(Eigen::Matrix4f mat, GLint pixelCount) {
 	
 	}
 
@@ -119,7 +119,7 @@ namespace CForge {
 
 	}
 
-	float IRenderableActor::getAABBradius(const Eigen::Matrix4f& mat) {
+	inline float IRenderableActor::getAABBradius(const Eigen::Matrix4f& mat) {
 		Eigen::Affine3f affine(mat);
 		affine.data()[12] = 0.0;
 		affine.data()[13] = 0.0;
@@ -132,5 +132,18 @@ namespace CForge {
 
 		float aabbRadius = std::max(std::abs(scaledAABBMax.norm()), std::abs(scaledAABBMin.norm()));
 		return aabbRadius;
+	}
+
+	inline Eigen::Vector3f IRenderableActor::getAABBcenter(const Eigen::Matrix4f& mat) {
+		Eigen::Affine3f affine(mat);
+		affine.data()[12] = 0.0;
+		affine.data()[13] = 0.0;
+		affine.data()[14] = 0.0;
+		Eigen::Vector3f scaledAABBMax = affine * getAABB().Max;
+		Eigen::Vector3f scaledAABBMin = affine * getAABB().Min;
+
+		Eigen::Vector3f center = scaledAABBMin*0.5+scaledAABBMax*0.5;
+		
+		return center;
 	}
 }//name space

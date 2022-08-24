@@ -74,7 +74,7 @@ namespace CForge {
 		void testAABBvis(class RenderDevice* pRDev, Eigen::Matrix4f sgMat);
 		void renderAABB(class RenderDevice* pRDev);
 		void queryAABB(RenderDevice* pRDev, Eigen::Matrix4f transform);
-		void evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount);
+		void evaluateQueryResult(Eigen::Matrix4f mat, GLint pixelCount);
 		
 		// instancing
 		void initInstancing(bool manualInstanced);
@@ -94,6 +94,14 @@ namespace CForge {
 	protected:
 
 	private:
+		bool storeOnVRAM = true;
+		GLVertexArray* m_pVertexArray; ///< the vertex array
+		std::vector<GLVertexArray*> m_pVertexArrays;
+		std::vector<GLBuffer*> m_pVertexBuffers;
+		std::vector<GLBuffer*> m_pElementBuffers;
+
+		void setBufferData(void);
+
 		void initiateBuffers(uint32_t level);
 		bool fovCulling(RenderDevice* pRDev, Eigen::Matrix4f* mat);
 		

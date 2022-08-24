@@ -588,7 +588,7 @@ namespace CForge {
 			GLuint pixelCount;
 			GLint queryState;
 			GLuint queryID = queryContainer->queryID;
-			if (!glIsQuery(queryID) || queryContainer->pixelCount != 0)
+			if (!glIsQuery(queryID) || queryContainer->pixelCount != -1)
 				continue;
 			do {
 				glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
@@ -596,7 +596,7 @@ namespace CForge {
 			glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &pixelCount);
 			glDeleteQueries(1, &queryID);
 			
-			queryContainer->pixelCount = pixelCount;
+			queryContainer->pixelCount = GLint(pixelCount);
 			queryContainer->queryID = 0;
 		}
 	}
@@ -619,14 +619,14 @@ namespace CForge {
 			// calculate distance bounding sphere border to camera
 			Eigen::Vector3f Translation = Eigen::Vector3f(cont->transform.data()[12], cont->transform.data()[13], cont->transform.data()[14]);
 			float aabbRadius = pActor->getAABBradius(cont->transform);
-			float distance = (Translation - m_pActiveCamera->position()).norm() - aabbRadius;
+			float distance = (Translation+cont->pActor->getAABBcenter(cont->transform) - m_pActiveCamera->position()).norm() - aabbRadius;
 			
 // 			printf("pixel: %d dist: %f\n",cont->pixelCount, distance);
 			
 			// set pixel count to max if cam is inside BB, due to backface culling
 			if (distance < 0.0)
-				cont->pixelCount = UINT32_MAX;
-
+				cont->pixelCount = std::numeric_limits<GLint>::max();
+			
 			// instance is not visiable, so we cull it
 			if (cont->pixelCount == 0)
 				continue;

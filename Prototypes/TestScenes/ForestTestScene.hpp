@@ -46,7 +46,7 @@
 using namespace Eigen;
 using namespace std;
 
-
+#define LOD_RENDERING true // make sure to change the corresponding macro in LODActor.cpp
 
 namespace CForge {
 
@@ -85,7 +85,7 @@ namespace CForge {
 
 	void forestTestScene(void) {
 		SShaderManager* pSMan = SShaderManager::instance();
-		SLOD* pLOD = SLOD::instance();
+		SLOD* pSLOD = SLOD::instance();
 
 		std::string WindowTitle = "CForge - Skeletal Animation Example";
 		float FPS = 60.0f;
@@ -99,7 +99,7 @@ namespace CForge {
 			WinWidth = 720;
 			WinHeight = 576;
 		}
-		pLOD->setResolution(Vector2i(WinWidth, WinHeight));
+		pSLOD->setResolution(Vector2i(WinWidth, WinHeight));
 
 		// create an OpenGL capable windows
 		GLWindow RenderWin;
@@ -173,7 +173,7 @@ namespace CForge {
 		for (uint32_t i = 0; i < M.materialCount(); i++) {
 			M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
 		}
-		Tree1.init(&M, true);
+		Tree1.init(&M, true, true);
 		Tree1.generateLODModells();
 		M.clear();
 
@@ -183,7 +183,7 @@ namespace CForge {
 		for (uint32_t i = 0; i < M.materialCount(); i++) {
 			M.getMaterial(i)->VertexShaderSources[0] = "Shader/InstancedGeometryPass.vert";
 		}
-		Tree2.init(&M, true);
+		Tree2.init(&M, true, true);
 		Tree2.generateLODModells();
 		M.clear();
 		
@@ -199,6 +199,11 @@ namespace CForge {
 		SkydomeSGN.init(&RootSGN, &Skydome);
 		SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
 
+		SGNGeometry Tree1SGN;
+		SGNGeometry Tree2SGN;
+		Tree1SGN.init(&RootSGN, &Tree1);
+		Tree2SGN.init(&RootSGN, &Tree2);
+		
 		// generate a forest
 		const uint32_t TreeCount = 1000;
 		SGNGeometry* pTreeNodes = new SGNGeometry[TreeCount];
@@ -221,20 +226,29 @@ namespace CForge {
 			RotationY = AngleAxisf(GraphicsUtility::degToRad(CoreUtility::randRange(0.0f, 360.0f)), Vector3f::UnitY());
 
 
-			pTreeTransNodes[i].init(&RootSGN);
-			pTreeTransNodes[i].translation(Pos);
-			pTreeTransNodes[i].scale(Vector3f(Scaling, Scaling, Scaling));
-			pTreeTransNodes[i].rotation(RotationY);
-
+			//pTreeTransNodes[i].init(&RootSGN);
+			//pTreeTransNodes[i].translation(Pos);
+			//pTreeTransNodes[i].scale(Vector3f(Scaling, Scaling, Scaling));
+			//pTreeTransNodes[i].rotation(RotationY);
 			
+
 			if (CoreUtility::rand() % 5 != 0) {
 				Vector3f StaticOffset = Vector3f(0.0f, 1.8f * Scaling, 0.0f);
-				pTreeNodes[i].init(&pTreeTransNodes[i], &Tree1, StaticOffset);
+				//pTreeNodes[i].init(&pTreeTransNodes[i], &Tree1, StaticOffset);
+				Tree1.addInstance(GraphicsUtility::translationMatrix(Pos)
+				                 *GraphicsUtility::scaleMatrix(Vector3f(Scaling, Scaling, Scaling))
+				                 *GraphicsUtility::rotationMatrix(RotationY)
+				                 *GraphicsUtility::translationMatrix(StaticOffset));
 			}
 			else {
 				Vector3f StaticOffset = Vector3f(0.0f, 0.0f * Scaling, 0.0f);
 				Vector3f StaticScale = Vector3f(0.15f, 0.15f, 0.15f);
-				pTreeNodes[i].init(&pTreeTransNodes[i], &Tree2, StaticOffset, Quaternionf::Identity(), StaticScale);
+				//pTreeNodes[i].init(&pTreeTransNodes[i], &Tree2, StaticOffset, Quaternionf::Identity(), StaticScale);
+				Tree2.addInstance(GraphicsUtility::translationMatrix(Pos)
+				                 *GraphicsUtility::scaleMatrix(Vector3f(Scaling, Scaling, Scaling))
+				                 *GraphicsUtility::rotationMatrix(RotationY)
+				                 *GraphicsUtility::translationMatrix(StaticOffset)
+				                 *GraphicsUtility::scaleMatrix(StaticScale));
 			}
 			
 
@@ -244,6 +258,10 @@ namespace CForge {
 		// stuff for performance monitoring
 		uint64_t LastFPSPrint = CoreUtility::timestamp();
 		int32_t FPSCount = 0;
+		uint64_t FPSTCount = 0;
+		double FPSTmean = 0.0;
+		double prevFPS = -1.0;
+		double FPSTerr = 0.0;
 
 		// check wheter a GL error occurred
 		std::string GLError = "";
@@ -256,31 +274,42 @@ namespace CForge {
 		// start main loop
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			SG.update(1.0f/pLOD->getDeltaTime());
-			pLOD->update();
+			SG.update(1.0f/pSLOD->getDeltaTime());
+			pSLOD->update();
 			RDev.clearBuffer();
 
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
 
-			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+#if LOD_RENDERING
+				RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			
-			RDev.activePass(RenderDevice::RENDERPASS_LOD);
-			SG.render(&RDev);
-
-			RDev.LODSG_assemble();
+				RDev.activePass(RenderDevice::RENDERPASS_LOD);
+				SG.render(&RDev);
+				RDev.LODSG_assemble();
+#endif
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-			RDev.LODSG_render();
+#if LOD_RENDERING
+				RDev.LODSG_render();
+#else
+				SG.render(&RDev);
+#endif
 			
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			RDev.LODSG_render();
+#if LOD_RENDERING
+				RDev.LODSG_render();
+#else
+				SG.render(&RDev);
+#endif
 			
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 			
 			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
 			PPQuad.render(&RDev);
-			
-			RDev.LODSG_clear();
+
+#if LOD_RENDERING
+				RDev.LODSG_clear();
+#endif
 			
 			RDev.PPBufferFinalize();
 			RenderWin.swapBuffers();
@@ -298,7 +327,12 @@ namespace CForge {
 			//	ScreenshotCount++;
 			//}
 
+			FPSTCount++;
+			FPSTmean += pSLOD->getDeltaTime();
 			FPSCount++;
+			if (prevFPS > 0.0) {
+				FPSTerr += abs(1.0/pSLOD->getDeltaTime() - 1.0/prevFPS);
+			}
 			if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {
 				char Buf[64];
 				sprintf(Buf, "FPS: %d\n", FPSCount);
@@ -312,10 +346,18 @@ namespace CForge {
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				RenderWin.closeWindow();
 			}
+			if (FPSTCount > 60)
+				prevFPS = pSLOD->getDeltaTime();
 		}//while[main loop]
-
+		
+		FPSTmean /= FPSTCount;
+		FPSTerr /= FPSTCount-61;
+		std::cout << "FPSTmean: " << FPSTmean << "\n";
+		std::cout << "FPSTerr: " << FPSTerr << "\n";
+		std::cout << "FPSTerr2: " << FPSTerr/(1.0/FPSTmean) << "\n";
+		
 		pSMan->release();
-		pLOD->release();
+		pSLOD->release();
 	}//exampleMinimumGraphicsSetup
 
 }
