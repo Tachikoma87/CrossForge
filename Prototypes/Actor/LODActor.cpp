@@ -678,6 +678,7 @@ namespace CForge {
 	}
 
 	bool LODActor::fovCulling(RenderDevice* pRDev, Eigen::Matrix4f* mat) {
+		return true;
 		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
 		
 		float aabbRadius = getAABBradius(*mat);

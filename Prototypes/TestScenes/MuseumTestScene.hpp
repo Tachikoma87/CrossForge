@@ -128,7 +128,6 @@ public:
 		// create an OpenGL capable windows
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
-		glfwSwapInterval(0);
 		gladLoadGL();
 
 		// configure and initialize rendering pipeline
@@ -290,8 +289,8 @@ public:
 							LODActor** pActor = &(generationThreadActors[i]);
 							*pActor = newAct;
 							generationThreads[i] = std::thread([=] {
-								LODHandler().loadLODmeshes(newAct, entry.path().string(), *pSLOD->getLevels(), std::vector<float>());
 #if LOD_RENDERING
+								LODHandler().loadLODmeshes(newAct, entry.path().string(), *pSLOD->getLevels(), std::vector<float>());
 								newAct->calculateLODPercentages();
 #endif
 								*done = true;
@@ -332,8 +331,6 @@ public:
 
 		int32_t FPSCount = 0;
 		float FPSmean = 0.0;
-		double prevFPS = -1.0;
-		double FPSTerr = 0.0;
 
 		std::string GLError = "";
 		GraphicsUtility::checkGLError(&GLError);
@@ -497,9 +494,7 @@ public:
 			
 			FPSTCount++;
 			FPSTmean += pSLOD->getDeltaTime();
-			if (prevFPS > 0.0) {
-				FPSTerr += abs(1.0/pSLOD->getDeltaTime() - 1.0/prevFPS);
-			}
+			
 			if (CoreUtility::timestamp() - LastFPSPrint > 100U) {
 				
 				wchar_t text_wstring[100] = {0};
@@ -521,15 +516,10 @@ public:
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				RenderWin.closeWindow();
 			}
-			if (FPSTCount > 60)
-				prevFPS = pSLOD->getDeltaTime();
 		}//while[main loop]
 		
 		FPSTmean /= FPSTCount;
-		FPSTerr /= FPSTCount-61;
 		std::cout << "FPSTmean: " << FPSTmean << "\n";
-		std::cout << "FPSTerr: " << FPSTerr << "\n";
-		std::cout << "FPSTerr2: " << FPSTerr/(1.0/FPSTmean) << "\n";
 		
 		pSMan->release();
 		
@@ -539,7 +529,6 @@ public:
 			delete museumSGNG[i];
 			delete museumSGNT[i];
 		}
-
 	}//exampleMinimumGraphicsSetup
 
 	void listen ( const GUICallbackObject Msg ) override {

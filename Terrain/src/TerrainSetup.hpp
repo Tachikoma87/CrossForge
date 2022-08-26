@@ -56,7 +56,6 @@ public:
 		else
 			window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup", 0, 0, false);
         gladLoadGL();
-		glfwSwapInterval(0);
 
         string GLError;
         GraphicsUtility::checkGLError(&GLError);
@@ -676,10 +675,6 @@ public:
         uint64_t LastFPS = CoreUtility::timestamp();
 		uint64_t FPSTCount = 0;
 		double FPSTmean = 0.0;
-		
-		double prevFPS = -1.0;
-		double FPSTerr = 0.0;
-		
 
         uint32_t ScreenshotNumber = 0;
 		
@@ -972,9 +967,6 @@ public:
 			
 			FPSTCount++;
 			FPSTmean += pSLOD->getDeltaTime();
-			if (prevFPS > 0.0) {
-				FPSTerr += abs(1.0/pSLOD->getDeltaTime() - 1.0/prevFPS);
-			}
 
             if (CoreUtility::timestamp() - LastFPS > 1000) {
                 fps = FPSCount;
@@ -991,15 +983,10 @@ public:
                 fpsWidget->setText(text);
                 fpsWidget->setPosition(window.width()-fpsWidget->getWidth(), 0);
             }
-			if (FPSTCount > 60)
-				prevFPS = pSLOD->getDeltaTime();
         }
 		
 		FPSTmean /= FPSTCount;
-		FPSTerr /= FPSTCount-61;
 		std::cout << "FPSTmean: " << FPSTmean << "\n";
-		std::cout << "FPSTerr: " << FPSTerr << "\n";
-		std::cout << "FPSTerr2: " << FPSTerr/(1.0/FPSTmean) << "\n";
 		pSLOD->release();
     }
 private:

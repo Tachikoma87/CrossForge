@@ -105,7 +105,6 @@ namespace CForge {
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
 		gladLoadGL();
-		glfwSwapInterval(0);
 
 		// configure and initialize rendering pipeline
 		RenderDevice RDev;
@@ -260,9 +259,7 @@ namespace CForge {
 		int32_t FPSCount = 0;
 		uint64_t FPSTCount = 0;
 		double FPSTmean = 0.0;
-		double prevFPS = -1.0;
-		double FPSTerr = 0.0;
-
+		
 		// check wheter a GL error occurred
 		std::string GLError = "";
 		GraphicsUtility::checkGLError(&GLError);
@@ -330,9 +327,6 @@ namespace CForge {
 			FPSTCount++;
 			FPSTmean += pSLOD->getDeltaTime();
 			FPSCount++;
-			if (prevFPS > 0.0) {
-				FPSTerr += abs(1.0/pSLOD->getDeltaTime() - 1.0/prevFPS);
-			}
 			if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {
 				char Buf[64];
 				sprintf(Buf, "FPS: %d\n", FPSCount);
@@ -346,18 +340,14 @@ namespace CForge {
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				RenderWin.closeWindow();
 			}
-			if (FPSTCount > 60)
-				prevFPS = pSLOD->getDeltaTime();
 		}//while[main loop]
 		
 		FPSTmean /= FPSTCount;
-		FPSTerr /= FPSTCount-61;
 		std::cout << "FPSTmean: " << FPSTmean << "\n";
-		std::cout << "FPSTerr: " << FPSTerr << "\n";
-		std::cout << "FPSTerr2: " << FPSTerr/(1.0/FPSTmean) << "\n";
 		
 		pSMan->release();
 		pSLOD->release();
+		
 	}//exampleMinimumGraphicsSetup
 
 }

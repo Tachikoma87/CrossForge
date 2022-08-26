@@ -23,7 +23,7 @@ namespace CForge {
 		void setLODLevels(std::vector<float> levels);
 		
 		// Size of which Triangles should appear on Screen in pixels
-		uint32_t TriangleSize = 100;
+		uint32_t TriangleSize = 1;
 		
 		bool storeLOD = true;
 		bool skipMeshLoader = false;
