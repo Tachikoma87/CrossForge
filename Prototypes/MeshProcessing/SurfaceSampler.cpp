@@ -1,6 +1,8 @@
 #include "SurfaceSampler.h"
 
 #include <igl/exact_geodesic.h>
+#include <igl/harmonic.h>
+#include <igl/writeOBJ.h>
 
 using namespace Eigen;
 
@@ -34,6 +36,12 @@ namespace CForge {
 	
 		Eigen::VectorXi VS, FS, VT, FT;
 		Eigen::VectorXf d;
+		Eigen::MatrixXf U, V_bc, U_bc;
+		Eigen::VectorXf Z;
+		Eigen::MatrixXi F;
+		Eigen::VectorXi b;
+		MatrixXf D;
+		
 
 		if(pSamplePoints->size() == 0) pSamplePoints->push_back(CoreUtility::rand() % m_Vertices.rows());
 
@@ -57,7 +65,27 @@ namespace CForge {
 			printf("Samples: %d | Maximum geodesic: %.2f | NextSample: %d\n", (int32_t)pSamplePoints->size(), d[NextSample], NextSample);
 
 		} while (d[NextSample] > MaxSampleDistance && pSamplePoints->size() < MaxSamplePoints);//while[not enough samples]
-			
+		
+		std::sort(pSamplePoints->data(), pSamplePoints->data() + pSamplePoints->size());
+		U_bc.resize(pSamplePoints->size(), m_Vertices.cols());
+		V_bc.resize(pSamplePoints->size(), m_Vertices.cols());
+		b.resize(pSamplePoints->size());
+		
+		for (int bi = 0; bi < pSamplePoints->size(); bi++)
+		{
+			b(bi) = pSamplePoints->at(bi);
+			V_bc.row(bi) = m_Vertices.row(b(bi));
+			U_bc.row(bi) = m_Vertices.row(b(bi));
+		}
+
+		U_bc.row(5) = m_Vertices.row(b(5)) + RowVector3f(0, 0, 10);
+		
+		const MatrixXf U_bc_anim = U_bc;//V_bc + bc_frac * (U_bc - V_bc);
+		MatrixXf D_bc = U_bc_anim - V_bc;
+		igl::harmonic(m_Vertices, m_Faces, b, D_bc, 2, D);
+		m_Vertices = m_Vertices + D;
+		igl::writeOBJ("Test.obj", m_Vertices, m_Faces);
+
 	}//sampleEquidistant
 
 	void SurfaceSampler::toIGLMesh(Eigen::MatrixXf* pVertices, Eigen::MatrixXi* pFaces, const T3DMesh<float>* pMesh) {

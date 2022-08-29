@@ -30,7 +30,7 @@ namespace CForge {
 	public:
 		SurfaceSamplerTestScene(void) {
 			m_WindowTitle = "CForge Prototype - Surface Sampler";
-			m_SampleCount = 10;
+			m_SampleCount = 30;
 		}//Constructor
 
 		~SurfaceSamplerTestScene(void) {
