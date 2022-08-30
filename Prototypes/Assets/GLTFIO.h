@@ -159,8 +159,48 @@ class GLTFIO {
 		void getAccessorData(const int accessor, std::vector<Eigen::Quaternionf>* pData);
 		
 		template<class T>
-		void writeBuffer(unsigned char* pBuffer, const int element_count, const int offset, const int component_count, const bool is_matrix, const int stride, std::vector<T>* pData) {
-			
+		void writeBuffer(std::vector<unsigned char>* pBuffer, const int offset, const int component_count, const bool is_matrix, const int stride, std::vector<T>* pData) {
+			int type_size = sizeof(T);
+
+			while (pBuffer->size() < offset) pBuffer->push_back(0);
+
+			int index = offset;
+
+			if (is_matrix) {
+				int column_size = std::sqrt(component_count)
+				int column_size_bytes = column_size * type_size;
+				int padding = 4 - column_size_bytes % 4;
+
+				for (int i = 0; i < pData->size(); i++) {
+					T element = (*pData)[i];
+					unsigned char* as_char_pointer = &element;
+
+					for (int j = 0; j < column_size; j++) {
+						for (int k = 0; k < column_size_bytes) {
+							if (index == pBuffer->size()) pBuffer->push_back(as_char_pointer[k]);
+							else (*pBuffer)[index] = as_char_pointer[k];
+							index++;
+						}
+
+						for (int k = 0; k < padding; k++) {
+							if (index == pBuffer->size()) pBuffer->push_back(0);
+							index++;
+						}
+					}
+				}
+			}
+			else {
+				for (int i = 0; i < pData->size(); i++) {
+					T element = (*pData)[i];
+					unsigned char* as_char_pointer = &element;
+
+					for (int k = 0; k < type_size) {
+						if (index == pBuffer->size()) pBuffer->push_back(as_char_pointer[k]);
+						else (*pBuffer)[index] = as_char_pointer[k];
+						index++;
+					}
+				}
+			}
 		}
 
 		template<class T>
