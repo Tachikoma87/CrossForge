@@ -12,6 +12,8 @@
 #include "Examples/exampleSceneBase.hpp"
 #include "Examples/exampleMinimumGraphicsSetup.hpp"
 #include "Examples/exampleSkeletalAnimation.hpp"
+#include "Examples/exampleSkeletalAnimationThrice.hpp"
+#include "Examples/exampleSkeletalCollisionResolver.hpp"
 #include "Examples/exampleMorphTargetAnimation.hpp"
 #include "Examples/exampleSkybox.hpp"
 #include "Examples/exampleMultiViewport.hpp"
@@ -61,7 +63,9 @@ int main(int argc, char* argv[]) {
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
-		//exampleSkeletalAnimation(); 
+		exampleSkeletalAnimation(); 
+		//exampleSkeletalAnimationThrice(); 
+		//exampleSkeletonCollisionResolver();
 		//exampleSkybox();
 		//exampleSockets();
 	
@@ -69,7 +73,7 @@ int main(int argc, char* argv[]) {
 		//imuInputDeviceTestScene();	 
 		//skelAnimTestScene();
 		//shadowTest();	
-		surfaceSamplerTestScene();
+		//surfaceSamplerTestScene();
 		//vertexColorTestScene();
 		
 	}
