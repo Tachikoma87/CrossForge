@@ -756,6 +756,7 @@ namespace CForge {
 		filePath = Filepath;
 
 		writeMeshes();
+		writeNodes();
 		
 		TinyGLTF writer;
 
@@ -1008,22 +1009,22 @@ namespace CForge {
 	}
 
 	void GLTFIO::writeNodes() {
-		std::map<T3DMesh<float>::Bone*, int> boneMap;
+		std::map<const T3DMesh<float>::Bone*, int> boneMap;
 		
 		for (int i = 0; i < pCMesh->boneCount(); i++) {
 			Node newNode;
 			
-			auto pBone = pCMesh->getBone(i);
+			const T3DMesh<float>::Bone* pBone = pCMesh->getBone(i);
 
-			//TODO Fehler beheben
-			//boneMap.emplace(pBone, i);
+			boneMap.emplace(std::make_pair(pBone, i));
 
 			newNode.name = pBone->Name;
-			
-			newNode.translation.push_back(pBone->Position(0));
-			newNode.translation.push_back(pBone->Position(1));
-			newNode.translation.push_back(pBone->Position(2));
-			
+
+			if (pBone->Position(0) > -431602080.0) {
+				newNode.translation.push_back(pBone->Position(0));
+				newNode.translation.push_back(pBone->Position(1));
+				newNode.translation.push_back(pBone->Position(2));
+			}
 			model.nodes.push_back(newNode);
 		}
 
@@ -1300,4 +1301,5 @@ namespace CForge {
 * Eingebettete Texturen unterstützen.
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes?
 * Was passiert mit morph target Attributen mit unterschiedlichen Indices?
+* Was passiert mit Nodes denen Meshes untergeordnet sind. Wie wird das in T3DMesh gespeichert?
 */

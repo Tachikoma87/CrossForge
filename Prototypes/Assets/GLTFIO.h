@@ -194,9 +194,14 @@ class GLTFIO {
 					T element = (*pData)[i];
 					unsigned char* as_char_pointer = &element;
 
-					for (int k = 0; k < type_size) {
+					for (int k = 0; k < type_size; k++) {
 						if (index == pBuffer->size()) pBuffer->push_back(as_char_pointer[k]);
 						else (*pBuffer)[index] = as_char_pointer[k];
+						index++;
+					}
+
+					for (int k = 0; k < stride; k++) {
+						if (index == pBuffer->size()) pBuffer->push_back(0);
 						index++;
 					}
 				}
