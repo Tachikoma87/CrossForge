@@ -80,7 +80,7 @@ void InputSliderWidget_Text::setFloatValue(float value)
         m_floatValue = value;
         //ugly cast to u32string
         InputSliderStyle defaults;
-        std::u32string stringValue;
+        std::wstring stringValue;
         if (defaults.RoundLabelNumber >= 0) {
             int displayValue = std::round(value * std::pow(10, defaults.RoundLabelNumber));
             std::wstring stringRep = std::to_wstring(displayValue);
@@ -89,17 +89,16 @@ void InputSliderWidget_Text::setFloatValue(float value)
             }
             for (int i = 0; i < stringRep.length(); i++) {
                 if (i == stringRep.length() - defaults.RoundLabelNumber && defaults.RoundLabelNumber != 0) {
-                    stringValue.push_back(U'.');
+                    stringValue.push_back(L'.');
                 }
-                stringValue.push_back((char32_t)stringRep[i]);
+                stringValue.push_back(stringRep[i]);
             }
         } else {
-            for (auto x : std::to_wstring(m_floatValue)) {
-                stringValue.push_back((char32_t)x);
-            }
+            stringValue = std::to_wstring(m_floatValue);
         }
-        setText(stringValue);
-        m_value = stringValue;        //not actually used for much other than return value, but can't hurt to set it
+        std::u32string u32StringValue = wstringToU32String(stringValue);
+        setText(u32StringValue);
+        m_value = u32StringValue;        //not actually used for much other than return value, but can't hurt to set it
         //need to reset font color after bad input is replaced
         FontStyle1 textdefaults;
         m_text->setColor(textdefaults.FontColor);
@@ -108,10 +107,7 @@ void InputSliderWidget_Text::setFloatValue(float value)
 bool InputSliderWidget_Text::validateInput()
 {
     //again, ugly cast to wstring this time
-    std::wstring w;
-    for (auto c : m_text->getText()) {
-        w.push_back((wchar_t)c);
-    };
+    std::wstring w = u32stringToWString(m_text->getText());
     try {
         //we write it directly to m_floatValue so that setFloatValue actually does things
         //unless it's really exactly the same value

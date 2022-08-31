@@ -69,10 +69,7 @@ void InputNumberWidget::setValue(int value)
     //However, wstrings on most systems should be compatible with Unicode or
     //at the very least ASCII, where most characters used in numbers are at.
     std::wstring valueString = std::to_wstring(m_value);
-    std::u32string u32Value;
-    for (char x : valueString) {
-        u32Value.push_back((char32_t)x);
-    }
+    std::u32string u32Value = wstringToU32String(valueString);
     m_pValue->setText(u32Value);
     //calculate m_pInc's new position with the value's changed width
     positionAdjust += m_pValue->getWidth();

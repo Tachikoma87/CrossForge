@@ -14,6 +14,11 @@ class FormWidget;
 #include "Callback.h"
 #include <CForge/Core/ITListener.hpp>
 
+//for proper wstring to u32string conversion
+#include <string>
+// #include <locale>   //wstring_convert
+// #include <codecvt>  //converter templates used by above function
+
 struct mouseEventInfo {
     Eigen::Vector2f adjustedPosition;   //cursor position adjusted to the position within the clicked widget
     Eigen::Vector2f rawPosition;        //cursor position in window space
@@ -88,3 +93,6 @@ private:
     std::vector<TopLevelWidgetHandler*> m_TopLevelWidgets;
     TopLevelWidgetHandler* m_Popup;
 };
+
+std::u32string wstringToU32String(std::wstring ws);
+std::wstring u32stringToWString(std::u32string ws);

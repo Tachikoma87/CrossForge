@@ -456,3 +456,30 @@ uint32_t GUI::getWindowWidth()
     return m_pWin->width();
 }
 
+std::u32string wstringToU32String(std::wstring ws) {
+    //basic cast before I get to the proper conversion
+
+    /* on GCC/clang compilers, this should be safe as they appear to use a unicode
+       32-bit wchar_t.
+       On Windows's VisualC++, this is more problematic, as it only uses UTF-16.
+
+       However, for now it should work well enough, as long as we stay within european
+       languages. If Asian languages, emojis or advanced math symbols need to be supported,
+       this function should be revisited with proper conversion features.
+
+       Unfortunately, the other std lib included conversion methods don't seem too
+       robust either from the sound of their description, so it might be necessary
+       to include a dedicated library should the need arise.*/
+    std::u32string text32;
+    for (int i = 0; i < ws.length(); i++) {
+        text32.push_back((char32_t)ws[i]);
+    }
+    return text32;
+}
+std::wstring u32stringToWString(std::u32string u32s) {
+    std::wstring textw;
+    for (int i = 0; i < u32s.length(); i++) {
+        textw.push_back((wchar_t)u32s[i]);
+    }
+    return textw;
+}

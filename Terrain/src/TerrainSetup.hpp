@@ -26,8 +26,8 @@
 
 using namespace CForge;
 float CAM_FOV = 90.0;
-int WINWIDTH = 1920;
-int WINHEIGHT = 1080;
+int WINWIDTH = 1280;
+int WINHEIGHT = 720;
 #define FULLSCREEN false
 #define FOVCULLING true
 #define LOD_RENDERING true // make sure to change the corresponding macro in LODActor.cpp
@@ -999,11 +999,7 @@ public:
 //                 printf("FPS: %d\n", fps);
                 wchar_t text_wstring[100] = {0};
                 int charcount = swprintf(text_wstring, 100, L"FPS: %d", fps);
-                std::u32string text;
-                //ugly cast to u32string from wchar[]
-                for (int i = 0; i < charcount; i++) {
-                    text.push_back((char32_t)text_wstring[i]);
-                }
+				std::u32string text = wstringToU32String(std::wstring(text_wstring, charcount));
                 fpsWidget->setText(text);
                 fpsWidget->setPosition(window.width()-fpsWidget->getWidth(), 0);
             }

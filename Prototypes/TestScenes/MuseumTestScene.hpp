@@ -501,11 +501,7 @@ public:
 				wchar_t text_wstring[100] = {0};
 				FPSmean /= FPSCount;
 				int charcount = swprintf(text_wstring, 100, L"FPS: %f\n Frametime: %f", 1.0/FPSmean, FPSmean);
-				std::u32string text;
-				//ugly cast to u32string from wchar[]
-				for (int i = 0; i < charcount; i++) {
-					text.push_back((char32_t)text_wstring[i]);
-				}
+				std::u32string text = wstringToU32String(std::wstring(text_wstring, charcount));
 				fpsWidget->setText(text);
 				fpsWidget->setPosition(RenderWin.width()-fpsWidget->getWidth(), 0);
 				
