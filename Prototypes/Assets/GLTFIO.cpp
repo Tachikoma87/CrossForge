@@ -1227,6 +1227,50 @@ namespace CForge {
 		else std::cout << "Unsupported component type: " << acc.componentType << " for normalized integer conversion!" << std::endl;
 	}
 
+	void GLTFIO::writeSparseAccessorData(const int buffer_index, const int type, std::vector<int32_t>* pIndices, std::vector<std::vector<float>>* pData) {
+		Buffer* pBuffer = &model.buffers[buffer_index];
+
+		Accessor accessor;
+
+		accessor.bufferView = 0;
+		accessor.byteOffset = 0;
+		accessor.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
+		accessor.type = type;
+		accessor.count = pData->size();
+		accessor.sparse.isSparse = true;
+		accessor.sparse.count = pIndices->size();
+
+		model.accessors.push_back(accessor);
+
+		BufferView index_buffer_view;
+
+		index_buffer_view.byteOffset = pBuffer->data.size();
+		index_buffer_view.buffer = buffer_index;
+		index_buffer_view.byteLength = pIndices->size() * sizeof(int32_t);
+		index_buffer_view.byteStride = 0;
+
+		model.bufferViews.push_back(index_buffer_view);
+
+		writeBuffer(&pBuffer->data, index_buffer_view.byteOffset + accessor.byteOffset, 
+			accessor.sparse.count, false, index_buffer_view.byteStride, pIndices);
+
+
+		BufferView value_buffer_view;
+
+		value_buffer_view.byteOffset = pBuffer->data.size();
+		value_buffer_view.buffer = buffer_index;
+		value_buffer_view.byteLength = pData->size() * sizeof(float) * componentCount(type);
+		value_buffer_view.byteStride = 0;
+
+		model.bufferViews.push_back(value_buffer_view);
+
+		bool is_matrix = componentIsMatrix(type);
+
+
+		writeBuffer(&pBuffer->data, value_buffer_view.byteOffset + accessor.byteOffset, 
+			accessor.sparse.count, is_matrix, value_buffer_view.byteStride, pData);
+	}
+
 	void GLTFIO::toVec3f(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector3f>* pOut) {
 		for (auto e : *pIn) {
 			Eigen::Vector3f vec;
@@ -1294,7 +1338,6 @@ namespace CForge {
 //TODO
 /*
 * writeSparseAccessorData
-* writeBuffer zur Vereinfachung
 * Wo muss Rotation und Scale pro Node hin? Bone hat nur Position und Offsetmatrix.
 * Skelettanimationen schreiben.
 * Morph targets schreiben.

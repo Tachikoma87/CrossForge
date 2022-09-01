@@ -167,16 +167,16 @@ class GLTFIO {
 			int index = offset;
 
 			if (is_matrix) {
-				int column_size = std::sqrt(component_count)
+				int column_size = std::sqrt(component_count);
 				int column_size_bytes = column_size * type_size;
 				int padding = 4 - column_size_bytes % 4;
 
 				for (int i = 0; i < pData->size(); i++) {
 					T element = (*pData)[i];
-					unsigned char* as_char_pointer = &element;
+					unsigned char* as_char_pointer = (unsigned char*) &element;
 
 					for (int j = 0; j < column_size; j++) {
-						for (int k = 0; k < column_size_bytes) {
+						for (int k = 0; k < column_size_bytes; k++) {
 							if (index == pBuffer->size()) pBuffer->push_back(as_char_pointer[k]);
 							else (*pBuffer)[index] = as_char_pointer[k];
 							index++;
@@ -192,7 +192,7 @@ class GLTFIO {
 			else {
 				for (int i = 0; i < pData->size(); i++) {
 					T element = (*pData)[i];
-					unsigned char* as_char_pointer = &element;
+					unsigned char* as_char_pointer = (unsigned char*) &element;
 
 					for (int k = 0; k < type_size; k++) {
 						if (index == pBuffer->size()) pBuffer->push_back(as_char_pointer[k]);
@@ -260,10 +260,20 @@ class GLTFIO {
 			bufferView.byteOffset = pBuffer->data.size();
 			bufferView.buffer = bufferIndex;
 			bufferView.byteLength = pData->size() * sizeof(T) * componentCount(type);
+			bufferView.byteStride = 0;
 
 			model.bufferViews.push_back(bufferView);
-			
 
+			bool is_matrix = componentIsMatrix(type);
+
+			std::vector<T> simplified;
+			for (auto v : *pData) {
+				for (auto e : v) simplified.push_back(e);
+			}
+			
+			writeBuffer(&pBuffer->data, bufferView.byteOffset + accessor.byteOffset, accessor.count, is_matrix, bufferView.byteStride, &simplified);
+
+			/*
 			for (int i = 0; i < pData->size(); i++) {
 				for (int j = 0; j < (*pData)[i].size(); j++) {
 					for (int k = 0; k < sizeof(T); k++) {
@@ -271,7 +281,10 @@ class GLTFIO {
 					}
 				}
 			}
+			*/
 		}
+
+		void writeSparseAccessorData(const int buffer_index, const int type, std::vector<int32_t>* pIndices, std::vector<std::vector<float>>* pData);
 
 		void readMeshes();
 
