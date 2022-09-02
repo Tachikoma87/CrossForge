@@ -41,17 +41,17 @@ class GLTFIO {
 
 		static bool componentIsMatrix(const int type);
 
-		static void toVec3f(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector3f>* pOut);
+		static void toVec3f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector3f>* pOut);
 
-		static void toVec4f(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector4f>* pOut);
+		static void toVec4f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector4f>* pOut);
 
-		static void toQuatf(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Quaternionf>* pOut);
+		static void toQuatf(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Quaternionf>* pOut);
 
-		static void fromVec3f(std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut);
+		static void fromVec3f(const std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut);
 
-		static void fromVec4f(std::vector<Eigen::Vector4f>* pIn, std::vector<std::vector<float>>* pOut);
+		static void fromVec4f(const std::vector<Eigen::Vector4f>* pIn, std::vector<std::vector<float>>* pOut);
 
-		static void fromQuatf(std::vector<Eigen::Quaternionf>* pIn, std::vector<std::vector<float>>* pOut);
+		static void fromQuatf(const std::vector<Eigen::Quaternionf>* pIn, std::vector<std::vector<float>>* pOut);
 
 	protected:
 		std::string filePath;
@@ -159,7 +159,7 @@ class GLTFIO {
 		void getAccessorData(const int accessor, std::vector<Eigen::Quaternionf>* pData);
 		
 		template<class T>
-		void writeBuffer(std::vector<unsigned char>* pBuffer, const int offset, const int component_count, const bool is_matrix, const int stride, std::vector<T>* pData) {
+		void writeBuffer(std::vector<unsigned char>* pBuffer, const int offset, const int component_count, const bool is_matrix, const int stride, const std::vector<T>* pData) {
 			int type_size = sizeof(T);
 
 			while (pBuffer->size() < offset) pBuffer->push_back(0);
@@ -232,11 +232,15 @@ class GLTFIO {
 
 			model.bufferViews.push_back(bufferView);
 
+			writeBuffer(&pBuffer->data, bufferView.byteOffset + accessor.byteOffset, 
+				accessor.count, false, bufferView.byteStride, pData);
+			/*
 			for (int i = 0; i < pData->size(); i++) {
 				for (int k = 0; k < sizeof(T); k++) {
 					pBuffer->data.push_back(((unsigned char*)&(*pData)[i])[k]);
 				}
 			}
+			*/
 		}
 
 		template<class T>
@@ -284,7 +288,7 @@ class GLTFIO {
 			*/
 		}
 
-		void writeSparseAccessorData(const int buffer_index, const int type, std::vector<int32_t>* pIndices, std::vector<std::vector<float>>* pData);
+		int writeSparseAccessorData(const int buffer_index, const int type, const std::vector<int32_t>* pIndices, const std::vector<std::vector<float>>* pData);
 
 		void readMeshes();
 
@@ -317,13 +321,15 @@ class GLTFIO {
 
 		void writeAttributes();
 
-		void prepareAttributeArrays();
+		std::pair<int, int> prepareAttributeArrays();
 
 		void writeMaterial();
 
 		int writeTexture(const std::string path);
 
 		void writeNodes();
+
+		void writeMorphTargets(std::pair<int, int> minmax);
 	};//GLTFIO
 
 }//name space

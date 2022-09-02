@@ -791,12 +791,13 @@ namespace CForge {
 
 		model.meshes[meshIndex].primitives.push_back(primitive);
 		
-		prepareAttributeArrays();
+		std::pair<int, int> minmax = prepareAttributeArrays();
 		writeAttributes();
 		writeMaterial();
+		writeMorphTargets(minmax);
 	}//writeSubmesh
 	
-	void GLTFIO::prepareAttributeArrays() {
+	std::pair<int, int> GLTFIO::prepareAttributeArrays() {
 		int meshIndex = model.meshes.size() - 1;
 		const T3DMesh<float>::Submesh* pSubmesh = pCMesh->getSubmesh(meshIndex);
 
@@ -830,6 +831,8 @@ namespace CForge {
 				indices.push_back(index);
 			}
 		}
+
+		std::pair<int, int> minmax(min, max);
 
 		for (int i = 0; i < indices.size(); i++) {
 			// fill up to index
@@ -899,7 +902,8 @@ namespace CForge {
 		std::cout << "color " << color.size() << std::endl;
 		std::cout << "joint " << joint.size() << std::endl;
 		std::cout << "weight " << weight.size() << std::endl;
-
+		
+		return minmax;
 	}
 
 	void GLTFIO::writeAttributes() {
@@ -1035,6 +1039,50 @@ namespace CForge {
 
 			for (auto c : pBone->Children) {
 				model.nodes[i].children.push_back(boneMap[c]);
+			}
+		}
+	}
+
+	void GLTFIO::writeMorphTargets(std::pair<int, int> minmax) {
+		for (int i = 0; i < pCMesh->morphTargetCount(); i++) {
+			auto pTarget = pCMesh->getMorphTarget(i);
+
+			int min = minmax.first;
+			int max = minmax.second;
+
+			int first_index = pTarget->VertexIDs[0];
+
+			if (first_index >= min && first_index <= max) {
+				//Morph target affects current primitve
+				
+				int mesh_index = model.meshes.size() - 1;
+				int primitve_index = model.meshes[mesh_index].primitives.size() - 1;
+
+				Primitive* pCurrentPrimitive = &model.meshes[mesh_index].primitives[primitve_index];
+
+				//TODO sparse accessoren schreiben.
+
+				std::map<std::string, int> targetMap;
+
+				std::vector<int32_t>* pIndices;
+				std::vector<std::vector<float>> data;
+
+				fromVec3f(&pTarget->VertexOffsets, &data);
+
+				int accessor_index = writeSparseAccessorData(0, TINYGLTF_TYPE_VEC3, 
+					&pTarget->VertexIDs, &data);
+				targetMap.emplace("POSITION", accessor_index);
+
+				data.clear();
+				fromVec3f(&pTarget->NormalOffsets, &data);
+
+				accessor_index = writeSparseAccessorData(0, TINYGLTF_TYPE_VEC3,
+					nullptr, &data);
+				targetMap.emplace("NORMAL", accessor_index);
+
+				pCurrentPrimitive->targets.push_back(targetMap);
+
+				return;
 			}
 		}
 	}
@@ -1227,7 +1275,7 @@ namespace CForge {
 		else std::cout << "Unsupported component type: " << acc.componentType << " for normalized integer conversion!" << std::endl;
 	}
 
-	void GLTFIO::writeSparseAccessorData(const int buffer_index, const int type, std::vector<int32_t>* pIndices, std::vector<std::vector<float>>* pData) {
+	int GLTFIO::writeSparseAccessorData(const int buffer_index, const int type, const std::vector<int32_t>* pIndices, const std::vector<std::vector<float>>* pData) {
 		Buffer* pBuffer = &model.buffers[buffer_index];
 
 		Accessor accessor;
@@ -1238,22 +1286,25 @@ namespace CForge {
 		accessor.type = type;
 		accessor.count = pData->size();
 		accessor.sparse.isSparse = true;
-		accessor.sparse.count = pIndices->size();
+		accessor.sparse.count = pData->size();
 
-		model.accessors.push_back(accessor);
 
-		BufferView index_buffer_view;
+		if (pIndices != nullptr) {
+			BufferView index_buffer_view;
 
-		index_buffer_view.byteOffset = pBuffer->data.size();
-		index_buffer_view.buffer = buffer_index;
-		index_buffer_view.byteLength = pIndices->size() * sizeof(int32_t);
-		index_buffer_view.byteStride = 0;
+			index_buffer_view.byteOffset = pBuffer->data.size();
+			index_buffer_view.buffer = buffer_index;
+			index_buffer_view.byteLength = pIndices->size() * sizeof(int32_t);
+			index_buffer_view.byteStride = 0;
 
-		model.bufferViews.push_back(index_buffer_view);
+			accessor.sparse.indices.bufferView = model.bufferViews.size();
+			accessor.sparse.indices.componentType = TINYGLTF_COMPONENT_TYPE_INT;
 
-		writeBuffer(&pBuffer->data, index_buffer_view.byteOffset + accessor.byteOffset, 
-			accessor.sparse.count, false, index_buffer_view.byteStride, pIndices);
+			model.bufferViews.push_back(index_buffer_view);
 
+			writeBuffer(&pBuffer->data, index_buffer_view.byteOffset + accessor.byteOffset,
+				accessor.sparse.count, false, index_buffer_view.byteStride, pIndices);
+		}
 
 		BufferView value_buffer_view;
 
@@ -1262,6 +1313,8 @@ namespace CForge {
 		value_buffer_view.byteLength = pData->size() * sizeof(float) * componentCount(type);
 		value_buffer_view.byteStride = 0;
 
+		accessor.sparse.values.bufferView = model.bufferViews.size();
+
 		model.bufferViews.push_back(value_buffer_view);
 
 		bool is_matrix = componentIsMatrix(type);
@@ -1269,9 +1322,14 @@ namespace CForge {
 
 		writeBuffer(&pBuffer->data, value_buffer_view.byteOffset + accessor.byteOffset, 
 			accessor.sparse.count, is_matrix, value_buffer_view.byteStride, pData);
+
+
+		model.accessors.push_back(accessor);
+
+		return model.accessors.size() - 1;
 	}
 
-	void GLTFIO::toVec3f(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector3f>* pOut) {
+	void GLTFIO::toVec3f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector3f>* pOut) {
 		for (auto e : *pIn) {
 			Eigen::Vector3f vec;
 
@@ -1282,7 +1340,7 @@ namespace CForge {
 		}
 	}
 
-	void GLTFIO::toVec4f(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector4f>* pOut) {
+	void GLTFIO::toVec4f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector4f>* pOut) {
 		for (auto e : *pIn) {
 			Eigen::Vector4f vec;
 
@@ -1294,7 +1352,7 @@ namespace CForge {
 		}
 	}
 
-	void GLTFIO::toQuatf(std::vector<std::vector<float>>* pIn, std::vector<Eigen::Quaternionf>* pOut) {
+	void GLTFIO::toQuatf(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Quaternionf>* pOut) {
 		for (auto e : *pIn) {
 			Eigen::Quaternionf quat(e[3], e[0], e[1], e[2]);
 
@@ -1302,7 +1360,7 @@ namespace CForge {
 		}
 	}
 
-	void GLTFIO::fromVec3f(std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut) {
+	void GLTFIO::fromVec3f(const std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut) {
 		for (auto e : *pIn) {
 			std::vector<float> toAdd;
 			toAdd.push_back(e(0));
@@ -1312,7 +1370,7 @@ namespace CForge {
 		}
 	}
 
-	void GLTFIO::fromVec4f(std::vector<Eigen::Vector4f>* pIn, std::vector<std::vector<float>>* pOut) {
+	void GLTFIO::fromVec4f(const std::vector<Eigen::Vector4f>* pIn, std::vector<std::vector<float>>* pOut) {
 		for (auto e : *pIn) {
 			std::vector<float> toAdd;
 			toAdd.push_back(e(0));
@@ -1323,7 +1381,7 @@ namespace CForge {
 		}
 	}
 
-	void GLTFIO::fromQuatf(std::vector<Eigen::Quaternionf>* pIn, std::vector<std::vector<float>>* pOut) {
+	void GLTFIO::fromQuatf(const std::vector<Eigen::Quaternionf>* pIn, std::vector<std::vector<float>>* pOut) {
 		for (auto e : *pIn) {
 			std::vector<float> toAdd;
 			toAdd.push_back(e.x());
@@ -1337,7 +1395,6 @@ namespace CForge {
 
 //TODO
 /*
-* writeSparseAccessorData
 * Wo muss Rotation und Scale pro Node hin? Bone hat nur Position und Offsetmatrix.
 * Skelettanimationen schreiben.
 * Morph targets schreiben.
