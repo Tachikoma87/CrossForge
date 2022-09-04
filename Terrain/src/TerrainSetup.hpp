@@ -1022,7 +1022,7 @@ private:
     bool generateNew = true;
     bool renderGrass = false;
 	
-	float sunAngleX = 60.0;
+	float sunAngleX = 0.0;
 	float sunAngleY = 0.0;
 	float sunTime = 0.0;
 	bool sunAuto = false;

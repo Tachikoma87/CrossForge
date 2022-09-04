@@ -4,6 +4,8 @@
 #include <iostream>
 #include <unordered_map>
 #include <functional>
+#include "SLOD.h"
+#include <igl/decimate.h>
 
 using namespace Eigen;
 
@@ -122,7 +124,12 @@ namespace CForge {
 		//std::cout << "DV\n" << DV << "\n";
 		//std::cout << "DF\n" << DF << "\n";
 		//bool iglDecRes = igl::decimate(DVnoMul, DF, amount*DF.rows(), DVnoMul, DF, DuF, DuV);
-		bool iglDecRes = decimateOctree(DVnoMul, DF, &DuF, &DuV, amount*DF.rows(), DVnoMulUsedInTri);
+		SLOD* pSLOD = SLOD::instance();
+		bool iglDecRes = false;
+		if (pSLOD->useLibigl)
+			iglDecRes = igl::decimate(DVnoMul, DF, amount*DF.rows(), DVnoMul, DF, DuF, DuV);
+		else
+			iglDecRes = decimateOctree(DVnoMul, DF, &DuF, &DuV, amount*DF.rows(), DVnoMulUsedInTri);
 		if (!iglDecRes) {
 			std::cout << "an error occured while decimating!\n";
 			//std::exit(-1);
@@ -373,6 +380,9 @@ namespace CForge {
 		while (DF.rows() - removeFaceCount > faceAmount) {
 			printf("\r");
 			printf("%.1f", removeFaceCount/progressDiff*100.0);
+			
+			if (depthNodes.size() == 0)
+				break;
 			// get last largest depth node
 			std::unordered_map<octreeNode*,bool>* largestDepth = &(depthNodes.back());
 			

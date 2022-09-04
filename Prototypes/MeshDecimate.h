@@ -1,9 +1,4 @@
 #pragma once
-
-// #include <igl/decimate.h>
-//#include <igl/read_triangle_mesh.h>
-//#include <igl/write_triangle_mesh.h>
-
 #include "../CForge/AssetIO/T3DMesh.hpp"
 
 namespace CForge {
@@ -12,7 +7,7 @@ namespace CForge {
 	public:
 		static bool decimateMesh(const CForge::T3DMesh<float>* inMesh, CForge::T3DMesh<float>* outMesh, float amount);
 		
-		static const uint32_t m_MaxOctreeDepth = 128;
+		static const uint32_t m_MaxOctreeDepth = 40;
 		static const uint32_t m_MaxLeafVertexCount = 5;
 
 		struct octreeNode {

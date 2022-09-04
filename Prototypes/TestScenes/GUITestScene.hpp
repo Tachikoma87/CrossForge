@@ -293,7 +293,9 @@ public:
 
 			gui.processEvents();
 			gui.render(&RDev);
-
+			
+			RDev.PPBufferFinalize();
+			
 			RenderWin.swapBuffers();
 
 			RDev.LODSG_clear();

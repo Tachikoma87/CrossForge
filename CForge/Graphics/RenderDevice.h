@@ -185,12 +185,13 @@ namespace CForge {
 
 		ActiveLight* findActiveLight(ILight* pLight);
 		// container assigning an actor <-> transform a query
+
+		std::vector<LODQueryContainer> LODQueryContainers;
 		
 		// SceneGraph actors and transformations for rendering
 		std::vector<IRenderableActor*> m_LODSGActors;
 		std::vector<Eigen::Matrix4f> m_LODSGTransformations;
-
-		std::vector<LODQueryContainer> LODQueryContainers;
+		
 		CForge::PPBuffer m_PPBuffer1;
 		CForge::PPBuffer m_PPBuffer2;
 		bool m_PP1TexBound = true;

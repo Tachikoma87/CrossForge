@@ -87,13 +87,46 @@ namespace CForge {
 
 		float getFOV();
 
+		typedef struct FrustumPlane {
+			Eigen::Vector3f n = Eigen::Vector3f(0.0f,1.0f,0.0f);
+			float dist = 0.0f;
+			
+			void update(Eigen::Vector3f norm, Eigen::Vector3f p) {
+				n = norm;
+				dist = n.dot(p);
+			}
+		} FrustumPlane;
+		
+		enum FrustumPlaneIndex {
+			FRUSTUMPLANE_NEAR = 0,
+			FRUSTUMPLANE_FAR,
+			FRUSTUMPLANE_LEFT,
+			FRUSTUMPLANE_RIGHT,
+			FRUSTUMPLANE_TOP,
+			FRUSTUMPLANE_BOTTOM,
+		};
+		
+		typedef struct Frustum {
+			struct FrustumPlane plan[6];
+		} Frustum;
+		
+		const Frustum* getFrustum();
+
 	protected:
+		
 		void notifyListeners(VirtualCameraMsg::MsgCode Code);
 
 		Eigen::Vector3f m_Position;
 		Eigen::Quaternionf m_Rotation;
 		Eigen::Matrix4f m_Projection;
 		float m_FOV;
+		
+		float m_Near;
+		float m_Far;
+		float m_Aspect;
+		
+		Frustum m_Frustum;
+		void updateFrustum();
 	};//VirtualCamera
 
 }//name space

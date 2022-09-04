@@ -470,7 +470,7 @@ namespace CForge {
 		
 		if (m_isManualInstaned) { // all instanced at once
 			for (uint32_t i = 0; i < m_instancedMatrices.size(); i++) {
-				if (!fovCulling(pRDev, &m_instancedMatrices[i]))
+				if (!frustumCulling(pRDev, &m_instancedMatrices[i]))
 					continue;
 #if SKIP_INSTANCED_QUERIES
 				m_instancedMatRef[0]->push_back(m_instancedMatrices[i]);
@@ -485,7 +485,7 @@ namespace CForge {
 			}
 		}
 		else if (m_isInstanced) { // single instance, other instances get added over SG
-			if (!fovCulling(pRDev, &sgMat))
+			if (!frustumCulling(pRDev, &sgMat))
 				return;
 #if SKIP_INSTANCED_QUERIES
 			m_instancedMatrices.push_back(sgMat);
@@ -499,7 +499,7 @@ namespace CForge {
 #endif
 		}
 		else {
-			if (!fovCulling(pRDev, &sgMat))
+			if (!frustumCulling(pRDev, &sgMat))
 				return;
 			queryAABB(pRDev, sgMat);
 		}
@@ -677,8 +677,7 @@ namespace CForge {
 		return m_LODPercentages;
 	}
 
-	bool LODActor::fovCulling(RenderDevice* pRDev, Eigen::Matrix4f* mat) {
-		return true;
+	bool LODActor::fovCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat) {
 		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
 		
 		float aabbRadius = getAABBradius(*mat);
@@ -693,6 +692,65 @@ namespace CForge {
 		if (std::acos(camPosToObj.normalized().dot(pRDev->activeCamera()->dir())) - (BSborderAngle) > (fov))
 			return false;
 		return true;
+	}
+
+	// frustum culling reference: https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
+	bool LODActor::frustumCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat) {
+		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
+		
+		// frustum in world space
+		const VirtualCamera::Frustum* pFrust = pRDev->activeCamera()->getFrustum();
+		
+		Eigen::Affine3f aff(*mat);
+		
+		// bounding box in world space
+		Eigen::Vector3f min = aff * m_aabb.Min;
+		Eigen::Vector3f max = aff * m_aabb.Max;
+		Eigen::Vector3f c = 0.5*min+0.5*max;
+		Eigen::Vector3f e = max-c;
+		
+		Eigen::Vector3f ri = mat->col(0).head<3>().normalized()*e[0];
+		Eigen::Vector3f up = mat->col(1).head<3>().normalized()*e[1];
+		Eigen::Vector3f fd = mat->col(2).head<3>().normalized()*e[2];
+		
+		// restore AABB due to Object Space AABB -> World Space BB
+		float Ii = abs(Eigen::Vector3f(1.0f,0.0f,0.0f).dot(ri))
+		         + abs(Eigen::Vector3f(1.0f,0.0f,0.0f).dot(up))
+		         + abs(Eigen::Vector3f(1.0f,0.0f,0.0f).dot(fd));
+		
+		float Ij = abs(Eigen::Vector3f(0.0f,1.0f,0.0f).dot(ri))
+		         + abs(Eigen::Vector3f(0.0f,1.0f,0.0f).dot(up))
+		         + abs(Eigen::Vector3f(0.0f,1.0f,0.0f).dot(fd));
+		
+		float Ik = abs(Eigen::Vector3f(0.0f,0.0f,1.0f).dot(ri))
+		         + abs(Eigen::Vector3f(0.0f,0.0f,1.0f).dot(up))
+		         + abs(Eigen::Vector3f(0.0f,0.0f,1.0f).dot(fd));
+		
+		max = c+Eigen::Vector3f(Ii,Ij,Ik);
+		min = c-Eigen::Vector3f(Ii,Ij,Ik);
+		T3DMesh<float>::AABB sclAABB = {min,max};
+		
+		return AABBonPlan(&sclAABB, &pFrust->plan[0])
+		    && AABBonPlan(&sclAABB, &pFrust->plan[1])
+		    && AABBonPlan(&sclAABB, &pFrust->plan[2])
+		    && AABBonPlan(&sclAABB, &pFrust->plan[3])
+		    && AABBonPlan(&sclAABB, &pFrust->plan[4])
+		    && AABBonPlan(&sclAABB, &pFrust->plan[5]);
+	}
+	
+	// algorithm from https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html
+	inline bool LODActor::AABBonPlan(const T3DMesh<float>::AABB* aabb, const VirtualCamera::FrustumPlane* plan) {
+		Eigen::Vector3f c = 0.5*(aabb->Min+aabb->Max);
+		Eigen::Vector3f e = aabb->Max-c;
+		
+		// bounding box span in normal direction of plane
+		float r = e[0]*abs(plan->n[0])
+		        + e[1]*abs(plan->n[1])
+		        + e[2]*abs(plan->n[2]);
+		
+		// distance center to plane
+		float s = (plan->n.dot(c) - plan->dist);
+		return s > -r;
 	}
 
 	void LODActor::setFaceCulling(bool state) {

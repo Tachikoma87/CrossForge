@@ -119,6 +119,9 @@ namespace CForge {
 	void VirtualCamera::projectionMatrix(uint32_t ViewportWidth, uint32_t ViewportHeight, float FieldOfView, float NearPlane, float FarPlane) {
 		m_Projection = GraphicsUtility::perspectiveProjection(ViewportWidth, ViewportHeight, FieldOfView, NearPlane, FarPlane);
 		m_FOV = FieldOfView;
+		m_Near = NearPlane;
+		m_Far = FarPlane;
+		m_Aspect = (float) ViewportWidth/ViewportHeight;
 		notifyListeners(VirtualCameraMsg::PROJECTION_CHANGED);
 	}//projectionMatrix
 
@@ -170,6 +173,8 @@ namespace CForge {
 	}//rotZ
 
 	void VirtualCamera::notifyListeners(VirtualCameraMsg::MsgCode Code) {
+		updateFrustum();
+		
 		VirtualCameraMsg Msg(this);
 		Msg.Code = Code;
 		broadcast(Msg);
@@ -177,5 +182,28 @@ namespace CForge {
 
 	float VirtualCamera::getFOV() {
 		return m_FOV;
+	}
+
+	void VirtualCamera::updateFrustum() {
+
+		const float halfVSide = m_Far * std::tan(m_FOV * 0.5);
+		const float halfHSide = halfVSide * m_Aspect;
+
+		const Eigen::Vector3f cDir = dir().normalized();
+		const Eigen::Vector3f cUp = up().normalized();
+		const Eigen::Vector3f cRig = right().normalized();
+		const Eigen::Vector3f sclFar = cDir*m_Far;
+		const float dstPos = m_Position.norm();
+		
+		m_Frustum.plan[0].update(cDir, m_Position + m_Near * cDir);
+		m_Frustum.plan[1].update(-cDir, (m_Position + sclFar));
+		m_Frustum.plan[2].update((sclFar - cRig*halfHSide).cross(cUp).normalized(), m_Position);
+		m_Frustum.plan[3].update(cUp.cross(sclFar + cRig*halfHSide).normalized(), m_Position);
+		m_Frustum.plan[4].update((sclFar + cUp*halfVSide).cross(cRig).normalized(), m_Position);
+		m_Frustum.plan[5].update(cRig.cross(sclFar - cUp*halfVSide).normalized(), m_Position);
+	}
+
+	const VirtualCamera::Frustum* VirtualCamera::getFrustum() {
+		return &m_Frustum;
 	}
 }//name space
