@@ -692,6 +692,7 @@ public:
 		pSLOD->setResolution(Vector2i(WINWIDTH,WINHEIGHT));
         while (!window.shutdown()) {
 			pSLOD->update();
+			pSLOD->setCFOV(CAM_FOV);
 			
 			if (sunAuto)
 				sunTime += pSLOD->getDeltaTime()*0.1;
@@ -983,10 +984,18 @@ public:
                 fpsWidget->setText(text);
                 fpsWidget->setPosition(window.width()-fpsWidget->getWidth(), 0);
             }
+			
+			//if (FPSTCount == 1000) {
+			//	break;
+			//}
         }
 		
 		FPSTmean /= FPSTCount;
 		std::cout << "FPSTmean: " << FPSTmean << "\n";
+
+		pSLOD->CT /= pSLOD->CTC;
+		std::cout << "CTmean: " << pSLOD->CT << "\n";
+
 		pSLOD->release();
     }
 private:

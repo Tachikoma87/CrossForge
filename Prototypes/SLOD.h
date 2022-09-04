@@ -30,6 +30,12 @@ namespace CForge {
 		bool forceLODregeneration = false;
 		bool useLibigl = false;
 		
+		double CT = 0.0;
+		uint64_t CTC = 0;
+		
+		void setCFOV(float FOV);
+		float getCFOV();
+		
 	protected:
 		SLOD(void);
 		~SLOD(void);
@@ -52,5 +58,7 @@ namespace CForge {
 		
 		static SLOD* m_pInstance;
 		static uint32_t m_InstanceCount;
+		
+		float m_CFOV = 0.0;
 	};
 }

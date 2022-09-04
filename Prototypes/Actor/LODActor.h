@@ -104,8 +104,8 @@ namespace CForge {
 		void setBufferData(void);
 
 		void initiateBuffers(uint32_t level);
-		bool fovCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat);
-		bool frustumCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat);
+		inline bool fovCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat);
+		inline bool frustumCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat);
 		
 		SLOD* m_pSLOD;
 		bool m_initialized = false;

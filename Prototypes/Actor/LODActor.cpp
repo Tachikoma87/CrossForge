@@ -11,6 +11,9 @@
 #define LOD_RENDERING true
 #define SKIP_INSTANCED_QUERIES true
 
+#define CMIX false // use FOV culling before FRUSTUM culling
+#define CFOV true // use FOV culling instead of FRUSTUM culling
+#define CFOV_ARCCOS false // use slower arccos calculation for FOV culling
 
 #define M_PI 3.1415926535
 
@@ -468,9 +471,34 @@ namespace CForge {
 	
 	void LODActor::testAABBvis(class RenderDevice* pRDev, Eigen::Matrix4f sgMat) {
 		
+		double t_mean = 0.0;
+		uint32_t c = 0;
 		if (m_isManualInstaned) { // all instanced at once
 			for (uint32_t i = 0; i < m_instancedMatrices.size(); i++) {
-				if (!frustumCulling(pRDev, &m_instancedMatrices[i]))
+
+				auto start = std::chrono::steady_clock::now();
+				
+#if CMIX
+				bool res2 = !fovCulling(pRDev, &m_instancedMatrices[i]);
+				bool res;
+				if (res2)
+					res = true;
+				else
+					res = !frustumCulling(pRDev, &m_instancedMatrices[i]);
+#elif CFOV
+				bool res2 = !fovCulling(pRDev, &m_instancedMatrices[i]);
+				bool res = res2;
+#else
+				bool res2 = !frustumCulling(pRDev, &m_instancedMatrices[i]);
+				bool res = res2;
+#endif
+	
+				auto end = std::chrono::steady_clock::now();
+
+				long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
+				double time = 0.000001 * microseconds;
+				t_mean += microseconds;
+				if (res)
 					continue;
 #if SKIP_INSTANCED_QUERIES
 				m_instancedMatRef[0]->push_back(m_instancedMatrices[i]);
@@ -482,7 +510,17 @@ namespace CForge {
 				pRDev->modelUBO()->modelMatrix(m_instancedMatrices[i]);
 				queryAABB(pRDev, m_instancedMatrices[i]);
 #endif
+				//c++;
+				//if (c > 1000) {
+				//	std::cout << "t_mean " << t_mean << "\n";
+				//	exit(1);
+				//}
 			}
+			//std::cout << m_instancedMatrices.size() << "\n";
+			//std::cout << t_mean << "\n";
+			
+			m_pSLOD->CT += t_mean;
+			m_pSLOD->CTC += m_instancedMatrices.size();
 		}
 		else if (m_isInstanced) { // single instance, other instances get added over SG
 			if (!frustumCulling(pRDev, &sgMat))
@@ -499,7 +537,31 @@ namespace CForge {
 #endif
 		}
 		else {
-			if (!frustumCulling(pRDev, &sgMat))
+			auto start = std::chrono::steady_clock::now();
+
+#if CMIX
+			bool res2 = !fovCulling(pRDev, &sgMat);
+			bool res;
+			if (res2)
+				res = true;
+			else
+				res = !frustumCulling(pRDev, &sgMat);
+#elif CFOV
+			bool res2 = !fovCulling(pRDev, &sgMat);
+			bool res = res2;
+#else
+			bool res2 = !frustumCulling(pRDev, &sgMat);
+			bool res = res2;
+#endif
+
+			auto end = std::chrono::steady_clock::now();
+
+			long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
+			double time = 0.000001 * microseconds;
+			t_mean += time;
+			m_pSLOD->CT += t_mean;
+			m_pSLOD->CTC += m_instancedMatrices.size();
+			if (res)
 				return;
 			queryAABB(pRDev, sgMat);
 		}
@@ -677,25 +739,55 @@ namespace CForge {
 		return m_LODPercentages;
 	}
 
-	bool LODActor::fovCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat) {
-		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
+	inline bool LODActor::fovCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat) {
+#if CFOV_ARCCOS
+		{
+			Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
 		
-		float aabbRadius = getAABBradius(*mat);
-		Eigen::Vector3f camPosToObj = Translation+getAABBcenter(*mat)-pRDev->activeCamera()->position();
+			float aabbRadius = getAABBradius(*mat);
+			Eigen::Vector3f camPosToObj = Translation+getAABBcenter(*mat)-pRDev->activeCamera()->position();
 		
-		if (camPosToObj.norm()-aabbRadius < 0.0)
+			if (camPosToObj.norm()-aabbRadius < 0.0)
+				return true;
+		
+			float BSborderAngle = 2.0*std::asin(aabbRadius/(2.0*camPosToObj.norm()));
+		
+			float fov = pRDev->activeCamera()->getFOV();
+			if (std::acos(camPosToObj.normalized().dot(pRDev->activeCamera()->dir())) - (BSborderAngle) > (fov))
+				return false;
 			return true;
-		
-		float BSborderAngle = 2.0*std::asin(aabbRadius/(2.0*camPosToObj.norm()));
-		
-		float fov = pRDev->activeCamera()->getFOV();
-		if (std::acos(camPosToObj.normalized().dot(pRDev->activeCamera()->dir())) - (BSborderAngle) > (fov))
-			return false;
-		return true;
+			//std::cout << "angle: " << std::cos(std::acos(camPosToObj.normalized().dot(pRDev->activeCamera()->dir())) - (BSborderAngle)) << "\n";
+		}
+#else
+		{
+			Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
+
+			float aabbRadius = getAABBradius(*mat);
+			Eigen::Vector3f camPosToObj = Translation+getAABBcenter(*mat)-pRDev->activeCamera()->position();
+
+			float a = camPosToObj.norm();
+			if (a-aabbRadius < 0.0)
+				return true;
+			float x = 1.0-aabbRadius*aabbRadius/(2.0*a*a);
+			float y = std::sqrt(1.0-x*x);
+
+
+			Eigen::Vector3f von = camPosToObj.normalized();
+			Eigen::Vector3f vn = von.cross(pRDev->activeCamera()->dir());
+			Eigen::Vector3f pc = vn.cross(von);
+			Eigen::Vector3f vec = von*x + pc*y;
+
+			float res = vec.dot(pRDev->activeCamera()->dir());
+			//std::cout << "alt: " << res << "\n\n";
+			if (res < m_pSLOD->getCFOV())
+				return false;
+			return true;
+		}
+#endif
 	}
 
 	// frustum culling reference: https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
-	bool LODActor::frustumCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat) {
+	inline bool LODActor::frustumCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat) {
 		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
 		
 		// frustum in world space
@@ -730,12 +822,12 @@ namespace CForge {
 		min = c-Eigen::Vector3f(Ii,Ij,Ik);
 		T3DMesh<float>::AABB sclAABB = {min,max};
 		
-		return AABBonPlan(&sclAABB, &pFrust->plan[0])
-		    && AABBonPlan(&sclAABB, &pFrust->plan[1])
-		    && AABBonPlan(&sclAABB, &pFrust->plan[2])
-		    && AABBonPlan(&sclAABB, &pFrust->plan[3])
-		    && AABBonPlan(&sclAABB, &pFrust->plan[4])
-		    && AABBonPlan(&sclAABB, &pFrust->plan[5]);
+		return AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_NEAR])
+		    && AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_LEFT])
+		    && AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_RIGHT])
+		    && AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_BOTTOM])
+		    && AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_TOP])
+		    && AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_FAR]);
 	}
 	
 	// algorithm from https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html

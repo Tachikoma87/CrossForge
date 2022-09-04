@@ -1,5 +1,6 @@
 #include "SLOD.h"
 #include "glad/glad.h"
+#define M_PI 3.1415926535
 
 namespace CForge {
 	SLOD* SLOD::m_pInstance = nullptr;
@@ -71,5 +72,13 @@ namespace CForge {
 
 	void SLOD::setLODLevels(std::vector<float> levels) {
 		LODLevels = levels;
+	}
+	
+	void SLOD::setCFOV(float FOV) {
+		m_CFOV = std::cos(FOV/180.0*M_PI);
+	}
+	
+	float SLOD::getCFOV() {
+		return m_CFOV;
 	}
 }

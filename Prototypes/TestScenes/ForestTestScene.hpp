@@ -135,6 +135,7 @@ namespace CForge {
 		Cam.init(Vector3f(20.0f, 5.0f, 45.0f), Vector3f::UnitY());
 		Cam.lookAt(Vector3f(10.0f, 5.0f, 35.0f), Vector3f(0.0f, 4.0f, 25.0f), Vector3f::UnitY());
 		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 800.0f);
+		pSLOD->setCFOV(45.0f);
 
 		// initialize sun (key lights) and back ground light (fill light)
 		Vector3f SunPos = Vector3f(-25.0f, 150.0f, 200.0f);

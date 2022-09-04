@@ -115,7 +115,7 @@ public:
 		std::string WindowTitle = "CForge - Minimum Graphics Setup";
 		float FPS = 60.0f;
 
-		bool const LowRes = false;
+		bool const LowRes = true;
 
 		uint32_t WinWidth = 1920;
 		uint32_t WinHeight = 1080;
@@ -159,6 +159,7 @@ public:
 		VirtualCamera Cam;
 		Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
 		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+		pSLOD->setCFOV(45.0f);
 
 		// initialize sun (key lights) and back ground light (fill light)
 		Vector3f SunPos = Vector3f(-5.0f, 15.0f, 35.0f);

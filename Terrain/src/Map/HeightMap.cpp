@@ -145,6 +145,9 @@ namespace Terrain {
 
         float offset_x = x - coord_x;
         float offset_y = y - coord_y;
+		
+		coord_x = std::clamp(coord_x, (int32_t) 0, (int32_t) mConfig.height-2);
+		coord_y = std::clamp(coord_y, (int32_t) 0, (int32_t) mConfig.width-2);
 
         float s00 = mHeights[coord_x + mConfig.height * coord_y];
         float s10 = mHeights[coord_x + mConfig.height * coord_y + 1];
