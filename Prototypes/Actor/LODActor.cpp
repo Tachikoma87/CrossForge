@@ -13,7 +13,7 @@
 #define CPU_QUERY true
 
 #define CMIX false // use FOV culling before FRUSTUM culling
-#define CFOV true // use FOV culling instead of FRUSTUM culling
+#define CFOV false // use FOV culling instead of FRUSTUM culling
 #define CFOV_ARCCOS false // use slower arccos calculation for FOV culling
 
 #define M_PI 3.1415926535
@@ -803,8 +803,11 @@ namespace CForge {
 			Eigen::Vector3f vec = von*x + pc*y;
 
 			float res = vec.dot(pRDev->activeCamera()->dir());
-			//std::cout << "alt: " << res << "\n\n";
-			if (res < m_pSLOD->getCFOV())
+			float c = von.dot(pRDev->activeCamera()->dir());
+			std::cout << "alt: " << res << "\n";
+			
+			float fov = m_pSLOD->getCFOV();
+			if (res < fov && c < fov)
 				return false;
 			return true;
 		}
