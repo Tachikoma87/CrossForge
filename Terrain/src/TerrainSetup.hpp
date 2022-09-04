@@ -30,7 +30,7 @@ int WINWIDTH = 1920;
 int WINHEIGHT = 1080;
 #define FULLSCREEN false
 #define FOVCULLING true
-#define LOD_RENDERING false // make sure to change the corresponding macro in LODActor.cpp
+#define LOD_RENDERING true // make sure to change the corresponding macro in LODActor.cpp
 float cameraPanSpeed = 1.0;
 
 namespace Terrain {
@@ -232,7 +232,10 @@ public:
             }
         }
     }
-
+	
+	void clearGrass(LODActor &iGrassActor) {
+		iGrassActor.clearInstances();
+	}
 
     void placeDekoElements(TerrainMap &map, LODActor &iPineActor, LODActor &iPineLeavesActor, LODActor &iTreeActor, LODActor &iTreeLeavesActor, LODActor &iPalmActor, LODActor &iPalmLeavesActor, LODActor &iRockActor, LODActor& iBushActor) {
         iPineActor.clearInstances();
@@ -406,6 +409,7 @@ public:
             shadows = *((bool*)Msg.Data.at(GUI_SHADOWS).pData);
 			ssao = *((bool*)Msg.Data.at(GUI_SSAO).pData);
             wireframe = *((bool*)Msg.Data.at(GUI_WIREFRAME).pData);
+			decoWireframe = *((bool*)Msg.Data.at(GUI_DECOWIREFRAME).pData);
             renderGrass = *((bool*)Msg.Data.at(GUI_RENDERGRASS).pData);
             if (*((bool*)Msg.Data.at(GUI_UNLOCKEDFRAMERATE).pData)) {   //'unlock framerate'
                 glfwSwapInterval(0);
@@ -414,6 +418,7 @@ public:
             };
             cameraPanSpeed = *((float*)Msg.Data.at(GUI_CAMERASPEED).pData);
             CAM_FOV = *((float*)Msg.Data.at(GUI_FOV).pData);
+			pSLOD->TriangleSize = (int) *((float*)Msg.Data.at(GUI_LODOFFSET).pData);
             camera.projectionMatrix(WINWIDTH, WINHEIGHT, GraphicsUtility::degToRad(CAM_FOV), 0.1f, 5000.0f);
         } else if (Msg.FormID == 2) {
             //GENERATE NEW TERRAIN
@@ -451,7 +456,7 @@ public:
 
     TerrainSetup() {
 
-		SLOD* pSLOD = SLOD::instance();
+		pSLOD = SLOD::instance();
 		
 #if LOD_RENDERING
 		
@@ -591,6 +596,8 @@ public:
 		form->setDefault(GUI_SSAO, ssao);
         form->addOption(GUI_WIREFRAME, INPUTTYPE_BOOL, U"Wireframe");
         form->setDefault(GUI_WIREFRAME, wireframe);
+		form->addOption(GUI_DECOWIREFRAME, INPUTTYPE_BOOL, U"Deco Wireframe");
+		form->setDefault(GUI_DECOWIREFRAME, decoWireframe);
         form->addOption(GUI_RENDERGRASS, INPUTTYPE_BOOL, U"Enable Grass");
         form->setDefault(GUI_RENDERGRASS, renderGrass);
         form->addOption(GUI_UNLOCKEDFRAMERATE, INPUTTYPE_BOOL, U"Unlock Framerate");
@@ -603,6 +610,10 @@ public:
         form->setLimit(GUI_FOV, 60.0f, 120.0f);
         form->setStepSize(GUI_FOV, 1.0f);
         form->setDefault(GUI_FOV, CAM_FOV);
+		form->addOption ( GUI_LODOFFSET, INPUTTYPE_RANGESLIDER, U"LOD Offest" );
+		form->setLimit ( GUI_LODOFFSET, 0.0f, 100.0 );
+		form->setStepSize ( GUI_LODOFFSET, 1.0f ); // TODO
+		form->setDefault ( GUI_LODOFFSET, (float) pSLOD->TriangleSize );
 
         //re-use the form variable for other windows because after the setup,
         //the widget's pointer not very useful for us (and it's easier to copy/paste)
@@ -774,7 +785,14 @@ public:
 			renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			
 			renderDevice.LODSG_assemble();
-			renderDevice.LODSG_render();
+			if (decoWireframe) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glLineWidth(1);
+				renderDevice.LODSG_render();
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			} else {
+				renderDevice.LODSG_render();
+			}
 #else
             //Deko instances
             iPineActor.render(&renderDevice);
@@ -787,11 +805,12 @@ public:
             iPalmLeavesActor.render(&renderDevice);
 #endif
             glDisable(GL_CULL_FACE);
-            if (renderGrass) {
-                updateGrass(iGrassActor, map, camera);
-                //iGrassActor.init(&GrassMesh);
-                iGrassActor.render(&renderDevice);
-            }
+			if (renderGrass) {
+				updateGrass(iGrassActor, map, camera);
+			}
+			else {
+				clearGrass(iGrassActor);
+			}
             glEnable(GL_CULL_FACE);
 			
 			renderDevice.activePass(RenderDevice::RENDERPASS_SHADOW, &sun);
@@ -867,10 +886,14 @@ public:
                 debugTexture = !debugTexture;
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F3)) {
-                window.keyboard()->keyState(Keyboard::KEY_F3, Keyboard::KEY_RELEASED);
-                clipMapConfig = {.sideLength = 256, .levelCount = 5};
-
-                map.generateClipMap(clipMapConfig);
+				if (terrainLOD)
+					clipMapConfig = {.sideLength = 256, .levelCount = 5};
+				else
+					clipMapConfig = {.sideLength = 4, .levelCount = 6};
+				
+				terrainLOD = !terrainLOD;
+				map.generateClipMap(clipMapConfig);
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F4)) {
                 window.keyboard()->keyState(Keyboard::KEY_F4, Keyboard::KEY_RELEASED);
@@ -1001,6 +1024,7 @@ public:
 private:
     enum GUI_OPTIONS {
         GUI_WIREFRAME,
+		GUI_DECOWIREFRAME,
         GUI_RENDERGRASS,
         GUI_CAMERAMODE,
         GUI_SHADOWS,
@@ -1008,6 +1032,7 @@ private:
         GUI_UNLOCKEDFRAMERATE,
         GUI_CAMERASPEED,
         GUI_FOV,
+		GUI_LODOFFSET,
 
         GUI_TERRAIN_SEED,
         GUI_TERRAIN_SCALE,
@@ -1022,9 +1047,10 @@ private:
     };
 
     bool wireframe = false;
+	bool decoWireframe = false;
     bool debugTexture = false;
     bool shadows = true;
-	bool ssao = true;
+	bool ssao = false;
     bool richard = false;
     bool erode = false;
     bool cameraMode = false;
@@ -1035,6 +1061,9 @@ private:
 	float sunAngleY = 0.0;
 	float sunTime = 0.0;
 	bool sunAuto = false;
+	
+	// not yet in gui
+	bool terrainLOD = true;
 	
     TerrainMap* mapPointer;
     HeightMap::NoiseConfig noiseConfig = {.seed = static_cast<uint32_t>(rand()),
@@ -1053,6 +1082,8 @@ private:
     LODActor* piGrassActor;
     LODActor* piBushActor;
     LODActor* piRockActor;
+
+	SLOD* pSLOD;
 
     GLWindow window;
 	RenderDevice::RenderDeviceConfig renderConfig;

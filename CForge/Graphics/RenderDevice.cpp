@@ -585,11 +585,13 @@ namespace CForge {
 		
 		for (uint32_t i = 0; i < LODQueryContainers.size(); i++) {
 			LODQueryContainer* queryContainer = &LODQueryContainers[i];
-			GLuint pixelCount;
-			GLint queryState;
 			GLuint queryID = queryContainer->queryID;
+			if (queryID == 0)
+				continue;
+			GLuint pixelCount;
 			if (!glIsQuery(queryID) || queryContainer->pixelCount != -1)
 				continue;
+			GLint queryState;
 			do {
 				glGetQueryObjectiv(queryID, GL_QUERY_RESULT_AVAILABLE, &queryState);
 			} while (!queryState);
@@ -608,7 +610,11 @@ namespace CForge {
 		container.transform = transform;
 		LODQueryContainers.push_back(container);
 	}
-	
+
+	void RenderDevice::LODQueryContainerPushBack(LODQueryContainer container) {
+		LODQueryContainers.push_back(container);
+	}
+
 	void RenderDevice::LODSG_assemble() {
 		fetchQueryResults();
 		//printf("\n");

@@ -112,5 +112,5 @@ void main(){
 	
 	gPosition = vec4(Pos, 0.0);
 	gNormal = vec4(vertPos, 0.0);
-	gAlbedoSpec = vec4(texture(TexAlbedo, UV).rgb, 0) * (1 - noiseValue) + vec4(220 / 255.0, 210 / 255.0, 25 / 255.0, 0) * noiseValue;;
+	gAlbedoSpec = clamp(vec4(texture(TexAlbedo, UV).rgb, 0) * (1 - noiseValue) + vec4(220 / 255.0, 210 / 255.0, 25 / 255.0, 0) * noiseValue,0.0,1.0);
 }

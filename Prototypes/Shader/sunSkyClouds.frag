@@ -804,5 +804,5 @@ void main(){
 		           : scnCol*(1.0-distDiff)+(distDiff)*(SEA_BASE);
 	}
 
-	FragColor = vec4(oceanCol,0.0);
+	FragColor = vec4(clamp(oceanCol,0.0,1.0),0.0);
 }

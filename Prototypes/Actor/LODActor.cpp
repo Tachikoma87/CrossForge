@@ -9,7 +9,8 @@
 #include <iostream>
 
 #define LOD_RENDERING true
-#define SKIP_INSTANCED_QUERIES true
+#define SKIP_INSTANCED_QUERIES false
+#define CPU_QUERY true
 
 #define CMIX false // use FOV culling before FRUSTUM culling
 #define CFOV true // use FOV culling instead of FRUSTUM culling
@@ -113,11 +114,18 @@ namespace CForge {
 	
 	void LODActor::calculateLODPercentages() {
 		
+
+#if CPU_QUERY
+		// area of Bounding Sphere
+		float r = getAABBradius(Eigen::Matrix4f::Identity());
+		float side = M_PI*r*r;
+#else
 		// get surface area of biggest AABB side
 		Eigen::Vector3f diag = m_LODMeshes[0]->aabb().diagonal();
 		float a = std::max(diag.x(),std::max(diag.y(),diag.z()));
 		float b = diag.x()+diag.y()+diag.z()-a-std::min(diag.x(),std::min(diag.y(),diag.z()));
 		float side = (a*b);
+#endif
 
 		for (uint32_t i = 0; i < m_LODMeshes.size(); i++) {
 			
@@ -568,10 +576,26 @@ namespace CForge {
 	}
 	
 	void LODActor::queryAABB(RenderDevice* pRDev, Eigen::Matrix4f transform) {
+
+#if CPU_QUERY
+		Eigen::Vector3f Translation = Eigen::Vector3f(transform.data()[12], transform.data()[13], transform.data()[14]);
+		float aabbRadius = getAABBradius(transform);
+		Eigen::Vector3f camPosToObj = Translation+getAABBcenter(transform)-pRDev->activeCamera()->position();
+		float BSborderAngle = 2.0*std::asin(aabbRadius/(2.0*camPosToObj.norm()));
+		float fov = pRDev->activeCamera()->getFOV();
+		float screenCov = BSborderAngle*BSborderAngle/(fov*fov);
+		
+		RenderDevice::LODQueryContainer container;
+		container.pActor = this;
+		container.pixelCount = screenCov*m_pSLOD->getResPixAmount();
+		container.queryID = 0;
+		container.transform = transform;
+		pRDev->LODQueryContainerPushBack(container);
+#else
 		GLuint queryID;
 		glGenQueries(1, &queryID);
 		glBeginQuery(GL_SAMPLES_PASSED, queryID);
-
+		
 		if (!glIsQuery(queryID)) {
 			CForgeExcept("query generation failed");
 			// fetch current queries if no more are available
@@ -581,9 +605,10 @@ namespace CForge {
 		}
 		
 		pRDev->LODQueryContainerPushBack(queryID, this, transform);
-	
+		
 		renderAABB(pRDev);
 		glEndQuery(GL_SAMPLES_PASSED);
+#endif
 	}
 	
 	void LODActor::evaluateQueryResult(Eigen::Matrix4f mat, GLint pixelCount) {
