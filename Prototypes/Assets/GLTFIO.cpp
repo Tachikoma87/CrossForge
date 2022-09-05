@@ -25,6 +25,7 @@ namespace CForge {
 
 	}//Destructor
 
+
 	void GLTFIO::load(const std::string Filepath, T3DMesh<float>* pMesh) {
 		this->pMesh = pMesh;
 		
@@ -131,6 +132,8 @@ namespace CForge {
 
 	}//load
 
+#pragma region read
+	
 	void GLTFIO::readMeshes() {
 		for (int i = 0; i < model.meshes.size(); i++) {
 			Mesh currentMesh = model.meshes[i];
@@ -652,6 +655,17 @@ namespace CForge {
 				pBone->Position(2) = node.translation[2];
 			}
 
+			if (node.rotation.size() > 0) {
+				Eigen::Quaternionf newRotation(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
+				pBone->Rotation = newRotation;
+			}
+
+			if (node.scale.size() > 0) {
+				pBone->Scale(0) = node.scale[0];
+				pBone->Scale(1) = node.scale[1];
+				pBone->Scale(2) = node.scale[2];
+			}
+
 			//Offset matrices will be set later in readSkinningData().
 
 			pBone->pParent = nullptr;
@@ -678,64 +692,7 @@ namespace CForge {
 
 		pMesh->bones(pBones, false);
 	}
-
-	int GLTFIO::sizeOfGltfComponentType(const int componentType) {
-		switch (componentType) {
-		default:
-			return 1;
-		case TINYGLTF_COMPONENT_TYPE_BYTE:
-			return 1;
-		case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
-			return 1;
-		case TINYGLTF_COMPONENT_TYPE_SHORT:
-			return 2;
-		case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
-			return 2;
-		case TINYGLTF_COMPONENT_TYPE_INT:
-			return 4;
-		case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
-			return 4;
-		case TINYGLTF_COMPONENT_TYPE_FLOAT:
-			return 4;
-		case TINYGLTF_COMPONENT_TYPE_DOUBLE:
-			return 8;
-		}
-	}//sizeOfGltfComponentType
-
-	int GLTFIO::componentCount(const int type) {
-		switch (type) {
-		default:
-			return 1;
-		case TINYGLTF_TYPE_SCALAR:
-			return 1;
-		case TINYGLTF_TYPE_VEC2:
-			return 2;
-		case TINYGLTF_TYPE_VEC3:
-			return 3;
-		case TINYGLTF_TYPE_VEC4:
-			return 4;
-		case TINYGLTF_TYPE_MAT2:
-			return 4;
-		case TINYGLTF_TYPE_MAT3:
-			return 9;
-		case TINYGLTF_TYPE_MAT4:
-			return 16;
-		}
-	}
-
-	bool GLTFIO::componentIsMatrix(const int type) {
-		switch (type) {
-		case TINYGLTF_TYPE_MAT2:
-		case TINYGLTF_TYPE_MAT3:
-		case TINYGLTF_TYPE_MAT4:
-			return true;
-		}
-
-		return false;
-	}
-
-
-
+#pragma endregion
 	
 	void GLTFIO::store(const std::string Filepath, const T3DMesh<float>* pMesh) {
 		this->pCMesh = pMesh;
@@ -763,6 +720,8 @@ namespace CForge {
 		writer.WriteGltfSceneToFile(&model, Filepath, false, false, true, false);
 	}//store
 
+#pragma region write
+	
 	void GLTFIO::writeMeshes() {
 		//Every texture will use this basic sampler.
 		Sampler gltfSampler;
@@ -1087,6 +1046,8 @@ namespace CForge {
 		}
 	}
 
+#pragma endregion
+
 	void GLTFIO::release(void) {
 		delete this;
 	}//release
@@ -1094,8 +1055,64 @@ namespace CForge {
 	bool GLTFIO::accepted(const std::string Filepath, I3DMeshIO::Operation Op) {
 		return (Filepath.find(".glb") != std::string::npos || Filepath.find(".gltf") != std::string::npos);
 	}//accepted
+	
+#pragma region Util
 
+	int GLTFIO::sizeOfGltfComponentType(const int componentType) {
+		switch (componentType) {
+		default:
+			return 1;
+		case TINYGLTF_COMPONENT_TYPE_BYTE:
+			return 1;
+		case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
+			return 1;
+		case TINYGLTF_COMPONENT_TYPE_SHORT:
+			return 2;
+		case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
+			return 2;
+		case TINYGLTF_COMPONENT_TYPE_INT:
+			return 4;
+		case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
+			return 4;
+		case TINYGLTF_COMPONENT_TYPE_FLOAT:
+			return 4;
+		case TINYGLTF_COMPONENT_TYPE_DOUBLE:
+			return 8;
+		}
+	}//sizeOfGltfComponentType
 
+	int GLTFIO::componentCount(const int type) {
+		switch (type) {
+		default:
+			return 1;
+		case TINYGLTF_TYPE_SCALAR:
+			return 1;
+		case TINYGLTF_TYPE_VEC2:
+			return 2;
+		case TINYGLTF_TYPE_VEC3:
+			return 3;
+		case TINYGLTF_TYPE_VEC4:
+			return 4;
+		case TINYGLTF_TYPE_MAT2:
+			return 4;
+		case TINYGLTF_TYPE_MAT3:
+			return 9;
+		case TINYGLTF_TYPE_MAT4:
+			return 16;
+		}
+	}
+
+	bool GLTFIO::componentIsMatrix(const int type) {
+		switch (type) {
+		case TINYGLTF_TYPE_MAT2:
+		case TINYGLTF_TYPE_MAT3:
+		case TINYGLTF_TYPE_MAT4:
+			return true;
+		}
+
+		return false;
+	}
+	
 	//returns indices buffer view to identify index data
 	int32_t GLTFIO::getSparseAccessorData(const int accessor, std::vector<int32_t>* pIndices, std::vector<std::vector<float>>* pData) {
 		Accessor acc = model.accessors[accessor];
@@ -1391,8 +1408,10 @@ namespace CForge {
 			pOut->push_back(toAdd);
 		}
 	}
-}//name space
 
+#pragma endregion
+}//name space
+ 
 //TODO
 /*
 * Wo muss Rotation und Scale pro Node hin? Bone hat nur Position und Offsetmatrix.
