@@ -1,13 +1,15 @@
 #pragma once
 
 #include "CForge/Core/CoreUtility.hpp"
-#include <CForge/Graphics/GraphicsUtility.h>
-#include <../../../CForge/Graphics/RenderDevice.h>"
-#include <CForge/Graphics/STextureManager.h>
 #include "../../../CForge/Graphics/Shader/SShaderManager.h"
+#include "./OceanObject.hpp"
+#include "CForge/Graphics/GraphicsUtility.h"
+#include "../../../CForge/Graphics/RenderDevice.h"
+#include "CForge/Graphics/STextureManager.h"
+
 #include <glad/glad.h>
 #include <iostream>
-#include "./OceanObject.hpp"
+
 
 
 using namespace CForge;
@@ -157,8 +159,6 @@ private:
 
 	void preCalcH0() {
 		// bind shader + texures
-		glActiveTexture(GL_TEXTURE0);
-
 		mPreCompShader->bind();
 		glBindImageTexture(0, mTextures[H0], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
@@ -211,17 +211,6 @@ private:
 	}
 
 	void updateHdTexture(float timeCount) {
-		glActiveTexture(GL_TEXTURE0);
-		glActiveTexture(GL_TEXTURE1);
-		glActiveTexture(GL_TEXTURE2);
-		glActiveTexture(GL_TEXTURE3);
-		glActiveTexture(GL_TEXTURE4);
-		glActiveTexture(GL_TEXTURE5);
-		glActiveTexture(GL_TEXTURE6);
-		glActiveTexture(GL_TEXTURE7);
-		glActiveTexture(GL_TEXTURE8);
-		glActiveTexture(GL_TEXTURE9);
-
 		// bind shader + texures
 		mRenderLoopShader->bind();
 

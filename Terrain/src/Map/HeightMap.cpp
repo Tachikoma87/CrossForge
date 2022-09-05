@@ -23,28 +23,32 @@ namespace Terrain {
         GLenum target = GL_TEXTURE_2D;
 
         // initialize texture
-        GLuint textureHandle;
-        glGenTextures(1, &textureHandle);
+        mTextureHandle;
+        glGenTextures(1, &mTextureHandle);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(target, textureHandle);
+        glBindTexture(target, mTextureHandle);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(target, 0, internalFormat, config.width, config.height, 0, format, dataType, NULL); 
 
         // generate map from noise
         mHeightMapShader->bind();
-        glBindImageTexture(0, textureHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, internalFormat);
+        glBindImageTexture(0, mTextureHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, internalFormat);
         bindNoiseData(config.noiseConfig);
 
         glDispatchCompute(config.width, config.height, 1);
         // wait for compute shader to finish
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 
-        mTexture = STextureManager::fromHandle(textureHandle);
+        mTexture = STextureManager::fromHandle(mTextureHandle);
         erode(300);
         delete mHeights;
         mHeights = new GLfloat[config.width * config.height];
         glGetTexImage(target, 0, format, dataType, mHeights);
+    }
+
+    unsigned int HeightMap::getTextureHandle() {
+        return mTextureHandle;
     }
 
     void HeightMap::updateHeights() {
@@ -140,6 +144,11 @@ namespace Terrain {
     }
 
     float HeightMap::getHeightAt(float x, float y) {
+        x = x < 0 ? 0 : x;
+        x = x > mConfig.width ? mConfig.width : x;
+        y = y < 0 ? 0 : y;
+        y = y > mConfig.height ? mConfig.height : y;
+
         int32_t coord_x = x;
         int32_t coord_y = y;
 

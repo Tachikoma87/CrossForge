@@ -108,7 +108,7 @@ void main(){
 	}
 
 	float scale = 10;
-	float noiseValue = cnoise(worldSpacePos / scale) / 4;
+	float noiseValue = cnoise(worldSpacePos / scale) / 10;
 	
 	gPosition = vec4(Pos, 0.0);
 	gNormal = vec4(vertPos, 0.0);

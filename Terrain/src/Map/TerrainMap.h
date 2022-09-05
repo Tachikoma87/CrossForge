@@ -30,6 +30,7 @@ namespace Terrain {
 
         void render(RenderDevice* renderDevice, ClipMap::TileVariant variant);
         void bindTexture();
+        HeightMap* getHeightMap();
     private:
         void clear();
         void initShader();

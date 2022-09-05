@@ -39,6 +39,7 @@ namespace Terrain {
         void updateHeights();
 
         void setTexture(GLTexture2D* texture);
+        unsigned int getTextureHandle();
         void bindTexture();
     private:
         void bindNoiseData(NoiseConfig config);
@@ -48,6 +49,7 @@ namespace Terrain {
 
         GLfloat* mHeights;
         GLTexture2D* mTexture;
+        unsigned int mTextureHandle;
         GLShader* mHeightMapShader;
         GLShader* mErosionShader;
     };

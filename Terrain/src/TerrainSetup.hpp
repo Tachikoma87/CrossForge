@@ -8,10 +8,15 @@
 #include <CForge/Graphics/STextureManager.h>
 
 #include "Terrain/src/Map/TerrainMap.h"
+#include "Terrain/src/Map/HeightMap.h"
+
 #include "./Decoration/DecoSetup.hpp"
 #include "CForge/AssetIO/T3DMesh.hpp"
 #include "Water/OceanSimulation.hpp"
 #include "Water/OceanObject.hpp"
+#include "Water/WaterManager.hpp"
+#include "Water/Settings.hpp"
+
 
 #include "../../Prototypes/Graphics/SkyboxActor.h"
 
@@ -20,9 +25,9 @@ using namespace CForge;
 namespace Terrain {
 
     void initCForge(GLWindow *window, RenderDevice *renderDevice, VirtualCamera *camera, DirectionalLight *sun,
-                    DirectionalLight *light, float nearPlane, float farPlane) {
-        uint32_t winWidth = 5120 / 2 / 2;
-        uint32_t winHeight = 1440 / 2;
+                    DirectionalLight *light, float nearPlane, float farPlane, float screenWidth, float screenHeight) {
+        uint32_t winWidth = screenWidth;
+        uint32_t winHeight = screenHeight;
 
        /* winWidth = 1200;
         winHeight = 1200;*/
@@ -125,7 +130,7 @@ namespace Terrain {
         }
     }
 
-    void setWindUBO(unsigned int windUBO, Vector3f& windVec, float time) {
+    void setWindUBO(unsigned int windUBO, Vector3f windVec, float time) {
         glBindBuffer(GL_UNIFORM_BUFFER, windUBO);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(float) * 3, windVec.data());
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(float) * 3, sizeof(float), &time);
@@ -204,7 +209,9 @@ namespace Terrain {
     }
 
 
-    void placeDekoElements(TerrainMap &map, InstanceActor &iPineActor, InstanceActor &iPineLeavesActor, InstanceActor &iTreeActor, InstanceActor &iTreeLeavesActor, InstanceActor &iPalmActor, InstanceActor &iPalmLeavesActor, InstanceActor &iRockActor, InstanceActor& iBushActor) {
+
+
+    void placeDekoElements(TerrainMap &map, InstanceActor &iPineActor, InstanceActor &iPineLeavesActor, InstanceActor &iTreeActor, InstanceActor &iTreeLeavesActor, InstanceActor &iPalmActor, InstanceActor &iPalmLeavesActor, InstanceActor &iRockActor, InstanceActor& iBushActor, WaterManager& watermanager, vector<River>* rivers) {
         iPineActor.clearInstances();
         iPineLeavesActor.clearInstances();
         iTreeActor.clearInstances();
@@ -216,76 +223,116 @@ namespace Terrain {
 
         siv::PerlinNoise pNoise;
         float noiseOffset = randomF(-500, 500);
-        float noiseScale = 0.01;
+        float noiseScale = 1;
 
+        float sizeScale = lowQuality ? 1.0 : 3;
 
-        float sizeScale = 1;
-
-        int ammount = 50;
+        int ammount = lowQuality ? 30 : 500;
         Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale, sizeScale, sizeScale));
         Matrix4f R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY())));
         float randomSizeScale;
-        for (int x = 0; x < ammount; x++) {
-            for (int z = 0; z < ammount; z++) {
-                float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float)ammount * 0.9;
-                float zCord = (z - ammount / 2.0 + 0.5) * map.getMapSize().y() / (float)ammount * 0.9;
+        for (int x = 2; x < ammount - 2; x++) {
+            for (int z = 2; z < ammount - 2; z++) {
+                float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float)ammount;
+                float zCord = (z - ammount / 2.0 + 0.5) * map.getMapSize().y() / (float)ammount;
 
                
 
                 xCord += randomF(map.getMapSize().x() / (float)ammount / -2.0, map.getMapSize().x() / (float)ammount / 2.0);
                 zCord += randomF(map.getMapSize().y() / (float)ammount / -2.0, map.getMapSize().y() / (float)ammount / 2.0);
 
-                R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY())));
-                if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale + noiseOffset, 0, zCord * noiseScale, 1) < -0.1) {
-                    if (map.getHeightAt(xCord, zCord) > 225 && map.getHeightAt(xCord, zCord) < 255) {
-                        randomSizeScale = randomF(0.25f, 1.5f);
-                        S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
-                        iPineActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
-                        iPineLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
-                    }
+                
+                if (watermanager.validTreeLocation(zCord + map.getMapSize().y() / 2, xCord + map.getMapSize().x() / 2.0)) {
 
-                    else if (map.getHeightAt(xCord, zCord) > 202 && map.getHeightAt(xCord, zCord) < 208) {
-                        randomSizeScale = randomF(0.8f, 2.2f);
-                        S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale, sizeScale * randomSizeScale, sizeScale));
-                        iPalmActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord) - 0.3, zCord)) * R * S);
-                        iPalmLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord) - 0.3, zCord)) * R * S);
-                    }
-                }
-                else if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale + noiseOffset, 0, zCord * noiseScale, 1) > 0.1) {
-                    if (map.getHeightAt(xCord, zCord) > 208 && map.getHeightAt(xCord, zCord) < 235) {
-                        randomSizeScale = randomF(1.25f, 1.75f);
-                        S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
-                        iTreeActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
-                        iTreeLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
-                    }
-                }
-                else {
-                    if (map.getHeightAt(xCord, zCord) > 208 && map.getHeightAt(xCord, zCord) < 255) {
-                        if (x % 5 == 0 && z % 5 == 0) {
-                            randomSizeScale = randomF(0.2f, 0.8f);
+                    R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY())));
+                    if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale + noiseOffset, 0, zCord * noiseScale, 1) < -0.1) {
+                        if (map.getHeightAt(xCord, zCord) > 225 / (lowQuality ? 8 : 2) && map.getHeightAt(xCord, zCord) < 305 / (lowQuality ? 8 : 2)) {
+                            randomSizeScale = randomF(0.25f, 1.5f);
                             S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
-                            iBushActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
+                            iPineActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
+                            iPineLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
+                        }
+
+                        else if (map.getHeightAt(xCord, zCord) > 202 / (lowQuality ? 8 : 2) && map.getHeightAt(xCord, zCord) < 208 / (lowQuality ? 8 : 2)) {
+                            randomSizeScale = randomF(0.8f, 2.2f);
+                            S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale, sizeScale * randomSizeScale, sizeScale));
+                            iPalmActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord) - 0.3, zCord)) * R * S);
+                            iPalmLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord) - 0.3, zCord)) * R * S);
+                        }
+                    }
+                    else if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale + noiseOffset, 0, zCord * noiseScale, 1) > 0.1) {
+                        if (map.getHeightAt(xCord, zCord) > 208 / (lowQuality ? 8 : 2) && map.getHeightAt(xCord, zCord) < 235 / (lowQuality ? 8 : 2)) {
+                            randomSizeScale = randomF(1.25f, 1.75f);
+                            S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
+                            iTreeActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
+                            iTreeLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
+                        }
+                    }
+                    else {
+                        if (map.getHeightAt(xCord, zCord) > 208 / (lowQuality ? 8 : 2) && map.getHeightAt(xCord, zCord) < 255 / (lowQuality ? 8 : 2)) {
+                            if (x % 5 == 0 && z % 5 == 0) {
+                                randomSizeScale = randomF(0.2f, 0.8f);
+                                S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
+                                iBushActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
+                            }
                         }
                     }
                 }
             }
         }
         
-        ammount /= 10;
-        for (int x = 0; x < ammount; x++) {
-            for (int z = 0; z < ammount; z++) {
-                float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float)ammount * 0.9;
-                float zCord = (z - ammount / 2.0 + 0.5) * map.getMapSize().y() / (float)ammount * 0.9;
+        Vector2f rockScale = lowQuality ? Vector2f(0.4, 0.6) : Vector2f(0.6, 1.0);
+        for (auto river : *rivers) {
+            R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(90), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
+            S = GraphicsUtility::scaleMatrix(Vector3f(river.getWidth(0) / 3.0, river.getWidth(0) / 3.0, river.getWidth(0) / 3.0));
+            Vector3f pos = river.getPos(0);
+            iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(pos.z(), pos.y(), pos.x())) * R * S);
 
-                xCord += randomF(map.getMapSize().x() / (float)ammount / -2.0, map.getMapSize().x() / (float)ammount / 2.0);
-                zCord += randomF(map.getMapSize().y() / (float)ammount / -2.0, map.getMapSize().y() / (float)ammount / 2.0);
-                if (map.getHeightAt(xCord, zCord) > 210 && map.getHeightAt(xCord, zCord) < 275) {
-                    R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
-                    S = GraphicsUtility::scaleMatrix(Vector3f(randomF(0.5, 1), randomF(0.5, 1), randomF(0.5, 1)));
-                    iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
+
+            for (double t = 1; t < river.getLength(); t += randomF(1, 3)) {
+                R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(90), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
+                S = GraphicsUtility::scaleMatrix(Vector3f(randomF(rockScale.x(), rockScale.y()), randomF(rockScale.x(), rockScale.y()), randomF(rockScale.x(), rockScale.y())));
+                pos = river.getPos(t) + river.getNormal(t) * river.getWidth(t) * randomF(-0.6, 0.6);
+                iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(pos.z(), map.getHeightAt(pos.z(), pos.x()), pos.x())) * R * S);
+            }
+        }
+
+        if (!lowQuality) {
+            for (auto river : *rivers) {
+                for (double t = 1; t < river.getLength(); t += randomF(0.1, 0.3)) {
+                    R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(90), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
+                    S = GraphicsUtility::scaleMatrix(Vector3f(randomF(0.1, 0.2), randomF(0.1, 0.2), randomF(0.1, 0.2)));
+                    Vector3f pos = river.getPos(t) + river.getNormal(t) * river.getWidth(t) * randomF(-0.4, 0.4);
+                    iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(pos.z(), map.getHeightAt(pos.z(), pos.x()), pos.x())) * R * S);
                 }
             }
         }
+
+
+        /*
+        ammount /= 10;
+        for (int x = 2; x < ammount - 2; x++) {
+            for (int z = 2; z < ammount - 2; z++) {
+                float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float)ammount;
+                float zCord = (z - ammount / 2.0 + 0.5) * map.getMapSize().y() / (float)ammount;
+
+                xCord += randomF(map.getMapSize().x() / (float)ammount / -2.0, map.getMapSize().x() / (float)ammount / 2.0);
+                zCord += randomF(map.getMapSize().y() / (float)ammount / -2.0, map.getMapSize().y() / (float)ammount / 2.0);
+
+                int mapIndex = (int)(zCord + map.getMapSize().y() / 2) * map.getMapSize().x() + (int)(xCord + map.getMapSize().x() / 2.0);
+                if (mapIndex >= map.getMapSize().x() * map.getMapSize().y()) mapIndex = 0;
+                if (mapIndex < 0) mapIndex = 0;
+                if (poolMap[mapIndex] == 0) {
+
+                    if (map.getHeightAt(xCord, zCord) > 210 / (lowQuality ? 8 : 2) && map.getHeightAt(xCord, zCord) < 275 / (lowQuality ? 8 : 2)) {
+                        R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
+                        S = GraphicsUtility::scaleMatrix(Vector3f(randomF(0.5, 1), randomF(0.5, 1), randomF(0.5, 1)));
+                        iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
+                    }
+                }
+            }
+        }
+        */
     }
 
 
@@ -391,20 +438,23 @@ namespace Terrain {
         VirtualCamera camera;
         DirectionalLight sun, light;
         float nearPlane = 1.0f;
-        float farPlane = 5000.0f;
-        initCForge(&window, &renderDevice, &camera, &sun, &light, nearPlane, farPlane);
+        float farPlane = lowQuality ? 1000.0f : 10000.0f;
+        float screenWidth = 5120 / 4;
+        float screenHeight = 1440 / 2;
+        initCForge(&window, &renderDevice, &camera, &sun, &light, nearPlane, farPlane, screenWidth, screenHeight);
 
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);
 
         ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 128, .levelCount = 5};
-        HeightMap::NoiseConfig noiseConfig = {.seed = static_cast<uint32_t>(rand()),
+        HeightMap::NoiseConfig noiseConfig = { .seed = 7863,//11797,// static_cast<uint32_t>(rand()),
             .scale = 1.0f,
             .octaves = 10,
             .persistence = 0.5f,
             .lacunarity = 2.0f};
-        HeightMap::HeightMapConfig heightMapConfig = {.width = 1024, .height = 1024,
-                                                      .mapHeight = 400, .noiseConfig = noiseConfig};
+        HeightMap::HeightMapConfig heightMapConfig = {.width = (uint32_t)(1024 * (lowQuality ? 0.5f : 2)), .height = (uint32_t)(1024 * (lowQuality ? 0.5f : 2)),
+                                                      .mapHeight = (float)(lowQuality ? 50 : 200), .noiseConfig = noiseConfig};
+
 
         TerrainMap map = TerrainMap(&rootTransform);
         map.generateClipMap(clipMapConfig);    
@@ -412,21 +462,36 @@ namespace Terrain {
 
         SceneGraph sceneGraph;
 
-        OceanSimulation oceanSimulation(256, 500, 40, Vector2f(1.0f, 1.0f), 50);
-        OceanObject oceanObject(256, 100, 3, 1, 1, 1, 10, nearPlane, farPlane);
-        OceanSimulation::eTextures selectedTexture = OceanSimulation::DISPLACEMENT;
+        OceanSimulation oceanSimulation(lowQuality ? 64 : 256, lowQuality ? 500 : 500, lowQuality ? 0.1 : 40, Vector2f(1.0f, 1.0f), lowQuality ? 1000 : 50);
+        OceanObject oceanObject(lowQuality ? 16 : 256, lowQuality ? 25 : 100, lowQuality ? 1 : 2, 1, 1, 1, lowQuality ? 29 : 7, nearPlane, farPlane);
+        
         bool pause = false;
-
         oceanSimulation.initOceanSimulation();
-        oceanObject.init();
+        oceanObject.init(screenWidth, screenHeight);
+        unsigned int selectedTexture = oceanSimulation.mTextures[OceanSimulation::DISPLACEMENT];
+        
+        WaterManager waterManager(map.getHeightMap());
+        waterManager.updateTextures();
 
-        //renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-        //oceanObject.attatchBuffer();
+        waterManager.updateShoreDistTexture();
+
+        oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
+            heightMapConfig.mapHeight, 1,
+            waterManager.getHeightMap(), waterManager.getPoolMap(), waterManager.getRivers());
 
 
 
 
-        /*
+
+
+
+
+
+
+
+
+
+
         DekoMesh PineMesh;
         InstanceActor iPineActor;
         DekoMesh PineLeavesMesh;
@@ -448,7 +513,7 @@ namespace Terrain {
 
         loadNewDekoObjects(generateNew, PineMesh, PineLeavesMesh, PalmMesh, PalmLeavesMesh, TreeMesh, TreeLeavesMesh, GrassMesh, RockMesh, BushMesh);
 
-        placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
+        placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor, waterManager, waterManager.getRivers());
         iPineActor.init(&PineMesh);
         iPineLeavesActor.init(&PineLeavesMesh);
         iTreeActor.init(&TreeMesh);
@@ -472,8 +537,8 @@ namespace Terrain {
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 4, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		glBindBufferBase(GL_UNIFORM_BUFFER, 4, windUBO);
-		setWindUBO(windUBO, windVec, 0);
-        */
+		setWindUBO(windUBO, Vector3f(1, 0, 0), 0);
+        
         srand((unsigned int)time(NULL));
         
         sceneGraph.init(&rootTransform);
@@ -509,15 +574,16 @@ namespace Terrain {
                 shadows = !shadows;
             }
 
-            /*
+            
             // wind
+
             windAngleVariation += randomF(-windAngleAcc, windAngleAcc) / (float)fps;
             windAngleVariation *= 0.8;
             windAngle += windAngleVariation / (float)fps;
             windVec.x() = cos(windAngle) * windStr;
             windVec.z() = sin(windAngle) * windStr;
-            setWindUBO(windUBO, windVec, current_ticks / 60.0 * windWaveSpeedMultiplier);
-            */
+            setWindUBO(windUBO, Vector3f(1, 0, 0), current_ticks / (float)CLOCKS_PER_SEC * windWaveSpeedMultiplier);
+            
 
 
             window.update();
@@ -526,6 +592,7 @@ namespace Terrain {
 
             if (erode) {
                 map.erode();
+                waterManager.refreshMaps();
             }
 
             map.update(camera.position().x(), camera.position().z());
@@ -541,7 +608,6 @@ namespace Terrain {
 
                 if (wireframe) {
                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                    glLineWidth(5);
                     sceneGraph.render(&renderDevice);
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 }
@@ -551,7 +617,9 @@ namespace Terrain {
 
             }
 
-            /*
+
+
+            
             if (!oceanOnly) {
 
                 //Deko instances
@@ -573,15 +641,17 @@ namespace Terrain {
                 glEnable(GL_CULL_FACE);
 
             }
-            */
+            
             renderDevice.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
             renderDevice.activePass(RenderDevice::RENDERPASS_FORWARD);
             renderDevice.requestRendering(&Skybox, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
 
+         
+
             if (renderOcean) {
-                renderDevice.gBuffer()->blitDepthBuffer(5120 / 4, 1440 / 2);
-                oceanObject.copyFBO(renderDevice.gBuffer()->retrieveFrameBuffer(), 5120 / 4, 1440 / 2);
+                renderDevice.gBuffer()->blitDepthBuffer(screenWidth, screenHeight);
+                oceanObject.copyFBO(renderDevice.gBuffer()->retrieveFrameBuffer(), screenWidth, screenHeight);
 
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -589,19 +659,32 @@ namespace Terrain {
 
                 if (wireframe) {
                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                    glLineWidth(1);
                 }
 
 
                 oceanSimulation.updateWaterSimulation(current_ticks / (float)CLOCKS_PER_SEC / 5 * (pause ? 0 : 1));
-                glDisable(GL_CULL_FACE);
+                //glDisable(GL_CULL_FACE);
 
-               
+
 
                 glBindImageTexture(0, oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
                 glBindImageTexture(1, oceanSimulation.mTextures[oceanSimulation.NORMALS], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-                oceanObject.render(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC / 25 * (pause ? 0 : 1));
+                oceanObject.renderOcean(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC * (pause ? 0 : 1), waterManager.getHeightMapTexture(), waterManager.getShoreDistanceTexture());
+                
+
+                glBindImageTexture(0, oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+                glBindImageTexture(1, oceanSimulation.mTextures[oceanSimulation.NORMALS], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+                oceanObject.renderPool(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC * (pause ? 0 : 1));
+                
+                if (!pause) {
+                    glBindImageTexture(0, oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+                    glBindImageTexture(1, oceanSimulation.mTextures[oceanSimulation.NORMALS], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+                    oceanObject.renderStreams(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC * (pause ? 0 : 1));
+                }
+
                 glEnable(GL_CULL_FACE);
+
+
 
                 if (wireframe) {
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -610,10 +693,15 @@ namespace Terrain {
                 glDisable(GL_BLEND);
             }
 
+           
+
+
+
+
             if (debugTexture) {
                 glActiveTexture(GL_TEXTURE0);
                 map.bindTexture();
-                glBindTexture(GL_TEXTURE_2D, oceanSimulation.mTextures[selectedTexture]);
+                glBindTexture(GL_TEXTURE_2D, selectedTexture);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 quad.render(&renderDevice);
@@ -631,19 +719,99 @@ namespace Terrain {
 
             if (window.keyboard()->keyPressed(Keyboard::KEY_1)) {
                 window.keyboard()->keyState(Keyboard::KEY_1, Keyboard::KEY_RELEASED);
-                selectedTexture = OceanSimulation::H0;
+                
+                selectedTexture = waterManager.getHeightMapTexture();
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_2)) {
                 window.keyboard()->keyState(Keyboard::KEY_2, Keyboard::KEY_RELEASED);
-                selectedTexture = OceanSimulation::DISPLACEMENT;
+                
+                selectedTexture = waterManager.getPoolMapTexture();
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_3)) {
                 window.keyboard()->keyState(Keyboard::KEY_3, Keyboard::KEY_RELEASED);
-                selectedTexture = OceanSimulation::NORMALS;
+                
+                selectedTexture = waterManager.getShoreDistanceTexture();
             }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_4)) {
+                window.keyboard()->keyState(Keyboard::KEY_4, Keyboard::KEY_RELEASED);
+                selectedTexture = oceanSimulation.mTextures[OceanSimulation::H0];
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_5)) {
+                window.keyboard()->keyState(Keyboard::KEY_5, Keyboard::KEY_RELEASED);
+                selectedTexture = oceanSimulation.mTextures[OceanSimulation::DISPLACEMENT];
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_6)) {
+                window.keyboard()->keyState(Keyboard::KEY_6, Keyboard::KEY_RELEASED);
+                selectedTexture = oceanSimulation.mTextures[OceanSimulation::NORMALS];
+            }
+
             if (window.keyboard()->keyPressed(Keyboard::KEY_P)) {
                 window.keyboard()->keyState(Keyboard::KEY_P, Keyboard::KEY_RELEASED);
                 pause = !pause;
+                
+            }
+
+
+            if (window.keyboard()->keyPressed(Keyboard::KEY_L)) {
+                window.keyboard()->keyState(Keyboard::KEY_L, Keyboard::KEY_RELEASED);
+
+                //waterManager.trySpawnLake((int)(camera.position().z() + map.getMapSize().y() / 2)* map.getMapSize().x() + (int)(camera.position().x() + map.getMapSize().x() / 2.0));
+                waterManager.trySpawnLakes(lowQuality ? 75 : 200);
+
+                waterManager.updateTextures();
+                oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
+                    heightMapConfig.mapHeight, 1,
+                    waterManager.getHeightMap(), waterManager.getPoolMap(), waterManager.getRivers());
+
+            }
+
+            if (window.keyboard()->keyPressed(Keyboard::KEY_K)) {
+                window.keyboard()->keyState(Keyboard::KEY_K, Keyboard::KEY_RELEASED);
+                waterManager.tryGenerateRivers(lowQuality ? 200 : 300);
+                waterManager.updateTextures();
+                oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
+                    heightMapConfig.mapHeight, 1,
+                    waterManager.getHeightMap(), waterManager.getPoolMap(), waterManager.getRivers());
+            }
+
+
+            if (window.keyboard()->keyPressed(Keyboard::KEY_G)) {
+                window.keyboard()->keyState(Keyboard::KEY_G, Keyboard::KEY_RELEASED);
+
+                noiseConfig = { .seed = static_cast<uint32_t>(rand()),
+                    .scale = 1.0f,
+                    .octaves = 10,
+                    .persistence = 0.5f,
+                    .lacunarity = 2.0f };
+                HeightMap::HeightMapConfig heightMapConfig = { .width = (uint32_t)(1024 * (lowQuality ? 0.5f : 2)), .height = (uint32_t)(1024 * (lowQuality ? 0.5f : 2)),
+                                                      .mapHeight = (float)(lowQuality ? 50 : 200), .noiseConfig = noiseConfig };
+                map.generateHeightMap(heightMapConfig);
+
+                waterManager.refreshMaps();
+                waterManager.updateTextures();
+      
+                waterManager.trySpawnLakes(lowQuality ? 75 : 200);
+                waterManager.updateTextures();
+                waterManager.tryGenerateRivers(lowQuality ? 200 : 300);
+                waterManager.updateTextures();
+                waterManager.updateShoreDistTexture();
+
+                oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
+                    heightMapConfig.mapHeight, 1,
+                    waterManager.getHeightMap(), waterManager.getPoolMap(), waterManager.getRivers());
+
+                map.updateHeights();
+                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor, waterManager, waterManager.getRivers());
+                iPineActor.init(&PineMesh);
+                iPineLeavesActor.init(&PineLeavesMesh);
+                iTreeActor.init(&TreeMesh);
+                iTreeLeavesActor.init(&TreeLeavesMesh);
+                iPalmActor.init(&PalmMesh);
+                iPalmLeavesActor.init(&PalmLeavesMesh);
+                iRockActor.init(&RockMesh);
+                iBushActor.init(&BushMesh);
+
+                cout << "\n\n" << "Seed: " << noiseConfig.seed << "\n\n";
             }
 
 
@@ -671,11 +839,11 @@ namespace Terrain {
                     .octaves = 10,
                     .persistence = 0.5f,
                     .lacunarity = 2.0f};
-                heightMapConfig = {.width = 1024 / 1, .height = 1024 / 1,
-                    .mapHeight = 400, .noiseConfig = noiseConfig};
+                HeightMap::HeightMapConfig heightMapConfig = { .width = (uint32_t)(1024 * (lowQuality ? 0.5f : 2)), .height = (uint32_t)(1024 * (lowQuality ? 0.5f : 2)),
+                                                      .mapHeight = (float)(lowQuality ? 50 : 200), .noiseConfig = noiseConfig };
                 map.generateHeightMap(heightMapConfig);
-                /*
-                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
+                
+                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor, waterManager, waterManager.getRivers());
                 iPineActor.init(&PineMesh);
                 iPineLeavesActor.init(&PineLeavesMesh);
                 iTreeActor.init(&TreeMesh);
@@ -684,13 +852,21 @@ namespace Terrain {
                 iPalmLeavesActor.init(&PalmLeavesMesh);
                 iRockActor.init(&RockMesh);
                 iBushActor.init(&BushMesh);
-                */
+
+                cout << "\n\n" << noiseConfig.seed << "\n\n";
+
+                waterManager.refreshMaps();
+                waterManager.updateTextures();
+                waterManager.updateShoreDistTexture();
+                oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
+                    heightMapConfig.mapHeight, 1,
+                    waterManager.getHeightMap(), waterManager.getPoolMap(), waterManager.getRivers());
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F5)) {
                 window.keyboard()->keyState(Keyboard::KEY_F5, Keyboard::KEY_RELEASED);
                 map.updateHeights();
-                /*
-                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
+                
+                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor, waterManager, waterManager.getRivers());
                 iPineActor.init(&PineMesh);
                 iPineLeavesActor.init(&PineLeavesMesh);
                 iTreeActor.init(&TreeMesh);
@@ -699,7 +875,7 @@ namespace Terrain {
                 iPalmLeavesActor.init(&PalmLeavesMesh);
                 iRockActor.init(&RockMesh);
                 iBushActor.init(&BushMesh);
-                */
+                
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F6)) {
                 window.keyboard()->keyState(Keyboard::KEY_F6, Keyboard::KEY_RELEASED);
@@ -711,7 +887,7 @@ namespace Terrain {
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F8)) {
                 window.keyboard()->keyState(Keyboard::KEY_F8, Keyboard::KEY_RELEASED);
-                /*
+                
                 iPineActor.clearInstances();
                 iPineLeavesActor.clearInstances();
                 iTreeActor.clearInstances();
@@ -728,7 +904,7 @@ namespace Terrain {
                 iPalmLeavesActor.init(&PalmLeavesMesh);
                 iRockActor.init(&RockMesh);
                 iBushActor.init(&BushMesh);
-                */
+                
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F9)) {
                 window.keyboard()->keyState(Keyboard::KEY_F9, Keyboard::KEY_RELEASED);
@@ -736,10 +912,10 @@ namespace Terrain {
             }
             if (false && window.keyboard()->keyPressed(Keyboard::KEY_F10)) {
                 window.keyboard()->keyState(Keyboard::KEY_F10, Keyboard::KEY_RELEASED);
-                /*
+                
                 loadNewDekoObjects(generateNew, PineMesh, PineLeavesMesh, PalmMesh, PalmLeavesMesh, TreeMesh, TreeLeavesMesh, GrassMesh, RockMesh, BushMesh);
 
-                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
+                placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor, waterManager, waterManager.getRivers());
                 iPineActor.init(&PineMesh);
                 iPineLeavesActor.init(&PineLeavesMesh);
                 iTreeActor.init(&TreeMesh);
@@ -748,7 +924,7 @@ namespace Terrain {
                 iPalmLeavesActor.init(&PalmLeavesMesh);
                 iRockActor.init(&RockMesh);
                 iBushActor.init(&BushMesh);
-                */
+                
             }
 
             if (window.keyboard()->keyPressed(Keyboard::KEY_O)) {
@@ -781,12 +957,14 @@ namespace Terrain {
                 printf("FPS: %d\n", fps);
             }
 
-           /* delta_ticks = clock() - current_ticks;
+           delta_ticks = clock() - current_ticks;
+           
             if (delta_ticks > 0)
                 fps = CLOCKS_PER_SEC / delta_ticks;
+            fps > 10 ? fps : 10;
             if (FPSCount % 60 == 0) {
                 cout << fps << endl;
-            }*/
+            }
         }
     }
 }

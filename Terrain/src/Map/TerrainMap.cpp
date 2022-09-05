@@ -75,8 +75,8 @@ namespace Terrain {
         mTextures.bind();
 
         int layerCount = 6;
-        vector<GLfloat> layerHeights {0.0, 0.52, 0.56, 0.65, 0.78};
-        vector<GLfloat> blendValues {0.001, 0.03, 0.1, 0.1, 0.03};
+        vector<GLfloat> layerHeights {-0.5, 0.54, 0.65, 0.75, 0.73};
+        vector<GLfloat> blendValues {0.001, 0.03, 0.1, 0.01, 0.02};
 
         glUniform1i(mShader->uniformLocation("LayerCount"), layerCount);
         glUniform1fv(mShader->uniformLocation("LayerHeights"), layerHeights.size(), layerHeights.data());
@@ -210,5 +210,9 @@ namespace Terrain {
 
     void TerrainMap::updateHeights() {
         mHeightMap.updateHeights();
+    }
+
+    HeightMap* TerrainMap::getHeightMap() {
+        return &mHeightMap;
     }
 }

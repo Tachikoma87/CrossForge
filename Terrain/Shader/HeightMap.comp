@@ -104,7 +104,7 @@ uniform NoiseData Noise;
 float onoise(vec2 pos) {
     float noise_height = 0.0;
     float amplitude = 1.0;
-    float frequency = 1.0;
+    float frequency = 4.0;
 
     // sum up the height at the position for all octaves
     for (int i = 0; i < Noise.octaves; i++) {
@@ -115,7 +115,7 @@ float onoise(vec2 pos) {
         frequency *= Noise.lacunarity;
     }
 
-    return noise_height;
+    return noise_height * 0.75 + 1.5;
 }
 
 float heightModifyer(float x, float s) {
@@ -162,6 +162,10 @@ void main() {
     }
 
     height = (height + 1) / 2;
+
+    if (height < 0.6) {
+        height += (height - 0.6);
+    }
 
     imageStore(HeightMap, textureCoords, vec4(height));
 }

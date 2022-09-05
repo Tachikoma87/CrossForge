@@ -58,6 +58,8 @@ namespace CForge {
 
 		glfwMakeContextCurrent(pWin);
 
+		glfwSwapInterval(0);
+
 		// initialize glad
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 

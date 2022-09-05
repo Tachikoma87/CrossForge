@@ -36,59 +36,6 @@ complex compExp(complex c0) {
 	return c;
 }
 
-/*
-void horizontalButterflies() {
-	complex H;
-	complex H2;
-	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-
-	vec4 data = imageLoad(textureTwiddleIndices, ivec2(stage, pos.x)).rgba;
-
-	vec2 p_ = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(data.z, pos.y)).rg;
-	vec2 q_ = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(data.w, pos.y)).rg;
-	complex p = complex(p_.x, p_.y);
-	complex q = complex(q_.x, q_.y);
-
-	vec2 p_2 = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(data.z, pos.y)).ba;
-	vec2 q_2 = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(data.w, pos.y)).ba;
-
-	complex p2 = complex(p_2.x, p_2.y);
-	complex q2 = complex(q_2.x, q_2.y);
-
-	complex w = complex(data.x, data.y);
-
-	H = add(p, mul(w, q));
-	H2 = add(p2, mul(w, q2));
-
-	imageStore(pingpong == 0 ? texturepingpong1 : texturepingpong0, pos, vec4(H.real, H.im, H2.real, H2.im));
-}
-
-void verticalButterflies() {
-	complex H;
-	complex H2;
-	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-
-	vec4 data = imageLoad(textureTwiddleIndices, ivec2(stage, pos.y)).rgba;
-
-	vec2 p_ = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(pos.x, data.z)).rg;
-	vec2 q_ = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(pos.x, data.w)).rg;
-	complex p = complex(p_.x, p_.y);
-	complex q = complex(q_.x, q_.y);
-
-	vec2 p_2 = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(pos.x, data.z)).ba;
-	vec2 q_2 = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(pos.x, data.w)).ba;
-	complex p2 = complex(p_2.x, p_2.y);
-	complex q2 = complex(q_2.x, q_2.y);
-
-	complex w = complex(data.x, data.y);
-
-	H = add(p, mul(w, q));
-	H2 = add(p2, mul(w, q2));
-	imageStore(pingpong == 0 ? texturepingpong1 : texturepingpong0, pos, vec4(H.real, H.im, H2.real, H2.im));
-}
-*/
-
-
 void horizontalButterflies() {
 	complex H;
 	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
