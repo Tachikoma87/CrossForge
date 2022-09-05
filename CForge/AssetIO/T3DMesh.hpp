@@ -166,12 +166,6 @@ namespace CForge {
 			int32_t ID;
 			std::string Name;
 			Eigen::Vector3f			Position;
-			
-			Eigen::Quaternionf		Rotation;
-			Eigen::Vector3f			Scale;
-
-			Submesh*				pSubmesh = nullptr;
-
 			Eigen::Matrix4f			OffsetMatrix;
 			std::vector<int32_t>	VertexInfluences;
 			std::vector<float>		VertexWeights;

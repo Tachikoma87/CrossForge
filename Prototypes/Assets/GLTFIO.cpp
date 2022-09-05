@@ -638,6 +638,10 @@ namespace CForge {
 		}
 	}
 
+	/*
+	Every node in gltf has a reference as bone and as submesh in CrossForge,
+	because a gltf node can fullfill both rolls.
+	*/
 	void GLTFIO::readNodes() {
 		std::vector<T3DMesh<float>::Bone*>* pBones = new std::vector<T3DMesh<float>::Bone*>;
 		
@@ -645,6 +649,8 @@ namespace CForge {
 			Node node = model.nodes[i];
 
 			T3DMesh<float>::Bone* pBone = new T3DMesh<float>::Bone;
+			T3DMesh<float>::Submesh* pSubmesh = new T3DMesh<float>::Submesh;
+
 			pBone->ID = i;
 
 			pBone->Name = node.name;
@@ -653,41 +659,51 @@ namespace CForge {
 				pBone->Position(0) = node.translation[0];
 				pBone->Position(1) = node.translation[1];
 				pBone->Position(2) = node.translation[2];
+
+				pSubmesh->TranslationOffset(0) = node.translation[0];
+				pSubmesh->TranslationOffset(1) = node.translation[1];
+				pSubmesh->TranslationOffset(2) = node.translation[2];
 			}
 
 			if (node.rotation.size() > 0) {
 				Eigen::Quaternionf newRotation(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
-				pBone->Rotation = newRotation;
+				pSubmesh->RotationOffset = newRotation;
 			}
 
-			if (node.scale.size() > 0) {
-				pBone->Scale(0) = node.scale[0];
-				pBone->Scale(1) = node.scale[1];
-				pBone->Scale(2) = node.scale[2];
-			}
+			//TODO add Scale to submesh struct
 
 			//Offset matrices will be set later in readSkinningData().
 
 			pBone->pParent = nullptr;
+			pSubmesh->pParent = nullptr;
 			
 			pBones->push_back(pBone);
+			pMesh->addSubmesh(pSubmesh, false);
 		}
 
 
-		//Do a second pass to link all bones together.
+		//Do a second pass to link all bones/submeshes together.
 
 		for (int i = 0; i < model.nodes.size(); i++) {
 			std::vector<T3DMesh<float>::Bone*> children;
+			std::vector<T3DMesh<float>::Submesh*> submeshChildren;
 
 			auto pBone = pBones->at(i);
+			auto pSubmesh = pMesh->getSubmesh(i);
 
 			for (auto c : model.nodes[i].children) {
 				auto pChild = pBones->at(c);
-				pChild->pParent = pBones->at(i);
-				children.push_back(pBones->at(c));
+				auto pSubChild = pMesh->getSubmesh(c);
+
+				pChild->pParent = pBone;
+				pSubChild->pParent = pSubmesh;
+
+				children.push_back(pChild);
+				submeshChildren.push_back(pSubChild);
 			}
 
 			pBone->Children = children;
+			pSubmesh->Children = submeshChildren;
 		}
 
 		pMesh->bones(pBones, false);
@@ -988,6 +1004,7 @@ namespace CForge {
 				newNode.translation.push_back(pBone->Position(1));
 				newNode.translation.push_back(pBone->Position(2));
 			}
+
 			model.nodes.push_back(newNode);
 		}
 
@@ -1414,11 +1431,15 @@ namespace CForge {
  
 //TODO
 /*
-* Wo muss Rotation und Scale pro Node hin? Bone hat nur Position und Offsetmatrix.
+* Wo muss Rotation und Scale pro Node hin? Bone hat nur Position und Offsetmatrix. -> Submeshs speichern sowas.
+* - Alle Nodes werden zu Submeshes.
+* - Alle Nodes die an Skelettanimationen beteiligt sind werden auch als Bones gespeichert.
+* - Nodes denen Meshes untergeordnet sind enthalten entweder selbst die Vertexdaten oder, falls sie aus mehreren Primitiven bestehen,
+*   werden ihnen die entsprechende Anzahl an Submeshes untergeordnet.
+* 
 * Skelettanimationen schreiben.
 * Morph targets schreiben.
 * Eingebettete Texturen unterstützen. -> Ja mit AssetIO
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen
 * Was passiert mit morph target Attributen mit unterschiedlichen Indices? -> passt so
-* Was passiert mit Nodes denen Meshes untergeordnet sind. Wie wird das in T3DMesh gespeichert? -> attribute dem bone struct hinzufügen
 */
