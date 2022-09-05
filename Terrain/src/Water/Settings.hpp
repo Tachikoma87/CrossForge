@@ -1,4 +1,4 @@
 #pragma once
 
-bool lowQuality = false;
+bool lowQuality = true;
 
