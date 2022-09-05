@@ -1398,8 +1398,8 @@ namespace CForge {
 * Wo muss Rotation und Scale pro Node hin? Bone hat nur Position und Offsetmatrix.
 * Skelettanimationen schreiben.
 * Morph targets schreiben.
-* Eingebettete Texturen unterstützen.
-* Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes?
-* Was passiert mit morph target Attributen mit unterschiedlichen Indices?
-* Was passiert mit Nodes denen Meshes untergeordnet sind. Wie wird das in T3DMesh gespeichert?
+* Eingebettete Texturen unterstützen. -> Ja mit AssetIO
+* Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen
+* Was passiert mit morph target Attributen mit unterschiedlichen Indices? -> passt so
+* Was passiert mit Nodes denen Meshes untergeordnet sind. Wie wird das in T3DMesh gespeichert? -> attribute dem bone struct hinzufügen
 */
