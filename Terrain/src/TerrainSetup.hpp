@@ -24,6 +24,9 @@
 #include "../../Prototypes/SLOD.h"
 #include "../../Prototypes/Actor/LODActor.h"
 
+#include <chrono>
+#include <thread>
+
 using namespace CForge;
 float CAM_FOV = 90.0;
 int WINWIDTH = 1280;

@@ -87,7 +87,7 @@ namespace CForge {
 
 		float getFOV();
 
-		typedef struct FrustumPlane {
+		struct FrustumPlane {
 			Eigen::Vector3f n = Eigen::Vector3f(0.0f,1.0f,0.0f);
 			float dist = 0.0f;
 			
@@ -95,7 +95,7 @@ namespace CForge {
 				n = norm;
 				dist = n.dot(p);
 			}
-		} FrustumPlane;
+		};
 		
 		enum FrustumPlaneIndex {
 			FRUSTUMPLANE_NEAR = 0,
@@ -106,9 +106,9 @@ namespace CForge {
 			FRUSTUMPLANE_BOTTOM,
 		};
 		
-		typedef struct Frustum {
-			struct FrustumPlane plan[6];
-		} Frustum;
+		struct Frustum {
+			FrustumPlane plan[6];
+		};
 		
 		const Frustum* getFrustum();
 

@@ -804,7 +804,7 @@ namespace CForge {
 
 			float res = vec.dot(pRDev->activeCamera()->dir());
 			float c = von.dot(pRDev->activeCamera()->dir());
-			std::cout << "alt: " << res << "\n";
+// 			std::cout << "alt: " << res << "\n";
 			
 			float fov = m_pSLOD->getCFOV();
 			if (res < fov && c < fov)

@@ -64,8 +64,8 @@ namespace CForge {
 		void setLODSG(bool inside);
 		virtual void clearMatRef();
 
-		inline float getAABBradius(const Eigen::Matrix4f& mat);
-		inline Eigen::Vector3f getAABBcenter(const Eigen::Matrix4f& mat);
+		float getAABBradius(const Eigen::Matrix4f& mat);
+		Eigen::Vector3f getAABBcenter(const Eigen::Matrix4f& mat);
 		//
 		
 	protected:
