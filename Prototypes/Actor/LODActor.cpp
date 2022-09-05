@@ -479,12 +479,12 @@ namespace CForge {
 	
 	void LODActor::testAABBvis(class RenderDevice* pRDev, Eigen::Matrix4f sgMat) {
 		
-		double t_mean = 0.0;
-		uint32_t c = 0;
+// 		double t_mean = 0.0;
+// 		uint32_t c = 0;
 		if (m_isManualInstaned) { // all instanced at once
 			for (uint32_t i = 0; i < m_instancedMatrices.size(); i++) {
 
-				auto start = std::chrono::steady_clock::now();
+// 				auto start = std::chrono::steady_clock::now();
 				
 #if CMIX
 				bool res2 = !fovCulling(pRDev, &m_instancedMatrices[i]);
@@ -501,11 +501,11 @@ namespace CForge {
 				bool res = res2;
 #endif
 	
-				auto end = std::chrono::steady_clock::now();
+// 				auto end = std::chrono::steady_clock::now();
 
-				long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
-				double time = 0.000001 * microseconds;
-				t_mean += microseconds;
+// 				long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
+// 				double time = 0.000001 * microseconds;
+// 				t_mean += microseconds;
 				if (res)
 					continue;
 #if SKIP_INSTANCED_QUERIES
@@ -527,8 +527,8 @@ namespace CForge {
 			//std::cout << m_instancedMatrices.size() << "\n";
 			//std::cout << t_mean << "\n";
 			
-			m_pSLOD->CT += t_mean;
-			m_pSLOD->CTC += m_instancedMatrices.size();
+// 			m_pSLOD->CT += t_mean;
+// 			m_pSLOD->CTC += m_instancedMatrices.size();
 		}
 		else if (m_isInstanced) { // single instance, other instances get added over SG
 			if (!frustumCulling(pRDev, &sgMat))
@@ -545,7 +545,7 @@ namespace CForge {
 #endif
 		}
 		else {
-			auto start = std::chrono::steady_clock::now();
+// 			auto start = std::chrono::steady_clock::now();
 
 #if CMIX
 			bool res2 = !fovCulling(pRDev, &sgMat);
@@ -562,13 +562,13 @@ namespace CForge {
 			bool res = res2;
 #endif
 
-			auto end = std::chrono::steady_clock::now();
+// 			auto end = std::chrono::steady_clock::now();
 
-			long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
-			double time = 0.000001 * microseconds;
-			t_mean += time;
-			m_pSLOD->CT += t_mean;
-			m_pSLOD->CTC += m_instancedMatrices.size();
+// 			long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
+// 			double time = 0.000001 * microseconds;
+// 			t_mean += time;
+// 			m_pSLOD->CT += t_mean;
+// 			m_pSLOD->CTC += m_instancedMatrices.size();
 			if (res)
 				return;
 			queryAABB(pRDev, sgMat);

@@ -745,7 +745,7 @@ public:
             windAngle += windAngleVariation / (float)fps;
             windVec.x() = cos(windAngle) * windStr;
             windVec.z() = sin(windAngle) * windStr;
-            setWindUBO(windUBO, windVec, current_ticks / 60.0 * windWaveSpeedMultiplier);
+            setWindUBO(windUBO, windVec, oceanTimer * 2 /*current_ticks / CLOCKS_PER_SEC * windWaveSpeedMultiplier*/);
 
             window.update();
 
