@@ -138,10 +138,21 @@ namespace CForge {
 		for (int i = 0; i < model.meshes.size(); i++) {
 			Mesh currentMesh = model.meshes[i];
 
-			for (int k = 0; k < model.meshes[i].primitives.size(); k++) {
+			T3DMesh<float>::Submesh* pParentSubmesh;
+
+			for (int j = 0; j < model.nodes.size(); j++) {
+				if (model.nodes[j].mesh == i) {
+					pParentSubmesh = pMesh->getSubmesh(j);
+					break;
+				}
+			}
+
+			for (int k = 0; k < currentMesh.primitives.size(); k++) {
 				Primitive currentPrimitive = currentMesh.primitives[k];
 
-				readPrimitive(& currentPrimitive);
+				auto pSubmesh = readPrimitive(&currentPrimitive);
+
+				pParentSubmesh->Children.push_back(pSubmesh);
 			}
 		}
 		
@@ -161,10 +172,10 @@ namespace CForge {
 		pMesh->textureCoordinates(pTexCoord);
 	}
 
-	void GLTFIO::readPrimitive(Primitive* pPrimitive) {
+	T3DMesh<float>::Submesh* GLTFIO::readPrimitive(Primitive* pPrimitive) {
 		readAttributes(pPrimitive);
 
-		readSubMeshes(pPrimitive);
+		return readSubMeshes(pPrimitive);
 	}
 
 	void GLTFIO::readAttributes(Primitive* pPrimitive) {
@@ -334,7 +345,7 @@ namespace CForge {
 		std::cout << "  " << counter << " vertices" << std::endl;
 	}
 
-	void GLTFIO::readSubMeshes(Primitive* pPrimitive) {
+	T3DMesh<float>::Submesh* GLTFIO::readSubMeshes(Primitive* pPrimitive) {
 		T3DMesh<float>::Submesh* pSubMesh = new T3DMesh<float>::Submesh;
 
 		std::vector<T3DMesh<float>::Face> faces;
@@ -348,6 +359,8 @@ namespace CForge {
 		materialIndex++;
 
 		pMesh->addSubmesh(pSubMesh, false);
+
+		return pSubMesh;
 	}
 
 	void GLTFIO::readIndices(const int accessorIndex, std::vector<int>* pIndices) {
@@ -670,7 +683,7 @@ namespace CForge {
 				pSubmesh->RotationOffset = newRotation;
 			}
 
-			//TODO add Scale to submesh struct
+			//TODO add Scale field to submesh struct
 
 			//Offset matrices will be set later in readSkinningData().
 
@@ -750,6 +763,7 @@ namespace CForge {
 		model.samplers.push_back(gltfSampler);
 		
 		//Every mesh will hold a single primitive with the submesh data.
+		//TODO fix that
 		for (int i = 0; i < pCMesh->submeshCount(); i++) {
 			writePrimitive();
 		}

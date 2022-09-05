@@ -292,11 +292,11 @@ class GLTFIO {
 
 		void readMeshes();
 
-		void readPrimitive(tinygltf::Primitive* pPrimitive);
+		T3DMesh<float>::Submesh* readPrimitive(tinygltf::Primitive* pPrimitive);
 
 		void readAttributes(tinygltf::Primitive* pPrimitive);
 
-		void readSubMeshes(tinygltf::Primitive* pPrimitive);
+		T3DMesh<float>::Submesh* readSubMeshes(tinygltf::Primitive* pPrimitive);
 		
 		void readIndices(const int accessorIndex, std::vector<int>* pIndices);
 
