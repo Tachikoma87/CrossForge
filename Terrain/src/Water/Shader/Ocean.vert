@@ -76,14 +76,18 @@ float shoreWave(float factor) {
 
 
 void main(){
-    UVcord = uv + Camera.Position.xz / uvScale;// + windDirection * time;
+	POS = Camera.Position.xyz * vec3(1, 0, 1);
+	POS.x = int(POS.x / widthScale) * widthScale;
+	POS.z = int(POS.z / widthScale) * widthScale;
+
+    UVcord = uv + POS.xz / uvScale;// + windDirection * time;
 
 
     float dist = length(Position + instanceOffset);
  
    
 
-    float shoreFactor = getShoreWaveFactor(Position.xz + instanceOffset.xz + Camera.Position.xz) * 2;
+    float shoreFactor = getShoreWaveFactor(Position.xz + instanceOffset.xz + POS.xz) * 2;
     float waveFactor = shoreWave(shoreFactor);
     shoreFactor = clamp(shoreFactor, 0.0, 0.3);
 
@@ -92,8 +96,9 @@ void main(){
 	
 
     //vec4 derivatives = imageLoad(textureNormal, ivec2(mod(UVcord, 1) * imageSize(textureNormal)));
+	
 
-    POS = Position + instanceOffset + displacement * vec3(choppyness, 1, choppyness) + Camera.Position.xyz * vec3(1, 0, 1);
+    POS = POS + Position + instanceOffset + displacement * vec3(choppyness, 1, choppyness);
     CAM = Camera.Position.xyz;
 
     vec4 ret = Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(POS, 1);

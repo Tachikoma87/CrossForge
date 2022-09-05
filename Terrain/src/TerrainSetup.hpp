@@ -480,18 +480,6 @@ namespace Terrain {
             waterManager.getHeightMap(), waterManager.getPoolMap(), waterManager.getRivers());
 
 
-
-
-
-
-
-
-
-
-
-
-
-
         DekoMesh PineMesh;
         InstanceActor iPineActor;
         DekoMesh PineLeavesMesh;
