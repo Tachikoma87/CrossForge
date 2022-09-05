@@ -28,6 +28,10 @@ FIND_PACKAGE(OpenCV CONFIG REQUIRED)
 #	set(CMAKE_EXE_LINKER_FLAGS "/SAFESEH:NO")
 #endif()
 
+if (MSVC)
+	add_compile_options("/utf-8")
+endif()
+
 include_directories(
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
 	"${CMAKE_SOURCE_DIR}/thirdparty/eigen"
