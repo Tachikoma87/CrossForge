@@ -740,18 +740,10 @@ namespace CForge {
 		offsets.clear();
 
 		filePath = Filepath;
-
-		writeMeshes();
-		writeNodes();
 		
-		TinyGLTF writer;
+		Buffer buffer;
+		model.buffers.push_back(buffer);
 
-		writer.WriteGltfSceneToFile(&model, Filepath, false, false, true, false);
-	}//store
-
-#pragma region write
-	
-	void GLTFIO::writeMeshes() {
 		//Every texture will use this basic sampler.
 		Sampler gltfSampler;
 
@@ -761,17 +753,19 @@ namespace CForge {
 		gltfSampler.wrapT = TINYGLTF_TEXTURE_WRAP_REPEAT;
 
 		model.samplers.push_back(gltfSampler);
-		
+
 		//Every mesh will hold a single primitive with the submesh data.
-		//TODO fix that
-		for (int i = 0; i < pCMesh->submeshCount(); i++) {
-			writePrimitive();
-		}
-	}//writeMeshes
+		
+		writeNodes();
+		
+		TinyGLTF writer;
+
+		writer.WriteGltfSceneToFile(&model, Filepath, false, false, true, false);
+	}//store
+
+#pragma region write
 	
-	void GLTFIO::writePrimitive() {
-		Buffer buffer;
-		model.buffers.push_back(buffer);
+	int GLTFIO::writePrimitive(const T3DMesh<float>::Submesh* pSubmesh) {
 		Mesh mesh;
 		model.meshes.push_back(mesh);
 		Primitive primitive;
@@ -780,16 +774,15 @@ namespace CForge {
 
 		model.meshes[meshIndex].primitives.push_back(primitive);
 		
-		std::pair<int, int> minmax = prepareAttributeArrays();
+		std::pair<int, int> minmax = prepareAttributeArrays(pSubmesh);
 		writeAttributes();
-		writeMaterial();
+		writeMaterial(pSubmesh);
 		writeMorphTargets(minmax);
+
+		return meshIndex;
 	}//writeSubmesh
 	
-	std::pair<int, int> GLTFIO::prepareAttributeArrays() {
-		int meshIndex = model.meshes.size() - 1;
-		const T3DMesh<float>::Submesh* pSubmesh = pCMesh->getSubmesh(meshIndex);
-
+	std::pair<int, int> GLTFIO::prepareAttributeArrays(const T3DMesh<float>::Submesh* pSubmesh) {
 		coord.clear();
 		normal.clear();
 		tangent.clear();
@@ -882,6 +875,7 @@ namespace CForge {
 		}
 
 		writeAccessorDataScalar(model.buffers.size() - 1, TINYGLTF_COMPONENT_TYPE_INT, &indices);
+		int meshIndex = model.meshes.size() - 1;
 		model.meshes[meshIndex].primitives[0].indices = model.accessors.size() - 1;
 
 		std::cout << "coord " << coord.size() << std::endl;
@@ -948,10 +942,8 @@ namespace CForge {
 		}
 	}
 
-	void GLTFIO::writeMaterial() {
+	void GLTFIO::writeMaterial(const T3DMesh<float>::Submesh* pSubmesh) {
 		int meshIndex = model.meshes.size() - 1;
-
-		T3DMesh<float>::Submesh* pSubmesh = pMesh->getSubmesh(meshIndex);
 		
 		T3DMesh<float>::Material* pMaterial = pMesh->getMaterial(pSubmesh->Material);
 
@@ -1002,21 +994,30 @@ namespace CForge {
 	}
 
 	void GLTFIO::writeNodes() {
-		std::map<const T3DMesh<float>::Bone*, int> boneMap;
+		std::map<const T3DMesh<float>::Submesh*, int> submeshMap;
 		
-		for (int i = 0; i < pCMesh->boneCount(); i++) {
+		for (int i = 0; i < pCMesh->submeshCount(); i++) {
 			Node newNode;
 			
-			const T3DMesh<float>::Bone* pBone = pCMesh->getBone(i);
+			const T3DMesh<float>::Submesh* pSubmesh = pCMesh->getSubmesh(i);
 
-			boneMap.emplace(std::make_pair(pBone, i));
+			submeshMap.emplace(std::make_pair(pSubmesh, i));
 
-			newNode.name = pBone->Name;
+			if (pSubmesh->TranslationOffset(0) > -431602080.0) {
+				newNode.translation.push_back(pSubmesh->TranslationOffset(0));
+				newNode.translation.push_back(pSubmesh->TranslationOffset(1));
+				newNode.translation.push_back(pSubmesh->TranslationOffset(2));
+			}
 
-			if (pBone->Position(0) > -431602080.0) {
-				newNode.translation.push_back(pBone->Position(0));
-				newNode.translation.push_back(pBone->Position(1));
-				newNode.translation.push_back(pBone->Position(2));
+			if (pSubmesh->RotationOffset.x() > -431602080.0) {
+				newNode.rotation.push_back(pSubmesh->RotationOffset.x());
+				newNode.rotation.push_back(pSubmesh->RotationOffset.y());
+				newNode.rotation.push_back(pSubmesh->RotationOffset.z());
+				newNode.rotation.push_back(pSubmesh->RotationOffset.w());
+			}
+
+			if (pSubmesh->Faces.size() > 0) {
+				newNode.mesh = writePrimitive(pSubmesh);
 			}
 
 			model.nodes.push_back(newNode);
@@ -1025,10 +1026,10 @@ namespace CForge {
 		//Do a second pass to set node children.
 
 		for (int i = 0; i < model.nodes.size(); i++) {
-			auto pBone = pCMesh->getBone(i);
+			auto pSubmesh = pCMesh->getSubmesh(i);
 
-			for (auto c : pBone->Children) {
-				model.nodes[i].children.push_back(boneMap[c]);
+			for (auto c : pSubmesh->Children) {
+				model.nodes[i].children.push_back(submeshMap[c]);
 			}
 		}
 	}
@@ -1455,5 +1456,5 @@ namespace CForge {
 * Morph targets schreiben.
 * Eingebettete Texturen unterstützen. -> Ja mit AssetIO
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen
-* Was passiert mit morph target Attributen mit unterschiedlichen Indices? -> passt so
+* Node Matritzen in rotation, translation und ggf. scale zerlegen.
 */

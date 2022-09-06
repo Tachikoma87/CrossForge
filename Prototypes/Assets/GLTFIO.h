@@ -314,16 +314,14 @@ class GLTFIO {
 
 		void readMorphTargets();
 
-		
-		void writeMeshes();
 
-		void writePrimitive();
+		int writePrimitive(const T3DMesh<float>::Submesh* pSubmesh);
 
 		void writeAttributes();
 
-		std::pair<int, int> prepareAttributeArrays();
+		std::pair<int, int> prepareAttributeArrays(const T3DMesh<float>::Submesh* pSubmesh);
 
-		void writeMaterial();
+		void writeMaterial(const T3DMesh<float>::Submesh* pSubmesh);
 
 		int writeTexture(const std::string path);
 
