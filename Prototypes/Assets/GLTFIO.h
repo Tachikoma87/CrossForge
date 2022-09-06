@@ -35,6 +35,7 @@ class GLTFIO {
 		void release(void);
 		static bool accepted(const std::string Filepath, I3DMeshIO::Operation Op);
 
+#pragma region util
 		static int componentCount(const int type);
 
 		static int sizeOfGltfComponentType(const int componentType);
@@ -52,7 +53,7 @@ class GLTFIO {
 		static void fromVec4f(const std::vector<Eigen::Vector4f>* pIn, std::vector<std::vector<float>>* pOut);
 
 		static void fromQuatf(const std::vector<Eigen::Quaternionf>* pIn, std::vector<std::vector<float>>* pOut);
-
+#pragma endregion
 	protected:
 		std::string filePath;
 
@@ -72,6 +73,7 @@ class GLTFIO {
 		std::vector<unsigned long> offsets;
 		unsigned long materialIndex;
 
+#pragma region accessor_read
 		template<class T>
 		void readBuffer(unsigned char* pBuffer, const int element_count, const int offset, const int component_count, const bool is_matrix, const int stride, std::vector<T>* pData) {
 			T* raw_data = (T*)pBuffer;
@@ -157,7 +159,9 @@ class GLTFIO {
 		void getAccessorData(const int accessor, std::vector<Eigen::Vector4f>* pData);
 
 		void getAccessorData(const int accessor, std::vector<Eigen::Quaternionf>* pData);
+#pragma endregion
 		
+#pragma region accessor_write
 		template<class T>
 		void writeBuffer(std::vector<unsigned char>* pBuffer, const int offset, const int component_count, const bool is_matrix, const int stride, const std::vector<T>* pData) {
 			int type_size = sizeof(T);
@@ -234,13 +238,6 @@ class GLTFIO {
 
 			writeBuffer(&pBuffer->data, bufferView.byteOffset + accessor.byteOffset, 
 				accessor.count, false, bufferView.byteStride, pData);
-			/*
-			for (int i = 0; i < pData->size(); i++) {
-				for (int k = 0; k < sizeof(T); k++) {
-					pBuffer->data.push_back(((unsigned char*)&(*pData)[i])[k]);
-				}
-			}
-			*/
 		}
 
 		template<class T>
@@ -276,20 +273,12 @@ class GLTFIO {
 			}
 			
 			writeBuffer(&pBuffer->data, bufferView.byteOffset + accessor.byteOffset, accessor.count, is_matrix, bufferView.byteStride, &simplified);
-
-			/*
-			for (int i = 0; i < pData->size(); i++) {
-				for (int j = 0; j < (*pData)[i].size(); j++) {
-					for (int k = 0; k < sizeof(T); k++) {
-						pBuffer->data.push_back(((unsigned char*)&((*pData)[i][j]))[k]);
-					}
-				}
-			}
-			*/
 		}
 
 		int writeSparseAccessorData(const int buffer_index, const int type, const std::vector<int32_t>* pIndices, const std::vector<std::vector<float>>* pData);
+#pragma endregion
 
+#pragma region read
 		void readMeshes();
 
 		T3DMesh<float>::Submesh* readPrimitive(tinygltf::Primitive* pPrimitive);
@@ -313,8 +302,9 @@ class GLTFIO {
 		void readSkinningData();
 
 		void readMorphTargets();
+#pragma endregion
 
-
+#pragma region write
 		int writePrimitive(const T3DMesh<float>::Submesh* pSubmesh);
 
 		void writeAttributes();
@@ -328,6 +318,7 @@ class GLTFIO {
 		void writeNodes();
 
 		void writeMorphTargets(std::pair<int, int> minmax);
+#pragma endregion
 	};//GLTFIO
 
 }//name space
