@@ -463,7 +463,7 @@ namespace Terrain {
         SceneGraph sceneGraph;
 
         OceanSimulation oceanSimulation(lowQuality ? 64 : 256, lowQuality ? 500 : 500, lowQuality ? 0.1 : 40, Vector2f(1.0f, 1.0f), lowQuality ? 1000 : 50);
-        OceanObject oceanObject(lowQuality ? 16 : 256, lowQuality ? 25 : 100, lowQuality ? 1 : 2, 1, 1, 1, lowQuality ? 29 : 7, nearPlane, farPlane);
+        OceanObject oceanObject(lowQuality ? 16 : 256, lowQuality ? 25 : 100, lowQuality ? 1 : 2, 1, 1, 1, lowQuality ? 29 : 15, nearPlane, farPlane);
         
         bool pause = false;
         oceanSimulation.initOceanSimulation();

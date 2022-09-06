@@ -77,8 +77,6 @@ vec3 hsv2rgb(vec3 c)
 
 
 vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
-//	return texture(colorTexture, SCREENUV.xy * vec2 (1, -1) + vec2(0, 1));
-
 	float maxDistance = distance(CAM, POS);
 	float resolution = lowQuality ? 8 : 2;
 	int steps = 0;
@@ -119,14 +117,14 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 		
 		sampleDepth = 2.0 * nearFarPlane.x * nearFarPlane.y / (nearFarPlane.x + nearFarPlane.y - (texture(depthTexture, uv).r * 2.0 - 1) * (nearFarPlane.y - nearFarPlane.x));
 		
-		if (sampleDepth < depth) {
+		if ((sampleDepth < depth) && (sampleDepth > startDepth)) {
 			hit = true;
 			break;
 		}
 	}
 
 	if (!hit) return getSkyboxColor(reflectDirection);
-	else if (sampleDepth > startDepth) {
+	else {
 		float scaleFactor = 1;
 		float visibility = 1 - max(dot(normalize(CAM - POS), reflectDirection), 0);
 

@@ -76,6 +76,8 @@ float shoreWave(float factor) {
 
 
 void main(){
+	float circleRadius = lowQuality ? 300 : 600;
+
 	POS = Camera.Position.xyz * vec3(1, 0, 1);
 	POS.x = int(POS.x / widthScale) * widthScale;
 	POS.z = int(POS.z / widthScale) * widthScale;
@@ -92,7 +94,7 @@ void main(){
     shoreFactor = clamp(shoreFactor, 0.0, 0.3);
 
     newAmplitudeScale = amplitudeScale * (1 - shoreFactor);
-    vec3 displacement = dist > 300 ? vec3(0) : imageLoad(textureDisplacement, ivec2(mod(UVcord, 1) * imageSize(textureDisplacement))).xyz * newAmplitudeScale + waveFactor * shoreFactor;
+    vec3 displacement = dist > circleRadius ? vec3(0) : imageLoad(textureDisplacement, ivec2(mod(UVcord, 1) * imageSize(textureDisplacement))).xyz * newAmplitudeScale + waveFactor * shoreFactor;
 	
 
     //vec4 derivatives = imageLoad(textureNormal, ivec2(mod(UVcord, 1) * imageSize(textureNormal)));

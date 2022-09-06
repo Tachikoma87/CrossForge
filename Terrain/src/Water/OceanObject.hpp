@@ -275,11 +275,12 @@ public:
 
 		glGenTextures(1, &mFoamTexture);
 		glBindTexture(GL_TEXTURE_2D, mFoamTexture);
-		glTextureParameteri(mFoamTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(mFoamTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.data());
+		glGenerateMipmap(GL_TEXTURE_2D);
 
 		//foam blend textures
 		try {
@@ -307,11 +308,12 @@ public:
 
 		glGenTextures(1, &mPoolDUDVTexture);
 		glBindTexture(GL_TEXTURE_2D, mPoolDUDVTexture);
-		glTextureParameteri(mPoolDUDVTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(mPoolDUDVTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.data());
+		glGenerateMipmap(GL_TEXTURE_2D);
 
 		try {
 			SAssetIO::load("Assets/richard/poolNormal.png", &image); // https://www.youtube.com/watch?v=qgDPSnZPGMA&list=PLRIWtICgwaX23jiqVByUs0bqhnalNTNZh&index=8
@@ -322,11 +324,12 @@ public:
 
 		glGenTextures(1, &mPoolNormalTexture);
 		glBindTexture(GL_TEXTURE_2D, mPoolNormalTexture);
-		glTextureParameteri(mPoolNormalTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(mPoolNormalTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.data());
+		glGenerateMipmap(GL_TEXTURE_2D);
 
 		//skybox textures
 		for (int i = 0; i < 6; i++) {
@@ -356,29 +359,14 @@ public:
 
 		glGenTextures(1, &mWaterCausticsTexture);
 		glBindTexture(GL_TEXTURE_2D, mWaterCausticsTexture);
-		glTextureParameteri(mWaterCausticsTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(mWaterCausticsTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.data());
+		glGenerateMipmap(GL_TEXTURE_2D);
 
-		//skybox textures
-		for (int i = 0; i < 6; i++) {
-			try {
-				SAssetIO::load(mSkyboxTexturePaths[i], &image);
-			}
-			catch (CrossForgeException& e) {
-				SLogger::logException(e);
-			}
 
-			glGenTextures(1, &mSkyboxTextures[i]);
-			glBindTexture(GL_TEXTURE_2D, mSkyboxTextures[i]);
-			glTextureParameteri(mSkyboxTextures[i], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTextureParameteri(mSkyboxTextures[i], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.data());
-		}
 	}
 
 	void initFBO(int width, int height) {
