@@ -994,6 +994,7 @@ namespace CForge {
 	}
 
 	void GLTFIO::writeNodes() {
+		Scene scene;
 		std::map<const T3DMesh<float>::Submesh*, int> submeshMap;
 		
 		for (int i = 0; i < pCMesh->submeshCount(); i++) {
@@ -1021,6 +1022,7 @@ namespace CForge {
 			}
 
 			model.nodes.push_back(newNode);
+			scene.nodes.push_back(i);
 		}
 
 		//Do a second pass to set node children.
@@ -1032,6 +1034,8 @@ namespace CForge {
 				model.nodes[i].children.push_back(submeshMap[c]);
 			}
 		}
+
+		model.scenes.push_back(scene);
 	}
 
 	void GLTFIO::writeMorphTargets(std::pair<int, int> minmax) {
