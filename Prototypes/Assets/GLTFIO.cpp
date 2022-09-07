@@ -473,7 +473,7 @@ namespace CForge {
 		std::filesystem::path path = filePath;
 		path = path.parent_path();
 		path.append(model.images[sourceIndex].uri);
-
+		
 		return path.string();
 	}
 
@@ -1055,8 +1055,6 @@ namespace CForge {
 
 				Primitive* pCurrentPrimitive = &model.meshes[mesh_index].primitives[primitve_index];
 
-				//TODO sparse accessoren schreiben.
-
 				std::map<std::string, int> targetMap;
 
 				std::vector<int32_t>* pIndices;
@@ -1453,12 +1451,9 @@ namespace CForge {
 * Wo muss Rotation und Scale pro Node hin? Bone hat nur Position und Offsetmatrix. -> Submeshs speichern sowas.
 * - Alle Nodes werden zu Submeshes.
 * - Alle Nodes die an Skelettanimationen beteiligt sind werden auch als Bones gespeichert.
-* - Nodes denen Meshes untergeordnet sind enthalten entweder selbst die Vertexdaten oder, falls sie aus mehreren Primitiven bestehen,
-*   werden ihnen die entsprechende Anzahl an Submeshes untergeordnet.
 * 
 * Skelettanimationen schreiben.
-* Morph targets schreiben.
-* Eingebettete Texturen unterstützen. -> Ja mit AssetIO
+* Eingebettete Texturen unterstützen. -> Ja beim einlesen mit AssetIO
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen
 * Node Matritzen in rotation, translation und ggf. scale zerlegen.
 */
