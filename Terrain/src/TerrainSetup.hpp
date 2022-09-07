@@ -52,7 +52,7 @@ public:
         uint32_t winWidth = WINWIDTH;
         uint32_t winHeight = WINHEIGHT;
 
-//         glfwWindowHint(GLFW_SAMPLES, 4);
+//          glfwWindowHint(GLFW_SAMPLES, 4);
 
 		if (FULLSCREEN)
 			window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup", 0, 0, true);
@@ -680,15 +680,17 @@ public:
         form2->setDropDownOptions(4, testDropdown);*/
 
         //fps counter
-        TextWidget* fpsWidget = gui.createPlainText();
-        fpsWidget->setTextAlign(TextWidget::ALIGN_RIGHT);
+        TextWidget* fpsWidget = gui.createTextWindow(U"Info");
+//         fpsWidget->setTextAlign(TextWidget::ALIGN_RIGHT);
         int32_t FPSCount = 0;
         clock_t current_ticks, delta_ticks;
         clock_t fps = 60;
 
         uint64_t LastFPS = CoreUtility::timestamp();
 		uint64_t FPSTCount = 0;
+		double FPSmean = 0.0;
 		double FPSTmean = 0.0;
+		uint64_t LastFPSPrint = CoreUtility::timestamp();
 
         uint32_t ScreenshotNumber = 0;
 		
@@ -990,22 +992,25 @@ public:
             }
 
             //FPS counter
-            FPSCount++;
-			
+			FPSCount++;
+			FPSmean += pSLOD->getDeltaTime();
+
 			FPSTCount++;
 			FPSTmean += pSLOD->getDeltaTime();
 
-            if (CoreUtility::timestamp() - LastFPS > 1000) {
-                fps = FPSCount;
-                FPSCount = 0;
-                LastFPS = CoreUtility::timestamp();
-//                 printf("FPS: %d\n", fps);
-                wchar_t text_wstring[100] = {0};
-                int charcount = swprintf(text_wstring, 100, L"FPS: %d", fps);
+			if (CoreUtility::timestamp() - LastFPSPrint > 100U) {
+
+				wchar_t text_wstring[100] = {0};
+				FPSmean /= FPSCount;
+				int charcount = swprintf(text_wstring, 100, L"FPS: %.1f\nFrametime: %f", 1.0/FPSmean, FPSmean);
 				std::u32string text = wstringToU32String(std::wstring(text_wstring, charcount));
-                fpsWidget->setText(text);
-                fpsWidget->setPosition(window.width()-fpsWidget->getWidth(), 0);
-            }
+				fpsWidget->setText(text);
+// 				fpsWidget->setPosition(WINWIDTH-fpsWidget->getWidth(), 0);
+
+				LastFPSPrint = CoreUtility::timestamp();
+				FPSmean = 0.0;
+				FPSCount = 0;
+			}
 			
 			//if (FPSTCount == 1000) {
 			//	break;
