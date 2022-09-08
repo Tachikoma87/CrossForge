@@ -135,7 +135,7 @@ namespace CForge {
 		M.computePerVertexNormals();
 		// Cube.init(&M);
 		M.clear();
-		
+
 		//gltf testing
 		GLTFIO gltfio;
 		gltfio.load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &testModel);

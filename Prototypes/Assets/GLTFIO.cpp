@@ -1100,6 +1100,33 @@ namespace CForge {
 		* Diese Listen werden dann gekürzt so dass nur die stärksten 4 Einflüsse erhalten bleiben.
 		* Die Listen werden dann als Joints und Weights in Accessoren geschrieben und als Attribute dem Primitiv zugefügt.
 		*/
+
+		int node_offset = model.nodes.size();
+
+		for (int i = 0; i < pCMesh->boneCount(); i++) {
+			auto pBone = pCMesh->getBone(i);
+			
+			Node newNode;
+			newNode.name = "bone_" + std::to_string(i);
+
+			if (pBone->Position(0) > -431602080.0) {
+				newNode.translation.push_back(pBone->Position(0));
+				newNode.translation.push_back(pBone->Position(1));
+				newNode.translation.push_back(pBone->Position(2));
+			}
+
+			model.nodes.push_back(newNode);
+		}
+
+		int primitiveIndex = 0;
+
+		for (int i = 0; i < pCMesh->vertexCount(); i++) {
+			if (i > primitiveIndexRanges[primitiveIndex].second) primitiveIndex++;
+			
+			for (int bone_index = 0; bone_index < pCMesh->boneCount(); bone_index++) {
+				
+			}
+		}
 	}
 
 #pragma endregion
