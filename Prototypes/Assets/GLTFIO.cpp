@@ -560,16 +560,8 @@ namespace CForge {
 			getAccessorData(skin.inverseBindMatrices, &inverseBindMatrices);
 
 			std::vector<Eigen::Matrix4f> offsetMatrices;
-			
-			for (auto vec : inverseBindMatrices) {
-				Eigen::Matrix4f offsetMatrix;
-				
-				for (int i = 0; i < vec.size(); i++) {
-					offsetMatrix(i % 4, i / 4) = vec[i];
-				}
 
-				offsetMatrices.push_back(offsetMatrix);
-			}
+			toMat4f(&inverseBindMatrices, &offsetMatrices);
 
 			int counter = 0;
 
@@ -780,7 +772,7 @@ namespace CForge {
 		writeMorphTargets(minmax);
 
 		return meshIndex;
-	}//writeSubmesh
+	}//writePrimitive
 	
 	std::pair<int, int> GLTFIO::prepareAttributeArrays(const T3DMesh<float>::Submesh* pSubmesh) {
 		coord.clear();
@@ -1411,6 +1403,18 @@ namespace CForge {
 		}
 	}
 
+	void GLTFIO::toMat4f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Matrix4f>* pOut) {
+		for (auto vec : *pIn) {
+			Eigen::Matrix4f mat;
+
+			for (int i = 0; i < vec.size(); i++) {
+				mat(i % 4, i / 4) = vec[i];
+			}
+
+			pOut->push_back(mat);
+		}
+	}
+
 	void GLTFIO::fromVec3f(const std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut) {
 		for (auto e : *pIn) {
 			std::vector<float> toAdd;
@@ -1439,6 +1443,16 @@ namespace CForge {
 			toAdd.push_back(e.y());
 			toAdd.push_back(e.z());
 			toAdd.push_back(e.w());
+			pOut->push_back(toAdd);
+		}
+	}
+
+	void GLTFIO::fromMat4f(const std::vector<Eigen::Matrix4f>* pIn, std::vector<std::vector<float>>* pOut) {
+		for (auto mat : *pIn) {
+			std::vector<float> toAdd;
+			for (int i = 0; i < 16; i++) {
+				toAdd.push_back(mat(i % 4, i / 4));
+			}
 			pOut->push_back(toAdd);
 		}
 	}

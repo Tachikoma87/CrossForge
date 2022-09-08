@@ -48,11 +48,15 @@ class GLTFIO {
 
 		static void toQuatf(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Quaternionf>* pOut);
 
+		static void toMat4f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Matrix4f>* pOut);
+
 		static void fromVec3f(const std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut);
 
 		static void fromVec4f(const std::vector<Eigen::Vector4f>* pIn, std::vector<std::vector<float>>* pOut);
 
 		static void fromQuatf(const std::vector<Eigen::Quaternionf>* pIn, std::vector<std::vector<float>>* pOut);
+
+		static void fromMat4f(const std::vector<Eigen::Matrix4f>*  pIn, std::vector<std::vector<float>>* pOut);
 #pragma endregion
 	protected:
 		std::string filePath;
