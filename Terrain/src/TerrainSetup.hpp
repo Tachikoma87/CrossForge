@@ -452,8 +452,8 @@ namespace Terrain {
             .octaves = 10,
             .persistence = 0.5f,
             .lacunarity = 2.0f};
-        HeightMap::HeightMapConfig heightMapConfig = {.width = (uint32_t)(1024 * (lowQuality ? 0.5f : 2)), .height = (uint32_t)(1024 * (lowQuality ? 0.5f : 2)),
-                                                      .mapHeight = (float)(lowQuality ? 50 : 200), .noiseConfig = noiseConfig};
+        HeightMap::HeightMapConfig heightMapConfig = {.width = (uint32_t)(512 * settingSizeScale), .height = (uint32_t)(512 * settingSizeScale),
+                                                      .mapHeight = (float)(50 * settingSizeScale), .noiseConfig = noiseConfig};
 
 
         TerrainMap map = TerrainMap(&rootTransform);
@@ -473,11 +473,13 @@ namespace Terrain {
         WaterManager waterManager(map.getHeightMap());
         waterManager.updateTextures();
 
-        waterManager.updateShoreDistTexture();
+        //waterManager.updateShoreDistTexture();
 
         oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
             heightMapConfig.mapHeight, 1,
             waterManager.getHeightMap(), waterManager.getPoolMap(), waterManager.getRivers());
+
+
 
 
         DekoMesh PineMesh;
@@ -657,16 +659,11 @@ namespace Terrain {
 
                 glBindImageTexture(0, oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
                 glBindImageTexture(1, oceanSimulation.mTextures[oceanSimulation.NORMALS], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-                oceanObject.renderOcean(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC * (pause ? 0 : 1), waterManager.getHeightMapTexture(), waterManager.getShoreDistanceTexture());
+                oceanObject.renderOcean(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC * (pause ? 0 : 1), waterManager.getHeightMapTexture(), waterManager.getShoreDistanceTexture(), oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT], oceanSimulation.mTextures[oceanSimulation.NORMALS]);
                 
-
-                glBindImageTexture(0, oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-                glBindImageTexture(1, oceanSimulation.mTextures[oceanSimulation.NORMALS], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
                 oceanObject.renderPool(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC * (pause ? 0 : 1));
                 
                 if (!pause) {
-                    glBindImageTexture(0, oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-                    glBindImageTexture(1, oceanSimulation.mTextures[oceanSimulation.NORMALS], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
                     oceanObject.renderStreams(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC * (pause ? 0 : 1));
                 }
 
@@ -744,7 +741,7 @@ namespace Terrain {
                 window.keyboard()->keyState(Keyboard::KEY_L, Keyboard::KEY_RELEASED);
 
                 //waterManager.trySpawnLake((int)(camera.position().z() + map.getMapSize().y() / 2)* map.getMapSize().x() + (int)(camera.position().x() + map.getMapSize().x() / 2.0));
-                waterManager.trySpawnLakes(lowQuality ? 75 : 200);
+                waterManager.trySpawnLakes(50 * settingSizeScale);
 
                 waterManager.updateTextures();
                 oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
@@ -771,14 +768,14 @@ namespace Terrain {
                     .octaves = 10,
                     .persistence = 0.5f,
                     .lacunarity = 2.0f };
-                HeightMap::HeightMapConfig heightMapConfig = { .width = (uint32_t)(1024 * (lowQuality ? 0.5f : 2)), .height = (uint32_t)(1024 * (lowQuality ? 0.5f : 2)),
-                                                      .mapHeight = (float)(lowQuality ? 50 : 200), .noiseConfig = noiseConfig };
+                HeightMap::HeightMapConfig heightMapConfig = { .width = (uint32_t)(512 * settingSizeScale), .height = (uint32_t)(512 * settingSizeScale),
+                                                      .mapHeight = (float)(50 * settingSizeScale), .noiseConfig = noiseConfig };
                 map.generateHeightMap(heightMapConfig);
 
                 waterManager.refreshMaps();
                 waterManager.updateTextures();
       
-                waterManager.trySpawnLakes(lowQuality ? 75 : 200);
+                waterManager.trySpawnLakes(50 * settingSizeScale);
                 waterManager.updateTextures();
                 waterManager.tryGenerateRivers(lowQuality ? 200 : 300);
                 waterManager.updateTextures();
@@ -827,8 +824,8 @@ namespace Terrain {
                     .octaves = 10,
                     .persistence = 0.5f,
                     .lacunarity = 2.0f};
-                HeightMap::HeightMapConfig heightMapConfig = { .width = (uint32_t)(1024 * (lowQuality ? 0.5f : 2)), .height = (uint32_t)(1024 * (lowQuality ? 0.5f : 2)),
-                                                      .mapHeight = (float)(lowQuality ? 50 : 200), .noiseConfig = noiseConfig };
+                HeightMap::HeightMapConfig heightMapConfig = { .width = (uint32_t)(512 * settingSizeScale), .height = (uint32_t)(512 * settingSizeScale),
+                                                      .mapHeight = (float)(50 * settingSizeScale), .noiseConfig = noiseConfig };
                 map.generateHeightMap(heightMapConfig);
                 
                 placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor, waterManager, waterManager.getRivers());
@@ -933,6 +930,18 @@ namespace Terrain {
                 T2DImage<uint8_t> ColorBufferImg;
                 GraphicsUtility::retrieveFrameBuffer(&ColorBufferImg, nullptr);
                 AssetIO::store("Screenshot_" + std::to_string(ScreenshotNumber++) + ".jpg", &ColorBufferImg);
+            }
+
+            if (window.keyboard()->keyPressed(Keyboard::KEY_E)) {
+                window.keyboard()->keyState(Keyboard::KEY_E, Keyboard::KEY_RELEASED);
+
+                waterManager.exportMaps();
+            }
+
+            if (window.keyboard()->keyPressed(Keyboard::KEY_I)) {
+                window.keyboard()->keyState(Keyboard::KEY_I, Keyboard::KEY_RELEASED);
+
+                waterManager.importMaps();
             }
 
             //FPS counter

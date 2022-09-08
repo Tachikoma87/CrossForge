@@ -153,7 +153,7 @@ public:
 	}
 
 private:
-	float mDepth = lowQuality ? 0.04 : 0.02;
+	float mDepth = lowQuality ? 0.04 : 0.01;
 
 	int mResolution = 1;
 

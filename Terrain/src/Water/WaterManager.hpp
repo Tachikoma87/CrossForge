@@ -22,6 +22,7 @@
 #include <stack>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 
 
 using namespace CForge;
@@ -292,6 +293,23 @@ public:
 		glBindTexture(GL_TEXTURE_2D, mShoreDistanceTextureHandle);
 		//glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, mDimension.x(), mDimension.y(), 0, GL_RED, GL_FLOAT, shoreDistances.data());
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, mDimension.x(), mDimension.y(), 0, GL_RGBA, GL_FLOAT, shoreDistances.data());
+	}
+
+	void exportMaps() {
+		std::ofstream outFile("Assets/heightMap.txt");
+		for (const auto& e : mHeightMap) outFile << e << "\n";
+	}
+
+	void importMaps() {
+		mHeightMap.clear();
+		std::ifstream fin("Assets/heightMap.txt");
+		float element;
+		while (fin >> element)
+		{
+			mHeightMap.push_back(element);
+		}
+
+		updateTextures();
 	}
 
 private:

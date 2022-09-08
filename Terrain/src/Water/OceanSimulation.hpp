@@ -140,8 +140,8 @@ private:
 		for (int i = 0; i < TEXTURES_AMOUNT; i++) {
 			glGenTextures(1, &mTextures[i]);
 			glBindTexture(GL_TEXTURE_2D, mTextures[i]);
-			glTextureParameteri(mTextures[i], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTextureParameteri(mTextures[i], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTextureParameteri(mTextures[i], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTextureParameteri(mTextures[i], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			if (i == TWIDDLE_INDICES) {
@@ -290,9 +290,12 @@ private:
 	void calcNormals() {
 		mNormalsShader->bind();
 
+		glBindTexture(GL_TEXTURE_2D, mTextures[NORMALS]);
+		glTextureParameteri(mTextures[NORMALS], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
 		glBindImageTexture(0, mTextures[DISPLACEMENT], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 		glBindImageTexture(1, mTextures[NORMALS], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-
+		
 		glDispatchCompute(mGridSize / 8, mGridSize / 8, 1);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 	}

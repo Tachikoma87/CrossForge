@@ -174,7 +174,7 @@ public:
 		glBindVertexArray(0);
 	}
 
-	void renderOcean(RenderDevice* renderDevice, float timeCount, unsigned int heightMapTextureHandle, unsigned int shoreDistTextureHandle) {
+	void renderOcean(RenderDevice* renderDevice, float timeCount, unsigned int heightMapTextureHandle, unsigned int shoreDistTextureHandle, unsigned int oceanDisplacementTextureHandle, unsigned int oceanNormalsTextureHandle) {
 		renderDevice->activeShader(mShader);
 		glBindVertexArray(mVAO);
 
@@ -208,6 +208,8 @@ public:
 		int shoreDistT = mShader->uniformLocation("shoreDistTexture");
 		int worldPosT = mShader->uniformLocation("worldPosTexture");
 		int wCausticsT = mShader->uniformLocation("waterCausticsTexture");
+		int displacementT = mShader->uniformLocation("displacementTexture");
+		int normalsT = mShader->uniformLocation("normalsTexture");
 
 		int backT = mShader->uniformLocation("skyBackTexture");
 		int botT = mShader->uniformLocation("skyBotTexture");
@@ -224,13 +226,15 @@ public:
 		glUniform1i(shoreDistT, 5);
 		glUniform1i(worldPosT, 6);
 		glUniform1i(wCausticsT, 7);
+		glUniform1i(displacementT, 8);
+		glUniform1i(normalsT, 9);
 
-		glUniform1i(backT, 8);
-		glUniform1i(botT, 9);
-		glUniform1i(frontT, 10);
-		glUniform1i(leftT, 11);
-		glUniform1i(rightT, 12);
-		glUniform1i(topT, 13);
+		glUniform1i(backT, 10);
+		glUniform1i(botT, 11);
+		glUniform1i(frontT, 12);
+		glUniform1i(leftT, 13);
+		glUniform1i(rightT, 14);
+		glUniform1i(topT, 15);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, mFoamTexture);
@@ -248,10 +252,15 @@ public:
 		glBindTexture(GL_TEXTURE_2D, mPositionTexture);
 		glActiveTexture(GL_TEXTURE7);
 		glBindTexture(GL_TEXTURE_2D, mWaterCausticsTexture);
-
+		glActiveTexture(GL_TEXTURE8);
+		glBindTexture(GL_TEXTURE_2D, oceanDisplacementTextureHandle);
+		glActiveTexture(GL_TEXTURE9);
+		glBindTexture(GL_TEXTURE_2D, oceanNormalsTextureHandle);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glGenerateMipmap(GL_TEXTURE_2D);
 		
 		for (int i = 0; i < 6; i++) {
-			glActiveTexture(GL_TEXTURE8 + i);
+			glActiveTexture(GL_TEXTURE10 + i);
 			glBindTexture(GL_TEXTURE_2D, mSkyboxTextures[i]);
 		}
 

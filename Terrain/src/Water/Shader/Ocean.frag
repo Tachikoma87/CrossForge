@@ -2,9 +2,6 @@
 
 out vec4 gAlbedoSpec;
 
-layout(rgba32f, binding = 0) uniform image2D textureDisplacement;
-layout(rgba32f, binding = 1) uniform image2D textureNormal;
-
 layout(std140) uniform CameraData {
     mat4 ViewMatrix;
     mat4 ProjectionMatrix;
@@ -19,6 +16,8 @@ uniform sampler2D heightMapTexture;
 uniform sampler2D shoreDistTexture;
 uniform sampler2D worldPosTexture;
 uniform sampler2D waterCausticsTexture;
+uniform sampler2D normalsTexture;
+uniform sampler2D displacementTexture;
 
 uniform sampler2D skyBackTexture;
 uniform sampler2D skyBotTexture;
@@ -149,35 +148,6 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 	
 }
 
-vec4 sampleDisp(vec2 uv) {
-    ivec2 samplePos = ivec2(uv * imageSize(textureDisplacement));
-    
-    vec2 t = uv * imageSize(textureDisplacement) - ivec2(uv * imageSize(textureDisplacement));
-    vec4 c00 = imageLoad(textureDisplacement, ivec2(mod(samplePos, imageSize(textureDisplacement))));
-    vec4 c10 = imageLoad(textureDisplacement, ivec2(mod(samplePos + ivec2(1, 0), imageSize(textureDisplacement))));
-    vec4 c01 = imageLoad(textureDisplacement, ivec2(mod(samplePos + ivec2(0, 1), imageSize(textureDisplacement))));
-    vec4 c11 = imageLoad(textureDisplacement, ivec2(mod(samplePos + ivec2(1, 1), imageSize(textureDisplacement))));
-
-    return (1 - t.x) * (1 - t.y) * c00 +
-            t.x * (1 - t.y) * c10 +
-            (1 - t.x) * t.y * c01 +
-            t.x * t.y * c11;
-}
-
-vec4 sampleNorm(vec2 uv) {
-    ivec2 samplePos = ivec2(uv * imageSize(textureNormal));
-    
-    vec2 t = uv * imageSize(textureNormal) - ivec2(uv * imageSize(textureNormal));
-    vec4 c00 = imageLoad(textureNormal, ivec2(mod(samplePos, imageSize(textureNormal))));
-    vec4 c10 = imageLoad(textureNormal, ivec2(mod(samplePos + ivec2(1, 0), imageSize(textureNormal))));
-    vec4 c01 = imageLoad(textureNormal, ivec2(mod(samplePos + ivec2(0, 1), imageSize(textureNormal))));
-    vec4 c11 = imageLoad(textureNormal, ivec2(mod(samplePos + ivec2(1, 1), imageSize(textureNormal))));
-
-    return (1 - t.x) * (1 - t.y) * c00 +
-            t.x * (1 - t.y) * c10 +
-            (1 - t.x) * t.y * c01 +
-            t.x * t.y * c11;
-}
 
 float getShoreWaveFactor() {
 	float maxHeight = 0.5;
@@ -243,23 +213,8 @@ void main(){
 	vec3 N;
 	vec2 UV = mod(UVcord, 1);
 
-	/*
-	float a = imageLoad(textureDisplacement, ivec2(UV * imageSize(textureDisplacement) - ivec2(0, 1.0))).y;
-    float b = imageLoad(textureDisplacement, ivec2(UV * imageSize(textureDisplacement) + ivec2(0, 1.0))).y;
-    float c = imageLoad(textureDisplacement, ivec2(UV * imageSize(textureDisplacement) - ivec2(1.0, 0))).y;
-    float d = imageLoad(textureDisplacement, ivec2(UV * imageSize(textureDisplacement) + ivec2(1.0, 0))).y;
-	*/
-
-	float a = sampleDisp(UV - vec2(0, 1.0) / imageSize(textureDisplacement)).y;
-    float b = sampleDisp(UV + vec2(0, 1.0) / imageSize(textureDisplacement)).y;
-    float c = sampleDisp(UV - vec2(1.0, 0) / imageSize(textureDisplacement)).y;
-    float d = sampleDisp(UV + vec2(1.0, 0) / imageSize(textureDisplacement)).y;
-
-
-    //N = normalize(vec3(a - b, widthScale / amplitudeScale, c - d)); 
-
-	vec4 derivatives = sampleNorm(UV);
-	N = normalize(vec3((derivatives.x / (1 + derivatives.z)), uvScale / newAmplitudeScale * 0.1, (derivatives.y / (1 + derivatives.w))));
+	vec4 derivatives = texture(normalsTexture, UV);// sampleNorm(UV);
+	N = normalize(vec3((derivatives.x / (1 + derivatives.z)), uvScale / newAmplitudeScale * 0.075, (derivatives.y / (1 + derivatives.w))));
 
 	//vec3 sunPos  = vec3(-1000000000, 1000000000, 1000000000);
 	vec3 sunDir =	normalize(vec3(-0.6, 0.5, 1));	//normalize(sunPos - POS);
@@ -273,7 +228,7 @@ void main(){
 
 	vec4 baseOceanBlue = vec4(9, 12, 17, 255) / 255;//vec4(17, 28, 50, 55) / 255;;
 	vec4 baseSkyColor = vec4(47, 78, 108, 255) / 255;
-	float foamFactor = clamp(3 * clamp(0.97 + -1 * sampleDisp(UV).w, 0, 1), 0, 1);
+	float foamFactor = clamp(3 * clamp(0.97 + -1 * texture(displacementTexture, UV).w, 0, 1), 0, 1);
 
 	float spec = pow(max(dot(N, halfwayDir), 0.0), shininess) * 3;
 	float l = max(acos(dot(N, viewDir)) - 80, 0.0);

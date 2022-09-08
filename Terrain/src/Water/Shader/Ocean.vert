@@ -14,11 +14,9 @@ layout (location = 0) in vec3 Position;
 layout (location = 1) in vec2 uv;
 layout (location = 2) in vec3 instanceOffset;
 
-layout(rgba32f, binding = 0) uniform image2D textureDisplacement;
-layout(rgba32f, binding = 1) uniform image2D textureNormal;
-
 uniform sampler2D heightMapTexture;
 uniform sampler2D shoreDistTexture;
+uniform sampler2D displacementTexture;
 
 uniform float amplitudeScale;
 uniform float choppyness;
@@ -94,7 +92,7 @@ void main(){
     shoreFactor = clamp(shoreFactor, 0.0, 0.3);
 
     newAmplitudeScale = amplitudeScale * (1 - shoreFactor);
-    vec3 displacement = dist > circleRadius ? vec3(0) : imageLoad(textureDisplacement, ivec2(mod(UVcord, 1) * imageSize(textureDisplacement))).xyz * newAmplitudeScale + waveFactor * shoreFactor;
+    vec3 displacement = dist > circleRadius ? vec3(0) : texture(displacementTexture, UVcord).xyz * newAmplitudeScale + waveFactor * shoreFactor;// imageLoad(textureDisplacement, ivec2(mod(UVcord, 1) * imageSize(textureDisplacement))).xyz * newAmplitudeScale + waveFactor * shoreFactor;
 	
 
     //vec4 derivatives = imageLoad(textureNormal, ivec2(mod(UVcord, 1) * imageSize(textureNormal)));

@@ -142,15 +142,15 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 vec3 getFoamColor(float depth) {
 	float foamUVScale = 1;
 	float maxDepth = 0.3;
-	float minSpeed = 0.7;
-	float maxSpeed = 0.8;
+	
+
 
 	
 	//if (speedScale < minSpeed) return vec3(0);
 	if (depth > maxDepth) return vec3(0);
 	
-
-	vec3 foamScale = texture(foamBlendTexture, vec2(1 - depth / maxDepth, 0)).rgb;// * clamp((speedScale - minSpeed) / (maxSpeed - minSpeed), 0, 1);
+	float borderScale = clamp(5 - abs(UV.y - 0.5) * 16, 0, 1);
+	vec3 foamScale = texture(foamBlendTexture, vec2((1 - depth / maxDepth) * borderScale, 0)).rgb;// * clamp((speedScale - minSpeed) / (maxSpeed - minSpeed), 0, 1);
 
 
 	vec3 temp = texture(foamTexture, UV * vec2(1, WIDTH) * foamUVScale + vec2(time / 10.1, 0)).rgb;
