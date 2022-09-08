@@ -1092,11 +1092,11 @@ namespace CForge {
 		/*
 		* TODO
 		* Alle Bones als Nodes in gltf einfügen.
-		* Ein Umrechnung oder Datenstruktur bereithalten um die Bone-Indices auf die Node-Indices umzurechnen, da ja schon nodes existieren.
+		* Eine Umrechnung oder Datenstruktur bereithalten um die Bone-Indices auf die Node-Indices umzurechnen, da ja schon Nodes existieren.
 		* Alle Bones durchgehen und das Primitiv ermitteln was sie beeinflussen.
 		* Für den Bone alle influences (indices) und weights durchgehen und in zwei Datenstrukturen (vector<vector<float>>) sammeln.
 		* Die Datenstrukturen sollten die selbe Indexbasis haben wie die Attribute des Primitivs.
-		* Pro Vertex gibt es also eine Liste mit Node-Indices die es beeinflussen und eine Liste mit den Gewichtungen für diese Nodes.
+		* Pro Vertex gibt es also eine Liste mit Node-Indices die ihn beeinflussen und eine Liste mit den Gewichtungen für diese Nodes.
 		* Diese Listen werden dann gekürzt so dass nur die stärksten 4 Einflüsse erhalten bleiben.
 		* Die Listen werden dann als Joints und Weights in Accessoren geschrieben und als Attribute dem Primitiv zugefügt.
 		*/
