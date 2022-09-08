@@ -57,6 +57,8 @@ class GLTFIO {
 		static void fromQuatf(const std::vector<Eigen::Quaternionf>* pIn, std::vector<std::vector<float>>* pOut);
 
 		static void fromMat4f(const std::vector<Eigen::Matrix4f>*  pIn, std::vector<std::vector<float>>* pOut);
+
+		int getMeshIndexByCrossForgeVertexIndex(int index);
 #pragma endregion
 	protected:
 		std::string filePath;
@@ -73,6 +75,8 @@ class GLTFIO {
 		std::vector<Eigen::Matrix<float, 4, 1>> color;
 		std::vector<Eigen::Matrix<float, 4, 1>> joint;
 		std::vector<Eigen::Matrix<float, 4, 1>> weight;
+
+		std::vector<std::pair<int32_t, int32_t>> primitiveIndexRanges;
 
 		std::vector<unsigned long> offsets;
 		unsigned long materialIndex;
@@ -322,6 +326,8 @@ class GLTFIO {
 		void writeNodes();
 
 		void writeMorphTargets(std::pair<int, int> minmax);
+
+		void writeSkinningData();
 #pragma endregion
 	};//GLTFIO
 

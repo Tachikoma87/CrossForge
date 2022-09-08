@@ -483,14 +483,12 @@ namespace CForge {
 		int id_counter = 0;
 
 		for (Animation animation : model.animations) {
-			pAnim = new T3DMesh<float>::SkeletalAnimation;
-
-			pAnim->Name = animation.name;
-
 			std::vector<T3DMesh<float>::BoneKeyframes*> keyframes;
 			std::vector<int> inputAccessors;
 
 			float duration = -1;
+
+			bool pure_morph_target_animation = true;
 
 			for (AnimationChannel channel : animation.channels) {
 				T3DMesh<float>::BoneKeyframes* pBoneKF = nullptr;
@@ -526,6 +524,8 @@ namespace CForge {
 					getAccessorData(output, &translations);
 					
 					pBoneKF->Positions = translations;
+
+					pure_morph_target_animation = false;
 				}
 				else if (channel.target_path == "rotation") {
 					std::vector<Eigen::Quaternionf> rotations;
@@ -534,6 +534,8 @@ namespace CForge {
 					getAccessorData(output, &rotations);
 
 					pBoneKF->Rotations = rotations;
+
+					pure_morph_target_animation = false;
 				}
 				else if (channel.target_path == "scale") {
 					std::vector<Eigen::Vector3f> scalings;
@@ -542,11 +544,21 @@ namespace CForge {
 					getAccessorData(output, &scalings);
 
 					pBoneKF->Scalings = scalings;
+
+					pure_morph_target_animation = false;
 				}
+				/*
+				"weights" as animation channel target is ignored,
+				because cross forge only stores the morph targets without animated weights.
+				*/
 			}
+			
+			if (pure_morph_target_animation) continue;
 
+			pAnim = new T3DMesh<float>::SkeletalAnimation;
+
+			pAnim->Name = animation.name;
 			pAnim->Keyframes = keyframes;
-
 			pAnim->Duration = duration;
 
 			pMesh->addSkeletalAnimation(pAnim, false);
@@ -731,6 +743,8 @@ namespace CForge {
 
 		offsets.clear();
 
+		primitiveIndexRanges.clear();
+
 		filePath = Filepath;
 		
 		Buffer buffer;
@@ -770,6 +784,8 @@ namespace CForge {
 		writeAttributes();
 		writeMaterial(pSubmesh);
 		writeMorphTargets(minmax);
+
+		primitiveIndexRanges.push_back(minmax);
 
 		return meshIndex;
 	}//writePrimitive
@@ -1070,6 +1086,20 @@ namespace CForge {
 				return;
 			}
 		}
+	}
+
+	void GLTFIO::writeSkinningData() {
+		/*
+		* TODO
+		* Alle Bones als Nodes in gltf einfügen.
+		* Ein Umrechnung oder Datenstruktur bereithalten um die Bone-Indices auf die Node-Indices umzurechnen, da ja schon nodes existieren.
+		* Alle Bones durchgehen und das Primitiv ermitteln was sie beeinflussen.
+		* Für den Bone alle influences (indices) und weights durchgehen und in zwei Datenstrukturen (vector<vector<float>>) sammeln.
+		* Die Datenstrukturen sollten die selbe Indexbasis haben wie die Attribute des Primitivs.
+		* Pro Vertex gibt es also eine Liste mit Node-Indices die es beeinflussen und eine Liste mit den Gewichtungen für diese Nodes.
+		* Diese Listen werden dann gekürzt so dass nur die stärksten 4 Einflüsse erhalten bleiben.
+		* Die Listen werden dann als Joints und Weights in Accessoren geschrieben und als Attribute dem Primitiv zugefügt.
+		*/
 	}
 
 #pragma endregion
@@ -1457,6 +1487,20 @@ namespace CForge {
 		}
 	}
 
+	/*
+	* Returns the gltf mesh index for a given index of a vertex in the CrossForge Mesh.
+	* Only works if the submeshes have already been processed into primitives during writing.
+	*/
+	int GLTFIO::getMeshIndexByCrossForgeVertexIndex(int index) {
+		for (int i = 0; i < primitiveIndexRanges.size(); i++) {
+			auto minmax = primitiveIndexRanges[i];
+			
+			if (index >= minmax.first && index <= minmax.second) return i;
+		}
+
+		return -1;
+	}
+
 #pragma endregion
 }//name space
  
@@ -1464,7 +1508,7 @@ namespace CForge {
 /*
 * Wo muss Rotation und Scale pro Node hin? Bone hat nur Position und Offsetmatrix. -> Submeshs speichern sowas.
 * - Alle Nodes werden zu Submeshes.
-* - Alle Nodes die an Skelettanimationen beteiligt sind werden auch als Bones gespeichert.
+* - Alle Nodes die an Skelettanimationen beteiligt sind werden auch als Bones gespeichert. WICHTIG.
 * 
 * Skelettanimationen schreiben.
 * Eingebettete Texturen unterstützen. -> Ja beim einlesen mit AssetIO
