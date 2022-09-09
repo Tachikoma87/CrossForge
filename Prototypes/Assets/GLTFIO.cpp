@@ -679,27 +679,19 @@ namespace CForge {
 	}
 
 	/*
-	Every node in gltf has a reference as bone and as submesh in CrossForge,
+	Every node in gltf has a reference as submesh and some nodes also as bone in CrossForge,
 	because a gltf node can fullfill both rolls.
+	Bones are read in readSkinningData.
 	*/
 	void GLTFIO::readNodes() {
 		std::vector<T3DMesh<float>::Bone*>* pBones = new std::vector<T3DMesh<float>::Bone*>;
 		
 		for (int i = 0; i < model.nodes.size(); i++) {
 			Node node = model.nodes[i];
-
-			//T3DMesh<float>::Bone* pBone = new T3DMesh<float>::Bone;
+			
 			T3DMesh<float>::Submesh* pSubmesh = new T3DMesh<float>::Submesh;
 
-			//pBone->ID = i;
-
-			//pBone->Name = node.name;
-
 			if (node.translation.size() > 0) {
-				//pBone->Position(0) = node.translation[0];
-				//pBone->Position(1) = node.translation[1];
-				//pBone->Position(2) = node.translation[2];
-
 				pSubmesh->TranslationOffset(0) = node.translation[0];
 				pSubmesh->TranslationOffset(1) = node.translation[1];
 				pSubmesh->TranslationOffset(2) = node.translation[2];
@@ -711,42 +703,30 @@ namespace CForge {
 			}
 
 			//TODO add Scale field to submesh struct
-
-			//Offset matrices will be set later in readSkinningData().
-
-			//pBone->pParent = nullptr;
+			
 			pSubmesh->pParent = nullptr;
 			
-			//pBones->push_back(pBone);
 			pMesh->addSubmesh(pSubmesh, false);
 		}
 
 
-		//Do a second pass to link all bones/submeshes together.
+		//Do a second pass to link all submeshes together.
 
 		for (int i = 0; i < model.nodes.size(); i++) {
 			std::vector<T3DMesh<float>::Bone*> children;
 			std::vector<T3DMesh<float>::Submesh*> submeshChildren;
-
-			auto pBone = pBones->at(i);
+			
 			auto pSubmesh = pMesh->getSubmesh(i);
 
 			for (auto c : model.nodes[i].children) {
-				auto pChild = pBones->at(c);
 				auto pSubChild = pMesh->getSubmesh(c);
-
-				pChild->pParent = pBone;
+				
 				pSubChild->pParent = pSubmesh;
-
-				children.push_back(pChild);
+				
 				submeshChildren.push_back(pSubChild);
 			}
-
-			pBone->Children = children;
 			pSubmesh->Children = submeshChildren;
 		}
-
-		pMesh->bones(pBones, false);
 	}
 #pragma endregion
 	
