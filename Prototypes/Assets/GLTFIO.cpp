@@ -605,6 +605,8 @@ namespace CForge {
 				}
 			}
 		}
+
+		pMesh->bones(pBones, false);
 	}
 
 	void GLTFIO::readMorphTargets() {
