@@ -1599,10 +1599,6 @@ namespace CForge {
  
 //TODO
 /*
-* Wo muss Rotation und Scale pro Node hin? Bone hat nur Position und Offsetmatrix. -> Submeshs speichern sowas.
-* - Alle Nodes die an Skelettanimationen beteiligt sind werden auch als Bones gespeichert. WICHTIG.
-* 
-* Skelettanimationen schreiben.
 * Eingebettete Texturen unterstützen. -> Ja beim einlesen mit AssetIO
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen
 * Node Matritzen in rotation, translation und ggf. scale zerlegen.
