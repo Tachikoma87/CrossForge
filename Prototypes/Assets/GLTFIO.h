@@ -59,6 +59,20 @@ class GLTFIO {
 		static void fromMat4f(const std::vector<Eigen::Matrix4f>*  pIn, std::vector<std::vector<float>>* pOut);
 
 		int getMeshIndexByCrossForgeVertexIndex(int index);
+
+		int getGltfComponentType(const float value) { return TINYGLTF_COMPONENT_TYPE_FLOAT; }
+
+		int getGltfComponentType(const unsigned char value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE; }
+
+		int getGltfComponentType(const char value) { return TINYGLTF_COMPONENT_TYPE_BYTE; }
+
+		int getGltfComponentType(const unsigned short value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT; }
+
+		int getGltfComponentType(const short value) { return TINYGLTF_COMPONENT_TYPE_SHORT; }
+
+		int getGltfComponentType(const unsigned int value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT; }
+		
+		int getGltfComponentType(const int value) { return TINYGLTF_COMPONENT_TYPE_INT; }
 #pragma endregion
 	protected:
 		std::string filePath;
@@ -221,16 +235,18 @@ class GLTFIO {
 		}
 
 		template<class T>
-		void writeAccessorDataScalar(const int bufferIndex, const int componentType, std::vector<T>* pData) {
+		void writeAccessorDataScalar(const int bufferIndex, std::vector<T>* pData) {
 			std::cout << "write accessor size: " << pData->size() << ", scalar" << std::endl;
 			
 			Buffer* pBuffer = &model.buffers[bufferIndex];
 
 			Accessor accessor;
 
+			T t = 0;
+
 			accessor.bufferView = model.bufferViews.size();
 			accessor.byteOffset = 0;
-			accessor.componentType = componentType;
+			accessor.componentType = getGltfComponentType(t);
 			accessor.type = TINYGLTF_TYPE_SCALAR;
 			accessor.count = pData->size();
 
@@ -256,9 +272,11 @@ class GLTFIO {
 
 			Accessor accessor;
 
+			T t = 0;
+			
 			accessor.bufferView = model.bufferViews.size();
 			accessor.byteOffset = 0;
-			accessor.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
+			accessor.componentType = getGltfComponentType(t);
 			accessor.type = type;
 			accessor.count = pData->size();
 

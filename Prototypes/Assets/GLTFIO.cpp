@@ -882,7 +882,7 @@ namespace CForge {
 			indices[i] -= min;
 		}
 
-		writeAccessorDataScalar(model.buffers.size() - 1, TINYGLTF_COMPONENT_TYPE_INT, &indices);
+		writeAccessorDataScalar(model.buffers.size() - 1, &indices);
 		int meshIndex = model.meshes.size() - 1;
 		model.meshes[meshIndex].primitives[0].indices = model.accessors.size() - 1;
 
@@ -1101,6 +1101,18 @@ namespace CForge {
 		* Die Listen werden dann als Joints und Weights in Accessoren geschrieben und als Attribute dem Primitiv zugefügt.
 		*/
 
+		//mesh index	vertex index	joints/weights
+		std::vector<std::vector<std::vector<unsigned short>>> mesh_influences;
+		std::vector<std::vector<std::vector<float>>> mesh_weights;
+
+		for (int i = 0; i < model.meshes.size(); i++) {
+			std::vector<std::vector<unsigned short>> influences;
+			std::vector<std::vector<float>> weights;
+			
+			mesh_influences.push_back(influences);
+			mesh_weights.push_back(weights);
+		}
+
 		int node_offset = model.nodes.size();
 
 		for (int i = 0; i < pCMesh->boneCount(); i++) {
@@ -1116,14 +1128,63 @@ namespace CForge {
 			}
 
 			model.nodes.push_back(newNode);
+
+			int mesh_index = getMeshIndexByCrossForgeVertexIndex(pBone->VertexInfluences[0]);
+			int node_index = node_offset + i;
+
+			for (int j = 0; j < pBone->VertexInfluences.size(); j++) {
+				int32_t vertex_index = pBone->VertexInfluences[j];
+				float weight = pBone->VertexWeights[j];
+				
+				for (int k = mesh_influences[mesh_index].size(); k <= vertex_index; k++) {
+					std::vector<unsigned short> joints;
+					std::vector<float> weights;
+					
+					mesh_influences[mesh_index].push_back(joints);
+					mesh_weights[mesh_index].push_back(weights);
+				}
+
+				bool found = false;
+
+				for (int k = 0; k < mesh_influences[mesh_index][vertex_index].size(); k++) {
+					if (mesh_influences[mesh_index][vertex_index][k] == node_index) {
+						found = true;
+						break;
+					}
+				}
+
+				if (!found) {
+					mesh_influences[mesh_index][vertex_index].push_back(node_index);
+					mesh_weights[mesh_index][vertex_index].push_back(weight);
+				}
+			}
 		}
 
-		int primitiveIndex = 0;
+		//sort and write the 4 strongest weights per vertex
+		for (int i = 0; i < mesh_influences.size(); i++) {
+			for (int j = 0; j < mesh_influences[i].size(); j++) {
+				auto joints = &mesh_influences[i][j];
+				auto weights = &mesh_weights[i][j];
+				
 
-		for (int i = 0; i < pCMesh->vertexCount(); i++) {
-			if (i > primitiveIndexRanges[primitiveIndex].second) primitiveIndex++;
-			
-			for (int bone_index = 0; bone_index < pCMesh->boneCount(); bone_index++) {
+				//bubble sort
+				bool found = true;
+				while (found) {
+					for (int pos = 0; pos < joints->size() - 1; pos++) {
+						if ((*joints)[pos] < (*joints)[pos + 1]) {
+							std::swap((*joints)[pos], (*joints)[pos + 1]);
+							std::swap((*weights)[pos], (*weights)[pos + 1]);
+						}
+					}
+				}
+				
+				for (int k = joints->size(); k > 4; k--) {
+					joints->pop_back();
+					weights->pop_back();
+				}
+
+				Primitive* pPrimitive = &model.meshes[i].primitives[0];
+				
 				
 			}
 		}
@@ -1534,7 +1595,6 @@ namespace CForge {
 //TODO
 /*
 * Wo muss Rotation und Scale pro Node hin? Bone hat nur Position und Offsetmatrix. -> Submeshs speichern sowas.
-* - Alle Nodes werden zu Submeshes.
 * - Alle Nodes die an Skelettanimationen beteiligt sind werden auch als Bones gespeichert. WICHTIG.
 * 
 * Skelettanimationen schreiben.
