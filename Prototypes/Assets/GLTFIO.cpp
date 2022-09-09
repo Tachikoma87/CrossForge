@@ -566,6 +566,9 @@ namespace CForge {
 	}
 	
 	void GLTFIO::readSkinningData() {
+		std::vector<T3DMesh<float>::Bone*>* pBones = new std::vector<T3DMesh<float>::Bone*>;
+		std::map<int, T3DMesh<float>::Bone*> bones_by_indices;
+
 		for (Skin skin : model.skins) {
 			std::vector<std::vector<float>> inverseBindMatrices;
 
@@ -578,8 +581,28 @@ namespace CForge {
 			int counter = 0;
 
 			for (int i : skin.joints) {
-				pMesh->getBone(i)->OffsetMatrix = offsetMatrices[counter];
+				auto pBone = new T3DMesh<float>::Bone;
+				pBone->OffsetMatrix = offsetMatrices[counter];
+				pBone->ID = i;
+				pBones->push_back(pBone);
+
+				bones_by_indices.emplace(i, pBone);
+				
 				counter++;
+			}
+
+			//link bones together
+			for (int i = 0; i < pBones->size(); i++) {
+				auto pBone = (*pBones)[i];
+				auto boneNode = model.nodes[pBone->ID];
+				
+				for (int32_t c : boneNode.children) {
+					auto childBone = bones_by_indices[c];
+					
+					pBone->Children.push_back(childBone);
+
+					childBone->pParent = pBone;
+				}
 			}
 		}
 	}
@@ -665,17 +688,17 @@ namespace CForge {
 		for (int i = 0; i < model.nodes.size(); i++) {
 			Node node = model.nodes[i];
 
-			T3DMesh<float>::Bone* pBone = new T3DMesh<float>::Bone;
+			//T3DMesh<float>::Bone* pBone = new T3DMesh<float>::Bone;
 			T3DMesh<float>::Submesh* pSubmesh = new T3DMesh<float>::Submesh;
 
-			pBone->ID = i;
+			//pBone->ID = i;
 
-			pBone->Name = node.name;
+			//pBone->Name = node.name;
 
 			if (node.translation.size() > 0) {
-				pBone->Position(0) = node.translation[0];
-				pBone->Position(1) = node.translation[1];
-				pBone->Position(2) = node.translation[2];
+				//pBone->Position(0) = node.translation[0];
+				//pBone->Position(1) = node.translation[1];
+				//pBone->Position(2) = node.translation[2];
 
 				pSubmesh->TranslationOffset(0) = node.translation[0];
 				pSubmesh->TranslationOffset(1) = node.translation[1];
@@ -691,10 +714,10 @@ namespace CForge {
 
 			//Offset matrices will be set later in readSkinningData().
 
-			pBone->pParent = nullptr;
+			//pBone->pParent = nullptr;
 			pSubmesh->pParent = nullptr;
 			
-			pBones->push_back(pBone);
+			//pBones->push_back(pBone);
 			pMesh->addSubmesh(pSubmesh, false);
 		}
 
