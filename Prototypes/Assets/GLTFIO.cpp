@@ -467,13 +467,35 @@ namespace CForge {
 
 	std::string GLTFIO::getTexturePath(const int textureIndex) {
 		int sourceIndex = model.textures[textureIndex].source;
-
-		//combine texture uri with gltf file parent directory to get the full path
+		
+		Image* pImage = &model.images[sourceIndex];
 
 		std::filesystem::path path = filePath;
 		path = path.parent_path();
-		path.append(model.images[sourceIndex].uri);
+
+		if (pImage->uri.size()) {
+			//combine texture uri with gltf file parent directory to get the full path
+			path.append(model.images[sourceIndex].uri);
+
+			return path.string();
+		}
 		
+		//embedded texture
+		
+		if (pImage->mimeType == "image/jpeg") {
+			path.append("image_" + std::to_string(textureIndex) + ".jpg");
+		}
+		else {
+			path.append("image_" + std::to_string(textureIndex) + "." + pImage->mimeType.substr(5));
+		}
+
+		BufferView* pBufferView = &model.bufferViews[pImage->bufferView];
+		Buffer* pBuffer = &model.buffers[pBufferView->buffer];
+
+		std::ofstream fout(path.string(), std::ios::out | std::ios::binary);
+		fout.write((const char*) pBuffer->data.data() + pBufferView->byteOffset, pBufferView->byteLength);
+		fout.close();
+
 		return path.string();
 	}
 
@@ -978,25 +1000,31 @@ namespace CForge {
 
 	int GLTFIO::writeTexture(const std::string path) {
 		std::filesystem::path texPath(path);
-		std::filesystem::path gltfFilePath(filePath);
 
-		auto parent = gltfFilePath.parent_path();
-		auto possibleTexPath = parent / (texPath.filename());
-
-		if (!std::filesystem::exists(possibleTexPath)) {
-			std::filesystem::copy(texPath, possibleTexPath);
-		}
-
-		std::string uri = possibleTexPath.filename().string();
+		std::string extension = texPath.extension().string();
+		if (extension == ".jpg") extension = ".jpeg";
 
 		Texture gltfTexture;
-		
 		gltfTexture.source = model.images.size();
 		
 		Image gltfImage;
-		
-		gltfImage.uri = uri;
+		gltfImage.mimeType = "image/" + extension.substr(1, extension.length() - 1);
+		gltfImage.bufferView = model.bufferViews.size();
 
+
+		BufferView imageBufferView;
+		imageBufferView.buffer = model.buffers.size() - 1;
+		Buffer* pBuffer = &model.buffers[imageBufferView.buffer];
+		imageBufferView.byteOffset = pBuffer->data.size();
+		imageBufferView.byteLength = std::filesystem::file_size(texPath);
+		
+		std::ifstream infile(texPath, std::ios_base::binary);
+
+		pBuffer->data.reserve(pBuffer->data.size() + imageBufferView.byteLength);
+		
+		std::copy(std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>(), std::back_inserter(pBuffer->data));
+
+		model.bufferViews.push_back(imageBufferView);
 		model.images.push_back(gltfImage);
 		
 		gltfTexture.sampler = 0;
