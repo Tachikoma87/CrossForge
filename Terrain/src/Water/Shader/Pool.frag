@@ -1,6 +1,7 @@
 #version 430 core 
 
-out vec4 gAlbedoSpec;
+layout (location = 0) out vec4 gColor;
+layout (location = 1) out vec4 gReflection;
 
 layout(std140) uniform CameraData {
     mat4 ViewMatrix;
@@ -165,7 +166,7 @@ void main(){
 
 	// COLOR ---------------------------------------------------------
 
-	gAlbedoSpec = mix(mix(baseSkyColor, reflectColor, reflectColor.w) + spec, mix(baseBlue, backgroundColor, depthColorScale), clamp(pow(R, 0.5), 0, 1));
-	//gAlbedoSpec = vec4(1, 1, 0, 1);
-	gAlbedoSpec = vec4(gAlbedoSpec.rgb, 1);
+	gColor = mix(vec4(0) + spec, mix(baseBlue, backgroundColor, depthColorScale), clamp(pow(R, 0.5), 0, 1));
+	gColor = vec4(gColor.rgb, R);
+	gReflection = reflectColor;
 }

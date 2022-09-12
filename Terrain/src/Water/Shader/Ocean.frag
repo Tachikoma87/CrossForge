@@ -1,6 +1,7 @@
 #version 430 core 
 
-out vec4 gAlbedoSpec;
+layout (location = 0) out vec4 gColor;
+layout (location = 1) out vec4 gReflection;
 
 layout(std140) uniform CameraData {
     mat4 ViewMatrix;
@@ -39,6 +40,38 @@ in vec2 UVcord;
 in vec3 POS;
 in vec3 CAM;
 in float newAmplitudeScale;
+/*
+const float weights[25] = float[25](0.003765, 0.015019, 0.023792, 0.015019, 0.003765,
+									0.015019, 0.059912, 0.094907, 0.059912, 0.015019,
+									0.023792, 0.094907, 0.150342, 0.094907, 0.023792,
+									0.015019, 0.059912, 0.094907, 0.059912, 0.015019,
+									0.003765, 0.015019, 0.023792, 0.015019, 0.003765);
+									*/
+const float weights[81] = float[81](0.0000,	0.0000,	0.0000,	0.0001,	0.0001,	0.0001,	0.0000,	0.0000,	0.0000,
+									0.0000,	0.0000,	0.0004,	0.0014,	0.0023,	0.0014,	0.0004,	0.0000,	0.0000,
+									0.0000,	0.0004,	0.0037,	0.0146,	0.0232,	0.0146,	0.0037,	0.0004,	0.0000,
+									0.0001,	0.0014,	0.0146,	0.0584,	0.0926,	0.0584,	0.0146,	0.0014,	0.0001,
+									0.0001,	0.0023,	0.0232,	0.0926,	0.1466,	0.0926,	0.0232,	0.0023,	0.0001,
+									0.0001,	0.0014,	0.0146,	0.0584,	0.0926,	0.0584,	0.0146,	0.0014,	0.0001,
+									0.0000,	0.0004,	0.0037,	0.0146,	0.0232,	0.0146,	0.0037,	0.0004,	0.0000,
+									0.0000,	0.0000,	0.0004,	0.0014,	0.0023,	0.0014,	0.0004,	0.0000,	0.0000,
+									0.0000,	0.0000,	0.0000,	0.0001,	0.0001,	0.0001,	0.0000,	0.0000,	0.0000);
+
+
+vec4 sampleBluredColorBuffer(vec2 sampleUV) {
+	vec4 ret = vec4(0);
+	vec2 tSize = textureSize(colorTexture, 0);
+
+	int i = 0;
+	for (int x = -4; x <= 4; x++) {
+		for (int y = -4; y <= 4; y++) {
+			vec2 offsetUV = clamp(sampleUV + vec2(x, y) / tSize, 0, 1);
+			ret += texture(colorTexture, offsetUV) * weights[i++];
+		}
+	}
+
+	return ret;
+}
 
 vec4 getSkyboxColor(vec3 dir) {
 	vec3 absDir = abs(dir);
@@ -137,7 +170,7 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 
 		float visibility = 1 - max(dot(normalize(CAM - POS), reflectDirection), 0);
 		if (scaleFactor > 0) {
-			vec4 ret = mix(getSkyboxColor(reflectDirection), texture(colorTexture, uv), visibility);
+			vec4 ret = mix(getSkyboxColor(reflectDirection), sampleBluredColorBuffer(uv), visibility);// texture(colorTexture, uv), visibility);
 			ret = ret * scaleFactor;
 			ret.w = scaleFactor;
 			return ret;
@@ -248,16 +281,17 @@ void main(){
 	vec4 reflectColor = reflectionColor(N, screenUV);
 	float reflectiveness = 1;
 	reflectColor.w *= reflectiveness;
-
+	R = clamp(pow(R, 0.5),0, 1);
 	// COLOR ---------------------------------------------------------
 	
-	gAlbedoSpec = mix(mix(baseSkyColor, reflectColor, reflectColor.w) + spec, mix(baseOceanBlue, backgroundColor, depthColorScale), clamp(pow(R, 0.5),0, 1));
+	//gColor = mix(mix(baseSkyColor, reflectColor, reflectColor.w) + spec, mix(baseOceanBlue, backgroundColor, depthColorScale), R);
+	gColor = mix(vec4(0) + spec, mix(baseOceanBlue, backgroundColor, depthColorScale), R);
 	
-	
-	gAlbedoSpec += vec4(getFoamColor(shoreWave(getShoreWaveFactor() * 2)), 1);
+	gColor += vec4(getFoamColor(shoreWave(getShoreWaveFactor() * 2)), 1);
 
 	//gAlbedoSpec = texture(worldPosTexture, screenUV.xy) / 500;
 	//gAlbedoSpec = vec4(getShoreWaveFactor() * 2);
 
-	gAlbedoSpec = vec4(gAlbedoSpec.rgb, 1);
+	gColor = vec4(gColor.rgb, R);
+	gReflection = reflectColor;
 }

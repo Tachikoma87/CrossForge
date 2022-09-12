@@ -270,6 +270,91 @@ public:
 		glDrawElementsInstanced(GL_TRIANGLES, 24, GL_UNSIGNED_INT, 0, 1);
 	}
 
+	void blurHReflection(RenderDevice* renderDevice) {
+		glBindFramebuffer(GL_FRAMEBUFFER, mfbo3);
+		glClearColor(0, 0, 0, 0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		
+
+		renderDevice->activeShader(mHBlurShader);
+		glBindVertexArray(mScreenQuadVAO);
+
+		int blurS = mHBlurShader->uniformLocation("blurStrength");
+		glUniform1i(blurS, 1);
+
+
+		int bColorT = mHBlurShader->uniformLocation("baseColorTexture");
+		int rColorT = mHBlurShader->uniformLocation("reflectColorTexture");
+
+		glUniform1i(bColorT, 0);
+		glUniform1i(rColorT, 1);
+	
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, mWaterRenderTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, mWaterRenderReflectTexture);
+
+		glDisable(GL_DEPTH_TEST);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
+
+	void blurVReflection(RenderDevice* renderDevice) {
+		glBindFramebuffer(GL_FRAMEBUFFER, mfbo2);
+		renderDevice->activeShader(mVBlurShader);
+		glBindVertexArray(mScreenQuadVAO);
+
+		int blurS = mVBlurShader->uniformLocation("blurStrength");
+		glUniform1i(blurS, 1);
+
+		int bColorT = mVBlurShader->uniformLocation("baseColorTexture");
+		int helpT = mVBlurShader->uniformLocation("helpTexture");
+
+		glUniform1i(bColorT, 0);
+		glUniform1i(helpT, 1);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, mWaterRenderTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, mBlurTexture);
+
+		glDisable(GL_DEPTH_TEST);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
+
+	void renderWater(RenderDevice* renderDevice, float timeCount, unsigned int heightMapTextureHandle, unsigned int shoreDistTextureHandle, unsigned int oceanDisplacementTextureHandle, unsigned int oceanNormalsTextureHandle) {
+		renderOcean(renderDevice, timeCount, heightMapTextureHandle, shoreDistTextureHandle, oceanDisplacementTextureHandle, oceanNormalsTextureHandle);
+		renderPool(renderDevice, timeCount);
+		renderStreams(renderDevice, timeCount);
+
+		blurHReflection(renderDevice);
+		blurVReflection(renderDevice);
+		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDisable(GL_DEPTH_TEST);
+
+		renderDevice->activeShader(mPostProcessShader);
+		glBindVertexArray(mScreenQuadVAO);
+
+		int bColorT = mPostProcessShader->uniformLocation("baseColorTexture");
+		int rColorT = mPostProcessShader->uniformLocation("reflectColorTexture");
+
+		glUniform1i(bColorT, 0);
+		glUniform1i(rColorT, 1);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, mWaterRenderTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, mWaterRenderReflectTexture);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glEnable(GL_DEPTH_TEST);
+	}
+
+
 	void initTextures() {
 
 		//load foam texture
@@ -402,9 +487,73 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDepthTexture, 0);
+
+
+
+		glGenFramebuffers(1, &mfbo2);
+		glBindFramebuffer(GL_FRAMEBUFFER, mfbo2);
+
+		// basecolor
+		glGenTextures(1, &mWaterRenderTexture);
+		glBindTexture(GL_TEXTURE_2D, mWaterRenderTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mWaterRenderTexture, 0);
+
+		// reflectcolor
+		glGenTextures(1, &mWaterRenderReflectTexture);
+		glBindTexture(GL_TEXTURE_2D, mWaterRenderReflectTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, mWaterRenderReflectTexture, 0);
+
+		unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		glDrawBuffers(2, attachments);
+
+		glGenRenderbuffers(1, &mrbo2);
+		glBindRenderbuffer(GL_RENDERBUFFER, mrbo2);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mrbo2);
+
+
+
+		glGenFramebuffers(1, &mfbo3);
+		glBindFramebuffer(GL_FRAMEBUFFER, mfbo3);
+
+		// blurcolor
+		glGenTextures(1, &mBlurTexture);
+		glBindTexture(GL_TEXTURE_2D, mBlurTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mBlurTexture, 0);
+
 	}
 
+	void bindFBO2(int width, int height) {
+		glBindFramebuffer(GL_FRAMEBUFFER, mfbo2);
+		glEnable(GL_DEPTH_TEST);
 
+		glClearColor(0, 0, 0, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, mfbo);
+		glReadBuffer(GL_DEPTH_ATTACHMENT);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mfbo2);
+		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+	}
+
+	unsigned int getWaterRenderTextureHandle() {
+		return mWaterRenderTexture;
+	}
+
+	unsigned int getWaterReflectionTextureHandle() {
+		return mWaterRenderReflectTexture;
+	}
+ 
 	void copyFBO(unsigned int fbo, int width, int height) {
 		//color
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
@@ -637,7 +786,7 @@ private:
 	int mAmount = 0;
 	int mNumInstances;
 	float mNearPlane, mFarPlane;
-	float mSealevel = lowQuality ? 25 : 100;
+	float mSealevel = 25 * settingSizeScale;
 
 	Vector2i mHeightMapDimension;
 
@@ -651,16 +800,20 @@ private:
 	GLShader* mShader;
 	GLShader* mPoolShader;
 	GLShader* mStreamShader;
+	GLShader* mPostProcessShader;
+	GLShader* mHBlurShader;
+	GLShader* mVBlurShader;
 
-	unsigned int mFoamTexture, mColorTexture, mDepthTexture, mPositionTexture, mPoolDUDVTexture, mPoolNormalTexture, mWaterCausticsTexture, mFoamBlendTexture;
+	unsigned int mFoamTexture, mColorTexture, mDepthTexture, mPositionTexture, mPoolDUDVTexture, mPoolNormalTexture, mWaterCausticsTexture, mFoamBlendTexture, mWaterRenderTexture, mWaterRenderReflectTexture, mBlurTexture;
 	unsigned int mSkyboxTextures[6];
 	vector<string> mSkyboxTexturePaths = {"Assets/skybox/back.jpg", "Assets/skybox/bottom.jpg", "Assets/skybox/front.jpg", "Assets/skybox/left.jpg", "Assets/skybox/right.jpg", "Assets/skybox/top.jpg"};
-	unsigned int mfbo;
+	unsigned int mfbo, mfbo2, mrbo2, mfbo3;
 
 	unsigned int mVBO, mVAO, mEBO;
 	unsigned int mOceanBorderVBO, mOceanBorderVAO, mOceanBorderEBO;
 	unsigned int mPoolVBO, mPoolVAO, mPoolEBO;
 	unsigned int mStreamVBO, mStreamVAO, mStreamEBO;
+	unsigned int mScreenQuadVBO, mScreenQuadVAO, mScreenQuadEBO;
 
 	void initShader() {
 		SShaderManager* shaderManager = SShaderManager::instance();
@@ -696,6 +849,53 @@ private:
 		fsSources.push_back(fragmentShader);
 
 		mPoolShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
+
+		//postprocess
+		vsSources.clear();
+		fsSources.clear();
+
+		vertexShader =
+			shaderManager->createShaderCode("Shader/WaterPostProcessing.vert", "430 core",
+				0, "", "");
+		fragmentShader =
+			shaderManager->createShaderCode("Shader/WaterPostProcessing.frag", "430 core",
+				0, "", "");
+
+		vsSources.push_back(vertexShader);
+		fsSources.push_back(fragmentShader);
+
+		mPostProcessShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
+
+		//blur
+		vsSources.clear();
+		fsSources.clear();
+
+		vertexShader =
+			shaderManager->createShaderCode("Shader/WaterPostProcessing.vert", "430 core",
+				0, "", "");
+		fragmentShader =
+			shaderManager->createShaderCode("Shader/ReflectionBlurHorizontal.frag", "430 core",
+				0, "", "");
+
+		vsSources.push_back(vertexShader);
+		fsSources.push_back(fragmentShader);
+
+		mHBlurShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
+
+		vsSources.clear();
+		fsSources.clear();
+
+		vertexShader =
+			shaderManager->createShaderCode("Shader/WaterPostProcessing.vert", "430 core",
+				0, "", "");
+		fragmentShader =
+			shaderManager->createShaderCode("Shader/ReflectionBlurVertical.frag", "430 core",
+				0, "", "");
+
+		vsSources.push_back(vertexShader);
+		fsSources.push_back(fragmentShader);
+
+		mVBlurShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
 		
 		//river
 		vsSources.clear();
@@ -803,6 +1003,37 @@ private:
 												outerOffset,	mSealevel,		-helpOffset,	uvOffsetP,				0,
 												0, 0, 0
 		};
+
+
+		//screenQuad
+		float screenQuadVertices[] = {
+			 1.0f,  1.0f, 0.0f,
+			 1.0f, -1.0f, 0.0f,
+			-1.0f, -1.0f, 0.0f,
+			-1.0f,  1.0f, 0.0f 
+		};
+		unsigned int screenQuadIndices[] = {
+			3, 1, 0,
+			3, 2, 1
+		};
+		glGenVertexArrays(1, &mScreenQuadVAO);
+		glGenBuffers(1, &mScreenQuadVBO);
+		glGenBuffers(1, &mScreenQuadEBO);
+
+		glBindVertexArray(mScreenQuadVAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, mScreenQuadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(screenQuadVertices), screenQuadVertices, GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mScreenQuadEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(screenQuadIndices), screenQuadIndices, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+
+
 
 		// pool buffers
 		glGenVertexArrays(1, &mPoolVAO);

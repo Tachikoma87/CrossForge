@@ -28,6 +28,9 @@ struct streamMapPoint {
 	int riverIndex = -1;
 	float t = -1;
 };
+struct riverData {
+
+};
 
 class River {
 public:
@@ -45,9 +48,10 @@ public:
 		mResolution = resolution;
 
 		vector<double> t;
-		vector<double> x;
-		vector<double> y;
-		vector<double> z;
+		x.clear();
+		y.clear();
+		z.clear();
+		w.clear();
 
 		for (auto point : *samplePoints) {
 			int i = t.size();
@@ -70,7 +74,28 @@ public:
 		mLength = t.size();
 	}
 
+	void initFromSave(vector<double>* xCoords, vector<double>* yCoords, vector<double>* zCoords, vector<double>* widths, int resolution) {
+		mResolution = resolution;
+
+		vector<double> t;
+		for (int i = 0; i < xCoords->size(); i++) {
+			t.push_back((double)i);
+		}
+
+		x = *xCoords;
+		y = *yCoords;
+		z = *zCoords;
+		w = *widths;
+
+		mSplineX.set_points(t, x);
+		mSplineY.set_points(t, y);
+		mSplineZ.set_points(t, z);
+
+		mLength = t.size();
+	}
+
 	void adjustHeightMap(set<int>* alreadyAdjusted) {
+		if (mLength < 3) return;
 		
 		set<int> thisRiverAlreadyTried;
 
@@ -107,7 +132,8 @@ public:
 
 	float getFoamFactor(double t, float height) {
 		double foamLength = 2;
-		//äsdjgfosdjfojsdofjdsojfsdojfiosdjfjsodjfojosjdofjoisijdfosdj
+		// ????????????????????????????????????????????????
+
 		return 0;
 	}
 
@@ -152,6 +178,21 @@ public:
 		return mResolution;
 	}
 
+	vector<double>* getXVector() {
+		return &x;
+	}
+
+	vector<double>* getYVector() {
+		return &y;
+	}
+
+	vector<double>* getZVector() {
+		return &z;
+	}
+
+	vector<double>* getWVector() {
+		return &w;
+	}
 private:
 	float mDepth = lowQuality ? 0.04 : 0.01;
 
@@ -165,7 +206,9 @@ private:
 	Vector2i mDimension;
 	float mHeightScale;
 
-	
+	vector<double> x;
+	vector<double> y;
+	vector<double> z;
 	vector<double> w;
 
 	tk::spline mSplineX;

@@ -74,7 +74,7 @@ float shoreWave(float factor) {
 
 
 void main(){
-	float circleRadius = lowQuality ? 300 : 600;
+	float circleRadius = lowQuality ? 300 : 1200;
 
 	POS = Camera.Position.xyz * vec3(1, 0, 1);
 	POS.x = int(POS.x / widthScale) * widthScale;

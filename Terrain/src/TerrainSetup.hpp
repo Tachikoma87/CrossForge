@@ -438,7 +438,7 @@ namespace Terrain {
         VirtualCamera camera;
         DirectionalLight sun, light;
         float nearPlane = 1.0f;
-        float farPlane = lowQuality ? 1000.0f : 10000.0f;
+        float farPlane = 1000.0f * settingSizeScale;
         float screenWidth = 5120 / 4;
         float screenHeight = 1440 / 2;
         initCForge(&window, &renderDevice, &camera, &sun, &light, nearPlane, farPlane, screenWidth, screenHeight);
@@ -446,9 +446,9 @@ namespace Terrain {
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);
 
-        ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 128, .levelCount = 5};
+        ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 128, .levelCount = 7};
         HeightMap::NoiseConfig noiseConfig = { .seed = 7863,//11797,// static_cast<uint32_t>(rand()),
-            .scale = 1.0f,
+            .scale = maximumQuality ? 0.5f : 1.0f,
             .octaves = 10,
             .persistence = 0.5f,
             .lacunarity = 2.0f};
@@ -463,7 +463,7 @@ namespace Terrain {
         SceneGraph sceneGraph;
 
         OceanSimulation oceanSimulation(lowQuality ? 64 : 256, lowQuality ? 500 : 500, lowQuality ? 0.1 : 40, Vector2f(1.0f, 1.0f), lowQuality ? 1000 : 50);
-        OceanObject oceanObject(lowQuality ? 16 : 256, lowQuality ? 25 : 100, lowQuality ? 1 : 2, 1, 1, 1, lowQuality ? 29 : 15, nearPlane, farPlane);
+        OceanObject oceanObject(lowQuality ? 16 : 256, lowQuality ? 25 : 200, lowQuality ? 0.5 : 4, 1, 1, 1, lowQuality ? 29 : 15, nearPlane, farPlane);
         
         bool pause = false;
         oceanSimulation.initOceanSimulation();
@@ -643,29 +643,16 @@ namespace Terrain {
                 renderDevice.gBuffer()->blitDepthBuffer(screenWidth, screenHeight);
                 oceanObject.copyFBO(renderDevice.gBuffer()->retrieveFrameBuffer(), screenWidth, screenHeight);
 
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-
+                //glEnable(GL_BLEND);
+                //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 if (wireframe) {
                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 }
 
-
                 oceanSimulation.updateWaterSimulation(current_ticks / (float)CLOCKS_PER_SEC / 5 * (pause ? 0 : 1));
-                //glDisable(GL_CULL_FACE);
-
-
-
-                glBindImageTexture(0, oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-                glBindImageTexture(1, oceanSimulation.mTextures[oceanSimulation.NORMALS], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-                oceanObject.renderOcean(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC * (pause ? 0 : 1), waterManager.getHeightMapTexture(), waterManager.getShoreDistanceTexture(), oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT], oceanSimulation.mTextures[oceanSimulation.NORMALS]);
-                
-                oceanObject.renderPool(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC * (pause ? 0 : 1));
-                
-                if (!pause) {
-                    oceanObject.renderStreams(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC * (pause ? 0 : 1));
-                }
+                oceanObject.bindFBO2(screenWidth, screenHeight);
+                oceanObject.renderWater(&renderDevice, current_ticks / (float)CLOCKS_PER_SEC * (pause ? 0 : 1), waterManager.getHeightMapTexture(), waterManager.getShoreDistanceTexture(), oceanSimulation.mTextures[oceanSimulation.DISPLACEMENT], oceanSimulation.mTextures[oceanSimulation.NORMALS]);
+               
 
                 glEnable(GL_CULL_FACE);
 
@@ -729,6 +716,14 @@ namespace Terrain {
                 window.keyboard()->keyState(Keyboard::KEY_6, Keyboard::KEY_RELEASED);
                 selectedTexture = oceanSimulation.mTextures[OceanSimulation::NORMALS];
             }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_7)) {
+                window.keyboard()->keyState(Keyboard::KEY_7, Keyboard::KEY_RELEASED);
+                selectedTexture = oceanObject.getWaterRenderTextureHandle();
+            }
+            if (window.keyboard()->keyPressed(Keyboard::KEY_8)) {
+                window.keyboard()->keyState(Keyboard::KEY_8, Keyboard::KEY_RELEASED);
+                selectedTexture = oceanObject.getWaterReflectionTextureHandle();
+            }
 
             if (window.keyboard()->keyPressed(Keyboard::KEY_P)) {
                 window.keyboard()->keyState(Keyboard::KEY_P, Keyboard::KEY_RELEASED);
@@ -752,7 +747,7 @@ namespace Terrain {
 
             if (window.keyboard()->keyPressed(Keyboard::KEY_K)) {
                 window.keyboard()->keyState(Keyboard::KEY_K, Keyboard::KEY_RELEASED);
-                waterManager.tryGenerateRivers(lowQuality ? 200 : 300);
+                waterManager.tryGenerateRivers(lowQuality ? 100 : 300);
                 waterManager.updateTextures();
                 oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
                     heightMapConfig.mapHeight, 1,
@@ -779,7 +774,7 @@ namespace Terrain {
                 waterManager.updateTextures();
                 waterManager.tryGenerateRivers(lowQuality ? 200 : 300);
                 waterManager.updateTextures();
-                waterManager.updateShoreDistTexture();
+                //waterManager.updateShoreDistTexture();
 
                 oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
                     heightMapConfig.mapHeight, 1,
@@ -842,7 +837,7 @@ namespace Terrain {
 
                 waterManager.refreshMaps();
                 waterManager.updateTextures();
-                waterManager.updateShoreDistTexture();
+                //waterManager.updateShoreDistTexture();
                 oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
                     heightMapConfig.mapHeight, 1,
                     waterManager.getHeightMap(), waterManager.getPoolMap(), waterManager.getRivers());
@@ -931,7 +926,7 @@ namespace Terrain {
                 GraphicsUtility::retrieveFrameBuffer(&ColorBufferImg, nullptr);
                 AssetIO::store("Screenshot_" + std::to_string(ScreenshotNumber++) + ".jpg", &ColorBufferImg);
             }
-
+            
             if (window.keyboard()->keyPressed(Keyboard::KEY_E)) {
                 window.keyboard()->keyState(Keyboard::KEY_E, Keyboard::KEY_RELEASED);
 
@@ -942,6 +937,9 @@ namespace Terrain {
                 window.keyboard()->keyState(Keyboard::KEY_I, Keyboard::KEY_RELEASED);
 
                 waterManager.importMaps();
+                oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
+                    heightMapConfig.mapHeight, 1,
+                    waterManager.getHeightMap(), waterManager.getPoolMap(), waterManager.getRivers());
             }
 
             //FPS counter

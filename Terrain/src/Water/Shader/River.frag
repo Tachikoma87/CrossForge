@@ -1,6 +1,7 @@
 #version 430 core 
 
-out vec4 gAlbedoSpec;
+layout (location = 0) out vec4 gColor;
+layout (location = 1) out vec4 gReflection;
 
 layout(std140) uniform CameraData {
     mat4 ViewMatrix;
@@ -35,7 +36,6 @@ in vec2 UV;
 in float WIDTH;
 in vec3 NORMAL;
 in mat3 TANGENTSPACE;
-
 
 vec4 getSkyboxColor(vec3 dir) {
 	vec3 absDir = abs(dir);
@@ -204,13 +204,14 @@ void main(){
 
 	// COLOR ---------------------------------------------------------
 
-	gAlbedoSpec = mix(mix(baseSkyColor, reflectColor, reflectColor.w) + spec, mix(baseBlue, backgroundColor, depthColorScale), clamp(pow(R, 0.5), 0, 1));
+	gColor = mix(vec4(0) + spec, mix(baseBlue, backgroundColor, depthColorScale), clamp(pow(R, 0.5), 0, 1));
 
 	//gAlbedoSpec += texture(foamTexture, UV * 5) * (((depthBackground - depthWater) * nearFarPlane.y) * speedScale > 0.2 ? 0 : 1);
 
-	gAlbedoSpec = vec4(gAlbedoSpec.rgb + getFoamColor((depthBackground - depthWater) * nearFarPlane.y), 1);
+	gColor = vec4(gColor.rgb + getFoamColor((depthBackground - depthWater) * nearFarPlane.y), 1);
 
 	//gAlbedoSpec = vec4(mix(texture(normalTexture, uvCord1).xyz, texture(normalTexture, uvCord2).xyz, phaseMixValue), 1);
 
-	gAlbedoSpec = vec4(gAlbedoSpec.rgb, 1);
+	gColor = vec4(gColor.rgb, R);
+	gReflection = reflectColor;
 }

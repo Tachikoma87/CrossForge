@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <iterator>
 
 
 using namespace CForge;
@@ -295,22 +296,95 @@ public:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, mDimension.x(), mDimension.y(), 0, GL_RGBA, GL_FLOAT, shoreDistances.data());
 	}
 
+	
 	void exportMaps() {
-		std::ofstream outFile("Assets/heightMap.txt");
-		for (const auto& e : mHeightMap) outFile << e << "\n";
+		{
+			std::ofstream outfile("Assets/heightMap.txt", ios::out | ios::binary);
+			outfile.write((char*)(mHeightMap.data()), mHeightMap.size() * sizeof(float));
+			outfile.close();
+		}
+		{
+			std::ofstream outfile("Assets/poolMap.txt", ios::out | ios::binary);
+			outfile.write((char*)(mPoolMap.data()), mPoolMap.size() * sizeof(float));
+			outfile.close();
+		}
+		{
+			std::ofstream outfile("Assets/streamMap.txt", ios::out | ios::binary);
+			outfile.write((char*)(mStreamMap.data()), mStreamMap.size() * sizeof(streamMapPoint));
+			outfile.close();
+		}
+		{
+			std::ofstream outfile("Assets/riverObjects.txt", ios::out | ios::trunc);
+			outfile << mRivers.size() << endl;
+			for (auto river : mRivers) {
+				outfile << river.getLength() << " " << river.getResolution() << endl;
+				vector<double>* x = river.getXVector();
+				vector<double>* y = river.getYVector();
+				vector<double>* z = river.getZVector();
+				vector<double>* w = river.getWVector();
+				for (int i = 0; i < river.getLength(); i++) {
+					outfile << x->at(i) << " " << y->at(i) << " " << z->at(i) << " " << w->at(i) << endl;
+				}
+			}
+			outfile.close();
+		}
 	}
 
 	void importMaps() {
-		mHeightMap.clear();
-		std::ifstream fin("Assets/heightMap.txt");
-		float element;
-		while (fin >> element)
 		{
-			mHeightMap.push_back(element);
+			std::ifstream infile("Assets/heightMap.txt", ios::in | ios::binary);
+			infile.seekg(0, std::ios::end);
+			size_t length = infile.tellg();
+			infile.seekg(0, std::ios::beg);
+			if (length > sizeof(float) * mDimension.x() * mDimension.y()) length = sizeof(float) * mDimension.x() * mDimension.y();
+			infile.read((char*)mHeightMap.data(), length);
+			infile.close();
 		}
+		{
+			std::ifstream infile("Assets/poolMap.txt", ios::in | ios::binary);
+			infile.seekg(0, std::ios::end);
+			size_t length = infile.tellg();
+			infile.seekg(0, std::ios::beg);
+			if (length > sizeof(float) * mDimension.x() * mDimension.y()) length = sizeof(float) * mDimension.x() * mDimension.y();
+			infile.read((char*)mPoolMap.data(), length);
+			infile.close();
+		}
+		{
+			std::ifstream infile("Assets/streamMap.txt", ios::in | ios::binary);
+			infile.seekg(0, std::ios::end);
+			size_t length = infile.tellg();
+			infile.seekg(0, std::ios::beg);
+			if (length > sizeof(streamMapPoint) * mDimension.x() * mDimension.y()) length = sizeof(streamMapPoint) * mDimension.x() * mDimension.y();
+			infile.read((char*)mStreamMap.data(), length);
+			infile.close();
+		}
+		{
+			mRivers.clear();
+			std::ifstream infile("Assets/riverObjects.txt");
+			int numberRivers, numberRiverPoints, res;
+			infile >> numberRivers;
+			for (int i = 0; i < numberRivers; i++) {
+				vector<double> xVec, yVec, zVec, wVec;
+				double x, y, z, w;
 
+				infile >> numberRiverPoints >> res;
+				for (int j = 0; j < numberRiverPoints; j++) {
+					infile >> x >> y >> z >> w;
+					xVec.push_back(x);
+					yVec.push_back(y);
+					zVec.push_back(z);
+					wVec.push_back(w);
+				}
+
+				if (numberRiverPoints < 3) continue;
+				mRivers.push_back(River(mDimension, mHeightMap.data(), mPoolMap.data(), mStreamMap.data(), mHeightMapObject->getConfig().mapHeight));
+				mRivers.back().initFromSave(&xVec, &yVec, &zVec, &wVec, res);
+			}
+			infile.close();
+		}
 		updateTextures();
 	}
+	
 
 private:
 	bool activeErosion = false;
@@ -502,7 +576,7 @@ private:
 		int maxLoopCycles = 2000;
 		int minLoopCycles = 50;
 
-		int riverResolution = 5;
+		int riverResolution = 3;
 
 		float curveFactor = 0.03;
 
