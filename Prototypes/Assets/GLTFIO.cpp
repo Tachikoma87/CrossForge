@@ -803,6 +803,8 @@ namespace CForge {
 		model.meshes.push_back(mesh);
 		Primitive primitive;
 		
+		primitive.mode = TINYGLTF_MODE_TRIANGLES;
+
 		int meshIndex = model.meshes.size() - 1;
 
 		model.meshes[meshIndex].primitives.push_back(primitive);
