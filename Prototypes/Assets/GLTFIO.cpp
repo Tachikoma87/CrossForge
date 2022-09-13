@@ -1723,5 +1723,4 @@ namespace CForge {
 /*
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen
 * Texturen fixen.
-* Node Matritzen in rotation, translation und ggf. scale zerlegen.
 */
