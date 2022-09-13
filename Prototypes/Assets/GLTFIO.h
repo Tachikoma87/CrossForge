@@ -50,6 +50,8 @@ class GLTFIO {
 
 		static void toMat4f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Matrix4f>* pOut);
 
+		static Eigen::Matrix4f toSingleMat4(const std::vector<double> *pin);
+
 		static void fromVec3f(const std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut);
 
 		static void fromVec4f(const std::vector<Eigen::Vector4f>* pIn, std::vector<std::vector<float>>* pOut);
@@ -73,6 +75,13 @@ class GLTFIO {
 		int getGltfComponentType(const unsigned int value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT; }
 		
 		int getGltfComponentType(const int value) { return TINYGLTF_COMPONENT_TYPE_INT; }
+
+		Eigen::Vector3f getTranslation(const Eigen::Matrix4f& transformation);
+
+		Eigen::Quaternionf getRotation(const Eigen::Matrix4f& transformation);
+
+		Eigen::Vector3f getScale(const Eigen::Matrix4f& transformation);
+
 #pragma endregion
 	protected:
 		std::string filePath;

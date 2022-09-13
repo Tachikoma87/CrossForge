@@ -714,16 +714,24 @@ namespace CForge {
 			Node node = model.nodes[i];
 			
 			T3DMesh<float>::Submesh* pSubmesh = new T3DMesh<float>::Submesh;
+			
+			if (node.matrix.size()) {
+				auto mat = toSingleMat4(&node.matrix);
 
-			if (node.translation.size() > 0) {
-				pSubmesh->TranslationOffset(0) = node.translation[0];
-				pSubmesh->TranslationOffset(1) = node.translation[1];
-				pSubmesh->TranslationOffset(2) = node.translation[2];
+				pSubmesh->TranslationOffset = getTranslation(mat);
+				pSubmesh->RotationOffset = getRotation(mat);
 			}
+			else {
+				if (node.translation.size()) {
+					pSubmesh->TranslationOffset(0) = node.translation[0];
+					pSubmesh->TranslationOffset(1) = node.translation[1];
+					pSubmesh->TranslationOffset(2) = node.translation[2];
+				}
 
-			if (node.rotation.size() > 0) {
-				Eigen::Quaternionf newRotation(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
-				pSubmesh->RotationOffset = newRotation;
+				if (node.rotation.size()) {
+					Eigen::Quaternionf newRotation(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
+					pSubmesh->RotationOffset = newRotation;
+				}
 			}
 
 			//TODO add Scale field to submesh struct
@@ -1568,6 +1576,16 @@ namespace CForge {
 		}
 	}
 
+	Eigen::Matrix4f GLTFIO::toSingleMat4(const std::vector<double>* pIn) {
+		Eigen::Matrix4f mat;
+
+		for (int i = 0; i < pIn->size(); i++) {
+			mat(i % 4, i / 4) = (float)(*pIn)[i];
+		}
+
+		return mat;
+	}
+
 	void GLTFIO::fromVec3f(const std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut) {
 		for (auto e : *pIn) {
 			std::vector<float> toAdd;
@@ -1624,12 +1642,86 @@ namespace CForge {
 		return -1;
 	}
 
+	Eigen::Vector3f GLTFIO::getTranslation(const Eigen::Matrix4f& mat) {
+		return Eigen::Vector3f(mat(0, 3), mat(1, 3), mat(2, 3));
+	}
+
+	Eigen::Quaternionf GLTFIO::getRotation(const Eigen::Matrix4f& mat) {
+		auto scale = getScale(mat);
+
+		Eigen::Matrix4f rotation(mat);
+
+		rotation(0, 0) /= scale.x();
+		rotation(1, 0) /= scale.x();
+		rotation(2, 0) /= scale.x();
+
+		rotation(0, 1) /= scale.y();
+		rotation(1, 1) /= scale.y();
+		rotation(2, 1) /= scale.y();
+
+		rotation(0, 2) /= scale.z();
+		rotation(1, 2) /= scale.z();
+		rotation(2, 2) /= scale.z();
+
+		float t;
+		Eigen::Vector4f q;
+
+		if (rotation(2, 2) < 0) {
+			if (rotation(0, 0) > rotation(1, 1)) {
+				t = 1.0 + rotation(0, 0) - rotation(1, 1) - rotation(2, 2);
+				q(0) = t;
+				q(1) = rotation(0, 1) + rotation(1, 0);
+				q(2) = rotation(2, 0) + rotation(0, 2);
+				q(3) = rotation(1, 2) + rotation(2, 1);
+			}
+			else {
+				t = 1.0 - rotation(0, 0) + rotation(1, 1) - rotation(2, 2);
+				q(0) = rotation(0, 1) + rotation(1, 0);
+				q(1) = t;
+				q(2) = rotation(1, 2) + rotation(2, 1);
+				q(3) = rotation(2, 0) + rotation(0, 2);
+			}
+		}
+		else {
+			if (rotation(0, 0) < -rotation(1, 1)) {
+				t = 1.0 - rotation(0, 0) - rotation(1, 1) + rotation(2, 2);
+				q(0) = rotation(2, 0) + rotation(0, 2);
+				q(1) = rotation(1, 2) + rotation(2, 1);
+				q(2) = t;
+				q(3) = rotation(0, 1) - rotation(1, 0);
+			}
+			else {
+				t = 1.0 + rotation(0, 0) + rotation(1, 1) + rotation(2, 2);
+				q(0) = rotation(1, 2) - rotation(2, 1);
+				q(1) = rotation(2, 0) - rotation(0, 2);
+				q(2) = rotation(0, 1) - rotation(1, 0);
+				q(3) = t;
+			}
+		}
+
+		q *= 0.5 / sqrt(t);
+
+		Eigen::Quaternionf quat(q(3), q(0), q(1), q(2));
+
+		return quat;
+	}
+
+	Eigen::Vector3f GLTFIO::getScale(const Eigen::Matrix4f& mat) {
+		Eigen::Vector3f sx(mat(0, 0), mat(0, 1), mat(0, 2));
+		Eigen::Vector3f sy(mat(1, 0), mat(1, 1), mat(1, 2));
+		Eigen::Vector3f sz(mat(2, 0), mat(2, 1), mat(2, 2));
+
+		Eigen::Vector3f scale(sx.norm(), sy.norm(), sz.norm());
+
+		return scale;
+	}
+
 #pragma endregion
 }//name space
  
 //TODO
 /*
-* Eingebettete Texturen unterstützen. -> Ja beim einlesen mit AssetIO
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen
+* Texturen fixen.
 * Node Matritzen in rotation, translation und ggf. scale zerlegen.
 */
