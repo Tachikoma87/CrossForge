@@ -138,14 +138,15 @@ namespace CForge {
 
 		//gltf testing
 		GLTFIO gltfio;
-		gltfio.load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &testModel);
-		gltfio.store("Assets/ExampleScenes/Helmet/DamagedHelmet_debug.gltf", &testModel);
-		testModel.clear();
-		gltfio.load("Assets/ExampleScenes/Helmet/DamagedHelmet_debug.gltf", &testModel);
 
-		//AssetIO::load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &testModel);
+		std::string gltfPath = "Assets/ExampleScenes/Helmet/DamagedHelmet";
+		
+		gltfio.load(gltfPath + ".gltf", &testModel);
+		//gltfio.store(gltfPath + "_debug.gltf", &testModel);
+		//testModel.clear();
+		//gltfio.load(gltfPath + "_debug.gltf", &testModel);
+		
 		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);	
-		testModel.getMaterial(0)->ID = 0;
 		testModel.computePerVertexNormals();
 		testModel.bones(&std::vector<T3DMesh<float>::Bone*>(), false);
 		Cube.init(&testModel);

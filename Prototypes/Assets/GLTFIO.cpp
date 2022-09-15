@@ -119,10 +119,10 @@ namespace CForge {
 		}
 
 		readNodes();
-		
-		readMeshes();
 
 		readSkinningData();
+		
+		readMeshes();
 
 		readSkeletalAnimations();
 
@@ -353,7 +353,11 @@ namespace CForge {
 		pSubMesh->Faces = faces;
 
 		T3DMesh<float>::Material* pMaterial = new T3DMesh<float>::Material;
-		readMaterial(pPrimitive->material, pMaterial);
+		
+		if (pPrimitive->material != -1) {
+			readMaterial(pPrimitive->material, pMaterial);
+		}
+		
 		pMesh->addMaterial(pMaterial, false);
 		pSubMesh->Material = materialIndex;
 		materialIndex++;
@@ -466,6 +470,8 @@ namespace CForge {
 	}
 
 	std::string GLTFIO::getTexturePath(const int textureIndex) {
+		if (textureIndex < 0 || textureIndex >= model.textures.size()) return "";
+
 		int sourceIndex = model.textures[textureIndex].source;
 		
 		Image* pImage = &model.images[sourceIndex];
@@ -488,6 +494,9 @@ namespace CForge {
 		else {
 			path.append("image_" + std::to_string(textureIndex) + "." + pImage->mimeType.substr(5));
 		}
+
+		//no buffer view defined or buffer view is out of range
+		if (pImage->bufferView < 0 || pImage->bufferView >= model.bufferViews.size()) return "";
 
 		BufferView* pBufferView = &model.bufferViews[pImage->bufferView];
 		Buffer* pBuffer = &model.buffers[pBufferView->buffer];
@@ -582,7 +591,8 @@ namespace CForge {
 			pAnim->Name = animation.name;
 			pAnim->Keyframes = keyframes;
 			pAnim->Duration = duration;
-
+			pAnim->Speed = 1.0;
+			
 			pMesh->addSkeletalAnimation(pAnim, false);
 		}
 	}
@@ -989,6 +999,11 @@ namespace CForge {
 
 	void GLTFIO::writeMaterial(const T3DMesh<float>::Submesh* pSubmesh) {
 		int meshIndex = model.meshes.size() - 1;
+
+		if (pSubmesh->Material < 0) {
+			model.meshes[meshIndex].primitives[0].material = -1;
+			return;
+		}
 		
 		T3DMesh<float>::Material* pMaterial = pMesh->getMaterial(pSubmesh->Material);
 
