@@ -805,6 +805,8 @@ namespace CForge {
 
 		model.samplers.push_back(gltfSampler);
 
+		model.asset.version = "2.0";
+
 		//Every mesh will hold a single primitive with the submesh data.
 		
 		writeNodes();
@@ -1738,4 +1740,5 @@ namespace CForge {
 /*
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen
 * Texturen fixen.
+* Accessor Min Max einbauen.
 */

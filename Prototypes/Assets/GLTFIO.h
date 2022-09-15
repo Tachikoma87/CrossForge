@@ -251,6 +251,18 @@ class GLTFIO {
 
 			Accessor accessor;
 
+			T min = std::numeric_limits<T>::max();
+			T max = std::numeric_limits<T>::lowest();
+
+			for (int i = 0; i < pData->size(); i++) {
+				T element = (*pData)[i];
+				if (element < min) min = element;
+				if (element > max) max = element;
+			}
+
+			accessor.minValues.push_back(min);
+			accessor.maxValues.push_back(max);
+
 			T t = 0;
 
 			accessor.bufferView = model.bufferViews.size();
@@ -280,7 +292,33 @@ class GLTFIO {
 			Buffer* pBuffer = &model.buffers[bufferIndex];
 
 			Accessor accessor;
+			
+			T n_min = std::numeric_limits<T>::max();
+			T n_max = std::numeric_limits<T>::lowest();
 
+			std::vector<T> min;
+			std::vector<T> max;
+
+			for (int i = 0; i < (*pData)[0].size(); i++) {
+				min.push_back(n_min);
+				max.push_back(n_max);
+			}
+
+			for (int i = 0; i < pData->size(); i++) {
+				auto element = (*pData)[i];
+
+				for (int j = 0; j < element.size(); j++) {
+					T value = element[j];
+					if (value < min[j]) min[j] = value;
+					if (value > max[j]) max[j] = value;
+				}
+			}
+
+			for (int i = 0; i < min.size(); i++) {
+				accessor.minValues.push_back(min[i]);
+				accessor.maxValues.push_back(max[i]);
+			}
+			
 			T t = 0;
 			
 			accessor.bufferView = model.bufferViews.size();
