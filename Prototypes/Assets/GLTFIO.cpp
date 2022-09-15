@@ -163,7 +163,7 @@ namespace CForge {
 		auto pTangent = new std::vector<Eigen::Matrix<float, 3, 1>>;
 		for (auto i : tangent) pTangent->push_back(i);
 		auto pTexCoord = new std::vector<Eigen::Matrix<float, 3, 1>>;
-		for (auto i : texCoord) pTexCoord->push_back(i);
+		fromUVtoUVW(&texCoord, pTexCoord);
 
 		pMesh->vertices(pCoord);
 		pMesh->normals(pNormal);
@@ -249,7 +249,7 @@ namespace CForge {
 				getAccessorData(keyValuePair.second, &texcoords);
 
 				for (auto pos : texcoords) {
-					Eigen::Matrix<float, 3, 1> mat;
+					Eigen::Matrix<float, 2, 1> mat;
 
 					mat(0) = pos[0];
 					mat(1) = 1.0f - pos[1];
@@ -322,12 +322,30 @@ namespace CForge {
 		}//for attributes
 
 		//fill up the rest of the attributes with default values
-		for (int i = normal.size(); i < coord.size(); i++) normal.push_back(*(new Eigen::Vector3f));
-		for (int i = tangent.size(); i < coord.size(); i++) tangent.push_back(*(new Eigen::Vector3f));
-		for (int i = texCoord.size(); i < coord.size(); i++) texCoord.push_back(*(new Eigen::Vector3f));
-		for (int i = joint.size(); i < coord.size(); i++) joint.push_back(*(new Eigen::Vector4f));
-		for (int i = weight.size(); i < coord.size(); i++) weight.push_back(*(new Eigen::Vector4f));
-		for (int i = color.size(); i < coord.size(); i++) color.push_back(*(new Eigen::Vector4f));
+		for (int i = normal.size(); i < coord.size(); i++) {
+			Eigen::Vector3f vec(0, 0, 0);
+			normal.push_back(vec);
+		}
+		for (int i = tangent.size(); i < coord.size(); i++) {
+			Eigen::Vector3f vec(0, 0, 0);
+			tangent.push_back(vec);
+		}
+		for (int i = texCoord.size(); i < coord.size(); i++) {
+			Eigen::Vector2f vec(0, 0);
+			texCoord.push_back(vec);
+		}
+		for (int i = joint.size(); i < coord.size(); i++) {
+			Eigen::Vector4f vec(-1, -1, -1, -1);
+			joint.push_back(vec);
+		}
+		for (int i = weight.size(); i < coord.size(); i++) {
+			Eigen::Vector4f vec(0, 0, 0, 0);
+			weight.push_back(vec);
+		}
+		for (int i = color.size(); i < coord.size(); i++) {
+			Eigen::Vector4f vec(0, 0, 0, 0);
+			color.push_back(vec);
+		}
 		
 		//set vertex influences and weights for bones
 		for (int i = 0; i < joint.size(); i++) {
@@ -907,12 +925,13 @@ namespace CForge {
 			if (pCMesh->textureCoordinatesCount() > 0) {
 				// fill up to index
 				for (int k = texCoord.size(); k <= indices[i] - min; k++) {
-					Eigen::Vector3f vec3(0, 0, 0);
-					texCoord.push_back(vec3);
+					Eigen::Vector2f vec2(0, 0);
+					texCoord.push_back(vec2);
 				}
 				auto tex = pCMesh->textureCoordinate(indices[i]);
 				tex(1) = 1.0f - tex(1);
-				texCoord[indices[i] - min] = tex;
+				texCoord[indices[i] - min](0) = tex(0);
+				texCoord[indices[i] - min](1) = tex(1);
 			}
 
 			if (pCMesh->colorCount() > 0) {
@@ -985,7 +1004,7 @@ namespace CForge {
 		if (texCoord.size() > 0) {
 			pPrimitive->attributes.emplace("TEXCOORD_0", accessorIndex++);
 			
-			fromVec3f(&texCoord, &data);
+			fromVec2f(&texCoord, &data);
 
 			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC2, &data);
 			data.clear();
@@ -1552,6 +1571,16 @@ namespace CForge {
 		return model.accessors.size() - 1;
 	}
 
+	void GLTFIO::toVec2f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector2f>* pOut) {
+		for (auto e : *pIn) {
+			Eigen::Vector2f vec;
+
+			vec(0) = e[0];
+			vec(1) = e[1];
+			pOut->push_back(vec);
+		}
+	}
+
 	void GLTFIO::toVec3f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector3f>* pOut) {
 		for (auto e : *pIn) {
 			Eigen::Vector3f vec;
@@ -1605,6 +1634,15 @@ namespace CForge {
 		return mat;
 	}
 
+	void GLTFIO::fromVec2f(const std::vector<Eigen::Vector2f>* pIn, std::vector<std::vector<float>>* pOut) {
+		for (auto e : *pIn) {
+			std::vector<float> toAdd;
+			toAdd.push_back(e(0));
+			toAdd.push_back(e(1));
+			pOut->push_back(toAdd);
+		}
+	}
+
 	void GLTFIO::fromVec3f(const std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut) {
 		for (auto e : *pIn) {
 			std::vector<float> toAdd;
@@ -1644,6 +1682,27 @@ namespace CForge {
 				toAdd.push_back(mat(i % 4, i / 4));
 			}
 			pOut->push_back(toAdd);
+		}
+	}
+
+	void GLTFIO::fromUVtoUVW(const std::vector<Eigen::Vector2f>* pIn, std::vector<Eigen::Vector3f>* pOut) {
+		for (auto e : *pIn) {
+			Eigen::Vector3f vec;
+
+			vec(0) = e(0);
+			vec(1) = e(1);
+			vec(2) = 0.0f;
+			pOut->push_back(vec);
+		}
+	}
+
+	void GLTFIO::fromUVWtoUV(const std::vector<Eigen::Vector3f>* pIn, std::vector<Eigen::Vector2f>* pOut) {
+		for (auto e : *pIn) {
+			Eigen::Vector2f vec;
+
+			vec(0) = e(0);
+			vec(1) = e(1);
+			pOut->push_back(vec);
 		}
 	}
 
@@ -1740,6 +1799,5 @@ namespace CForge {
  
 //TODO
 /*
-* Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen
-* Texturen fixen.
+* Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen auf gleiche Keyframes
 */

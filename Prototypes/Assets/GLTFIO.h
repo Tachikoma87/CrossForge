@@ -42,6 +42,8 @@ class GLTFIO {
 
 		static bool componentIsMatrix(const int type);
 
+		static void toVec2f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector2f>* pOut);
+
 		static void toVec3f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector3f>* pOut);
 
 		static void toVec4f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector4f>* pOut);
@@ -52,6 +54,8 @@ class GLTFIO {
 
 		static Eigen::Matrix4f toSingleMat4(const std::vector<double> *pin);
 
+		static void fromVec2f(const std::vector<Eigen::Vector2f>* pIn, std::vector<std::vector<float>>* pOut);
+
 		static void fromVec3f(const std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut);
 
 		static void fromVec4f(const std::vector<Eigen::Vector4f>* pIn, std::vector<std::vector<float>>* pOut);
@@ -59,6 +63,10 @@ class GLTFIO {
 		static void fromQuatf(const std::vector<Eigen::Quaternionf>* pIn, std::vector<std::vector<float>>* pOut);
 
 		static void fromMat4f(const std::vector<Eigen::Matrix4f>*  pIn, std::vector<std::vector<float>>* pOut);
+
+		static void fromUVtoUVW(const std::vector<Eigen::Vector2f>* pIn, std::vector<Eigen::Vector3f>* pOut);
+		
+		static void fromUVWtoUV(const std::vector<Eigen::Vector3f>* pIn, std::vector<Eigen::Vector2f>* pOut);
 
 		int getMeshIndexByCrossForgeVertexIndex(int index);
 
@@ -94,7 +102,7 @@ class GLTFIO {
 		std::vector<Eigen::Matrix<float, 3, 1>> coord;
 		std::vector<Eigen::Matrix<float, 3, 1>> normal;
 		std::vector<Eigen::Matrix<float, 3, 1>> tangent;
-		std::vector<Eigen::Matrix<float, 3, 1>> texCoord;
+		std::vector<Eigen::Matrix<float, 2, 1>> texCoord;
 		std::vector<Eigen::Matrix<float, 4, 1>> color;
 		std::vector<Eigen::Matrix<float, 4, 1>> joint;
 		std::vector<Eigen::Matrix<float, 4, 1>> weight;
