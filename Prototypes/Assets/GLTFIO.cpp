@@ -853,6 +853,8 @@ namespace CForge {
 
 		std::vector<int32_t> indices;
 
+		bool values_found = false;
+
 		for (int i = 0; i < pSubmesh->Faces.size(); i++) {
 			auto face = pSubmesh->Faces[i];
 
@@ -876,7 +878,7 @@ namespace CForge {
 		for (int i = 0; i < indices.size(); i++) {
 			// fill up to index
 			for (int k = coord.size(); k <= indices[i] - min; k++) {
-				Eigen::Vector3f vec3;
+				Eigen::Vector3f vec3(0, 0, 0);
 				coord.push_back(vec3);
 			}
 			auto pos = pCMesh->vertex(indices[i]);
@@ -885,7 +887,7 @@ namespace CForge {
 			if (pCMesh->normalCount() > 0) {
 				// fill up to index
 				for (int k = normal.size(); k <= indices[i] - min; k++) {
-					Eigen::Vector3f vec3;
+					Eigen::Vector3f vec3(0, 0, 0);
 					normal.push_back(vec3);
 				}
 				auto norm = pCMesh->normal(indices[i]);
@@ -895,7 +897,7 @@ namespace CForge {
 			if (pCMesh->tangentCount() > 0) {
 				// fill up to index
 				for (int k = tangent.size(); k <= indices[i] - min; k++) {
-					Eigen::Vector3f vec3;
+					Eigen::Vector3f vec3(0, 0, 0);
 					tangent.push_back(vec3);
 				}
 				auto tan = pCMesh->tangent(indices[i]);
@@ -905,7 +907,7 @@ namespace CForge {
 			if (pCMesh->textureCoordinatesCount() > 0) {
 				// fill up to index
 				for (int k = texCoord.size(); k <= indices[i] - min; k++) {
-					Eigen::Vector3f vec3;
+					Eigen::Vector3f vec3(0, 0, 0);
 					texCoord.push_back(vec3);
 				}
 				auto tex = pCMesh->textureCoordinate(indices[i]);
@@ -916,7 +918,7 @@ namespace CForge {
 			if (pCMesh->colorCount() > 0) {
 				// fill up to index
 				for (int k = color.size(); k <= indices[i] - min; k++) {
-					Eigen::Vector4f vec4;
+					Eigen::Vector4f vec4(0, 0, 0, 0);
 					color.push_back(vec4);
 				}
 				auto meshCol = pCMesh->color(indices[i]);
@@ -1740,5 +1742,4 @@ namespace CForge {
 /*
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen
 * Texturen fixen.
-* Accessor Min Max einbauen.
 */
