@@ -209,9 +209,11 @@ void main(){
 	//gAlbedoSpec += texture(foamTexture, UV * 5) * (((depthBackground - depthWater) * nearFarPlane.y) * speedScale > 0.2 ? 0 : 1);
 
 	gColor = vec4(gColor.rgb + getFoamColor((depthBackground - depthWater) * nearFarPlane.y), 1);
-
+	
 	//gAlbedoSpec = vec4(mix(texture(normalTexture, uvCord1).xyz, texture(normalTexture, uvCord2).xyz, phaseMixValue), 1);
 
 	gColor = vec4(gColor.rgb, R);
+	gColor = vec4(0, 0, 1, R);
+	
 	gReflection = reflectColor;
 }

@@ -105,9 +105,9 @@ public:
 			for (float xOffset = -getWidth(i) * 2.0f; xOffset < getWidth(i) * 2.0f; xOffset += 0.5f) {
 				for (float zOffset = 0; zOffset < getWidth(i) / 2 / mResolution; zOffset += 0.5f) {
 					Vector3f offsetPoint = middlePoint + getNormal(i) * xOffset + getTangent(i) * zOffset;;
+					if (!isInBounds(Vector2f(offsetPoint.x(), offsetPoint.z()))) continue;
 
 					int index = posToIndex(offsetPoint.x(), offsetPoint.z());
-
 
 					float newHeight = middlePoint.y() - riverDepth(xOffset, getWidth(i) * 1.0f, mDepth);
 					float heightAdjsutment = (newHeight - mHeightMap[index]) * heightMapMixFactor(xOffset, getWidth(i) * 1.2f);
@@ -159,6 +159,10 @@ public:
 		return Vector3f((float)mSplineX(t) - mDimension.x() / 2.0f, (float)mSplineY(t) * mHeightScale, (float)mSplineZ(t) - mDimension.y() / 2.0f);
 	}
 
+	Vector3f getMapPos(double t) {
+		return Vector3f((float)mSplineX(t), (float)mSplineY(t), (float)mSplineZ(t));
+	}
+
 	Vector3f getTangent(double t) {
 		return Vector3f((float)mSplineX.deriv(1, t), 0, (float)mSplineZ.deriv(1, t)).normalized();
 	}
@@ -194,7 +198,7 @@ public:
 		return &w;
 	}
 private:
-	float mDepth = lowQuality ? 0.04 : 0.01;
+	float mDepth = lowQuality ? 0.04 : 0.02;
 
 	int mResolution = 1;
 
@@ -262,6 +266,10 @@ private:
 		if (abs(x) < width / 2.0f) return 1;
 
 		return max(1.0f - abs(x / width), 0.0f);
+	}
+
+	bool isInBounds(Vector2f pos) {
+		return (pos.x() > 0 && pos.x() < mDimension.x()) && (pos.y() > 0 && pos.y() < mDimension.y());
 	}
 
 	int posToIndex(float x, float y) {

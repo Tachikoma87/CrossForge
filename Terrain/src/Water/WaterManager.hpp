@@ -112,7 +112,7 @@ public:
 		
 			Vector2f pos = Vector2f(randomF(2, mDimension.x() - 2), randomF(2, mDimension.y() - 2));
 			
-			simulateDroplet(pos, lowQuality ? 3 : 7.0);
+			simulateDroplet(pos, lowQuality ? 3 : 4.0);
 			
 		}
 		
@@ -586,6 +586,9 @@ private:
 		Vector2f speed = Vector2f(n.x(), n.z()).normalized();
 		int index = (int)pos.x() * mDimension.y() + (int)pos.y();
 
+		vector<int> addWidthIndex;
+		vector<float> widthToAdd;
+
 		float startHeight = mHeightMap[index];
 
 		river.insert(index);
@@ -595,7 +598,7 @@ private:
 
 		vector<Vector3d> riverPoints;
 
-		float endWidth = 0;
+		float endWidth = startWidth;
 
 		float endHeightAdjustment = 0;
 
@@ -605,17 +608,26 @@ private:
 			
 
 			if (mStreamMap[index].riverIndex != -1) {
+				int collidedRiverIndex = mStreamMap[index].riverIndex;
+				float collidedRiverWidth = mRivers[collidedRiverIndex].getWidth(mStreamMap[index].t);
+				float widthAddFactor = 0.5;
 				if (endWidth > mRivers[mStreamMap[index].riverIndex].getWidth(mStreamMap[index].t)) {
-					mRivers[mStreamMap[index].riverIndex].setLength(mStreamMap[index].t + 2);
-					delStreamMapRiverEnd(mStreamMap[index].riverIndex, mStreamMap[index].t);
+
+					addWidthIndex.push_back(collidedRiverIndex);
+					widthToAdd.push_back(collidedRiverWidth * widthAddFactor);
+					//startWidth += collidedRiverWidth * widthAddFactor;
+					endWidth += collidedRiverWidth * widthAddFactor;
+
+					mRivers[collidedRiverIndex].setLength(mStreamMap[index].t + 2);
+					delStreamMapRiverEnd(collidedRiverIndex, mStreamMap[index].t);
 				}
 				else {
-					//mRivers[mStreamMap[index].riverIndex].addWidthFrom(mStreamMap[index].t, endWidth / 4);
+					mRivers[collidedRiverIndex].addWidthFrom(mStreamMap[index].t, endWidth * widthAddFactor);
+					//mRivers[collidedRiverIndex].addWidthFrom(0, endWidth * widthAddFactor);
 
 					//endHeightAdjustment = riverPoints[riverPoints.size() - 1].y() - mRivers[mStreamMap[index].riverIndex].getPos(mStreamMap[index].t).y();
-					pos = pos + speed * mRivers[mStreamMap[index].riverIndex].getWidth(mStreamMap[index].t) / 2;
-					index = (int)pos.x() * mDimension.y() + (int)pos.y();
-					riverPoints.push_back(Vector3d((double)pos.x(), (double)mHeightMap[index], (double)pos.y()));
+					Vector3f endPos = mRivers[collidedRiverIndex].getMapPos((double)mStreamMap[index].t);
+					riverPoints.push_back(Vector3d((double)endPos.x(), (double)endPos.y(), (double)endPos.z()));
 
 					break;
 				}
@@ -647,7 +659,7 @@ private:
 			if (i % riverResolution == 0) {
 				riverPoints.push_back(Vector3d((double)pos.x(), (double)mHeightMap[index], (double)pos.y()));
 			}
-			endWidth = (50.0f * river.size() / maxLoopCycles) + startWidth;
+			
 
 			lastIndex = index;
 		}		
@@ -663,8 +675,12 @@ private:
 		if (river.size() >= minLoopCycles) {
 			mRivers.push_back(River(mDimension, mHeightMap.data(), mPoolMap.data(), mStreamMap.data(), mHeightMapObject->getConfig().mapHeight));
 
-			mRivers.back().init(&riverPoints, riverResolution, startWidth, endWidth);
+			mRivers.back().init(&riverPoints, riverResolution, startWidth, startWidth);
 
+			for (int j = 0; j < addWidthIndex.size(); j++) {
+				mRivers.back().addWidthFrom(addWidthIndex[j], widthToAdd[j]);
+			}
+			
 
 			for (int j = 0; j < riverVec.size(); j++) {
 				int i = riverVec[j];
