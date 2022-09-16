@@ -112,7 +112,10 @@ public:
 		
 			Vector2f pos = Vector2f(randomF(2, mDimension.x() - 2), randomF(2, mDimension.y() - 2));
 			
-			simulateDroplet(pos, lowQuality ? 3 : 4.0);
+			Vector3f n = getNormal(pos);
+			Vector2f speed = Vector2f(n.x(), n.z()).normalized();
+
+			simulateDroplet(pos, lowQuality ? 3 : 4.0, speed);
 			
 		}
 		
@@ -410,7 +413,7 @@ private:
 		float b = mHeightMap[index + mDimension.y()];
 		float c = mHeightMap[index - 1];
 		float d = mHeightMap[index + 1];
-		Vector3f ret = Vector3f(a - b, 1, c - d);
+		Vector3f ret = Vector3f(a - b, 1 * mHeightMapObject->getConfig().mapHeight, c - d);
 		ret.normalize();
 		return ret;
 	}
@@ -572,18 +575,18 @@ private:
 
 
 
-	void simulateDroplet(Vector2f pos, float startWidth) {
+	void simulateDroplet(Vector2f pos, float startWidth, Vector2f startSpeed) {
 		int maxLoopCycles = 2000;
 		int minLoopCycles = 50;
 
 		int riverResolution = 3;
 
-		float curveFactor = 0.03;
+		
 
 		set<int> river;
 		vector<int> riverVec;
 		Vector3f n = getNormal(pos);
-		Vector2f speed = Vector2f(n.x(), n.z()).normalized();
+		Vector2f speed = startSpeed;
 		int index = (int)pos.x() * mDimension.y() + (int)pos.y();
 
 		vector<int> addWidthIndex;
@@ -599,7 +602,7 @@ private:
 		vector<Vector3d> riverPoints;
 
 		float endWidth = startWidth;
-
+		float curveFactor = 0.000025 * endWidth;
 		float endHeightAdjustment = 0;
 
 		float lowestHeight = 999999;
@@ -639,7 +642,7 @@ private:
 			}
 
 			n = getNormal(pos);
-			
+			curveFactor = 0.000075 * endWidth;
 			speed = (speed * curveFactor + Vector2f(n.x(), n.z()) * (1 - curveFactor)).normalized();
 			pos = pos + speed;
 			index = (int)pos.x() * mDimension.y() + (int)pos.y();
