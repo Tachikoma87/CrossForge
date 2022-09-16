@@ -602,7 +602,7 @@ private:
 		vector<Vector3d> riverPoints;
 
 		float endWidth = startWidth;
-		float curveFactor = 0.000025 * endWidth;
+		float curveFactor = 0.00005 * endWidth;
 		float endHeightAdjustment = 0;
 
 		float lowestHeight = 999999;
@@ -614,9 +614,10 @@ private:
 				int collidedRiverIndex = mStreamMap[index].riverIndex;
 				float collidedRiverWidth = mRivers[collidedRiverIndex].getWidth(mStreamMap[index].t);
 				float widthAddFactor = 0.5;
+				/*
 				if (endWidth > mRivers[mStreamMap[index].riverIndex].getWidth(mStreamMap[index].t)) {
 
-					addWidthIndex.push_back(collidedRiverIndex);
+					addWidthIndex.push_back(riverPoints.size() - 1);
 					widthToAdd.push_back(collidedRiverWidth * widthAddFactor);
 					//startWidth += collidedRiverWidth * widthAddFactor;
 					endWidth += collidedRiverWidth * widthAddFactor;
@@ -634,7 +635,19 @@ private:
 
 					break;
 				}
-				
+				*/
+
+				float newWidth = collidedRiverWidth > endWidth ? (collidedRiverWidth + endWidth * widthAddFactor) : (endWidth + collidedRiverWidth * widthAddFactor);
+				Vector3f collidedRiverSpeed3 = mRivers[collidedRiverIndex].getMapPos(mStreamMap[index].t + 1) - mRivers[collidedRiverIndex].getMapPos(mStreamMap[index].t);
+				Vector2f collidedRiverSpeed2 = Vector2f(collidedRiverSpeed3.x(), collidedRiverSpeed3.z()).normalized();
+
+				speed = (speed * endWidth + collidedRiverSpeed2 * collidedRiverWidth).normalized();
+
+				addWidthIndex.push_back(riverPoints.size() - 1);
+				widthToAdd.push_back(newWidth - endWidth);
+				endWidth = newWidth;
+				mRivers[collidedRiverIndex].setLength(mStreamMap[index].t + 2);
+				delStreamMapRiverEnd(collidedRiverIndex, mStreamMap[index].t);
 			}
 
 			if (mPoolMap[index] > 0.005 || mHeightMap[index] < 0.45) {
@@ -642,7 +655,7 @@ private:
 			}
 
 			n = getNormal(pos);
-			curveFactor = 0.000075 * endWidth;
+			curveFactor = 0.00005 * endWidth;
 			speed = (speed * curveFactor + Vector2f(n.x(), n.z()) * (1 - curveFactor)).normalized();
 			pos = pos + speed;
 			index = (int)pos.x() * mDimension.y() + (int)pos.y();
