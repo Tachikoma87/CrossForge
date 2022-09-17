@@ -764,7 +764,7 @@ namespace CForge {
 		return m_LODPercentages;
 	}
 
-	inline bool LODActor::fovCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat) {
+	bool LODActor::fovCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat) {
 #if CFOV_ARCCOS
 		{
 			Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
@@ -815,7 +815,7 @@ namespace CForge {
 	}
 
 	// frustum culling reference: https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
-	inline bool LODActor::frustumCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat) {
+	bool LODActor::frustumCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat) {
 		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
 		
 		// frustum in world space

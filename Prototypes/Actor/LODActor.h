@@ -92,6 +92,9 @@ namespace CForge {
 		void calculateLODPercentages();
 		void initiateLODBuffers();
 		
+		bool fovCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat);
+		bool frustumCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat);
+		
 	protected:
 
 	private:
@@ -100,12 +103,10 @@ namespace CForge {
 		std::vector<GLVertexArray*> m_pVertexArrays;
 		std::vector<GLBuffer*> m_pVertexBuffers;
 		std::vector<GLBuffer*> m_pElementBuffers;
-
+		
 		void setBufferData(void);
-
+		
 		void initiateBuffers(uint32_t level);
-		inline bool fovCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat);
-		inline bool frustumCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat);
 		
 		SLOD* m_pSLOD;
 		bool m_initialized = false;

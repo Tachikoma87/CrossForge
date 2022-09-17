@@ -27,6 +27,7 @@
 //#include "Prototypes/TestScenes/SocketTestScene.hpp"
 #include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
 #include "Prototypes/TestScenes/SkyboxTestScene.hpp"
+#include "Prototypes/TestScenes/CullingPerformanceEvaluation.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -81,7 +82,8 @@ int main(int argc, char* argv[]) {
 		//GUITestScene().guiTestScene();
 		//forestTestScene();
 		//LODTestScene();
-		MuseumTestScene().museumTestScene();
+		//MuseumTestScene().museumTestScene();
+		CullingPerformanceEvaluation();
 	}
 	catch (const CrossForgeException& e) {
 		SLogger::logException(e);
