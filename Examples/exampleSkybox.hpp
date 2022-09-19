@@ -18,27 +18,6 @@
 #ifndef __CFORGE_EXAMPLESKYBOX_HPP__
 #define __CFORGE_EXAMPLESKYBOX_HPP__
 
-//#include "../CForge/AssetIO/SAssetIO.h"
-//#include "../CForge/Graphics/Shader/SShaderManager.h"
-//#include "../CForge/Graphics/STextureManager.h"
-//
-//#include "../CForge/Graphics/GLWindow.h"
-//#include "../CForge/Graphics/GraphicsUtility.h"
-//#include "../CForge/Graphics/RenderDevice.h"
-//
-//
-//#include "../CForge/Graphics/Lights/DirectionalLight.h"
-//#include "../CForge/Graphics/Lights/PointLight.h"
-//
-//#include "../CForge/Graphics/SceneGraph/SceneGraph.h"
-//#include "../CForge/Graphics/SceneGraph/SGNGeometry.h"
-//#include "../CForge/Graphics/SceneGraph/SGNTransformation.h"
-//
-//#include "../CForge/Graphics/Actors/StaticActor.h"
-
-
-//#include "SceneUtilities.hpp"
-
 #include "exampleSceneBase.hpp"
 #include "../CForge/Graphics/Actors/SkyboxActor.h"
 

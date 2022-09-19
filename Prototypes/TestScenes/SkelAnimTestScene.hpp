@@ -38,7 +38,23 @@ namespace CForge {
 
 		void init(void) {
 			initWindowAndRenderDevice();
-			initCameraAndLights();
+			// initialize camera
+			m_Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
+			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+
+			// initialize sun (key light) and back ground light (fill light)
+			Vector3f SunPos = Vector3f(-15.0f, 15.0f, 25.0f);
+			Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -30.0f);
+			m_Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
+			// sun will cast shadows
+			m_Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(30.0f, 30.0f, 0.1f, 1000.0f));
+			m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
+
+			// set camera and lights
+			m_RenderDev.activeCamera(&m_Cam);
+			m_RenderDev.addLight(&m_Sun);
+			m_RenderDev.addLight(&m_BGLight);
+
 
 			m_Cam.position(Vector3f(15.0f, 5.0f, 35.0f));
 			m_Cam.lookAt(Vector3f(10.0f, 5.0f, 35.0f), Vector3f(0.0f, 4.0f, 25.0f), Vector3f::UnitY());
@@ -51,14 +67,27 @@ namespace CForge {
 			m_Skydome.init(&M);
 			M.clear();
 
+
+			SAssetIO::load("Assets/tmp/MuscleManSittingWalkingClean.glb", &M);
+			setMeshShader(&M, 0.6f, 0.04f);
+
+			M.computePerVertexNormals();
+			//m_ControllerCaptured.init(&M);
+			//m_Captured.init(&M, &m_ControllerCaptured);
+			//M.clear();
+
+			T3DMesh<float> M2;
+			SAssetIO::load("Assets/tmp/MuscleManPosed.glb", &M2);
+			M2.computePerFaceNormals();
+
 			// initialize skeletal actor (Eric) and its animation controller
 			SAssetIO::load("MyAssets/DoubleCaptured.glb", &M);
 			setMeshShader(&M, 0.6f, 0.04f);
 			// male textures
-			//M.getMaterial(0)->TexAlbedo = "Assets/tmp/MHTextures/young_lightskinned_male_diffuse2.png";
-			//M.getMaterial(1)->TexAlbedo = "Assets/tmp/MHTextures/brown_eye.png";
-			//M.getMaterial(2)->TexAlbedo = "Assets/tmp/MHTextures/male_casualsuit04_diffuse.png";
-			//M.getMaterial(3)->TexAlbedo = "Assets/tmp/MHTextures/shoes06_diffuse.png";
+			M.getMaterial(0)->TexAlbedo = "Assets/tmp/MHTextures/young_lightskinned_male_diffuse2.png";
+			M.getMaterial(1)->TexAlbedo = "Assets/tmp/MHTextures/brown_eye.png";
+			M.getMaterial(2)->TexAlbedo = "Assets/tmp/MHTextures/male_casualsuit04_diffuse.png";
+			M.getMaterial(3)->TexAlbedo = "Assets/tmp/MHTextures/shoes06_diffuse.png";
 
 			// female textures
 			M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
@@ -68,7 +97,7 @@ namespace CForge {
 			M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
 
 			M.computePerVertexNormals();
-			//M.computePerVertexTangents();
+			M.computePerVertexTangents();
 			m_ControllerCaptured.init(&M);
 			m_Captured.init(&M, &m_ControllerCaptured);
 			M.clear();
