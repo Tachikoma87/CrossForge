@@ -57,19 +57,19 @@ float getShoreWaveFactor(vec2 pos) {
 }
 
 float shoreWave(float factor) {
-	float waveLength = 2.0;
-	float waveSpeed = 0.3;
-	float offset = waveLength * 0.05;
-	/*
-	float a = mod(-time * waveSpeed + factor, waveLength) / waveLength - 1 / 1.5;
+	float waveLength = 1.0;
+	float waveSpeed = 0.05;
+
+	float foamBuildUp = waveLength * 0.3;
+	float foamBuildDown = waveLength * 0.1;
+
+	float a = mod(-time * waveSpeed + factor, waveLength) / foamBuildUp - waveLength / foamBuildUp + 1;
 	a = clamp(a, 0, 1);
 
-	float b = -mod(-time * waveSpeed + factor, waveLength) / ((lowQuality ? 0.4 : 0.4) * waveLength) + 0.5 / 1.5;
+	float b = -mod(-time * waveSpeed + factor, waveLength) / foamBuildDown + 1;
 	b = clamp(b, 0, 1);
-	*/
-	float c = -abs(sin((-time * waveSpeed + factor + offset) * 3.1415 / waveLength)) + 0.25;
-
-	return c * (lowQuality ? 2.5 : 10);//clamp((a + b) * factor * 2, 0, 1);
+	
+	return clamp((a + b) * factor / 4, 0, 1) * (lowQuality ? 2.5 : 20);
 }
 
 

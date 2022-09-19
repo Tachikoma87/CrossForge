@@ -196,7 +196,7 @@ void main(){
 
 	float depthBackground = 2.0 * nearFarPlane.x * nearFarPlane.y / (nearFarPlane.x + nearFarPlane.y - (texture(depthTexture, clamp(screenUV.xy, 0.01, 0.99)).r * 2.0 - 1) * (nearFarPlane.y - nearFarPlane.x)) / (nearFarPlane.y - nearFarPlane.x);
 	float depthWater = 2.0 * nearFarPlane.x * nearFarPlane.y / (nearFarPlane.x + nearFarPlane.y - (screenUV.z * 2.0 - 1) * (nearFarPlane.y - nearFarPlane.x)) / (nearFarPlane.y - nearFarPlane.x);
-	float depthColorScale = 1 - clamp((depthBackground - depthWater) * nearFarPlane.y * (lowQuality ? 0.2 : 0.05), 0, 1);
+	float depthColorScale = 1 - clamp((depthBackground - depthWater) * nearFarPlane.y * 0.2, 0, 1);
 
 	float shininess = 300;
 	float spec = pow(max(dot(normalize(N * vec3(1, 10, 1)), halfwayDir), 0.0), shininess);
@@ -213,7 +213,6 @@ void main(){
 	//gAlbedoSpec = vec4(mix(texture(normalTexture, uvCord1).xyz, texture(normalTexture, uvCord2).xyz, phaseMixValue), 1);
 
 	gColor = vec4(gColor.rgb, R);
-	gColor = vec4(0, 0, 1, R);
-	
+	gColor = vec4(0, 0, 1, 1);
 	gReflection = reflectColor;
 }

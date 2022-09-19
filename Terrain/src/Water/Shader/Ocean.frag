@@ -206,16 +206,19 @@ float getShoreWaveFactor() {
 }
 
 float shoreWave(float factor) {
-	float waveLength = 2.0;
-	float waveSpeed = 0.3;
+	float waveLength = 1.0;
+	float waveSpeed = 0.05;
 
-	float a = mod(-time * waveSpeed + factor, waveLength) / waveLength - 1 / 1.5;
+	float foamBuildUp = waveLength * 0.12;
+	float foamBuildDown = waveLength * 0.04;
+
+	float a = mod(-time * waveSpeed + factor, waveLength) / foamBuildUp - waveLength / foamBuildUp + 1;
 	a = clamp(a, 0, 1);
 
-	float b = -mod(-time * waveSpeed + factor, waveLength) / (0.2 * waveLength) + 0.5 / 1.5;
+	float b = -mod(-time * waveSpeed + factor, waveLength) / foamBuildDown + 1;
 	b = clamp(b, 0, 1);
 	
-	return clamp((a + b) * factor * 2, 0, 1);
+	return clamp((a + b) * factor / 4, 0, 1);
 }
 
 vec3 getFoamColor(float foamFactor) {
@@ -269,7 +272,7 @@ void main(){
 	
 	float depthBackground = 2.0 * nearFarPlane.x * nearFarPlane.y / (nearFarPlane.x + nearFarPlane.y - (texture(depthTexture, screenUV.xy).r * 2.0 - 1) * (nearFarPlane.y - nearFarPlane.x)) / (nearFarPlane.y - nearFarPlane.x);
 	float depthWater = 2.0 * nearFarPlane.x * nearFarPlane.y / (nearFarPlane.x + nearFarPlane.y - (screenUV.z * 2.0 - 1) * (nearFarPlane.y - nearFarPlane.x)) / (nearFarPlane.y - nearFarPlane.x);
-	float depthColorScale = 1 - clamp((depthBackground - depthWater) * nearFarPlane.y * (lowQuality ? 0.2 : 0.05), 0, 1);
+	float depthColorScale = 1 - clamp((depthBackground - depthWater) * nearFarPlane.y * 0.2, 0, 1);
 
 
 	vec2 backGroundUV = clamp(screenUV.xy + derivatives.xy / 10.0 * depthColorScale, 0, 1);

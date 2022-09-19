@@ -149,6 +149,7 @@ void main() {
 
     float flat_mul = 0.4;
 
+
     if (height > 0.0) {
         if (dist < mountain_radius) {
             height = height * mix(flat_mul, 2, pow(1.0 - dist / mountain_radius, 2));
@@ -166,6 +167,25 @@ void main() {
     if (height < 0.6) {
         height += (height - 0.6);
     }
+
+
+    float temp = 0.48;
+    float helpHeight;
+    if (height > temp) {
+        helpHeight = (height - temp) * 2;
+        helpHeight = pow(helpHeight, 1.5);
+        helpHeight = helpHeight / 2 + temp;
+
+        if (dist < mountain_radius) {
+            height = mix(helpHeight, height, pow(1.0 - dist / mountain_radius, 2));
+        }
+        else{
+            height = helpHeight;
+        }
+    }
+
+    height += 0.01;
+    
 
     imageStore(HeightMap, textureCoords, vec4(height));
 }

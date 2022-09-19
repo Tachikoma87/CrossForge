@@ -198,7 +198,7 @@ public:
 		return &w;
 	}
 private:
-	float mDepth = lowQuality ? 0.04 : 0.02;
+	float mDepth = 0.08 / settingSizeScale;
 
 	int mResolution = 1;
 
@@ -222,7 +222,7 @@ private:
 	void adjustHeightList(vector<double>* heightList) {
 		
 
-		
+		/*
 		for (int i = 1; i < heightList->size(); i++) {
 
 			int numElementsBigger = 0;
@@ -245,16 +245,12 @@ private:
 				}
 			}
 		}
-
+		*/
 		for (int i = 0; i < heightList->size(); i++) {
-			heightList->at(i) -= 0.002;
+			heightList->at(i) -= lowQuality ? 0.002 : 0.0005;
 		}
 		
 	}
-
-
-
-	
 
 
 	float riverDepth(float x, float width, float depth) {

@@ -327,7 +327,7 @@ public:
 		renderOcean(renderDevice, timeCount, heightMapTextureHandle, shoreDistTextureHandle, oceanDisplacementTextureHandle, oceanNormalsTextureHandle);
 		renderPool(renderDevice, timeCount);
 		renderStreams(renderDevice, timeCount);
-
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		blurHReflection(renderDevice);
 		blurVReflection(renderDevice);
 		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
