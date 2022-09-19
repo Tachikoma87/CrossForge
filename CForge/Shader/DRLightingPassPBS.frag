@@ -261,7 +261,7 @@ void main(){
 	}//for[spot lights]
 	#endif
 
-	vec3 Ambient = vec3(0.03) * Albedo * Ao;
+	vec3 Ambient = vec3(0.1) * Albedo * 1.0;
 	vec3 Col = Ambient + /*(1.0 - Ao)**/ Lo;
 
 	// Tone Mapping (Reinhardt operator)

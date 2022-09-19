@@ -92,6 +92,39 @@ namespace CForge {
 		return pRval;
 	}//buildShader
 
+	GLShader* SShaderManager::buildComputeShader(std::vector<ShaderCode*>* pCSSources, std::string* pErrorLog) {
+		GLShader* pRval = nullptr;
+
+		// does this shader already exist?
+		for (auto i : m_Shader) {
+			if (i == nullptr) continue;
+			if (i->CSSources.size() != pCSSources->size()) continue;
+
+			pRval = i->pShader;
+
+			for (auto k : (*pCSSources)) {
+				if (!find(k, &i->CSSources)) {
+					pRval = nullptr;
+					break;
+				}
+			}//for[CSSources]
+
+			if (nullptr != pRval) break;
+
+		}//for[all known shader]
+
+		if (nullptr == pRval) {
+			Shader* pS = new Shader();
+			pS->CSSources = (*pCSSources);
+			configAndCompile(pS);
+			pRval = pS->pShader;
+
+			m_Shader.push_back(pS);
+		}//if[create new shader object]
+
+		return pRval;
+	}
+
 
 	uint32_t SShaderManager::shaderCount(void)const {
 		return m_Shader.size();

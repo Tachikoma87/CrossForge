@@ -28,6 +28,7 @@ namespace CForge {
 	class ExampleMultiViewport : public ExampleSceneBase {
 	public:
 		ExampleMultiViewport(void) {
+			m_WindowTitle = "CrossForge Example - Multiple Viewports";
 			m_RenderBufferScale = 2; // only half resolution of render buffer (GBuffer)
 		}//Constructor
 
