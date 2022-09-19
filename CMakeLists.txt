@@ -14,13 +14,16 @@ project(crossforge VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# create required directories
 file(MAKE_DIRECTORY "MyAssets")
+file(MAKE_DIRECTORY "Prototypes/Shader")
 
 FIND_PACKAGE(OpenGL REQUIRED)
 FIND_PACKAGE(assimp CONFIG REQUIRED)
 FIND_PACKAGE(glfw3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenCV CONFIG REQUIRED)
 FIND_PACKAGE(libigl CONFIG REQUIRED)
+FIND_PACKAGE(glad CONFIG REQUIRED)
 
 #enable edit and continue and hot reload (Visual Studio 2022)
 #if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -31,13 +34,13 @@ FIND_PACKAGE(libigl CONFIG REQUIRED)
 #endif()
 
 include_directories(
-	"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
+	#"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
 	"${OpenCV_INCLUDE_DIRS}"
 )
 
 add_library(crossforge SHARED 
 	# GLAD
-	"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
+	#"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
 
 	# Core related
 	CForge/Core/CForgeObject.cpp 
@@ -138,6 +141,7 @@ target_link_libraries(crossforge
 	PRIVATE assimp::assimp
 	PRIVATE igl::core 
 	PRIVATE igl::common
+	PRIVATE glad::glad
 	${OpenCV_LIBS}
 	ws2_32			#winsock2
 	)
@@ -151,6 +155,7 @@ if(UNIX)
 	PRIVATE assimp::assimp
 	PRIVATE igl::core 
 	PRIVATE igl::common
+	PRIVATE glad::glad
 	${OpenCV_LIBS}
 )
 endif(UNIX)
@@ -158,7 +163,7 @@ endif(UNIX)
 project (CForgeSandbox)
 add_executable(CForgeSandbox 
 	SandboxMain.cpp 
-	"thirdparty/glad/src/glad.c"
+	#"thirdparty/glad/src/glad.c"
 
 	CForge/Core/SGPIO.cpp
 	Prototypes/Hardware/I2C.cpp 
@@ -181,6 +186,7 @@ if(WIN32)
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
 	PRIVATE glfw 
+	PRIVATE glad::glad
 	${OpenCV_LIBS}
 	ws2_32
 	)
@@ -194,6 +200,7 @@ if(UNIX)
 		${OpenCV_LIBS}
 		PRIVATE gpiod
 		PRIVATE dl
+		PRIVATE glad::glad
 		)
 endif(UNIX)
 
