@@ -24,6 +24,8 @@
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
 
+#include "Prototypes/TestScenes/GUITestScene.hpp"
+
 using namespace CForge;
 using namespace Eigen;
 
@@ -68,9 +70,12 @@ int main(int argc, char* argv[]) {
 		//forestTestScene();	
 		//imuInputDeviceTestScene();	 
 		//skelAnimTestScene();
-		shadowTest();	
+		//shadowTest();	
 		//surfaceSamplerTestScene();
 		//vertexColorTestScene();
+
+		GUITestScene S;
+		S.guiTestScene();
 		
 	}
 	catch (const CrossForgeException & e) {

@@ -191,6 +191,25 @@ add_executable(CForgeSandbox
 
 	Prototypes/MeshProcessing/SurfaceSampler.cpp
 
+	Prototypes/Actor/LODActor.cpp
+	Prototypes/SLOD.cpp
+	Prototypes/LODHandler.cpp
+	Prototypes/UBOInstancedData.cpp
+	Prototypes/MeshDecimate.cpp
+
+	Terrain/GUI/Font.cpp
+	Terrain/GUI/GUI.cpp
+	Terrain/GUI/Widget.cpp
+	Terrain/GUI/WidgetBackground.cpp
+	Terrain/GUI/Widgets/Form.cpp
+	Terrain/GUI/Widgets/InputCheckbox.cpp
+	Terrain/GUI/Widgets/InputDropDown.cpp
+	Terrain/GUI/Widgets/InputNumber.cpp
+	Terrain/GUI/Widgets/InputSlider.cpp
+	Terrain/GUI/Widgets/InputText.cpp
+	Terrain/GUI/Widgets/Label.cpp
+	Terrain/GUI/Widgets/Window.cpp
+
 	)
 
 if(WIN32)
@@ -200,6 +219,8 @@ if(WIN32)
 	${OpenCV_LIBS}
 	PRIVATE glad::glad
 	ws2_32
+	PRIVATE tinyxml2::tinyxml2
+	${FREETYPE_LIBRARIES}
 	)
 endif (WIN32)
 
