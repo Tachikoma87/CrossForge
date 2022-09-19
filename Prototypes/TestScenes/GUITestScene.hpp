@@ -36,7 +36,7 @@
 
 #include "../../CForge/Graphics/Actors/StaticActor.h"
 
-#include "../../Examples/SceneUtilities.hpp" 
+//#include "../../Examples/SceneUtilities.hpp" 
 
 #include "../Actor/LODActor.h"
 
@@ -78,7 +78,7 @@ public:
 
 		SShaderManager *shaderManager = SShaderManager::instance();
 		vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "420 core",
-			0, "", ""));
+			0, ""));
 
 		"";
 		const char* fragmentShaderSource = "#version 420 core\n"
@@ -97,7 +97,7 @@ public:
 			"	FragColor = vec4(vec3(texture(texColor, TexCoords)), 1.0);\n"
 			"}\n\0";
 		fsSources.push_back(shaderManager->createShaderCode(fragmentShaderSource, "420 core",
-			0, "", ""));
+			0, ""));
 		GLShader *quadShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
 		shaderManager->release();
 
@@ -176,7 +176,7 @@ public:
 		StaticActor Skydome;
 
 		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
-		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
+		//SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
 		M.computePerVertexNormals();
 		Skydome.init(&M);
 		M.clear();
@@ -233,7 +233,7 @@ public:
 		fpsWidget->setTextAlign(TextWidget::ALIGN_RIGHT);
 
 		while (!RenderWin.shutdown()) {
-			RDev.clearBuffer();
+			//RDev.clearBuffer();
 			RenderWin.update();
 			pSLOD->update();
 			SG.update(1.0f);
@@ -246,16 +246,16 @@ public:
 			}
 			Keyboard* pKeyboard = RenderWin.keyboard();
 			float Step = (pKeyboard->keyState(Keyboard::KEY_Q) == 0) ? 0.1f : 1.0f;
-			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(), 0.4*Step, cameraPanningAcceleration, 1.0f / pSLOD->getDeltaTime());
+			//SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(), 0.4*Step, cameraPanningAcceleration, 1.0f / pSLOD->getDeltaTime());
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			RDev.activePass(RenderDevice::RENDERPASS_LOD);
+			//RDev.activePass(RenderDevice::RENDERPASS_LOD);
 			SG.render(&RDev);
 
-			RDev.LODSG_assemble();
+			//RDev.LODSG_assemble();
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
 			glDisable(GL_CULL_FACE);
-			RDev.LODSG_render();
+			//RDev.LODSG_render();
 			glEnable(GL_CULL_FACE);
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
@@ -263,14 +263,14 @@ public:
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				glLineWidth(1);
 			}
-			RDev.LODSG_render();
+			//RDev.LODSG_render();
 			if (Wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 
 			//render debug aabb
-			if (renderLODAABB) {
+			/*if (renderLODAABB) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				glDisable(GL_CULL_FACE);
 				glLineWidth(2);
@@ -286,10 +286,10 @@ public:
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 				glEnable(GL_CULL_FACE);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			}
+			}*/
 
-			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
-			ppquad.render(&RDev);
+			//RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
+			//ppquad.render(&RDev);
 
 			gui.processEvents();
 			gui.render(&RDev);
