@@ -6,6 +6,8 @@ namespace CForge {
 		m_TexObj = GL_INVALID_INDEX;
 	}//Constructor
 
+    GLTexture2D::GLTexture2D(uint32_t handle) : CForgeObject("GLTexture2D"), m_TexObj(handle) {}
+
 	GLTexture2D::~GLTexture2D(void) {
 		clear();
 	}//Destructor

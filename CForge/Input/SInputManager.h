@@ -21,6 +21,7 @@
 #include "../Core/CForgeObject.h"
 #include "Keyboard.h"
 #include "Mouse.h"
+#include "Character.h"
 
 namespace CForge {
 	class CFORGE_API SInputManager: public CForgeObject {
@@ -30,8 +31,10 @@ namespace CForge {
 
 		void registerDevice(class GLFWwindow* pWin, Keyboard* pKeyboard);
 		void registerDevice(class GLFWwindow* pWin, Mouse* pMouse);
+		void registerDevice(class GLFWwindow* pWin, Character* pCharacter);
 		void unregisterDevice(Keyboard* pKeyboard);
 		void unregisterDevice(Mouse* pMouse);
+		void unregisterDevice(Character* pCharacter);
 
 	protected:
 		SInputManager(void);
@@ -44,6 +47,7 @@ namespace CForge {
 		static uint32_t m_InstanceCount;
 
 		static void keyboardCallbackFunc(class GLFWwindow* pWin, int Key, int Scancode, int Action, int Mods);
+		static void characterCallbackFunc(class GLFWwindow* pWin, unsigned int codepoint);
 		static void mousePositionCallbackFunc(class GLFWwindow* pWin, double xPos, double yPos);
 		static void mouseButtonCallbackFunc(class GLFWwindow* pWin, int Button, int Action, int Mode);
 		static void mouseWheelCallbackFunc(class GLFWwindow* pWin, double xOffset, double yOffset);
@@ -56,9 +60,14 @@ namespace CForge {
 			Mouse* pMouse;
 			class GLFWwindow* pWin;
 		};
+		struct CharacterEntity {
+			Character* pCharacter;
+			class GLFWwindow* pWin;
+		};
 
 		std::vector<KeyboardEntity*> m_RegisteredKeyboards;
 		std::vector<MouseEntity*> m_RegisteredMice;
+		std::vector<CharacterEntity*> m_RegisteredCharacterCallbacks;
 
 	};//SInputManager
 

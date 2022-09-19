@@ -30,7 +30,7 @@ namespace CForge {
 	class ExampleSkeletalAnimation : public ExampleSceneBase {
 	public:
 		ExampleSkeletalAnimation(void) {
-
+			m_WindowTitle = "CrossForge Example - Skeletal Animation";
 		}//Constructor
 
 		~ExampleSkeletalAnimation(void) {

@@ -431,7 +431,9 @@ namespace CForge {
 		}//tangent
 
 		const Eigen::Matrix<T, 3, 1> tangent(int32_t Index) const {
-			if (Index < 0 || Index >= tangentCount()) throw IndexOutOfBoundsExcept("Index");
+			if (Index < 0 || Index >= tangentCount()) {
+				throw IndexOutOfBoundsExcept("Index");
+			}
 			return m_Tangents[Index];
 		}//tangent
 

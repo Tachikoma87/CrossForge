@@ -1,0 +1,78 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Terrain",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ExportLibrary::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ExportLibrary-Debug-9021d517e6a0a3955484.json",
+					"name" : "ExportLibrary",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Terrain::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Terrain-Debug-1ace751eec7c671879fd.json",
+					"name" : "Terrain",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "crossforge::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-crossforge-Debug-e9b8542023dd88eb4f98.json",
+					"name" : "crossforge",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/simon/projects/team praktikum/CrossForge/build",
+		"source" : "/home/simon/projects/team praktikum/CrossForge"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

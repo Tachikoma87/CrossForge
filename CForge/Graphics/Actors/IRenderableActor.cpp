@@ -73,4 +73,70 @@ namespace CForge {
 		return &(m_RenderGroupUtility.renderGroups()[Index]->Material);
 	}//material
 
+	T3DMesh<float>::AABB IRenderableActor::getAABB()
+	{
+		T3DMesh<float>::AABB aabb;
+		aabb.Min = Eigen::Vector3f(0);
+		aabb.Max = Eigen::Vector3f(0);
+		return aabb;
+	}
+	
+	void IRenderableActor::testAABBvis(RenderDevice* pRDev, Eigen::Matrix4f sgMat)
+	{
+	
+	}
+
+	bool IRenderableActor::isInstanced()
+	{
+		return m_isInstanced;
+	}
+
+	bool IRenderableActor::isManualInstanced()
+	{
+		return m_isManualInstaned;
+	}
+
+	bool IRenderableActor::isInLODSG() {
+		return m_isInLODSG;
+	}
+	void IRenderableActor::setLODSG(bool inside) {
+		m_isInLODSG = inside;
+	}
+	bool IRenderableActor::isInQueryContainer() {
+		return m_isInQSG;
+	}
+	void IRenderableActor::setQSG(bool inside) {
+		m_isInQSG = inside;
+	}
+
+	void IRenderableActor::bindLODLevel(uint32_t level) {
+
+	}
+
+	void IRenderableActor::addInstance(Eigen::Matrix4f matrix) {
+
+	}
+
+	void IRenderableActor::evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount) {
+	
+	}
+
+	void IRenderableActor::clearMatRef() {
+
+	}
+
+	float IRenderableActor::getAABBradius(const Eigen::Matrix4f& mat) {
+		Eigen::Affine3f affine(mat);
+		affine.data()[12] = 0.0;
+		affine.data()[13] = 0.0;
+		affine.data()[14] = 0.0;
+		Eigen::Vector3f scaledAABBMax = affine * getAABB().Max;
+		Eigen::Vector3f scaledAABBMin = affine * getAABB().Min;
+		Eigen::Vector3f center = scaledAABBMin*0.5+scaledAABBMax*0.5;
+		scaledAABBMax -= center;
+		scaledAABBMin -= center;
+
+		float aabbRadius = std::max(std::abs(scaledAABBMax.norm()), std::abs(scaledAABBMin.norm()));
+		return aabbRadius;
+	}
 }//name space
