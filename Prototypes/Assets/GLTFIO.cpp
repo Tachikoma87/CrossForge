@@ -359,8 +359,6 @@ namespace CForge {
 		}
 
 		offsets.push_back(counter);
-
-		std::cout << "  " << counter << " vertices" << std::endl;
 	}
 
 	T3DMesh<float>::Submesh* GLTFIO::readSubMeshes(Primitive* pPrimitive) {
@@ -420,7 +418,7 @@ namespace CForge {
 		readIndices(accessorIndex, &indices);
 
 		unsigned long offset = 0;
-		for (int i = 0; i < offsets.size() - 1; i++) offset += i;
+		for (int i = 0; i < offsets.size() - 1; i++) offset += offsets[i];
 
 		if (pPrimitive->mode == TINYGLTF_MODE_TRIANGLES) {
 			for (int i = 0; i < indices.size(); i += 3) {
@@ -748,6 +746,12 @@ namespace CForge {
 
 				pSubmesh->TranslationOffset = getTranslation(mat);
 				pSubmesh->RotationOffset = getRotation(mat);
+
+				auto scale = getScale(mat);
+
+				if (std::abs(scale(0) - 1.0) > 0.001 || std::abs(scale(1) - 1.0) > 0.001 || std::abs(scale(2) - 1.0) > 0.001) {
+					std::cout << "SCALE FOUND!!!" << std::endl;
+				}
 			}
 			else {
 				if (node.translation.size()) {
