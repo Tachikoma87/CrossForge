@@ -30,7 +30,7 @@ namespace CForge {
 	class ExampleSkybox : public ExampleSceneBase {
 	public:
 		ExampleSkybox(void) {
-
+			m_WindowTitle = "CrossForge Example - Skybox";
 		}//Constructor
 
 		~ExampleSkybox(void) {

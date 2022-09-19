@@ -61,14 +61,14 @@ int main(int argc, char* argv[]) {
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
-		exampleSkeletalAnimation(); 
+		//exampleSkeletalAnimation(); 
 		//exampleSkybox();
 		//exampleSockets();
 	
 		//forestTestScene();	
 		//imuInputDeviceTestScene();	 
 		//skelAnimTestScene();
-		//shadowTest();	
+		shadowTest();	
 		//surfaceSamplerTestScene();
 		//vertexColorTestScene();
 		

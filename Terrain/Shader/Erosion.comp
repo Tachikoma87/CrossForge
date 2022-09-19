@@ -1,0 +1,140 @@
+#version 120
+
+// based on https://github.com/SebLague/Hydraulic-Erosion
+
+layout(local_size_x = 1024) in;
+layout(r32f, binding = 0) uniform image2D HeightMap;
+
+uniform float Time;
+uniform float MapHeight;
+
+const int MAX_BRUSH_SIZE = 250;
+
+uniform int BrushSize; // number of pixels to errode
+uniform int BorderSize; // size of the border, in which erorion is terminated to prevent invalid texture loads/stores
+
+uniform ivec2 BrushOffsets[MAX_BRUSH_SIZE];
+uniform float BrushWeights[MAX_BRUSH_SIZE];
+
+const int maxLifetime = 40;
+const float inertia = 0.8; // At zero, water will instantly change direction to flow downhill. At 1, water will never change direction.
+const float sedimentCapacityFactor = 4; // Multiplier for how much sediment a droplet can carry
+const float minSedimentCapacity = 0.01; // Used to prevent carry capacity getting too close to zero on flatter terrain
+const float depositSpeed = 0.1;
+const float erodeSpeed = 0.8;
+
+const float evaporateSpeed = 0.1;
+const float gravity = 4;
+const float startSpeed = 1;
+const float startWater = 1;
+
+highp float rand(vec2 co) {
+    highp float a = 12.9898;
+    highp float b = 78.233;
+    highp float c = 43758.5453;
+    highp float dt= dot(co.xy ,vec2(a,b));
+    highp float sn= mod(dt,3.14);
+    return fract(sin(sn) * c);
+}
+
+float getHeight(vec4 sampledHeight) {
+    return sampledHeight.x * MapHeight;
+}
+
+void imageAdd(ivec2 coord, float data) {
+    float value = imageLoad(HeightMap, coord).x + data;
+    imageStore(HeightMap, coord, vec4(value));
+}
+
+vec3 calculateCell(ivec2 coord, vec2 offset) {
+    // 00--10
+    // |    |
+    // 01--11
+    // calculate the height on the four corners of the cell
+    float s00 = getHeight(imageLoad(HeightMap, coord));
+    float s10 = getHeight(imageLoad(HeightMap, coord + ivec2(1, 0)));
+    float s01 = getHeight(imageLoad(HeightMap, coord + ivec2(0, 1)));
+    float s11 = getHeight(imageLoad(HeightMap, coord + ivec2(1, 1)));
+
+    // calculate the gradiant with bilinear interpolation of height differences along the edges of the cell
+    vec2 grad = vec2(mix(s10 - s00, s11 - s01, offset.y), mix(s01 - s00, s11 - s10, offset.x));
+
+    // calculate the height with bilinear interpolation of the heights of the corners of the cell
+    float height = mix(mix(s00, s10, offset.x), mix(s01, s11, offset.x), offset.y) / MapHeight;
+
+    return vec3(grad, height);
+}
+
+void main() {
+    ivec2 mapSize = imageSize(HeightMap);
+
+    vec2 a = vec2(rand(vec2(gl_GlobalInvocationID.x, Time)), rand(vec2(Time, gl_GlobalInvocationID.x)));
+
+    vec2 pos = a * mapSize; // random start position
+    vec2 dir = vec2(0, 0); // hit terrain vertically
+    float speed = startSpeed;
+    float water = startWater;
+    float sediment = 0;
+
+    // run the simulation for maxLifetime iterations
+    for (int lifetime = 0; lifetime < maxLifetime; lifetime++) {
+        ivec2 coord = ivec2(pos); // heightmap coordinates of the current cell
+
+        // offset inside the cell [(0,0), (1,1)]
+        vec2 offset = pos - vec2(coord);
+
+        // Calculate droplet's height and direction of flow with bilinear interpolation of surrounding heights
+        vec3 cell = calculateCell(coord, offset);
+        vec2 grad = cell.xy;
+        float height = cell.z;
+
+        // Update the droplet's direction and position (move position 1 unit regardless of speed)
+        dir = normalize(mix(-grad, dir, inertia));
+        pos += dir;
+        ivec2 newCoord = ivec2(pos);
+
+        // Stop simulating droplet if it's not moving or has flowed over edge of map
+        // Todo: give new random direction
+        if (dir == 0 || newCoord.x < BorderSize || newCoord.x >= mapSize.x - BorderSize ||
+                        newCoord.y < BorderSize || newCoord.y >= mapSize.y - BorderSize) {
+            break;
+        }
+
+        // calculate the height delta to the new position
+        float deltaHeight = calculateCell(newCoord, pos - vec2(newCoord)).z - height;
+
+        // calculate the sediment capacity (higher when moving fast down a slope and contains lots of water)
+        float sedimentCapacity = max(-deltaHeight * speed * water * sedimentCapacityFactor, minSedimentCapacity);
+
+        // if carrying more sediment than capacity, or if flowing uphill:
+        if (sediment > sedimentCapacity || deltaHeight > 0) {
+            // if moving uphill try to fill up to the current height, otherwise deposit a fraction of the excess sediment
+            float amountToDeposit = (deltaHeight > 0) ? min(deltaHeight, sediment) : (sediment - sedimentCapacity) * depositSpeed;
+            sediment -= amountToDeposit;
+
+            // add the sediment to the four edges of the current cell using bilinear interpolation
+            // deposition is not distributed over a radius (like erosion) so that it can fill small pits
+            imageAdd(coord,               amountToDeposit * (1 - offset.x) * (1 - offset.y));
+            imageAdd(coord + ivec2(1, 0), amountToDeposit * offset.x * (1 - offset.y));
+            imageAdd(coord + ivec2(0, 1), amountToDeposit * (1 - offset.x) * offset.y);
+            imageAdd(coord + ivec2(1, 1), amountToDeposit * offset.x * offset.y);
+        }
+        else {
+            // erode a fraction of the current carry capacity.
+            // clamp the erosion to the change in height so that it doesn't dig a hole in the terrain behind the droplet
+            float amountToErode = min((sedimentCapacity - sediment) * erodeSpeed, -deltaHeight);
+            sediment += amountToErode;
+
+            for (int i = 0; i < BrushSize; i++) {
+                ivec2 erodeCoord = coord + BrushOffsets[i];
+                float erodeAmount = amountToErode * BrushWeights[i];
+
+                imageAdd(erodeCoord, -erodeAmount);
+            }
+        }
+
+        // update speed and water
+        speed = sqrt(max(0, speed * speed + deltaHeight * gravity));
+        water *= (1 - evaporateSpeed);
+    }
+}

@@ -52,6 +52,7 @@ namespace CForge {
 			m_ScreenshotCount = 0;
 			m_FPS = 60.0f;
 			m_FPSCount = 0;
+			m_LastFPSPrint = CoreUtility::timestamp();
 		}//Constructor
 
 		~ExampleSceneBase(void) {
@@ -191,10 +192,12 @@ namespace CForge {
 
 		virtual void updateFPS(void) {
 			m_FPSCount++;
-			if (CoreUtility::timestamp() - m_LastFPSPrint > 1000U) {
+			const uint32_t UpdateInterval = 250U;
+
+			if (CoreUtility::timestamp() - m_LastFPSPrint > UpdateInterval) {
 				char Buf[64];
-				sprintf(Buf, "FPS: %d\n", m_FPSCount);
-				m_FPS = float(m_FPSCount);
+				m_FPS = float(m_FPSCount * 1000 / UpdateInterval);
+				sprintf(Buf, "FPS: %d\n", int32_t(m_FPS));		
 				m_FPSCount = 0;
 				m_LastFPSPrint = CoreUtility::timestamp();
 

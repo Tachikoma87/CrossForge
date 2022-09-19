@@ -82,6 +82,11 @@ namespace CForge {
 		m_FragmentShaderCodes.push_back(Code);
 	}//addFragmentShader
 
+    void GLShader::addComputeShader(const std::string Code) {
+        if (Code.empty()) throw CForgeExcept("Empty compute shader code specified!");
+        m_ComputeShaderCodes.push_back(Code);
+    }//addFragmentShader
+
 	void GLShader::build(std::string* pErrorLog) {
 		if (nullptr == pErrorLog) throw NullpointerExcept("pErrorLog");
 		(*pErrorLog) = std::string();
@@ -89,7 +94,41 @@ namespace CForge {
 		if (!m_ComputeShaderCodes.empty()) {
 			// this is a compute shader
 			m_ShaderType = SHADERTYPE_COMPUTE;
-			throw CForgeExcept("Compute shader not implemented yet. Sorry, Sorry!");
+
+			uint32_t ComputeShader = glCreateShader(GL_COMPUTE_SHADER);
+			int32_t Status = 0;
+
+			// compile compute shader
+			try {
+				compileShader(ComputeShader, &m_ComputeShaderCodes, pErrorLog);
+			}
+			catch (CrossForgeException& e) {
+				SLogger::logException(e);
+				(*pErrorLog) = "Exception occurred during compute shader compilation!";
+				return;
+			}
+			if (!pErrorLog->empty()) {
+				glDeleteShader(ComputeShader);
+				return;
+			}
+
+			// now link the thing
+			m_ShaderProgram = glCreateProgram();
+			glAttachShader(m_ShaderProgram, ComputeShader);
+			glLinkProgram(m_ShaderProgram);
+
+			glGetProgramiv(m_ShaderProgram, GL_LINK_STATUS, &Status);
+			if (!Status) {
+				(*pErrorLog) = infoLog(m_ShaderProgram, false);
+				glDeleteProgram(m_ShaderProgram);
+				m_ShaderProgram = 0;
+			}
+
+			// delete shader
+			glDeleteShader(ComputeShader);
+
+			return;
+			// throw CForgeExcept("Compute shader not implemented yet. Sorry, Sorry!");
 		}
 		else if (m_VertexShaderCodes.empty() || m_FragmentShaderCodes.empty()) {
 			throw CForgeExcept("Empty fragment shader codes and/or empty vertex shader codes specified! Unable to build shader.");
@@ -158,6 +197,7 @@ namespace CForge {
 			m_DefaultUBOBindingPoints[DEFAULTUBO_BONEDATA] = glGetUniformBlockIndex(m_ShaderProgram, UBOBoneDataName.c_str());
 			m_DefaultUBOBindingPoints[DEFAULTUBO_MORPHTARGETDATA] = glGetUniformBlockIndex(m_ShaderProgram, UBOMorphTargetDataName.c_str());
 			m_DefaultUBOBindingPoints[DEFAULTUBO_COLORADJUSTMENT] = glGetUniformBlockIndex(m_ShaderProgram, UBOColorAdjustmentDataName.c_str());
+			m_DefaultUBOBindingPoints[DEFAULTUBO_INSTANCE] = glGetUniformBlockIndex(m_ShaderProgram, UBOInstancedDataName.c_str());
 
 			// retrieve default texture bindign points
 			m_DefaultTextureLocations[DEFAULTTEX_ALBEDO] = uniformLocation(TextureAlbedoName);
@@ -173,7 +213,6 @@ namespace CForge {
 			for (uint8_t i = 0; i < DEFAULTUBO_COUNT; ++i) {
 				if (GL_INVALID_INDEX != m_DefaultUBOBindingPoints[i]) glUniformBlockBinding(m_ShaderProgram, m_DefaultUBOBindingPoints[i], m_DefaultUBOBindingPoints[i]);
 			}
-
 
 			unbind();
 		}//if[build draw shader]
