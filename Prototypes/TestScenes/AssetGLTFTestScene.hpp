@@ -139,18 +139,19 @@ namespace CForge {
 		//gltf testing
 		GLTFIO gltfio;
 
-		std::string gltfPath = "Assets/ExampleScenes/Helmet/DamagedHelmet";
+		std::string gltfPath = "Assets/ExampleScenes/Lantern/Lantern";
 		
 		gltfio.load(gltfPath + ".gltf", &testModel);
 		//gltfio.store(gltfPath + "_debug.gltf", &testModel);
 		//testModel.clear();
 		//gltfio.load(gltfPath + "_debug.gltf", &testModel);
 		
-		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);	
+		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);
 		testModel.computePerVertexNormals();
 		testModel.bones(&std::vector<T3DMesh<float>::Bone*>(), false);
 		Cube.init(&testModel);
 		testModel.clear();
+		
 
 		// build scene graph
 		SceneGraph SG;

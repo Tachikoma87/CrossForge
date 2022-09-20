@@ -153,6 +153,7 @@ namespace CForge {
 				auto pSubmesh = readPrimitive(&currentPrimitive);
 
 				pParentSubmesh->Children.push_back(pSubmesh);
+				pSubmesh->pParent = pParentSubmesh;
 			}
 		}
 		
@@ -1051,6 +1052,8 @@ namespace CForge {
 	}
 
 	int GLTFIO::writeTexture(const std::string path) {
+		if (path.empty()) return -1;
+		
 		std::filesystem::path texPath(path);
 
 		std::string extension = texPath.extension().string();
@@ -1804,4 +1807,6 @@ namespace CForge {
 //TODO
 /*
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen auf gleiche Keyframes
+* Funktionieren die Abhängigkeiten bei Submeshes mit ihren translation- und rotationoffsets? Es scheint nicht so.
+* Die Berechnung der per face normals schlägt fehl, weil zu große Indices verwendet werden.
 */
