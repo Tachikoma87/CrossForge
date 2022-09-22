@@ -664,64 +664,44 @@ namespace CForge {
 		for (auto m : model.meshes) {
 			for (auto p : m.primitives) {
 				for (auto t : p.targets) {
-					T3DMesh<float>::MorphTarget* pMorphtTarget = new T3DMesh<float>::MorphTarget;
+					T3DMesh<float>::MorphTarget* pMorphTarget = new T3DMesh<float>::MorphTarget;
 
-					pMorphtTarget->ID = offset_index;
+					pMorphTarget->ID = offset_index;
 
-					int32_t buff_view = -1;
+					int32_t last_index_buff_view = -1;
+
+					int32_t index_offset = 0;
+					for (int i = 0; i < offset_index; i++) index_offset += offsets[i];
 					
 					for (auto keyValuePair : t) {
+						std::vector<std::vector<float>> data;
+						std::vector<Eigen::Vector3f> attribute_offsets;
+						std::vector<int32_t> indices;
+							
+						int32_t index_buff_view = getSparseAccessorData(keyValuePair.second, &indices, &data);
+
+						//Accessor is not sparse
+						if (index_buff_view == -1) {
+							getAccessorData(keyValuePair.second, &data);
+							for (int i = 0; i < data.size(); i++) indices.push_back(i);
+						}
+
+						for (int i = 0; i < indices.size(); i++) indices[i] += index_offset;
+							
+						toVec3f(&data, &attribute_offsets);
+						
 						if (keyValuePair.first == "POSITION") {
-							std::vector<std::vector<float>> data;
-							std::vector<Eigen::Vector3f> position_offsets;
-							std::vector<int32_t> indices;
-							
-							int32_t index_buff_view = getSparseAccessorData(keyValuePair.second, &indices, &data);
-							toVec3f(&data, &position_offsets);
-							
-							pMorphtTarget->VertexOffsets = position_offsets;
-
-							if (buff_view == -1) {
-								buff_view = index_buff_view;
-								
-								int32_t offset = 0;
-								for (int i = 0; i < offset_index; i++) offset += offsets[i];
-
-								for (int i = 0; i < indices.size(); i++) indices[i] += offset;
-
-								pMorphtTarget->VertexIDs = indices;
-							}
-							else if (buff_view != index_buff_view) {
-								std::cout << "Morph target vertex indices are not in the same buffer view." << std::endl;
-							}
+							pMorphTarget->VertexOffsets = attribute_offsets;
+							pMorphTarget->VertexIDs = indices;
 						}
 						else if (keyValuePair.first == "NORMAL") {
-							std::vector<std::vector<float>> data;
-							std::vector<Eigen::Vector3f> normal_offsets;
-							std::vector<int32_t> indices;
+							pMorphTarget->NormalOffsets = attribute_offsets;
+							pMorphTarget->VertexIDs = indices;
 							
-							int32_t index_buff_view = getSparseAccessorData(keyValuePair.second, &indices, &data);
-							toVec3f(&data, &normal_offsets);
-							
-							pMorphtTarget->NormalOffsets = normal_offsets;
-
-							if (buff_view == -1) {
-								buff_view = index_buff_view;
-
-								int32_t offset = 0;
-								for (int i = 0; i < offset_index; i++) offset += offsets[i];
-
-								for (int i = 0; i < indices.size(); i++) indices[i] += offset;
-
-								pMorphtTarget->VertexIDs = indices;
-							}
-							else if (buff_view != index_buff_view) {
-								std::cout << "Morph target vertex indices are not in the same buffer view." << std::endl;
-							}
 						}
 					}
 					
-					pMesh->addMorphTarget(pMorphtTarget, false);
+					if (pMorphTarget->VertexIDs.size()) pMesh->addMorphTarget(pMorphTarget, false);
 				}
 				
 				offset_index += 1;

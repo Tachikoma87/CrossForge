@@ -158,7 +158,44 @@ class GLTFIO {
 				return;
 			}
 
-			readBuffer(buff.data.data(), acc.count, acc.byteOffset + buffView.byteOffset, 1, false, 0, pData);
+			if (acc.componentType == TINYGLTF_COMPONENT_TYPE_BYTE) {
+				std::vector<char> data;
+				
+				readBuffer(buff.data.data(), acc.count, acc.byteOffset + buffView.byteOffset, 1, false, 0, &data);
+				for (auto d : data) pData->push_back((T)d);
+				return;
+			}
+
+			if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+				std::vector<unsigned char> data;
+
+				readBuffer(buff.data.data(), acc.count, acc.byteOffset + buffView.byteOffset, 1, false, 0, &data);
+				for (auto d : data) pData->push_back((T)d);
+				return;
+			}
+
+			if (acc.componentType == TINYGLTF_COMPONENT_TYPE_SHORT) {
+				std::vector<short> data;
+
+				readBuffer(buff.data.data(), acc.count, acc.byteOffset + buffView.byteOffset, 1, false, 0, &data);
+				for (auto d : data) pData->push_back((T)d);
+				return;
+			}
+
+			if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+				std::vector<unsigned short> data;
+
+				readBuffer(buff.data.data(), acc.count, acc.byteOffset + buffView.byteOffset, 1, false, 0, &data);
+				for (auto d : data) pData->push_back((T)d);
+				return;
+			}
+
+			if (acc.componentType == TINYGLTF_COMPONENT_TYPE_INT) {
+				std::vector<int32_t> data;
+				readBuffer(buff.data.data(), acc.count, acc.byteOffset + buffView.byteOffset, 1, false, 0, &data);
+				for (auto d : data) pData->push_back((T)d);
+				return;
+			}
 		}
 
 		void getAccessorDataScalarFloat(const int accessor, std::vector<float>* pData);

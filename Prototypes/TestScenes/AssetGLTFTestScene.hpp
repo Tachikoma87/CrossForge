@@ -139,7 +139,7 @@ namespace CForge {
 		//gltf testing
 		GLTFIO gltfio;
 
-		std::string gltfPath = "Assets/ExampleScenes/Lantern/Lantern";
+		std::string gltfPath = "Assets/gltf sample models/AnimatedMorphCube/glTF/AnimatedMorphCube";
 		
 		gltfio.load(gltfPath + ".gltf", &testModel);
 		//gltfio.store(gltfPath + "_debug.gltf", &testModel);
