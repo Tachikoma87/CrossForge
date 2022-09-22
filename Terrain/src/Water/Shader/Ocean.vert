@@ -58,7 +58,7 @@ float getShoreWaveFactor(vec2 pos) {
 
 float shoreWave(float factor) {
 	float waveLength = 1.0;
-	float waveSpeed = 0.05;
+	float waveSpeed = 0.1;
 
 	float foamBuildUp = waveLength * 0.3;
 	float foamBuildDown = waveLength * 0.1;

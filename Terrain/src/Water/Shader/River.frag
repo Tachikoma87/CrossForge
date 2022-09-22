@@ -16,6 +16,7 @@ uniform sampler2D posTexture;
 uniform sampler2D normalTexture;
 uniform sampler2D foamTexture;
 uniform sampler2D foamBlendTexture;
+uniform sampler2D worldPosTexture;
 
 uniform sampler2D skyBackTexture;
 uniform sampler2D skyBotTexture;
@@ -75,7 +76,70 @@ vec3 hsv2rgb(vec3 c)
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
+vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
+	float maxDistance = 300;
+	int steps = 100;
+	float resolution = maxDistance / steps;
+	
+	vec2 tSize = textureSize(colorTexture, 0);
+	vec3 reflectDirection = normalize(reflect(normalize(POS - CAM), normal));
+	vec4 end = vec4(POS + reflectDirection * maxDistance, 1);
+	vec3 posIncrement = (end.xyz - POS) / steps;
+	
+	vec2 uv;
+	float depth;
+	float sampleDepth;
+	vec3 middlePos = POS;
+	bool hit = false;
 
+	for(int i = 0; i < steps; ++i) {
+		middlePos += posIncrement;
+		vec4 mid = Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(middlePos, 1);
+		uv = mid.xy / mid.w / 2 + 0.5;
+		posIncrement *= 1.05;
+
+		if (uv.x > 1 || uv.x < 0 || uv.y > 1 || uv.y < 0 ) {
+			return getSkyboxColor(reflectDirection);
+		}
+
+		depth = distance(middlePos, CAM);
+		
+		//float sampleDepth = distance(texture(posTexture, uv).xyz, CAM);
+		vec3 wPos = texture(worldPosTexture, uv).xyz;
+		sampleDepth = distance(CAM, wPos);
+		
+		//return vec4(sampleDepth);
+		 
+
+
+		if (sampleDepth < depth && !(wPos == vec3(0))) {
+			hit = true;
+			break;
+		}
+	}
+
+	
+
+	if (!hit) {
+			return getSkyboxColor(reflectDirection);
+	}
+	else if (sampleDepth > distance(POS, CAM)) {
+		float scaleFactor = 1;// - pow(length((uv - 0.5) * 2), 8);
+
+		float visibility = 1 - max(dot(normalize(CAM - POS), reflectDirection), 0);
+		if (scaleFactor > 0) {
+			vec4 ret = mix(getSkyboxColor(reflectDirection), texture(colorTexture, uv), visibility);// texture(colorTexture, uv), visibility);
+			ret = ret * scaleFactor;
+			ret.w = scaleFactor;
+			return ret;
+		}
+	}
+
+	return getSkyboxColor(reflectDirection);
+	
+}
+
+/*
 vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 	float maxDistance = distance(CAM, POS);
 	float resolution = lowQuality ? 8 : 2;
@@ -138,6 +202,7 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 
 	return getSkyboxColor(reflectDirection);
 }
+*/
 
 vec3 getFoamColor(float depth) {
 	float foamUVScale = 1;
@@ -213,6 +278,6 @@ void main(){
 	//gAlbedoSpec = vec4(mix(texture(normalTexture, uvCord1).xyz, texture(normalTexture, uvCord2).xyz, phaseMixValue), 1);
 
 	gColor = vec4(gColor.rgb, R);
-	gColor = vec4(0, 0, 1, 1);
+	//gColor = vec4(0, 0, 1, 1);
 	gReflection = reflectColor;
 }

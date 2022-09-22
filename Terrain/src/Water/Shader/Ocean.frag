@@ -40,38 +40,6 @@ in vec2 UVcord;
 in vec3 POS;
 in vec3 CAM;
 in float newAmplitudeScale;
-/*
-const float weights[25] = float[25](0.003765, 0.015019, 0.023792, 0.015019, 0.003765,
-									0.015019, 0.059912, 0.094907, 0.059912, 0.015019,
-									0.023792, 0.094907, 0.150342, 0.094907, 0.023792,
-									0.015019, 0.059912, 0.094907, 0.059912, 0.015019,
-									0.003765, 0.015019, 0.023792, 0.015019, 0.003765);
-									*/
-const float weights[81] = float[81](0.0000,	0.0000,	0.0000,	0.0001,	0.0001,	0.0001,	0.0000,	0.0000,	0.0000,
-									0.0000,	0.0000,	0.0004,	0.0014,	0.0023,	0.0014,	0.0004,	0.0000,	0.0000,
-									0.0000,	0.0004,	0.0037,	0.0146,	0.0232,	0.0146,	0.0037,	0.0004,	0.0000,
-									0.0001,	0.0014,	0.0146,	0.0584,	0.0926,	0.0584,	0.0146,	0.0014,	0.0001,
-									0.0001,	0.0023,	0.0232,	0.0926,	0.1466,	0.0926,	0.0232,	0.0023,	0.0001,
-									0.0001,	0.0014,	0.0146,	0.0584,	0.0926,	0.0584,	0.0146,	0.0014,	0.0001,
-									0.0000,	0.0004,	0.0037,	0.0146,	0.0232,	0.0146,	0.0037,	0.0004,	0.0000,
-									0.0000,	0.0000,	0.0004,	0.0014,	0.0023,	0.0014,	0.0004,	0.0000,	0.0000,
-									0.0000,	0.0000,	0.0000,	0.0001,	0.0001,	0.0001,	0.0000,	0.0000,	0.0000);
-
-
-vec4 sampleBluredColorBuffer(vec2 sampleUV) {
-	vec4 ret = vec4(0);
-	vec2 tSize = textureSize(colorTexture, 0);
-
-	int i = 0;
-	for (int x = -4; x <= 4; x++) {
-		for (int y = -4; y <= 4; y++) {
-			vec2 offsetUV = clamp(sampleUV + vec2(x, y) / tSize, 0, 1);
-			ret += texture(colorTexture, offsetUV) * weights[i++];
-		}
-	}
-
-	return ret;
-}
 
 vec4 getSkyboxColor(vec3 dir) {
 	vec3 absDir = abs(dir);
@@ -92,6 +60,64 @@ vec4 getSkyboxColor(vec3 dir) {
 	return vec4(1, 1, 0, 1);
 }
 
+vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
+	float maxDistance = 300;
+	int steps = 100;
+	float resolution = maxDistance / steps;
+	
+	vec2 tSize = textureSize(colorTexture, 0);
+	vec3 reflectDirection = normalize(reflect(normalize(POS - CAM), normal));
+	vec4 end = vec4(POS + reflectDirection * maxDistance, 1);
+	vec3 posIncrement = (end.xyz - POS) / steps;
+	
+	vec2 uv;
+	float depth;
+	float sampleDepth;
+	vec3 middlePos = POS;
+	bool hit = false;
+
+	for(int i = 0; i < steps; ++i) {
+		middlePos += posIncrement;
+		vec4 mid = Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(middlePos, 1);
+		uv = mid.xy / mid.w / 2 + 0.5;
+		posIncrement *= 1.05;
+
+		if (uv.x > 1 || uv.x < 0 || uv.y > 1 || uv.y < 0 ) {
+			return getSkyboxColor(reflectDirection);
+		}
+
+		depth = distance(middlePos, CAM);
+		
+		vec3 wPos = texture(worldPosTexture, uv).xyz;
+		sampleDepth = distance(CAM, wPos);
+		
+		if (sampleDepth < depth && sampleDepth + 200 > depth && !(wPos == vec3(0)) && sampleDepth > distance(POS, CAM)) {
+			hit = true;
+			break;
+		}
+	}
+
+	
+
+	if (!hit) {
+			return getSkyboxColor(reflectDirection);
+	}
+	else {
+		float scaleFactor = 1 - pow(length((uv - 0.5) * 2), 8);
+
+		float visibility = 1 - max(dot(normalize(CAM - POS), reflectDirection), 0);
+		if (scaleFactor > 0) {
+			vec4 ret = mix(getSkyboxColor(reflectDirection), texture(colorTexture, uv), visibility * scaleFactor);// texture(colorTexture, uv), visibility);
+			ret.w = scaleFactor;
+			return ret;
+		}
+	}
+
+	return getSkyboxColor(reflectDirection);
+	
+}
+
+/*
 vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 	float maxDistance = distance(CAM, POS);
 	float resolution = lowQuality ? 8 : 4;
@@ -180,7 +206,7 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 	return getSkyboxColor(reflectDirection);
 	
 }
-
+*/
 
 float getShoreWaveFactor() {
 	float maxHeight = 0.5;
@@ -207,7 +233,7 @@ float getShoreWaveFactor() {
 
 float shoreWave(float factor) {
 	float waveLength = 1.0;
-	float waveSpeed = 0.05;
+	float waveSpeed = 0.1;
 
 	float foamBuildUp = waveLength * 0.12;
 	float foamBuildDown = waveLength * 0.04;
@@ -236,13 +262,13 @@ vec3 getFoamColor(float foamFactor) {
 
 vec4 getWaterCausics(vec2 backGroundUV, float depthColorScale) {
 	float speed = 0.05;
-	float uvScale = 0.075 * (lowQuality ? 1 : 0.25);
+	float uvScale = 0.01;
 	vec2 wPos = texture(worldPosTexture, backGroundUV).xz;
 	vec2 causticsUV1 = wPos * uvScale + vec2(time * speed / 4) + normalize(wPos) * speed * time;
 	vec2 causticsUV2 = wPos * uvScale + vec2(-time * speed / 4) + normalize(wPos) * speed * time;
-
 	return mix(texture(waterCausticsTexture, causticsUV1), texture(waterCausticsTexture, causticsUV2), 0.5) * clamp((3 - depthColorScale * 4), 0, 1);
 }
+
 
 void main(){
 	vec3 screenUV = vec3(gl_FragCoord.xy / textureSize(colorTexture, 0), gl_FragCoord.z);

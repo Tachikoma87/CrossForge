@@ -63,6 +63,7 @@ public:
 		int depthT = mPoolShader->uniformLocation("depthTexture");
 		int posT = mPoolShader->uniformLocation("posTexture");
 		int normalT = mPoolShader->uniformLocation("normalTexture");
+		int worldPosT = mPoolShader->uniformLocation("worldPosTexture");
 
 		int backT = mPoolShader->uniformLocation("skyBackTexture");
 		int botT = mPoolShader->uniformLocation("skyBotTexture");
@@ -76,13 +77,14 @@ public:
 		glUniform1i(depthT, 2);
 		glUniform1i(posT, 3);
 		glUniform1i(normalT, 4);
+		glUniform1i(worldPosT, 5);
 
-		glUniform1i(backT, 5);
-		glUniform1i(botT, 6);
-		glUniform1i(frontT, 7);
-		glUniform1i(leftT, 8);
-		glUniform1i(rightT, 9);
-		glUniform1i(topT, 10);
+		glUniform1i(backT, 6);
+		glUniform1i(botT, 7);
+		glUniform1i(frontT, 8);
+		glUniform1i(leftT, 9);
+		glUniform1i(rightT, 10);
+		glUniform1i(topT, 11);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, mPoolDUDVTexture);
@@ -94,9 +96,11 @@ public:
 		glBindTexture(GL_TEXTURE_2D, mPositionTexture);
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_2D, mPoolNormalTexture);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, mPositionTexture);
 
 		for (int i = 0; i < 6; i++) {
-			glActiveTexture(GL_TEXTURE5 + i);
+			glActiveTexture(GL_TEXTURE6 + i);
 			glBindTexture(GL_TEXTURE_2D, mSkyboxTextures[i]);
 		}
 
@@ -126,6 +130,7 @@ public:
 		int normalT = mStreamShader->uniformLocation("normalTexture");
 		int foamT = mStreamShader->uniformLocation("foamTexture");
 		int foamBlendT = mStreamShader->uniformLocation("foamBlendTexture");
+		int worldPosT = mStreamShader->uniformLocation("worldPosTexture");
 
 		int backT = mStreamShader->uniformLocation("skyBackTexture");
 		int botT = mStreamShader->uniformLocation("skyBotTexture");
@@ -141,13 +146,14 @@ public:
 		glUniform1i(normalT, 4);
 		glUniform1i(foamT, 5);
 		glUniform1i(foamBlendT, 6);
+		glUniform1i(worldPosT, 7);
 
-		glUniform1i(backT, 7);
-		glUniform1i(botT, 8);
-		glUniform1i(frontT, 9);
-		glUniform1i(leftT, 10);
-		glUniform1i(rightT, 11);
-		glUniform1i(topT, 12);
+		glUniform1i(backT, 8);
+		glUniform1i(botT, 9);
+		glUniform1i(frontT, 10);
+		glUniform1i(leftT, 11);
+		glUniform1i(rightT, 12);
+		glUniform1i(topT, 13);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, mPoolDUDVTexture);
@@ -163,9 +169,11 @@ public:
 		glBindTexture(GL_TEXTURE_2D, mFoamTexture);
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, mFoamBlendTexture);
+		glActiveTexture(GL_TEXTURE7);
+		glBindTexture(GL_TEXTURE_2D, mPositionTexture);
 
 		for (int i = 0; i < 6; i++) {
-			glActiveTexture(GL_TEXTURE7 + i);
+			glActiveTexture(GL_TEXTURE8 + i);
 			glBindTexture(GL_TEXTURE_2D, mSkyboxTextures[i]);
 		}
 

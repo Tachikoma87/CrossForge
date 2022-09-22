@@ -18,5 +18,5 @@ void main(){
 
 	gColor = mix(rColor, bColor, bColor.a);
 	gColor = vec4(gColor.rgb, 1);
-	gColor = vec4(0, 0, 1, 1);
+	//gColor = vec4(0, 0, 1, 1);
 }

@@ -739,7 +739,7 @@ namespace Terrain {
                 window.keyboard()->keyState(Keyboard::KEY_L, Keyboard::KEY_RELEASED);
 
                 //waterManager.trySpawnLake((int)(camera.position().z() + map.getMapSize().y() / 2)* map.getMapSize().x() + (int)(camera.position().x() + map.getMapSize().x() / 2.0));
-                waterManager.trySpawnLakes(75 * settingSizeScale);
+                waterManager.trySpawnLakes(25 * settingSizeScale);
 
                 waterManager.updateTextures();
                 oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),

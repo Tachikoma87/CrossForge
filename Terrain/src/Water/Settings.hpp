@@ -9,3 +9,5 @@ float settingSizeScale = (lowQuality ? 1 : (maximumQuality ? 16 : 4));
 
 
 
+
+
