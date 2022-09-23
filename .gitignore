@@ -4,6 +4,7 @@ out/
 Documentation/Doc/
 Libraries/
 MyAssets/
+Assets/autorig
 
 # Prerequisites
 *.d

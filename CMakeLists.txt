@@ -165,12 +165,15 @@ add_executable(CForgeSandbox
 	Prototypes/Misc/IMUCameraController.cpp
 
 	Prototypes/Assets/GLTFSDKIO.cpp
+	
+	Prototypes/AutoRig.cpp
 	)
 
 
 if(WIN32)
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
+	PRIVATE Pinocchio
 	PRIVATE glfw 
 	${OpenCV_LIBS}
 	ws2_32
@@ -180,6 +183,7 @@ endif (WIN32)
 if(UNIX)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
+		PRIVATE Pinocchio
 		PRIVATE glfw 
 		PRIVATE assimp::assimp
 		${OpenCV_LIBS}
@@ -223,3 +227,23 @@ add_executable(ExportLibrary
 
 target_link_libraries(ExportLibrary
 	PRIVATE crossforge)
+	
+
+add_library(Pinocchio SHARED
+	thirdparty/Pinocchio/refinement.cpp
+	thirdparty/Pinocchio/attachment.cpp
+	thirdparty/Pinocchio/pinocchioApi.cpp
+	thirdparty/Pinocchio/Pinocchio.cpp
+	thirdparty/Pinocchio/discretization.cpp
+	thirdparty/Pinocchio/mesh.cpp
+	thirdparty/Pinocchio/embedding.cpp
+	thirdparty/Pinocchio/graphutils.cpp
+	thirdparty/Pinocchio/matrix.cpp
+	thirdparty/Pinocchio/lsqSolver.cpp
+	thirdparty/Pinocchio/indexer.cpp
+	thirdparty/Pinocchio/intersector.cpp
+	thirdparty/Pinocchio/skeleton.cpp
+)
+target_include_directories(Pinocchio PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/Pinocchio")
+set_property(TARGET Pinocchio PROPERTY CXX_STANDARD 98)
+add_compile_definitions(PINOCCHIO_EXPORTS)

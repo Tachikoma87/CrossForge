@@ -6,6 +6,9 @@
 
 #endif
 
+// Pinocchio needed for deprecated functions
+#define _HAS_AUTO_PTR_ETC 1
+
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
 
@@ -21,6 +24,8 @@
 #include "Prototypes/TestScenes/SocketTestScene.hpp"
 #include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
 #include "Prototypes/TestScenes/SkyboxTestScene.hpp"
+
+#include "Prototypes/TestScenes/AutoRiggingTestScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -59,14 +64,14 @@ int main(int argc, char* argv[]) {
 		//exampleMorphTargetAnimation(); 
 		//shadowTest();
 		//vertexColorTestScene();
-		forestTestScene();
+		//forestTestScene();
 		//skelAnimTestScene();
 
 		//imuInputDeviceTestScene();
 		//socketTestScene();
 		//assetGLTFTestScene();
 		//skyboxTestScene();
-
+		autoRiggingTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
