@@ -46,7 +46,7 @@ namespace CForge {
 			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
 
 			// initialize sun (key light) and back ground light (fill light)
-			Vector3f SunPos = Vector3f(-25.0f, 150.0f, 200.0f);
+			Vector3f SunPos = Vector3f(-55.0f, 50.0f, 50.0f);
 			Vector3f SunLookAt = Vector3f(0.0f, 0.0f, -30.0f);
 			Vector3f BGLightPos = Vector3f(0.0f, 5.0f, 60.0f);
 			m_Sun.init(SunPos, (SunLookAt - SunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 14.0f);
@@ -189,6 +189,10 @@ namespace CForge {
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 				m_SG.render(&m_RenderDev);
 
+				/*m_RenderDev.cameraUBO()->position(m_Sun.position());
+				m_RenderDev.cameraUBO()->projectionMatrix(m_Sun.projectionMatrix());
+				m_RenderDev.cameraUBO()->viewMatrix(m_Sun.viewMatrix());*/
+
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 				m_SG.render(&m_RenderDev);
 
@@ -208,6 +212,12 @@ namespace CForge {
 					Img.clear();
 
 					ScreenshotCount++;
+				}
+
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F3, true)) {
+					T2DImage<uint8_t> Img;
+					m_Sun.retrieveDepthBuffer(&Img);
+					AssetIO::store("../../SunDepthbuffer.jpg", &Img);
 				}
 
 				m_RenderWin.swapBuffers();

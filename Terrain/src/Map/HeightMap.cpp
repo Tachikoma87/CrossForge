@@ -9,10 +9,18 @@ float randf() {
     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
 
+
+
 namespace Terrain {
+
+    float lerp(float x, float y, float alpha) {
+        return x + alpha * (y - x);
+    }
+
     HeightMap::HeightMap() : mTexture(), mHeights() {
         initShader();
     }
+
 
     void HeightMap::generate(HeightMapConfig config) {
         mConfig = config;
@@ -150,6 +158,7 @@ namespace Terrain {
         float s10 = mHeights[coord_x + mConfig.height * coord_y + 1];
         float s01 = mHeights[coord_x + mConfig.height * (coord_y + 1)];
         float s11 = mHeights[coord_x + mConfig.height * (coord_y + 1) + 1];
+
 
         float height = lerp(lerp(s00, s10, offset_x), lerp(s01, s11, offset_x), offset_y);
 

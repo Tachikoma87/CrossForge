@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 		//exampleSkybox();
 		//exampleSockets();
 	
-		//forestTestScene();	
+		//forestTestScene();
 		//imuInputDeviceTestScene();	 
 		//skelAnimTestScene();
 		//shadowTest();	

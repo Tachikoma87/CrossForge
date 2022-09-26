@@ -180,6 +180,7 @@ namespace CForge {
 				}
 			}//for[shadow casting lights]
 
+
 			// set active light
 			if (m_pActiveShadowLight != nullptr) {
 				uint32_t ActiveLightID = m_pActiveShader->uniformLocation("ActiveLightID");

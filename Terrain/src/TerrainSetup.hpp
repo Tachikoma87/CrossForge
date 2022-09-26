@@ -422,14 +422,19 @@ public:
             const float persistance = *((float*)Msg.Data.at(GUI_TERRAIN_PERSISTANCE).pData);
             const float lacunarity = *((float*)Msg.Data.at(GUI_TERRAIN_LACUNARITY).pData);
             const float height = *((float*)Msg.Data.at(GUI_TERRAIN_HEIGHT).pData);
-            noiseConfig = {
-                .seed = seed == 0 ? static_cast<uint32_t>(rand()) : seed,
-                .scale = scale,
-                .octaves = static_cast<uint32_t>(octaves),
-                .persistence = persistance,
-                .lacunarity = lacunarity};
-            heightMapConfig = {.width = 1024, .height = 1024,
-                .mapHeight = height, .noiseConfig = noiseConfig};
+
+
+            noiseConfig.seed = (seed == 0) ? static_cast<uint32_t>(rand()) : seed;
+            noiseConfig.scale = scale;
+            noiseConfig.octaves = static_cast<uint32_t>(octaves);
+            noiseConfig.persistence = persistance;
+            noiseConfig.lacunarity = lacunarity;
+
+            heightMapConfig.width = 1024;
+            heightMapConfig.height = 1024;
+            heightMapConfig.mapHeight = height;
+            heightMapConfig.noiseConfig = noiseConfig;
+
             mapPointer->generateHeightMap(heightMapConfig);
             placeDekoElements(*mapPointer, *piPineActor, *piPineLeavesActor, *piTreeActor, *piTreeLeavesActor, *piPalmActor, *piPalmLeavesActor, *piRockActor, *piBushActor);
             //iPineActor.init(&PineMesh);
@@ -450,6 +455,17 @@ public:
 
     TerrainSetup() {
 
+        noiseConfig.seed = static_cast<uint32_t>(rand());
+        noiseConfig.scale = 1.0f;
+        noiseConfig.octaves = 10;
+        noiseConfig.persistence = 0.5f;
+        noiseConfig.lacunarity = 2.0f;
+
+        heightMapConfig.width = 1024 / 1;
+        heightMapConfig.height = 1024 / 1;
+        heightMapConfig.mapHeight = 400;
+        heightMapConfig.noiseConfig = noiseConfig;
+
 		SLOD* pSLOD = SLOD::instance();
 		
 		if (!LOD) {
@@ -468,7 +484,9 @@ public:
         SGNTransformation rootTransform;
         rootTransform.init(nullptr);
 		//ClipMap::ClipMapConfig clipMapConfig = { .sideLength = 16, .levelCount = 5 };
-		ClipMap::ClipMapConfig clipMapConfig = {.sideLength = 4, .levelCount = 6};
+		ClipMap::ClipMapConfig clipMapConfig;
+        clipMapConfig.sideLength = 4;
+        clipMapConfig.levelCount = 6;
 		//ClipMap::ClipMapConfig clipMapConfig = { .sideLength = 128, .levelCount = 5 };
 
         TerrainMap map = TerrainMap(&rootTransform);
@@ -842,19 +860,26 @@ public:
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F3)) {
                 window.keyboard()->keyState(Keyboard::KEY_F3, Keyboard::KEY_RELEASED);
-                clipMapConfig = {.sideLength = 256, .levelCount = 5};
+                clipMapConfig.sideLength = 256;
+                clipMapConfig.levelCount = 5;
 
                 map.generateClipMap(clipMapConfig);
             }
             if (window.keyboard()->keyPressed(Keyboard::KEY_F4)) {
                 window.keyboard()->keyState(Keyboard::KEY_F4, Keyboard::KEY_RELEASED);
-                noiseConfig = {.seed = static_cast<uint32_t>(rand()),
-                    .scale = 1.0f,
-                    .octaves = 10,
-                    .persistence = 0.5f,
-                    .lacunarity = 2.0f};
-                heightMapConfig = {.width = 1024 / 1, .height = 1024 / 1,
-                    .mapHeight = 400, .noiseConfig = noiseConfig};
+
+                noiseConfig.seed = static_cast<uint32_t>(rand());
+                noiseConfig.scale = 1.0f;
+                noiseConfig.octaves = 10;
+                noiseConfig.persistence = 0.5f;
+                noiseConfig.lacunarity = 2.0f;
+
+                heightMapConfig.width = 1024 / 1;
+                heightMapConfig.height = 1024 / 1;
+                heightMapConfig.mapHeight = 400;
+                heightMapConfig.noiseConfig = noiseConfig;
+                
+
                 map.generateHeightMap(heightMapConfig);
                 placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor);
                 //iPineActor.init(&PineMesh);
@@ -1001,13 +1026,8 @@ private:
 	bool sunAuto = false;
 	
     TerrainMap* mapPointer;
-    HeightMap::NoiseConfig noiseConfig = {.seed = static_cast<uint32_t>(rand()),
-        .scale = 1.0f,
-        .octaves = 10,
-        .persistence = 0.5f,
-        .lacunarity = 2.0f};
-    HeightMap::HeightMapConfig heightMapConfig = {.width = 1024 / 1 , .height = 1024 / 1,
-                                                  .mapHeight = 400, .noiseConfig = noiseConfig};
+    HeightMap::NoiseConfig noiseConfig;
+    HeightMap::HeightMapConfig heightMapConfig;
     LODActor* piPineActor;
     LODActor* piPineLeavesActor;
     LODActor* piPalmActor;
