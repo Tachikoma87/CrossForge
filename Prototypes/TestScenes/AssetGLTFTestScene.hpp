@@ -139,12 +139,14 @@ namespace CForge {
 		//gltf testing
 		GLTFIO gltfio;
 
-		std::string gltfPath = "Assets/gltf sample models/AnimatedMorphCube/glTF/AnimatedMorphCube";
+		std::string name = "AntiqueCamera";
+
+		std::string gltfPath = "Assets/gltf sample models/" + name + "/glTF/" + name;
 		
 		gltfio.load(gltfPath + ".gltf", &testModel);
-		//gltfio.store(gltfPath + "_debug.gltf", &testModel);
-		//testModel.clear();
-		//gltfio.load(gltfPath + "_debug.gltf", &testModel);
+		gltfio.store(gltfPath + "_debug.gltf", &testModel);
+		testModel.clear();
+		gltfio.load(gltfPath + "_debug.gltf", &testModel);
 		
 		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);
 		testModel.computePerVertexNormals();

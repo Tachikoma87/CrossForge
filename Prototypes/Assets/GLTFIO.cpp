@@ -170,7 +170,6 @@ namespace CForge {
 		pMesh->normals(pNormal);
 		pMesh->tangents(pTangent);
 		pMesh->textureCoordinates(pTexCoord);
-		pMesh->textureCoordinates(pTexCoord);
 	}
 
 	T3DMesh<float>::Submesh* GLTFIO::readPrimitive(Primitive* pPrimitive) {
@@ -384,41 +383,13 @@ namespace CForge {
 		return pSubMesh;
 	}
 
-	void GLTFIO::readIndices(const int accessorIndex, std::vector<int>* pIndices) {
-		Accessor acc = model.accessors[accessorIndex];
-		
-		if (acc.componentType == TINYGLTF_COMPONENT_TYPE_INT) {
-			getAccessorDataScalar(accessorIndex, pIndices);
-		}
-		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_BYTE) {
-			std::vector<char> data;
-			getAccessorDataScalar(accessorIndex, &data);
-			for (auto i : data) pIndices->push_back((int) i);
-		}
-		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
-			std::vector<unsigned char> data;
-			getAccessorDataScalar(accessorIndex, &data);
-			for (auto i : data) pIndices->push_back((int)i);
-		}
-		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_SHORT) {
-			std::vector<short> data;
-			getAccessorDataScalar(accessorIndex, &data);
-			for (auto i : data) pIndices->push_back((int)i);
-		}
-		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
-			std::vector<unsigned short> data;
-			getAccessorDataScalar(accessorIndex, &data);
-			for (auto i : data) pIndices->push_back((int)i);
-		}
-	}
-
 	void GLTFIO::readFaces(Primitive* pPrimitive, std::vector<T3DMesh<float>::Face>* faces) {
 		int accessorIndex = pPrimitive->indices;
 
 		std::vector<int> indices;
-		readIndices(accessorIndex, &indices);
+		getAccessorDataScalar(accessorIndex, &indices);
 
-		unsigned long offset = 0;
+		int offset = 0;
 		for (int i = 0; i < offsets.size() - 1; i++) offset += offsets[i];
 
 		if (pPrimitive->mode == TINYGLTF_MODE_TRIANGLES) {
@@ -801,11 +772,6 @@ namespace CForge {
 		//Every texture will use this basic sampler.
 		Sampler gltfSampler;
 
-		gltfSampler.magFilter = TINYGLTF_TEXTURE_FILTER_LINEAR;
-		gltfSampler.minFilter = TINYGLTF_TEXTURE_FILTER_LINEAR;
-		gltfSampler.wrapS = TINYGLTF_TEXTURE_WRAP_REPEAT;
-		gltfSampler.wrapT = TINYGLTF_TEXTURE_WRAP_REPEAT;
-
 		model.samplers.push_back(gltfSampler);
 
 		model.asset.version = "2.0";
@@ -852,9 +818,9 @@ namespace CForge {
 		weight.clear();
 
 		int32_t min = -1;
-		int32_t max = -1;
+		int32_t max = 0;
 
-		std::vector<int32_t> indices;
+		std::vector<unsigned short> indices;
 
 		bool values_found = false;
 
@@ -1098,16 +1064,26 @@ namespace CForge {
 			}
 
 			model.nodes.push_back(newNode);
-			scene.nodes.push_back(i);
 		}
 
 		//Do a second pass to set node children.
+		std::vector<int> allChildren;
 
 		for (int i = 0; i < model.nodes.size(); i++) {
 			auto pSubmesh = pCMesh->getSubmesh(i);
 
 			for (auto c : pSubmesh->Children) {
-				model.nodes[i].children.push_back(submeshMap[c]);
+				int childNode = submeshMap[c];
+				
+				allChildren.push_back(childNode);
+				model.nodes[i].children.push_back(childNode);
+			}
+		}
+		
+		//Find root nodes.
+		for (int i = 0; i < model.nodes.size(); i++) {
+			if (std::find(allChildren.begin(), allChildren.end(), i) == allChildren.end()) {
+				scene.nodes.push_back(i);
 			}
 		}
 
@@ -1125,31 +1101,61 @@ namespace CForge {
 
 			if (first_index >= min && first_index <= max) {
 				//Morph target affects current primitve
-				
+
 				int mesh_index = model.meshes.size() - 1;
 				int primitve_index = model.meshes[mesh_index].primitives.size() - 1;
 
 				Primitive* pCurrentPrimitive = &model.meshes[mesh_index].primitives[primitve_index];
-
+				
 				std::map<std::string, int> targetMap;
-
-				std::vector<int32_t>* pIndices;
 				std::vector<std::vector<float>> data;
 
-				fromVec3f(&pTarget->VertexOffsets, &data);
+				if (pTarget->VertexIDs.size() < coord.size()) {
+					std::vector<int32_t>* pIndices;
 
-				int accessor_index = writeSparseAccessorData(0, TINYGLTF_TYPE_VEC3, 
-					&pTarget->VertexIDs, &data);
-				targetMap.emplace("POSITION", accessor_index);
+					if (pTarget->VertexOffsets.size()) {
+						fromVec3f(&pTarget->VertexOffsets, &data);
 
-				data.clear();
-				fromVec3f(&pTarget->NormalOffsets, &data);
+						int accessor_index = writeSparseAccessorData(0, TINYGLTF_TYPE_VEC3,
+							&pTarget->VertexIDs, &data);
+						targetMap.emplace("POSITION", accessor_index);
 
-				accessor_index = writeSparseAccessorData(0, TINYGLTF_TYPE_VEC3,
-					nullptr, &data);
-				targetMap.emplace("NORMAL", accessor_index);
+						data.clear();
+					}
+					
+					if (pTarget->NormalOffsets.size()) {
+						fromVec3f(&pTarget->NormalOffsets, &data);
 
-				pCurrentPrimitive->targets.push_back(targetMap);
+						int accessor_index = writeSparseAccessorData(0, TINYGLTF_TYPE_VEC3,
+							nullptr, &data);
+						targetMap.emplace("NORMAL", accessor_index);
+					}
+				}
+				else {
+					if (pTarget->VertexOffsets.size()) {
+						fromVec3f(&pTarget->VertexOffsets, &data);
+						
+						writeAccessorData(0, TINYGLTF_TYPE_VEC3, &data);
+						int accessor_index = model.accessors.size() - 1;
+						
+						targetMap.emplace("POSITION", accessor_index);
+
+						data.clear();
+					}
+
+					if (pTarget->NormalOffsets.size()) {
+						fromVec3f(&pTarget->NormalOffsets, &data);
+						
+						writeAccessorData(0, TINYGLTF_TYPE_VEC3, &data);
+						int accessor_index = model.accessors.size() - 1;
+
+						targetMap.emplace("NORMAL", accessor_index);
+					}
+				}
+
+				if (targetMap.size()) {
+					pCurrentPrimitive->targets.push_back(targetMap);
+				}
 
 				return;
 			}
@@ -1527,7 +1533,7 @@ namespace CForge {
 			index_buffer_view.byteStride = 0;
 
 			accessor.sparse.indices.bufferView = model.bufferViews.size();
-			accessor.sparse.indices.componentType = TINYGLTF_COMPONENT_TYPE_INT;
+			accessor.sparse.indices.componentType = TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT;
 
 			model.bufferViews.push_back(index_buffer_view);
 

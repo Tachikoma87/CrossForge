@@ -115,6 +115,8 @@ class GLTFIO {
 #pragma region accessor_read
 		template<class T>
 		void readBuffer(unsigned char* pBuffer, const int element_count, const int offset, const int component_count, const bool is_matrix, const int stride, std::vector<T>* pData) {
+			pData->reserve(element_count * component_count);
+
 			T* raw_data = (T*)pBuffer;
 
 			int type_size = sizeof(T);
@@ -140,7 +142,8 @@ class GLTFIO {
 				for (int i = 0; i < element_count; i++) {
 					int index = offset / type_size + i * (component_count + stride / type_size);
 					for (int k = 0; k < component_count; k++) {
-						pData->push_back(raw_data[index + k]);
+						T tmp = raw_data[index + k];
+						pData->push_back(tmp);
 					}
 				}
 				
@@ -184,7 +187,7 @@ class GLTFIO {
 
 			if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
 				std::vector<unsigned short> data;
-
+				
 				readBuffer(buff.data.data(), acc.count, acc.byteOffset + buffView.byteOffset, 1, false, 0, &data);
 				for (auto d : data) pData->push_back((T)d);
 				return;
@@ -192,6 +195,15 @@ class GLTFIO {
 
 			if (acc.componentType == TINYGLTF_COMPONENT_TYPE_INT) {
 				std::vector<int32_t> data;
+				
+				readBuffer(buff.data.data(), acc.count, acc.byteOffset + buffView.byteOffset, 1, false, 0, &data);
+				for (auto d : data) pData->push_back((T)d);
+				return;
+			}
+
+			if (acc.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+				std::vector<float> data;
+				
 				readBuffer(buff.data.data(), acc.count, acc.byteOffset + buffView.byteOffset, 1, false, 0, &data);
 				for (auto d : data) pData->push_back((T)d);
 				return;
@@ -324,6 +336,8 @@ class GLTFIO {
 			bufferView.buffer = bufferIndex;
 			bufferView.byteLength = pData->size() * sizeof(T);
 
+			bufferView.target = TINYGLTF_TARGET_ARRAY_BUFFER;
+
 			model.bufferViews.push_back(bufferView);
 
 			writeBuffer(&pBuffer->data, bufferView.byteOffset + accessor.byteOffset, 
@@ -381,6 +395,8 @@ class GLTFIO {
 			bufferView.byteLength = pData->size() * sizeof(T) * componentCount(type);
 			bufferView.byteStride = 0;
 
+			bufferView.target = TINYGLTF_TARGET_ELEMENT_ARRAY_BUFFER;
+
 			model.bufferViews.push_back(bufferView);
 
 			bool is_matrix = componentIsMatrix(type);
@@ -404,8 +420,6 @@ class GLTFIO {
 		void readAttributes(tinygltf::Primitive* pPrimitive);
 
 		T3DMesh<float>::Submesh* readSubMeshes(tinygltf::Primitive* pPrimitive);
-		
-		void readIndices(const int accessorIndex, std::vector<int>* pIndices);
 
 		void readFaces(tinygltf::Primitive* pPrimitive, std::vector<T3DMesh<float>::Face>* faces);
 
