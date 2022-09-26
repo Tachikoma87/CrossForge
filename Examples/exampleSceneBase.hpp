@@ -124,8 +124,7 @@ namespace CForge {
 			Config.pAttachedWindow = &m_RenderWin;
 			Config.PhysicallyBasedShading = true;
 			Config.UseGBuffer = true;
-			m_RenderDev.init(&Config);
-
+			
 			// configure and initialize shader configuration device
 			ShaderCode::LightConfig LC;
 			LC.DirLightCount = 1;
@@ -135,6 +134,8 @@ namespace CForge {
 			LC.ShadowBias = 0.00001f;
 			LC.ShadowMapCount = 1;
 			m_pShaderMan->configShader(LC);
+
+			m_RenderDev.init(&Config);
 
 			ShaderCode::PostProcessingConfig PPC;
 			PPC.Exposure = 1.0f;
@@ -155,6 +156,7 @@ namespace CForge {
 			Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -30.0f);
 			m_Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
 			// sun will cast shadows
+			//m_Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(50.0f, 50.0f, 0.1f, 1000.0f));
 			m_Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
 			m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
 
@@ -252,6 +254,7 @@ namespace CForge {
 				std::string ScreenshotURI = "Screenshot_" + std::to_string(m_ScreenshotCount++) + ".webp";
 				takeScreenshot(ScreenshotURI);
 			}
+
 
 			if (pKeyboard->keyPressed(Keyboard::KEY_ESCAPE)) {
 				m_RenderWin.closeWindow();

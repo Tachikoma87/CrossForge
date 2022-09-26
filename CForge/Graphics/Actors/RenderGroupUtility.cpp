@@ -151,6 +151,11 @@ namespace CForge {
 					ConfigOptions |= ShaderCode::CONF_NORMALMAPPING;
 				}
 
+				// requires lighting? (currently using name of shader, that is not very clean and clever, change later)
+				if (k.find("Shadow") != std::string::npos) {
+					ConfigOptions |= ShaderCode::CONF_LIGHTING;
+				}
+
 				ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp");
 
 				if (pMesh->boneCount() > 0) {
