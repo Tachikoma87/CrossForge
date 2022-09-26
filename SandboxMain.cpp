@@ -56,17 +56,16 @@ int main(int argc, char* argv[]) {
 	}
 
 
-
-
 	try {
 		//exampleSceneBase();
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
-		//exampleMultiViewport();
+		exampleMultiViewport();
 		//exampleSkeletalAnimation(); 
 		//exampleSkybox();
 		//exampleSockets();
 	
+
 		//forestTestScene();
 		//imuInputDeviceTestScene();	 
 		//skelAnimTestScene();
@@ -74,8 +73,9 @@ int main(int argc, char* argv[]) {
 		//surfaceSamplerTestScene();
 		//vertexColorTestScene();
 
-		GUITestScene S;
-		S.guiTestScene();
+		//GUITestScene S;
+		//S.guiTestScene();
+
 		
 	}
 	catch (const CrossForgeException & e) {
