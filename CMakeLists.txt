@@ -11,21 +11,29 @@ ENDIF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 # CrossForge library
 project(crossforge VERSION 0.1 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # create required directories
 file(MAKE_DIRECTORY "MyAssets")
 file(MAKE_DIRECTORY "Prototypes/Shader")
 
-FIND_PACKAGE(OpenGL REQUIRED)
-FIND_PACKAGE(Freetype REQUIRED)
-FIND_PACKAGE(assimp CONFIG REQUIRED)
-FIND_PACKAGE(glfw3 CONFIG REQUIRED)
-FIND_PACKAGE(OpenCV CONFIG REQUIRED)
-FIND_PACKAGE(libigl CONFIG REQUIRED)
-FIND_PACKAGE(glad CONFIG REQUIRED)
-FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)
+# required core packages
+FIND_PACKAGE(OpenGL REQUIRED)		# OpenGl core library
+FIND_PACKAGE(glad CONFIG REQUIRED)	# GL extension library
+FIND_PACKAGE(glfw3 CONFIG REQUIRED)	# cross-plattform window management
+FIND_PACKAGE(assimp CONFIG REQUIRED)# Asset import library (and partially export)
+FIND_PACKAGE(Freetype REQUIRED)		# Library to load and process vector based fonts
+FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
+
+FIND_PACKAGE(OpenCV CONFIG REQUIRED)	# Open computer vision library
+FIND_PACKAGE(libigl CONFIG REQUIRED)	# mesh processing library
+
+
+include_directories(
+	"${OpenCV_INCLUDE_DIRS}"
+	"${FREETYPE_INCLUDE_DIRS}"
+)
 
 #enable edit and continue and hot reload (Visual Studio 2022)
 #if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -34,12 +42,6 @@ FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)
 #	set(CMAKE_SHARED_LINKER_FLAGS "/SAFESEH:NO")
 #	set(CMAKE_EXE_LINKER_FLAGS "/SAFESEH:NO")
 #endif()
-
-include_directories(
-	#"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
-	"${OpenCV_INCLUDE_DIRS}"
-	"${FREETYPE_INCLUDE_DIRS}"
-)
 
 add_library(crossforge SHARED
 	# GLAD
@@ -137,7 +139,7 @@ add_library(crossforge SHARED
 	CForge/Internet/UDPSocket.cpp
 	CForge/Internet/TCPSocket.cpp
  )
-set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
+#set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
 if(WIN32)
 	add_compile_definitions(CFORGE_EXPORTS)
@@ -150,10 +152,10 @@ endif(UNIX)
 if(WIN32)
 target_link_libraries(crossforge 
 	PRIVATE glfw 
+	PRIVATE glad::glad
 	PRIVATE assimp::assimp
 	PRIVATE igl::core 
 	PRIVATE igl::common
-	PRIVATE glad::glad
 	${OpenCV_LIBS}
 	ws2_32			#winsock2
 	)
