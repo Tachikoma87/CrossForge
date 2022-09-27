@@ -78,5 +78,5 @@ private:
     AttachmentPrivate *a;
 };
 
-#endif
 }
+#endif

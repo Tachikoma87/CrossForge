@@ -174,6 +174,7 @@ if(WIN32)
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
 	PRIVATE Pinocchio
+	PRIVATE PinocchioTools
 	PRIVATE glfw 
 	${OpenCV_LIBS}
 	ws2_32
@@ -184,6 +185,7 @@ if(UNIX)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
 		PRIVATE Pinocchio
+		PRIVATE PinocchioTools
 		PRIVATE glfw 
 		PRIVATE assimp::assimp
 		${OpenCV_LIBS}
@@ -247,3 +249,14 @@ add_library(Pinocchio SHARED
 target_include_directories(Pinocchio PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/Pinocchio")
 set_property(TARGET Pinocchio PROPERTY CXX_STANDARD 98)
 add_compile_definitions(PINOCCHIO_EXPORTS)
+
+# bridge lib for convertig crossforge <-> pinocchio
+add_library(PinocchioTools SHARED
+	thirdparty/PinocchioTools/PinocchioTools.cpp
+)
+target_include_directories(PinocchioTools PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/PinocchioTools")
+set_property(TARGET PinocchioTools PROPERTY CXX_STANDARD 98)
+target_link_libraries(PinocchioTools
+	PRIVATE crossforge
+	PRIVATE Pinocchio
+)

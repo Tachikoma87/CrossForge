@@ -270,13 +270,15 @@ namespace CForge {
 
 				for (size_t i = 0; i < pBones->size(); ++i) {
 					// copy data
-					m_Bones[i]->ID = i;
+					m_Bones[i]->Name = pBones->at(i)->Name;
+					m_Bones[i]->ID = pBones->at(i)->ID;
 					m_Bones[i]->Position = pBones->at(i)->Position;
 					m_Bones[i]->OffsetMatrix = pBones->at(i)->OffsetMatrix;
 					m_Bones[i]->VertexInfluences = pBones->at(i)->VertexInfluences;
 					m_Bones[i]->VertexWeights = pBones->at(i)->VertexWeights;
 					// create links
-					m_Bones[i]->pParent = m_Bones[pBones->at(i)->pParent->ID];
+					if (pBones->at(i)->pParent)
+						m_Bones[i]->pParent = m_Bones[pBones->at(i)->pParent->ID];
 					for (size_t k = 0; k < pBones->at(i)->Children.size(); ++k) {
 						m_Bones[i]->Children.push_back(m_Bones[pBones->at(i)->Children[k]->ID]);
 					}//for[children]

@@ -150,9 +150,9 @@ namespace CForge {
 			if (cSN) {
 				cSN->endeffector = true;
 				graphEF.push_back(cSN);
+				MarkBFS(cSN,j+1);
 			}
 			// remove nodes from endeffector to root
-			MarkBFS(cSN,j+1);
 		}
 		MarkReset();
 		

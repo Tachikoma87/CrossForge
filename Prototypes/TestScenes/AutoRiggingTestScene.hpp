@@ -41,6 +41,7 @@
 #include "../AutoRig.hpp"
 
 #include "../../../thirdparty/Pinocchio/pinocchioApi.h"
+#include "../../../thirdparty/PinocchioTools/PinocchioTools.hpp"
 
 using namespace Eigen;
 using namespace std;
@@ -133,19 +134,57 @@ namespace CForge {
 		M.computePerVertexNormals();
 		
 		T3DMesh<float> MT;
-		SAssetIO::load("Assets/autorig/spock/spock.fbx", &MT);
+		SAssetIO::load("Assets/muppetshow/Model1.obj", &MT);
 		SceneUtilities::setMeshShader(&MT, 0.7f, 0.04f);
 		MT.computePerVertexNormals();
 		Spock.init(&MT);
+
+		nsPinocchio::Skeleton sklEric;
+		nsPinocchioTools::CVScalingInfo cvsInfo;
+		std::vector<nsPinocchioTools::BonePair> sym;
+		std::vector<T3DMesh<float>::Bone*> foot;
+		std::vector<T3DMesh<float>::Bone*> fat;
+		std::vector<T3DMesh<float>::Bone*> bones;
+		for (uint32_t i = 0; i < M.boneCount(); i++) {
+			T3DMesh<float>::Bone* cur = M.getBone(i);
+			if (cur->Name.compare("RightToe")==0 || cur->Name.compare("LeftToe")==0)
+				foot.push_back(cur);
+			
+			if (cur->Name.find("Right") != std::string::npos) {
+				// find Left
+				std::string sBoneType = cur->Name.substr(5);
+				std::cout << sBoneType << "\n";
+				for (uint32_t j = 0; j < M.boneCount(); j++) {
+					T3DMesh<float>::Bone* cur2 = M.getBone(j);
+					std::cout << "compare: " << cur2->Name << " with: " << "Left" + sBoneType << "\n";
+					if (cur2->Name.compare("Left" + sBoneType)==0) {
+						nsPinocchioTools::BonePair pair;
+						pair.pair[0] = cur;
+						pair.pair[1] = cur2;
+						sym.push_back(pair);
+						break;
+					}
+				}
+			}
+			// TODO fat
+			
+			bones.push_back(cur);
+		}
+		std::vector<Eigen::Vector3f> joints;
+		nsPinocchioTools::convertSkeleton(M.rootBone(), &sklEric, &cvsInfo, sym, fat, foot, &joints);
 		
 		nsPinocchio::Mesh piM("Assets/muppetshow/Model1.obj");
-		nsPinocchio::PinocchioOutput rig = nsPinocchio::autorig(nsPinocchio::HumanSkeleton(), piM);
+		nsPinocchio::PinocchioOutput rig = nsPinocchio::autorig(sklEric, piM);
+		MT.bones(&bones);
+		//nsPinocchioTools::convertSkeleton(sklEric, MT.rootBone(), cvsInfo, *rig.attachment);
 		
 		AutoRigger autoRigger;
 		autoRigger.init(&MT,M.getBone(0));
-		autoRigger.process();
-		Controller.init(&M);
-		Eric.init(&M, &Controller);
+		//autoRigger.process();
+		Controller.init(&MT);
+		Eric.init(&MT, &Controller);
+		//Controller.init(&M);
+		//Eric.init(&M, &Controller);
 		M.clear();
 
 		// build scene graph
@@ -201,14 +240,38 @@ namespace CForge {
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 
-			autoRigger.renderGrid(&RDev, GraphicsUtility::translationMatrix(Eigen::Vector3f(0.0,0.0,0.0)),
-				GraphicsUtility::rotationMatrix((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()))
-				*GraphicsUtility::scaleMatrix(Vector3f(0.05f, 0.05f, 0.05f)));
+			//autoRigger.renderGrid(&RDev, GraphicsUtility::translationMatrix(Eigen::Vector3f(0.0,0.0,0.0)),
+			//	GraphicsUtility::rotationMatrix((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()))
+			//	*GraphicsUtility::scaleMatrix(Vector3f(0.05f, 0.05f, 0.05f)));
 
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-			//SG.render(&RDev);
-			glDisable(GL_BLEND);
+			//glEnable(GL_BLEND);
+			//glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+			SG.render(&RDev);
+			//glDisable(GL_BLEND);
+			for (uint32_t i = 0; i < (uint32_t) joints.size(); i++) {
+				Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(joints[i]);
+				float r = 0.1;
+				Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+				RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
+				autoRigger.sphere.render(&RDev);
+			}
+			glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_TRUE);
+			{
+				Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(1.0,1.0,1.0));
+				float r = 0.1;
+				Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+				RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
+				autoRigger.sphere.render(&RDev);
+			}
+			glColorMask(GL_FALSE,GL_TRUE,GL_FALSE,GL_TRUE);
+			{
+				Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(-1.0,-1.0,-1.0));
+				float r = 0.1;
+				Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+				RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
+				autoRigger.sphere.render(&RDev);
+			}
+			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 

@@ -76,6 +76,5 @@ private:
     vector<ShortestPather> paths;
 };
 
-
-#endif
 }
+#endif
