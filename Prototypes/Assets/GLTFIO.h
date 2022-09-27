@@ -336,7 +336,7 @@ class GLTFIO {
 			bufferView.buffer = bufferIndex;
 			bufferView.byteLength = pData->size() * sizeof(T);
 
-			bufferView.target = TINYGLTF_TARGET_ARRAY_BUFFER;
+			bufferView.target = TINYGLTF_TARGET_ELEMENT_ARRAY_BUFFER;
 
 			model.bufferViews.push_back(bufferView);
 
@@ -395,7 +395,7 @@ class GLTFIO {
 			bufferView.byteLength = pData->size() * sizeof(T) * componentCount(type);
 			bufferView.byteStride = 0;
 
-			bufferView.target = TINYGLTF_TARGET_ELEMENT_ARRAY_BUFFER;
+			bufferView.target = TINYGLTF_TARGET_ARRAY_BUFFER;
 
 			model.bufferViews.push_back(bufferView);
 

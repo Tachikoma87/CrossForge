@@ -944,12 +944,31 @@ namespace CForge {
 		}
 		
 		if (tangent.size() > 0) {
-			pPrimitive->attributes.emplace("TANGENT", accessorIndex++);
-			
-			fromVec3f(&tangent, &data);
+			bool skip_tangents = false;
 
-			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC3, &data);
-			data.clear();
+			//normalize tangents
+			for (int i = 0; i < tangent.size(); i++) {
+				tangent[i].normalize();
+				if (tangent[i].norm() == 0) {
+					skip_tangents = true;
+					break;
+				}
+			}
+
+			if (!skip_tangents) {
+				pPrimitive->attributes.emplace("TANGENT", accessorIndex++);
+				
+				fromVec3f(&tangent, &data);
+
+				//add w component for compatibility
+				for (int i = 0; i < data.size(); i++) {
+					data[i].push_back(-1.0f);
+				}
+
+
+				writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC4, &data);
+				data.clear();
+			}
 		}
 		
 		if (texCoord.size() > 0) {

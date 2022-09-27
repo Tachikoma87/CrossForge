@@ -147,6 +147,8 @@ namespace CForge {
 		gltfio.store(gltfPath + "_debug.gltf", &testModel);
 		testModel.clear();
 		gltfio.load(gltfPath + "_debug.gltf", &testModel);
+
+		//SAssetIO::load("C:/Users/Ossit/vcpkg/buildtrees/assimp/src/90204b69df-11eeb21532.clean/test/models-nonbsd/FBX/2013_BINARY/anims_with_full_rotations_between_keys.fbx", &testModel);
 		
 		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);
 		testModel.computePerVertexNormals();
