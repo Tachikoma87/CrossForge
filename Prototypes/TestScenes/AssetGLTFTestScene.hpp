@@ -139,7 +139,7 @@ namespace CForge {
 		//gltf testing
 		GLTFIO gltfio;
 
-		std::string name = "AnimatedCube";
+		std::string name = "SciFiHelmet";
 
 		std::string gltfPath = "Assets/gltf sample models/" + name + "/glTF/" + name;
 		

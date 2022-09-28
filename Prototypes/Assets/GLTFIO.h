@@ -201,6 +201,14 @@ class GLTFIO {
 				return;
 			}
 
+			if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT) {
+				std::vector<int32_t> data;
+
+				readBuffer(buff.data.data(), acc.count, acc.byteOffset + buffView.byteOffset, 1, false, 0, &data);
+				for (auto d : data) pData->push_back((T)d);
+				return;
+			}
+
 			if (acc.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
 				std::vector<float> data;
 				
