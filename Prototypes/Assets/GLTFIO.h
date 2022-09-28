@@ -117,7 +117,7 @@ class GLTFIO {
 		void readBuffer(unsigned char* pBuffer, const int element_count, const int offset, const int component_count, const bool is_matrix, const int stride, std::vector<T>* pData) {
 			pData->reserve(element_count * component_count);
 
-			T* raw_data = (T*)pBuffer;
+			T* raw_data = (T*)(pBuffer + offset);
 
 			int type_size = sizeof(T);
 			
@@ -130,7 +130,7 @@ class GLTFIO {
 				int column_size_with_padding = column_size + (4 - column_size) % 4;
 
 				for (int i = 0; i < element_count * row_count; i++) {
-					int index = offset / type_size + i * (column_size_with_padding / type_size);
+					int index = i * (column_size_with_padding / type_size);
 
 					for (int k = 0; k < column_size_with_padding; k++) {
 						if (k >= column_size) continue;
@@ -139,8 +139,11 @@ class GLTFIO {
 				}
 			}
 			else {
+				int jump = stride / type_size;
+				if (jump == 0) jump = component_count;
+				
 				for (int i = 0; i < element_count; i++) {
-					int index = offset / type_size + i * (component_count + stride / type_size);
+					int index = i * jump;
 					for (int k = 0; k < component_count; k++) {
 						T tmp = raw_data[index + k];
 						pData->push_back(tmp);
@@ -234,6 +237,8 @@ class GLTFIO {
 			int nComponents = componentCount(acc.type);
 
 			std::vector<T> unstructured;
+
+			int remaining_size = buff.data.size() - acc.byteOffset - buffView.byteOffset;
 
 			readBuffer(buff.data.data(), acc.count, acc.byteOffset + buffView.byteOffset, nComponents, componentIsMatrix(acc.type), buffView.byteStride, &unstructured);
 

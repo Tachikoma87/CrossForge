@@ -818,9 +818,9 @@ namespace CForge {
 		weight.clear();
 
 		int32_t min = -1;
-		int32_t max = 0;
+		int32_t max = -1;
 
-		std::vector<unsigned short> indices;
+		std::vector<int32_t> indices;
 
 		bool values_found = false;
 
@@ -1060,6 +1060,8 @@ namespace CForge {
 		
 		for (int i = 0; i < pCMesh->submeshCount(); i++) {
 			Node newNode;
+
+			newNode.name = std::to_string(i);
 			
 			const T3DMesh<float>::Submesh* pSubmesh = pCMesh->getSubmesh(i);
 
@@ -1093,7 +1095,7 @@ namespace CForge {
 
 			for (auto c : pSubmesh->Children) {
 				int childNode = submeshMap[c];
-				
+
 				allChildren.push_back(childNode);
 				model.nodes[i].children.push_back(childNode);
 			}
@@ -1814,4 +1816,5 @@ namespace CForge {
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen auf gleiche Keyframes
 * Die Berechnung der per face normals schlägt fehl, weil zu große Indices verwendet werden.
 * Node animationen ohne skins werden ignoriert, weil das T3DMesh das nicht abbilden kann.
+* Meshes handlen die mehrfach genutzt werden, beim lesen und schreiben.
 */
