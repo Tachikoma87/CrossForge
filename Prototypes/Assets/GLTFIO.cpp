@@ -1812,6 +1812,6 @@ namespace CForge {
 //TODO
 /*
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen auf gleiche Keyframes
-* Funktionieren die Abhängigkeiten bei Submeshes mit ihren translation- und rotationoffsets? Es scheint nicht so.
 * Die Berechnung der per face normals schlägt fehl, weil zu große Indices verwendet werden.
+* Node animationen ohne skins werden ignoriert, weil das T3DMesh das nicht abbilden kann.
 */
