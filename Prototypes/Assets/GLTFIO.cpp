@@ -480,7 +480,7 @@ namespace CForge {
 			path.append("image_" + std::to_string(textureIndex) + ".jpg");
 		}
 		else {
-			path.append("image_" + std::to_string(textureIndex) + "." + pImage->mimeType.substr(5));
+			path.append("image_" + std::to_string(textureIndex) + "." + pImage->mimeType.substr(6));
 		}
 
 		//no buffer view defined or buffer view is out of range
