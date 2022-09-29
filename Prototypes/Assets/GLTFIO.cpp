@@ -1011,6 +1011,11 @@ namespace CForge {
 		gltfMaterial.emissiveTexture.index = writeTexture(pMaterial->TexEmissive);
 		gltfMaterial.occlusionTexture.index = writeTexture(pMaterial->TexOcclusion);
 
+		gltfMaterial.pbrMetallicRoughness.baseColorFactor[0] = pMaterial->Color(0);
+		gltfMaterial.pbrMetallicRoughness.baseColorFactor[1] = pMaterial->Color(1);
+		gltfMaterial.pbrMetallicRoughness.baseColorFactor[2] = pMaterial->Color(2);
+		gltfMaterial.pbrMetallicRoughness.baseColorFactor[3] = pMaterial->Color(3);
+
 		model.meshes[meshIndex].primitives[0].material = model.materials.size();
 
 		model.materials.push_back(gltfMaterial);
@@ -1794,6 +1799,8 @@ namespace CForge {
 		q *= 0.5 / sqrt(t);
 
 		Eigen::Quaternionf quat(q(3), q(0), q(1), q(2));
+
+		quat.normalize();
 
 		return quat;
 	}

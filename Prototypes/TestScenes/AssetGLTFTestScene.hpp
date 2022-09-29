@@ -139,7 +139,7 @@ namespace CForge {
 		//gltf testing
 		GLTFIO gltfio;
 
-		std::string name = "GearboxAssy";
+		std::string name = "ToyCar";
 
 		std::string gltfPath = "Assets/gltf sample models/" + name + "/glTF/" + name;
 		
@@ -152,7 +152,7 @@ namespace CForge {
 		
 		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);
 		testModel.computePerVertexNormals();
-		testModel.bones(&std::vector<T3DMesh<float>::Bone*>(), false);
+		//testModel.bones(&std::vector<T3DMesh<float>::Bone*>(), false);
 		Cube.init(&testModel);
 		testModel.clear();
 		

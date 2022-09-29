@@ -82,7 +82,7 @@ class GLTFIO {
 
 		int getGltfComponentType(const unsigned int value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT; }
 		
-		int getGltfComponentType(const int value) { return TINYGLTF_COMPONENT_TYPE_INT; }
+		int getGltfComponentType(const int value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT; }
 
 		Eigen::Vector3f getTranslation(const Eigen::Matrix4f& transformation);
 
