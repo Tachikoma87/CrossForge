@@ -779,6 +779,7 @@ namespace CForge {
 		//Every mesh will hold a single primitive with the submesh data.
 		
 		writeNodes();
+		writeSkinningData();
 		
 		TinyGLTF writer;
 
@@ -1824,4 +1825,5 @@ namespace CForge {
 * Die Berechnung der per face normals schlägt fehl, weil zu große Indices verwendet werden.
 * Node animationen ohne skins werden ignoriert, weil das T3DMesh das nicht abbilden kann.
 * Meshes handlen die mehrfach genutzt werden, beim lesen und schreiben.
+* Skelettanimationen speichern.
 */
