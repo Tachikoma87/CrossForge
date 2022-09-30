@@ -4,7 +4,6 @@
 
 #include "StbImageIO.h"
 #include "WebPImageIO.h"
-
 #include "OpenCVImageIO.h"
 
 #include "../Core/SLogger.h"
@@ -109,11 +108,13 @@ namespace CForge {
 		ImgPlug.Name = pWebPImageIO->pluginName();
 		m_ImageIOPlugins.push_back(ImgPlug);
 
+		#ifdef USE_OPENCV
 		OpenCVImageIO* pOpenCVImageIO = new OpenCVImageIO();
 		pOpenCVImageIO->init();
 		ImgPlug.pInstance = pOpenCVImageIO;
 		ImgPlug.Name = pOpenCVImageIO->pluginName();
 		m_ImageIOPlugins.push_back(ImgPlug);
+		#endif
 	}//initialize
 
 	void SAssetIO::clear(void) {

@@ -19,6 +19,7 @@
 #ifndef __CFORGE_STRIPPHOTOCAMERA_H__
 #define __CFORGE_STRIPPHOTOCAMERA_H__
 
+#ifdef USE_OPENCV
 #include <opencv2/opencv.hpp>
 #include <Eigen/Eigen>
 #include "../../CForge/Core/CrossForgeException.h"
@@ -50,4 +51,5 @@ namespace CForge {
 
 }//name-space
 
+#endif
 #endif // Header guards
