@@ -62,6 +62,8 @@ add_library(crossforge SHARED
 	CForge/AssetIO/I2DImageIO.cpp
 	CForge/AssetIO/I3DMeshIO.cpp
 	CForge/AssetIO/OpenCVImageIO.cpp
+	CForge/AssetIO/StbImageIO.cpp 
+	CForge/AssetIO/WebPImageIO.cpp
 	CForge/AssetIO/SAssetIO.cpp
 
 	# Graphics related
@@ -156,9 +158,14 @@ target_link_libraries(crossforge
 	PRIVATE glad::glad
 	PRIVATE assimp::assimp
 	PRIVATE igl::core 
-	PRIVATE igl::common
-	${OpenCV_LIBS}
+	PRIVATE igl::common	
 	ws2_32			#winsock2
+	PRIVATE WebP::webp 
+	PRIVATE WebP::webpdemux 
+	PRIVATE WebP::libwebpmux 
+	PRIVATE WebP::webpdecoder
+
+	${OpenCV_LIBS}
 	)
 endif(WIN32)
 
@@ -212,10 +219,6 @@ add_executable(CForgeSandbox
 	Terrain/GUI/Widgets/InputText.cpp
 	Terrain/GUI/Widgets/Label.cpp
 	Terrain/GUI/Widgets/Window.cpp
-
-	Prototypes/Assets/StbImageIO.cpp
-	Prototypes/Assets/WebPImageIO.cpp
-
 	)
 
 if(WIN32)
@@ -228,10 +231,7 @@ if(WIN32)
 	PRIVATE tinyxml2::tinyxml2
 	${FREETYPE_LIBRARIES}
 
-	PRIVATE WebP::webp 
-	PRIVATE WebP::webpdemux 
-	PRIVATE WebP::libwebpmux 
-	PRIVATE WebP::webpdecoder
+	
 
 	)
 endif (WIN32)

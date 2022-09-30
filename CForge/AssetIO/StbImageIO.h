@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): WebPImageIO.h and WebPImageIO.cpp                                            *
+* File(s): StbImageIO.h and StbImageIO.cpp                                            *
 *                                                                           *
-* Content: Import/Export class using libwebp.   *
+* Content: Import/Export class using stb image.   *
 *                                                   *
 *                                                                           *
 *                                                                           *
@@ -15,25 +15,28 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_WEBPIMAGEIO_H__
-#define __CFORGE_WEBPIMAGEIO_H__
+#ifndef __CFORGE_STBIMAGEIO_H__
+#define __CFORGE_STBIMAGEIO_H__
 
-#include <CForge/AssetIO/I2DImageIO.h>
+#include "I2DImageIO.h"
 
 namespace CForge {
-	class WebPImageIO /* : public I2DImageIO*/ {
+	class StbImageIO : public I2DImageIO {
 	public:
-		WebPImageIO(void);
-		~WebPImageIO(void);
+		StbImageIO(void);
+		~StbImageIO(void);
+
+		void init(void);
+		void clear(void);
 
 		void load(const std::string Filepath, T2DImage<uint8_t>* pImgData);
 		void store(const std::string Filepath, const T2DImage<uint8_t>* pImgData);
-		//bool accepted(const std::string Filepath, Operation Op);
+		bool accepted(const std::string Filepath, Operation Op);
 		void release(void);
 
 	protected:
 
-	};//WebPImageIO
+	};//StbImageIO
 
 }//name space
 

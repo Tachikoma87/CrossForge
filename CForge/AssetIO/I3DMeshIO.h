@@ -47,7 +47,6 @@ namespace CForge {
 	protected:
 		I3DMeshIO(const std::string ClassName);
 		virtual ~I3DMeshIO(void);
-	private:
 		std::string m_PluginName;
 	};//I3DMeshIO
 

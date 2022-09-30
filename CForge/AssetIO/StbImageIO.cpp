@@ -2,23 +2,28 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image.h>
 #include <stb_image_write.h>
-#include <CForge/AssetIO/File.h>
-#include <CForge/Core/CoreUtility.hpp>
 #include "StbImageIO.h"
+#include "File.h"
+#include "../Core/CoreUtility.hpp"
 
 namespace CForge {
 
-	StbImageIO::StbImageIO(void) /* : I2DImageIO("StbImageIO")*/ {
-		//m_PluginName = "stb_image IO";
-
-		stbi_set_flip_vertically_on_load(true);
-		stbi_flip_vertically_on_write(true);
-
+	StbImageIO::StbImageIO(void): I2DImageIO("StbImageIO") {
+		m_PluginName = "stb Image IO";
 	}//Constructor
 
 	StbImageIO::~StbImageIO(void) {
 
 	}//Destructor
+
+	void StbImageIO::init(void) {
+		stbi_set_flip_vertically_on_load(true);
+		stbi_flip_vertically_on_write(true);
+	}//initialize
+
+	void StbImageIO::clear(void) {
+		// nothing to do here
+	}//clear
 
 	void StbImageIO::load(const std::string Filepath, T2DImage<uint8_t>* pImgData) {
 		if (!File::exists(Filepath)) throw CForgeExcept("File " + Filepath + " could not be found!");
@@ -42,11 +47,9 @@ namespace CForge {
 		}
 
 		pImgData->init(Width, Height, CS, pData);
-		//pImgData->flipRows();
 
 		stbi_image_free(pData);
 		pData = nullptr;
-
 	}//load
 
 	void StbImageIO::store(const std::string Filepath, const T2DImage<uint8_t>* pImgData) {
@@ -57,7 +60,7 @@ namespace CForge {
 
 		int32_t Rval = 0;
 
-		if (Str.find(".png") != std::string::npos) {	
+		if (Str.find(".png") != std::string::npos) {
 			Rval = stbi_write_png(Filepath.c_str(), pImgData->width(), pImgData->height(), pImgData->componentsPerPixel(), pImgData->data(), 0);
 		}
 		else if (Str.find(".bmp") != std::string::npos) {
@@ -77,29 +80,29 @@ namespace CForge {
 
 	}//store
 
-	//bool StbImageIO::accepted(const std::string Filepath, Operation Op) {
-	//	bool Rval = false;
-	//	std::string S = Filepath;
-	//	for (uint32_t i = 0; i < S.length(); i++) S[i] = std::tolower(S[i]);
+	bool StbImageIO::accepted(const std::string Filepath, Operation Op) {
+		bool Rval = false;
+		std::string S = CoreUtility::toLowerCase(Filepath);
 
-	//	if (Op == OP_LOAD) {
-	//		if (S.find(".jpeg") != std::string::npos) Rval = true;
-	//		if (S.find(".jpg") != std::string::npos) Rval = true;
-	//		if (S.find(".png") != std::string::npos) Rval = true;
-	//		if (S.find(".tga") != std::string::npos) Rval = true;
-	//		if (S.find(".bmp") != std::string::npos) Rval = true;
-	//		if (S.find(".psd") != std::string::npos) Rval = true;
-	//		if (S.find(".pic") != std::string::npos) Rval = true;
-	//	}
-	//	else {
-	//		if (S.find(".png") != std::string::npos) Rval = true;
-	//		if (S.find(".tga") != std::string::npos) Rval = true;
-	//		if (S.find(".bmp") != std::string::npos) Rval = true;
-	//      if (S.find(".jpg") != std::string::npos) Rval = true;
-	//	}
-	//	
-	//	return Rval;
-	//}//accepted
+		if (Op == OP_LOAD) {
+			if (S.find(".jpeg") != std::string::npos) Rval = true;
+			if (S.find(".jpg") != std::string::npos) Rval = true;
+			if (S.find(".png") != std::string::npos) Rval = true;
+			if (S.find(".tga") != std::string::npos) Rval = true;
+			if (S.find(".bmp") != std::string::npos) Rval = true;
+			if (S.find(".psd") != std::string::npos) Rval = true;
+			if (S.find(".pic") != std::string::npos) Rval = true;
+		}
+		else {
+			if (S.find(".png") != std::string::npos) Rval = true;
+			if (S.find(".tga") != std::string::npos) Rval = true;
+			if (S.find(".bmp") != std::string::npos) Rval = true;
+			if (S.find(".jpg") != std::string::npos) Rval = true;
+			if (S.find(".jpeg") != std::string::npos) Rval = true;
+		}	
+		
+		return Rval;
+	}//accepted
 
 	void StbImageIO::release(void) {
 		delete this;
