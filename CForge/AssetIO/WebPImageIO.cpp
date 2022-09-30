@@ -15,6 +15,7 @@ namespace CForge {
 
 	}//Destructor
 
+
 	void WebPImageIO::init(void) {
 		// nothing to do here
 	}//initialize

@@ -18,6 +18,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 file(MAKE_DIRECTORY "MyAssets")
 file(MAKE_DIRECTORY "Prototypes/Shader")
 
+option(USE_OPENCV "Include OpenCV in build" OFF)
+
+
 # required core packages
 FIND_PACKAGE(OpenGL REQUIRED)		# OpenGl core library
 FIND_PACKAGE(glad CONFIG REQUIRED)	# GL extension library
@@ -25,14 +28,18 @@ FIND_PACKAGE(glfw3 CONFIG REQUIRED)	# cross-plattform window management
 FIND_PACKAGE(assimp CONFIG REQUIRED)# Asset import library (and partially export)
 FIND_PACKAGE(Freetype REQUIRED)		# Library to load and process vector based fonts
 FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
-
-FIND_PACKAGE(OpenCV CONFIG REQUIRED)	# Open computer vision library
 FIND_PACKAGE(libigl CONFIG REQUIRED)	# mesh processing library
 FIND_PACKAGE(WebP CONFIG REQUIRED)
 
+if(USE_OPENCV)
+	FIND_PACKAGE(OpenCV CONFIG REQUIRED)	# Open computer vision library
+	include_directories(
+		"${OpenCV_INCLUDE_DIRS}"
+	)
+	add_compile_definitions(USE_OPENCV)
+endif(USE_OPENCV)
 
 include_directories(
-	"${OpenCV_INCLUDE_DIRS}"
 	"${FREETYPE_INCLUDE_DIRS}"
 )
 
@@ -45,9 +52,6 @@ include_directories(
 #endif()
 
 add_library(crossforge SHARED
-	# GLAD
-	#"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
-
 	# Core related
 	CForge/Core/CForgeObject.cpp
 	CForge/Core/CrossForgeException.cpp
@@ -108,7 +112,7 @@ add_library(crossforge SHARED
 	CForge/Graphics/UniformBufferObjects/UBOBoneData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOMorphTargetData.cpp
 
-	Prototypes/UBOInstancedData.cpp
+	
 
 	# Lights
 	CForge/Graphics/Lights/ILight.cpp 
@@ -129,20 +133,20 @@ add_library(crossforge SHARED
 	CForge/Input/SInputManager.cpp
 
 	# Internet related
+	CForge/Internet/UDPSocket.cpp
+	CForge/Internet/TCPSocket.cpp
+
+	# Mesh Processing
+	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
 
 	# Decoration
 	Terrain/src/Decoration/InstanceActor.cpp
 	Terrain/src/Decoration/InstanceSGN.cpp
 	Terrain/src/Decoration/InstanceVertexUtility.cpp
 	
-	# Mesh Processing
-	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
-
-	# Internet
-	CForge/Internet/UDPSocket.cpp
-	CForge/Internet/TCPSocket.cpp
+	Prototypes/UBOInstancedData.cpp
+	
  )
-#set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
 if(WIN32)
 	add_compile_definitions(CFORGE_EXPORTS)
@@ -158,15 +162,14 @@ target_link_libraries(crossforge
 	PRIVATE glad::glad
 	PRIVATE assimp::assimp
 	PRIVATE igl::core 
-	PRIVATE igl::common	
-	ws2_32			#winsock2
+	PRIVATE igl::common		
 	PRIVATE WebP::webp 
-	PRIVATE WebP::webpdemux 
-	PRIVATE WebP::libwebpmux 
 	PRIVATE WebP::webpdecoder
-
-	${OpenCV_LIBS}
+	ws2_32			#winsock2
 	)
+	if(USE_OPENCV)
+	target_link_libraries(${OpenCV_LIBS})
+	endif(USE_OPENCV)
 endif(WIN32)
 
 if(UNIX)
@@ -178,8 +181,10 @@ if(UNIX)
 	PRIVATE igl::core 
 	PRIVATE igl::common
 	PRIVATE glad::glad
-	${OpenCV_LIBS}
 )
+	if(USE_OPENCV)
+	target_link_libraries(${OpenCV_LIBS})
+	endif(USE_OPENCV)
 endif(UNIX)
 
 project (CForgeSandbox)
@@ -225,13 +230,11 @@ if(WIN32)
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
 	PRIVATE glfw 
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 	PRIVATE glad::glad
 	ws2_32
 	PRIVATE tinyxml2::tinyxml2
 	${FREETYPE_LIBRARIES}
-
-	
 
 	)
 endif (WIN32)
@@ -243,7 +246,7 @@ if(UNIX)
 		PRIVATE assimp
 		#PRIVATE igl::core 
 		#PRIVATE igl::common
-		${OpenCV_LIBS}
+#		${OpenCV_LIBS}
 		PRIVATE gpiod
 		PRIVATE dl
 		PRIVATE glad::glad
