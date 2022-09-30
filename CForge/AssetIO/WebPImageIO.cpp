@@ -2,17 +2,26 @@
 
 #include <webp/encode.h>
 #include <webp/decode.h>
-#include <CForge/AssetIO/File.h>
+#include "File.h"
+#include "../Core/CoreUtility.hpp"
 
 namespace CForge {
 
-	WebPImageIO::WebPImageIO(void) {
-
+	WebPImageIO::WebPImageIO(void): I2DImageIO("WebPImageIO") {
+		m_PluginName = "WebP Image IO";
 	}//Constructor
 
 	WebPImageIO::~WebPImageIO(void) {
 
 	}//Destructor
+
+	void WebPImageIO::init(void) {
+		// nothing to do here
+	}//initialize
+
+	void WebPImageIO::clear(void) {
+		// nothing to do here
+	}//clear
 
 	void WebPImageIO::load(const std::string Filepath, T2DImage<uint8_t>* pImgData) {
 		if (!File::exists(Filepath)) throw CForgeExcept("File" + Filepath + " does not exist!");
@@ -24,6 +33,7 @@ namespace CForge {
 		File F;
 		F.begin(Filepath, "rb");	
 		int64_t Filesize = File::size(Filepath);
+		if (Filesize == 0) throw CForgeExcept("File " + Filepath + " contains no data!");
 		pBuffer = new uint8_t[Filesize];
 		F.read(pBuffer, Filesize);
 		F.end();
@@ -63,13 +73,21 @@ namespace CForge {
 
 		File F;
 		F.begin(Filepath, "wb");
+		if (!F.valid()) {
+			WebPFree(pOutput);
+			throw CForgeExcept("Unable to create file at " + Filepath);
+		}
 		F.write(pOutput, Size);
 		F.end();
 
 		WebPFree(pOutput);
 	}//store
 
-	//bool accepted(const std::string Filepath, Operation Op);
+	bool WebPImageIO::accepted(const std::string Filepath, Operation Op) {	
+		std::string Str = CoreUtility::toLowerCase(Filepath);
+		if (Str.find(".webp") != !std::string::npos) return true;
+		return false;
+	}//accepted
 
 	void WebPImageIO::release(void) {
 		delete this;

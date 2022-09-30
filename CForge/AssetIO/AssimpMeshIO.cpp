@@ -10,7 +10,7 @@ using namespace Assimp;
 
 namespace CForge {
 	AssimpMeshIO::AssimpMeshIO(void): I3DMeshIO("AssimpMeshIO") {
-
+		m_PluginName = "AssImp Mesh IO";
 	}//Constructor
 
 	AssimpMeshIO::~AssimpMeshIO(void) {
