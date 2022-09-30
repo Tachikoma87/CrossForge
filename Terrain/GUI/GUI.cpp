@@ -327,7 +327,7 @@ void GUI::registerKeyPressEvent(BaseWidget* widget)
 void GUI::processEvents()
 {
     processMouseEvents(m_pWin->mouse());
-//     processKeyboardEvents(m_pWin->keyboard());
+    processKeyboardEvents(m_pWin->keyboard());
 }
 void GUI::processMouseEvents ( CForge::Mouse* mouse )
 {
@@ -445,7 +445,12 @@ void GUI::listen(CForge::KeyboardCallback kc)
             listen(U'\n');
         if (kc.key == CForge::Keyboard::KEY_R && m_pWin->keyboard()->keyState(CForge::Keyboard::KEY_RIGHT_CONTROL))
             for (auto x : m_TopLevelWidgets) x->pWidget->setPosition(0, 0);
+
+        if (kc.key == Keyboard::KEY_UNKNOWN) listen(kc.Unicode);
+       
     }
+
+
 }
 uint32_t GUI::getWindowHeight()
 {

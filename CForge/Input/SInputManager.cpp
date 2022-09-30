@@ -55,6 +55,7 @@ namespace CForge {
 		pEntity->pWin = pWin;
 
 		glfwSetKeyCallback(pWin, SInputManager::keyboardCallbackFunc);
+		glfwSetCharCallback(pWin, SInputManager::characterCallbackFunc);
 
 		for (auto& i : m_RegisteredKeyboards) {
 			if (nullptr == i) {
@@ -292,6 +293,12 @@ namespace CForge {
 
 	}//keyboardCallbackFunc
 
+	void SInputManager::characterCallbackFunc(class GLFWwindow* pWin, unsigned int Codepoint) {
+		for (auto i : m_pInstance->m_RegisteredKeyboards) {
+			if (nullptr != i && pWin == i->pWin) i->pKeyboard->textInput(Codepoint);
+		}
+	}//characterCallbackFunc
+
 	void SInputManager::mousePositionCallbackFunc(GLFWwindow* pWin, double xPos, double yPos) {
 
 		for (auto i : m_pInstance->m_RegisteredMice) {
@@ -333,10 +340,10 @@ namespace CForge {
 		}
 	}//mouseWheelCallbackFunc
 
-	void SInputManager::characterCallbackFunc(class GLFWwindow* pWin, unsigned int codepoint) {
-		for (auto i : m_pInstance->m_RegisteredCharacterCallbacks) {
-			if (nullptr != i && pWin == i->pWin) i->pCharacter->sendChar(codepoint);
-		}
-	}//characterCallbackFunc
+	//void SInputManager::characterCallbackFunc(class GLFWwindow* pWin, unsigned int codepoint) {
+	//	for (auto i : m_pInstance->m_RegisteredCharacterCallbacks) {
+	//		if (nullptr != i && pWin == i->pWin) i->pCharacter->sendChar(codepoint);
+	//	}
+	//}//characterCallbackFunc
 
 }//name-space
