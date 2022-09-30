@@ -1,12 +1,15 @@
 #include "PinocchioTools.hpp"
+#include <cmath>
 
-#include "windows.h"
 #include "PinocchioTools.hpp"
 
+
+#ifdef WIN32
 #ifdef _MANAGED
 #pragma managed(push, off)
 #endif
 
+#include "windows.h"
 BOOL APIENTRY DllMain( HMODULE hModule,
 	DWORD  ul_reason_for_call,
 	LPVOID lpReserved
@@ -25,6 +28,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
 #ifdef _MANAGED
 #pragma managed(pop)
+#endif
 #endif
 
 namespace nsPinocchioTools {

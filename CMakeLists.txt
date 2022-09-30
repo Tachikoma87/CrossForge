@@ -20,7 +20,7 @@ FIND_PACKAGE(OpenGL REQUIRED)
 FIND_PACKAGE(assimp CONFIG REQUIRED)
 FIND_PACKAGE(glfw3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenCV CONFIG REQUIRED)
-FIND_PACKAGE(libigl CONFIG REQUIRED)
+# FIND_PACKAGE(libigl CONFIG REQUIRED)
 
 #enable edit and continue and hot reload (Visual Studio 2022)
 #if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -131,8 +131,8 @@ if(WIN32)
 target_link_libraries(crossforge 
 	PRIVATE glfw 
 	PRIVATE assimp::assimp
-	PRIVATE igl::core 
-	PRIVATE igl::common
+	# PRIVATE igl::core
+	# PRIVATE igl::common
 	${OpenCV_LIBS}
 	)
 endif(WIN32)
@@ -142,9 +142,9 @@ if(UNIX)
 	PRIVATE gpiod 
 	PRIVATE stdc++fs
 	PRIVATE glfw 
-	PRIVATE assimp::assimp
-	PRIVATE igl::core 
-	PRIVATE igl::common
+	PRIVATE assimp
+	# PRIVATE igl::core
+	# PRIVATE igl::common
 	${OpenCV_LIBS}
 )
 endif(UNIX)
@@ -190,7 +190,7 @@ if(UNIX)
 		PRIVATE Pinocchio
 		PRIVATE PinocchioTools
 		PRIVATE glfw 
-		PRIVATE assimp::assimp
+		PRIVATE assimp
 		${OpenCV_LIBS}
 		PRIVATE gpiod
 		PRIVATE dl
@@ -234,7 +234,9 @@ target_link_libraries(ExportLibrary
 	PRIVATE crossforge)
 	
 
-add_library(Pinocchio SHARED
+
+if(WIN32)
+	add_library(Pinocchio SHARED
 	thirdparty/Pinocchio/refinement.cpp
 	thirdparty/Pinocchio/attachment.cpp
 	thirdparty/Pinocchio/pinocchioApi.cpp
@@ -249,8 +251,27 @@ add_library(Pinocchio SHARED
 	thirdparty/Pinocchio/intersector.cpp
 	thirdparty/Pinocchio/skeleton.cpp
 )
+endif (WIN32)
+
+if(UNIX)
+	add_library(Pinocchio SHARED
+	thirdparty/Pinocchio/refinement.cpp
+	thirdparty/Pinocchio/attachment.cpp
+	thirdparty/Pinocchio/pinocchioApi.cpp
+	thirdparty/Pinocchio/discretization.cpp
+	thirdparty/Pinocchio/mesh.cpp
+	thirdparty/Pinocchio/embedding.cpp
+	thirdparty/Pinocchio/graphutils.cpp
+	thirdparty/Pinocchio/matrix.cpp
+	thirdparty/Pinocchio/lsqSolver.cpp
+	thirdparty/Pinocchio/indexer.cpp
+	thirdparty/Pinocchio/intersector.cpp
+	thirdparty/Pinocchio/skeleton.cpp
+)
+endif(UNIX)
 target_include_directories(Pinocchio PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/Pinocchio")
 set_property(TARGET Pinocchio PROPERTY CXX_STANDARD 98)
+target_compile_options(Pinocchio PRIVATE -fPIC)
 add_compile_definitions(PINOCCHIO_EXPORTS)
 
 # bridge lib for convertig crossforge <-> pinocchio
