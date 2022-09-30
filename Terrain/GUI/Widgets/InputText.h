@@ -1,48 +1,71 @@
-#pragma once
+/*****************************************************************************\
+*                                                                           *
+* File(s): InputText.h and InputText.cpp                                      *
+*                                                                           *
+* Content:    *
+*          .                                         *
+*                                                                           *
+*                                                                           *
+* Author(s): Tom Uhlmann                                                    *
+*                                                                           *
+*                                                                           *
+* The file(s) mentioned above are provided as is under the terms of the     *
+* FreeBSD License without any warranty or guaranty to work properly.        *
+* For additional license, copyright and contact/support issues see the      *
+* supplied documentation.                                                   *
+*                                                                           *
+\****************************************************************************/
+#ifndef __CFORGE_INPUTTEXT_H__
+#define __CFORGE_INPUTTEXT_H__
 
 #include "../Widget.h"
 #include "../GUI.h"
-class InputTextWidget;
 
-class InputTextWidget_ClearButton : public TextWidget {
-public:
-    InputTextWidget_ClearButton(GUI* rootGUIObject, InputTextWidget* parent);
-    ~InputTextWidget_ClearButton();
+namespace CForge {
+    class InputTextWidget;
 
-    void onClick(mouseEventInfo) override;
+    class InputTextWidget_ClearButton : public TextWidget {
+    public:
+        InputTextWidget_ClearButton(GUI* rootGUIObject, InputTextWidget* parent);
+        ~InputTextWidget_ClearButton();
 
-private:
-    InputTextWidget* m_text;
-};
+        void onClick(mouseEventInfo) override;
 
-class InputTextWidget : public BaseWidget {
-public:
-    InputTextWidget(GUI* rootGUIObject, BaseWidget* parent);
-    ~InputTextWidget();
+    private:
+        InputTextWidget* m_text;
+    };
 
-    std::u32string getValue();
-    void setLimit(int lower, int higher);
-    void clearText();
-    void setText(std::u32string text);
+    class InputTextWidget : public BaseWidget {
+    public:
+        InputTextWidget(GUI* rootGUIObject, BaseWidget* parent);
+        ~InputTextWidget();
 
-//     void onClick(mouseEventInfo mouse) override;
-    void onKeyPress(char32_t c) override;
-    void focus() override;
-    void focusLost() override;
+        std::u32string getValue();
+        void setLimit(int lower, int higher);
+        void clearText();
+        void setText(std::u32string text);
 
-    void changePosition(float dx, float dy) override;
-    void updateLayout() override;
-    void draw(CForge::RenderDevice* renderDevice) override;
-protected:
-    virtual bool validateInput();
-    std::u32string m_value;
-    TextWidget* m_text;
-private:
-    void recalculateLayout();
+        //     void onClick(mouseEventInfo mouse) override;
+        void onKeyPress(char32_t c) override;
+        void focus() override;
+        void focusLost() override;
 
-    struct {
-        int min;
-        int max;
-    } m_limits;
-    InputTextWidget_ClearButton* m_clear;
-};
+        void changePosition(float dx, float dy) override;
+        void updateLayout() override;
+        void draw(CForge::RenderDevice* renderDevice) override;
+    protected:
+        virtual bool validateInput();
+        std::u32string m_value;
+        TextWidget* m_text;
+    private:
+        void recalculateLayout();
+
+        struct {
+            int min;
+            int max;
+        } m_limits;
+        InputTextWidget_ClearButton* m_clear;
+    };
+
+}//name space
+#endif
