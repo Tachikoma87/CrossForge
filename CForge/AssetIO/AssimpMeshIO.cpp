@@ -411,7 +411,7 @@ namespace CForge {
 				if (InfluenceIDs.size() > 0) {
 					aiBone* pB = new aiBone();
 					pB->mName = pBone->Name.c_str();
-					pB->mOffsetMatrix = toAiMatrix(pBone->OffsetMatrix);
+					pB->mOffsetMatrix = /*/toAiMatrix(Eigen::Matrix4f::Identity());//*/toAiMatrix(pBone->OffsetMatrix);
 					pB->mNumWeights = InfluenceIDs.size();
 					pB->mWeights = new aiVertexWeight[pB->mNumWeights];
 					for (uint32_t j = 0; j < InfluenceIDs.size(); ++j) {
@@ -492,7 +492,22 @@ namespace CForge {
 	void AssimpMeshIO::writeBone(aiNode* pNode, const T3DMesh<float>::Bone* pBone) {
 
 		pNode->mName = pBone->Name.c_str();
-		pNode->mTransformation.Translation(toAiVector(pBone->Position), pNode->mTransformation);
+		// position of bone in bone space
+		Eigen::Matrix4f mat = pBone->OffsetMatrix;
+		Eigen::Matrix4f rot = mat;
+		rot.data()[12] = 0.0f;
+		rot.data()[13] = 0.0f;
+		rot.data()[14] = 0.0f;
+		mat = pBone->OffsetMatrix.inverse();
+		Eigen::Vector3f pos = Eigen::Vector3f(mat.data()[12],mat.data()[13],mat.data()[14]);
+		Eigen::Matrix4f trans = Eigen::Matrix4f::Identity();
+		trans.data()[12] = pos[0];
+		trans.data()[13] = pos[1];
+		trans.data()[14] = pos[2];
+		
+		//pNode->mTransformation.Translation(toAiVector(pos /*pBone->Position*/), pNode->mTransformation);
+		//pNode->mParent->mTransformation;
+		pNode->mTransformation = toAiMatrix(trans);
 		
 		if (pBone->Children.size() > 0) {
 			pNode->mNumChildren = pBone->Children.size();
@@ -503,6 +518,8 @@ namespace CForge {
 				writeBone(pNode->mChildren[i], pBone->Children[i]);
 			}
 		}
+		
+		//pNode->mTransformation = toAiMatrix(rot)*pNode->mTransformation*pNode->mParent->mTransformation.Inverse();
 
 	}//writeSkeleton
 

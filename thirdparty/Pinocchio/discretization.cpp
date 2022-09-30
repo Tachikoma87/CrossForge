@@ -26,10 +26,10 @@ Mesh  prepareMesh(const Mesh &m)
 {
     Mesh out = m;
 
-    if(!m.isConnected()) {
-        std::cout << "Bad mesh: should be a single connected component" << endl;
-        return Mesh();
-    }
+    //if(!m.isConnected()) {
+    //    std::cout << "Bad mesh: should be a single connected component" << endl;
+    //    return Mesh();
+    //}
 
     out.computeVertexNormals();
     out.normalizeBoundingBox();

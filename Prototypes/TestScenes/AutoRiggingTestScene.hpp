@@ -132,6 +132,8 @@ namespace CForge {
 		SAssetIO::load("Assets/ExampleScenes/Eric_Anim.fbx", &M);
 		SceneUtilities::setMeshShader(&M, 0.7f, 0.04f);
 		M.computePerVertexNormals();
+		//AssetIO::store("AssetOut/out.fbx", &M);
+		//return;
 		
 		T3DMesh<float> MT;
 		SAssetIO::load("Assets/muppetshow/Model1.obj", &MT);
@@ -150,14 +152,14 @@ namespace CForge {
 			if (cur->Name.compare("RightToe")==0 || cur->Name.compare("LeftToe")==0)
 				foot.push_back(cur);
 			
-			if (cur->Name.find("Right") != std::string::npos) {
+			if (cur->Name.find("Left") != std::string::npos) {
 				// find Left
 				std::string sBoneType = cur->Name.substr(5);
-				std::cout << sBoneType << "\n";
+				//std::cout << sBoneType << "\n";
 				for (uint32_t j = 0; j < M.boneCount(); j++) {
 					T3DMesh<float>::Bone* cur2 = M.getBone(j);
-					std::cout << "compare: " << cur2->Name << " with: " << "Left" + sBoneType << "\n";
-					if (cur2->Name.compare("Left" + sBoneType)==0) {
+					//std::cout << "compare: " << cur2->Name << " with: " << "Right" + sBoneType << "\n";
+					if (cur2->Name.compare("Right" + sBoneType)==0) {
 						nsPinocchioTools::BonePair pair;
 						pair.pair[0] = cur;
 						pair.pair[1] = cur2;
@@ -171,18 +173,34 @@ namespace CForge {
 			bones.push_back(cur);
 		}
 		std::vector<Eigen::Vector3f> joints;
-		nsPinocchioTools::convertSkeleton(M.rootBone(), &sklEric, &cvsInfo, sym, fat, foot, &joints);
+		nsPinocchioTools::convertSkeleton(M.rootBone(), &sklEric, &cvsInfo, sym, fat, foot,
+		GraphicsUtility::rotationMatrix((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f),Vector3f::UnitX())).block<3,3>(0,0), &joints);
 		
-		nsPinocchio::Mesh piM("Assets/muppetshow/Model1.obj");
-		nsPinocchio::PinocchioOutput rig = nsPinocchio::autorig(sklEric, piM);
+		nsPinocchio::Mesh* piM = new nsPinocchio::Mesh(); //("Assets/muppetshow/Model1.obj");
+		nsPinocchioTools::convertMesh(&MT, piM);
+		//nsPinocchio::Mesh piM("Assets/autorig/eric.obj");
+		vector<Vector3f> poss;
+		vector<float> rads;
+		//nsPinocchioTools::autorigCust(sklEric, piM, &poss, &rads);
+		nsPinocchio::PinocchioOutput rig = nsPinocchio::autorig(sklEric, *piM);
+		
 		MT.bones(&bones);
-		//nsPinocchioTools::convertSkeleton(sklEric, MT.rootBone(), cvsInfo, *rig.attachment);
+		MT.clearSkeletalAnimations();
+		MT.addSkeletalAnimation(M.getSkeletalAnimation(0));
+		for (uint32_t i = 0; i < MT.boneCount(); i++) {
+			MT.getBone(i)->VertexInfluences = std::vector<int32_t>();
+			MT.getBone(i)->VertexWeights = std::vector<float>();
+		}
+		
+		nsPinocchioTools::applyWeights(&MT, cvsInfo, rig, MT.vertexCount());
 		
 		AutoRigger autoRigger;
 		autoRigger.init(&MT,M.getBone(0));
 		//autoRigger.process();
 		Controller.init(&MT);
 		Eric.init(&MT, &Controller);
+		//AssetIO::store("AssetOut/out.fbx", &MT);
+		//return;
 		//Controller.init(&M);
 		//Eric.init(&M, &Controller);
 		M.clear();
@@ -202,10 +220,11 @@ namespace CForge {
 		SGNGeometry EricSGN;
 		SGNTransformation EricTransformSGN;
 		EricTransformSGN.init(&RootSGN, Vector3f(0.0f, 0.0f, 0.0f));
-		//EricSGN.init(&EricTransformSGN, &Eric);
-		EricSGN.init(&EricTransformSGN, &Spock);
-		EricSGN.scale(Vector3f(0.05f, 0.05f, 0.05f));
-		EricTransformSGN.rotation((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()));
+		EricSGN.init(&EricTransformSGN, &Eric);
+		//EricSGN.init(&EricTransformSGN, &Spock);
+		//EricSGN.scale(Vector3f(0.05f, 0.05f, 0.05f));
+		//EricTransformSGN.scale(Eigen::Vector3f(100.0f,100.0f,100.0f));
+		//EricTransformSGN.rotation((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()));
 
 		// stuff for performance monitoring
 		uint64_t LastFPSPrint = CoreUtility::timestamp();
@@ -220,12 +239,12 @@ namespace CForge {
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
 			SG.update(60.0f/FPS);
-
+			
 			// this will progress all active skeletal animations for this controller
 			Controller.update(60.0f/FPS);
-
+			
 			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(), 0.4f, 1.0f, 4.0f*60.0f/FPS);
-
+			
 			// if user hits key 1, animation will be played
 			// if user also presses shift, animation speed is doubled
 			float AnimationSpeed = 1.0f;
@@ -234,7 +253,7 @@ namespace CForge {
 				SkeletalAnimationController::Animation *pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
 				Eric.activeAnimation(pAnim);
 			}
-
+			
 			//RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
 			//SG.render(&RDev);
 
@@ -248,30 +267,37 @@ namespace CForge {
 			//glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 			SG.render(&RDev);
 			//glDisable(GL_BLEND);
-			for (uint32_t i = 0; i < (uint32_t) joints.size(); i++) {
-				Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(joints[i]);
-				float r = 0.1;
-				Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
-				RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
-				autoRigger.sphere.render(&RDev);
-			}
-			glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_TRUE);
-			{
-				Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(1.0,1.0,1.0));
-				float r = 0.1;
-				Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
-				RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
-				autoRigger.sphere.render(&RDev);
-			}
-			glColorMask(GL_FALSE,GL_TRUE,GL_FALSE,GL_TRUE);
-			{
-				Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(-1.0,-1.0,-1.0));
-				float r = 0.1;
-				Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
-				RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
-				autoRigger.sphere.render(&RDev);
-			}
-			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+			//for (uint32_t i = 0; i < (uint32_t) rig.embedding.size(); i++) {
+			//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(rig.embedding[i][0],rig.embedding[i][1],rig.embedding[i][2]));
+			//	float r = 0.1f;
+			//	Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+			//	RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
+			//	autoRigger.sphere.render(&RDev);
+			//}
+			//for (uint32_t i = 0; i < (uint32_t) poss.size(); i++) {
+			//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(poss[i]);
+			//	float r = rads[i];
+			//	Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+			//	RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
+			//	//autoRigger.sphere.render(&RDev);
+			//}
+			//glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_TRUE);
+			//{
+			//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(1.0,1.0,1.0));
+			//	float r = 0.1;
+			//	Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+			//	RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
+			//	autoRigger.sphere.render(&RDev);
+			//}
+			//glColorMask(GL_FALSE,GL_TRUE,GL_FALSE,GL_TRUE);
+			//{
+			//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(-1.0,-1.0,-1.0));
+			//	float r = 0.1;
+			//	Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+			//	RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
+			//	autoRigger.sphere.render(&RDev);
+			//}
+			//glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 

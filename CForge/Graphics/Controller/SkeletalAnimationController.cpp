@@ -216,9 +216,13 @@ namespace CForge {
 
 						float s = (pAnim->t - Time) / (TimeP1 - Time);
 						if (i < m_Joints.size()) {
-							m_Joints[i]->LocalPosition = (1.0f - s) * pAnimData->Keyframes[i]->Positions[k] + s * pAnimData->Keyframes[i]->Positions[k + 1];
-							m_Joints[i]->LocalRotation = pAnimData->Keyframes[i]->Rotations[k].slerp(s, pAnimData->Keyframes[i]->Rotations[k + 1]);
-							m_Joints[i]->LocalScale = (1.0f - s) * pAnimData->Keyframes[i]->Scalings[k] + s * pAnimData->Keyframes[i]->Scalings[k + 1];
+							//TODO Eric_Anim Chest4 missing for some reason
+							if (pAnimData->Keyframes[i]->Positions.size() > k+1)
+								m_Joints[i]->LocalPosition = (1.0f - s) * pAnimData->Keyframes[i]->Positions[k] + s * pAnimData->Keyframes[i]->Positions[k + 1];
+							if (pAnimData->Keyframes[i]->Rotations.size() > k+1)
+								m_Joints[i]->LocalRotation = pAnimData->Keyframes[i]->Rotations[k].slerp(s, pAnimData->Keyframes[i]->Rotations[k + 1]);
+							if (pAnimData->Keyframes[i]->Scalings.size() > k+1)
+								m_Joints[i]->LocalScale = (1.0f - s) * pAnimData->Keyframes[i]->Scalings[k] + s * pAnimData->Keyframes[i]->Scalings[k + 1];
 						}		
 						break;
 					}
