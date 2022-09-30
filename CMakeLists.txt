@@ -28,6 +28,7 @@ FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and p
 
 FIND_PACKAGE(OpenCV CONFIG REQUIRED)	# Open computer vision library
 FIND_PACKAGE(libigl CONFIG REQUIRED)	# mesh processing library
+FIND_PACKAGE(WebP CONFIG REQUIRED)
 
 
 include_directories(
@@ -212,6 +213,9 @@ add_executable(CForgeSandbox
 	Terrain/GUI/Widgets/Label.cpp
 	Terrain/GUI/Widgets/Window.cpp
 
+	Prototypes/Assets/StbImageIO.cpp
+	Prototypes/Assets/WebPImageIO.cpp
+
 	)
 
 if(WIN32)
@@ -223,6 +227,12 @@ if(WIN32)
 	ws2_32
 	PRIVATE tinyxml2::tinyxml2
 	${FREETYPE_LIBRARIES}
+
+	PRIVATE WebP::webp 
+	PRIVATE WebP::webpdemux 
+	PRIVATE WebP::libwebpmux 
+	PRIVATE WebP::webpdecoder
+
 	)
 endif (WIN32)
 
