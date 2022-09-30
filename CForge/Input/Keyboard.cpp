@@ -50,6 +50,7 @@ namespace CForge {
 		KeyboardCallback broadcastObj;
 		broadcastObj.key = K;
 		broadcastObj.state = S;
+		broadcastObj.Unicode = 0;
 		broadcast(broadcastObj);
 	}//keyPressed
 
@@ -57,5 +58,13 @@ namespace CForge {
 		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
 		return m_KeyStates[K];
 	}//
+
+	void Keyboard::textInput(uint32_t Character) {
+		KeyboardCallback broadcastObj;
+		broadcastObj.key = KEY_UNKNOWN;
+		broadcastObj.state = KEY_PRESSED;
+		broadcastObj.Unicode = Character;
+		broadcast(broadcastObj);
+	}//textInput
 
 }//name-space

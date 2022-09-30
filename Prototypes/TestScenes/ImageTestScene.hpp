@@ -21,14 +21,48 @@
 #include "../../CForge/Graphics/Actors/SkyboxActor.h"
 #include "../../Examples/exampleSceneBase.hpp"
 
+#include "Terrain/GUI/Widgets/Form.h"
 
 using namespace Eigen;
 using namespace std;
 
 namespace CForge {
 
-	class ImageTestScene : public ExampleSceneBase {
+	class ImageTestScene : public ExampleSceneBase, public ITListener<GUICallbackObject>{
 	public:
+		void initPPQuad(ScreenQuad* quad) {
+			vector<ShaderCode*> vsSources;
+			vector<ShaderCode*> fsSources;
+			string errorLog;
+
+			SShaderManager* shaderManager = SShaderManager::instance();
+			vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "420 core",
+				0, ""));
+
+			"";
+			const char* fragmentShaderSource = "#version 420 core\n"
+				"layout (std140) uniform CameraData{			 \n"
+				"mat4 ViewMatrix;								 \n"
+				"mat4 ProjectionMatrix;							 \n"
+				"vec4 Position;									 \n"
+				"}Camera;										 \n"
+				"layout(binding=0) uniform sampler2D texColor;	 \n"
+				"layout(binding=1) uniform sampler2D texPosition;\n"
+				"layout(binding=2) uniform sampler2D texNormal;	 \n"
+				"in vec2 TexCoords;\n"
+				"out vec4 FragColor;\n"
+				"void main()\n"
+				"{\n"
+				"	FragColor = vec4(vec3(texture(texColor, TexCoords)), 1.0);\n"
+				"}\n\0";
+			fsSources.push_back(shaderManager->createShaderCode(fragmentShaderSource, "420 core",
+				0, ""));
+			GLShader* quadShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
+			shaderManager->release();
+
+			quad->init(0, 0, 1, 1, quadShader);
+		}
+
 		ImageTestScene(void) {
 			m_WindowTitle = "CrossForge Prototype - Image import/export Test scene";
 			m_WinWidth = 1280;
@@ -41,6 +75,8 @@ namespace CForge {
 
 		void init(void) {
 			initWindowAndRenderDevice();
+
+			gladLoadGL();
 
 			// initialize camera
 			m_Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
@@ -140,27 +176,32 @@ namespace CForge {
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 
-			// Test import/Export of images
-			/*StbImageIO ImgIO;
-			WebPImageIO WebPIO;*/
-			T2DImage<uint8_t> Img;
+			ScreenQuad ppquad;
+			initPPQuad(&ppquad);
 
-			try {
-				//ImgIO.load("Assets/blub/blub_texture.png", &Img);
-				//ImgIO.store("MyAssets/blubtexture.jpg", &Img);
+			//T2DImage<uint8_t> shadowBufTex;
 
-				//WebPIO.store("MyAssets/blubtexture.webp", &Img);
+			//GUI gui = GUI();
+			m_GUI.init(&m_RenderWin);
 
-				/*ImgIO.load("MyAssets/ground03.jpg", &Img);
+			FormWidget* form = m_GUI.createOptionsWindow(U"Graphics", 1, U"");
+			form->startListening(this);
+			form->addOption(GUI_WIREFRAME, INPUTTYPE_BOOL, U"Wireframe");
+			form->setDefault(GUI_WIREFRAME, Wireframe);
+			form->addOption(GUI_RENDER_AABB, INPUTTYPE_BOOL, U"Render LOD AABBs");
+			form->setDefault(GUI_RENDER_AABB, renderLODAABB);
+			form->addOption(GUI_FRAMERATE, INPUTTYPE_BOOL, U"Unlock Framerate");
+			form->setDefault(GUI_FRAMERATE, false);
+			form->addOption(GUI_CAMERA_PANNING, INPUTTYPE_RANGESLIDER, U"Camera Panning Speed");
+			form->setLimit(GUI_CAMERA_PANNING, 0.0f, 5.0f);
+			form->setStepSize(GUI_CAMERA_PANNING, 0.5f);
+			form->setDefault(GUI_CAMERA_PANNING, cameraPanningAcceleration);
+			form->addOption(GUI_LODOFFSET, INPUTTYPE_RANGESLIDER, U"LOD Offest");
+			form->setLimit(GUI_LODOFFSET, 0.0f, 5.0f);
 
-				WebPIO.store("MyAssets/ground03.webp", &Img);
-
-				ImgIO.store("MyAssets/ground03.jpeg", &Img);*/
-
-			}
-			catch (const CrossForgeException& e) {
-				printf("An error occurred during loading/storing an image: %s\n", e.msg().c_str());
-			}
+			//TextWidget* fpsWidget = m_GUI.createPlainText();
+			m_pFPSWidget = m_GUI.createPlainText();
+			m_pFPSWidget->setTextAlign(TextWidget::ALIGN_RIGHT);
 
 		}//initialize
 
@@ -190,6 +231,9 @@ namespace CForge {
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 				m_SkyboxSG.render(&m_RenderDev);
 
+				m_GUI.processEvents();
+				m_GUI.render(&m_RenderDev);
+
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
 					static int32_t ScreenshotCount = 0;
 					T2DImage<uint8_t> Img;
@@ -209,6 +253,22 @@ namespace CForge {
 					AssetIO::store("../../SunDepthbuffer.jpg", &Img);
 				}
 
+				static uint64_t LastFPSPrint = CoreUtility::timestamp();
+
+				if (CoreUtility::timestamp() - LastFPSPrint > 500) {
+					LastFPSPrint = CoreUtility::timestamp();
+
+					wchar_t text_wstring[100] = { 0 };
+					int charcount = swprintf(text_wstring, 100, L"FPS: %.2f", m_FPS);
+					std::u32string text;
+					//ugly cast to u32string from wchar[]
+					for (int i = 0; i < charcount; i++) {
+						text.push_back((char32_t)text_wstring[i]);
+					}
+					m_pFPSWidget->setText(text);
+					m_pFPSWidget->setPosition(m_RenderWin.width() - m_pFPSWidget->getWidth(), 0);
+				}
+				
 				m_RenderWin.swapBuffers();
 
 				updateFPS();
@@ -216,7 +276,31 @@ namespace CForge {
 
 			}//while[main loop]
 		}//run
+
 	protected:
+
+		void listen(const GUICallbackObject Msg) override {
+			if (Msg.FormID == 1) {
+				// 			cameraMode = *((int*)Msg.Data.at(1).pData) == 2;
+				// 			shadows = *((bool*)Msg.Data.at(2).pData);
+				Wireframe = *((bool*)Msg.Data.at(GUI_WIREFRAME).pData);
+				renderLODAABB = *((bool*)Msg.Data.at(GUI_RENDER_AABB).pData);
+				if (*((bool*)Msg.Data.at(GUI_FRAMERATE).pData)) {   //'unlock framerate'
+					glfwSwapInterval(0);
+				}
+				else {
+					glfwSwapInterval(1);
+				};
+				cameraPanningAcceleration = *((float*)Msg.Data.at(GUI_CAMERA_PANNING).pData);
+				// 			CAM_FOV = *((float*)Msg.Data.at(7).pData);
+				// 			if (cameraPointerForCallbackHandling) {
+				// 				cameraPointerForCallbackHandling->projectionMatrix(WINWIDTH, WINHEIGHT, GraphicsUtility::degToRad(CAM_FOV), 0.1f, 5000.0f);
+				// 			}
+
+				// TODO pSLOD->LODOffset = *((float*)Msg.Data.at(GUI_LODOFFSET).pData);
+			}
+		};
+
 		StaticActor m_TexturedGround;
 		StaticActor m_Tree1;
 		StaticActor m_Tree2;
@@ -227,6 +311,21 @@ namespace CForge {
 		SGNGeometry m_SkyboxGeomSGN;
 		SGNTransformation m_RootSGN;
 		SGNGeometry m_GroundSGN;
+
+		enum GUISettings : int {
+			GUI_WIREFRAME,
+			GUI_RENDER_AABB,
+			GUI_FRAMERATE,
+			GUI_CAMERA_PANNING,
+			GUI_LODOFFSET,
+			GUI_FOV
+		};
+		bool Wireframe = false;
+		bool renderLODAABB = true;
+		float cameraPanningAcceleration = 1;
+
+		GUI m_GUI;
+		TextWidget *m_pFPSWidget;
 	};//ForestTestScene
 
 	void imageTestScene(void) {

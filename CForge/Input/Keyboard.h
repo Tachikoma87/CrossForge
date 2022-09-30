@@ -162,6 +162,8 @@ namespace CForge {
 		bool keyPressed(Key K1, Key K2, Key K3 = KEY_UNKNOWN)const;
 		void keyState(Key K, State S);
 		State keyState(Key K)const;
+
+		void textInput(uint32_t Character);
 	protected:
 
 		State m_KeyStates[KEY_COUNT]; // 0 release, 1 pressed, 2 repeated
@@ -171,6 +173,7 @@ namespace CForge {
 	struct KeyboardCallback {
 		Keyboard::Key key;
 		Keyboard::State state;
+		uint32_t Unicode;
 	};
 
 }//name-space
