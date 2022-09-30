@@ -21,8 +21,6 @@
 #include "../../CForge/Graphics/Actors/SkyboxActor.h"
 #include "../../Examples/exampleSceneBase.hpp"
 
-#include "../Assets/StbImageIO.h"
-#include "../Assets/WebPImageIO.h"
 
 using namespace Eigen;
 using namespace std;
@@ -143,8 +141,8 @@ namespace CForge {
 
 
 			// Test import/Export of images
-			StbImageIO ImgIO;
-			WebPImageIO WebPIO;
+			/*StbImageIO ImgIO;
+			WebPImageIO WebPIO;*/
 			T2DImage<uint8_t> Img;
 
 			try {
@@ -153,11 +151,11 @@ namespace CForge {
 
 				//WebPIO.store("MyAssets/blubtexture.webp", &Img);
 
-				ImgIO.load("MyAssets/ground03.jpg", &Img);
+				/*ImgIO.load("MyAssets/ground03.jpg", &Img);
 
 				WebPIO.store("MyAssets/ground03.webp", &Img);
 
-				ImgIO.store("MyAssets/ground03.jpeg", &Img);
+				ImgIO.store("MyAssets/ground03.jpeg", &Img);*/
 
 			}
 			catch (const CrossForgeException& e) {

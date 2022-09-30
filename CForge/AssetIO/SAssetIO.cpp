@@ -1,9 +1,11 @@
 #include "SAssetIO.h"
 
 #include "AssimpMeshIO.h"
-#include "OpenCVImageIO.h"
 
-#include "File.h"
+#include "StbImageIO.h"
+#include "WebPImageIO.h"
+
+#include "OpenCVImageIO.h"
 
 #include "../Core/SLogger.h"
 
@@ -94,13 +96,24 @@ namespace CForge {
 
 		// Image Plugins
 		ImageIOPlugin ImgPlug;
+
+		StbImageIO* pStbImageIO = new StbImageIO();
+		pStbImageIO->init();
+		ImgPlug.pInstance = pStbImageIO;
+		ImgPlug.Name = pStbImageIO->pluginName();
+		m_ImageIOPlugins.push_back(ImgPlug);
+
+		WebPImageIO* pWebPImageIO = new WebPImageIO();
+		pWebPImageIO->init();
+		ImgPlug.pInstance = pWebPImageIO;
+		ImgPlug.Name = pWebPImageIO->pluginName();
+		m_ImageIOPlugins.push_back(ImgPlug);
+
 		OpenCVImageIO* pOpenCVImageIO = new OpenCVImageIO();
 		pOpenCVImageIO->init();
 		ImgPlug.pInstance = pOpenCVImageIO;
 		ImgPlug.Name = pOpenCVImageIO->pluginName();
-
 		m_ImageIOPlugins.push_back(ImgPlug);
-
 	}//initialize
 
 	void SAssetIO::clear(void) {
