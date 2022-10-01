@@ -17,6 +17,7 @@ namespace CForge {
 		clear();
 	}//Destructor
 
+
 	void GBuffer::init(uint32_t Width, uint32_t Height) {
 		if (Width == 0 || Height == 0) throw CForgeExcept("Zero width or height for GBuffer specified!");
 		
