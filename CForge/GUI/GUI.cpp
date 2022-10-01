@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include <glad/glad.h>
-#include "CForge/Graphics/Shader/SShaderManager.h"
+#include "../Graphics/Shader/SShaderManager.h"
 
 using namespace std; 
 

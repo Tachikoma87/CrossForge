@@ -1,12 +1,12 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): Character.h and Character.cpp                                    *
+* File(s): InputCheckbox.h and InputCheckbox.cpp                                      *
 *                                                                           *
 * Content:    *
 *          .                                         *
 *                                                                           *
 *                                                                           *
-* Author(s): Tom Uhlmann                                                    *
+* Author(s): SimonKretzschmar, Tom Uhlmann                                                    *
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
@@ -15,35 +15,31 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_CHARACTER_H__
-#define __CFORGE_CHARACTER_H__
+#ifndef __CFORGE_INPUTCHECKBOX_H__
+#define __CFORGE_INPUTCHECKBOX_H__
 
-//<<<<<<<< HEAD:Prototypes/Camera/StripPhotoCamera.h
+#include "../Widget.h"
+#include "../GUI.h"
 
-#include <opencv2/opencv.hpp>
-#include <Eigen/Eigen>
-#include "../../CForge/Core/CrossForgeException.h"
-//#include "StripPhoto.h"
-//========
-#include "../Core/CForgeObject.h"
-#include "../Core/ITCaller.hpp"
-//>>>>>>>> dev_lod_decoration_acf:CForge/Input/Character.h
-
-// TODO check if this is needed
 namespace CForge {
-	class CFORGE_API Character : public ITCaller<char32_t>, public CForgeObject {
-	public:
-		Character(void);
-		~Character(void);
 
-		void init(class GLFWwindow *pWin);
-		void clear(void);
+    class CFORGE_API InputCheckboxWidget : public BaseWidget {
+    public:
+        InputCheckboxWidget(GUI* rootGUIObject, BaseWidget* parent);
+        ~InputCheckboxWidget();
 
-		void sendChar(unsigned int codepoint);
-	protected:
-		class GLFWwindow* m_pWin;
-	};//Character
+        bool getValue();
+        void setState(bool state);
 
-}//name-space
+        void onClick(mouseEventInfo) override;
 
+        void changePosition(float dx, float dy) override;
+        /*void updateLayout() override;*/   //this widget does not change its size
+        void draw(CForge::RenderDevice* renderDevice) override;
+    private:
+        bool m_state;
+        TextWidget* m_checkmark;
+    };
+
+}//name space
 #endif

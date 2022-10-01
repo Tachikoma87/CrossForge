@@ -98,33 +98,6 @@ namespace CForge {
 
 	}//registerDevice (Mouse)
 
-	void SInputManager::registerDevice(GLFWwindow* pWin, Character* pCharacter) {
-		if (nullptr == pWin) throw NullpointerExcept("pWin");
-		if (nullptr == pCharacter) throw NullpointerExcept("pCharacter");
-
-		for (auto i : m_RegisteredCharacterCallbacks) {
-			if (nullptr == i) continue;
-			if (i->pWin == pWin && i->pCharacter == pCharacter) return; // we already know this pair
-		}//for[all registered character callbacks]
-
-		CharacterEntity* pEntity = new CharacterEntity();
-		pEntity->pCharacter = pCharacter;
-		pEntity->pWin = pWin;
-
-		glfwSetCharCallback(pWin, SInputManager::characterCallbackFunc);
-
-		for (auto& i : m_RegisteredCharacterCallbacks) {
-			if (nullptr == i) {
-				i = pEntity;
-				pEntity = nullptr;
-				break;
-			}
-		}//for[registered characters]
-
-		if (nullptr != pEntity) m_RegisteredCharacterCallbacks.push_back(pEntity);
-
-	}//registerDevice (Character)
-
 	void SInputManager::unregisterDevice(Keyboard* pKeyboard) {
 		for (auto& i : m_RegisteredKeyboards) {
 			if (i != nullptr && i->pKeyboard == pKeyboard) {
@@ -146,16 +119,6 @@ namespace CForge {
 			}
 		}//for[registered mice]
 	}//unregister device (mouse)
-
-	void SInputManager::unregisterDevice(Character* pCharacter) {
-		for (auto& i : m_RegisteredCharacterCallbacks) {
-			if (i != nullptr && i->pCharacter == pCharacter) {
-				glfwSetCharCallback(i->pWin, nullptr);
-				delete i;
-				i = nullptr;
-			}
-		}//for[all character callbacks]
-	}//unregisterCharacter
 
 
 	void SInputManager::keyboardCallbackFunc(GLFWwindow* pWin, int Key, int Scancode, int Action, int Mods) {
@@ -340,10 +303,5 @@ namespace CForge {
 		}
 	}//mouseWheelCallbackFunc
 
-	//void SInputManager::characterCallbackFunc(class GLFWwindow* pWin, unsigned int codepoint) {
-	//	for (auto i : m_pInstance->m_RegisteredCharacterCallbacks) {
-	//		if (nullptr != i && pWin == i->pWin) i->pCharacter->sendChar(codepoint);
-	//	}
-	//}//characterCallbackFunc
 
 }//name-space

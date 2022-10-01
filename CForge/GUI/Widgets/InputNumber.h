@@ -30,7 +30,7 @@ namespace CForge {
 
     class InputNumberWidget;
 
-    class InputNumberWidget_DecreaseButton : public TextWidget {
+    class CFORGE_API InputNumberWidget_DecreaseButton : public TextWidget {
     public:
         InputNumberWidget_DecreaseButton(GUI* rootGUIObject, InputNumberWidget* parent);
         void onClick(mouseEventInfo) override;
@@ -38,7 +38,7 @@ namespace CForge {
         InputNumberWidget* m_parentInput;
     };
 
-    class InputNumberWidget_IncreaseButton : public TextWidget {
+    class CFORGE_API InputNumberWidget_IncreaseButton : public TextWidget {
     public:
         InputNumberWidget_IncreaseButton(GUI* rootGUIObject, InputNumberWidget* parent);
         void onClick(mouseEventInfo) override;
@@ -46,7 +46,7 @@ namespace CForge {
         InputNumberWidget* m_parentInput;
     };
 
-    class InputNumberWidget : public BaseWidget {
+    class CFORGE_API InputNumberWidget : public BaseWidget {
     public:
         InputNumberWidget(GUI* rootGUIObject, BaseWidget* parent);
         ~InputNumberWidget();

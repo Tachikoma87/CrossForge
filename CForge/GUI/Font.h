@@ -22,15 +22,14 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
-#include <string>
 #include <unordered_map>
 
 #include "GUIDefaults.h"
+#include "../Graphics/Shader/GLShader.h"
+#include "../Graphics/GLVertexArray.h"
+#include "../Graphics/GLBuffer.h"
+#include "../Graphics/RenderDevice.h"
 
-#include "CForge/Graphics/Shader/GLShader.h"
-#include <CForge/Graphics/GLBuffer.h>
-#include <CForge/Graphics/GLVertexArray.h>
-#include <CForge/Graphics/RenderDevice.h>
 
 namespace CForge {
 
@@ -44,7 +43,7 @@ namespace CForge {
         int advanceWidth;
     } glyph_t;
 
-    class FontFace {
+    class CFORGE_API FontFace {
     public:
         FontFace(FontStyle style, FT_Library library);
         ~FontFace();
@@ -74,7 +73,7 @@ namespace CForge {
     };
 
 
-    class TextLine {
+    class CFORGE_API TextLine {
     public:
         TextLine();
         ~TextLine();

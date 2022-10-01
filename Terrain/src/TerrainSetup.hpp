@@ -11,8 +11,8 @@
 #include "Terrain/src/Map/TerrainMap.h"
 #include "./Decoration/DecoSetup.hpp"
 
-#include "../GUI/GUI.h"
-#include "../GUI/Widgets/Form.h"
+#include <CForge/GUI/GUI.h>
+#include <CForge/GUI/Widgets/Form.h>
 #include <wchar.h>
 
 //#include "../../Prototypes/Graphics/SkyboxActor.h"

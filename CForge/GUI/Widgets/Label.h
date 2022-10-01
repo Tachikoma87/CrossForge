@@ -1,12 +1,12 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): InputText.h and InputText.cpp                                      *
+* File(s): Label.h and Label.cpp                                      *
 *                                                                           *
 * Content:    *
 *          .                                         *
 *                                                                           *
 *                                                                           *
-* Author(s): Tom Uhlmann                                                    *
+* Author(s): Simon Kretzschmar, Tom Uhlmann                                                    *
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
@@ -15,56 +15,51 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_INPUTTEXT_H__
-#define __CFORGE_INPUTTEXT_H__
+#ifndef __CFORGE_LABEL_H__
+#define __CFORGE_LABEL_H__
 
 #include "../Widget.h"
 #include "../GUI.h"
 
+#include "InputNumber.h"
+#include "InputCheckbox.h"
+#include "InputText.h"
+#include "InputSlider.h"
+#include "InputDropDown.h"
+
 namespace CForge {
-    class InputTextWidget;
 
-    class InputTextWidget_ClearButton : public TextWidget {
+    class CFORGE_API LabelWidget : public BaseWidget {
     public:
-        InputTextWidget_ClearButton(GUI* rootGUIObject, InputTextWidget* parent);
-        ~InputTextWidget_ClearButton();
+        LabelWidget(GUIInputType type, std::u32string labelText, GUI* rootGUIObject, BaseWidget* parent);
+        ~LabelWidget();
 
-        void onClick(mouseEventInfo) override;
-
-    private:
-        InputTextWidget* m_text;
-    };
-
-    class InputTextWidget : public BaseWidget {
-    public:
-        InputTextWidget(GUI* rootGUIObject, BaseWidget* parent);
-        ~InputTextWidget();
-
-        std::u32string getValue();
+        GUICallbackDatum getValue();
         void setLimit(int lower, int higher);
-        void clearText();
-        void setText(std::u32string text);
+        void setLimit(float lower, float higher);
+        void setDefault(int value);
+        void setDefault(float value);
+        void setDefault(bool value);
+        void setDefault(std::u32string value);
+        void setStepSize(float stepSize);
+        void setOptions(std::map<int, std::u32string> optionMap);
 
-        //     void onClick(mouseEventInfo mouse) override;
-        void onKeyPress(char32_t c) override;
-        void focus() override;
-        void focusLost() override;
+        //     template <typename T> auto getInputWidget();
+
+        float getJustification();
+        void setJustification(float j);
+
+        void childValueChanged(BaseWidget* child) override;
 
         void changePosition(float dx, float dy) override;
         void updateLayout() override;
         void draw(CForge::RenderDevice* renderDevice) override;
-    protected:
-        virtual bool validateInput();
-        std::u32string m_value;
-        TextWidget* m_text;
     private:
-        void recalculateLayout();
-
-        struct {
-            int min;
-            int max;
-        } m_limits;
-        InputTextWidget_ClearButton* m_clear;
+        GUIInputType m_type;
+        void* m_pValue;
+        TextWidget* m_pLabelText;
+        BaseWidget* m_pInput;
+        float m_justification;      //offset of the input element
     };
 
 }//name space

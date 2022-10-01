@@ -59,6 +59,7 @@ namespace CForge {
 		return m_KeyStates[K];
 	}//
 
+
 	void Keyboard::textInput(uint32_t Character) {
 		KeyboardCallback broadcastObj;
 		broadcastObj.key = KEY_UNKNOWN;
