@@ -55,7 +55,7 @@ namespace Terrain {
                                      BranchProperties branchProperties);
 
         static void generateCircleVertices(GEOMETRY &geometry, int pointsPerCircle, Vector3f centrePoint, float radius,
-                                           Matrix3<float> &rotationMatrix, float uvCordU);
+                                           Eigen::Matrix3f &rotationMatrix, float uvCordU);
 
         static void generateLeavesQuad(GEOMETRY &geometry, RotPos &rotPos, float width, float height, float offset);
 

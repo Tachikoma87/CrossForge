@@ -205,7 +205,7 @@ namespace Terrain {
             (2 * PI * radius); // Textur Verzerrung vermeiden indem der Kreisumfang auf 1 normiert wird
         float uvCordU = 0;
         Vector2f rotationAcceleration = Vector2f(0, 0);
-        Matrix3<float> rotationMatrix = rotPos.rotation.toRotationMatrix();
+        Matrix3f rotationMatrix = rotPos.rotation.toRotationMatrix();
 
         generateCircleVertices(geometry, pointsPerCirlce, rotPos.position, radius, rotationMatrix, uvCordU);
         for (int i = 1; i <= numCircles; i++) {
@@ -239,7 +239,7 @@ namespace Terrain {
 
     void
     TreeGenerator::generateCircleVertices(GEOMETRY &geometry, int pointsPerCircle, Vector3f centrePoint, float radius,
-                                          Matrix3<float> &rotationMatrix, float uvCordU) {
+                                          Eigen::Matrix3f &rotationMatrix, float uvCordU) {
         for (int i = 0; i <= pointsPerCircle; i++) {
             float angle = 2 * PI * ((float) i) / pointsPerCircle;
             Vector3f normal(cos(angle), 0, -1 * sin(angle));

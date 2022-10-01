@@ -12,7 +12,11 @@ namespace CForge {
 #ifdef WIN32
 		return std::filesystem::exists(Path);
 #else
+#if __GNUC__ > 7
+		return std::filesystem::exists(Path);
+#else
 		return std::experimental::filesystem::exists(Path);
+#endif
 #endif
 	}//exists
 
@@ -20,7 +24,11 @@ namespace CForge {
 #ifdef WIN32
 		return std::filesystem::file_size(Path);
 #else
+#if __GNUC__ > 7
+		return std::filesystem::file_size(Path);
+#else
 		return std::experimental::filesystem::file_size(Path);
+#endif
 #endif
 	}//size
 
@@ -29,8 +37,13 @@ namespace CForge {
 		std::filesystem::path P = Path.c_str();
 		return std::filesystem::absolute(P).string();
 #else
+#if __GNUC__ > 7
+		std::filesystem::path P = Path.c_str();
+		return std::filesystem::absolute(P).string();
+#else
 		std::experimental::filesystem::path P = Path.c_str();
 		return std::experimental::filesystem::absolute(P).string();
+#endif
 #endif
 	}//absolute
 
@@ -39,8 +52,13 @@ namespace CForge {
 		std::filesystem::path Relpath = std::filesystem::relative(std::filesystem::path(Path.c_str()), std::filesystem::path(Basepath.c_str()));
 		return Relpath.string();
 #else
+#if __GNUC__ > 7
+		std::filesystem::path Relpath = std::filesystem::relative(std::filesystem::path(Path.c_str()), std::filesystem::path(Basepath.c_str()));
+		return Relpath.string();
+#else
 		std::experimental::filesystem::path Relpath = std::experimental::filesystem::path(Path.c_str());
 		return Relpath.string();
+#endif
 #endif
 	}//relative
 
@@ -48,11 +66,39 @@ namespace CForge {
 #ifdef WIN32
 		std::filesystem::path P = Path.c_str();
 #else
+#if __GNUC__ > 7
+		std::filesystem::path P = Path.c_str();
+#else
 		std::experimental::filesystem::path P = Path.c_str();
+#endif
 #endif
 		P = P.remove_filename();
 		return P.string();
-	}//directory
+	}//remove filename
+
+	bool File::isDirectory(const std::string Path) {
+#ifdef WIN32
+		return std::filesystem::is_directory(Path);
+#else
+#if __GNUC__ > 7
+		return std::filesystem::is_directory(Path);
+#else 
+		return std::experimental::filesystem::is_directory(Path);
+#endif
+#endif
+	}//isDirectory
+
+	bool File::createDirecotry(const std::string Path) {
+#ifdef WIN32
+		return std::filesystem::create_directory(Path);
+#else
+#if __GNUC__ > 7
+		return std::filesystem::create_directory(Path);
+#else
+		return std::experimental::filesystem::create_directory(Path);
+#endif
+#endif
+	}//createDirectory
 
 
 	File::File(void): CForgeObject("File") {

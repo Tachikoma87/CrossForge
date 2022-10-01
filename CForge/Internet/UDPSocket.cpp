@@ -255,6 +255,9 @@ namespace CForge {
 		return true;
 	}//recvData
 
+	uint16_t UDPSocket::port(void)const {
+		return m_Port;
+	}//port
 
 	void UDPSocket::recvThread(void) {
 		int64_t pSock = (int64_t)m_pHandle;
