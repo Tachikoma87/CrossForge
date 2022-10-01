@@ -27,6 +27,8 @@
 
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 
+
+
 using namespace CForge;
 using namespace Eigen;
 
@@ -66,7 +68,6 @@ int main(int argc, char* argv[]) {
 		//exampleSkybox();  
 		//exampleSockets();
 	
-
 
 		//forestTestScene();
 		//imuInputDeviceTestScene();	 

@@ -48,7 +48,7 @@ namespace CForge {
 
     GUI::GUI()
     {
-
+        library = nullptr;
     }
     GUI::~GUI()
     {
@@ -63,7 +63,7 @@ namespace CForge {
         for (auto x : fontFaces) {
             delete x;
         }
-        FT_Done_FreeType(library);
+        if(nullptr != library) FT_Done_FreeType(library);
     }
 
     void GUI::init(CForge::GLWindow* pWin)
