@@ -5,7 +5,7 @@
 #include "MeshDecimate.h"
 //#include "Examples/SceneUtilities.hpp"
 
-#include <filesystem>
+//#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -38,9 +38,14 @@ namespace CForge {
 		std::string metaFilePath = lodFolderpath + "meta.xml";
 		
 		// create Folder if non existent
-		if (!std::filesystem::is_directory(lodFolderpath)) {
+	/*	if (!std::filesystem::is_directory(lodFolderpath)) {
 			std::filesystem::create_directory(lodFolderpath);
+		}*/
+
+		if (!File::isDirectory(lodFolderpath)) {
+			File::createDirecotry(lodFolderpath);
 		}
+
 		
 		std::vector<T3DMesh<float>*> LODMeshes;
 		LODMeshes.push_back(pActor->getLODMeshes()[0]);
@@ -53,7 +58,7 @@ namespace CForge {
 		
 		bool forceCreate = pSLOD->forceLODregeneration;
 		// create Metafile
-		if (!std::filesystem::exists(metaFilePath) || forceCreate) { // metafile does not exist
+		if (!File::exists(metaFilePath) || forceCreate) { // metafile does not exist
 			generateAndStoreLOD(&LODMeshes, &decAmount, Filepath);
 		}
 		else { // metafile already exists
@@ -69,7 +74,7 @@ namespace CForge {
 					std::string modelPath = getModelPath(Filepath, i);
 					//std::cout << modelPath << "\n";
 				
-					if (!std::filesystem::exists(modelPath)) { // mesh does not exist, regenerate LOD
+					if (!File::exists(modelPath)) { // mesh does not exist, regenerate LOD
 						LODMeshes.erase(LODMeshes.begin()+1, LODMeshes.end()); // remove existing models except the original
 						generateAndStoreLOD(&LODMeshes, &decAmount, Filepath);
 						break;
@@ -148,7 +153,7 @@ namespace CForge {
 	bool LODHandler::checkLODmodel(const std::string metaFilePath)
 	{
 		// TODO open  Metafile and check valid object
-		if (!std::filesystem::exists(metaFilePath)) {
+		if (!File::exists(metaFilePath)) {
 			return false;
 		}
 		else {
@@ -158,7 +163,7 @@ namespace CForge {
 			// check if model files for lod exist
 			for (uint32_t i = 0; i < values.size(); i++) {
 				
-				std::filesystem::exists(metaFilePath);
+				File::exists(metaFilePath);
 			}
 		}
 	}

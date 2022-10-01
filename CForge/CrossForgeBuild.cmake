@@ -31,6 +31,8 @@ if(USE_OPENCV)
 		"${OpenCV_INCLUDE_DIRS}"
 	)
 	add_compile_definitions(USE_OPENCV)
+else()
+	set(OpenCV_LIBS "")
 endif(USE_OPENCV)
 
 include_directories(
@@ -165,23 +167,22 @@ target_link_libraries(crossforge
 	PRIVATE WebP::webpdecoder
 	ws2_32					#winsock2
 	${FREETYPE_LIBRARIES}	# for Text rendering
+	${OpenCV_LIBS}
 	)
-	if(USE_OPENCV)
-	target_link_libraries(${OpenCV_LIBS})
-	endif(USE_OPENCV)
-endif(WIN32)
 
-if(UNIX)
+elseif(UNIX)
 	target_link_libraries(crossforge 
-	PRIVATE gpiod 
-	PRIVATE stdc++fs
 	PRIVATE glfw 
+	PRIVATE glad::glad
 	PRIVATE assimp::assimp
 	PRIVATE igl::core 
 	PRIVATE igl::common
-	PRIVATE glad::glad
-)
-	if(USE_OPENCV)
-	target_link_libraries(${OpenCV_LIBS})
-	endif(USE_OPENCV)
+	PRIVATE WebP::webp 
+	PRIVATE WebP::webpdecoder
+	${FREETYPE_LIBRARIES}	# for Text rendering
+	${OpenCV_LIBS}
+
+	PRIVATE gpiod 
+	PRIVATE stdc++fs
+	)
 endif(UNIX)
