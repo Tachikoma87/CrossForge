@@ -27,12 +27,10 @@ namespace CForge {
 
 #include "WidgetBackground.h"
 #include "Font.h"
-#include <CForge/Graphics/RenderDevice.h>
-#include <CForge/Input/Mouse.h>
-#include <CForge/Input/Character.h>
-#include <vector>
 
-#include <CForge/Core/ITListener.hpp>
+#include "../Graphics/RenderDevice.h"
+#include "../Input/Mouse.h"
+#include "../Core/ITListener.hpp"
 
 /*
 To be able to define callbacks of different data types without
@@ -83,11 +81,11 @@ namespace CForge {
         Eigen::Vector2f rawPosition;        //cursor position in window space
     };
 
-    class CallbackTestClass : public CForge::ITListener<GUICallbackObject> {
+    class CFORGE_API CallbackTestClass : public CForge::ITListener<GUICallbackObject> {
         void listen(const GUICallbackObject Msg) override;
     };
 
-    class GUI : public CForge::ITListener<char32_t>, public CForge::ITListener<CForge::KeyboardCallback> {
+    class CFORGE_API GUI : public CForge::ITListener<char32_t>, public CForge::ITListener<CForge::KeyboardCallback> {
     public:
         GUI();
         ~GUI();

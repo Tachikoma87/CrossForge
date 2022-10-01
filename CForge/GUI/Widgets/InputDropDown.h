@@ -25,7 +25,7 @@ namespace CForge {
 
     class InputDropDownWidget;
 
-    class InputDropDownWidget_PopupEntry : public TextWidget {
+    class CFORGE_API InputDropDownWidget_PopupEntry : public TextWidget {
     public:
         InputDropDownWidget_PopupEntry(GUI* rootGUIObject, BaseWidget* parent, InputDropDownWidget* dropdown);
         void onClick(mouseEventInfo) override;
@@ -35,7 +35,7 @@ namespace CForge {
         InputDropDownWidget* m_pDropdown;
     };
 
-    class InputDropDownWidget_PopupBox : public BaseWidget {
+    class CFORGE_API InputDropDownWidget_PopupBox : public BaseWidget {
     public:
         InputDropDownWidget_PopupBox(GUI* rootGUIObject, BaseWidget* parent, InputDropDownWidget* dropdown);
         ~InputDropDownWidget_PopupBox();
@@ -49,7 +49,7 @@ namespace CForge {
         WidgetBackgroundBorder m_border;
     };
 
-    class InputDropDownWidget_Popup : public BaseWidget {
+    class CFORGE_API InputDropDownWidget_Popup : public BaseWidget {
     public:
         InputDropDownWidget_Popup(GUI* rootGUIObject, InputDropDownWidget* parent);
         ~InputDropDownWidget_Popup();
@@ -65,7 +65,7 @@ namespace CForge {
         InputDropDownWidget_PopupBox* m_box;
     };
 
-    class InputDropDownWidget : public BaseWidget {
+    class CFORGE_API InputDropDownWidget : public BaseWidget {
     public:
         InputDropDownWidget(GUI* rootGUIObject, BaseWidget* parent);
         ~InputDropDownWidget();

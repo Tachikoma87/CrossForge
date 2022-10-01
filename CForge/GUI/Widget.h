@@ -23,11 +23,11 @@
 #include "GUIDefaults.h"
 #include "WidgetBackground.h"
 #include "Font.h"
-#include <CForge/Input/Mouse.h>
+#include "../Input/Mouse.h"
 
 namespace CForge {
 
-    class BaseWidget {
+    class CFORGE_API BaseWidget {
     public:
 
         BaseWidget(GUI* rootGUIObject, BaseWidget* parent);
@@ -70,7 +70,7 @@ namespace CForge {
         float m_height;
     };
 
-    class TextWidget : public BaseWidget {
+    class CFORGE_API TextWidget : public BaseWidget {
     public:
         TextWidget(GUI* rootGUIObject, BaseWidget* parent);
         ~TextWidget();
