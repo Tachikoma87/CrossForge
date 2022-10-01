@@ -21,7 +21,6 @@
 #include "../Core/CForgeObject.h"
 #include "Keyboard.h"
 #include "Mouse.h"
-#include "Character.h"
 
 namespace CForge {
 	class CFORGE_API SInputManager: public CForgeObject {
@@ -31,10 +30,8 @@ namespace CForge {
 
 		void registerDevice(class GLFWwindow* pWin, Keyboard* pKeyboard);
 		void registerDevice(class GLFWwindow* pWin, Mouse* pMouse);
-		void registerDevice(class GLFWwindow* pWin, Character* pCharacter);
 		void unregisterDevice(Keyboard* pKeyboard);
 		void unregisterDevice(Mouse* pMouse);
-		void unregisterDevice(Character* pCharacter);
 
 	protected:
 		SInputManager(void);
@@ -60,14 +57,10 @@ namespace CForge {
 			Mouse* pMouse;
 			class GLFWwindow* pWin;
 		};
-		struct CharacterEntity {
-			Character* pCharacter;
-			class GLFWwindow* pWin;
-		};
+		
 
 		std::vector<KeyboardEntity*> m_RegisteredKeyboards;
 		std::vector<MouseEntity*> m_RegisteredMice;
-		std::vector<CharacterEntity*> m_RegisteredCharacterCallbacks;
 
 	};//SInputManager
 

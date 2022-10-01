@@ -21,7 +21,7 @@
 #include "../../CForge/Graphics/Actors/SkyboxActor.h"
 #include "../../Examples/exampleSceneBase.hpp"
 
-#include "Terrain/GUI/Widgets/Form.h"
+#include <CForge/GUI/Widgets/Form.h>
 
 using namespace Eigen;
 using namespace std;

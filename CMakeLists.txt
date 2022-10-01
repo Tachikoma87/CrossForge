@@ -112,8 +112,6 @@ add_library(crossforge SHARED
 	CForge/Graphics/UniformBufferObjects/UBOBoneData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOMorphTargetData.cpp
 
-	
-
 	# Lights
 	CForge/Graphics/Lights/ILight.cpp 
 	CForge/Graphics/Lights/DirectionalLight.cpp 
@@ -128,8 +126,7 @@ add_library(crossforge SHARED
 
 	# Input related
 	CForge/Input/Keyboard.cpp
-	CForge/Input/Mouse.cpp
-	CForge/Input/Character.cpp
+	CForge/Input/Mouse.cpp	
 	CForge/Input/SInputManager.cpp
 
 	# Internet related
@@ -139,13 +136,20 @@ add_library(crossforge SHARED
 	# Mesh Processing
 	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
 
-	# Decoration
-	Terrain/src/Decoration/InstanceActor.cpp
-	Terrain/src/Decoration/InstanceSGN.cpp
-	Terrain/src/Decoration/InstanceVertexUtility.cpp
-	
-	Prototypes/UBOInstancedData.cpp
-	
+	# GUI
+	CForge/GUI/Font.cpp
+	CForge/GUI/GUI.cpp
+	CForge/GUI/Widget.cpp
+	CForge/GUI/WidgetBackground.cpp
+	CForge/GUI/Widgets/Form.cpp
+	CForge/GUI/Widgets/InputCheckbox.cpp
+	CForge/GUI/Widgets/InputDropDown.cpp
+	CForge/GUI/Widgets/InputNumber.cpp
+	CForge/GUI/Widgets/InputSlider.cpp
+	CForge/GUI/Widgets/InputText.cpp
+	CForge/GUI/Widgets/Label.cpp
+	CForge/GUI/Widgets/Window.cpp
+
  )
 
 if(WIN32)
@@ -165,7 +169,8 @@ target_link_libraries(crossforge
 	PRIVATE igl::common		
 	PRIVATE WebP::webp 
 	PRIVATE WebP::webpdecoder
-	ws2_32			#winsock2
+	ws2_32					#winsock2
+	${FREETYPE_LIBRARIES}	# for Text rendering
 	)
 	if(USE_OPENCV)
 	target_link_libraries(${OpenCV_LIBS})
@@ -211,19 +216,6 @@ add_executable(CForgeSandbox
 	Prototypes/LODHandler.cpp
 	Prototypes/UBOInstancedData.cpp
 	Prototypes/MeshDecimate.cpp
-
-	Terrain/GUI/Font.cpp
-	Terrain/GUI/GUI.cpp
-	Terrain/GUI/Widget.cpp
-	Terrain/GUI/WidgetBackground.cpp
-	Terrain/GUI/Widgets/Form.cpp
-	Terrain/GUI/Widgets/InputCheckbox.cpp
-	Terrain/GUI/Widgets/InputDropDown.cpp
-	Terrain/GUI/Widgets/InputNumber.cpp
-	Terrain/GUI/Widgets/InputSlider.cpp
-	Terrain/GUI/Widgets/InputText.cpp
-	Terrain/GUI/Widgets/Label.cpp
-	Terrain/GUI/Widgets/Window.cpp
 	)
 
 if(WIN32)
@@ -307,18 +299,25 @@ project (Terrain)
 add_executable(Terrain
 	Main.cpp
 
-	Terrain/GUI/GUI.cpp
-	Terrain/GUI/WidgetBackground.cpp
-	Terrain/GUI/Widget.cpp
-	Terrain/GUI/Font.cpp
-	Terrain/GUI/Widgets/InputNumber.cpp
-	Terrain/GUI/Widgets/InputCheckbox.cpp
-	Terrain/GUI/Widgets/InputText.cpp
-	Terrain/GUI/Widgets/InputSlider.cpp
-	Terrain/GUI/Widgets/InputDropDown.cpp
-	Terrain/GUI/Widgets/Label.cpp
-	Terrain/GUI/Widgets/Form.cpp
-	Terrain/GUI/Widgets/Window.cpp
+#	Terrain/GUI/GUI.cpp
+#	Terrain/GUI/WidgetBackground.cpp
+#	Terrain/GUI/Widget.cpp
+#	Terrain/GUI/Font.cpp
+#	Terrain/GUI/Widgets/InputNumber.cpp
+#	Terrain/GUI/Widgets/InputCheckbox.cpp
+#	Terrain/GUI/Widgets/InputText.cpp
+#	Terrain/GUI/Widgets/InputSlider.cpp
+#	Terrain/GUI/Widgets/InputDropDown.cpp
+#	Terrain/GUI/Widgets/Label.cpp
+#	Terrain/GUI/Widgets/Form.cpp
+#	Terrain/GUI/Widgets/Window.cpp
+
+	# Decoration
+	Terrain/src/Decoration/InstanceActor.cpp
+	Terrain/src/Decoration/InstanceSGN.cpp
+	Terrain/src/Decoration/InstanceVertexUtility.cpp
+	
+	Prototypes/UBOInstancedData.cpp
 
 	Terrain/src/Map/ClipMap.cpp
 	Terrain/src/Map/TileNode.cpp

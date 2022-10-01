@@ -24,7 +24,7 @@
 namespace CForge {
     class WindowWidget;
 
-    class WindowWidget_MinimizeButton : public TextWidget {
+    class CFORGE_API WindowWidget_MinimizeButton : public TextWidget {
     public:
         WindowWidget_MinimizeButton(WindowWidget* window, GUI* rootGUIObject, BaseWidget* parent);
         ~WindowWidget_MinimizeButton();
@@ -37,7 +37,7 @@ namespace CForge {
         WindowWidget* m_window;
     };
 
-    class WindowWidget_Header : public BaseWidget {
+    class CFORGE_API WindowWidget_Header : public BaseWidget {
     public:
         WindowWidget_Header(std::u32string title, GUI* rootGUIObject, WindowWidget* parent);
         ~WindowWidget_Header();
@@ -56,7 +56,7 @@ namespace CForge {
         WindowWidget_MinimizeButton* m_button;
     };
 
-    class WindowWidget : public BaseWidget {
+    class CFORGE_API WindowWidget : public BaseWidget {
     public:
         WindowWidget(std::u32string title, GUI* rootGUIObject, BaseWidget* parent);
         ~WindowWidget();

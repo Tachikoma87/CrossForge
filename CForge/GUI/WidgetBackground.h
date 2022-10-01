@@ -19,11 +19,11 @@
 #define __CFORGE_WIDGETBACKGROUND_H__
 
 //copied over from the CForge::ScreenQuad
-#include <CForge/Graphics/Actors/IRenderableActor.h>
-#include <CForge/Graphics/Actors/RenderGroupUtility.h>
-#include <CForge/Graphics/Actors/VertexUtility.h>
-#include <CForge/Graphics/GLVertexArray.h>
-#include <CForge/Graphics/GLBuffer.h>
+#include "../Graphics/Actors/IRenderableActor.h"
+#include "../Graphics/Actors/RenderGroupUtility.h"
+#include "../Graphics/Actors/VertexUtility.h"
+#include "../Graphics/GLVertexArray.h"
+#include "../Graphics/GLBuffer.h"
 
 #include "GUI.h"
 #include "GUIDefaults.h"
@@ -39,7 +39,7 @@ namespace CForge {
     class GUI;
     class BaseWidget;
 
-    class WidgetBackground : public CForge::IRenderableActor/*, public IWidgetBackground*/ {
+    class CFORGE_API WidgetBackground : public CForge::IRenderableActor/*, public IWidgetBackground*/ {
     public:
         WidgetBackground(BaseWidget* parent, GUI* root);
         ~WidgetBackground(void);
@@ -71,7 +71,7 @@ namespace CForge {
     /*
      Single color background object
      */
-    class WidgetBackgroundColored : public WidgetBackground {
+    class CFORGE_API WidgetBackgroundColored : public WidgetBackground {
     public:
         WidgetBackgroundColored(BaseWidget* parent, GUI* root);
         ~WidgetBackgroundColored(void);
@@ -84,7 +84,7 @@ namespace CForge {
     /*
      Single color border
      */
-    class WidgetBackgroundBorder : public WidgetBackground {
+    class CFORGE_API WidgetBackgroundBorder : public WidgetBackground {
     public:
         WidgetBackgroundBorder(BaseWidget* parent, GUI* root);
         ~WidgetBackgroundBorder(void);

@@ -1,9 +1,8 @@
-#include "WidgetBackground.h"
 #include <glad/glad.h>
-#include <CForge/Graphics/RenderDevice.h>
+
+#include "WidgetBackground.h"
 #include "Widget.h"
-
-
+#include "../Graphics/RenderDevice.h"
 
 //adapted from the cforge screenquad
 //TODO: the shader should be expanded to support different colors and perhaps some other

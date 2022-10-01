@@ -22,13 +22,13 @@
 #include "../GUI.h"
 
 #include "Label.h"
-#include <CForge/Core/ITCaller.hpp>
+#include "../../Core/ITCaller.hpp"
 
 namespace CForge {
 
     class FormWidget;
 
-    class FormWidget_ApplyButton : public TextWidget {
+    class CFORGE_API FormWidget_ApplyButton : public TextWidget {
     public:
         FormWidget_ApplyButton(GUI* rootGUIObject, FormWidget* parent);
         void onClick(mouseEventInfo) override;
@@ -36,7 +36,7 @@ namespace CForge {
         FormWidget* m_parentForm;
     };
 
-    class FormWidget : public BaseWidget, public CForge::ITCaller<GUICallbackObject> {
+    class CFORGE_API FormWidget : public BaseWidget, public CForge::ITCaller<GUICallbackObject> {
     public:
         FormWidget(int FormID, GUI* rootGUIObject, BaseWidget* parent, std::u32string applyName = U"Apply");
         ~FormWidget();

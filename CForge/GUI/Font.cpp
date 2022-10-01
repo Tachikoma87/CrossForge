@@ -1,18 +1,11 @@
-#include "Font.h"
-#include <stdio.h>
-
-#include <string>
-#include <math.h>
-
+#include <glad/glad.h>
 #include <iostream>
 #include <fstream>
 
-#include <glad/glad.h>
-#include "CForge/Graphics/Shader/GLShader.h"
-#include <CForge/Graphics/GLVertexArray.h>
-#include <CForge/Graphics/GLBuffer.h>
-#include <CForge/AssetIO/SAssetIO.h>
-#include <CForge/Graphics/GraphicsUtility.h>
+
+#include "../AssetIO/SAssetIO.h"
+#include "../Graphics/GraphicsUtility.h"
+#include "Font.h"
 
 namespace CForge {
 
