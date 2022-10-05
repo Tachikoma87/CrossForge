@@ -139,24 +139,28 @@ namespace CForge {
 		//gltf testing
 		GLTFIO gltfio;
 
-		std::string name = "AnimatedMorphCube";
+		std::string name = "ToyCar";
 
 		std::string gltfPath = "Assets/gltf sample models/" + name + "/glTF/" + name;
 		
-		gltfio.load(gltfPath + ".gltf", &testModel);
-		gltfio.store(gltfPath + "_debug.gltf", &testModel);
-		testModel.clear();
-		gltfio.load(gltfPath + "_debug.gltf", &testModel);
+		//gltfio.load(gltfPath + ".gltf", &testModel);
+		//gltfio.store(gltfPath + "_debug.gltf", &testModel);
+		//testModel.clear();
+		//gltfio.load(gltfPath + "_debug.gltf", &testModel);
+		
 
-		//SAssetIO::load("C:/Users/Ossit/vcpkg/buildtrees/assimp/src/90204b69df-11eeb21532.clean/test/models-nonbsd/FBX/2013_BINARY/anims_with_full_rotations_between_keys.fbx", &testModel);
+		SAssetIO::load("Assets/ExampleScenes/Eric_Anim.fbx", &testModel);
+		gltfio.store("Assets/ExampleScenes/Eric_Anim.gltf", &testModel);
+		testModel.clear();
+		gltfio.load("Assets/ExampleScenes/Eric_Anim.gltf", &testModel);
 		
 		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);
 		testModel.computePerVertexNormals();
-		//testModel.bones(&std::vector<T3DMesh<float>::Bone*>(), false);
+		testModel.bones(&std::vector<T3DMesh<float>::Bone*>(), false);
 		Cube.init(&testModel);
 		testModel.clear();
-		
 
+		
 		// build scene graph
 		SceneGraph SG;
 		SGNTransformation RootSGN;
@@ -188,6 +192,7 @@ namespace CForge {
 		GraphicsUtility::checkGLError(&GLError);
 		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
+		
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
 			SG.update(FPS / 60.0f);

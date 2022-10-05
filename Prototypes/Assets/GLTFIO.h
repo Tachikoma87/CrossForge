@@ -34,63 +34,7 @@ class GLTFIO {
 		
 		void release(void);
 		static bool accepted(const std::string Filepath, I3DMeshIO::Operation Op);
-
-#pragma region util
-		static int componentCount(const int type);
-
-		static int sizeOfGltfComponentType(const int componentType);
-
-		static bool componentIsMatrix(const int type);
-
-		static void toVec2f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector2f>* pOut);
-
-		static void toVec3f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector3f>* pOut);
-
-		static void toVec4f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector4f>* pOut);
-
-		static void toQuatf(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Quaternionf>* pOut);
-
-		static void toMat4f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Matrix4f>* pOut);
-
-		static Eigen::Matrix4f toSingleMat4(const std::vector<double> *pin);
-
-		static void fromVec2f(const std::vector<Eigen::Vector2f>* pIn, std::vector<std::vector<float>>* pOut);
-
-		static void fromVec3f(const std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut);
-
-		static void fromVec4f(const std::vector<Eigen::Vector4f>* pIn, std::vector<std::vector<float>>* pOut);
-
-		static void fromQuatf(const std::vector<Eigen::Quaternionf>* pIn, std::vector<std::vector<float>>* pOut);
-
-		static void fromMat4f(const std::vector<Eigen::Matrix4f>*  pIn, std::vector<std::vector<float>>* pOut);
-
-		static void fromUVtoUVW(const std::vector<Eigen::Vector2f>* pIn, std::vector<Eigen::Vector3f>* pOut);
 		
-		static void fromUVWtoUV(const std::vector<Eigen::Vector3f>* pIn, std::vector<Eigen::Vector2f>* pOut);
-
-		int getMeshIndexByCrossForgeVertexIndex(int index);
-
-		int getGltfComponentType(const float value) { return TINYGLTF_COMPONENT_TYPE_FLOAT; }
-
-		int getGltfComponentType(const unsigned char value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE; }
-
-		int getGltfComponentType(const char value) { return TINYGLTF_COMPONENT_TYPE_BYTE; }
-
-		int getGltfComponentType(const unsigned short value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT; }
-
-		int getGltfComponentType(const short value) { return TINYGLTF_COMPONENT_TYPE_SHORT; }
-
-		int getGltfComponentType(const unsigned int value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT; }
-		
-		int getGltfComponentType(const int value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT; }
-
-		Eigen::Vector3f getTranslation(const Eigen::Matrix4f& transformation);
-
-		Eigen::Quaternionf getRotation(const Eigen::Matrix4f& transformation);
-
-		Eigen::Vector3f getScale(const Eigen::Matrix4f& transformation);
-
-#pragma endregion
 	protected:
 		std::string filePath;
 
@@ -111,6 +55,65 @@ class GLTFIO {
 
 		std::vector<unsigned long> offsets;
 		unsigned long materialIndex;
+
+#pragma region util
+		static int componentCount(const int type);
+
+		static int sizeOfGltfComponentType(const int componentType);
+
+		static bool componentIsMatrix(const int type);
+
+		static void toVec2f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector2f>* pOut);
+
+		static void toVec3f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector3f>* pOut);
+
+		static void toVec4f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Vector4f>* pOut);
+
+		static void toQuatf(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Quaternionf>* pOut);
+
+		static void toMat4f(const std::vector<std::vector<float>>* pIn, std::vector<Eigen::Matrix4f>* pOut);
+
+		static Eigen::Matrix4f toSingleMat4(const std::vector<double>* pin);
+
+		static void fromVec2f(const std::vector<Eigen::Vector2f>* pIn, std::vector<std::vector<float>>* pOut);
+
+		static void fromVec3f(const std::vector<Eigen::Vector3f>* pIn, std::vector<std::vector<float>>* pOut);
+
+		static void fromVec4f(const std::vector<Eigen::Vector4f>* pIn, std::vector<std::vector<float>>* pOut);
+
+		static void fromQuatf(const std::vector<Eigen::Quaternionf>* pIn, std::vector<std::vector<float>>* pOut);
+
+		static void fromMat4f(const std::vector<Eigen::Matrix4f>* pIn, std::vector<std::vector<float>>* pOut);
+
+		static void fromUVtoUVW(const std::vector<Eigen::Vector2f>* pIn, std::vector<Eigen::Vector3f>* pOut);
+
+		static void fromUVWtoUV(const std::vector<Eigen::Vector3f>* pIn, std::vector<Eigen::Vector2f>* pOut);
+
+		int getMeshIndexByCrossForgeVertexIndex(int index);
+
+		int getGltfComponentType(const float value) { return TINYGLTF_COMPONENT_TYPE_FLOAT; }
+
+		int getGltfComponentType(const unsigned char value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE; }
+
+		int getGltfComponentType(const char value) { return TINYGLTF_COMPONENT_TYPE_BYTE; }
+
+		int getGltfComponentType(const unsigned short value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT; }
+
+		int getGltfComponentType(const short value) { return TINYGLTF_COMPONENT_TYPE_SHORT; }
+
+		int getGltfComponentType(const unsigned int value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT; }
+
+		int getGltfComponentType(const int value) { return TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT; }
+
+		Eigen::Vector3f getTranslation(const Eigen::Matrix4f& transformation);
+
+		Eigen::Quaternionf getRotation(const Eigen::Matrix4f& transformation);
+
+		Eigen::Vector3f getScale(const Eigen::Matrix4f& transformation);
+		
+		int getNodeIndexByName(const std::string& name);
+
+#pragma endregion
 
 #pragma region accessor_read
 		template<class T>
@@ -336,7 +339,7 @@ class GLTFIO {
 			T t = 0;
 
 			accessor.bufferView = model.bufferViews.size();
-			accessor.byteOffset = 0;
+			accessor.byteOffset = (size_t)0;
 			accessor.componentType = getGltfComponentType(t);
 			accessor.type = TINYGLTF_TYPE_SCALAR;
 			accessor.count = pData->size();
@@ -348,8 +351,6 @@ class GLTFIO {
 			bufferView.byteOffset = pBuffer->data.size();
 			bufferView.buffer = bufferIndex;
 			bufferView.byteLength = pData->size() * sizeof(T);
-
-			bufferView.target = TINYGLTF_TARGET_ELEMENT_ARRAY_BUFFER;
 
 			model.bufferViews.push_back(bufferView);
 
@@ -364,37 +365,42 @@ class GLTFIO {
 			Buffer* pBuffer = &model.buffers[bufferIndex];
 
 			Accessor accessor;
+
+			bool is_matrix = componentIsMatrix(type);
 			
-			T n_min = std::numeric_limits<T>::max();
-			T n_max = std::numeric_limits<T>::lowest();
+			if (!is_matrix) {
+				T n_min = std::numeric_limits<T>::max();
+				T n_max = std::numeric_limits<T>::lowest();
 
-			std::vector<T> min;
-			std::vector<T> max;
+				std::vector<T> min;
+				std::vector<T> max;
 
-			for (int i = 0; i < (*pData)[0].size(); i++) {
-				min.push_back(n_min);
-				max.push_back(n_max);
-			}
-
-			for (int i = 0; i < pData->size(); i++) {
-				auto element = (*pData)[i];
-
-				for (int j = 0; j < element.size(); j++) {
-					T value = element[j];
-					if (value < min[j]) min[j] = value;
-					if (value > max[j]) max[j] = value;
+				for (int i = 0; i < (*pData)[0].size(); i++) {
+					min.push_back(n_min);
+					max.push_back(n_max);
 				}
-			}
 
-			for (int i = 0; i < min.size(); i++) {
-				accessor.minValues.push_back(min[i]);
-				accessor.maxValues.push_back(max[i]);
+				for (int i = 0; i < pData->size(); i++) {
+					auto element = (*pData)[i];
+
+					for (int j = 0; j < element.size(); j++) {
+						T value = element[j];
+
+						if (value < min[j]) min[j] = value;
+						if (value > max[j]) max[j] = value;
+					}
+				}
+				
+				for (int i = 0; i < min.size(); i++) {
+					accessor.minValues.push_back(min[i]);
+					accessor.maxValues.push_back(max[i]);
+				}
 			}
 			
 			T t = 0;
 			
 			accessor.bufferView = model.bufferViews.size();
-			accessor.byteOffset = 0;
+			accessor.byteOffset = (size_t)0;
 			accessor.componentType = getGltfComponentType(t);
 			accessor.type = type;
 			accessor.count = pData->size();
@@ -408,11 +414,7 @@ class GLTFIO {
 			bufferView.byteLength = pData->size() * sizeof(T) * componentCount(type);
 			bufferView.byteStride = 0;
 
-			bufferView.target = TINYGLTF_TARGET_ARRAY_BUFFER;
-
 			model.bufferViews.push_back(bufferView);
-
-			bool is_matrix = componentIsMatrix(type);
 
 			std::vector<T> simplified;
 			for (auto v : *pData) {
@@ -465,6 +467,8 @@ class GLTFIO {
 		void writeMorphTargets(std::pair<int, int> minmax);
 
 		void writeSkinningData();
+
+		void writeSkeletalAnimations();
 #pragma endregion
 	};//GLTFIO
 

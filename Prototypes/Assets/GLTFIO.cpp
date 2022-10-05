@@ -766,7 +766,9 @@ namespace CForge {
 
 		filePath = Filepath;
 		
+		//Using two buffers. One for vertex data and one for Textures.
 		Buffer buffer;
+		model.buffers.push_back(buffer);
 		model.buffers.push_back(buffer);
 
 		//Every texture will use this basic sampler.
@@ -780,6 +782,7 @@ namespace CForge {
 		
 		writeNodes();
 		writeSkinningData();
+		writeSkeletalAnimations();
 		
 		TinyGLTF writer;
 
@@ -860,7 +863,7 @@ namespace CForge {
 					Eigen::Vector3f vec3(0, 0, 0);
 					normal.push_back(vec3);
 				}
-				auto norm = pCMesh->normal(indices[i]);
+				auto norm = pCMesh->normal(indices[i]).normalized();
 				normal[indices[i] - min] = norm;
 			}
 
@@ -923,7 +926,7 @@ namespace CForge {
 		int meshIndex = model.meshes.size() - 1;
 		Primitive* pPrimitive = &(model.meshes[meshIndex].primitives[0]);
 		
-		int bufferIndex = model.buffers.size() - 1;
+		int bufferIndex = 0;
 		int accessorIndex = model.accessors.size();
 
 		std::vector<std::vector<float>> data;
@@ -999,7 +1002,7 @@ namespace CForge {
 			return;
 		}
 		
-		T3DMesh<float>::Material* pMaterial = pMesh->getMaterial(pSubmesh->Material);
+		const T3DMesh<float>::Material* pMaterial = pCMesh->getMaterial(pSubmesh->Material);
 
 		Material gltfMaterial;
 
@@ -1012,10 +1015,10 @@ namespace CForge {
 		gltfMaterial.emissiveTexture.index = writeTexture(pMaterial->TexEmissive);
 		gltfMaterial.occlusionTexture.index = writeTexture(pMaterial->TexOcclusion);
 
-		gltfMaterial.pbrMetallicRoughness.baseColorFactor[0] = pMaterial->Color(0);
-		gltfMaterial.pbrMetallicRoughness.baseColorFactor[1] = pMaterial->Color(1);
-		gltfMaterial.pbrMetallicRoughness.baseColorFactor[2] = pMaterial->Color(2);
-		gltfMaterial.pbrMetallicRoughness.baseColorFactor[3] = pMaterial->Color(3);
+		gltfMaterial.pbrMetallicRoughness.baseColorFactor[0] = std::max(pMaterial->Color(0), 0.0f);
+		gltfMaterial.pbrMetallicRoughness.baseColorFactor[1] = std::max(pMaterial->Color(1), 0.0f);
+		gltfMaterial.pbrMetallicRoughness.baseColorFactor[2] = std::max(pMaterial->Color(2), 0.0f);
+		gltfMaterial.pbrMetallicRoughness.baseColorFactor[3] = std::max(pMaterial->Color(3), 0.0f);
 
 		model.meshes[meshIndex].primitives[0].material = model.materials.size();
 
@@ -1039,7 +1042,7 @@ namespace CForge {
 
 
 		BufferView imageBufferView;
-		imageBufferView.buffer = model.buffers.size() - 1;
+		imageBufferView.buffer = 1;
 		Buffer* pBuffer = &model.buffers[imageBufferView.buffer];
 		imageBufferView.byteOffset = pBuffer->data.size();
 		imageBufferView.byteLength = std::filesystem::file_size(texPath);
@@ -1216,17 +1219,15 @@ namespace CForge {
 
 		int node_offset = model.nodes.size();
 
+		std::vector<Eigen::Matrix4f> inverseBindMatrices;
+
 		for (int i = 0; i < pCMesh->boneCount(); i++) {
 			auto pBone = pCMesh->getBone(i);
-			
+
+			inverseBindMatrices.push_back(pBone->OffsetMatrix);
+
 			Node newNode;
 			newNode.name = "bone_" + std::to_string(i);
-
-			if (pBone->Position(0) > -431602080.0) {
-				newNode.translation.push_back(pBone->Position(0));
-				newNode.translation.push_back(pBone->Position(1));
-				newNode.translation.push_back(pBone->Position(2));
-			}
 
 			model.nodes.push_back(newNode);
 
@@ -1261,6 +1262,19 @@ namespace CForge {
 			}
 		}
 
+		std::vector<bool> has_parent;
+		for (int i = 0; i < pCMesh->boneCount(); i++) has_parent.push_back(false);
+
+		//set children of nodes
+		for (int i = node_offset; i < model.nodes.size(); i++) {
+			auto pBone = pCMesh->getBone(i - node_offset);
+			
+			for (int j = 0; j < pBone->Children.size(); j++) {
+				model.nodes[i].children.push_back(node_offset + pBone->Children[j]->ID);
+				has_parent[pBone->Children[j]->ID] = true;
+			}
+		}
+
 		//sort and write the 4 strongest weights per vertex
 		for (int i = 0; i < mesh_influences.size(); i++) {
 			for (int j = 0; j < mesh_influences[i].size(); j++) {
@@ -1271,10 +1285,12 @@ namespace CForge {
 				//bubble sort
 				bool found = true;
 				while (found) {
+					found = false;
 					for (int pos = 0; pos < joints->size() - 1; pos++) {
 						if ((*joints)[pos] < (*joints)[pos + 1]) {
 							std::swap((*joints)[pos], (*joints)[pos + 1]);
 							std::swap((*weights)[pos], (*weights)[pos + 1]);
+							found = true;
 						}
 					}
 				}
@@ -1288,6 +1304,122 @@ namespace CForge {
 				
 				
 			}
+		}
+
+		//write inverse bind matrices
+		std::vector<std::vector<float>> data;
+		fromMat4f(&inverseBindMatrices, &data);
+		
+		writeAccessorData(0, TINYGLTF_TYPE_MAT4, &data);
+		int accessor = model.accessors.size() - 1;
+		
+		Skin skin;
+		for (int i = node_offset; i < model.nodes.size(); i++) {
+			skin.joints.push_back(i);
+		}
+		skin.inverseBindMatrices = accessor;
+		skin.skeleton = -1;
+
+		for (int i = 0; i < has_parent.size(); i++) {
+			if (!has_parent[i]) {
+				skin.skeleton = node_offset + i;
+				break;
+			}
+		}
+
+		model.skins.push_back(skin);
+	}
+
+	void GLTFIO::writeSkeletalAnimations() {
+		for (int i = 0; i < pCMesh->skeletalAnimationCount(); i++) {
+			auto pAnim = pCMesh->getSkeletalAnimation(i);
+
+			Animation newGltfAnim;
+
+			newGltfAnim.name = pAnim->Name;
+			
+			for (int j = 0; j < pAnim->Keyframes.size(); j++) {
+				auto pBoneKf = pAnim->Keyframes[j];
+
+				if (pBoneKf->BoneID == -1 || pBoneKf->Timestamps.size() == 0) {
+					continue;
+				}
+
+				writeAccessorDataScalar(0, &pBoneKf->Timestamps);
+				int indexAccessor = model.accessors.size() - 1;
+
+				if (pBoneKf->Positions.size()) {
+					std::vector<std::vector<float>> data;
+					
+					fromVec3f(&pBoneKf->Positions, &data);
+					
+					writeAccessorData(0, TINYGLTF_TYPE_VEC3, &data);
+					int positionAccessor = model.accessors.size() - 1;
+
+					AnimationSampler sampler;
+					sampler.input = indexAccessor;
+					sampler.output = positionAccessor;
+					sampler.interpolation = "LINEAR";
+
+					newGltfAnim.samplers.push_back(sampler);
+
+					AnimationChannel channel;
+					channel.sampler = newGltfAnim.samplers.size() - 1;
+					channel.target_node = getNodeIndexByName("bone_" + std::to_string(pBoneKf->BoneID));
+					assert(channel.target_node >= 0);
+					channel.target_path = "translation";
+
+					newGltfAnim.channels.push_back(channel);
+				}
+
+				if (pBoneKf->Rotations.size()) {
+					std::vector<std::vector<float>> data;
+
+					fromQuatf(&pBoneKf->Rotations, &data);
+
+					writeAccessorData(0, TINYGLTF_TYPE_VEC4, &data);
+					int rotationAccessor = model.accessors.size() - 1;
+
+					AnimationSampler sampler;
+					sampler.input = indexAccessor;
+					sampler.output = rotationAccessor;
+					sampler.interpolation = "LINEAR";
+
+					newGltfAnim.samplers.push_back(sampler);
+
+					AnimationChannel channel;
+					channel.sampler = newGltfAnim.samplers.size() - 1;
+					channel.target_node = getNodeIndexByName("bone_" + std::to_string(pBoneKf->BoneID));
+					channel.target_path = "rotation";
+
+					newGltfAnim.channels.push_back(channel);
+				}
+
+				if (pBoneKf->Scalings.size()) {
+					std::vector<std::vector<float>> data;
+
+					fromVec3f(&pBoneKf->Scalings, &data);
+
+					writeAccessorData(0, TINYGLTF_TYPE_VEC3, &data);
+					int scaleAccessor = model.accessors.size() - 1;
+
+					AnimationSampler sampler;
+					sampler.input = indexAccessor;
+					sampler.output = scaleAccessor;
+					sampler.interpolation = "LINEAR";
+
+					newGltfAnim.samplers.push_back(sampler);
+
+					AnimationChannel channel;
+					channel.sampler = newGltfAnim.samplers.size() - 1;
+					channel.target_node = getNodeIndexByName("bone_" + std::to_string(pBoneKf->BoneID));
+					channel.target_path = "scale";
+
+					newGltfAnim.channels.push_back(channel);
+				}
+			}
+
+			if (newGltfAnim.channels.size()) model.animations.push_back(newGltfAnim);
 		}
 	}
 
@@ -1815,6 +1947,18 @@ namespace CForge {
 
 		return scale;
 	}
+	
+	int GLTFIO::getNodeIndexByName(const std::string& name) {
+		for (int i = 0; i < model.nodes.size(); i++) {
+			Node* pNode = &model.nodes[i];
+
+			if (pNode->name == name) {
+				return i;
+			}
+		}
+		
+		return -1;
+	}
 
 #pragma endregion
 }//name space
@@ -1823,7 +1967,6 @@ namespace CForge {
 /*
 * Was passiert mit Skelettanimationen mit unterschiedlichen Keyframes? -> ggf. Umrechnen auf gleiche Keyframes
 * Die Berechnung der per face normals schlägt fehl, weil zu große Indices verwendet werden.
-* Node animationen ohne skins werden ignoriert, weil das T3DMesh das nicht abbilden kann.
-* Meshes handlen die mehrfach genutzt werden, beim lesen und schreiben.
 * Skelettanimationen speichern.
+* Standardanimation der Morphtargets für den Export generieren.
 */

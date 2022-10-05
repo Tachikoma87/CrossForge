@@ -22,6 +22,8 @@
 
 #include "ExampleSceneBase.hpp"
 
+#include "../Prototypes/Assets/GLTFIO.h"
+
 using namespace Eigen;
 using namespace std;
 

@@ -166,7 +166,7 @@ namespace CForge {
 			int32_t ID;
 			std::string Name;
 			Eigen::Vector3f			Position;
-			Eigen::Matrix4f			OffsetMatrix;
+			Eigen::Matrix4f			OffsetMatrix = Eigen::Matrix4f::Identity();
 			std::vector<int32_t>	VertexInfluences;
 			std::vector<float>		VertexWeights;
 			Bone* pParent;
@@ -446,8 +446,10 @@ namespace CForge {
 			}
 
 			// find root bone
+			int index = 0;
 			for (auto i : m_Bones) {
 				if (i->pParent == nullptr) m_pRootBone = i;
+				i->ID = index++;
 			}//for[all bones]
 
 		}//bones
