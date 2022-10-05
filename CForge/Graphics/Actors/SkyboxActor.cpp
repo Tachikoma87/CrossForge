@@ -221,6 +221,7 @@ namespace CForge {
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
 
+        m_VertexArray.unbind();
 	}//render
 
     void SkyboxActor::saturation(float Saturation) {

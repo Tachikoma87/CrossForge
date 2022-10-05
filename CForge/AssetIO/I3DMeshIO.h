@@ -29,7 +29,7 @@ namespace CForge {
 	* \todo Do full documentation
 	*/
 
-	class I3DMeshIO: public CForgeObject {
+	class CFORGE_API I3DMeshIO: public CForgeObject {
 	public:
 		enum Operation: uint8_t {
 			OP_LOAD = 0,
