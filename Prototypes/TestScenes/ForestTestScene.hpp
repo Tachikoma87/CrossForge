@@ -89,8 +89,8 @@ namespace CForge {
 			vector<string> ClearSky;
 			ClearSky.push_back("MyAssets/Cloudy/graycloud_rt.jpg");
 			ClearSky.push_back("MyAssets/Cloudy/graycloud_lf.jpg");
-			ClearSky.push_back("MyAssets/Cloudy/graycloud_up.jpg");
 			ClearSky.push_back("MyAssets/Cloudy/graycloud_dn.jpg");
+			ClearSky.push_back("MyAssets/Cloudy/graycloud_up.jpg");
 			ClearSky.push_back("MyAssets/Cloudy/graycloud_ft.jpg");
 			ClearSky.push_back("MyAssets/Cloudy/graycloud_bk.jpg");
 
