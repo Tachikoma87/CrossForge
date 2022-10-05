@@ -33,6 +33,7 @@ if(USE_OPENCV)
 	add_compile_definitions(USE_OPENCV)
 else()
 	set(OpenCV_LIBS "")
+	remove_definitions(USE_OPENCV)
 endif(USE_OPENCV)
 
 include_directories(
@@ -180,7 +181,7 @@ elseif(UNIX)
 	PRIVATE WebP::webp 
 	PRIVATE WebP::webpdecoder
 	${FREETYPE_LIBRARIES}	# for Text rendering
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 
 	PRIVATE gpiod 
 	PRIVATE stdc++fs

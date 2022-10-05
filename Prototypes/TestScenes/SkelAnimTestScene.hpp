@@ -68,65 +68,66 @@ namespace CForge {
 			M.clear();
 
 
-			SAssetIO::load("Assets/tmp/MuscleManSittingWalkingClean.glb", &M);
+			//SAssetIO::load("MyAssets/WalkingSittingEve.glb", &M);
+			SAssetIO::load("MyAssets/WalkingSittingEve.fbx", &M);
 			setMeshShader(&M, 0.6f, 0.04f);
 
 			M.computePerVertexNormals();
-			//m_ControllerCaptured.init(&M);
-			//m_Captured.init(&M, &m_ControllerCaptured);
-			//M.clear();
-
-			T3DMesh<float> M2;
-			SAssetIO::load("Assets/tmp/MuscleManPosed.glb", &M2);
-			M2.computePerFaceNormals();
-
-			// initialize skeletal actor (Eric) and its animation controller
-			SAssetIO::load("MyAssets/DoubleCaptured.glb", &M);
-			setMeshShader(&M, 0.6f, 0.04f);
-			// male textures
-			M.getMaterial(0)->TexAlbedo = "Assets/tmp/MHTextures/young_lightskinned_male_diffuse2.png";
-			M.getMaterial(1)->TexAlbedo = "Assets/tmp/MHTextures/brown_eye.png";
-			M.getMaterial(2)->TexAlbedo = "Assets/tmp/MHTextures/male_casualsuit04_diffuse.png";
-			M.getMaterial(3)->TexAlbedo = "Assets/tmp/MHTextures/shoes06_diffuse.png";
-
-			// female textures
-			M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
-			M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
-			M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
-			M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
-			M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
-
-			M.computePerVertexNormals();
-			M.computePerVertexTangents();
 			m_ControllerCaptured.init(&M);
 			m_Captured.init(&M, &m_ControllerCaptured);
 			M.clear();
 
-			SAssetIO::load("MyAssets/DoubleSynth.glb", &M);
-			setMeshShader(&M, 0.6f, 0.04f);
-			M.computePerVertexNormals();
-			M.computePerVertexTangents();
-			M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
-			M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
-			M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
-			M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
-			M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
-			m_ControllerSynth.init(&M);
-			m_Synth.init(&M, &m_ControllerSynth);
-			M.clear();
+			/*T3DMesh<float> M2;
+			SAssetIO::load("Assets/tmp/MuscleManPosed.glb", &M2);
+			M2.computePerFaceNormals();*/
 
-			SAssetIO::load("MyAssets/DoubleStylized.glb", &M);
-			setMeshShader(&M, 0.7f, 0.04f);
-			M.computePerVertexNormals();
-			M.computePerVertexTangents();
-			M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
-			M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
-			M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
-			M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
-			M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
-			m_ControllerStyle.init(&M);
-			m_Style.init(&M, &m_ControllerStyle);
-			M.clear();
+			//// initialize skeletal actor (Eric) and its animation controller
+			//SAssetIO::load("MyAssets/DoubleCaptured.glb", &M);
+			//setMeshShader(&M, 0.6f, 0.04f);
+			//// male textures
+			//M.getMaterial(0)->TexAlbedo = "Assets/tmp/MHTextures/young_lightskinned_male_diffuse2.png";
+			//M.getMaterial(1)->TexAlbedo = "Assets/tmp/MHTextures/brown_eye.png";
+			//M.getMaterial(2)->TexAlbedo = "Assets/tmp/MHTextures/male_casualsuit04_diffuse.png";
+			//M.getMaterial(3)->TexAlbedo = "Assets/tmp/MHTextures/shoes06_diffuse.png";
+
+			//// female textures
+			//M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
+			//M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
+			//M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+			//M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
+			//M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
+
+			//M.computePerVertexNormals();
+			//M.computePerVertexTangents();
+			//m_ControllerCaptured.init(&M);
+			//m_Captured.init(&M, &m_ControllerCaptured);
+			//M.clear();
+
+			//SAssetIO::load("MyAssets/DoubleSynth.glb", &M);
+			//setMeshShader(&M, 0.6f, 0.04f);
+			//M.computePerVertexNormals();
+			//M.computePerVertexTangents();
+			//M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
+			//M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
+			//M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+			//M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
+			//M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
+			//m_ControllerSynth.init(&M);
+			//m_Synth.init(&M, &m_ControllerSynth);
+			//M.clear();
+
+			//SAssetIO::load("MyAssets/DoubleStylized.glb", &M);
+			//setMeshShader(&M, 0.7f, 0.04f);
+			//M.computePerVertexNormals();
+			//M.computePerVertexTangents();
+			//M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
+			//M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
+			//M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+			//M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
+			//M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
+			//m_ControllerStyle.init(&M);
+			//m_Style.init(&M, &m_ControllerStyle);
+			//M.clear();
 
 			// build scene graph
 			m_RootSGN.init(nullptr);
@@ -152,11 +153,11 @@ namespace CForge {
 			m_CapturedTransformSGN.init(&m_RootSGN, ModelPos + 2 * Offset, Rot, Vector3f(Sc, Sc, Sc));
 			m_CapturedSGN.init(&m_CapturedTransformSGN, &m_Captured);
 
-			m_StyleTransformSGN.init(&m_RootSGN, ModelPos + Offset, Rot, Vector3f(Sc, Sc, Sc));
+			/*m_StyleTransformSGN.init(&m_RootSGN, ModelPos + Offset, Rot, Vector3f(Sc, Sc, Sc));
 			m_StyleSGN.init(&m_StyleTransformSGN, &m_Style);
 
 			m_SynthTransformSGN.init(&m_RootSGN, ModelPos, Rot, Vector3f(Sc, Sc, Sc));
-			m_SynthSGN.init(&m_SynthTransformSGN, &m_Synth);
+			m_SynthSGN.init(&m_SynthTransformSGN, &m_Synth);*/
 
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CoreUtility::timestamp();
@@ -185,9 +186,11 @@ namespace CForge {
 				m_SG.update(60.0f / m_FPS);
 
 				// this will progress all active skeletal animations for this controller
-				m_ControllerCaptured.update(60.0f / m_FPS);
+				m_ControllerCaptured.update(60.0f / m_FPS / 60.0f);
 				m_ControllerSynth.update(60.0f / m_FPS);
 				m_ControllerStyle.update(60.0f / m_FPS);
+
+
 
 				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
