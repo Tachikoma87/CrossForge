@@ -7,6 +7,7 @@
 
 
 using namespace Assimp;
+#include <iostream>
 
 namespace CForge {
 	AssimpMeshIO::AssimpMeshIO(void): I3DMeshIO("AssimpMeshIO") {
@@ -411,7 +412,7 @@ namespace CForge {
 				if (InfluenceIDs.size() > 0) {
 					aiBone* pB = new aiBone();
 					pB->mName = pBone->Name.c_str();
-					pB->mOffsetMatrix = /*/toAiMatrix(Eigen::Matrix4f::Identity());//*/toAiMatrix(pBone->OffsetMatrix);
+					pB->mOffsetMatrix = /**/toAiMatrix(Eigen::Matrix4f::Identity());//*/toAiMatrix(pBone->OffsetMatrix); // has no influence
 					pB->mNumWeights = InfluenceIDs.size();
 					pB->mWeights = new aiVertexWeight[pB->mNumWeights];
 					for (uint32_t j = 0; j < InfluenceIDs.size(); ++j) {
@@ -471,7 +472,8 @@ namespace CForge {
 			pSkeletonRoot->mParent = pScene->mRootNode;
 			pScene->mRootNode->addChildren(1, &pSkeletonRoot);
 			writeBone(pScene->mRootNode->mChildren[pScene->mRootNode->mNumChildren-1], pMesh->rootBone());
-			
+			// set rotation of bones
+			rotateBones(pScene->mRootNode->mChildren[pScene->mRootNode->mNumChildren-1],Eigen::Matrix3f::Identity());
 		}
 		
 		pScene->mMetaData = new aiMetadata();
@@ -488,26 +490,33 @@ namespace CForge {
 
 
 	}//T3DMeshToAiScene
+	
+	void AssimpMeshIO::rotateBones(aiNode* pNode, Eigen::Matrix3f accu) {
+		
+		Eigen::Matrix4f mat = toEigenMat(pNode->mTransformation);
+		Eigen::Matrix3f rot = mat.block<3,3>(0,0);
+		Eigen::Vector3f trans = Eigen::Vector3f(mat.data()[12],mat.data()[13],mat.data()[14]);
+		
+		trans = accu.inverse()*trans;
+		rot = accu.inverse()*rot; // global to relative rotation
+		accu = accu*rot;
+		
+		mat.block<3,3>(0,0) = rot;
+		mat.data()[12] = trans[0];
+		mat.data()[13] = trans[1];
+		mat.data()[14] = trans[2];
+		pNode->mTransformation = toAiMatrix(mat);
+		
+		for (uint32_t i = 0; i < pNode->mNumChildren; i++) {
+			rotateBones(pNode->mChildren[i], accu);
+		}
+	}
 
 	void AssimpMeshIO::writeBone(aiNode* pNode, const T3DMesh<float>::Bone* pBone) {
 
 		pNode->mName = pBone->Name.c_str();
-		// position of bone in bone space
-		Eigen::Matrix4f mat = pBone->OffsetMatrix;
-		Eigen::Matrix4f rot = mat;
-		rot.data()[12] = 0.0f;
-		rot.data()[13] = 0.0f;
-		rot.data()[14] = 0.0f;
-		mat = pBone->OffsetMatrix.inverse();
-		Eigen::Vector3f pos = Eigen::Vector3f(mat.data()[12],mat.data()[13],mat.data()[14]);
-		Eigen::Matrix4f trans = Eigen::Matrix4f::Identity();
-		trans.data()[12] = pos[0];
-		trans.data()[13] = pos[1];
-		trans.data()[14] = pos[2];
-		
-		//pNode->mTransformation.Translation(toAiVector(pos /*pBone->Position*/), pNode->mTransformation);
-		//pNode->mParent->mTransformation;
-		pNode->mTransformation = toAiMatrix(trans);
+		Eigen::Matrix4f mat = pBone->OffsetMatrix.inverse();
+		pNode->mTransformation = toAiMatrix(mat);
 		
 		if (pBone->Children.size() > 0) {
 			pNode->mNumChildren = pBone->Children.size();
@@ -519,7 +528,18 @@ namespace CForge {
 			}
 		}
 		
-		//pNode->mTransformation = toAiMatrix(rot)*pNode->mTransformation*pNode->mParent->mTransformation.Inverse();
+		// replace translation part with translation relative to previous bone
+		Eigen::Vector3f translation = Eigen::Vector3f(mat.data()[12], mat.data()[13], mat.data()[14]);
+		translation[0] -= pNode->mParent->mTransformation.a4;
+		translation[1] -= pNode->mParent->mTransformation.b4;
+		translation[2] -= pNode->mParent->mTransformation.c4;
+		
+		Eigen::Matrix4f f = mat;
+		f.data()[12] = translation[0];
+		f.data()[13] = translation[1];
+		f.data()[14] = translation[2];
+		
+		pNode->mTransformation = toAiMatrix(f);//pNode->mTransformation*pNode->mParent->mTransformation.Inverse();
 
 	}//writeSkeleton
 

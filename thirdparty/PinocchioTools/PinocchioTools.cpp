@@ -1,35 +1,7 @@
 #include "PinocchioTools.hpp"
 #include <cmath>
-
+#include <iostream>
 #include "PinocchioTools.hpp"
-
-
-#ifdef WIN32
-#ifdef _MANAGED
-#pragma managed(push, off)
-#endif
-
-#include "windows.h"
-BOOL APIENTRY DllMain( HMODULE hModule,
-	DWORD  ul_reason_for_call,
-	LPVOID lpReserved
-)
-{
-	switch (ul_reason_for_call)
-	{
-	case DLL_PROCESS_ATTACH:
-	case DLL_THREAD_ATTACH:
-	case DLL_THREAD_DETACH:
-	case DLL_PROCESS_DETACH:
-		break;
-	}
-	return TRUE;
-}
-
-#ifdef _MANAGED
-#pragma managed(pop)
-#endif
-#endif
 
 namespace nsPinocchioTools {
 
@@ -65,12 +37,13 @@ namespace nsPinocchioTools {
 		return ret;
 	}
 	
-	void convertSkeleton(CForge::T3DMesh<float>::Bone* in, nsPinocchio::Skeleton* out, CVScalingInfo* CVSInfo,
-	                     std::vector<BonePair> symmetry,
-	                     std::vector<CForge::T3DMesh<float>::Bone*> fat,
-	                     std::vector<CForge::T3DMesh<float>::Bone*> foot,
-	                     Eigen::Matrix3f rotation,
-		std::vector<Eigen::Vector3f>* joints) {
+	void convertSkeleton(CForge::T3DMesh<float>::Bone* in, nsPiR::Skeleton* out, CVScalingInfo* CVSInfo,
+			std::vector<BonePair> symmetry,
+			std::vector<CForge::T3DMesh<float>::Bone*> fat,
+			std::vector<CForge::T3DMesh<float>::Bone*> foot,
+			Eigen::Matrix3f rotation,
+			std::vector<Eigen::Vector3f>* joints) {
+		
 		std::vector<CForge::T3DMesh<float>::Bone*> inList = gatherBones(in);
 		
 		// find scaling and offsetfor skeleton
@@ -107,6 +80,14 @@ namespace nsPinocchioTools {
 				skl->PmakeJoint(inList[i]->Name, pos, inList[i]->pParent->Name);
 			else
 				skl->PmakeJoint(inList[i]->Name, pos);
+			if (inList[i]->Children.size()==0 && inList[i]->pParent) { //endeffector, add one node
+				Eigen::Matrix4f mat = inList[i]->pParent->OffsetMatrix.inverse();
+				Eigen::Vector3f apos = rotation * Eigen::Vector3f(-mat.data()[12],mat.data()[13],mat.data()[14]);
+				Vector3 piApos = Vector3(apos[0],apos[1],apos[2]);
+				piApos = piApos*CVSInfo->scaling - o;
+				Vector3 epos = piApos + (pos-piApos)*1.1f;
+				skl->PmakeJoint(inList[i]->Name + "_piTend", epos, inList[i]->Name);
+			}
 		}
 		
 		for (uint32_t i = 0; i < symmetry.size(); i++)
@@ -115,30 +96,56 @@ namespace nsPinocchioTools {
 		skl->PinitCompressed();
 		
 		for (uint32_t i = 0; i < foot.size(); i++)
-			skl->PsetFoot(foot[i]->Name);
+			skl->PsetFoot(foot[i]->Name+"_piTend");
 		for (uint32_t i = 0; i < fat.size(); i++)
-			skl->PsetFat(foot[i]->Name);
+			skl->PsetFat(fat[i]->Name);
 	}
 
-	void adaptSkeleton( nsPinocchio::PinocchioOutput* in, CForge::T3DMesh<float>::Bone* out) {
-		std::vector<CForge::T3DMesh<float>::Bone*> inList = gatherBones(out);
+	void adaptSkeleton( nsPiR::PinocchioOutput* in, nsPiR::Skeleton* inSkl, CForge::T3DMesh<float>::Bone * out) {
 		
+		std::vector<CForge::T3DMesh<float>::Bone*> inList = gatherBones(out);
 		
 		for (uint32_t i = 0; i < inList.size(); i++) {
 			// adapt offset matrix
 			Eigen::Matrix4f mat = inList[i]->OffsetMatrix.inverse();
-			Vector3 pos = in->embedding[i];
-			//Eigen::Vector3f newPos = Eigen::Vector3f(pos[0],pos[1],pos[2]);
+			uint32_t sklIndex = inSkl->getJointForName(inList[i]->Name);
+			Vector3 piPos = in->embedding[sklIndex];
+			
+			// get direction of bone for rotation
+			Eigen::Vector3f pos = Eigen::Vector3f(piPos[0],piPos[1],piPos[2]);
+			Eigen::Vector3f vec = Eigen::Vector3f(0.0f,0.0f,0.0f);
+			if (inList[i]->Children.size() == 1) {
+				uint32_t sklIndex = inSkl->getJointForName(inList[i]->Children[0]->Name);
+				Vector3 piVec2 = in->embedding[sklIndex];
+				Eigen::Vector3f pos2 = Eigen::Vector3f(piVec2[0],piVec2[1],piVec2[2]);
+				vec = pos2-pos;
+			}
+			else if (inList[i]->pParent){
+				uint32_t sklIndex = inSkl->getJointForName(inList[i]->pParent->Name);
+				Vector3 piVec2 = in->embedding[sklIndex];
+				Eigen::Vector3f pos2 = Eigen::Vector3f(piVec2[0],piVec2[1],piVec2[2]);
+				vec = pos-pos2;
+			}
+			else if (inList[i]->Children.size()>0) {
+				uint32_t sklIndex = inSkl->getJointForName(inList[i]->Children[0]->Name);
+				Vector3 piVec2 = in->embedding[sklIndex];
+				Eigen::Vector3f pos2 = Eigen::Vector3f(piVec2[0],piVec2[1],piVec2[2]);
+				vec = pos2-pos;
+			}
+			
+			Eigen::Matrix3f rot = GraphicsUtility::alignVectors(Eigen::Vector3f(0.0,1.0,0.0),vec.normalized());
+			
 			mat.data()[12] = pos[0];
 			mat.data()[13] = pos[1];
 			mat.data()[14] = pos[2];
+			mat.block<3,3>(0,0) = rot;
 
 			inList[i]->OffsetMatrix = mat.inverse();
 		}
 	}
 
-	void applyWeights(CForge::T3DMesh<float>* out, const CVScalingInfo& CVSInfo,
-	                  nsPinocchio::PinocchioOutput& piO, uint32_t vertexCount) {
+	void applyWeights(nsPiR::Skeleton* in, CForge::T3DMesh<float>* out, const CVScalingInfo& CVSInfo,
+	                  nsPiR::PinocchioOutput& piO, uint32_t vertexCount) {
 		if (!piO.attachment)
 			throw CForgeExcept("PinocchioTools: applyWeights attatchment not valid");
 		std::vector<CForge::T3DMesh<float>::Bone*> outList = gatherBones(out->rootBone());
@@ -148,10 +155,13 @@ namespace nsPinocchioTools {
 		Eigen::Vector3f center = Eigen::Vector3f(piO.embedding[0][0],piO.embedding[0][1],piO.embedding[0][2]);
 		for (uint32_t i = 0; i < out->vertexCount(); i++) {
 			centeredVertices.push_back(out->vertex(i)-center);
+			//centeredVertices.back() *= 1.0/CVSInfo.scaling;
 		}
 		out->vertices(&centeredVertices);
+		Vector3 root = piO.embedding[0];
 		for (uint32_t i = 0; i < piO.embedding.size(); i++) {
-			piO.embedding[i]-=piO.embedding[0];
+			piO.embedding[i] -= root;
+			//piO.embedding[i] *= 1.0/CVSInfo.scaling;
 		}
 		
 		//for (uint32_t k=0;k<piO.embedding.size();k++) {
@@ -163,15 +173,15 @@ namespace nsPinocchioTools {
 		
 		// TODO set mesh to T-Pose
 		// set position of bones
-		adaptSkeleton(&piO,out->rootBone());
+		adaptSkeleton(&piO,in,out->rootBone());
 		//apply weights
 		for (uint32_t i = 0; i < vertexCount; i++) {
 			Vector<double,-1> weights = piO.attachment->getWeights(i);
-			//out->OffsetMatrix = piO.embedding.
 			// TODO assumption that attatchment and outList index is the same
 			for (uint32_t k = 0; k < outList.size(); k++) {
+				uint32_t jointIndex = in->getJointForName(outList[k]->Name);
 				for (uint32_t j = 0; j < weights.size(); j++) {
-					if (weights[j] > 0.0 && j==k) {
+					if (weights[j] > 0.0 && j==jointIndex) {
 						outList[k]->VertexInfluences.push_back(i);
 						outList[k]->VertexWeights.push_back(weights[j]);
 					}
@@ -179,9 +189,40 @@ namespace nsPinocchioTools {
 			}
 		}
 	}
+
+	void copyAnimation(CForge::T3DMesh<float>* source, CForge::T3DMesh<float>* target, uint32_t animationIndex) {
+		
+		Eigen::Vector3f min,max,d;
+		{
+			Eigen::Matrix4f mat = source->getBone(0)->OffsetMatrix.inverse();
+			min = Eigen::Vector3f(mat.data()[12],mat.data()[13],mat.data()[14]);
+			max = min;
+		}
+		for (uint32_t i = 1; i < source->boneCount(); i++) {
+			Eigen::Matrix4f mat = source->getBone(i)->OffsetMatrix.inverse();
+			for (uint32_t j = 0; j < 3; j++) {
+				min[j] = std::fmin(min[j],mat.data()[12+j]);
+				max[j] = std::fmax(max[j],mat.data()[12+j]);
+			}
+		}
+		d = max-min;
+		float scale = 1.0/std::fmax(d[0],std::fmax(d[1],d[2]));
+		
+		target->addSkeletalAnimation(source->getSkeletalAnimation(animationIndex));
+		T3DMesh<float>::SkeletalAnimation* anim = target->getSkeletalAnimation(target->skeletalAnimationCount()-1);
+		for (uint32_t i = 0; i < anim->Keyframes.size(); i++) {
+			for (uint32_t j = 0; j < anim->Keyframes[i]->Positions.size(); j++) {
+				anim->Keyframes[i]->Positions[j] = anim->Keyframes[i]->Positions[j]*scale;
+			}
+		}
+	}
 	
-	void convertMesh(CForge::T3DMesh<float>* in, nsPinocchio::Mesh* out) {
-		nsPinocchio::Mesh* ret = out;
+	void MeshToTPose(nsPiR::Mesh* in, nsPiR::Skeleton* pinSkl, T3DMesh<float>::Bone* targetSkl) {
+		
+	}
+	
+	void convertMesh(CForge::T3DMesh<float>* in, nsPiR::Mesh* out) {
+		nsPiR::Mesh* ret = out;
 		
 		// add vertices
 		for (uint32_t i = 0; i < in->vertexCount(); i++) {
@@ -215,7 +256,6 @@ namespace nsPinocchioTools {
 		for(int i = 0; i < (int)ret->edges.size(); ++i) { //make sure all vertex indices are valid
 			if(ret->edges[i].vertex < 0 || ret->edges[i].vertex >= verts) {
 				std::cout << "Error: invalid vertex index " << ret->edges[i].vertex << endl;
-				OUT;
 			}
 		}
 
@@ -229,7 +269,7 @@ namespace nsPinocchioTools {
 	}
 	
 	
-	// from nsPinocchio::Mesh
+	// from nsPiR::Mesh
 	struct MFace
 	{
 		MFace(int v1, int v2, int v3)
@@ -241,7 +281,7 @@ namespace nsPinocchioTools {
 		bool operator<(const MFace &f) const { return lexicographical_compare(v, v + 3, f.v, f.v + 3); }
 		int v[3];
 	};
-	void fixDupFaces(nsPinocchio::Mesh* mesh)
+	void fixDupFaces(nsPiR::Mesh* mesh)
 	{
 		int i;
 		map<MFace, int> faces;

@@ -43,6 +43,8 @@
 #include "../../../thirdparty/Pinocchio/pinocchioApi.h"
 #include "../../../thirdparty/PinocchioTools/PinocchioTools.hpp"
 
+namespace nsPiT = nsPinocchioTools;
+
 using namespace Eigen;
 using namespace std;
 
@@ -137,13 +139,14 @@ namespace CForge {
 		
 		T3DMesh<float> MT;
 		SAssetIO::load("Assets/muppetshow/Model1.obj", &MT);
+		//SAssetIO::load("Assets/autorig/spock/spock.fbx", &MT);
 		SceneUtilities::setMeshShader(&MT, 0.7f, 0.04f);
 		MT.computePerVertexNormals();
 		Spock.init(&MT);
 
 		nsPinocchio::Skeleton sklEric;
-		nsPinocchioTools::CVScalingInfo cvsInfo;
-		std::vector<nsPinocchioTools::BonePair> sym;
+		nsPiT::CVScalingInfo cvsInfo;
+		std::vector<nsPiT::BonePair> sym;
 		std::vector<T3DMesh<float>::Bone*> foot;
 		std::vector<T3DMesh<float>::Bone*> fat;
 		std::vector<T3DMesh<float>::Bone*> bones;
@@ -160,7 +163,7 @@ namespace CForge {
 					T3DMesh<float>::Bone* cur2 = M.getBone(j);
 					//std::cout << "compare: " << cur2->Name << " with: " << "Right" + sBoneType << "\n";
 					if (cur2->Name.compare("Right" + sBoneType)==0) {
-						nsPinocchioTools::BonePair pair;
+						nsPiT::BonePair pair;
 						pair.pair[0] = cur;
 						pair.pair[1] = cur2;
 						sym.push_back(pair);
@@ -173,34 +176,36 @@ namespace CForge {
 			bones.push_back(cur);
 		}
 		std::vector<Eigen::Vector3f> joints;
-		nsPinocchioTools::convertSkeleton(M.rootBone(), &sklEric, &cvsInfo, sym, fat, foot,
+		nsPiT::convertSkeleton(M.rootBone(), &sklEric, &cvsInfo, sym, fat, foot,
 		GraphicsUtility::rotationMatrix((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f),Vector3f::UnitX())).block<3,3>(0,0), &joints);
 		
 		nsPinocchio::Mesh* piM = new nsPinocchio::Mesh(); //("Assets/muppetshow/Model1.obj");
-		nsPinocchioTools::convertMesh(&MT, piM);
+		nsPiT::convertMesh(&MT, piM);
 		//nsPinocchio::Mesh piM("Assets/autorig/eric.obj");
 		vector<Vector3f> poss;
 		vector<float> rads;
-		//nsPinocchioTools::autorigCust(sklEric, piM, &poss, &rads);
+		nsPinocchioTools::autorigCust(sklEric, *piM, &poss, &rads);
 		nsPinocchio::PinocchioOutput rig = nsPinocchio::autorig(sklEric, *piM);
 		
 		MT.bones(&bones);
 		MT.clearSkeletalAnimations();
-		MT.addSkeletalAnimation(M.getSkeletalAnimation(0));
+		//MT.addSkeletalAnimation(M.getSkeletalAnimation(0));
+		nsPiT::copyAnimation(&M,&MT,0);
 		for (uint32_t i = 0; i < MT.boneCount(); i++) {
 			MT.getBone(i)->VertexInfluences = std::vector<int32_t>();
 			MT.getBone(i)->VertexWeights = std::vector<float>();
 		}
 		
-		nsPinocchioTools::applyWeights(&MT, cvsInfo, rig, MT.vertexCount());
+		if (rig.attachment)
+			nsPiT::applyWeights(&sklEric, &MT, cvsInfo, rig, MT.vertexCount());
 		
 		AutoRigger autoRigger;
 		autoRigger.init(&MT,M.getBone(0));
 		//autoRigger.process();
 		Controller.init(&MT);
 		Eric.init(&MT, &Controller);
-		//AssetIO::store("AssetOut/out.fbx", &MT);
-		//return;
+		AssetIO::store("AssetOut/out.fbx", &MT);
+		return;
 		//Controller.init(&M);
 		//Eric.init(&M, &Controller);
 		M.clear();
@@ -274,13 +279,20 @@ namespace CForge {
 			//	RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
 			//	autoRigger.sphere.render(&RDev);
 			//}
-			//for (uint32_t i = 0; i < (uint32_t) poss.size(); i++) {
-			//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(poss[i]);
-			//	float r = rads[i];
+			//for (uint32_t i = 0; i < (uint32_t) joints.size(); i++) {
+			//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(joints[i]);
+			//	float r = 0.1f;
 			//	Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
 			//	RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
-			//	//autoRigger.sphere.render(&RDev);
+			//	autoRigger.sphere.render(&RDev);
 			//}
+			for (uint32_t i = 0; i < (uint32_t) poss.size(); i++) {
+				Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(poss[i]);
+				float r = rads[i];
+				Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+				RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
+				//autoRigger.sphere.render(&RDev);
+			}
 			//glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_TRUE);
 			//{
 			//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(1.0,1.0,1.0));
