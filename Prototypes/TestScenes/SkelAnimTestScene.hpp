@@ -28,6 +28,108 @@ namespace CForge {
 
 	class SkelAnimTestScene : public ExampleSceneBase {
 	public:
+
+		uint32_t getMatchingVertex(uint32_t RedundantVertexID, std::vector<std::pair<uint32_t, uint32_t>> *pRedundantVertices) {
+			uint32_t Rval = 0;
+
+			for (auto i : (*pRedundantVertices)) {
+				if (i.second == RedundantVertexID) {
+					Rval = i.first;
+					break;
+				}
+			}
+			return Rval;
+		}//getMatchingVertex
+
+		void mergeRedundantVertices(T3DMesh<float>* pMesh) {
+			float Epsilon = 0.00025f;
+ 
+			std::vector<std::pair<uint32_t, uint32_t>> RedundantVertices;
+			std::vector<bool> IsRedundant;
+			std::vector <uint32_t> VertexMapping;
+			for (uint32_t i = 0; i < pMesh->vertexCount(); ++i) {
+				IsRedundant.push_back(false);
+				VertexMapping.push_back(i);
+			}
+
+			for (uint32_t i = 0; i < pMesh->vertexCount(); ++i) {
+				if (IsRedundant[i]) continue;
+				auto v1 = pMesh->vertex(i);
+				printf("Checking vertex %d/%d\r", i, pMesh->vertexCount());
+
+				for (uint32_t k = i+1; k < pMesh->vertexCount(); ++k) {
+					auto v2 = pMesh->vertex(k);
+
+					if ((v2 - v1).dot(v2 - v1) < Epsilon) {
+						RedundantVertices.push_back(std::pair<uint32_t, uint32_t>(i,k));
+						IsRedundant[k] = true;
+						break;
+					}
+
+				}//for[all remaining vertices]
+			}//for[all vertices]
+
+			printf("Found %d double vertices                             \n", uint32_t(RedundantVertices.size()));
+
+			// rebuild vertices, normals, tangents
+			std::vector<Eigen::Vector3f> Vertices;
+			std::vector<Eigen::Vector3f> Normals;
+			std::vector<Eigen::Vector3f> Tangents;
+
+
+			for (uint32_t i = 0; i < pMesh->vertexCount(); ++i) {
+				VertexMapping[i] = Vertices.size();
+				if (!IsRedundant[i]) {
+					Vertices.push_back(pMesh->vertex(i));
+				}
+			}
+			for (uint32_t i = 0; i < pMesh->normalCount(); ++i) {
+				if (!IsRedundant[i]) Normals.push_back(pMesh->normal(i));
+			}
+			for (uint32_t i = 0; i < pMesh->tangentCount(); ++i) {
+				if (!IsRedundant[i]) Tangents.push_back(pMesh->tangent(i));
+			}
+
+			// replace indices in faces
+			for (uint32_t i = 0; i < pMesh->submeshCount(); ++i) {
+				auto* pM = pMesh->getSubmesh(i);
+				for (auto& f : pM->Faces) {
+					if (IsRedundant[f.Vertices[0]]) f.Vertices[0] = getMatchingVertex(f.Vertices[0], &RedundantVertices);
+					if (IsRedundant[f.Vertices[1]]) f.Vertices[1] = getMatchingVertex(f.Vertices[1], &RedundantVertices);
+					if (IsRedundant[f.Vertices[2]]) f.Vertices[2] = getMatchingVertex(f.Vertices[2], &RedundantVertices);
+
+					// and remapp
+					f.Vertices[0] = VertexMapping[f.Vertices[0]];
+					f.Vertices[1] = VertexMapping[f.Vertices[1]];
+					f.Vertices[2] = VertexMapping[f.Vertices[2]];
+
+				}//for[faces of submesh]
+			}//for[submeshes]
+
+			// replace vertex weights
+			for (uint32_t i = 0; i < pMesh->boneCount(); ++i) {
+				auto* pBone = pMesh->getBone(i);
+
+				// collect data
+				std::vector<int32_t> Influences;
+				std::vector<float> Weights;
+
+				for (uint32_t k = 0; k < pBone->VertexInfluences.size(); ++k) {
+					uint32_t ID = pBone->VertexInfluences[k];
+					if (IsRedundant[ID]) pBone->VertexInfluences[k] = getMatchingVertex(ID, &RedundantVertices);
+
+					pBone->VertexInfluences[k] = VertexMapping[pBone->VertexInfluences[k]];
+				}
+
+			}//for[all bones]
+
+			// replace mesh data
+			if (Vertices.size() > 0) pMesh->vertices(&Vertices);
+			if (Normals.size() > 0) pMesh->normals(&Normals);
+			if (Tangents.size() > 0) pMesh->tangents(&Tangents);
+
+		}//mergeDoubleVertices
+
 		SkelAnimTestScene(void) {
 
 		}//Constructor
@@ -69,13 +171,26 @@ namespace CForge {
 
 
 			//SAssetIO::load("MyAssets/WalkingSittingEve.glb", &M);
-			SAssetIO::load("MyAssets/WalkingSittingEve.fbx", &M);
+			SAssetIO::load("MyAssets/WalkingSittingEve.glb", &M);
 			setMeshShader(&M, 0.6f, 0.04f);
+			
+			printf("Vertex count before: %d\n", M.vertexCount());
+			mergeRedundantVertices(&M);
+			printf("Vertex count after: %d\n", M.vertexCount());
 
 			M.computePerVertexNormals();
 			m_ControllerCaptured.init(&M);
 			m_Captured.init(&M, &m_ControllerCaptured);
+
+			M.bones(nullptr);
+			m_ComparisonModel.init(&M);
+
+			//AssetIO::store("MyAssets/TestModel_After.obj", &M);
+
 			M.clear();
+
+			
+
 
 			/*T3DMesh<float> M2;
 			SAssetIO::load("Assets/tmp/MuscleManPosed.glb", &M2);
@@ -139,16 +254,16 @@ namespace CForge {
 			m_SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
 
 			// add skeletal actor to scene graph (Eric)
-			
-
-			Vector3f ModelPos = Vector3f(0.0f, 0.0f, 0.0f);
-			Vector3f Offset = Vector3f(0.0f, 0.0f, -5.0f);
-
 			float Sc = 0.05f;
 
 			Quaternionf Rot;
 			Rot = Quaternionf::Identity();
 
+
+			m_ComparisonModelSGN.init(&m_RootSGN, &m_ComparisonModel, Vector3f(-5.0f, 0.0f, 0.0f), Rot, Vector3f(Sc, Sc, Sc));
+
+			Vector3f ModelPos = Vector3f(0.0f, 0.0f, 0.0f);
+			Vector3f Offset = Vector3f(0.0f, 0.0f, -5.0f);
 
 			m_CapturedTransformSGN.init(&m_RootSGN, ModelPos + 2 * Offset, Rot, Vector3f(Sc, Sc, Sc));
 			m_CapturedSGN.init(&m_CapturedTransformSGN, &m_Captured);
@@ -186,7 +301,7 @@ namespace CForge {
 				m_SG.update(60.0f / m_FPS);
 
 				// this will progress all active skeletal animations for this controller
-				m_ControllerCaptured.update(60.0f / m_FPS / 60.0f);
+				m_ControllerCaptured.update(60.0f / m_FPS);
 				m_ControllerSynth.update(60.0f / m_FPS);
 				m_ControllerStyle.update(60.0f / m_FPS);
 
@@ -267,6 +382,9 @@ namespace CForge {
 		SkeletalAnimationController m_ControllerCaptured;
 		SkeletalAnimationController m_ControllerSynth;
 		SkeletalAnimationController m_ControllerStyle;
+
+		StaticActor m_ComparisonModel;
+		SGNGeometry m_ComparisonModelSGN;
 
 		SGNTransformation m_RootSGN;
 		SGNGeometry m_SkydomeSGN;
