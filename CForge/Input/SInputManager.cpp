@@ -55,6 +55,7 @@ namespace CForge {
 		pEntity->pWin = pWin;
 
 		glfwSetKeyCallback(pWin, SInputManager::keyboardCallbackFunc);
+		glfwSetCharCallback(pWin, SInputManager::characterCallbackFunc);
 
 		for (auto& i : m_RegisteredKeyboards) {
 			if (nullptr == i) {
@@ -125,7 +126,7 @@ namespace CForge {
 		Keyboard::State S = Keyboard::KEY_RELEASED;
 
 		switch (Key) {
-		CASE_GLFW_KEY_SPACE: K = Keyboard::KEY_SPACE; break;
+		case GLFW_KEY_SPACE: K = Keyboard::KEY_SPACE; break;
 		case GLFW_KEY_APOSTROPHE: K = Keyboard::KEY_APOSTROPHE; break;
 		case GLFW_KEY_COMMA: K = Keyboard::KEY_COMMA; break;
 		case GLFW_KEY_MINUS: K = Keyboard::KEY_MINUS; break;
@@ -255,6 +256,12 @@ namespace CForge {
 
 	}//keyboardCallbackFunc
 
+	void SInputManager::characterCallbackFunc(class GLFWwindow* pWin, unsigned int Codepoint) {
+		for (auto i : m_pInstance->m_RegisteredKeyboards) {
+			if (nullptr != i && pWin == i->pWin) i->pKeyboard->textInput(Codepoint);
+		}
+	}//characterCallbackFunc
+
 	void SInputManager::mousePositionCallbackFunc(GLFWwindow* pWin, double xPos, double yPos) {
 
 		for (auto i : m_pInstance->m_RegisteredMice) {
@@ -295,5 +302,6 @@ namespace CForge {
 			if (nullptr != i && pWin == i->pWin) i->pMouse->wheel(Eigen::Vector2f(xOffset, yOffset));
 		}
 	}//mouseWheelCallbackFunc
+
 
 }//name-space

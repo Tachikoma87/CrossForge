@@ -1,11 +1,11 @@
 #include "GLTFIO.h"
 
-#define TINYGLTF_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <tiny_gltf.h>
+//#define TINYGLTF_IMPLEMENTATION
+//#define STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#include <tiny_gltf.h>
 
-using namespace tinygltf;
+//using namespace tinygltf;
 
 namespace CForge {
 
@@ -18,7 +18,7 @@ namespace CForge {
 	}//Destructor
 
 	void GLTFIO::load(const std::string Filepath, T3DMesh<float>* pMesh) {
-		TinyGLTF Loader;
+		//TinyGLTF Loader;
 		
 
 	}//load

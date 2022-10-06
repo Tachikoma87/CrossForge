@@ -47,6 +47,10 @@ namespace CForge {
 		static std::string absolute(const std::string Path);
 		static std::string relative(const std::string Path, const std::string Basepath);
 		static std::string removeFilename(const std::string Path);
+
+		static bool isDirectory(const std::string Path);
+		static bool createDirecotry(const std::string Path);
+
 		/**
 		* \brief Constructor
 		*/

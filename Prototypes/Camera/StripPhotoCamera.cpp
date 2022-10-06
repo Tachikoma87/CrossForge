@@ -1,5 +1,5 @@
 #include "StripPhotoCamera.h"
-
+#ifdef USE_OPENCV
 
 namespace CForge {
 
@@ -84,3 +84,5 @@ namespace CForge {
 	}
 
 }//name-space
+
+#endif

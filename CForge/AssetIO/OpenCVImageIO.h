@@ -17,6 +17,7 @@
 \****************************************************************************/
 #ifndef __CFORGE_OPENCVIMAGEIO_H__
 #define __CFORGE_OPENCVIMAGEIO_H__
+#ifdef USE_OPENCV
 
 #include <opencv2/core.hpp>
 #include "I2DImageIO.h"
@@ -55,4 +56,5 @@ namespace CForge {
 
 }//name space
 
+#endif
 #endif 

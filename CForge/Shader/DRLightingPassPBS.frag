@@ -116,23 +116,48 @@ float shadowCalculationDirectionalLight(vec3 FragPosWorldSpace, vec3 Normal, vec
 		vec4 FragPosLightSpace = (DirLights.LightSpaceMatrices[LightIndex] * vec4(FragPosWorldSpace, 1.0));
 		FragPosLightSpace /= FragPosLightSpace.w;
 
-		vec3 ProjCoords = FragPosLightSpace.xyz * vec3(0.5) + vec3(0.5);  // mapping [-1,1] -> [0,1]
-		float ClosestDepth = texture(TexShadow[0], ProjCoords.xy).r;
+		vec3 ProjCoords = FragPosLightSpace.xyz * vec3(0.5) + vec3(0.5);  // mapping [-1,1] -> [0,1]	
 		float CurrentDepth = ProjCoords.z;
 
 		#ifdef PCF_SHADOWS
 		// soft shadows 
-	
-		vec2 TexelSize = 1.0 / vec2(textureSize(TexShadow[0], 0));
+		vec2 TexelSize = vec2(0);
+		#if (ShadowMapCount > 0)
+		if(ShadowIndex == 0) TexelSize = 1.0 / vec2(textureSize(TexShadow[0], 0));
+		#endif 
+		#if (ShadowMapCount > 1)
+		else if(ShadowIndex == 1) TexelSize = 1.0 / vec2(textureSize(TexShadow[1], 0));
+		#endif
+
+//		vec2 TexelSize = 1.0/vec2(textureSize(TexShadow[ShadowIndex], 0));
+		
+
 		for(int x = -PCFFilterSize; x <= PCFFilterSize; ++x){
 			for(int y = -PCFFilterSize; y <= PCFFilterSize; ++y){
-				float pcfDepth = texture(TexShadow[0], ProjCoords.xy + vec2(x,y) * TexelSize).r;
-				Rval += CurrentDepth - bias > pcfDepth ? 1.0 : 0.0;
+				float pcfDepth = 0.0f;
+				if(ShadowIndex == 0) pcfDepth = texture(TexShadow[0], ProjCoords.xy + vec2(x,y) * TexelSize).r;
+				#if (ShadowMapCount > 1)
+				else if(ShadowIndex == 1) pcfDepth = texture(TexShadow[1], ProjCoords.xy + vec2(x,y) * TexelSize).r;
+				#endif
+
+//				pcfDepth = texture(TexShadow[ShadowIndex], ProjCoords.xy + vec2(x,y) * TexelSize).r;
+
+				Rval += (CurrentDepth - bias > pcfDepth) ? 1.0 : 0.0;
 			}
 		}
 		Rval /= float((PCFFilterSize*2 +1) * (PCFFilterSize*2 + 1));
 		#else
 		// simple computations 
+		float ClosestDepth = 0.0f;
+		#if ShadowMapCount > 0
+		if(ShadowIndex == 0) ClosestDepth = texture(TexShadow[0], ProjCoords.xy).r;
+		#endif
+		#if ShadowMapCount > 1
+		else if(ShadowIndex == 1) ClosestDepth = texture(TexShadow[1], ProjCoords.xy).r;
+		#endif 
+		#if ShadowMapCount > 2
+		else if(ShadowIndex == 2) ClosestDepth = texture(TexShadow[2], ProjCoords.xy).r;
+		#endif
 		Rval = (CurrentDepth - bias > ClosestDepth) ? 1.0 : 0.0;
 		#endif
 	}
@@ -178,8 +203,8 @@ vec3 cookTorranceBRDF(vec3 V, vec3 N, vec3 H, vec3 L, vec3 Radiance, vec3 F0, ve
 	kD *= 1.0 - Metallic;
 
 	vec3 Numerator = NDF * G * F;
-	float Denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N,L), 0.0);
-	vec3 Specular = Numerator / max(Denominator, 0.001);
+	float Denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N,L), 0.0) + 0.001;
+	vec3 Specular = Numerator / Denominator;
 
 	// compute outging radiance L0 
 	float NdotL = max(dot(N, L), 0.0);
@@ -208,7 +233,7 @@ void main(){
 	// compute directional lights contribution
 	for(uint i=0U; i < DirLightCount; ++i){
 		// calculate per-light radiance
-		vec3 L = -DirLights.Directions[i].xyz;
+		vec3 L = normalize(-DirLights.Directions[i].xyz);
 		vec3 H = normalize(V + L);
 		float Shadow = shadowCalculationDirectionalLight(WorldPos, N, L, i);
 		vec3 Radiance = DirLights.Colors[i].w * DirLights.Colors[i].xyz; // color * intensity
@@ -261,11 +286,12 @@ void main(){
 	}//for[spot lights]
 	#endif
 
-	vec3 Ambient = vec3(0.03) * Albedo * Ao;
+	vec3 Ambient = vec3(0.1) * Albedo * 1.0;
 	vec3 Col = Ambient + /*(1.0 - Ao)**/ Lo;
 
 	// Tone Mapping (Reinhardt operator)
 	Col = vec3(1.0) - exp(-Col * Exposure);
+	//Col = Col / (Col + vec3(1.0));
 	Col = pow(Col, vec3(1.0/Gamma));
 
 	Col = adjustColorAttributes(Col, Saturation, Brightness, Contrast);

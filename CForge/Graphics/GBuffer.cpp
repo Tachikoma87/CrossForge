@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include "GBuffer.h"
+#include "GraphicsUtility.h"
 
 namespace CForge {
 	GBuffer::GBuffer(void): CForgeObject("GBuffer") {
@@ -16,10 +17,15 @@ namespace CForge {
 		clear();
 	}//Destructor
 
+
 	void GBuffer::init(uint32_t Width, uint32_t Height) {
 		if (Width == 0 || Height == 0) throw CForgeExcept("Zero width or height for GBuffer specified!");
 		
+		// multisample not finished implementing, not working with deferred shading right now as it requires new shaders using sampler2DMS
+		const int32_t Multisample = 0;
+
 		clear();
+
 
 		m_Width = Width;
 		m_Height = Height;
@@ -33,40 +39,76 @@ namespace CForge {
 
 		// create texture for position data
 		glGenTextures(1, &m_TexPosition);
-		glBindTexture(GL_TEXTURE_2D, m_TexPosition);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_TexPosition, 0);
-
 		// create texture for normal data
 		glGenTextures(1, &m_TexNormal);
-		glBindTexture(GL_TEXTURE_2D, m_TexNormal);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_TexNormal, 0);
-
 		// create texture for albedo/specular data
 		glGenTextures(1, &m_TexAlbedo);
-		glBindTexture(GL_TEXTURE_2D, m_TexAlbedo);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_TexAlbedo, 0);
 
+
+		if (Multisample > 0) {
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_TexPosition);
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, Multisample, GL_RGBA, m_Width, m_Height, GL_TRUE);
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_TexPosition, 0);
+
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_TexNormal);
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, Multisample, GL_RGBA, m_Width, m_Height, GL_TRUE);
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D_MULTISAMPLE, m_TexNormal, 0);
+
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_TexAlbedo);
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, Multisample, GL_RGBA, m_Width, m_Height, GL_TRUE);
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D_MULTISAMPLE, m_TexAlbedo, 0);
+		}
+		else {
+			glBindTexture(GL_TEXTURE_2D, m_TexPosition);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, nullptr);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_TexPosition, 0);
+
+			glBindTexture(GL_TEXTURE_2D, m_TexNormal);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, nullptr);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_TexNormal, 0);
+
+			glBindTexture(GL_TEXTURE_2D, m_TexAlbedo);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, nullptr);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_TexAlbedo, 0);
+		}
+		
+		
 		uint32_t Attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 		glDrawBuffers(3, Attachments);
 
 		// generate Renerbuffer
 		glGenRenderbuffers(1, &m_Renderbuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, m_Renderbuffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, Width, Height);
+
+		if (Multisample > 0) {
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, m_Width, m_Height);
+		}
+		else {
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Width, m_Height);
+		}
+		
+
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_Renderbuffer);
 
-		if (GL_FRAMEBUFFER_COMPLETE != glCheckFramebufferStatus(GL_FRAMEBUFFER)) throw CForgeExcept("Generating framebuffer for gBuffer failed!");
+		if (GL_FRAMEBUFFER_COMPLETE != glCheckFramebufferStatus(GL_FRAMEBUFFER)) {
+			std::string Error;
+			GraphicsUtility::checkGLError(&Error);
+			throw CForgeExcept("Generating framebuffer for gBuffer failed!\n\t" + Error);
+		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}//initialize

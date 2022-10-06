@@ -59,6 +59,7 @@ namespace CForge {
 		}//randRange
 
 		static uint64_t rand(void);
+		static void randSeed(uint64_t Seed); 
 
 		static uint64_t randMax(void) {
 			return std::numeric_limits<uint64_t>::max()/2ull;
@@ -67,6 +68,18 @@ namespace CForge {
 		static uint64_t timestamp(void) {
 			return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		}//timestamp
+
+		static std::string toLowerCase(const std::string Str) {
+			std::string Rval = Str;
+			for (uint32_t i = 0; i < Rval.length(); ++i) Rval[i] = std::tolower(Rval[i]);
+			return Rval;
+		}//toLowerCase
+
+		static std::string toUpperCase(const std::string Str) {
+			std::string Rval = Str;
+			for (uint32_t i = 0; i < Rval.length(); ++i) Rval[i] = std::toupper(Rval[i]);
+			return Rval;
+		}//toUpperCase
 
 	protected:
 		static uint64_t m_RndState; // defined in SCrossForgeDevice.cpp

@@ -19,17 +19,25 @@
 #define __CFORGE_IMUCAMERACONTROLLER_H__
 
 #include <list>
-#include "../Internet/IMUPackage.hpp"
+#include "IMUPackage.hpp"
 #include "../../CForge/Graphics/VirtualCamera.h"
-#include "../Internet/UDPSocket.h"
+#include "../../CForge/Internet/UDPSocket.h"
+#include "../../CForge/AssetIO/File.h"
 
 namespace CForge {
 	class IMUCameraController {
 	public:
+		enum UserState: int8_t {
+			STATE_UNKNOWN = -1,
+			STATE_WALKING,
+			STATE_RUNNING,
+			STATE_STANDING,
+		};
+
 		IMUCameraController(void);
 		~IMUCameraController(void);
 
-		void init(uint16_t PortLeft, uint16_t PortRight, uint32_t ForwardInterpolation, uint32_t RotationInterpolation);
+		void init(uint16_t PortLeft, uint16_t PortRight, uint32_t AveragingTime);
 		void clear(void);
 
 		void update(VirtualCamera *pCamera, float Scale);
@@ -37,11 +45,19 @@ namespace CForge {
 
 		void calibrate(void);
 
+		void recordData(std::string Filepath = std::string());
+
 	protected:
 		struct IMUData {
 			uint64_t Timestamp;
 			Eigen::Vector3f Rotations;
 			Eigen::Vector3f Accelerations;
+
+			IMUData(void) {
+				Timestamp = 0;
+				Rotations = Eigen::Vector3f::Zero();
+				Accelerations = Eigen::Vector3f::Zero();
+			}//Constructor
 
 			void clear(void) {
 				Timestamp = 0;
@@ -50,45 +66,34 @@ namespace CForge {
 			}
 		};
 
-		struct InterpolatedControllerData {
+		struct AveragedControllerData {
 			IMUData AveragedMovementLeft;
 			IMUData AveragedMovementRight;
-			IMUData AveragedRotationLeft;
-			IMUData AveragedRotationRight;
+			IMUData AveragedAbsMovementLeft;
+			IMUData AveragedAbsMovementRight;
 
 			float ForwardLeft;
-			float ForwardRight;
-			float RotationLeft;
-			float RotationRight;
-			float TiltLeft;
-			float TiltRight;
+			float ForwardRight;	
 
-			InterpolatedControllerData(void) {
+			AveragedControllerData(void) {
 				ForwardLeft = 0.0f;
 				ForwardRight = 0.0f;
-				RotationLeft = 0.0f;
-				RotationRight = 0.0f;
-				TiltLeft = 0.0f;
-				TiltRight = 0.0f;
-			}
+			}//Constructor
 		};
 
 		void updateFoot(UDPSocket *pSock, std::list<IMUData>* pDataBuffer);
-		void interpolateData(InterpolatedControllerData* pData);
 
-		UDPSocket m_SocketLeft;
-		UDPSocket m_SocketRight;
+		UDPSocket m_Socket;
+		std::list<IMUData> m_DataBuffer;
+
+		//UDPSocket m_SocketLeft;
+		//UDPSocket m_SocketRight;
 		std::list<IMUData> m_DataBufferLeft;
 		std::list<IMUData> m_DataBufferRight;
-		uint32_t m_ForwardInterpolation;
-		uint32_t m_RotationInterpolation;
 
-		float m_StepSpeed;
+		uint32_t m_AveragingTime;
 
-		uint64_t m_StepStarted;
-		uint64_t m_StepEnded;
-
-		InterpolatedControllerData m_CmdData;
+		AveragedControllerData m_CmdData;
 
 		std::string m_LeftFootIP;
 		std::string m_RightFootIP;
@@ -97,6 +102,17 @@ namespace CForge {
 
 		float m_HeadOffset;
 		float m_CameraHeight;
+
+		UserState m_UserState;
+
+		bool m_TurnLeft;
+		bool m_TurnRight;
+
+		bool m_DataRecording;
+		File m_DataFile;
+		uint64_t m_RecordingStartTime;
+
+		uint64_t m_LastSearch;
 
 	};//IMUCamera
 

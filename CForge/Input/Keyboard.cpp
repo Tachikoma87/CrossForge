@@ -37,14 +37,35 @@ namespace CForge {
 		return Rval;
 	}//keyPressed
 
+	bool Keyboard::keyPressed(Key K1, Key K2, Key K3)const {
+		bool Rval = keyPressed(K1);
+		Rval &= keyPressed(K2);
+		if (K3 != KEY_UNKNOWN) Rval &= keyPressed(K3);
+		return Rval;
+	}//keyPressed
+
 	void Keyboard::keyState(Key K, State S) {
 		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
 		m_KeyStates[K] = S;
+		KeyboardCallback broadcastObj;
+		broadcastObj.key = K;
+		broadcastObj.state = S;
+		broadcastObj.Unicode = 0;
+		broadcast(broadcastObj);
 	}//keyPressed
 
 	Keyboard::State Keyboard::keyState(Key K)const {
 		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
 		return m_KeyStates[K];
 	}//
+
+
+	void Keyboard::textInput(uint32_t Character) {
+		KeyboardCallback broadcastObj;
+		broadcastObj.key = KEY_UNKNOWN;
+		broadcastObj.state = KEY_PRESSED;
+		broadcastObj.Unicode = Character;
+		broadcast(broadcastObj);
+	}//textInput
 
 }//name-space

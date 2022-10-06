@@ -14,4 +14,6 @@ namespace CForge {
 		return m_PluginName;
 	}//pluginName
 
+
+
 }//name space

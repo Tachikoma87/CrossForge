@@ -1,4 +1,14 @@
-### Hi there 👋
+CrossForge: A Cross-Platform Visualization Library
+==============================
+
+How to cite:
+
+    @misc{CForge,
+        title={CrossForge: A Cross-Platform Visualization Library},
+        author={Tom Uhlmann and others},
+        year = {2020-2022},
+        howpublished = {Github (not yet publicly available)},
+    }
 
 <!--
 **CrossForge/CrossForge** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.

@@ -53,6 +53,7 @@ namespace CForge {
 			RENDERPASS_GEOMETRY,	///< deferred shading geometry pass
 			RENDERPASS_LIGHTING,	///< deferred shading lighting pass
 			RENDERPASS_FORWARD,		///< forward rendering draw pass
+			RENDERPASS_COUNT,
 		};
 
 		struct CFORGE_API RenderDeviceConfig {
@@ -111,8 +112,8 @@ namespace CForge {
 
 		GLShader* shadowPassShader(void);
 
-		void viewport(Viewport VP);
-		Viewport viewport(void)const;
+		void viewport(RenderPass Pass, Viewport VP);
+		Viewport viewport(RenderPass Pass)const;
 
 	protected:
 		struct ActiveLight {
@@ -150,7 +151,9 @@ namespace CForge {
 		GLShader* m_pDeferredLightingPassShader;
 		GLShader* m_pShadowPassShader;
 
-		Viewport m_Viewport;
+		Viewport m_Viewport[RENDERPASS_COUNT];
+
+		ActiveLight* m_pActiveShadowLight;
 	private:
 
 	};//RenderDevice
