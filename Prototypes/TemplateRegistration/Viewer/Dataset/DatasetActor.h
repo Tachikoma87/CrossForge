@@ -5,15 +5,14 @@
 #include "../../../CForge/Graphics/Actors/StaticActor.h"
 
 namespace TempReg {
-
-	enum class DatasetRenderMode {
-		FILL,
-		LINE,
-		POINT
-	};
-
+	
 	class DatasetActor : public CForge::IRenderableActor {
 	public:
+		enum class DatasetRenderMode {
+			FILL,
+			LINE,
+			POINT
+		};
 
 		DatasetActor(void);
 		~DatasetActor();

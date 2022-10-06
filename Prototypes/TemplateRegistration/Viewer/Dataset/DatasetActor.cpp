@@ -4,7 +4,7 @@
 
 namespace TempReg {
 
-	DatasetActor::DatasetActor(void) : CForge::IRenderableActor("DatasetActor", 10) {
+	DatasetActor::DatasetActor(void) : CForge::IRenderableActor("DatasetActor", 10), m_RenderMode(DatasetRenderMode::POINT) {
 
 	}//Constructor
 
@@ -15,7 +15,7 @@ namespace TempReg {
 	void DatasetActor::init(const CForge::T3DMesh<float>* pMesh, DatasetRenderMode RM) {
 		m_Actor.init(pMesh);
 		m_RenderMode = RM;
-	}//initialize
+	}//init
 
 	void DatasetActor::release(void) {
 		delete this;
@@ -31,15 +31,20 @@ namespace TempReg {
 			glPolygonOffset(-1, -1);
 			break;
 		}
-		case DatasetRenderMode::POINT: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
+		case DatasetRenderMode::POINT: {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); 
+			glPointSize(2);
+			break;
+		}
 		default: break;
 		}
 
 		m_Actor.render(pRDev);
-
-		glDisable(GL_POLYGON_OFFSET_LINE);
+				
 		glPolygonOffset(0, 0);
+		glDisable(GL_POLYGON_OFFSET_LINE);
 		//glLineWidth(1);
+		glPointSize(1);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}//render
 
@@ -47,7 +52,7 @@ namespace TempReg {
 		m_RenderMode = RM;
 	}//renderMode
 
-	DatasetRenderMode DatasetActor::renderMode(void)const {
+	DatasetActor::DatasetRenderMode DatasetActor::renderMode(void) const {
 		return m_RenderMode;
 	}//renderMode
 }

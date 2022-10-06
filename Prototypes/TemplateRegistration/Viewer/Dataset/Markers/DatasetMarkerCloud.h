@@ -3,8 +3,6 @@
 
 #include "DatasetMarkerInstance.h"
 
-#include "../../../CForge/Graphics/Actors/StaticActor.h"
-
 #include <vector>
 #include <set>
 #include <map>
@@ -16,20 +14,20 @@ namespace TempReg {
 		DatasetMarkerCloud();
 		~DatasetMarkerCloud();
 
-		void init(Vector3f Scale);
+		void init(CForge::ISceneGraphNode* Parent, Vector3f Scale);
 		void clear(void);
-
-		void addMarkerInstance(size_t PointID, const Vector3f MarkerPos, CForge::StaticActor* pActor);
-		void removeMarkerInstance(size_t PointID);
 
 		void addToSceneGraph(CForge::ISceneGraphNode* pParent);
 		void removeFromSceneGraph(void);
 
+		void addMarkerInstance(size_t ID, const Vector3f MarkerPos, DatasetMarkerActor* pActor);
+		void removeMarkerInstance(size_t ID);
+
 		void show(bool Show);
 
-		void markerPosition(size_t PointID, Vector3f Position);
-		void markerActor(size_t PointID, CForge::StaticActor* pActor);
-		const CForge::IRenderableActor* markerActor(size_t PointID) const;
+		void markerPosition(size_t ID, Vector3f Position);
+		void markerActor(size_t ID, DatasetMarkerActor* pActor);
+		const DatasetMarkerActor* markerActor(size_t ID) const;
 
 	private:
 		// scene graph root for this cloud of markers; used to connect each cloud to the scene graph of a specific viewport during rendering
