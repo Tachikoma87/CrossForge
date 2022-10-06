@@ -9,20 +9,25 @@
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
 
+#include "Examples/exampleSceneBase.hpp"
 #include "Examples/exampleMinimumGraphicsSetup.hpp"
 #include "Examples/exampleSkeletalAnimation.hpp"
 #include "Examples/exampleMorphTargetAnimation.hpp"
 #include "Examples/exampleSkybox.hpp"
 #include "Examples/exampleMultiViewport.hpp"
+#include "Examples/exampleSockets.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
 #include "Prototypes/TestScenes/ForestTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
-#include "Prototypes/TestScenes/SocketTestScene.hpp"
+#include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
+#include "Prototypes/TestScenes/ImageTestScene.hpp"
+
+#include "Prototypes/TestScenes/GUITestScene.hpp"
+
 #include "Prototypes/TestScenes/TemplateRegistrationTestScene.hpp"
-#include "Prototypes/TestScenes/anotherTestScene.hpp"
 
 
 using namespace CForge;
@@ -55,24 +60,28 @@ int main(int argc, char* argv[]) {
 
 
 	try {
+		//exampleSceneBase();
 		//exampleMinimumGraphicsSetup();
-		//exampleSkeletalAnimation();
-		//exampleMorphTargetAnimation(); 
-		//exampleSkybox();
+		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
-	
-		//shadowTest();
-		//vertexColorTestScene();
-		//forestTestScene();
-		//skelAnimTestScene();
+		//exampleSkeletalAnimation(); 
+		//exampleSkybox();  
+		//exampleSockets();
 
-		//imuInputDeviceTestScene();
-		//socketTestScene();
-		//assetGLTFTestScene();
+
+		//forestTestScene();
+		//imuInputDeviceTestScene();	 
+		//skelAnimTestScene();
+		//shadowTest();	
+		//surfaceSamplerTestScene();
+		//vertexColorTestScene();
+
+		//GUITestScene S;
+		//S.guiTestScene();
+
+		//imageTestScene();
 
 		tempRegTestScene();
-
-		//anotherTestScene();	
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

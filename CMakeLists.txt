@@ -1,158 +1,43 @@
 cmake_minimum_required(VERSION 3.16)
 
+SET(VCPKG_BOOTSTRAP_OPTIONS "-disableMetrics")    # Disable telemetry for vcpkg.
+SET(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)             # Install vcpkg dependencies automatically(experimental - might be changed or removed later; see: https://github.com/microsoft/vcpkg/issues/1653). 
+
 # Forbid in-source builds.
 IF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-   MESSAGE(SEND_ERROR "In-source builds are not allowed. Use a different build directory.")
+	MESSAGE(SEND_ERROR "In-source builds are not allowed. Use a different build directory.")
 ENDIF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
-# CrossForge library
-project(crossforge VERSION 0.1 LANGUAGES CXX)
+# builds the crossforge library
+include("CForge/CrossForgeBuild.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# create required directories if non existent 
 file(MAKE_DIRECTORY "MyAssets")
+file(MAKE_DIRECTORY "Prototypes/Shader")
 
-FIND_PACKAGE(OpenGL REQUIRED)
-FIND_PACKAGE(assimp CONFIG REQUIRED)
-FIND_PACKAGE(glfw3 CONFIG REQUIRED)
-FIND_PACKAGE(OpenCV CONFIG REQUIRED)
-FIND_PACKAGE(libigl CONFIG REQUIRED)
-FIND_PACKAGE(imgui CONFIG REQUIRED)
-
-#enable edit and continue and hot reload (Visual Studio 2022)
-#if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-#	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /ZI")
-#	string(REPLACE "/Zi" "/ZI" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS})
-#	set(CMAKE_SHARED_LINKER_FLAGS "/SAFESEH:NO")
-#	set(CMAKE_EXE_LINKER_FLAGS "/SAFESEH:NO")
-#endif()
-
-include_directories(
-	"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
-	"${OpenCV_INCLUDE_DIRS}"
-)
-
-add_library(crossforge SHARED 
-	# GLAD
-	"${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c"
-
-	# Core related
-	CForge/Core/CForgeObject.cpp 
-	CForge/Core/CrossForgeException.cpp
-	CForge/Core/SCrossForgeDevice.cpp
-	CForge/Core/SGPIO.cpp
-	CForge/Core/SLogger.cpp
-	CForge/Core/CoreUtility.cpp
-
-	# Asset import/exporter stuff
-	CForge/AssetIO/File.cpp
-	CForge/AssetIO/AssimpMeshIO.cpp
-	CForge/AssetIO/I2DImageIO.cpp
-	CForge/AssetIO/I3DMeshIO.cpp
-	CForge/AssetIO/OpenCVImageIO.cpp
-	CForge/AssetIO/SAssetIO.cpp
-
-	# Graphics related
-	CForge/Graphics/GBuffer.cpp 
-	CForge/Graphics/GLBuffer.cpp 
-	CForge/Graphics/GLCubemap.cpp
-	CForge/Graphics/GLTexture2D.cpp 
-	CForge/Graphics/GLVertexArray.cpp 
-	CForge/Graphics/GLWindow.cpp 
-	CForge/Graphics/RenderDevice.cpp 
-	CForge/Graphics/RenderMaterial.cpp 
-	CForge/Graphics/STextureManager.cpp 
-	CForge/Graphics/VirtualCamera.cpp
-	CForge/Graphics/GraphicsUtility.cpp
-
-
-	# Actor related
-	CForge/Graphics/Actors/IRenderableActor.cpp 
-	CForge/Graphics/Actors/RenderGroupUtility.cpp 
-	CForge/Graphics/Actors/SkyboxActor.cpp
-	CForge/Graphics/Actors/VertexUtility.cpp 
-	CForge/Graphics/Actors/ScreenQuad.cpp 
-	CForge/Graphics/Actors/StaticActor.cpp 
-	CForge/Graphics/Actors/SkeletalActor.cpp 
-	CForge/Graphics/Actors/MorphTargetActor.cpp 
-
-	# Animation Controller 
-	CForge/Graphics/Controller/SkeletalAnimationController.cpp 
-	CForge/Graphics/Controller/MorphTargetAnimationController.cpp
-
-	# Shader
-	CForge/Graphics/Shader/GLShader.cpp 
-	CForge/Graphics/Shader/ShaderCode.cpp
-	CForge/Graphics/Shader/SShaderManager.cpp
-
-	# Uniform Buffer Objects
-	CForge/Graphics/UniformBufferObjects/UBOCameraData.cpp 
-	CForge/Graphics/UniformBufferObjects/UBOColorAdjustment.cpp
-	CForge/Graphics/UniformBufferObjects/UBOLightData.cpp 
-	CForge/Graphics/UniformBufferObjects/UBOMaterialData.cpp 
-	CForge/Graphics/UniformBufferObjects/UBOModelData.cpp
-	CForge/Graphics/UniformBufferObjects/UBOBoneData.cpp 
-	CForge/Graphics/UniformBufferObjects/UBOMorphTargetData.cpp
-
-	# Lights
-	CForge/Graphics/Lights/ILight.cpp 
-	CForge/Graphics/Lights/DirectionalLight.cpp 
-	CForge/Graphics/Lights/PointLight.cpp 
-	CForge/Graphics/Lights/SpotLight.cpp
-
-	# SceneGraph
-	CForge/Graphics/SceneGraph/ISceneGraphNode.cpp
-	CForge/Graphics/SceneGraph/SceneGraph.cpp 
-	CForge/Graphics/SceneGraph/SGNGeometry.cpp
-	CForge/Graphics/SceneGraph/SGNTransformation.cpp
-
-	# Input related 
-	CForge/Input/Keyboard.cpp 
-	CForge/Input/Mouse.cpp
-	CForge/Input/SInputManager.cpp
-
-	# Mesh Processing
-	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
- )
-set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
-
-if(WIN32)
-add_compile_definitions(CFORGE_EXPORTS)
-endif(WIN32)
-
-if(UNIX)
-add_compile_definitions(USE_SYSFS_GPIO)
-endif(UNIX)
-
-if(WIN32)
-target_link_libraries(crossforge 
-	PRIVATE glfw 
-	PRIVATE assimp::assimp
-	PRIVATE igl::core 
-	PRIVATE igl::common
-	${OpenCV_LIBS}
-	PRIVATE imgui::imgui
-	)
-endif(WIN32)
-
-if(UNIX)
-	target_link_libraries(crossforge 
-	PRIVATE gpiod 
-	PRIVATE stdc++fs
-	PRIVATE glfw 
-	PRIVATE assimp::assimp
-	PRIVATE igl::core 
-	PRIVATE igl::common
-	${OpenCV_LIBS}
-	PRIVATE imgui::imgui
-)
-endif(UNIX)
-
+#################################################################
+########### Project - CrossForge Sandbox ########################
+#################################################################
 project (CForgeSandbox)
+
+# Additional packages not alreday included in the core library
+FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
+FIND_PACKAGE(imgui CONFIG REQUIRED) # for Template Registration
+
+# enable OpenCV support
+if(USE_OPENCV)
+	FIND_PACKAGE(OpenCV CONFIG REQUIRED)	# Open computer vision library
+	include_directories(
+		"${OpenCV_INCLUDE_DIRS}"
+	)
+	add_compile_definitions(USE_OPENCV)
+endif(USE_OPENCV)
+
 add_executable(CForgeSandbox 
 	SandboxMain.cpp 
-	"thirdparty/glad/src/glad.c"
 
 	CForge/Core/SGPIO.cpp
 	Prototypes/Hardware/I2C.cpp 
@@ -163,13 +48,19 @@ add_executable(CForgeSandbox
 	Prototypes/Camera/StripPhoto.cpp 
 	Prototypes/Camera/StripPhotoCamera.cpp
 
-	Prototypes/Internet/TCPSocket.cpp 
-	Prototypes/Internet/UDPSocket.cpp
-
 	Prototypes/Misc/IMUCameraController.cpp
 
 	Prototypes/Assets/GLTFIO.cpp
-		
+
+	Prototypes/MeshProcessing/SurfaceSampler.cpp
+
+	Prototypes/Actor/LODActor.cpp
+	Prototypes/SLOD.cpp
+	Prototypes/LODHandler.cpp
+	Prototypes/UBOInstancedData.cpp
+	Prototypes/MeshDecimate.cpp
+
+	# for Template Registration
 	Prototypes/TemplateRegistration/Registration/TemplateFitter.cpp
 	Prototypes/TemplateRegistration/Registration/Dataset/DatasetGeometryData.cpp
 	Prototypes/TemplateRegistration/Registration/Dataset/PclOctree.cpp
@@ -186,12 +77,14 @@ if(WIN32)
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
 	PRIVATE glfw 
-	${OpenCV_LIBS}
-	PRIVATE imgui::imgui
-	PRIVATE igl::core 
-	PRIVATE igl::common
-	PRIVATE igl::embree
+	PRIVATE glad::glad
 	ws2_32
+	PRIVATE tinyxml2::tinyxml2
+#	${FREETYPE_LIBRARIES}
+	
+	# for Template Registration
+	PRIVATE imgui::imgui
+	PRIVATE igl::embree
 	)
 endif (WIN32)
 
@@ -199,13 +92,14 @@ if(UNIX)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
 		PRIVATE glfw 
-		PRIVATE assimp::assimp
-		${OpenCV_LIBS}
+		PRIVATE glad::glad
+		PRIVATE tinyxml2::tinyxml2
+#		PRIVATE assimp
 		PRIVATE gpiod
-		PRIVATE dl
+		PRIVATE dl	
+
+		 # for Template Registration
 		PRIVATE imgui::imgui
-		PRIVATE igl::core 
-		PRIVATE igl::common
 		PRIVATE igl::embree
 		)
 endif(UNIX)
@@ -217,7 +111,14 @@ add_custom_command(
 	${CMAKE_SOURCE_DIR}/CForge/Shader
 	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
+add_custom_command(
+	TARGET CForgeSandbox PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
+	${CMAKE_CURRENT_BINARY_DIR}/Shader
+)
 
+#copy assets
 add_custom_command(
 	TARGET CForgeSandbox PRE_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory 
@@ -232,9 +133,12 @@ add_custom_command(
 	${CMAKE_CURRENT_BINARY_DIR}/MyAssets
 )
 
+######## Project - Export library ######################
 project(ExportLibrary)
-add_executable(ExportLibrary 
-	ExportLibrary.cpp)
+add_executable(ExportLibrary ExportLibrary.cpp)
 
-target_link_libraries(ExportLibrary
-	PRIVATE crossforge)
+target_link_libraries(ExportLibrary PRIVATE crossforge)
+
+include_directories(
+	"./"
+)
