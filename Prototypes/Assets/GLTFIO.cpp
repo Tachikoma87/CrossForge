@@ -1353,6 +1353,10 @@ namespace CForge {
 					continue;
 				}
 
+				for (int k = 0; k < pBoneKf->Timestamps.size(); k++) {
+					pBoneKf->Timestamps[k] /= pAnim->Speed;
+				}
+
 				writeAccessorDataScalar(0, &pBoneKf->Timestamps);
 				int indexAccessor = model.accessors.size() - 1;
 
