@@ -1309,6 +1309,14 @@ namespace CForge {
 		//write inverse bind matrices
 		std::vector<std::vector<float>> data;
 		fromMat4f(&inverseBindMatrices, &data);
+
+		for (int i = 0; i < data.size(); i++) {
+			for (int j = 0; j < data[i].size(); j++) {
+				std::cout << data[i][j] << " ";
+				if (j % 4 == 3) std::cout << std::endl;
+			}
+			std::cout << std::endl;
+		}
 		
 		writeAccessorData(0, TINYGLTF_TYPE_MAT4, &data);
 		int accessor = model.accessors.size() - 1;

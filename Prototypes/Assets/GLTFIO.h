@@ -118,41 +118,26 @@ class GLTFIO {
 #pragma region accessor_read
 		template<class T>
 		void readBuffer(unsigned char* pBuffer, const int element_count, const int offset, const int component_count, const bool is_matrix, const int stride, std::vector<T>* pData) {
-			pData->reserve(element_count * component_count);
-
-			T* raw_data = (T*)(pBuffer + offset);
-
 			int type_size = sizeof(T);
 			
 			if (is_matrix) {
-				//A matrix is stored in column major order in glTF.
-				//Every column has to start at an index which is a multiple 4.
-				//Padding bytes have to be inserted to fill the gaps.
-				int row_count = std::sqrt(component_count);
-				int column_size = row_count * type_size;
-				int column_size_with_padding = column_size + (4 - column_size) % 4;
-
-				for (int i = 0; i < element_count * row_count; i++) {
-					int index = i * (column_size_with_padding / type_size);
-
-					for (int k = 0; k < column_size_with_padding; k++) {
-						if (k >= column_size) continue;
-						pData->push_back(raw_data[index + k]);
-					}
-				}
+				assert(component_count == 16);
+				assert(type_size == 4);
 			}
-			else {
-				int jump = stride / type_size;
-				if (jump == 0) jump = component_count;
+			
+			pData->reserve(element_count * component_count);
+
+			T* raw_data = (T*)(pBuffer + offset);
+			
+			int jump = stride / type_size;
+			if (jump == 0) jump = component_count;
 				
-				for (int i = 0; i < element_count; i++) {
-					int index = i * jump;
-					for (int k = 0; k < component_count; k++) {
-						T tmp = raw_data[index + k];
-						pData->push_back(tmp);
-					}
+			for (int i = 0; i < element_count; i++) {
+				int index = i * jump;
+				for (int k = 0; k < component_count; k++) {
+					T tmp = raw_data[index + k];
+					pData->push_back(tmp);
 				}
-				
 			}
 		}
 
@@ -270,48 +255,28 @@ class GLTFIO {
 		void writeBuffer(std::vector<unsigned char>* pBuffer, const int offset, const int component_count, const bool is_matrix, const int stride, const std::vector<T>* pData) {
 			int type_size = sizeof(T);
 
+			if (is_matrix) {
+				assert(component_count == 16);
+				assert(type_size == 4);
+			}
+
 			while (pBuffer->size() < offset) pBuffer->push_back(0);
 
 			int index = offset;
+			
+			for (int i = 0; i < pData->size(); i++) {
+				T element = (*pData)[i];
+				unsigned char* as_char_pointer = (unsigned char*) &element;
 
-			if (is_matrix) {
-				int column_size = std::sqrt(component_count);
-				int column_size_bytes = column_size * type_size;
-				int padding = 4 - column_size_bytes % 4;
-
-				for (int i = 0; i < pData->size(); i++) {
-					T element = (*pData)[i];
-					unsigned char* as_char_pointer = (unsigned char*) &element;
-
-					for (int j = 0; j < column_size; j++) {
-						for (int k = 0; k < column_size_bytes; k++) {
-							if (index == pBuffer->size()) pBuffer->push_back(as_char_pointer[k]);
-							else (*pBuffer)[index] = as_char_pointer[k];
-							index++;
-						}
-
-						for (int k = 0; k < padding; k++) {
-							if (index == pBuffer->size()) pBuffer->push_back(0);
-							index++;
-						}
-					}
+				for (int k = 0; k < type_size; k++) {
+					if (index == pBuffer->size()) pBuffer->push_back(as_char_pointer[k]);
+					else (*pBuffer)[index] = as_char_pointer[k];
+					index++;
 				}
-			}
-			else {
-				for (int i = 0; i < pData->size(); i++) {
-					T element = (*pData)[i];
-					unsigned char* as_char_pointer = (unsigned char*) &element;
 
-					for (int k = 0; k < type_size; k++) {
-						if (index == pBuffer->size()) pBuffer->push_back(as_char_pointer[k]);
-						else (*pBuffer)[index] = as_char_pointer[k];
-						index++;
-					}
-
-					for (int k = 0; k < stride; k++) {
-						if (index == pBuffer->size()) pBuffer->push_back(0);
-						index++;
-					}
+				for (int k = 0; k < stride; k++) {
+					if (index == pBuffer->size()) pBuffer->push_back(0);
+					index++;
 				}
 			}
 		}
@@ -409,9 +374,11 @@ class GLTFIO {
 
 			BufferView bufferView;
 
+			int component_count = componentCount(type);
+
 			bufferView.byteOffset = pBuffer->data.size();
 			bufferView.buffer = bufferIndex;
-			bufferView.byteLength = pData->size() * sizeof(T) * componentCount(type);
+			bufferView.byteLength = pData->size() * sizeof(T) * component_count;
 			bufferView.byteStride = 0;
 
 			model.bufferViews.push_back(bufferView);
@@ -421,7 +388,7 @@ class GLTFIO {
 				for (auto e : v) simplified.push_back(e);
 			}
 			
-			writeBuffer(&pBuffer->data, bufferView.byteOffset + accessor.byteOffset, accessor.count, is_matrix, bufferView.byteStride, &simplified);
+			writeBuffer(&pBuffer->data, bufferView.byteOffset + accessor.byteOffset, component_count, is_matrix, bufferView.byteStride, &simplified);
 		}
 
 		int writeSparseAccessorData(const int buffer_index, const int type, const std::vector<int32_t>* pIndices, const std::vector<std::vector<float>>* pData);
