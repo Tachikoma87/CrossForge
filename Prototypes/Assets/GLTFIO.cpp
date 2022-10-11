@@ -50,6 +50,9 @@ namespace CForge {
 
 		bool res = loader.LoadASCIIFromFile(&model, &err, &warn, Filepath);
 
+		if (warn.size()) std::cout << "tinygltf warning: " << warn << std::endl;
+		if (err.size()) std::cout << "tinygltf error: " << err << std::endl;
+
 		for (int i = 0; i < model.accessors.size(); i++) {
 
 			std::string type;
@@ -1193,6 +1196,8 @@ namespace CForge {
 	}
 
 	void GLTFIO::writeSkinningData() {
+		if (pCMesh->boneCount() == 0) return;
+
 		/*
 		* TODO
 		* Alle Bones als Nodes in gltf einfügen.
@@ -1345,6 +1350,10 @@ namespace CForge {
 			
 			for (int j = 0; j < pAnim->Keyframes.size(); j++) {
 				auto pBoneKf = pAnim->Keyframes[j];
+				
+				int target_node = getNodeIndexByName("bone_" + std::to_string(pBoneKf->BoneID));
+
+				if (target_node == -1) continue;
 
 				if (pBoneKf->BoneID == -1 || pBoneKf->Timestamps.size() == 0) {
 					continue;
@@ -1374,7 +1383,7 @@ namespace CForge {
 
 					AnimationChannel channel;
 					channel.sampler = newGltfAnim.samplers.size() - 1;
-					channel.target_node = getNodeIndexByName("bone_" + std::to_string(pBoneKf->BoneID));
+					channel.target_node = target_node;
 					assert(channel.target_node >= 0);
 					channel.target_path = "translation";
 
@@ -1398,7 +1407,7 @@ namespace CForge {
 
 					AnimationChannel channel;
 					channel.sampler = newGltfAnim.samplers.size() - 1;
-					channel.target_node = getNodeIndexByName("bone_" + std::to_string(pBoneKf->BoneID));
+					channel.target_node = target_node;
 					channel.target_path = "rotation";
 
 					newGltfAnim.channels.push_back(channel);
@@ -1421,7 +1430,7 @@ namespace CForge {
 
 					AnimationChannel channel;
 					channel.sampler = newGltfAnim.samplers.size() - 1;
-					channel.target_node = getNodeIndexByName("bone_" + std::to_string(pBoneKf->BoneID));
+					channel.target_node = target_node;
 					channel.target_path = "scale";
 
 					newGltfAnim.channels.push_back(channel);

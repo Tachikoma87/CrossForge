@@ -139,21 +139,21 @@ namespace CForge {
 		//gltf testing
 		GLTFIO gltfio;
 
-		std::string name = "ToyCar";
+		std::string name = "AnimatedCube";
 
 		std::string gltfPath = "Assets/gltf sample models/" + name + "/glTF/" + name;
 		
-		//gltfio.load(gltfPath + ".gltf", &testModel);
-		//gltfio.store(gltfPath + "_debug.gltf", &testModel);
-		//testModel.clear();
-		//gltfio.load(gltfPath + "_debug.gltf", &testModel);
-		
-
-		SAssetIO::load("Assets/ExampleScenes/MuscleManSittingWalking.glb", &testModel);
-		gltfio.store("Assets/ExampleScenes/MuscleManSittingWalking.gltf", &testModel);
+		gltfio.load(gltfPath + ".gltf", &testModel);
+		gltfio.store(gltfPath + "_debug.gltf", &testModel);
 		testModel.clear();
-		gltfio.load("Assets/ExampleScenes/MuscleManSittingWalking.gltf", &testModel);
+		gltfio.load(gltfPath + "_debug.gltf", &testModel);
 		
+		/*
+		SAssetIO::load("Assets/ExampleScenes/Eric_Anim.fbx", &testModel);
+		gltfio.store("Assets/ExampleScenes/Eric_Anim.gltf", &testModel);
+		testModel.clear();
+		gltfio.load("Assets/ExampleScenes/Eric_Anim.gltf", &testModel);
+		*/
 		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);
 		testModel.computePerVertexNormals();
 		testModel.bones(&std::vector<T3DMesh<float>::Bone*>(), false);
