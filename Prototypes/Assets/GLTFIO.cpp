@@ -1,4 +1,4 @@
-﻿#include "GLTFIO.h"
+#include "GLTFIO.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
