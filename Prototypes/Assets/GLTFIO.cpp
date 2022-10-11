@@ -1310,12 +1310,9 @@ namespace CForge {
 		std::vector<std::vector<float>> data;
 		fromMat4f(&inverseBindMatrices, &data);
 
+		//Validator complains if last value of mat4 is not 1.
 		for (int i = 0; i < data.size(); i++) {
-			for (int j = 0; j < data[i].size(); j++) {
-				std::cout << data[i][j] << " ";
-				if (j % 4 == 3) std::cout << std::endl;
-			}
-			std::cout << std::endl;
+			data[i][15] = 1.0f;
 		}
 		
 		writeAccessorData(0, TINYGLTF_TYPE_MAT4, &data);
