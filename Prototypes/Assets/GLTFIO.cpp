@@ -1237,7 +1237,6 @@ namespace CForge {
 			model.nodes.push_back(newNode);
 
 			int mesh_index = getMeshIndexByCrossForgeVertexIndex(pBone->VertexInfluences[0]);
-			int node_index = node_offset + i;
 
 			for (int j = 0; j < pBone->VertexInfluences.size(); j++) {
 				int32_t vertex_index = pBone->VertexInfluences[j];
@@ -1254,14 +1253,14 @@ namespace CForge {
 				bool found = false;
 
 				for (int k = 0; k < mesh_influences[mesh_index][vertex_index].size(); k++) {
-					if (mesh_influences[mesh_index][vertex_index][k] == node_index) {
+					if (mesh_influences[mesh_index][vertex_index][k] == i) {
 						found = true;
 						break;
 					}
 				}
 
 				if (!found) {
-					mesh_influences[mesh_index][vertex_index].push_back(node_index);
+					mesh_influences[mesh_index][vertex_index].push_back(i);
 					mesh_weights[mesh_index][vertex_index].push_back(weight);
 				}
 			}
@@ -1285,7 +1284,7 @@ namespace CForge {
 			for (int j = 0; j < mesh_influences[i].size(); j++) {
 				auto joints = &mesh_influences[i][j];
 				auto weights = &mesh_weights[i][j];
-				
+
 
 				//bubble sort
 				bool found = true;
@@ -1299,16 +1298,31 @@ namespace CForge {
 						}
 					}
 				}
-				
+
 				for (int k = joints->size(); k > 4; k--) {
 					joints->pop_back();
 					weights->pop_back();
 				}
+				while (joints->size() < 4) joints->push_back(0);
+				while (weights->size() < 4) weights->push_back(0.0f);
 
-				Primitive* pPrimitive = &model.meshes[i].primitives[0];
-				
-				
+				float sum = 0.0f;
+				for (int k = 0; k < weights->size(); k++) {
+					sum += (*weights)[k];
+				}
+				(*weights)[0] += 1.0f - sum;
 			}
+
+			//write primitive attributes
+			Primitive* pPrimitive = &model.meshes[i].primitives[0];
+			
+			writeAccessorData(0, TINYGLTF_TYPE_VEC4, &mesh_weights[i]);
+			int accessor = model.accessors.size() - 1;
+			pPrimitive->attributes.emplace("WEIGHTS_0", accessor);
+
+			writeAccessorData(0, TINYGLTF_TYPE_VEC4, &mesh_influences[i]);
+			accessor = model.accessors.size() - 1;
+			pPrimitive->attributes.emplace("JOINTS_0", accessor);
 		}
 
 		//write inverse bind matrices
@@ -1336,6 +1350,8 @@ namespace CForge {
 				break;
 			}
 		}
+
+		model.nodes[skin.skeleton].skin = model.skins.size();
 
 		model.skins.push_back(skin);
 	}

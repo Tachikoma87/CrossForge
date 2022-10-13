@@ -331,6 +331,8 @@ class GLTFIO {
 
 			Accessor accessor;
 
+			int component_count = componentCount(type);
+
 			bool is_matrix = componentIsMatrix(type);
 			
 			if (!is_matrix) {
@@ -340,7 +342,7 @@ class GLTFIO {
 				std::vector<T> min;
 				std::vector<T> max;
 
-				for (int i = 0; i < (*pData)[0].size(); i++) {
+				for (int i = 0; i < component_count; i++) {
 					min.push_back(n_min);
 					max.push_back(n_max);
 				}
@@ -348,7 +350,7 @@ class GLTFIO {
 				for (int i = 0; i < pData->size(); i++) {
 					auto element = (*pData)[i];
 
-					for (int j = 0; j < element.size(); j++) {
+					for (int j = 0; j < component_count; j++) {
 						T value = element[j];
 
 						if (value < min[j]) min[j] = value;
@@ -373,8 +375,6 @@ class GLTFIO {
 			model.accessors.push_back(accessor);
 
 			BufferView bufferView;
-
-			int component_count = componentCount(type);
 
 			bufferView.byteOffset = pBuffer->data.size();
 			bufferView.buffer = bufferIndex;
