@@ -1344,14 +1344,27 @@ namespace CForge {
 		skin.inverseBindMatrices = accessor;
 		skin.skeleton = -1;
 
+		// find skeleton root, will be set to a node with mesh later and this root will be a child of that mesh.
+		int skeleton_root = 0;
+		
 		for (int i = 0; i < has_parent.size(); i++) {
 			if (!has_parent[i]) {
-				skin.skeleton = node_offset + i;
+				skeleton_root = node_offset + i;
 				break;
 			}
 		}
 
-		model.nodes[skin.skeleton].skin = model.skins.size();
+		// find node with mesh 0 and root bone as child and set skin.
+		for (int i = 0; i < model.nodes.size(); i++) {
+			auto pNode = &model.nodes[i];
+			
+			if (pNode->mesh == 0) {
+				pNode->children.push_back(skeleton_root);
+				pNode->skin = model.skins.size();
+				skin.skeleton = i;
+				break;
+			}
+		}
 
 		model.skins.push_back(skin);
 	}
