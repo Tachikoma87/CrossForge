@@ -1,5 +1,6 @@
 {
 	"name": "crossforge",
+	"version":  "0.1",
 	"dependencies": [
 		"glad",
 		"glfw3",
