@@ -33,6 +33,7 @@ namespace CForge {
 		void release(void);
 
 		void bind(void);
+		void unbind(void);
 		uint32_t handle(void)const;
 
 	protected:

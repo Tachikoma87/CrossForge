@@ -12,8 +12,6 @@ layout (std140) uniform ColorAdjustmentData{
 	float Padding;
 }ColorAdjustment;
 
-uniform vec3 Adis;
-
 vec3 adjustColorAttributes(vec3 Color){
 
 	// adjust brightness 

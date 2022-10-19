@@ -66,12 +66,7 @@ namespace CForge {
 			RX = AngleAxisf(GraphicsUtility::degToRad(-25.0f / 60.0f), Vector3f::UnitZ());
 			m_CubeTransformSGN.rotationDelta(RX * RY);
 
-			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CoreUtility::timestamp();
-			int32_t FPSCount = 0;
-
 			/// gather textures for the skyboxes
-
 			m_ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_right.png");
 			m_ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_left.png");
 			m_ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_up.png");
@@ -161,6 +156,10 @@ namespace CForge {
 				updateFPS();
 				defaultKeyboardUpdate(m_RenderWin.keyboard());
 
+
+				std::string GLError = "";
+				GraphicsUtility::checkGLError(&GLError);
+				if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 			}//while[main loop]
 		}//run
 	protected:

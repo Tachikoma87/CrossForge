@@ -27,17 +27,15 @@
 
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 
-
-
 using namespace CForge;
 using namespace Eigen;
-
 
 int main(int argc, char* argv[]) {
 #ifdef WIN32
 	_CrtMemState S1, S2, S3;
 	_CrtMemCheckpoint(&S1);
 #endif
+
 
 	SCrossForgeDevice* pDev = nullptr;
 
@@ -63,9 +61,9 @@ int main(int argc, char* argv[]) {
 		//exampleSceneBase();
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
-		exampleMultiViewport();
+		//exampleMultiViewport();
 		//exampleSkeletalAnimation(); 
-		//exampleSkybox();  
+		exampleSkybox();  
 		//exampleSockets();
 	
 

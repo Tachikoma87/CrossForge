@@ -126,6 +126,10 @@ include_directories(
 
 ######## Project - Terrain ##############################
 
+set(BUILD_TERRAIN false)
+
+if(BUILD_TERRAIN)
+
 project (Terrain)
 add_executable(Terrain
 	Main.cpp
@@ -174,21 +178,6 @@ target_link_libraries(Terrain
 )
 endif(UNIX)
 
-# copy engine shaders
-add_custom_command(
-	TARGET Terrain PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_SOURCE_DIR}/CForge/Shader
-	${CMAKE_CURRENT_BINARY_DIR}/Shader
-)
-
-#copy prototype shaders
-add_custom_command(
-	TARGET Terrain PRE_BUILD 
-	COMMAND ${CMAKE_COMMAND} -E copy_directory 
-	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
-	${CMAKE_CURRENT_BINARY_DIR}/Shader
-)
 
 #Todo: copy on run
 # copy terrain shaders
@@ -205,3 +194,5 @@ add_custom_command(
 	${CMAKE_SOURCE_DIR}/Terrain/Assets
 	${CMAKE_CURRENT_BINARY_DIR}/Assets
 )
+
+endif(BUILD_TERRAIN)

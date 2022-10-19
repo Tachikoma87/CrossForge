@@ -92,6 +92,9 @@ namespace CForge {
 
         T3DMesh<float>::Material Mat;
         Mat.ID = 0;
+        Mat.Color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+        Mat.Metallic = 0.04f;
+        Mat.Roughness = 0.5f;
         Mat.VertexShaderForwardPass.push_back("Shader/Skybox.vert");
         Mat.FragmentShaderForwardPass.push_back("Shader/Skybox.frag");
         M.addMaterial(&Mat, true);
@@ -127,14 +130,6 @@ namespace CForge {
             return;
         }
 
-        m_VertexArray.init();
-        m_VertexArray.bind();
-        setBufferData();
-        m_VertexArray.unbind();
-
-        // initialize cubemap
-        m_Cubemap.clear();
-
         T2DImage<uint8_t> CubeImages[6];
         try {
             AssetIO::load(Right, &CubeImages[0]);
@@ -159,6 +154,11 @@ namespace CForge {
         contrast(1.0f);
         brightness(1.0f);
         saturation(1.0f);
+
+        m_VertexArray.init();
+        m_VertexArray.bind();
+        setBufferData();
+        m_VertexArray.unbind();
 	}//initialize
 
 	void SkyboxActor::clear(void) {
@@ -169,6 +169,7 @@ namespace CForge {
         m_VertexUtility.clear();
         m_RenderGroupUtility.clear();
         m_ColorAdjustUBO.clear();
+        m_Cubemap.clear();
 	}//clear
 
 	void SkyboxActor::release(void) {
@@ -197,26 +198,21 @@ namespace CForge {
 
                 pRDev->activeShader(i->pShaderForwardPass);
                 pRDev->activeMaterial(&i->Material);
+
+                glActiveTexture(GL_TEXTURE0);
                 m_Cubemap.bind();
+                uint32_t Loc = i->pShaderForwardPass->uniformLocation("Skybox");
+                if (Loc != GL_INVALID_INDEX) glUniform1i(Loc, Loc);
 
                 uint32_t BindingPoint = i->pShaderForwardPass->uboBindingPoint(GLShader::DEFAULTUBO_COLORADJUSTMENT); 
                 if (BindingPoint != GL_INVALID_INDEX) m_ColorAdjustUBO.bind(BindingPoint);
                 
             }break;
             default: continue;
-            }
-
-            //if (i->pShader == nullptr) continue;
-
-            //pRDev->activeShader(i->pShader);
-            //pRDev->activeMaterial(&i->Material);
-            //m_Cubemap.bind();
-
-            //uint32_t BindingPoint = i->pShader->uboBindingPoint(GLShader::DEFAULTUBO_COLORADJUSTMENT); // i->pShader->uboBindingPoint("ColorAdjustmentData");
-            //if (BindingPoint != GL_INVALID_INDEX) m_ColorAdjustUBO.bind(BindingPoint);        
+            }    
 
             glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
-            
+            m_Cubemap.unbind();
         }//for[all render groups]
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);

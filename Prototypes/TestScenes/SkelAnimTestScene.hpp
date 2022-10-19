@@ -171,52 +171,68 @@ namespace CForge {
 
 
 			//SAssetIO::load("MyAssets/WalkingSittingEve.glb", &M);
-			SAssetIO::load("MyAssets/WalkingSittingEve.glb", &M);
-			setMeshShader(&M, 0.6f, 0.04f);
+			//SAssetIO::load("MyAssets/WalkingSittingEve.glb", &M);
+			//setMeshShader(&M, 0.6f, 0.04f);
+			//
+			//printf("Vertex count before: %d\n", M.vertexCount());
+			//mergeRedundantVertices(&M);
+			//printf("Vertex count after: %d\n", M.vertexCount());
+
+			//M.computePerVertexNormals();
+			//m_ControllerCaptured.init(&M);
+			//m_Captured.init(&M, &m_ControllerCaptured);
+
+			//M.bones(nullptr);
+			//m_ComparisonModel.init(&M);
+
+			////AssetIO::store("MyAssets/TestModel_After.obj", &M);
+
+			//M.clear();
+
 			
-			printf("Vertex count before: %d\n", M.vertexCount());
-			mergeRedundantVertices(&M);
-			printf("Vertex count after: %d\n", M.vertexCount());
 
-			M.computePerVertexNormals();
-			m_ControllerCaptured.init(&M);
-			m_Captured.init(&M, &m_ControllerCaptured);
-
-			M.bones(nullptr);
-			m_ComparisonModel.init(&M);
-
-			//AssetIO::store("MyAssets/TestModel_After.obj", &M);
-
-			M.clear();
-
-			
-
-
+			T3DMesh<float> AnimData;
 			/*T3DMesh<float> M2;
 			SAssetIO::load("Assets/tmp/MuscleManPosed.glb", &M2);
 			M2.computePerFaceNormals();*/
 
 			//// initialize skeletal actor (Eric) and its animation controller
-			//SAssetIO::load("MyAssets/DoubleCaptured.glb", &M);
-			//setMeshShader(&M, 0.6f, 0.04f);
-			//// male textures
-			//M.getMaterial(0)->TexAlbedo = "Assets/tmp/MHTextures/young_lightskinned_male_diffuse2.png";
-			//M.getMaterial(1)->TexAlbedo = "Assets/tmp/MHTextures/brown_eye.png";
-			//M.getMaterial(2)->TexAlbedo = "Assets/tmp/MHTextures/male_casualsuit04_diffuse.png";
-			//M.getMaterial(3)->TexAlbedo = "Assets/tmp/MHTextures/shoes06_diffuse.png";
+			SAssetIO::load("MyAssets/DoubleCaptured.glb", &M);
+			setMeshShader(&M, 0.6f, 0.04f);
+			// male textures
+			/*M.getMaterial(0)->TexAlbedo = "Assets/tmp/MHTextures/young_lightskinned_male_diffuse2.png";
+			M.getMaterial(1)->TexAlbedo = "Assets/tmp/MHTextures/brown_eye.png";
+			M.getMaterial(2)->TexAlbedo = "Assets/tmp/MHTextures/male_casualsuit04_diffuse.png";
+			M.getMaterial(3)->TexAlbedo = "Assets/tmp/MHTextures/shoes06_diffuse.png";*/
 
 			//// female textures
-			//M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
-			//M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
-			//M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
-			//M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
-			//M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
+			M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
+			M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
+			M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+			M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
+			M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
 
-			//M.computePerVertexNormals();
-			//M.computePerVertexTangents();
-			//m_ControllerCaptured.init(&M);
-			//m_Captured.init(&M, &m_ControllerCaptured);
-			//M.clear();
+			M.computePerVertexNormals();
+			M.computePerVertexTangents();
+
+			AssetIO::load("MyAssets/Sitzen_Gehen.glb", &AnimData);
+			M.addSkeletalAnimation(AnimData.getSkeletalAnimation(0));
+			AnimData.clear();
+			AssetIO::load("MyAssets/s22_Gehen_3_003_cut.glb", &AnimData);
+			M.addSkeletalAnimation(AnimData.getSkeletalAnimation(0));
+			AnimData.clear();
+			AssetIO::load("MyAssets/Gehen_1-010.glb", &AnimData);
+			M.addSkeletalAnimation(AnimData.getSkeletalAnimation(0));
+			AnimData.clear();
+
+			m_ControllerCaptured.init(&M);
+			//m_ControllerCaptured.init(&AnimData);
+			m_Captured.init(&M, &m_ControllerCaptured);
+			M.clear();
+
+			// load more animation data
+			
+			if(M.skeletalAnimationCount() > 0) m_ControllerCaptured.addAnimationData(M.getSkeletalAnimation(0));
 
 			//SAssetIO::load("MyAssets/DoubleSynth.glb", &M);
 			//setMeshShader(&M, 0.6f, 0.04f);
@@ -348,13 +364,13 @@ namespace CForge {
 					m_CapturedSGN.enable(true, !En);
 				}
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_6, true)) {
-
+					m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(1, AnimationSpeed, 0.0f));
 				}
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_7, true)) {
-
+					m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(2, AnimationSpeed, 0.0f));
 				}
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_8, true)) {
-
+					m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(3, AnimationSpeed, 0.0f));
 				}
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);

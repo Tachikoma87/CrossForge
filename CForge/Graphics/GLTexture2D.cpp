@@ -52,6 +52,10 @@ namespace CForge {
 		glBindTexture(GL_TEXTURE_2D, m_TexObj);
 	}//bind
 
+	void GLTexture2D::unbind(void) {
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}//unbind
+
 	uint32_t GLTexture2D::handle(void)const {
 		return m_TexObj;
 	}//handle

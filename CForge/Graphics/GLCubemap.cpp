@@ -38,6 +38,8 @@ namespace CForge {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_MIRROR_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_MIRROR_CLAMP_TO_EDGE);
 
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
 	}//initialize
 
 	void GLCubemap::clear(void) {
@@ -52,6 +54,10 @@ namespace CForge {
 	void GLCubemap::bind(void) {
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_TexObj);
 	}//bind
+
+	void GLCubemap::unbind(void) {
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	}//unbind
 
 	uint32_t GLCubemap::handle(void)const {
 		return m_TexObj;

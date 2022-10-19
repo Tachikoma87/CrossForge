@@ -37,6 +37,7 @@ namespace CForge {
 		void clear(void);
 
 		void bind(void);
+		void unbind(void);
 		uint32_t handle(void)const;
 	private:
 		uint32_t m_TexObj;
