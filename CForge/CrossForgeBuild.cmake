@@ -174,7 +174,7 @@ target_link_libraries(crossforge
 
 elseif(UNIX)
 	target_link_libraries(crossforge 
-	PRIVATE glfw 
+	PRIVATE glfw
 	PRIVATE glad::glad
 	PRIVATE assimp::assimp
 	PRIVATE igl::core 

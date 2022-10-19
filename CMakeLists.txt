@@ -76,7 +76,7 @@ endif (WIN32)
 if(UNIX)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
-		PRIVATE glfw 
+		PRIVATE glfw
 		PRIVATE glad::glad
 		PRIVATE tinyxml2::tinyxml2
 #		PRIVATE assimp
@@ -172,7 +172,7 @@ endif(WIN32)
 if(UNIX)
 target_link_libraries(Terrain
 	PRIVATE crossforge
-	PRIVATE glfw 
+	PRIVATE glfw
 	${FREETYPE_LIBRARIES}
 	PRIVATE tinyxml2::tinyxml2
 )
