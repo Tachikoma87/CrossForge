@@ -57,6 +57,11 @@ type.
  */
 
 namespace CForge {
+    /**
+     * \brief Defines input widget types.
+     *
+     * This definition is used for forms and their callbacks into program code.
+     */
     enum GUIInputType {
         INPUTTYPE_INT,          //returns integers
         INPUTTYPE_BOOL,         //bool
@@ -85,6 +90,15 @@ namespace CForge {
         void listen(const GUICallbackObject Msg) override;
     };
 
+    /**
+	* \brief The main GUI class.
+    *
+    * This main class handles resource loading and organisation for the widgets,
+    * orchestrates the callbacks triggered by user input and is the main interaction
+    * point for the rest of the program with the GUI.
+	*
+	* \ingroup GUI
+	*/
     class CFORGE_API GUI : public CForge::ITListener<char32_t>, public CForge::ITListener<CForge::KeyboardCallback> {
     public:
         GUI();

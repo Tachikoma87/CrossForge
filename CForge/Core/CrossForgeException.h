@@ -33,11 +33,11 @@ namespace CForge {
 		*\brief Defines exception types.
 		*/
 		enum struct Type: int32_t {
-			UNKNOWN = -1,	//< An unknown exception without any type.
-			GENERAL,		//< A general exception.
-			NULLPOINTER,	//< Some variable or argument was a nullpointer without being allowed to.
-			INDEX_OUT_OF_BOUNDS, //< An invalid index was reached or specified.
-			NOT_INITIALIZED, //< A class was not properly initialized. Call init() or begin() with appropriate attributes first to use a class.
+			UNKNOWN = -1,	///< An unknown exception without any type.
+			GENERAL,		///< A general exception.
+			NULLPOINTER,	///< Some variable or argument was a nullpointer without being allowed to.
+			INDEX_OUT_OF_BOUNDS, ///< An invalid index was reached or specified.
+			NOT_INITIALIZED, ///< A class was not properly initialized. Call init() or begin() with appropriate attributes first to use a class.
 			OUT_OF_MEMORY, ///< memory allocation failed.
 		};
 

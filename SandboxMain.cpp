@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
 		//exampleSkeletalAnimation(); 
-		exampleSkybox();  
+		exampleSkybox();
 		//exampleSockets();
 	
 
