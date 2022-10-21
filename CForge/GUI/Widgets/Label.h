@@ -34,6 +34,11 @@ namespace CForge {
         LabelWidget(GUIInputType type, std::u32string labelText, GUI* rootGUIObject, BaseWidget* parent);
         ~LabelWidget();
 
+        /**
+         * \brief Fetch the value from the input, buffer it and return a \ref CForge::GUICallbackDatum.
+         *
+         * \ingroup GUI
+         */
         GUICallbackDatum getValue();
         void setLimit(int lower, int higher);
         void setLimit(float lower, float higher);

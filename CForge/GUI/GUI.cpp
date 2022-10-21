@@ -232,7 +232,9 @@ namespace CForge {
             }
             if (m_Popup == nullptr) {
                 //if it didn't exist, create a new handler
-                //note that at the current state of the codebase, this implies NO interactivity
+                //note that at the current state of the codebase, this implies that
+                //the popup widget in question has NO interactivity whatsoever,
+                //which is probably either an accident/bug or a bad idea.
                 m_Popup = new TopLevelWidgetHandler(widget);
             }
         }
