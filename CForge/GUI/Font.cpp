@@ -188,7 +188,7 @@ namespace CForge {
         int maxLineWidth = 0;
         int numLines = 1;
         for (int i = 0; i < text.length(); i++) {
-            if (text[i] == u'\n') {
+            if (text[i] == U'\n') {
                 //start a new line
                 lines->push_back(currentLine);
                 currentLine.clear();
