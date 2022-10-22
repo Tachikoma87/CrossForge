@@ -1,5 +1,0 @@
-/home/simon/projects/team praktikum/CrossForge/build/CMakeFiles/rebuild_cache.dir
-/home/simon/projects/team praktikum/CrossForge/build/CMakeFiles/edit_cache.dir
-/home/simon/projects/team praktikum/CrossForge/build/CMakeFiles/Terrain.dir
-/home/simon/projects/team praktikum/CrossForge/build/CMakeFiles/ExportLibrary.dir
-/home/simon/projects/team praktikum/CrossForge/build/CMakeFiles/crossforge.dir

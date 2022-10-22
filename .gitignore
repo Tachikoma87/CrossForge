@@ -2,8 +2,8 @@
 .vs/
 .idea/
 out/
+build/
 cmake-build-debug/**/*
-Documentation/Doc/
 Libraries/
 MyAssets/
 museumAssets/
@@ -40,8 +40,12 @@ museumAssets/
 *.out
 *.app
 
-# kdev
+# KDevelop project files
 *.kdev4
 .kdev4/
+
+# Compiled documentation
+Documentation/Doc/
+Documentation/Doxywarnings.txt
 
 CMakeSettings.json
