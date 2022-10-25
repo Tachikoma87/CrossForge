@@ -4,8 +4,8 @@
 
 namespace TempReg {
 
-	DatasetMarkerActor::DatasetMarkerActor(void) : CForge::IRenderableActor("DatasetActor", 11), m_UsePolygonOffset(false) {
-
+	DatasetMarkerActor::DatasetMarkerActor(void) : CForge::IRenderableActor("DatasetActor", 11) {
+		m_UsePolygonOffset = false;
 	}//Constructor
 
 	DatasetMarkerActor::~DatasetMarkerActor() {

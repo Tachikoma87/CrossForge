@@ -1,10 +1,11 @@
 #ifndef __TEMPREG_DATASETDISPLAYDATA_H__
 #define __TEMPREG_DATASETDISPLAYDATA_H__
 
-#include "../../../CForge/AssetIO/T3DMesh.hpp"
-#include "../../../CForge/Graphics/SceneGraph/ISceneGraphNode.h"
-#include "../../../CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "../../../CForge/Graphics/SceneGraph/SGNTransformation.h"
+#include "../../CForge/AssetIO/T3DMesh.hpp"
+
+#include "../../CForge/Graphics/SceneGraph/ISceneGraphNode.h"
+#include "../../CForge/Graphics/SceneGraph/SGNGeometry.h"
+#include "../../CForge/Graphics/SceneGraph/SGNTransformation.h"
 
 #include "Markers/DatasetMarkerInstance.h"
 #include "Markers/DatasetMarkerCloud.h"

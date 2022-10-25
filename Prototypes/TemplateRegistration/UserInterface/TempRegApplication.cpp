@@ -1,8 +1,7 @@
-#include "TempRegViewer.h"
+#include "TempRegApplication.h"
 
-#include "../../../CForge/Graphics/GraphicsUtility.h"
-#include "../../../CForge/AssetIO/SAssetIO.h"
-#include "../../../Examples/SceneUtilities.hpp"
+#include "../../CForge/Graphics/GraphicsUtility.h"
+#include "../../CForge/AssetIO/SAssetIO.h"
 
 #include <iomanip>
 #include <sstream>
@@ -17,23 +16,166 @@
 
 namespace TempReg {
 
-	TempRegViewer::TempRegViewer(void) : 
-		// CForge
-		m_WindowTitle(""), m_GBufferWidth(0), m_GBufferHeight(0), m_LastFPSPrint(0), m_FPSCount(0), m_FPS(0.0f), m_RenderScreenshot(false),	m_CloseRenderWin(false), 
-		// dataset display data
-		m_TemplateDisplayData(nullptr), m_TargetDisplayData(nullptr), m_FittingResDisplayData(nullptr), m_MarkerActors{ nullptr }, m_ShowFeatCorrMarkers(false), m_ShowAutoCorrMarkers(false),
-		m_DefaultCamPos(Vector3f::Zero()),
-		// input processing
-		m_CurrentMBStates{ false }, m_OldMBStates{ false }, m_IgnoreMMB(false), m_IgnoreRMB(false), m_RotateAllViewports(false), m_CorrEditDeleteOnKeyPress(false), m_CorrEditOverwriteOnKeyPress(false),
-		m_CorrEditTabKeyModeSwitch(false), m_CurrentCursorPosOGL(Vector2f::Zero()),	m_LastCursorPosOGL(Vector2f::Zero()), m_VPUnderMouse(ViewportIdentifier::NONE), m_VPMouseFocus(ViewportIdentifier::NONE),
-		// gui
-		m_CheckboxBgGreenCol(0), m_CheckboxBgYellowCol(0), m_CheckboxBgRedCol(0), m_CheckMarkGreenCol(0), m_CheckMarkYellowCol(0), m_SideMenuWinSize(ImVec2(0.0f, 0.0f)), 
-		m_ViewerCtrlWinSize(ImVec2(0.0f, 0.0f)), m_ViewportContentArea(Vector4f::Zero()),
-		// template fitting
-		m_CoarseFitScaleTemplate(false), m_VolComputeComboSelected(TemplateFitter::VolumeComputation::DISABLED)
-	{}//Constructor
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// 
+	// Constructor, Destructor
+	//
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	TempRegViewer::~TempRegViewer() {
+	TempRegApplication::TempRegApplication(void) {
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//
+		// Initialize CForge
+		//
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		m_WindowTitle = "CForge - Template Registration Example";
+		m_LastFPSPrint = CForge::CoreUtility::timestamp();
+		m_FPSCount = 0;
+		m_FPS = 60.0f;
+		m_RenderScreenshot = false;
+		m_ScreenshotCount = 0;
+		m_CloseRenderWin = false;
+
+		uint32_t WinWidth = 1280; //1600;
+		uint32_t WinHeight = 720; //900;
+
+		// create an OpenGL capable windows
+		m_RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), m_WindowTitle);
+		m_RenderWin.startListening(this);
+
+		// configure and initialize rendering pipeline
+		CForge::RenderDevice::RenderDeviceConfig Config;
+		Config.DirectionalLightsCount = 1;
+		Config.PointLightsCount = 0; //Config.PointLightsCount = 1;
+		Config.SpotLightsCount = 0;
+		Config.ExecuteLightingPass = true;
+		Config.GBufferHeight = WinHeight;
+		Config.GBufferWidth = WinWidth / 2; // two viewports will initially be active, side by side
+		Config.pAttachedWindow = &m_RenderWin;
+		Config.PhysicallyBasedShading = true;
+		Config.UseGBuffer = true;
+		m_RenderDev.init(&Config);
+
+		m_pShaderMan = CForge::SShaderManager::instance();
+
+		// configure and initialize shader configuration device
+		CForge::ShaderCode::LightConfig LC;
+		LC.DirLightCount = 1;
+		LC.PointLightCount = 0; //LC.PointLightCount = 1;
+		LC.SpotLightCount = 0;
+		LC.PCFSize = 1;
+		LC.ShadowBias = 0.0004f;
+		LC.ShadowMapCount = 1;
+		m_pShaderMan->configShader(LC);
+
+		CForge::ShaderCode::PostProcessingConfig PPC;
+		PPC.Exposure = 1.0f;
+		PPC.Gamma = 2.2f;
+		PPC.Saturation = 1.1f;
+		PPC.Brightness = 1.05f;
+		PPC.Contrast = 1.05f;
+		m_pShaderMan->configShader(PPC);
+
+		// initialize sun (key lights) and back ground light (fill light)
+		Vector3f SunPos = Vector3f(-5.0f, 15.0f, 35.0f);
+		m_Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
+		//TODO - NOTE: sun will NOT cast shadows for now
+		//m_Sun.initShadowCasting(1024, 1024, CForge::GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
+
+		// set lights
+		m_RenderDev.addLight(&m_Sun);
+		//m_RenderDev.addLight(&m_BGLight);
+
+		// we need one viewport for the GBuffer
+		m_GBufferVP.Position = Vector2i(0, 0);
+		m_GBufferVP.Size = Vector2i(m_RenderDev.gBuffer()->width(), m_RenderDev.gBuffer()->height());
+		m_RenderDev.viewport(CForge::RenderDevice::RENDERPASS_GEOMETRY, m_GBufferVP);
+
+		gladLoadGL();
+
+		std::string GLError = "";
+		CForge::GraphicsUtility::checkGLError(&GLError);
+		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//
+		// Initialize input processing
+		//
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		m_CurrentMBStates = m_OldMBStates = { GLFW_RELEASE };
+		m_IgnoreMMB = m_IgnoreRMB = false;
+		m_RotateAllViewports = false;
+		m_CorrEditDeleteOnKeyPress = m_CorrEditOverwriteOnKeyPress = false;
+		m_CorrEditTabKeyModeSwitch = false;
+		m_CurrentCursorPosOGL = m_LastCursorPosOGL = Vector2f::Zero();
+		m_VPUnderMouse = m_VPMouseFocus = ViewportIdentifier::NONE;
+		m_CorrEditActiveMode = CorrespondenceEditMode::DEACTIVATED;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//
+		// Initialize GUI
+		//
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		//ImGui::StyleColorsLight();
+		ImGui::StyleColorsDark();
+
+		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)m_RenderWin.handle(), true);
+		ImGui_ImplOpenGL3_Init("#version 330 core");
+
+		m_CheckboxBgGreenCol = IM_COL32(41, 122, 59, 138);
+		m_CheckboxBgYellowCol = IM_COL32(120, 122, 41, 138);
+		m_CheckboxBgRedCol = IM_COL32(122, 41, 41, 138);
+		m_CheckMarkGreenCol = IM_COL32(0, 255, 0, 255);
+		m_CheckMarkYellowCol = IM_COL32(255, 255, 0, 255);
+
+		m_SideMenuWinWidth = 350.0f;
+
+		//TODO: m_ViewportContentArea has to be updated when: (1) m_RenderWin is resized; (2) visibility of GUI is changed via "Hide GUI" button
+		m_ViewportContentArea(0) = 0.0f;
+		m_ViewportContentArea(1) = 0.0f;
+		m_ViewportContentArea(2) = float(WinWidth) - m_SideMenuWinWidth;
+		m_ViewportContentArea(3) = float(WinHeight) - 23.0f;
+
+		m_CoarseFitScaleTemplate = false;
+		m_VolComputeComboSelected = TemplateFitter::VolumeComputation::DISABLED;
+
+		//ImGui::GetStyle().FrameBorderSize = 1.0f;
+		//ImGui::GetStyle().WindowRounding = 4.0f;
+		//ImGui::GetStyle().FrameRounding = 3.0f;
+		ImGui::GetStyle().Colors[ImGuiCol_WindowBg].w = 1.0f; // window background alpha
+		ImGui::GetStyle().Colors[ImGuiCol_PopupBg].w = 1.0f; // popup background alpha
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//
+		// Initialize rendering components for dataset viewing
+		//
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		m_TemplateDisplayData = m_TargetDisplayData = m_FittingResDisplayData = nullptr;
+		m_MarkerActors = { nullptr };
+		m_ShowFeatCorrMarkers = m_ShowAutoCorrMarkers = true;
+		m_DefaultCamPos = Vector3f(0.0f, 0.0f, 60.0f);
+
+		initMarkerActors("Assets/ExampleScenes/TempReg/UnitSphere.obj");
+		initViewports();
+
+		// On startup: enable viewports SEPARATE_SCENE_TEMPLATE and SEPARATE_SCENE_TARGET
+		m_ActiveViewports.insert(ViewportIdentifier::SEPARATE_SCENE_TEMPLATE);
+		m_ActiveViewports.insert(ViewportIdentifier::SEPARATE_SCENE_TARGET);
+		resizeActiveViewports();
+	}//Constructor
+
+	TempRegApplication::~TempRegApplication() {
+		m_RenderWin.stopListening(this);
+
+		if (m_pShaderMan != nullptr) m_pShaderMan->release();
+		m_pShaderMan = nullptr;
+
 		// clear all viewports
 		for (size_t i = 0; i < ViewportIdentifier::VIEWPORT_COUNT; ++i) {
 			m_Viewports[i].SGRoot.clear();
@@ -71,323 +213,40 @@ namespace TempReg {
 	//
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void TempRegViewer::init() {
-		m_pSMan = CForge::SShaderManager::instance();
+	void TempRegApplication::run(void) {
+		//TODO the following calls are temporary - just for testing purposes:
 
-		m_WindowTitle = "CForge - Template Registration Example";
-		m_FPS = 60.0f;
+		//initTemplateMeshFromFile("Assets/ExampleScenes/TempReg/Template.obj"); //TODO: move to GUI!
+		initTemplateMeshFromFile("Assets/ExampleScenes/TempReg/Template_CoarseFitTest.obj"); //TODO: move to GUI!
+		//initTargetMeshFromFile("Assets/ExampleScenes/TempReg/Template.obj"); //TODO: move to GUI! --- ".../Template.obj" used for testing purposes, change to Target.obj!
+		//initTargetPclFromFile("Assets/ExampleScenes/TempReg/Template.obj"); //TODO: move to GUI! --- ".../Template.obj" used for testing purposes, change to Target.obj!
+		initTargetMeshFromFile("Assets/ExampleScenes/TempReg/Target_CoarseFitTest_Small.obj");
+		//initTargetMeshFromFile("Assets/ExampleScenes/TempReg/Target_CoarseFitTest_Large.obj");
+		//initTargetMeshFromFile("Assets/ExampleScenes/TempReg/Target_CoarseFitTest_SameSize.obj");
 
-		bool const LowRes = false;
-		bool const HighRes = true;
+		// main loop
+		while (!m_RenderWin.shutdown()) {
+			
+			processInput();
 
-		uint32_t WinWidth = 1280;
-		uint32_t WinHeight = 720;
+			render(); // render interface (viewports and GUI)
+			
+			m_RenderWin.swapBuffers();
 
-		m_GBufferWidth = 1024;
-		m_GBufferHeight = 768;
+			m_FPSCount++;
+			if (CForge::CoreUtility::timestamp() - m_LastFPSPrint > 1000U) {
+				char Buf[64];
+				sprintf(Buf, "FPS: %d\n", m_FPSCount);
+				m_FPS = float(m_FPSCount);
+				m_FPSCount = 0;
+				m_LastFPSPrint = CForge::CoreUtility::timestamp();
 
-		//m_GBufferWidth = 1600;
-		//m_GBufferHeight = 900;
+				m_RenderWin.title(m_WindowTitle + "[" + std::string(Buf) + "]");
+			}
 
-		if (LowRes) {
-			WinWidth = 720;
-			WinHeight = 576;
-		}
-		if (HighRes) {
-			WinWidth = 1600;
-			WinHeight = 900;
-		}
-
-		// create an OpenGL capable windows
-		m_RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), m_WindowTitle);
-
-		gladLoadGL();
-
-		// configure and initialize rendering pipeline
-		m_Config.DirectionalLightsCount = 1;
-		m_Config.PointLightsCount = 1;
-		m_Config.SpotLightsCount = 0;
-		m_Config.ExecuteLightingPass = true;
-		m_Config.GBufferHeight = m_GBufferHeight;
-		m_Config.GBufferWidth = m_GBufferWidth;
-		m_Config.pAttachedWindow = &m_RenderWin;
-		m_Config.PhysicallyBasedShading = true;
-		m_Config.UseGBuffer = true;
-		m_RDev.init(&m_Config);
-
-		// configure and initialize shader configuration device
-		m_LC.DirLightCount = 1;
-		m_LC.PointLightCount = 1;
-		m_LC.SpotLightCount = 0;
-		m_LC.PCFSize = 1;
-		m_LC.ShadowBias = 0.0004f;
-		m_LC.ShadowMapCount = 1;
-		m_pSMan->configShader(m_LC);
-
-		// initialize sun (key lights) and back ground light (fill light)
-		Vector3f SunPos = Vector3f(-5.0f, 15.0f, 35.0f);
-		Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -30.0f);
-		m_Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
-		// sun will cast shadows
-		m_Sun.initShadowCasting(1024, 1024, CForge::GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
-		m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
-
-		// set lights
-		m_RDev.addLight(&m_Sun);
-		m_RDev.addLight(&m_BGLight);
-
-		// we need one viewport for the GBuffer
-		m_GBufferVP.Position = Vector2i(0, 0);
-		m_GBufferVP.Size = Vector2i(m_GBufferWidth, m_GBufferHeight);
-
-		// stuff for performance monitoring
-		m_LastFPSPrint = CForge::CoreUtility::timestamp();
-		m_FPSCount = 0;
-
-		std::string GLError = "";
-		CForge::GraphicsUtility::checkGLError(&GLError);
-		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
-
-		m_RenderScreenshot = false;
-		m_CloseRenderWin = false;
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//
-		// Initialize input variables
-		//
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		m_CurrentMBStates[0] = m_CurrentMBStates[1] = m_CurrentMBStates[2] = GLFW_RELEASE;
-		m_OldMBStates[0] = m_OldMBStates[1] = m_OldMBStates[2] = GLFW_RELEASE;
-		m_IgnoreMMB = false;
-		m_IgnoreRMB = false;
-		m_CurrentCursorPosOGL = Vector2f::Zero();
-		m_LastCursorPosOGL = Vector2f::Zero();
-		m_VPUnderMouse = ViewportIdentifier::NONE;
-		m_VPMouseFocus = ViewportIdentifier::NONE;
-		m_RotateAllViewports = false;
-		m_CorrEditDeleteOnKeyPress = false;
-		m_CorrEditOverwriteOnKeyPress = false;
-		m_CorrEditTabKeyModeSwitch = false;
-		m_CorrEditActiveMode = CorrespondenceEditMode::DEACTIVATED;
-		
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//
-		// Initialize GUI
-		//
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		//ImGui::StyleColorsLight();
-		ImGui::StyleColorsDark();
-
-		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)m_RenderWin.handle(), true);
-		ImGui_ImplOpenGL3_Init("#version 330 core");
-
-		m_CheckboxBgGreenCol = IM_COL32(41, 122, 59, 138);
-		m_CheckboxBgYellowCol = IM_COL32(120, 122, 41, 138);
-		m_CheckboxBgRedCol = IM_COL32(122, 41, 41, 138);
-		m_CheckMarkGreenCol = IM_COL32(0, 255, 0, 255);
-		m_CheckMarkYellowCol = IM_COL32(255, 255, 0, 255);
-		
-		m_SideMenuWinSize.x = 350.0f;
-		m_SideMenuWinSize.y = (float)m_RenderWin.height();
-
-		m_ViewerCtrlWinSize.x = (float)m_RenderWin.width() - m_SideMenuWinSize.x + 1;
-		m_ViewerCtrlWinSize.y = 23.0f; // == ImGui::GetFrameHeightWithSpacing()
-
-		//TODO: m_ViewportContentArea has to be updated when: (1) m_RenderWin is resized; (2) visibility of GUI is changed via "Hide GUI" button
-		m_ViewportContentArea(0) = 0.0f;
-		m_ViewportContentArea(1) = 0.0f;
-		m_ViewportContentArea(2) = float(m_RenderWin.width()) - m_SideMenuWinSize.x;
-		m_ViewportContentArea(3) = float(m_RenderWin.height()) - m_ViewerCtrlWinSize.y;
-		
-		m_CoarseFitScaleTemplate = false;
-		m_VolComputeComboSelected = TemplateFitter::VolumeComputation::DISABLED;
-
-		//ImGui::GetStyle().FrameBorderSize = 1.0f;
-		//ImGui::GetStyle().WindowRounding = 4.0f;
-		//ImGui::GetStyle().FrameRounding = 3.0f;
-		ImGui::GetStyle().Colors[ImGuiCol_WindowBg].w = 1.0f; // window background alpha
-		ImGui::GetStyle().Colors[ImGuiCol_PopupBg].w = 1.0f; // popup background alpha
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//
-		// Initialize rendering components for dataset viewing
-		//
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		m_TemplateDisplayData = nullptr;
-		m_TargetDisplayData = nullptr;
-		m_FittingResDisplayData = nullptr;
-		m_MarkerActors = { nullptr };
-		m_ShowFeatCorrMarkers = true;
-		m_ShowAutoCorrMarkers = true;
-		m_DefaultCamPos = Vector3f(0.0f, 0.0f, 60.0f);
-
-		initMarkerActors("Assets/ExampleScenes/TempReg/UnitSphere.obj");
-		initViewports();
-
-		// On startup: enable viewports SEPARATE_SCENE_TEMPLATE and SEPARATE_SCENE_TARGET
-		m_ActiveViewports.insert(ViewportIdentifier::SEPARATE_SCENE_TEMPLATE);
-		m_ActiveViewports.insert(ViewportIdentifier::SEPARATE_SCENE_TARGET);
-		resizeActiveViewports();
-	}//init
-
-	void TempRegViewer::initTemplateFromFile(TemplateFitter::GeometryType GeometryType, std::string Filepath) {
-		m_TFitter.clearTemplate();
-		m_TFitter.loadTemplate(GeometryType, Filepath);
-
-		if (m_TemplateDisplayData != nullptr) {
-			m_TemplateDisplayData->clear();
-			delete m_TemplateDisplayData;
-		}
-
-		if (m_FittingResDisplayData != nullptr) {
-			m_FittingResDisplayData->clear();
-			delete m_FittingResDisplayData;
-		}
-
-		// default color: light grey #d1d1d1
-		Vector3f SolidColor = Vector3f(0.819f, 0.819f, 0.819f);
-
-		m_TemplateDisplayData = new DatasetDisplayData();
-		m_FittingResDisplayData = new DatasetDisplayData();
-
-		if (GeometryType == TemplateFitter::GeometryType::MESH) {
-			m_TemplateDisplayData->initAsMesh(Filepath, SolidColor, Vector3f(0.08f, 0.08f, 0.08f), m_ShowFeatCorrMarkers, m_ShowAutoCorrMarkers);
-			m_FittingResDisplayData->initAsMesh(Filepath, SolidColor, Vector3f(0.08f, 0.08f, 0.08f), m_ShowFeatCorrMarkers, m_ShowAutoCorrMarkers);
-		}
-
-		const Vector3f& TemplateCentroid = m_TFitter.getTemplate().surfaceCentroid();
-		m_Viewports[ViewportIdentifier::SEPARATE_SCENE_TEMPLATE].TemplateViewingTrans.translation(-TemplateCentroid);
-		m_Viewports[ViewportIdentifier::SEPARATE_SCENE_FITTINGRES].FittingResViewingTrans.translation(-TemplateCentroid);
-	}//initTemplateFromFile
-
-	void TempRegViewer::initTargetFromFile(TemplateFitter::GeometryType GeometryType, std::string Filepath) {
-		m_TFitter.clearTarget();
-		m_TFitter.loadTarget(GeometryType, Filepath);
-
-		if (m_TargetDisplayData != nullptr) {
-			m_TargetDisplayData->clear();
-			delete m_TargetDisplayData;
-		}
-
-		// default color: light blue #a2c9f6
-		Vector3f SolidColor = Vector3f(0.635f, 0.788f, 0.964f);
-
-		m_TargetDisplayData = new DatasetDisplayData();
-
-		if (GeometryType == TemplateFitter::GeometryType::MESH) m_TargetDisplayData->initAsMesh(Filepath, SolidColor, Vector3f(0.08f, 0.08f, 0.08f), m_ShowFeatCorrMarkers, m_ShowAutoCorrMarkers);
-		if (GeometryType == TemplateFitter::GeometryType::POINTCLOUD) m_TargetDisplayData->initAsPointCloud(Filepath, SolidColor, Vector3f(0.08f, 0.08f, 0.08f), m_ShowFeatCorrMarkers, m_ShowAutoCorrMarkers);
-
-		const Vector3f& TargetCentroid = (GeometryType == TemplateFitter::GeometryType::MESH) ? m_TFitter.getTarget().surfaceCentroid() : m_TFitter.getTarget().vertexCentroid();
-		m_Viewports[ViewportIdentifier::SEPARATE_SCENE_TARGET].TargetViewingTrans.translation(-TargetCentroid);
-	}//initTargetFromFile
-
-	void TempRegViewer::processInput(void) {
-		m_RenderWin.update(); // calls glfwPollEvents()
-		//TODO: check m_RenderWin for windows resize here? -> update m_ViewportContentArea
-
-		// get current mouse states and mouse related states
-		m_CurrentMBStates = {
-			m_RenderWin.mouse()->buttonState(CForge::Mouse::BTN_LEFT), 
-			m_RenderWin.mouse()->buttonState(CForge::Mouse::BTN_RIGHT),
-			m_RenderWin.mouse()->buttonState(CForge::Mouse::BTN_MIDDLE) };
-
-		if ((m_CurrentMBStates[CForge::Mouse::BTN_MIDDLE] == GLFW_PRESS && m_OldMBStates[CForge::Mouse::BTN_MIDDLE] == GLFW_RELEASE) &&
-			(m_CurrentMBStates[CForge::Mouse::BTN_RIGHT] == GLFW_PRESS && m_OldMBStates[CForge::Mouse::BTN_RIGHT] == GLFW_RELEASE)) {
-			m_IgnoreMMB = true;
-			m_IgnoreRMB = true;
-		}
-		else {
-			m_IgnoreMMB = (m_CurrentMBStates[CForge::Mouse::BTN_RIGHT] == GLFW_PRESS && !m_IgnoreRMB) ? true : false;
-			m_IgnoreRMB = (m_CurrentMBStates[CForge::Mouse::BTN_MIDDLE] == GLFW_PRESS && !m_IgnoreMMB) ? true : false;
-		}
-
-		m_CurrentCursorPosOGL = Vector2f(m_RenderWin.mouse()->position().x(), (float)m_RenderWin.height() - m_RenderWin.mouse()->position().y());
-		m_VPUnderMouse = mouseInViewport();
-
-		processGeneralKeyboardInput();
-		processViewportContentAreaInput();
-		processGUIInput();
-
-		// store this frame's mouse states for next frame
-		m_OldMBStates[CForge::Mouse::BTN_LEFT] = m_CurrentMBStates[CForge::Mouse::BTN_LEFT];
-		m_OldMBStates[CForge::Mouse::BTN_RIGHT] = m_CurrentMBStates[CForge::Mouse::BTN_RIGHT];
-		m_OldMBStates[CForge::Mouse::BTN_MIDDLE] = m_CurrentMBStates[CForge::Mouse::BTN_MIDDLE];
-		m_LastCursorPosOGL = m_CurrentCursorPosOGL;
-
-		m_RotateAllViewports = false;
-	}//processInput
-
-	void TempRegViewer::render(void) {
-		bool ClearBuffer = true;
-
-		// render active viewports
-		for (const auto& VP : m_ActiveViewports) {
-			// update camera for viewport, update scene graph
-			if (m_RDev.activeCamera() != &m_Viewports[VP].Cam) m_RDev.activeCamera(&m_Viewports[VP].Cam);
-			updateSceneGraph(VP);
-
-			// render scene as usual
-			m_RDev.viewport(m_GBufferVP);
-			m_RDev.activePass(CForge::RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-			m_Viewports[VP].SG.render(&m_RDev);
-			m_RDev.activePass(CForge::RenderDevice::RENDERPASS_GEOMETRY);
-			m_Viewports[VP].SG.render(&m_RDev);
-
-			// set viewport and perform lighting pass
-			// this will produce the correct tile in the final output window (backbuffer to be specific)
-			m_RDev.viewport(m_Viewports[VP].VP);
-			m_RDev.activePass(CForge::RenderDevice::RENDERPASS_LIGHTING, nullptr, ClearBuffer);
-
-			ClearBuffer = false;
-		}
-
-		// render GUI
-		ImGui::Render();
-		glViewport(0, 0, m_RenderWin.width(), m_RenderWin.height());
-		//glViewport(0, 0, m_RenderWinSize[0], m_RenderWinSize[1]);
-		if (ClearBuffer) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		if (m_RenderScreenshot) {
-			m_RenderScreenshot = false;
-			CForge::RenderDevice::Viewport V;
-			V.Position = Vector2i(0, 0);
-			V.Size = Vector2i(m_RenderWin.width(), m_RenderWin.height());
-			m_RDev.viewport(V);
-			m_RDev.activePass(CForge::RenderDevice::RENDERPASS_FORWARD);
-			CForge::SceneUtilities::takeScreenshot("Screenshot.jpg");
-		}
-	}//render
-
-	bool TempRegViewer::shutdown(void) {		
-		return m_RenderWin.shutdown();
-	}//shutdown
-
-	void TempRegViewer::finishFrame(void) {
-		m_RenderWin.swapBuffers();
-
-		m_FPSCount++;
-		if (CForge::CoreUtility::timestamp() - m_LastFPSPrint > 1000U) {
-			char Buf[64];
-			sprintf(Buf, "FPS: %d\n", m_FPSCount);
-			m_FPS = float(m_FPSCount);
-			m_FPSCount = 0;
-			m_LastFPSPrint = CForge::CoreUtility::timestamp();
-
-			m_RenderWin.title(m_WindowTitle + "[" + std::string(Buf) + "]");
-		}
-
-		if (m_CloseRenderWin) m_RenderWin.closeWindow();
-	}//finishFrame
-
-	void TempRegViewer::releaseShaderManager(void) {
-		m_pSMan->release();
-	}//releaseShaderManager
+			if (m_CloseRenderWin) m_RenderWin.closeWindow();
+		}//while[main loop]
+	}//run
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 
@@ -395,7 +254,7 @@ namespace TempReg {
 	//
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void TempRegViewer::initViewports(void) {
+	void TempRegApplication::initViewports(void) {
 		auto& VPSeparateTemplate = m_Viewports[ViewportIdentifier::SEPARATE_SCENE_TEMPLATE];
 		VPSeparateTemplate.VP.Position = Vector2i(0, 0);
 		VPSeparateTemplate.VP.Size = Vector2i(m_ViewportContentArea(2), m_ViewportContentArea(3));
@@ -459,10 +318,24 @@ namespace TempReg {
 		m_ActiveViewports.clear();
 	}//initViewports
 
-	void TempRegViewer::initMarkerActors(std::string Filepath) {
+	void TempRegApplication::initMarkerActors(std::string Filepath) {
 		CForge::T3DMesh<float> RawMesh;
 		CForge::SAssetIO::load(Filepath, &RawMesh);
-		CForge::SceneUtilities::setMeshShader(&RawMesh, 1.0f, 0.0f);
+
+		// set mesh shader
+		for (uint32_t i = 0; i < RawMesh.materialCount(); ++i) {
+			CForge::T3DMesh<float>::Material* pMat = RawMesh.getMaterial(i);
+
+			pMat->VertexShaderGeometryPass.push_back("Shader/BasicGeometryPass.vert");
+			pMat->FragmentShaderGeometryPass.push_back("Shader/BasicGeometryPass.frag");
+
+			pMat->VertexShaderShadowPass.push_back("Shader/ShadowPassShader.vert");
+			pMat->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");
+
+			pMat->Metallic = 0.0f;
+			pMat->Roughness = 1.0f;
+		}//for[materials]
+
 		RawMesh.computePerVertexNormals();
 
 		// Initialize marker model for MarkerColor::GEOMETRY_SELECTION
@@ -494,9 +367,137 @@ namespace TempReg {
 		RawMesh.colors(&Colors);
 		m_MarkerActors[MarkerColor::AUTOCORR_SELECTION] = new DatasetMarkerActor();
 		m_MarkerActors[MarkerColor::AUTOCORR_SELECTION]->init(&RawMesh, true);
+
+		RawMesh.clear();
 	}//initMarkerActors
 
-	void TempRegViewer::processGeneralKeyboardInput(void) {
+	void TempRegApplication::initTemplateMeshFromFile(std::string Filepath) {
+		m_TFitter.clearTemplate();
+		m_TFitter.loadTemplate(TemplateFitter::GeometryType::MESH, Filepath);
+
+		if (m_TemplateDisplayData != nullptr) {
+			m_TemplateDisplayData->clear();
+			delete m_TemplateDisplayData;
+		}
+
+		if (m_FittingResDisplayData != nullptr) {
+			m_FittingResDisplayData->clear();
+			delete m_FittingResDisplayData;
+		}
+
+		// default color: light grey #d1d1d1
+		Vector3f SolidColor = Vector3f(0.819f, 0.819f, 0.819f);
+
+		m_TemplateDisplayData = new DatasetDisplayData();
+		m_FittingResDisplayData = new DatasetDisplayData();
+		m_TemplateDisplayData->initAsMesh(Filepath, SolidColor, Vector3f(0.08f, 0.08f, 0.08f), m_ShowFeatCorrMarkers, m_ShowAutoCorrMarkers);
+		m_FittingResDisplayData->initAsMesh(Filepath, SolidColor, Vector3f(0.08f, 0.08f, 0.08f), m_ShowFeatCorrMarkers, m_ShowAutoCorrMarkers);
+
+		const Vector3f& TemplateCentroid = m_TFitter.getTemplate().surfaceCentroid();
+		m_Viewports[ViewportIdentifier::SEPARATE_SCENE_TEMPLATE].TemplateViewingTrans.translation(-TemplateCentroid);
+		m_Viewports[ViewportIdentifier::SEPARATE_SCENE_FITTINGRES].FittingResViewingTrans.translation(-TemplateCentroid);
+	}//initTemplateMeshFromFile
+
+	void TempRegApplication::initTargetMeshFromFile(std::string Filepath) {
+		m_TFitter.clearTarget();
+		m_TFitter.loadTarget(TemplateFitter::GeometryType::MESH, Filepath);
+
+		if (m_TargetDisplayData != nullptr) {
+			m_TargetDisplayData->clear();
+			delete m_TargetDisplayData;
+		}
+
+		// default color: light blue #a2c9f6
+		Vector3f SolidColor = Vector3f(0.635f, 0.788f, 0.964f);
+
+		m_TargetDisplayData = new DatasetDisplayData();
+
+		m_TargetDisplayData->initAsMesh(Filepath, SolidColor, Vector3f(0.08f, 0.08f, 0.08f), m_ShowFeatCorrMarkers, m_ShowAutoCorrMarkers);
+
+		const Vector3f& TargetCentroid = m_TFitter.getTarget().surfaceCentroid();
+		m_Viewports[ViewportIdentifier::SEPARATE_SCENE_TARGET].TargetViewingTrans.translation(-TargetCentroid);
+	}//initTargetMeshFromFile
+
+	void TempRegApplication::initTargetPclFromFile(std::string Filepath) {
+		m_TFitter.clearTarget();
+		m_TFitter.loadTarget(TemplateFitter::GeometryType::POINTCLOUD, Filepath);
+
+		if (m_TargetDisplayData != nullptr) {
+			m_TargetDisplayData->clear();
+			delete m_TargetDisplayData;
+		}
+
+		// default color: light blue #a2c9f6
+		Vector3f SolidColor = Vector3f(0.635f, 0.788f, 0.964f);
+
+		m_TargetDisplayData = new DatasetDisplayData();
+		m_TargetDisplayData->initAsPointCloud(Filepath, SolidColor, Vector3f(0.08f, 0.08f, 0.08f), m_ShowFeatCorrMarkers, m_ShowAutoCorrMarkers);
+
+		const Vector3f& TargetCentroid = m_TFitter.getTarget().vertexCentroid();
+		m_Viewports[ViewportIdentifier::SEPARATE_SCENE_TARGET].TargetViewingTrans.translation(-TargetCentroid);
+	}//initTargetPclFromFile
+
+	void TempRegApplication::listen(CForge::GLWindowMsg Msg) {
+		// update geometry buffer
+		auto ActiveVPCount = (m_ActiveViewports.empty()) ? 1 : m_ActiveViewports.size();
+		m_RenderDev.gBuffer()->init(Msg.iParam[0] / ActiveVPCount, Msg.iParam[1]);
+		m_GBufferVP.Size = Vector2i(m_RenderDev.gBuffer()->width(), m_RenderDev.gBuffer()->height());
+		m_RenderDev.viewport(CForge::RenderDevice::RENDERPASS_GEOMETRY, m_GBufferVP);
+
+		uint32_t WinWidth = m_RenderWin.width();
+		uint32_t WinHeight = m_RenderWin.height();
+
+		// update position and size of viewport content area
+		m_ViewportContentArea(0) = 0.0f;
+		m_ViewportContentArea(1) = 0.0f;
+		m_ViewportContentArea(2) = float(WinWidth) - m_SideMenuWinWidth;
+		m_ViewportContentArea(3) = float(WinHeight) - 23.0f;
+
+		resizeActiveViewports();
+		
+		// viewport for screenshots
+		CForge::RenderDevice::Viewport VFPass;
+		VFPass.Position = Vector2i(0, 0);
+		VFPass.Size = Vector2i(WinWidth, WinHeight);
+		m_RenderDev.viewport(CForge::RenderDevice::RENDERPASS_FORWARD, VFPass);
+	}//listen
+
+	void TempRegApplication::processInput(void) {
+		m_RenderWin.update(); // calls glfwPollEvents()
+		
+		// get current mouse states and mouse related states
+		m_CurrentMBStates = {
+			m_RenderWin.mouse()->buttonState(CForge::Mouse::BTN_LEFT),
+			m_RenderWin.mouse()->buttonState(CForge::Mouse::BTN_RIGHT),
+			m_RenderWin.mouse()->buttonState(CForge::Mouse::BTN_MIDDLE) };
+
+		if ((m_CurrentMBStates[CForge::Mouse::BTN_MIDDLE] == GLFW_PRESS && m_OldMBStates[CForge::Mouse::BTN_MIDDLE] == GLFW_RELEASE) &&
+			(m_CurrentMBStates[CForge::Mouse::BTN_RIGHT] == GLFW_PRESS && m_OldMBStates[CForge::Mouse::BTN_RIGHT] == GLFW_RELEASE)) {
+			m_IgnoreMMB = true;
+			m_IgnoreRMB = true;
+		}
+		else {
+			m_IgnoreMMB = (m_CurrentMBStates[CForge::Mouse::BTN_RIGHT] == GLFW_PRESS && !m_IgnoreRMB) ? true : false;
+			m_IgnoreRMB = (m_CurrentMBStates[CForge::Mouse::BTN_MIDDLE] == GLFW_PRESS && !m_IgnoreMMB) ? true : false;
+		}
+
+		m_CurrentCursorPosOGL = Vector2f(m_RenderWin.mouse()->position().x(), (float)m_RenderWin.height() - m_RenderWin.mouse()->position().y());
+		m_VPUnderMouse = mouseInViewport();
+
+		processGeneralKeyboardInput();
+		processViewportContentAreaInput();
+		processGUIInput();
+
+		// store this frame's mouse states for next frame
+		m_OldMBStates[CForge::Mouse::BTN_LEFT] = m_CurrentMBStates[CForge::Mouse::BTN_LEFT];
+		m_OldMBStates[CForge::Mouse::BTN_RIGHT] = m_CurrentMBStates[CForge::Mouse::BTN_RIGHT];
+		m_OldMBStates[CForge::Mouse::BTN_MIDDLE] = m_CurrentMBStates[CForge::Mouse::BTN_MIDDLE];
+		m_LastCursorPosOGL = m_CurrentCursorPosOGL;
+
+		m_RotateAllViewports = false;
+	}//processInput
+
+	void TempRegApplication::processGeneralKeyboardInput(void) {
 		if (!ImGui::GetIO().WantCaptureKeyboard) {
 			m_RenderScreenshot = m_RenderWin.keyboard()->keyPressed(CForge::Keyboard::KEY_F10, true);
 			m_CloseRenderWin = m_RenderWin.keyboard()->keyPressed(CForge::Keyboard::KEY_ESCAPE);
@@ -507,15 +508,16 @@ namespace TempReg {
 				if (!m_SelectedCorrsByTemplateID.empty()) m_CorrEditDeleteOnKeyPress = true;
 
 			if (m_RenderWin.keyboard()->keyPressed(CForge::Keyboard::KEY_ENTER) && m_CorrEditActiveMode == CorrespondenceEditMode::CREATE) {
-				if (m_CorrEditCreateSelection.TemplatePointSelected && m_CorrEditCreateSelection.TargetPointSelected) {
-					if (m_TFitter.hasCorrespondence(m_CorrEditCreateSelection.TemplatePointID)) m_CorrEditOverwriteOnKeyPress = true;
+				if (m_CorrEditCreateSelection.ready()) {
+					const auto& TemplatePointID = m_CorrEditCreateSelection.TemplatePointID;
+					if (m_TFitter.hasCorrespondence(TemplatePointID)) m_CorrEditOverwriteOnKeyPress = true;
 					else inputCreateCorrespondence();
 				}
 			}
 		}// end [if (!ImGui::GetIO().WantCaptureKeyboard)]
 	}//processGeneralKeyboardInput
 
-	void TempRegViewer::processViewportContentAreaInput(void) {
+	void TempRegApplication::processViewportContentAreaInput(void) {
 		// Process keyboard inputs...
 		if (!ImGui::GetIO().WantCaptureKeyboard) {
 			// Camera update //TODO: disable WASD movement later, change to orbit camera (lookAt) - blender like?
@@ -586,7 +588,7 @@ namespace TempReg {
 		}// end [if (!ImGui::GetIO().WantCaptureMouse)]
 	}//processViewportContentAreaInput
 	
-	void TempRegViewer::processGUIInput(void) {
+	void TempRegApplication::processGUIInput(void) {
 		// Dear ImGui's input processing starts with these 3 functions:
 		
 		ImGui_ImplOpenGL3_NewFrame();
@@ -614,7 +616,47 @@ namespace TempReg {
 		guiCorrEditViewOverwritePopupOnKeyPress();
 	}//processGUIInput
 
-	void TempRegViewer::resizeActiveViewports(void) {
+	void TempRegApplication::render(void) {
+		bool ClearBuffer = true;
+
+		// render active viewports
+		for (const auto& VP : m_ActiveViewports) {
+			// update camera for viewport, update scene graph
+			if (m_RenderDev.activeCamera() != &m_Viewports[VP].Cam) m_RenderDev.activeCamera(&m_Viewports[VP].Cam);
+			updateSceneGraph(VP);
+
+			// render scene as usual
+			//m_RenderDev.activePass(CForge::RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			//m_Viewports[VP].SG.render(&m_RenderDev);
+			m_RenderDev.activePass(CForge::RenderDevice::RENDERPASS_GEOMETRY);
+			m_Viewports[VP].SG.render(&m_RenderDev);
+
+			// set viewport and perform lighting pass
+			// this will produce the correct tile in the final output window (backbuffer to be specific)
+			m_RenderDev.viewport(CForge::RenderDevice::RENDERPASS_LIGHTING, m_Viewports[VP].VP);
+			m_RenderDev.activePass(CForge::RenderDevice::RENDERPASS_LIGHTING, nullptr, ClearBuffer);
+
+			ClearBuffer = false;
+		}
+
+		// render GUI
+		ImGui::Render();
+		glViewport(0, 0, m_RenderWin.width(), m_RenderWin.height());
+		//glViewport(0, 0, m_RenderWinSize[0], m_RenderWinSize[1]);
+		if (ClearBuffer) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		if (m_RenderScreenshot) {
+			m_RenderDev.activePass(CForge::RenderDevice::RENDERPASS_FORWARD);
+			std::string ScreenshotURI = "Screenshot_" + std::to_string(m_ScreenshotCount++) + ".webp";
+			CForge::T2DImage<uint8_t> ColorBuffer;
+			CForge::GraphicsUtility::retrieveFrameBuffer(&ColorBuffer);
+			CForge::SAssetIO::store(ScreenshotURI, &ColorBuffer);
+			m_RenderScreenshot = false;
+		}
+	}//render
+
+	void TempRegApplication::resizeActiveViewports(void) {
 		auto Tiling = calculateViewportTiling();
 
 		size_t TileIdx = 0;
@@ -629,7 +671,7 @@ namespace TempReg {
 		}
 	}//resizeActiveViewports
 
-	std::vector<Vector4f> TempRegViewer::calculateViewportTiling(void) {
+	std::vector<Vector4f> TempRegApplication::calculateViewportTiling(void) {
 		std::vector<Vector4f> Tiles;
 		Vector4f Tile0 = Vector4f::Zero();
 		Vector4f Tile1 = Vector4f::Zero();
@@ -689,7 +731,7 @@ namespace TempReg {
 		return Tiles;
 	}//calculateViewportTiling
 	
-	TempRegViewer::ViewportIdentifier TempRegViewer::mouseInViewport(void) {
+	TempRegApplication::ViewportIdentifier TempRegApplication::mouseInViewport(void) {
 		ViewportIdentifier ViewportID = ViewportIdentifier::NONE;	
 		Vector2f CurrentCursorPosOGL = Vector2f(m_RenderWin.mouse()->position().x(), (float)m_RenderWin.height() - m_RenderWin.mouse()->position().y());
 
@@ -705,7 +747,7 @@ namespace TempReg {
 		return ViewportID;
 	}//mouseInViewport
 
-	void TempRegViewer::updateSceneGraph(ViewportIdentifier ViewportID) {
+	void TempRegApplication::updateSceneGraph(ViewportIdentifier ViewportID) {
 		m_TemplateDisplayData->removeFromSceneGraph();
 		if (m_Viewports[ViewportID].TemplateVisible) m_TemplateDisplayData->addToSceneGraph(&m_Viewports[ViewportID].TemplateViewingTrans);
 		
@@ -719,13 +761,13 @@ namespace TempReg {
 		m_Viewports[ViewportID].SG.update(60.0f / m_FPS);
 	}//updateSceneGraph
 
-	void TempRegViewer::resetViewportCam(ViewportIdentifier ViewportID) {
+	void TempRegApplication::resetViewportCam(ViewportIdentifier ViewportID) {
 		m_Viewports[ViewportID].Cam.resetToOrigin();
 		m_Viewports[ViewportID].Cam.position(m_DefaultCamPos);
 		m_Viewports[ViewportID].Cam.projectionMatrix(m_Viewports[ViewportID].VP.Size.x(), m_Viewports[ViewportID].VP.Size.y(), CForge::GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
 	}//viewportCamReset
 
-	void TempRegViewer::trackballRotateScene(ViewportIdentifier ViewportID, Vector2f Start, Vector2f End, const bool ApplyToAllViewports) {
+	void TempRegApplication::trackballRotateScene(ViewportIdentifier ViewportID, Vector2f Start, Vector2f End, const bool ApplyToAllViewports) {
 		Quaternionf Rotation = trackballRotation(ViewportID, Start, End);
 
 		m_Viewports[ViewportID].SceneViewingTrans.rotation(Rotation * m_Viewports[ViewportID].SceneViewingTrans.rotation());
@@ -738,11 +780,11 @@ namespace TempReg {
 		}
 	}//trackballRotateScene
 
-	void TempRegViewer::calculateFittingErrorColors(DatasetIdentifier DatasetID, std::vector<float>& FittingErrorVals) { //TODO
+	void TempRegApplication::calculateFittingErrorColors(DatasetIdentifier DatasetID, std::vector<float>& FittingErrorVals) { //TODO
 		//TODO
 	}//calculateFittingErrorColors
 
-	Matrix4f TempRegViewer::modelMatrixDataset(ViewportIdentifier ViewportID, DatasetIdentifier DatasetID) {
+	Matrix4f TempRegApplication::modelMatrixDataset(ViewportIdentifier ViewportID, DatasetIdentifier DatasetID) {
 		if (DatasetID == DatasetIdentifier::NONE) throw CForgeExcept("DatasetID");
 
 		Vector3f Translation = Vector3f::Zero();
@@ -774,13 +816,11 @@ namespace TempReg {
 		return Model;
 	}//modelMatrixDataset
 
-	void TempRegViewer::clearAllCorrMarkers(void) {
+	void TempRegApplication::clearAllCorrMarkers(void) {
 		m_TemplateDisplayData->clearFeatureCorrMarkers();
 		m_TemplateDisplayData->clearAutomaticCorrMarkers();
-
 		m_TargetDisplayData->clearFeatureCorrMarkers();
 		m_TargetDisplayData->clearAutomaticCorrMarkers();
-
 		m_FittingResDisplayData->clearFeatureCorrMarkers();
 		m_FittingResDisplayData->clearAutomaticCorrMarkers();
 	}//clearAllCorrMarkers
@@ -791,12 +831,13 @@ namespace TempReg {
 	//
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void TempRegViewer::inputRaycastVisibleDatasets(ViewportIdentifier ViewportID, Vector2f& CursorPosOGL) {
-		m_RayIntersectRes.Dataset = DatasetIdentifier::NONE;
-		m_RayIntersectRes.Face = -1;
-		m_RayIntersectRes.MeshIntersection = Vector3f::Zero();
-		m_RayIntersectRes.BarycentricCoords = Vector3f::Zero();
-		m_RayIntersectRes.PclPoint = -1;
+	void TempRegApplication::inputRaycastVisibleDatasets(ViewportIdentifier ViewportID, Vector2f& CursorPosOGL) {
+		m_RayIntersectRes.clear();
+		auto& HitDataset = m_RayIntersectRes.Dataset;
+		auto& HitFace = m_RayIntersectRes.Face;
+		auto& HitMeshPos = m_RayIntersectRes.MeshIntersection;
+		auto& HitBary = m_RayIntersectRes.BarycentricCoords;
+		auto& HitPclPoint = m_RayIntersectRes.PclPoint;
 
 		if (ViewportID == ViewportIdentifier::NONE) return; // clicked outside of all visible viewports, ray would miss all datasets anyways
 
@@ -807,126 +848,114 @@ namespace TempReg {
 		if (m_Viewports[ViewportID].TemplateVisible) {
 			const auto& Geometry = m_TFitter.getTemplate();
 			Matrix4f Model = modelMatrixDataset(ViewportID, DatasetIdentifier::TEMPLATE);
-			Geometry.raycastMeshPoint(CursorPosOGL, Viewport, Model, View, Projection, m_RayIntersectRes.Face, m_RayIntersectRes.MeshIntersection, m_RayIntersectRes.BarycentricCoords);
-			if (m_RayIntersectRes.Face >= 0) m_RayIntersectRes.Dataset = DatasetIdentifier::TEMPLATE;
+			Geometry.raycastMeshPoint(CursorPosOGL, Viewport, Model, View, Projection, HitFace, HitMeshPos, HitBary);
+			if (HitFace >= 0) HitDataset = DatasetIdentifier::TEMPLATE;
 		}
 
-		if (m_RayIntersectRes.Dataset != DatasetIdentifier::NONE) return;
+		if (HitDataset != DatasetIdentifier::NONE) return;
 
 		if (m_Viewports[ViewportID].FittingResVisible) {
 			const auto& Geometry = m_TFitter.getFittingResult();
 			Matrix4f Model = modelMatrixDataset(ViewportID, DatasetIdentifier::FITTING_RESULT);
-			Geometry.raycastMeshPoint(CursorPosOGL, Viewport, Model, View, Projection, m_RayIntersectRes.Face, m_RayIntersectRes.MeshIntersection, m_RayIntersectRes.BarycentricCoords);
-			if (m_RayIntersectRes.Face >= 0) m_RayIntersectRes.Dataset = DatasetIdentifier::FITTING_RESULT;
+			Geometry.raycastMeshPoint(CursorPosOGL, Viewport, Model, View, Projection, HitFace, HitMeshPos, HitBary);
+			if (HitFace >= 0) HitDataset = DatasetIdentifier::FITTING_RESULT;
 		}
 
-		if (m_RayIntersectRes.Dataset != DatasetIdentifier::NONE) return;
+		if (HitDataset != DatasetIdentifier::NONE) return;
 
 		if (m_Viewports[ViewportID].TargetVisible) {
 			const auto& Geometry = m_TFitter.getTarget();
 			Matrix4f Model = modelMatrixDataset(ViewportID, DatasetIdentifier::TARGET);
 
 			if (m_TFitter.targetGeometryType() == TemplateFitter::GeometryType::MESH) { // pick point on mesh
-				Geometry.raycastMeshPoint(CursorPosOGL, Viewport, Model, View, Projection, m_RayIntersectRes.Face, m_RayIntersectRes.MeshIntersection, m_RayIntersectRes.BarycentricCoords);
-				if (m_RayIntersectRes.Face >= 0) m_RayIntersectRes.Dataset = DatasetIdentifier::TARGET;
+				Geometry.raycastMeshPoint(CursorPosOGL, Viewport, Model, View, Projection, HitFace, HitMeshPos, HitBary);
+				if (HitFace >= 0) HitDataset = DatasetIdentifier::TARGET;
 			}
 			else { // pick point in point cloud
-				Geometry.raycastPclPoint(CursorPosOGL, Viewport, Model, View, Projection, m_RayIntersectRes.PclPoint);
-				if (m_RayIntersectRes.PclPoint >= 0) m_RayIntersectRes.Dataset = DatasetIdentifier::TARGET;
+				Geometry.raycastPclPoint(CursorPosOGL, Viewport, Model, View, Projection, HitPclPoint);
+				if (HitPclPoint >= 0) HitDataset = DatasetIdentifier::TARGET;
 			}
 		}
 	}//inputRaycastVisibleDatasets
 
-	void TempRegViewer::inputClickSelectGeometryPoint(ViewportIdentifier ViewportUnderMouse) {
+	void TempRegApplication::inputClickSelectGeometryPoint(ViewportIdentifier ViewportUnderMouse) {
+		const auto& HitDataset = m_RayIntersectRes.Dataset;
+		const auto& HitFace = m_RayIntersectRes.Face;
+		const auto& HitMeshPos = m_RayIntersectRes.MeshIntersection;
+		const auto& HitBary = m_RayIntersectRes.BarycentricCoords;
+		const auto& HitPclPoint = m_RayIntersectRes.PclPoint;
+
 		if (ViewportUnderMouse == ViewportIdentifier::SEPARATE_SCENE_TEMPLATE || ViewportUnderMouse == ViewportIdentifier::SEPARATE_SCENE_FITTINGRES) {
-			if (m_RayIntersectRes.Dataset == DatasetIdentifier::NONE) {
+			if (HitDataset == DatasetIdentifier::NONE) {
 				m_TemplateDisplayData->hideSingleMarker();
 				m_FittingResDisplayData->hideSingleMarker();
-				m_CorrEditCreateSelection.TemplatePointSelected = false;
+				m_CorrEditCreateSelection.clearTemplateData();
 			}
 			else {
 				int32_t ClosestVertex = -1;
-
-				if (m_RayIntersectRes.Dataset == DatasetIdentifier::TEMPLATE)
-					ClosestVertex = m_TFitter.getTemplate().closestVertex(m_RayIntersectRes.Face, m_RayIntersectRes.MeshIntersection, 0.05f);
-
-				if (m_RayIntersectRes.Dataset == DatasetIdentifier::FITTING_RESULT)
-					ClosestVertex = m_TFitter.getFittingResult().closestVertex(m_RayIntersectRes.Face, m_RayIntersectRes.MeshIntersection, 0.05f);
+				if (HitDataset == DatasetIdentifier::TEMPLATE)		 ClosestVertex = m_TFitter.getTemplate().closestVertex(HitFace, HitMeshPos, 0.05f);
+				if (HitDataset == DatasetIdentifier::FITTING_RESULT) ClosestVertex = m_TFitter.getFittingResult().closestVertex(HitFace, HitMeshPos, 0.05f);
 
 				if (ClosestVertex < 0) {
 					m_TemplateDisplayData->hideSingleMarker();
 					m_FittingResDisplayData->hideSingleMarker();
-					m_CorrEditCreateSelection.TemplatePointSelected = false;
+					m_CorrEditCreateSelection.clearTemplateData();
 				}
 				else {
-					const auto& TempVert = m_TFitter.getTemplate().vertexPosition(ClosestVertex);
-					const auto& FitVert = m_TFitter.getFittingResult().vertexPosition(ClosestVertex);
+					const auto& TemplateVertPos = m_TFitter.getTemplate().vertexPosition(ClosestVertex);
+					const auto& FittingResVertPos = m_TFitter.getFittingResult().vertexPosition(ClosestVertex);
+					const auto& FittingResVertNormal = m_TFitter.getFittingResult().vertexNormal(ClosestVertex);
 
-					m_TemplateDisplayData->placeSingleMarker(m_MarkerActors[MarkerColor::GEOMETRY_SELECTION], TempVert);
-					m_FittingResDisplayData->placeSingleMarker(m_MarkerActors[MarkerColor::GEOMETRY_SELECTION], FitVert);
-
-					m_CorrEditCreateSelection.TemplatePointSelected = true;
-					m_CorrEditCreateSelection.TemplatePointID = ClosestVertex;
-					m_CorrEditCreateSelection.DistanceEuclidean = (m_CorrEditCreateSelection.TargetPointSelected) ? (FitVert - m_CorrEditCreateSelection.TargetPointPos).norm() : FLT_MAX;
+					m_TemplateDisplayData->placeSingleMarker(m_MarkerActors[MarkerColor::GEOMETRY_SELECTION], TemplateVertPos);
+					m_FittingResDisplayData->placeSingleMarker(m_MarkerActors[MarkerColor::GEOMETRY_SELECTION], FittingResVertPos);
+					m_CorrEditCreateSelection.setTemplateData(ClosestVertex, FittingResVertPos, FittingResVertNormal);
 				}
 			}
 		}
 
 		if (ViewportUnderMouse == ViewportIdentifier::SEPARATE_SCENE_TARGET) {
-			if (m_RayIntersectRes.Dataset == DatasetIdentifier::NONE) {
+			if (HitDataset == DatasetIdentifier::NONE) {
 				m_TargetDisplayData->hideSingleMarker();
-				m_CorrEditCreateSelection.TargetPointSelected = false;
+				m_CorrEditCreateSelection.clearTargetData();
 			}
 			else {
 				if (m_TFitter.targetGeometryType() == TemplateFitter::GeometryType::MESH) {
-					m_TargetDisplayData->placeSingleMarker(m_MarkerActors[MarkerColor::GEOMETRY_SELECTION], m_RayIntersectRes.MeshIntersection);
-					
-					m_CorrEditCreateSelection.TargetPointSelected = true;
-					m_CorrEditCreateSelection.TargetPointID = -1;
-					m_CorrEditCreateSelection.TargetFace = m_RayIntersectRes.Face;
-					m_CorrEditCreateSelection.TargetPointPos = m_RayIntersectRes.MeshIntersection;
-					m_CorrEditCreateSelection.TargetPointNormal = Vector3f::Zero(); //TODO!
-					m_CorrEditCreateSelection.DistanceEuclidean = (m_CorrEditCreateSelection.TemplatePointSelected) ? 
-						(m_TFitter.getFittingResult().vertexPosition(m_CorrEditCreateSelection.TemplatePointID) - m_CorrEditCreateSelection.TargetPointPos).norm() : FLT_MAX;
+					m_TargetDisplayData->placeSingleMarker(m_MarkerActors[MarkerColor::GEOMETRY_SELECTION], HitMeshPos);
+					m_CorrEditCreateSelection.setTargetData(-1, HitFace, HitMeshPos, Vector3f::Zero()/*TODO!*/);
 				}
-				else { // DatasetGeometries[m_RayIntersectRes.Dataset].geometryType() == TemplateFitter::GeometryType::POINTCLOUD
-					if (m_RayIntersectRes.PclPoint < 0) {
+
+				if (m_TFitter.targetGeometryType() == TemplateFitter::GeometryType::POINTCLOUD) {
+					if (HitPclPoint < 0) {
 						m_TargetDisplayData->hideSingleMarker();
-						m_CorrEditCreateSelection.TargetPointSelected = false;
+						m_CorrEditCreateSelection.clearTargetData();
 					}
 					else {
-						const auto& Target = m_TFitter.getTarget();
-						const auto& TgtVert = Target.vertexPosition(m_RayIntersectRes.PclPoint);
-						const auto& TgtVertN = Target.vertexNormal(m_RayIntersectRes.PclPoint);
+						const auto& TargetVertPos = m_TFitter.getTarget().vertexPosition(HitPclPoint);
+						const auto& TargetVertNormal = m_TFitter.getTarget().vertexNormal(HitPclPoint);
 
-						m_TargetDisplayData->placeSingleMarker(m_MarkerActors[MarkerColor::GEOMETRY_SELECTION], TgtVert);
-
-						m_CorrEditCreateSelection.TargetPointSelected = true;
-						m_CorrEditCreateSelection.TargetPointID = m_RayIntersectRes.PclPoint;
-						m_CorrEditCreateSelection.TargetFace = -1;
-						m_CorrEditCreateSelection.TargetPointPos = TgtVert;
-						m_CorrEditCreateSelection.TargetPointNormal = TgtVertN;
-						m_CorrEditCreateSelection.DistanceEuclidean = (m_CorrEditCreateSelection.TemplatePointSelected) ?
-							(m_TFitter.getFittingResult().vertexPosition(m_CorrEditCreateSelection.TemplatePointID) - m_CorrEditCreateSelection.TargetPointPos).norm() : FLT_MAX;
+						m_TargetDisplayData->placeSingleMarker(m_MarkerActors[MarkerColor::GEOMETRY_SELECTION], TargetVertPos);
+						m_CorrEditCreateSelection.setTargetData(HitPclPoint, -1, TargetVertPos, TargetVertNormal);
 					}
 				}
 			}
 		}
 	}//inputClickSelectGeometryPoint
 
-	void TempRegViewer::inputClickSelectCorrespondence(ViewportIdentifier ViewportUnderMouse) {
+	void TempRegApplication::inputClickSelectCorrespondence(ViewportIdentifier ViewportUnderMouse) {
 		if (ViewportUnderMouse == ViewportIdentifier::SEPARATE_SCENE_TARGET || ViewportUnderMouse == ViewportIdentifier::NONE) return; // do nothing
 		
 		// new click, new selection -> undo last selection
 		for (auto TempVertID : m_SelectedCorrsByTemplateID) {
 			const auto& CorrData = m_TFitter.correspondenceData(TempVertID);
+
 			if (CorrData.Type == TemplateFitter::CorrespondenceType::FEATURE) {
 				auto pMarkerActor = m_MarkerActors[MarkerColor::FEATURECORR_IDLE];
 				m_TemplateDisplayData->setFeatureCorrMarkerColor(TempVertID, pMarkerActor);
 				m_FittingResDisplayData->setFeatureCorrMarkerColor(TempVertID, pMarkerActor);
 				m_TargetDisplayData->setFeatureCorrMarkerColor(TempVertID, pMarkerActor);
 			}
-			else {
+
+			if (CorrData.Type == TemplateFitter::CorrespondenceType::AUTOMATIC) {
 				auto pMarkerActor = m_MarkerActors[MarkerColor::AUTOCORR_IDLE];
 				m_TemplateDisplayData->setAutomaticCorrMarkerColor(TempVertID, pMarkerActor);
 				m_FittingResDisplayData->setAutomaticCorrMarkerColor(TempVertID, pMarkerActor);
@@ -937,12 +966,15 @@ namespace TempReg {
 		m_SelectedCorrsByTemplateID.clear();
 
 		// get new selection
-		int32_t ClosestVertex = -1;
-		if (m_RayIntersectRes.Dataset == DatasetIdentifier::TEMPLATE) 
-			ClosestVertex = m_TFitter.getTemplate().closestVertex(m_RayIntersectRes.Face, m_RayIntersectRes.MeshIntersection, 0.05f);
+		const auto& HitDataset = m_RayIntersectRes.Dataset;
+		const auto& HitFace = m_RayIntersectRes.Face;
+		const auto& HitMeshPos = m_RayIntersectRes.MeshIntersection;
+		const auto& HitBary = m_RayIntersectRes.BarycentricCoords;
+		const auto& HitPclPoint = m_RayIntersectRes.PclPoint;
 
-		if (m_RayIntersectRes.Dataset == DatasetIdentifier::FITTING_RESULT)
-			ClosestVertex = m_TFitter.getFittingResult().closestVertex(m_RayIntersectRes.Face, m_RayIntersectRes.MeshIntersection, 0.05f);
+		int32_t ClosestVertex = -1;
+		if (HitDataset == DatasetIdentifier::TEMPLATE)		 ClosestVertex = m_TFitter.getTemplate().closestVertex(HitFace, HitMeshPos, 0.05f);
+		if (HitDataset == DatasetIdentifier::FITTING_RESULT) ClosestVertex = m_TFitter.getFittingResult().closestVertex(HitFace, HitMeshPos, 0.05f);
 		
 		if (ClosestVertex >= 0) { // template vertex in range
 			if (m_TFitter.hasCorrespondence(ClosestVertex)) { // does it have a correspondence?	
@@ -966,82 +998,71 @@ namespace TempReg {
 		}
 	}//inputClickSelectCorrespondence
 
-	void TempRegViewer::inputCreateCorrespondence(void) {
-		if (m_TFitter.targetGeometryType() == TemplateFitter::GeometryType::MESH) {
-			m_TFitter.createCorrespondenceToMesh(
-				TemplateFitter::CorrespondenceType::FEATURE, 
-				m_CorrEditCreateSelection.TemplatePointID,	
-				m_CorrEditCreateSelection.TargetFace, 
-				m_CorrEditCreateSelection.TargetPointPos, 
-				m_CorrEditCreateSelection.TargetPointNormal);
-		}
-		else {
-			m_TFitter.createCorrespondenceToPCL(TemplateFitter::CorrespondenceType::FEATURE, m_CorrEditCreateSelection.TemplatePointID, m_CorrEditCreateSelection.TargetPointID);
-		}
+	void TempRegApplication::inputCreateCorrespondence(void) {
+		TemplateFitter::CorrespondenceType Type = TemplateFitter::CorrespondenceType::FEATURE;
+		const auto& TemplatePointID = m_CorrEditCreateSelection.TemplatePointID;
+		const auto& TargetPointID = m_CorrEditCreateSelection.TargetPointID;
+		const auto& TargetFace = m_CorrEditCreateSelection.TargetFace;
+		const auto& TargetPointPos = m_CorrEditCreateSelection.TargetPointPos;
+		const auto& TargetPointNormal = m_CorrEditCreateSelection.TargetPointNormal;
 
-		const auto& TempVert = m_TFitter.getTemplate().vertexPosition(m_CorrEditCreateSelection.TemplatePointID);
-		const auto& FitVert = m_TFitter.getFittingResult().vertexPosition(m_CorrEditCreateSelection.TemplatePointID);
+		if (m_TFitter.targetGeometryType() == TemplateFitter::GeometryType::MESH)		m_TFitter.createCorrespondenceToMesh(Type, TemplatePointID, TargetFace, TargetPointPos, TargetPointNormal);
+		if (m_TFitter.targetGeometryType() == TemplateFitter::GeometryType::POINTCLOUD) m_TFitter.createCorrespondenceToPCL(Type, TemplatePointID, TargetPointID);
+
+		const auto& TempVertPos = m_TFitter.getTemplate().vertexPosition(TemplatePointID);
+		const auto& FittingResVertPos = m_TFitter.getFittingResult().vertexPosition(TemplatePointID);
 		auto pMarkerActor = m_MarkerActors[MarkerColor::FEATURECORR_IDLE];
 
-		m_TemplateDisplayData->addFeatureCorrMarker(m_CorrEditCreateSelection.TemplatePointID, TempVert, pMarkerActor);
-		m_FittingResDisplayData->addFeatureCorrMarker(m_CorrEditCreateSelection.TemplatePointID, FitVert, pMarkerActor);
-		m_TargetDisplayData->addFeatureCorrMarker(m_CorrEditCreateSelection.TemplatePointID, m_CorrEditCreateSelection.TargetPointPos, pMarkerActor);
-
+		m_TemplateDisplayData->addFeatureCorrMarker(TemplatePointID, TempVertPos, pMarkerActor);
+		m_FittingResDisplayData->addFeatureCorrMarker(TemplatePointID, FittingResVertPos, pMarkerActor);
+		m_TargetDisplayData->addFeatureCorrMarker(TemplatePointID, TargetPointPos, pMarkerActor);
 		m_TemplateDisplayData->hideSingleMarker();
 		m_FittingResDisplayData->hideSingleMarker();
 		m_TargetDisplayData->hideSingleMarker();
-
-		m_CorrEditCreateSelection.TemplatePointSelected = false;
-		m_CorrEditCreateSelection.TargetPointSelected = false;
+		m_CorrEditCreateSelection.clear();
 	}//inputCreateCorrespondence
 
-	void TempRegViewer::inputOverwriteCorrespondence(void) {
-		const auto& OldCorrData = m_TFitter.correspondenceData(m_CorrEditCreateSelection.TemplatePointID);
+	void TempRegApplication::inputOverwriteCorrespondence(void) {
+		TemplateFitter::CorrespondenceType Type = TemplateFitter::CorrespondenceType::FEATURE;
+		const auto& TemplatePointID = m_CorrEditCreateSelection.TemplatePointID;
+		const auto& TargetPointID = m_CorrEditCreateSelection.TargetPointID;
+		const auto& TargetFace = m_CorrEditCreateSelection.TargetFace;
+		const auto& TargetPointPos = m_CorrEditCreateSelection.TargetPointPos;
+		const auto& TargetPointNormal = m_CorrEditCreateSelection.TargetPointNormal;
+		const auto& OldCorrData = m_TFitter.correspondenceData(TemplatePointID);
 
 		// Remove old correspondence data, markers
 		if (OldCorrData.Type == TemplateFitter::CorrespondenceType::FEATURE) {
-			m_TemplateDisplayData->removeFeatureCorrMarker(m_CorrEditCreateSelection.TemplatePointID);
-			m_FittingResDisplayData->removeFeatureCorrMarker(m_CorrEditCreateSelection.TemplatePointID);
-			m_TargetDisplayData->removeFeatureCorrMarker(m_CorrEditCreateSelection.TemplatePointID);
+			m_TemplateDisplayData->removeFeatureCorrMarker(TemplatePointID);
+			m_FittingResDisplayData->removeFeatureCorrMarker(TemplatePointID);
+			m_TargetDisplayData->removeFeatureCorrMarker(TemplatePointID);
 		}
 		else {
-			m_TemplateDisplayData->removeAutomaticCorrMarker(m_CorrEditCreateSelection.TemplatePointID);
-			m_FittingResDisplayData->removeAutomaticCorrMarker(m_CorrEditCreateSelection.TemplatePointID);
-			m_TargetDisplayData->removeAutomaticCorrMarker(m_CorrEditCreateSelection.TemplatePointID);
+			m_TemplateDisplayData->removeAutomaticCorrMarker(TemplatePointID);
+			m_FittingResDisplayData->removeAutomaticCorrMarker(TemplatePointID);
+			m_TargetDisplayData->removeAutomaticCorrMarker(TemplatePointID);
 		}
 
-		m_TFitter.deleteCorrespondence(m_CorrEditCreateSelection.TemplatePointID);
+		m_TFitter.deleteCorrespondence(TemplatePointID);
 
 		// Add new correspondence data, markers
-		if (m_TFitter.targetGeometryType() == TemplateFitter::GeometryType::MESH) {
-			m_TFitter.createCorrespondenceToMesh(
-				TemplateFitter::CorrespondenceType::FEATURE, 
-				m_CorrEditCreateSelection.TemplatePointID, 
-				m_CorrEditCreateSelection.TargetFace, 
-				m_CorrEditCreateSelection.TargetPointPos, 
-				m_CorrEditCreateSelection.TargetPointNormal);
-		}
-		else {
-			m_TFitter.createCorrespondenceToPCL(TemplateFitter::CorrespondenceType::FEATURE, m_CorrEditCreateSelection.TemplatePointID, m_CorrEditCreateSelection.TargetPointID);
-		}
+		if (m_TFitter.targetGeometryType() == TemplateFitter::GeometryType::MESH)		m_TFitter.createCorrespondenceToMesh(Type, TemplatePointID, TargetFace, TargetPointPos, TargetPointNormal);
+		if (m_TFitter.targetGeometryType() == TemplateFitter::GeometryType::POINTCLOUD) m_TFitter.createCorrespondenceToPCL(Type, TemplatePointID, TargetPointID);
 
-		const auto& TempVert = m_TFitter.getTemplate().vertexPosition(m_CorrEditCreateSelection.TemplatePointID);
-		const auto& FitVert = m_TFitter.getFittingResult().vertexPosition(m_CorrEditCreateSelection.TemplatePointID);
+		const auto& TempVert = m_TFitter.getTemplate().vertexPosition(TemplatePointID);
+		const auto& FitVert = m_TFitter.getFittingResult().vertexPosition(TemplatePointID);
 		auto pMarkerActor = m_MarkerActors[MarkerColor::FEATURECORR_IDLE];
 
-		m_TemplateDisplayData->addFeatureCorrMarker(m_CorrEditCreateSelection.TemplatePointID, TempVert, pMarkerActor);
-		m_FittingResDisplayData->addFeatureCorrMarker(m_CorrEditCreateSelection.TemplatePointID, FitVert, pMarkerActor);
-		m_TargetDisplayData->addFeatureCorrMarker(m_CorrEditCreateSelection.TemplatePointID, m_CorrEditCreateSelection.TargetPointPos, pMarkerActor);
-
+		m_TemplateDisplayData->addFeatureCorrMarker(TemplatePointID, TempVert, pMarkerActor);
+		m_FittingResDisplayData->addFeatureCorrMarker(TemplatePointID, FitVert, pMarkerActor);
+		m_TargetDisplayData->addFeatureCorrMarker(TemplatePointID, TargetPointPos, pMarkerActor);
 		m_TemplateDisplayData->hideSingleMarker();
 		m_FittingResDisplayData->hideSingleMarker();
 		m_TargetDisplayData->hideSingleMarker();
-
-		m_CorrEditCreateSelection.TemplatePointSelected = false;
-		m_CorrEditCreateSelection.TargetPointSelected = false;
+		m_CorrEditCreateSelection.clear();
 	}//inputOverwriteCorrespondence
 
-	void TempRegViewer::inputClearCorrespondences(TemplateFitter::CorrespondenceType CT) {
+	void TempRegApplication::inputClearCorrespondences(TemplateFitter::CorrespondenceType CT) {
 		if (CT == TemplateFitter::CorrespondenceType::NONE) {
 			clearAllCorrMarkers();
 			m_TFitter.clearCorrespondenceStorage();
@@ -1071,7 +1092,7 @@ namespace TempReg {
 		}
 	}//inputClearCorrespondences
 
-	void TempRegViewer::inputDeleteSelectedCorrespondences(void) {
+	void TempRegApplication::inputDeleteSelectedCorrespondences(void) {
 		for (auto TempVertID : m_SelectedCorrsByTemplateID) {
 			const auto& CorrData = m_TFitter.correspondenceData(TempVertID);
 
@@ -1098,17 +1119,15 @@ namespace TempReg {
 	//
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void TempRegViewer::guiViewerControlWindow(void) {
+	void TempRegApplication::guiViewerControlWindow(void) {
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 1.0f));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0.0f, 0.0f));
-
-		m_ViewerCtrlWinSize.x = float(m_RenderWin.width()) - m_SideMenuWinSize.x + 1;
 		
 		ImGuiWindowFlags ViewerControlWindowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove;
 				
 		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-		ImGui::SetNextWindowSize(m_ViewerCtrlWinSize);
+		ImGui::SetNextWindowSize(ImVec2(float(m_RenderWin.width()) - m_SideMenuWinWidth + 1.0f, 23.0f));
 		ImGui::Begin("##viewer_control_menu", nullptr, ViewerControlWindowFlags);
 		ImGui::PopStyleVar(2);
 
@@ -1132,11 +1151,9 @@ namespace TempReg {
 		ImGui::End();
 	}//guiViewerControlWindow
 
-	void TempRegViewer::guiSideMenuWindow(void) {
-		m_SideMenuWinSize.y = float(m_RenderWin.height());
-
-		ImGui::SetNextWindowPos(ImVec2(float(m_RenderWin.width()) - m_SideMenuWinSize.x, 0.0f));
-		ImGui::SetNextWindowSize(m_SideMenuWinSize);
+	void TempRegApplication::guiSideMenuWindow(void) {
+		ImGui::SetNextWindowPos(ImVec2(float(m_RenderWin.width()) - m_SideMenuWinWidth, 0.0f));
+		ImGui::SetNextWindowSize(ImVec2(m_SideMenuWinWidth, float(m_RenderWin.height())));
 
 		ImGuiWindowFlags WindowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove;
 		ImGui::Begin("##side_menu", nullptr, WindowFlags);
@@ -1147,7 +1164,7 @@ namespace TempReg {
 		ImGui::End();
 	}//guiSideMenuWindow
 
-	void TempRegViewer::guiSideMenuMainView(void) {
+	void TempRegApplication::guiSideMenuMainView(void) {
 		if (ImGui::CollapsingHeader("Files", ImGuiTreeNodeFlags_DefaultOpen)) {
 			guiFileStateCheckboxes();
 			ImGui::Dummy(ImVec2(0.0f, 2.0f));
@@ -1213,14 +1230,18 @@ namespace TempReg {
 				const size_t FeatCorrCount = m_TFitter.featureCorrespondences().size();
 
 				if (FeatCorrCount < 3) ImGui::BeginDisabled();
+
 				if (ImGui::Checkbox("Scale Template", &m_CoarseFitScaleTemplate))
 					m_VolComputeComboSelected = (m_CoarseFitScaleTemplate) ? TemplateFitter::VolumeComputation::FEATURE_AABBS : TemplateFitter::VolumeComputation::DISABLED;
+
 				if (FeatCorrCount < 3) ImGui::EndDisabled();
+
 				guiTooltip("/*TODO*/", ImGuiHoveredFlags_AllowWhenDisabled);
 
 				ImGui::Dummy(ImVec2(0.0f, 2.0f));
 
 				if (FeatCorrCount < 3) ImGui::BeginDisabled();
+
 				if (ImGui::Button("Compute Alignment")) {
 					// compute alignment and transform geometry
 					m_TFitter.computeCoarseFitting(m_VolComputeComboSelected);
@@ -1235,7 +1256,9 @@ namespace TempReg {
 					const auto& AutoCorrs = m_TFitter.automaticCorrespondences();
 					for (auto& C : AutoCorrs) m_FittingResDisplayData->setAutomaticCorrMarkerPosition(C, FittingResGeometry.vertexPosition(C));
 				}
+
 				if (FeatCorrCount < 3) ImGui::EndDisabled();
+
 				guiTooltip("Compute a coarse alignment between template and target.", ImGuiHoveredFlags_AllowWhenDisabled);
 
 				ImGui::TreePop();
@@ -1251,7 +1274,7 @@ namespace TempReg {
 		}
 	}//guiSideMenuMainView
 
-	void TempRegViewer::guiFileStateCheckboxes(void) {
+	void TempRegApplication::guiFileStateCheckboxes(void) {
 		ImGui::PushStyleVar(ImGuiStyleVar_DisabledAlpha, 1.0f);
 		ImGui::BeginDisabled();
 
@@ -1294,7 +1317,7 @@ namespace TempReg {
 		ImGui::PopStyleVar();
 	}//guiFileStateCheckboxes
 
-	void TempRegViewer::guiFileLoadButtons(void) {
+	void TempRegApplication::guiFileLoadButtons(void) {
 		if (ImGui::BeginTable("##load_buttons_layout", 2, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_SizingStretchSame)) {
 			ImGui::TableNextColumn();
 
@@ -1319,15 +1342,13 @@ namespace TempReg {
 		guiTooltip("/*TODO*/");
 	}//guiFileLoadButtons
 
-	void TempRegViewer::guiEditCorrespondencesButton(void) {
+	void TempRegApplication::guiEditCorrespondencesButton(void) {
 		if (ImGui::Button("Edit Correspondences >", ImVec2(-FLT_MIN, 0.0f))) {
 			m_CorrEditActiveMode = CorrespondenceEditMode::VIEW_AND_DELETE;
-
 			m_TemplateDisplayData->hideSingleMarker();
 			m_FittingResDisplayData->hideSingleMarker();
 			m_TargetDisplayData->hideSingleMarker();
-			m_CorrEditCreateSelection.TemplatePointSelected = false;
-			m_CorrEditCreateSelection.TargetPointSelected = false;
+			m_CorrEditCreateSelection.clear();
 
 			for (auto TempVertID : m_SelectedCorrsByTemplateID) {
 				const auto& CorrData = m_TFitter.correspondenceData(TempVertID);
@@ -1356,7 +1377,7 @@ namespace TempReg {
 		guiTooltip("/*TODO: explain what this button does; explain what \"feature correspondences\" are*/");
 	}//guiEditCorrespondencesButton
 	
-	void TempRegViewer::guiSideMenuCorrEditView(void) {
+	void TempRegApplication::guiSideMenuCorrEditView(void) {
 		ImGui::PushID("corredit_view_");
 
 		ImGui::AlignTextToFramePadding();
@@ -1392,13 +1413,12 @@ namespace TempReg {
 		ImGui::PopID();
 	}//guiSideMenuCorrEditView
 
-	void TempRegViewer::guiCorrEditExitButton(float ExitButtonWidth) {
+	void TempRegApplication::guiCorrEditExitButton(float ExitButtonWidth) {
 		if (ImGui::Button("Exit >", ImVec2(ExitButtonWidth, 0.0f))) {
 			m_TemplateDisplayData->hideSingleMarker();
 			m_FittingResDisplayData->hideSingleMarker();
 			m_TargetDisplayData->hideSingleMarker();
-			m_CorrEditCreateSelection.TemplatePointSelected = false;
-			m_CorrEditCreateSelection.TargetPointSelected = false;
+			m_CorrEditCreateSelection.clear();
 
 			for (auto TempVertID : m_SelectedCorrsByTemplateID) {
 				const auto& CorrData = m_TFitter.correspondenceData(TempVertID);
@@ -1422,18 +1442,17 @@ namespace TempReg {
 		}
 	}//guiCorrEditExitButton
 
-	void TempRegViewer::guiCorrEditViewDelRadioButton(void) {
+	void TempRegApplication::guiCorrEditViewDelRadioButton(void) {
 		if (ImGui::RadioButton("View / Delete##mode_selector_viewdel", (m_CorrEditActiveMode == CorrespondenceEditMode::VIEW_AND_DELETE))) {
 			m_CorrEditActiveMode = CorrespondenceEditMode::VIEW_AND_DELETE;
 			m_TemplateDisplayData->hideSingleMarker();
 			m_FittingResDisplayData->hideSingleMarker();
 			m_TargetDisplayData->hideSingleMarker();
-			m_CorrEditCreateSelection.TemplatePointSelected = false;
-			m_CorrEditCreateSelection.TargetPointSelected = false;
+			m_CorrEditCreateSelection.clear();
 		}
 	}//guiCorrEditViewDelRadioButton
 
-	void TempRegViewer::guiCorrEditCreateRadioButton(void) {
+	void TempRegApplication::guiCorrEditCreateRadioButton(void) {
 		if (ImGui::RadioButton("Create##mode_selector_create", (m_CorrEditActiveMode == CorrespondenceEditMode::CREATE))) {
 			m_CorrEditActiveMode = CorrespondenceEditMode::CREATE;
 
@@ -1458,7 +1477,7 @@ namespace TempReg {
 		}
 	}//guiCorrEditCreateRadioButton
 
-	void TempRegViewer::guiViewDelPanel(void) {
+	void TempRegApplication::guiViewDelPanel(void) {
 		ImGui::PushID("viewdel_panel_");
 
 		guiSelectedCorrespondencePropertiesList();
@@ -1494,7 +1513,7 @@ namespace TempReg {
 		ImGui::PopID();
 	}//guiViewDelPanel
 
-	void TempRegViewer::guiDeleteSelectedButton(void) {
+	void TempRegApplication::guiDeleteSelectedButton(void) {
 		if (m_SelectedCorrsByTemplateID.empty()) {
 			ImGui::BeginDisabled();
 			ImGui::Button("Delete Selected##delete_select_corr", ImVec2(-FLT_MIN, 0.0f));
@@ -1534,7 +1553,7 @@ namespace TempReg {
 		}
 	}//guiDeleteSelectedButton
 	
-	void TempRegViewer::guiDeleteAllButton(size_t TotalCorrCount) {
+	void TempRegApplication::guiDeleteAllButton(size_t TotalCorrCount) {
 		if (TotalCorrCount == 0) {
 			ImGui::BeginDisabled();
 			ImGui::Button("Delete All##delete_all_corr", ImVec2(-FLT_MIN, 0.0f));
@@ -1574,7 +1593,7 @@ namespace TempReg {
 		}
 	}//guiDeleteAllButton
 	
-	void TempRegViewer::guiDeleteFeatureButton(size_t FeatCorrCount) {
+	void TempRegApplication::guiDeleteFeatureButton(size_t FeatCorrCount) {
 		if (FeatCorrCount == 0) {
 			ImGui::BeginDisabled();
 			if (ImGui::Button("Delete Feature##delete_feat_corr", ImVec2(-FLT_MIN, 0.0f)));
@@ -1614,7 +1633,7 @@ namespace TempReg {
 		}
 	}//guiDeleteFeatureButton
 	
-	void TempRegViewer::guiDeleteAutomaticButton(size_t AutoCorrCount) {
+	void TempRegApplication::guiDeleteAutomaticButton(size_t AutoCorrCount) {
 		if (AutoCorrCount == 0) {
 			ImGui::BeginDisabled();
 			if (ImGui::Button("Delete Automatic##delete_auto_corr", ImVec2(-FLT_MIN, 0.0f)));
@@ -1654,7 +1673,7 @@ namespace TempReg {
 		}
 	}//guiDeleteAutomaticButton
 
-	void TempRegViewer::guiCreatePanel(void) {
+	void TempRegApplication::guiCreatePanel(void) {
 		ImGui::PushID("create_panel_");
 
 		guiSelectedGeometryPointsPropertiesList();
@@ -1684,7 +1703,12 @@ namespace TempReg {
 		ImGui::PopID();
 	}//guiCreatePanel
 
-	void TempRegViewer::guiSelectedGeometryPointsPropertiesList(void) {
+	void TempRegApplication::guiSelectedGeometryPointsPropertiesList(void) {
+		bool TemplatePointSelected = m_CorrEditCreateSelection.TemplatePointSelected;
+		bool TargetPointSelected = m_CorrEditCreateSelection.TargetPointSelected;
+		const auto& TemplatePointID = m_CorrEditCreateSelection.TemplatePointID;
+		const auto& DistanceEuclidean = m_CorrEditCreateSelection.DistanceEuclidean;
+
 		// State of current selection
 		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 		if (ImGui::TreeNode("Current Selection")) {
@@ -1694,22 +1718,21 @@ namespace TempReg {
 			ImGui::BeginDisabled();
 
 			if (ImGui::BeginTable("##create_selection_state_layout", 2, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_SizingStretchSame)) {
-
 				ImGui::TableNextColumn();
 
-				if (m_CorrEditCreateSelection.TemplatePointSelected) {
-					if (!m_TFitter.hasCorrespondence(m_CorrEditCreateSelection.TemplatePointID)) {
+				if (TemplatePointSelected) {
+					if (!m_TFitter.hasCorrespondence(TemplatePointID)) {
 						ImGui::PushStyleColor(ImGuiCol_FrameBg, m_CheckboxBgGreenCol);
 						ImGui::PushStyleColor(ImGuiCol_CheckMark, m_CheckMarkGreenCol);
 
-						ImGui::Checkbox("Template selection", &m_CorrEditCreateSelection.TemplatePointSelected);
+						ImGui::Checkbox("Template selection", &TemplatePointSelected);
 						guiTooltip("/*TODO: tooltip for TemplateVertSelected == true, hasCorrespondence == false*/");
 					}
 					else {
 						ImGui::PushStyleColor(ImGuiCol_FrameBg, m_CheckboxBgYellowCol);
 						ImGui::PushStyleColor(ImGuiCol_CheckMark, m_CheckMarkYellowCol);
 
-						ImGui::Checkbox("Template selection", &m_CorrEditCreateSelection.TemplatePointSelected);
+						ImGui::Checkbox("Template selection", &TemplatePointSelected);
 						guiTooltip("/*TODO: tooltip for TemplateVertSelected == true, hasCorrespondence == true*/");
 					}
 
@@ -1718,7 +1741,7 @@ namespace TempReg {
 				else {
 					ImGui::PushStyleColor(ImGuiCol_FrameBg, m_CheckboxBgRedCol);
 
-					ImGui::Checkbox("Template selection", &m_CorrEditCreateSelection.TemplatePointSelected);
+					ImGui::Checkbox("Template selection", &TemplatePointSelected);
 					guiTooltip("/*TODO: tooltip for TemplateVertSelected == false*/");
 
 					ImGui::PopStyleColor();
@@ -1726,11 +1749,11 @@ namespace TempReg {
 
 				ImGui::TableNextColumn();
 
-				if (m_CorrEditCreateSelection.TargetPointSelected) {
+				if (TargetPointSelected) {
 					ImGui::PushStyleColor(ImGuiCol_FrameBg, m_CheckboxBgGreenCol);
 					ImGui::PushStyleColor(ImGuiCol_CheckMark, m_CheckMarkGreenCol);
 
-					ImGui::Checkbox("Target selection", &m_CorrEditCreateSelection.TargetPointSelected);
+					ImGui::Checkbox("Target selection", &TargetPointSelected);
 					guiTooltip("/*TODO: tooltip for TargetPointSelected == true*/");
 
 					ImGui::PopStyleColor(2);
@@ -1738,7 +1761,7 @@ namespace TempReg {
 				else {
 					ImGui::PushStyleColor(ImGuiCol_FrameBg, m_CheckboxBgRedCol);
 
-					ImGui::Checkbox("Target selection", &m_CorrEditCreateSelection.TargetPointSelected);
+					ImGui::Checkbox("Target selection", &TargetPointSelected);
 					guiTooltip("/*TODO: tooltip for TargetPointSelected == false*/");
 
 					ImGui::PopStyleColor();
@@ -1747,9 +1770,9 @@ namespace TempReg {
 				ImGui::EndTable();
 			}
 
-			if (m_CorrEditCreateSelection.TemplatePointSelected) {
-				if (m_TFitter.hasCorrespondence(m_CorrEditCreateSelection.TemplatePointID)) {
-					const auto& CorrData = m_TFitter.correspondenceData(m_CorrEditCreateSelection.TemplatePointID);
+			if (TemplatePointSelected) {
+				if (m_TFitter.hasCorrespondence(TemplatePointID)) {
+					const auto& CorrData = m_TFitter.correspondenceData(TemplatePointID);
 					if (CorrData.Type == TemplateFitter::CorrespondenceType::FEATURE) ImGui::TextWrapped("Warning: Collision with existing feature correspondence at selected template vertex!");
 					else ImGui::TextWrapped("Warning: Collision with existing automatic correspondence at selected template vertex!");
 				}
@@ -1759,14 +1782,14 @@ namespace TempReg {
 
 			ImGui::Text("Euclidean Distance:");
 
-			if (!m_CorrEditCreateSelection.TemplatePointSelected || !m_CorrEditCreateSelection.TargetPointSelected) {
+			if (!m_CorrEditCreateSelection.ready()) {
 				char EuclidDistBuf[4] = "---";
 				ImGui::PushItemWidth(-FLT_MIN);
 				ImGui::InputText("##eucliddist_textbox", EuclidDistBuf, 4, ImGuiInputTextFlags_ReadOnly);
 				guiTooltip("Correspondence incomplete!", ImGuiHoveredFlags_AllowWhenDisabled);
 			}
 			else {
-				std::string EuclidDistString = guiFloatToTextLabel(m_CorrEditCreateSelection.DistanceEuclidean);
+				std::string EuclidDistString = guiFloatToTextLabel(DistanceEuclidean);
 				ImGui::PushItemWidth(-FLT_MIN);
 				ImGui::InputText("##eucliddist_textbox", &EuclidDistString, ImGuiInputTextFlags_ReadOnly);
 				guiTooltip("Euclidean distance between selected points", ImGuiHoveredFlags_AllowWhenDisabled);
@@ -1789,20 +1812,18 @@ namespace TempReg {
 		}
 	}//guiSelectedGeometryPointsPropertiesList
 
-	void TempRegViewer::guiCreateAndOverwriteButton(void) {
-		bool UseOverwriteButton = false;
-		if (m_CorrEditCreateSelection.TemplatePointSelected)
-			if (m_TFitter.hasCorrespondence(m_CorrEditCreateSelection.TemplatePointID))
-				UseOverwriteButton = true;
+	void TempRegApplication::guiCreateAndOverwriteButton(void) {
+		const auto& TemplatePointSelected = m_CorrEditCreateSelection.TemplatePointSelected;
+		const auto& TargetPointSelected = m_CorrEditCreateSelection.TargetPointSelected;
+		const auto& TemplatePointID = m_CorrEditCreateSelection.TemplatePointID;
 
+		bool UseOverwriteButton = (TemplatePointID < 0) ? false : m_TFitter.hasCorrespondence(TemplatePointID);
 		if (UseOverwriteButton) {
-			bool DisableButton = (!m_CorrEditCreateSelection.TargetPointSelected) ? true : false;
-
-			if (DisableButton) ImGui::BeginDisabled();
+			if (!TargetPointSelected) ImGui::BeginDisabled();
 
 			if (ImGui::Button("Overwrite##overwrite_corr", ImVec2(-FLT_MIN, 0.0f))) ImGui::OpenPopup("Overwrite Correspondence##overwrite_corr_popup_bybutton");
 
-			if (DisableButton) {
+			if (!TargetPointSelected) {
 				ImGui::EndDisabled();
 				guiTooltip("No target point selected!", ImGuiHoveredFlags_AllowWhenDisabled);
 			}
@@ -1837,7 +1858,7 @@ namespace TempReg {
 
 		}
 		else {
-			bool DisableButton = (!m_CorrEditCreateSelection.TemplatePointSelected || !m_CorrEditCreateSelection.TargetPointSelected) ? true : false;
+			bool DisableButton = !m_CorrEditCreateSelection.ready();
 
 			if (DisableButton) ImGui::BeginDisabled();
 
@@ -1848,64 +1869,63 @@ namespace TempReg {
 
 				std::string TooltipText;
 
-				if (!m_CorrEditCreateSelection.TemplatePointSelected) TooltipText.append("No template vertex selected!\n");
-				if (!m_CorrEditCreateSelection.TargetPointSelected) TooltipText.append("No target point selected!");
+				if (!TemplatePointSelected) TooltipText.append("No template vertex selected!\n");
+				if (!TargetPointSelected) TooltipText.append("No target point selected!");
 
 				guiTooltip(TooltipText.c_str(), ImGuiHoveredFlags_AllowWhenDisabled);
 			}
 		}
 	}//guiCreateAndOverwriteButton
 
-	void TempRegViewer::guiClearAllGeometryPointSelectionButton(void) {
-		if (m_CorrEditCreateSelection.TemplatePointSelected || m_CorrEditCreateSelection.TargetPointSelected) {
-			if (ImGui::Button("Clear##clear_both_select", ImVec2(-FLT_MIN, 0.0f))) {
-				m_TemplateDisplayData->hideSingleMarker();
-				m_FittingResDisplayData->hideSingleMarker();
-				m_TargetDisplayData->hideSingleMarker();
-				m_CorrEditCreateSelection.TemplatePointSelected = false;
-				m_CorrEditCreateSelection.TargetPointSelected = false;
-			}
+	void TempRegApplication::guiClearAllGeometryPointSelectionButton(void) {
+		bool DisableButton = !m_CorrEditCreateSelection.hasSelection();
+
+		if (DisableButton) ImGui::BeginDisabled();
+
+		if (ImGui::Button("Clear##clear_both_select", ImVec2(-FLT_MIN, 0.0f))) {
+			m_TemplateDisplayData->hideSingleMarker();
+			m_FittingResDisplayData->hideSingleMarker();
+			m_TargetDisplayData->hideSingleMarker();
+			m_CorrEditCreateSelection.clear();
 		}
-		else {
-			ImGui::BeginDisabled();
-			ImGui::Button("Clear##clear_both_select_disabled", ImVec2(-FLT_MIN, 0.0f));
-			ImGui::EndDisabled();
-		}
+
+		if (DisableButton) ImGui::EndDisabled();
+
 		guiTooltip("Clear selections on both datasets", ImGuiHoveredFlags_AllowWhenDisabled);
 	}//guiClearAllGeometryPointSelectionButton
 
-	void TempRegViewer::guiClearTemplateGeometryPointSelectionButton(void) {
-		if (m_CorrEditCreateSelection.TemplatePointSelected) {
-			if (ImGui::Button("Clear Template##clear_template_select", ImVec2(-FLT_MIN, 0.0f))) {
-				m_TemplateDisplayData->hideSingleMarker();
-				m_FittingResDisplayData->hideSingleMarker();
-				m_CorrEditCreateSelection.TemplatePointSelected = false;
-			}
+	void TempRegApplication::guiClearTemplateGeometryPointSelectionButton(void) {
+		bool DisableButton = !m_CorrEditCreateSelection.TemplatePointSelected;
+
+		if (DisableButton) ImGui::BeginDisabled();
+
+		if (ImGui::Button("Clear Template##clear_template_select", ImVec2(-FLT_MIN, 0.0f))) {
+			m_TemplateDisplayData->hideSingleMarker();
+			m_FittingResDisplayData->hideSingleMarker();
+			m_CorrEditCreateSelection.clearTemplateData();
 		}
-		else {
-			ImGui::BeginDisabled();
-			ImGui::Button("Clear Template##clear_template_select_disabled", ImVec2(-FLT_MIN, 0.0f));
-			ImGui::EndDisabled();
-		}
+
+		if (DisableButton) ImGui::EndDisabled();
+
 		guiTooltip("/*Clear selection on template dataset*/", ImGuiHoveredFlags_AllowWhenDisabled);
 	}//guiClearTemplateGeometryPointSelectionButton
 
-	void TempRegViewer::guiClearTargetGeometryPointSelectionButton(void) {
-		if (m_CorrEditCreateSelection.TargetPointSelected) {
-			if (ImGui::Button("Clear Target##clear_target_select", ImVec2(-FLT_MIN, 0.0f))) {
-				m_TargetDisplayData->hideSingleMarker();
-				m_CorrEditCreateSelection.TargetPointSelected = false;
-			}
+	void TempRegApplication::guiClearTargetGeometryPointSelectionButton(void) {
+		bool DisableButton = !m_CorrEditCreateSelection.TargetPointSelected;
+
+		if (DisableButton) ImGui::BeginDisabled();
+
+		if (ImGui::Button("Clear Target##clear_target_select", ImVec2(-FLT_MIN, 0.0f))) {
+			m_TargetDisplayData->hideSingleMarker();
+			m_CorrEditCreateSelection.clearTargetData();
 		}
-		else {
-			ImGui::BeginDisabled();
-			ImGui::Button("Clear Target##clear_target_select_disabled", ImVec2(-FLT_MIN, 0.0f));
-			ImGui::EndDisabled();
-		}
+
+		if (DisableButton) ImGui::EndDisabled();
+
 		guiTooltip("/*Clear selection on target dataset*/", ImGuiHoveredFlags_AllowWhenDisabled);
 	}//guiClearTargetGeometryPointSelectionButton
 
-	void TempRegViewer::guiViewerButtonShowTemplateFitting(void) {
+	void TempRegApplication::guiViewerButtonShowTemplateFitting(void) {
 
 		if (ImGui::Button("Show")) ImGui::OpenPopup("viewer_show_popup");
 
@@ -1997,7 +2017,7 @@ namespace TempReg {
 		}
 	}//guiViewerButtonShowTemplateFitting
 
-	void TempRegViewer::guiViewerButtonShowCorrEdit(void) {
+	void TempRegApplication::guiViewerButtonShowCorrEdit(void) {
 
 		if (ImGui::Button("Show")) ImGui::OpenPopup("viewer_show_popup");
 
@@ -2022,7 +2042,7 @@ namespace TempReg {
 		}
 	}//guiViewerButtonShowCorrEdit
 
-	void TempRegViewer::guiViewerButtonMeshVis(void) {
+	void TempRegApplication::guiViewerButtonMeshVis(void) {
 
 		if (ImGui::Button("Mesh Visualization")) ImGui::OpenPopup("viewer_mesh_vis");
 
@@ -2117,7 +2137,7 @@ namespace TempReg {
 		}
 	}//guiViewerButtonMeshVis
 
-	void TempRegViewer::guiViewerButtonColorization(void) {
+	void TempRegApplication::guiViewerButtonColorization(void) {
 
 		if (ImGui::Button("Dataset Colors")) ImGui::OpenPopup("viewer_dataset_colors");
 
@@ -2208,7 +2228,7 @@ namespace TempReg {
 		}
 	}//guiViewerButtonColorization
 
-	void TempRegViewer::guiViewerButtonReset(void) {
+	void TempRegApplication::guiViewerButtonReset(void) {
 
 		if (ImGui::Button("Reset")) ImGui::OpenPopup("viewer_reset");
 
@@ -2300,7 +2320,7 @@ namespace TempReg {
 		}
 	}//guiViewerButtonReset
 
-	void TempRegViewer::guiCorrEditViewDeletePopupOnKeyPress(void) {
+	void TempRegApplication::guiCorrEditViewDeletePopupOnKeyPress(void) {
 		if (m_CorrEditDeleteOnKeyPress) {
 			m_CorrEditDeleteOnKeyPress = false;
 			ImGui::OpenPopup("Delete Selected Correspondence##del_select_corr_popup_keypress");
@@ -2335,7 +2355,7 @@ namespace TempReg {
 		}// end popup window
 	}//guiCorrEditViewDeletePopupOnKeyPress
 
-	void TempRegViewer::guiCorrEditViewOverwritePopupOnKeyPress(void) {
+	void TempRegApplication::guiCorrEditViewOverwritePopupOnKeyPress(void) {
 		if (m_CorrEditOverwriteOnKeyPress) {
 			m_CorrEditOverwriteOnKeyPress = false;
 			ImGui::OpenPopup("Overwrite Correspondence##overwrite_corr_popup_keypress");
@@ -2370,7 +2390,7 @@ namespace TempReg {
 		}// end popup window
 	}//guiCorrEditViewOverwritePopupOnKeyPress
 
-	void TempRegViewer::guiCorrespondenceDataSummary(void) {
+	void TempRegApplication::guiCorrespondenceDataSummary(void) {
 		ImGui::PushID("summary_panel_");
 
 		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
@@ -2440,7 +2460,7 @@ namespace TempReg {
 		ImGui::PopID();
 	}//guiCorrespondenceDataSummary
 
-	void TempRegViewer::guiShowCorrespondenceCheckboxes(void) {
+	void TempRegApplication::guiShowCorrespondenceCheckboxes(void) {
 		if (ImGui::Checkbox("Show Feature Correspondences", &m_ShowFeatCorrMarkers)) {
 			m_TemplateDisplayData->showFeatureCorrMarkers(m_ShowFeatCorrMarkers);
 			m_FittingResDisplayData->showFeatureCorrMarkers(m_ShowFeatCorrMarkers);
@@ -2454,7 +2474,7 @@ namespace TempReg {
 		}
 	}//guiShowCorrespondenceCheckboxes
 
-	void TempRegViewer::guiSelectedCorrespondencePropertiesList(void) {
+	void TempRegApplication::guiSelectedCorrespondencePropertiesList(void) {
 		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 		if (ImGui::TreeNode("Current Selection")) {
 			ImGui::Spacing();
@@ -2538,7 +2558,7 @@ namespace TempReg {
 	//
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Quaternionf TempRegViewer::trackballRotation(ViewportIdentifier ViewportID, Vector2f CursorPosStartOGL, Vector2f CursorPosEndOGL) {
+	Quaternionf TempRegApplication::trackballRotation(ViewportIdentifier ViewportID, Vector2f CursorPosStartOGL, Vector2f CursorPosEndOGL) {
 		Vector3f Start = mapToSphereHyperbolic(CursorPosStartOGL, m_Viewports[ViewportID].VP.Position, m_Viewports[ViewportID].VP.Size);
 		Vector3f End = mapToSphereHyperbolic(CursorPosEndOGL, m_Viewports[ViewportID].VP.Position, m_Viewports[ViewportID].VP.Size);
 
@@ -2560,7 +2580,7 @@ namespace TempReg {
 		return ModelRotation;
 	}//trackballRotation
 
-	Vector3f TempRegViewer::mapToSphereHyperbolic(Vector2f CursorPosOGL, Vector2i VPOffset, Vector2i VPSize) {
+	Vector3f TempRegApplication::mapToSphereHyperbolic(Vector2f CursorPosOGL, Vector2i VPOffset, Vector2i VPSize) {
 		float Radius = 1.0f;
 		float MappedX = 2.0f * (CursorPosOGL.x() - (float)VPOffset.x()) / (float)VPSize.x() - 1.0f;
 		float MappedY = 2.0f * (CursorPosOGL.y() - (float)VPOffset.y()) / (float)VPSize.y() - 1.0f;
@@ -2573,7 +2593,7 @@ namespace TempReg {
 		return Vector3f(MappedX, MappedY, MappedZ);
 	}//mapToSphereHyperbolic
 
-	std::string TempRegViewer::guiFloatToTextLabel(float Val) {
+	std::string TempRegApplication::guiFloatToTextLabel(float Val) {
 		std::stringstream Stream;
 		std::string Res;
 
@@ -2587,13 +2607,13 @@ namespace TempReg {
 		return Res;
 	}//guiFloatToTextLabel
 	
-	void TempRegViewer::guiSpacedSeparator(void) {
+	void TempRegApplication::guiSpacedSeparator(void) {
 		ImGui::Dummy(ImVec2(0.0f, 2.0f));
 		ImGui::Separator();
 		ImGui::Dummy(ImVec2(0.0f, 2.0f));
 	}//guiSpacedSeparator
 
-	void TempRegViewer::guiTooltip(const char* Text, ImGuiHoveredFlags HoveredFlags) {
+	void TempRegApplication::guiTooltip(const char* Text, ImGuiHoveredFlags HoveredFlags) {
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
 			ImGui::BeginTooltip();
 			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 30.0f);

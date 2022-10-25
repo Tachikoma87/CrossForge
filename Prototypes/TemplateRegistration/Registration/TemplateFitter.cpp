@@ -1,8 +1,8 @@
 #include "TemplateFitter.h"
 
-#include "../../../CForge/Core/CrossForgeException.h"
-#include "../../../CForge/AssetIO/SAssetIO.h"
-#include "../../../CForge/AssetIO/T3DMesh.hpp"
+#include "../../CForge/Core/CrossForgeException.h"
+#include "../../CForge/AssetIO/SAssetIO.h"
+#include "../../CForge/AssetIO/T3DMesh.hpp"
 
 #include <cmath>
 
@@ -12,9 +12,12 @@
 
 namespace TempReg {
 
-	TemplateFitter::TemplateFitter(void) : 
-		m_TemplateActive(false), m_TargetActive(false), m_CurrentErrorCoarse(0.0f), m_ErrorDeltaCoarse(0.0f), m_MaxItFine(0), m_CurrentErrorFine(0.0f), m_ErrorDeltaFine(0.0f) {
-
+	TemplateFitter::TemplateFitter(void) {
+		m_TemplateActive = m_TargetActive = false;
+		m_TemplateGeometryType = m_TargetGeometryType = GeometryType::MESH;
+		m_CurrentErrorCoarse = m_ErrorDeltaCoarse = 0.0f;
+		m_MaxItFine = 0;
+		m_CurrentErrorFine = m_ErrorDeltaFine = 0.0f;
 	}//Constructor
 
 	TemplateFitter::~TemplateFitter() {
@@ -272,19 +275,13 @@ namespace TempReg {
 	}//computeFineFittingIteration
 
 	void TemplateFitter::computeRigidTransformation(const MatrixXf& Source, const MatrixXf& Target, Matrix3f& R, Vector3f& T) {
-		if (Source.rows() != Target.rows()) throw CForgeExcept("Mismatch between number of source points and number of target points!");
+		if (Source.cols() != Target.cols()) throw CForgeExcept("Mismatch between number of source points and number of target points!");
 
-		Vector3f SourceCoM = computeCentroid(Source);
-		Vector3f TargetCoM = computeCentroid(Target);
+		Vector3f SourceCoM = computePointCentroidFromColMajor(Source);
+		Vector3f TargetCoM = computePointCentroidFromColMajor(Target);
 
 		// compute matrix W
 		Matrix3f W = (Target.colwise() - TargetCoM) * (Source.colwise() - SourceCoM).transpose();
-
-		//TODO: verify above result by calculating it manually:
-		Matrix3f WTest = Matrix3f::Identity();
-
-		for (uint32_t i = 0; i < Source.cols(); ++i)
-			WTest += (Target.col(i) - TargetCoM) * (Source.col(i) - SourceCoM).transpose();
 
 		// compute singular value decomposition
 		JacobiSVD<Matrix3f> SVD(W, ComputeFullU | ComputeFullV);
@@ -296,10 +293,15 @@ namespace TempReg {
 		T = TargetCoM - R * SourceCoM;
 	}//computeRigidTransformation
 
-	Vector3f TemplateFitter::computeCentroid(const MatrixXf& Points) {
+	Vector3f TemplateFitter::computePointCentroidFromColMajor(const MatrixXf& Points) {
 		Vector3f CoM = Points.rowwise().sum();
 		return CoM /= float(Points.cols());
-	}//computeCentroid
+	}//computePointCentroidFromColMajor
+
+	Vector3f TemplateFitter::computePointCentroidFromRowMajor(const MatrixXf& Points) {
+		Vector3f CoM = Points.colwise().sum();
+		return CoM /= float(Points.rows());
+	}//computePointCentroidFromRowMajor
 
 	float TemplateFitter::computeAABBVolume(const MatrixXf& Points) {
 		Vector3f PointsMin = Points.rowwise().minCoeff();
@@ -319,15 +321,6 @@ namespace TempReg {
 		float Error = DistVecs.cwiseProduct(DistVecs).sum();
 		Error /= float(Source.cols());
 
-		//TODO: verify above result by calculating it manually:
-		float ErrorTest = 0.0f;
-		for (uint32_t i = 0; i < Source.cols(); ++i) {
-			Vector3f V = Target.col(i) - Source.col(i);
-			ErrorTest += V.dot(V);
-		}
-
-		ErrorTest /= float(Source.cols());
-
 		return Error;
 	}//computeResidualError
 
@@ -337,15 +330,6 @@ namespace TempReg {
 		MatrixXf DistVecs = Target - (S * Source);
 		float Error = DistVecs.cwiseProduct(DistVecs).sum();
 		Error /= float(Source.cols());
-
-		//TODO: verify above result by calculating it manually:
-		float ErrorTest = 0.0f;
-		for (uint32_t i = 0; i < Source.cols(); ++i) {
-			Vector3f V = Target.col(i) - S * Source.col(i);
-			ErrorTest += V.dot(V);
-		}
-
-		ErrorTest /= float(Source.cols());
 
 		return Error;
 	}//computeResidualError
@@ -357,15 +341,6 @@ namespace TempReg {
 		float Error = DistVecs.cwiseProduct(DistVecs).sum();
 		Error /= float(Source.cols());
 
-		//TODO: verify above result by calculating it manually:
-		float ErrorTest = 0.0f;
-		for (uint32_t i = 0; i < Source.cols(); ++i) {
-			Vector3f V = Target.col(i) - R * Source.col(i) - T;
-			ErrorTest += V.dot(V);
-		}
-		
-		ErrorTest /= float(Source.cols());
-		
 		return Error;
 	}//computeResidualError
 
@@ -375,15 +350,6 @@ namespace TempReg {
 		MatrixXf DistVecs = Target - ((R * S * Source).colwise() + T);
 		float Error = DistVecs.cwiseProduct(DistVecs).sum();
 		Error /= float(Source.cols());
-
-		//TODO: verify above result by calculating it manually:
-		float ErrorTest = 0.0f;
-		for (uint32_t i = 0; i < Source.cols(); ++i) {
-			Vector3f V = Target.col(i) - R * S * Source.col(i) - T;
-			ErrorTest += V.dot(V);
-		}
-
-		ErrorTest /= float(Source.cols());
 
 		return Error;
 	}//computeResidualError

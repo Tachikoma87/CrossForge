@@ -1,18 +1,18 @@
 #include "DatasetDisplayData.h"
 
-#include "../../../CForge/AssetIO/SAssetIO.h"
-#include "../../../Examples/SceneUtilities.hpp"
+#include "../../CForge/AssetIO/SAssetIO.h"
 
 namespace TempReg {
 
-	DatasetDisplayData::DatasetDisplayData(void) : 
-		m_DatasetRenderMode(DatasetActor::DatasetRenderMode::FILL), 
-		m_ShowAsSurface(true), 
-		m_ShowAsWireframe(false), 
-		m_pSurfaceActor(nullptr), 
-		m_pSecondaryWireframeActor(nullptr), 
-		m_ActiveColor(DatasetColor::SOLID_COLOR) {
-		
+	DatasetDisplayData::DatasetDisplayData(void) {
+		m_IsMesh = false;
+		m_DatasetRenderMode = DatasetActor::DatasetRenderMode::FILL;
+		m_ShowAsSurface = true;
+		m_ShowAsWireframe = false;
+		m_pSurfaceActor = nullptr;
+		m_pSecondaryWireframeActor = nullptr;
+		m_ActiveColor = DatasetColor::SOLID_COLOR;
+
 		m_SurfaceGeomSGN.clear();
 		m_SecondaryWireframeGeomSGN.clear();
 		m_SingleMarker.clear();
@@ -29,7 +29,21 @@ namespace TempReg {
 
 		// init raw model data
 		CForge::SAssetIO::load(Filepath, &m_RawModelData);
-		CForge::SceneUtilities::setMeshShader(&m_RawModelData, 0.4f, 0.0f);
+		
+		// set mesh shader
+		for (uint32_t i = 0; i < m_RawModelData.materialCount(); ++i) {
+			CForge::T3DMesh<float>::Material* pMat = m_RawModelData.getMaterial(i);
+
+			pMat->VertexShaderGeometryPass.push_back("Shader/BasicGeometryPass.vert");
+			pMat->FragmentShaderGeometryPass.push_back("Shader/BasicGeometryPass.frag");
+
+			pMat->VertexShaderShadowPass.push_back("Shader/ShadowPassShader.vert");
+			pMat->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");
+
+			pMat->Metallic = 0.0f;
+			pMat->Roughness = 0.4f;
+		}//for[materials]
+
 		m_RawModelData.computePerVertexNormals();
 				
 		m_ActiveColor = DatasetColor::SOLID_COLOR;
@@ -70,7 +84,21 @@ namespace TempReg {
 
 		// init raw model data
 		CForge::SAssetIO::load(Filepath, &m_RawModelData);
-		CForge::SceneUtilities::setMeshShader(&m_RawModelData, 0.4f, 0.0f);
+
+		// set mesh shader
+		for (uint32_t i = 0; i < m_RawModelData.materialCount(); ++i) {
+			CForge::T3DMesh<float>::Material* pMat = m_RawModelData.getMaterial(i);
+
+			pMat->VertexShaderGeometryPass.push_back("Shader/BasicGeometryPass.vert");
+			pMat->FragmentShaderGeometryPass.push_back("Shader/BasicGeometryPass.frag");
+
+			pMat->VertexShaderShadowPass.push_back("Shader/ShadowPassShader.vert");
+			pMat->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");
+
+			pMat->Metallic = 0.0f;
+			pMat->Roughness = 0.4f;
+		}//for[materials]
+		
 		m_RawModelData.computePerVertexNormals();
 		
 		m_ActiveColor = DatasetColor::SOLID_COLOR;
@@ -100,7 +128,7 @@ namespace TempReg {
 		m_AutoCorrMarkers.show(ShowAutoCorrMarkers);
 	}//initPointCloud
 
-	void DatasetDisplayData::updateModelData(const Matrix<float, Dynamic, 3, RowMajor>& VertexPositions) {
+	void DatasetDisplayData::updateModelData(const Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>& VertexPositions) {
 		// update raw model data
 		for (uint32_t i = 0; i < VertexPositions.rows(); ++i) m_RawModelData.vertex(i) = VertexPositions.row(i);
 
@@ -134,7 +162,7 @@ namespace TempReg {
 			m_SecondaryWireframeGeomSGN.actor(nullptr);
 			m_pSecondaryWireframeActor->release();
 			m_pSecondaryWireframeActor = new DatasetActor();
-			m_pSurfaceActor->init(&m_RawModelData, DatasetActor::DatasetRenderMode::LINE);
+			m_pSecondaryWireframeActor->init(&m_RawModelData, DatasetActor::DatasetRenderMode::LINE);
 			m_SecondaryWireframeGeomSGN.actor(m_pSecondaryWireframeActor);
 		}
 	}//updateModelData
@@ -175,6 +203,8 @@ namespace TempReg {
 		m_FeatCorrMarkers.clear();
 		m_AutoCorrMarkers.clear();
 		m_SingleMarker.clear();
+
+		m_RawModelData.clear();
 	}//clear
 
 	void DatasetDisplayData::showDatasetAsSurface(bool Show) {
@@ -297,10 +327,10 @@ namespace TempReg {
 	}//showAutomaticCorrMarkers
 
 	void DatasetDisplayData::clearFeatureCorrMarkers(void) {
-		m_FeatCorrMarkers.clear();
+		m_FeatCorrMarkers.clearMarkerInstances();
 	}//clearFeatureCorrMarkers
 
 	void DatasetDisplayData::clearAutomaticCorrMarkers(void) {
-		m_AutoCorrMarkers.clear();
+		m_AutoCorrMarkers.clearMarkerInstances();
 	}//clearAutomaticCorrMarkers
 }

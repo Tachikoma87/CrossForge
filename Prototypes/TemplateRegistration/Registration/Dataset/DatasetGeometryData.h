@@ -1,8 +1,6 @@
 #ifndef __TEMPREG_DATASETGEOMETRYDATA_H__
 #define __TEMPREG_DATASETGEOMETRYDATA_H__
 
-#include "../../../CForge/AssetIO/T3DMesh.hpp"
-
 #include <igl/embree/EmbreeIntersector.h>
 //#include <igl/AABB.h>
 //#include <igl/octree.h>
@@ -31,15 +29,14 @@ namespace TempReg {
 		void computeNormals(void);
 		void computeVertexCentroid(void);
 		void computeSurfaceCentroid(void);
-		void updateActiveBVHs(void);
 		
 		const Vector3f vertexPosition(uint32_t Idx) const;
-		const MatrixXf& vertexPositions(void) const;
-		void vertexPositions(const MatrixXf& Vertices);
+		const Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>& vertexPositions(void) const;
+		void vertexPositions(const Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>& Vertices);
 		const int32_t closestVertex(const uint32_t Face, const Vector3f SurfacePoint, float Range) const;
 		size_t vertexCount(void) const;
 		const Vector3i face(uint32_t Idx) const;
-		const MatrixXi& faces(void) const;
+		const Matrix<int, Eigen::Dynamic, 3, Eigen::RowMajor>& faces(void) const;
 		size_t faceCount(void) const;
 		const Vector3f vertexNormal(uint32_t Idx) const;
 		const Vector3f faceNormal(uint32_t Idx) const;

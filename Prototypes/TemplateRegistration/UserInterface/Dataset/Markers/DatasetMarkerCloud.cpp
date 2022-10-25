@@ -3,7 +3,7 @@
 namespace TempReg {
 
 	DatasetMarkerCloud::DatasetMarkerCloud() {
-
+		m_MarkerScale = Vector3f::Ones();
 	}//Constructor
 
 	DatasetMarkerCloud::~DatasetMarkerCloud() {
@@ -62,6 +62,13 @@ namespace TempReg {
 		m_FreeMarkerInstances.insert(MarkerID->second);
 		m_MarkerIDLookup.erase(ID);
 	}//removeMarkerInstance
+
+	void DatasetMarkerCloud::clearMarkerInstances(void) {
+		for (auto& Instance : m_MarkerInstances) Instance.clear();
+		m_MarkerInstances.clear();
+		m_FreeMarkerInstances.clear();
+		m_MarkerIDLookup.clear();
+	}//clearMarkerInstances
 
 	void DatasetMarkerCloud::show(bool Show) {
 		m_CloudRoot.enable(true, Show);

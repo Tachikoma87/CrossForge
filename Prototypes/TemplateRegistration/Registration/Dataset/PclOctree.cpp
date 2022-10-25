@@ -1,6 +1,6 @@
 #include "PclOctree.h"
 
-#include "../../../CForge/Core/CrossForgeException.h"
+#include "../../CForge/Core/CrossForgeException.h"
 
 #include <deque>
 #include <set>
@@ -11,8 +11,10 @@ namespace TempReg {
 	const Matrix<int, 8, 1> PclOctree::m_ZeroToSeven = (Matrix<int, 8, 1>() << 0, 1, 2, 3, 4, 5, 6, 7).finished();
 	const Matrix<int, 8, 1> PclOctree::m_NegativeOnes = Matrix<int, 8, 1>::Constant(-1);
 
-	PclOctree::PclOctree() : m_MaxDepth(0), m_NodeCount(0), m_PointBoundingRadius(-1.0), m_SqPointBoundingRadius(-1.0) {
-
+	PclOctree::PclOctree() {
+		m_MaxDepth = 0;
+		m_NodeCount = 0;
+		m_PointBoundingRadius = m_SqPointBoundingRadius = -1.0f;
 	}//Constructor
 
 	PclOctree::~PclOctree() {
@@ -116,19 +118,17 @@ namespace TempReg {
 		std::deque<int> NodesToTest;
 		NodesToTest.push_back(0);
 
+		// collect potential hits
 		while (!NodesToTest.empty()) {
+			const auto Testing = NodesToTest.front();
 
-			auto Testing = NodesToTest.front();
-
-			if (intersectsRayNode(RayOrigin, RayDir, Testing)) {
-
+			if (intersectsRayNode(RayOrigin, RayDir, Testing)) { // ray hits octree node
 				const auto& Children = m_NodeChildren.row(Testing);
 
 				if (Children(0, 0) == -1) { // node is leaf, holds points
-
 					for (const auto& P : m_PointIndices[Testing]) {
-						Vector3f PointPos(Points.row(P)(0), Points.row(P)(1), Points.row(P)(2));
-						if (intersectRaySphere(RayOrigin, RayDir, PointPos, m_SqPointBoundingRadius)) Hits.insert(P);
+						const Vector3f Point = Points.row(P);
+						if (intersectsRaySphere(RayOrigin, RayDir, Point, m_SqPointBoundingRadius)) Hits.insert(P);
 					}
 				}
 				else { // descend the tree
@@ -139,11 +139,11 @@ namespace TempReg {
 			NodesToTest.pop_front();
 		}
 
-		// choose closest point to ray origin //TODO: change to: choose closest point to *ray* (based on shortest distance between point and ray)
+		// select closest point to ray
 		float MinSqDist = FLT_MAX;
 		for (const auto& P : Hits) {
-			const Vector3f PointPos(Points.row(P)(0), Points.row(P)(1), Points.row(P)(2));
-			float SqDistToP = (PointPos - RayOrigin).squaredNorm();
+			const Vector3f Point = Points.row(P);
+			float SqDistToP = minSqDistPointToRay(RayOrigin, RayDir, Point);
 
 			if (SqDistToP < MinSqDist) {
 				Hit = P;
@@ -189,21 +189,15 @@ namespace TempReg {
 			Vector3f ParentCenter = TempNodeCenters[NodeIndex];
 
 			for (int i = 0; i < 8; ++i) {
-
 				TempNodeChildren.emplace_back(m_NegativeOnes);
-
 				m_PointIndices.emplace_back(std::vector<uint32_t>());
-
 				TempNodeCenters.emplace_back(translateChildCenter(ParentCenter, ChildrenWidth, i));
-
 				TempNodeWidths.emplace_back(ChildrenWidth);
 			}
 
 			// Distribute points to child nodes
 			for (int i = 0; i < m_PointIndices[NodeIndex].size(); ++i) {
-
 				int ContainedPoint = m_PointIndices[NodeIndex][i];
-
 				auto ContainingNodes = getOctants(Points.row(ContainedPoint), NodeIndex, TempNodeChildren, TempNodeCenters, TempNodeWidths);
 
 				for (auto Node : ContainingNodes) m_PointIndices[Node].emplace_back(ContainedPoint);
@@ -292,14 +286,14 @@ namespace TempReg {
 		float TFirst = 0.0f;
 		float TLast = FLT_MAX;
 
-		if (!intersectRaySlab(RayOrigin.x(), RayDir.x(), AABBMin.x(), AABBMax.x(), TFirst, TLast)) return false;
-		if (!intersectRaySlab(RayOrigin.y(), RayDir.y(), AABBMin.y(), AABBMax.y(), TFirst, TLast)) return false;
-		if (!intersectRaySlab(RayOrigin.z(), RayDir.z(), AABBMin.z(), AABBMax.z(), TFirst, TLast)) return false;
+		if (!intersectsRaySlab(RayOrigin.x(), RayDir.x(), AABBMin.x(), AABBMax.x(), TFirst, TLast)) return false;
+		if (!intersectsRaySlab(RayOrigin.y(), RayDir.y(), AABBMin.y(), AABBMax.y(), TFirst, TLast)) return false;
+		if (!intersectsRaySlab(RayOrigin.z(), RayDir.z(), AABBMin.z(), AABBMax.z(), TFirst, TLast)) return false;
 
 		return true;
 	}//intersectsRayNode
 
-	const bool PclOctree::intersectRaySlab(float RayOrigin, float RayDir, float Min, float Max, float& TFirst, float& TLast) const {
+	const bool PclOctree::intersectsRaySlab(float RayOrigin, float RayDir, float Min, float Max, float& TFirst, float& TLast) const {
 		if (std::abs(RayDir) < 1e-8) return RayOrigin < Max && RayOrigin > Min;
 
 		double TMin = (Min - RayOrigin) / RayDir;
@@ -311,9 +305,9 @@ namespace TempReg {
 		if (TMax < TLast) TLast = TMax;
 
 		return true;
-	}//intersectRaySlab
+	}//intersectsRaySlab
 
-	const bool PclOctree::intersectRaySphere(const Vector3f& RayOrigin, const Vector3f& RayDir, const Vector3f& SphereCenter, const float SphereRadiusSq) const {
+	const bool PclOctree::intersectsRaySphere(const Vector3f& RayOrigin, const Vector3f& RayDir, const Vector3f& SphereCenter, const float SphereRadiusSq) const {
 		Vector3f Diff = RayOrigin - SphereCenter;
 		float C = Diff.dot(Diff) - SphereRadiusSq;		
 		if (C <= 0.0f) return true;
@@ -325,5 +319,10 @@ namespace TempReg {
 		if (Disc < 0.0f) return false;
 
 		return true;
-	}//intersectRaySphere
+	}//intersectsRaySphere
+
+	const float PclOctree::minSqDistPointToRay(const Vector3f& RayOrigin, const Vector3f& RayDir, const Vector3f& Point) const {
+		float T0 = (RayDir.dot(Point - RayOrigin)) / (RayDir.dot(RayDir));
+		return (T0 <= 0.0f) ? (Point - RayOrigin).squaredNorm() : (Point - (RayOrigin + T0 * RayDir)).squaredNorm();
+	}//minSqDistPointToRay
 }

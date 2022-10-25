@@ -1,6 +1,7 @@
 #include "DatasetGeometryData.h"
 
-#include "../../../CForge/AssetIO/SAssetIO.h"
+#include "../../CForge/AssetIO/T3DMesh.hpp"
+#include "../../CForge/AssetIO/SAssetIO.h"
 
 #include <igl/unproject_ray.h>
 #include <igl/embree/unproject_onto_mesh.h>
@@ -8,7 +9,7 @@
 namespace TempReg {
 
 	DatasetGeometryData::DatasetGeometryData(void) {
-
+		m_IsMesh = false;
 	}//Constructor
 
 	DatasetGeometryData::~DatasetGeometryData() {
@@ -87,7 +88,7 @@ namespace TempReg {
 		m_VertexCentroid = Vector3f::Zero();
 		m_SurfaceCentroid = Vector3f::Zero();
 
-		if (m_IsMesh) m_EI.deinit();
+		// NOTE: do not call m_EI.deinit() -> will be called automatically when executing m_EI.init(...) if m_EI was already initialized atleast once before during the lifetime of m_EI
 		if (!m_IsMesh) m_PclBVH.clear();
 		m_IsMesh = false;
 	}//clear
@@ -101,7 +102,7 @@ namespace TempReg {
 			computeFaceNormals();
 			computeVertexNormals();
 			computeSurfaceCentroid();
-			m_EI.deinit();
+			// NOTE: do not call m_EI.deinit() -> will be called automatically when executing m_EI.init(...) if m_EI was already initialized atleast once before during the lifetime of m_EI
 			m_EI.init(m_Positions, m_Faces);
 		}
 		else {
@@ -118,7 +119,7 @@ namespace TempReg {
 			computeFaceNormals();
 			computeVertexNormals();
 			computeSurfaceCentroid();
-			m_EI.deinit();
+			// NOTE: do not call m_EI.deinit() -> will be called automatically when executing m_EI.init(...) if m_EI was already initialized atleast once before during the lifetime of m_EI
 			m_EI.init(m_Positions, m_Faces);
 		}
 		else {
@@ -136,7 +137,7 @@ namespace TempReg {
 			computeFaceNormals();
 			computeVertexNormals();
 			computeSurfaceCentroid();
-			m_EI.deinit();
+			// NOTE: do not call m_EI.deinit() -> will be called automatically when executing m_EI.init(...) if m_EI was already initialized atleast once before during the lifetime of m_EI
 			m_EI.init(m_Positions, m_Faces);
 		}
 		else {
@@ -155,7 +156,7 @@ namespace TempReg {
 			computeFaceNormals();
 			computeVertexNormals();
 			computeSurfaceCentroid();
-			m_EI.deinit();
+			// NOTE: do not call m_EI.deinit() -> will be called automatically when executing m_EI.init(...) if m_EI was already initialized atleast once before during the lifetime of m_EI
 			m_EI.init(m_Positions, m_Faces);
 		}
 		else {
@@ -192,28 +193,16 @@ namespace TempReg {
 		m_SurfaceCentroid /= AreaSum;
 	}//computeSurfaceCentroid
 
-	void DatasetGeometryData::updateActiveBVHs(void) {
-		if (m_IsMesh) {
-			m_EI.deinit();
-			m_EI.init(m_Positions, m_Faces);
-
-			//TODO: update MeshClpBVH
-		}
-		else { // dataset is a point cloud
-			m_PclBVH.generate(m_Positions);
-		}
-	}//updateBVH
-
 	const Vector3f DatasetGeometryData::vertexPosition(uint32_t Idx) const {
 		Vector3f Vertex = m_Positions.row(Idx);
 		return Vertex;
 	}//vertexPosition
 
-	const MatrixXf& DatasetGeometryData::vertexPositions(void) const {
+	const Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>& DatasetGeometryData::vertexPositions(void) const {
 		return m_Positions;
 	}//vertexPositions
 
-	void DatasetGeometryData::vertexPositions(const MatrixXf& Vertices) {
+	void DatasetGeometryData::vertexPositions(const Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>& Vertices) {
 		m_Positions.resize(Vertices.rows(), Vertices.cols());
 		m_Positions = Vertices;
 	}//vertexPositions
@@ -261,7 +250,7 @@ namespace TempReg {
 		return Face;
 	}//face
 
-	const MatrixXi& DatasetGeometryData::faces(void) const {
+	const Matrix<int, Eigen::Dynamic, 3, Eigen::RowMajor>& DatasetGeometryData::faces(void) const {
 		return m_Faces;
 	}//faces
 

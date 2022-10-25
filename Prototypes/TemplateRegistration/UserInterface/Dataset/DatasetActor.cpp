@@ -4,8 +4,8 @@
 
 namespace TempReg {
 
-	DatasetActor::DatasetActor(void) : CForge::IRenderableActor("DatasetActor", 10), m_RenderMode(DatasetRenderMode::POINT) {
-
+	DatasetActor::DatasetActor(void) : CForge::IRenderableActor("DatasetActor", 10) {
+		m_RenderMode = DatasetRenderMode::POINT;
 	}//Constructor
 
 	DatasetActor::~DatasetActor(void) {

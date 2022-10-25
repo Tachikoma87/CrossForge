@@ -27,8 +27,6 @@
 
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 
-#include "Prototypes/TestScenes/TemplateRegistrationTestScene.hpp"
-
 
 using namespace CForge;
 using namespace Eigen;
@@ -63,7 +61,7 @@ int main(int argc, char* argv[]) {
 		//exampleSceneBase();
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
-		//exampleMultiViewport();
+		exampleMultiViewport();
 		//exampleSkeletalAnimation(); 
 		//exampleSkybox();  
 		//exampleSockets();
@@ -80,8 +78,6 @@ int main(int argc, char* argv[]) {
 		//S.guiTestScene();
 
 		//imageTestScene();
-
-		tempRegTestScene();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

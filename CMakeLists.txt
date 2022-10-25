@@ -25,7 +25,6 @@ project (CForgeSandbox)
 
 # Additional packages not alreday included in the core library
 FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
-FIND_PACKAGE(imgui CONFIG REQUIRED) # for Template Registration
 
 # enable OpenCV support
 if(USE_OPENCV)
@@ -59,17 +58,6 @@ add_executable(CForgeSandbox
 	Prototypes/LODHandler.cpp
 	Prototypes/UBOInstancedData.cpp
 	Prototypes/MeshDecimate.cpp
-
-	# for Template Registration
-	Prototypes/TemplateRegistration/Registration/TemplateFitter.cpp
-	Prototypes/TemplateRegistration/Registration/Dataset/DatasetGeometryData.cpp
-	Prototypes/TemplateRegistration/Registration/Dataset/PclOctree.cpp
-	Prototypes/TemplateRegistration/Viewer/TempRegViewer.cpp
-	Prototypes/TemplateRegistration/Viewer/Dataset/DatasetActor.cpp
-	Prototypes/TemplateRegistration/Viewer/Dataset/DatasetDisplayData.cpp
-	Prototypes/TemplateRegistration/Viewer/Dataset/Markers/DatasetMarkerCloud.cpp
-	Prototypes/TemplateRegistration/Viewer/Dataset/Markers/DatasetMarkerInstance.cpp
-	Prototypes/TemplateRegistration/Viewer/Dataset/Markers/DatasetMarkerActor.cpp
 	)
 
 
@@ -81,10 +69,6 @@ if(WIN32)
 	ws2_32
 	PRIVATE tinyxml2::tinyxml2
 #	${FREETYPE_LIBRARIES}
-	
-	# for Template Registration
-	PRIVATE imgui::imgui
-	PRIVATE igl::embree
 	)
 endif (WIN32)
 
@@ -97,10 +81,6 @@ if(UNIX)
 #		PRIVATE assimp
 		PRIVATE gpiod
 		PRIVATE dl	
-
-		 # for Template Registration
-		PRIVATE imgui::imgui
-		PRIVATE igl::embree
 		)
 endif(UNIX)
 
@@ -141,4 +121,80 @@ target_link_libraries(ExportLibrary PRIVATE crossforge)
 
 include_directories(
 	"./"
+)
+
+######## Project - Template Registration Application ######################
+project(TempRegApp)
+
+FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
+FIND_PACKAGE(imgui CONFIG REQUIRED) # for Template Registration
+
+add_executable(TempRegApp 
+	TempRegMain.cpp
+	
+	Prototypes/TemplateRegistration/Registration/TemplateFitter.cpp
+	Prototypes/TemplateRegistration/Registration/Dataset/DatasetGeometryData.cpp
+	Prototypes/TemplateRegistration/Registration/Dataset/PclOctree.cpp
+
+	Prototypes/TemplateRegistration/UserInterface/TempRegApplication.cpp
+	Prototypes/TemplateRegistration/UserInterface/Dataset/DatasetActor.cpp
+	Prototypes/TemplateRegistration/UserInterface/Dataset/DatasetDisplayData.cpp
+	Prototypes/TemplateRegistration/UserInterface/Dataset/Markers/DatasetMarkerCloud.cpp
+	Prototypes/TemplateRegistration/UserInterface/Dataset/Markers/DatasetMarkerInstance.cpp
+	Prototypes/TemplateRegistration/UserInterface/Dataset/Markers/DatasetMarkerActor.cpp
+)
+
+if(WIN32)
+	target_link_libraries(TempRegApp 
+	PRIVATE crossforge
+	PRIVATE glfw 
+	PRIVATE glad::glad
+	ws2_32
+	PRIVATE tinyxml2::tinyxml2
+#	${FREETYPE_LIBRARIES}
+	PRIVATE imgui::imgui
+	PRIVATE igl::embree
+	)
+endif (WIN32)
+
+if(UNIX)
+	target_link_libraries(TempRegApp 
+		PRIVATE crossforge
+		PRIVATE glfw 
+		PRIVATE glad::glad
+		PRIVATE tinyxml2::tinyxml2
+#		PRIVATE assimp
+		PRIVATE gpiod
+		PRIVATE imgui::imgui
+		PRIVATE igl::embree
+		)
+endif(UNIX)
+
+#copy shaders
+add_custom_command(
+	TARGET TempRegApp PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${CMAKE_SOURCE_DIR}/CForge/Shader
+	${CMAKE_CURRENT_BINARY_DIR}/Shader
+)
+add_custom_command(
+	TARGET TempRegApp PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
+	${CMAKE_CURRENT_BINARY_DIR}/Shader
+)
+
+#copy assets
+add_custom_command(
+	TARGET TempRegApp PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/Assets
+	${CMAKE_CURRENT_BINARY_DIR}/Assets
+)
+
+add_custom_command(
+	TARGET TempRegApp PRE_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+	${CMAKE_SOURCE_DIR}/MyAssets
+	${CMAKE_CURRENT_BINARY_DIR}/MyAssets
 )

@@ -1,14 +1,15 @@
 #ifndef __TEMPREG_DATASETMARKERINSTANCE_H__
 #define __TEMPREG_DATASETMARKERINSTANCE_H__
 
-#include "../../../CForge/AssetIO/T3DMesh.hpp"
-#include "../../../CForge/Graphics/SceneGraph/ISceneGraphNode.h"
-#include "../../../CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "../../../CForge/Graphics/SceneGraph/SGNTransformation.h"
-#include "DatasetMarkerActor.h"
-//#include "../../../CForge/Graphics/Actors/StaticActor.h"
+#include "../../CForge/AssetIO/T3DMesh.hpp"
+
+#include "../../CForge/Graphics/SceneGraph/ISceneGraphNode.h"
+#include "../../CForge/Graphics/SceneGraph/SGNGeometry.h"
+#include "../../CForge/Graphics/SceneGraph/SGNTransformation.h"
 
 #include <Eigen/Eigen>
+
+#include "DatasetMarkerActor.h"
 
 using namespace Eigen;
 

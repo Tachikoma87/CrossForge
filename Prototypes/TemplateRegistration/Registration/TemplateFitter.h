@@ -41,7 +41,13 @@ namespace TempReg {
 			Vector3f TargetPointPos;
 			Vector3f TargetPointNormal;
 
-			Correspondence() : Type(CorrespondenceType::NONE), DistanceEuclidean(FLT_MAX), TemplateVertex(-1), TargetPoint(-1), TargetPointPos(Vector3f::Zero()), TargetPointNormal(Vector3f::Zero()) {}
+			Correspondence() {
+				Type = CorrespondenceType::NONE;
+				DistanceEuclidean = FLT_MAX;
+				TemplateVertex = TargetPoint = -1;
+				TargetPointPos = Vector3f::Zero();
+				TargetPointNormal = Vector3f::Zero();
+			}
 		};
 
 		TemplateFitter(void);
@@ -79,7 +85,8 @@ namespace TempReg {
 	private:
 		void computeRigidTransformation(const MatrixXf& Source, const MatrixXf& Target, Matrix3f& R, Vector3f& T);
 
-		Vector3f computeCentroid(const MatrixXf& Points);
+		Vector3f computePointCentroidFromColMajor(const MatrixXf& Points);
+		Vector3f computePointCentroidFromRowMajor(const MatrixXf& Points);
 		//void computeConvexHull(const MatrixXf& Points, ...); //TODO?
 		
 		float computeAABBVolume(const MatrixXf& Points);

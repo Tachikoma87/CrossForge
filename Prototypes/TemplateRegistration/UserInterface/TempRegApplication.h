@@ -1,16 +1,19 @@
-#ifndef __TEMPREG_TEMPREGVIEWER_H__
-#define __TEMPREG_TEMPREGVIEWER_H__
+#ifndef __TEMPREG_TEMPREGAPPLICATION_H__
+#define __TEMPREG_TEMPREGAPPLICATION_H__
 
-#include "../../../CForge/AssetIO/T3DMesh.hpp"
-#include "../../../CForge/Graphics/GLWindow.h"
-#include "../../../CForge/Graphics/Shader/SShaderManager.h"
-#include "../../../CForge/Graphics/RenderDevice.h"
-#include "../../../CForge/Graphics/Lights/DirectionalLight.h"
-#include "../../../CForge/Graphics/Lights/PointLight.h"
-#include "../../../CForge/Graphics/VirtualCamera.h"
-#include "../../../CForge/Graphics/SceneGraph/SceneGraph.h"
-#include "../../../CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "../../../CForge/Graphics/SceneGraph/SGNTransformation.h"
+#include "../../CForge/Core/ITListener.hpp"
+
+#include "../../CForge/AssetIO/T3DMesh.hpp"
+
+#include "../../CForge/Graphics/GLWindow.h"
+#include "../../CForge/Graphics/Shader/SShaderManager.h"
+#include "../../CForge/Graphics/RenderDevice.h"
+#include "../../CForge/Graphics/Lights/DirectionalLight.h"
+#include "../../CForge/Graphics/Lights/PointLight.h"
+#include "../../CForge/Graphics/VirtualCamera.h"
+#include "../../CForge/Graphics/SceneGraph/SceneGraph.h"
+#include "../../CForge/Graphics/SceneGraph/SGNGeometry.h"
+#include "../../CForge/Graphics/SceneGraph/SGNTransformation.h"
 
 #include <Eigen/Eigen>
 #include <imgui.h>
@@ -27,7 +30,8 @@
 using namespace Eigen;
 
 namespace TempReg {
-	class TempRegViewer {
+
+	class TempRegApplication : public CForge::ITListener<CForge::GLWindowMsg> { //TODO: override listen(...) function for window resize events
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// 
@@ -99,8 +103,12 @@ namespace TempReg {
 			Vector3f OrbitEye, OrbitTarget;
 			float OrbitZoom;
 
-			Viewport(void) :
-				TemplateVisible(false), TargetVisible(false), FittingResVisible(false), ProjMode(ProjectionMode::PERSPECTIVE), OrbitEye(Vector3f::Zero()), OrbitTarget(Vector3f::Zero()), OrbitZoom(0.0f) {}
+			Viewport(void) {
+				TemplateVisible = TargetVisible = FittingResVisible = false;
+				ProjMode = ProjectionMode::PERSPECTIVE;
+				OrbitEye = OrbitTarget = Vector3f::Zero(); 
+				OrbitZoom = 0.0f;
+			}
 		};
 
 		struct CreateSelection {
@@ -109,14 +117,76 @@ namespace TempReg {
 			int32_t TemplatePointID;
 			int32_t TargetPointID;
 			int32_t TargetFace;
+			Vector3f TemplatePointPos;
+			Vector3f TemplatePointNormal;
 			Vector3f TargetPointPos;
 			Vector3f TargetPointNormal;
 			float DistanceEuclidean;
 			// additional correspondence properties here...
 
-			CreateSelection(void) :
-				TemplatePointSelected(false), TargetPointSelected(false), TemplatePointID(-1), TargetPointID(-1), TargetFace(-1), TargetPointPos(Vector3f::Zero()), 
-				TargetPointNormal(Vector3f::Zero()), DistanceEuclidean(FLT_MAX) {}
+			CreateSelection(void) {
+				clear();
+			}//Constructor
+
+			void clear(void) {
+				// template data
+				TemplatePointSelected = false;
+				TemplatePointID = -1;
+				TemplatePointPos = Vector3f::Zero();
+				TemplatePointNormal = Vector3f::Zero();
+
+				// target data
+				TargetPointSelected = false;
+				TargetPointID = -1;
+				TargetFace = -1;
+				TargetPointPos = Vector3f::Zero();
+				TargetPointNormal = Vector3f::Zero();
+
+				// distances
+				DistanceEuclidean = FLT_MAX;
+			}//clear
+
+			void clearTemplateData(void) {
+				TemplatePointSelected = false;
+				TemplatePointID = -1;
+				TemplatePointPos = Vector3f::Zero();
+				TemplatePointNormal = Vector3f::Zero();
+				DistanceEuclidean = FLT_MAX;
+			}//clearTemplateData
+
+			void clearTargetData(void) {
+				TargetPointSelected = false;
+				TargetPointID = -1;
+				TargetFace = -1;
+				TargetPointPos = Vector3f::Zero();
+				TargetPointNormal = Vector3f::Zero();
+				DistanceEuclidean = FLT_MAX;
+			}//clearTargetData
+
+			void setTemplateData(int32_t PointID, Vector3f Pos, Vector3f Normal) {
+				TemplatePointSelected = true;
+				TemplatePointID = PointID;
+				TemplatePointPos = Pos;
+				TemplatePointNormal = Normal;
+				DistanceEuclidean = (TargetPointSelected) ? (TemplatePointPos - TargetPointPos).norm() : FLT_MAX;
+			}//setTemplateData
+
+			void setTargetData(int32_t PointID, int32_t Face, Vector3f Pos, Vector3f Normal) {
+				TargetPointSelected = true;
+				TargetPointID = PointID;
+				TargetFace = Face;
+				TargetPointPos = Pos;
+				TargetPointNormal = Normal;
+				DistanceEuclidean = (TargetPointSelected) ? (TemplatePointPos - TargetPointPos).norm() : FLT_MAX;
+			}//setTargetData
+
+			const bool ready(void) const {
+				return TemplatePointSelected && TargetPointSelected;
+			}//ready
+
+			const bool hasSelection(void) const {
+				return TemplatePointSelected || TargetPointSelected;
+			}//hasSelection
 		};
 
 		struct RayGeometryIntersection {
@@ -126,8 +196,17 @@ namespace TempReg {
 			Vector3f MeshIntersection;
 			Vector3f BarycentricCoords;
 
-			RayGeometryIntersection(void) :
-				Dataset(DatasetIdentifier::NONE), Face(-1), PclPoint(-1), MeshIntersection(Vector3f::Zero()), BarycentricCoords(Vector3f::Zero()) {}
+			RayGeometryIntersection(void) {
+				clear();
+			}//Constructor
+
+			void clear(void) {
+				Dataset = DatasetIdentifier::NONE;
+				Face = -1;
+				PclPoint = -1;
+				MeshIntersection = Vector3f::Zero();
+				BarycentricCoords = Vector3f::Zero();
+			}//clear
 		};
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,20 +216,16 @@ namespace TempReg {
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		CForge::GLWindow m_RenderWin;
-		CForge::SShaderManager* m_pSMan;
-		CForge::RenderDevice m_RDev;
-		CForge::RenderDevice::RenderDeviceConfig m_Config;
-		CForge::ShaderCode::LightConfig m_LC;
+		CForge::SShaderManager* m_pShaderMan;
+		CForge::RenderDevice m_RenderDev;
 		CForge::DirectionalLight m_Sun;
-		CForge::PointLight m_BGLight;
 		CForge::RenderDevice::Viewport m_GBufferVP;
 		std::string m_WindowTitle;
-		uint32_t m_GBufferWidth;
-		uint32_t m_GBufferHeight;
 		uint64_t m_LastFPSPrint;
 		int32_t m_FPSCount;
 		float m_FPS;
 		bool m_RenderScreenshot;
+		uint32_t m_ScreenshotCount;
 		bool m_CloseRenderWin;
 		
 		std::array<Viewport, ViewportIdentifier::VIEWPORT_COUNT> m_Viewports;
@@ -199,8 +274,7 @@ namespace TempReg {
 		ImU32 m_CheckMarkGreenCol;
 		ImU32 m_CheckMarkYellowCol;
 		
-		ImVec2 m_SideMenuWinSize;
-		ImVec2 m_ViewerCtrlWinSize;
+		float m_SideMenuWinWidth;
 		Vector4f m_ViewportContentArea; // bounding box around entire section reserved for viewports displaying datasets; in OpenGL coordinates (origin in lower left corner)
 
 		bool m_CoarseFitScaleTemplate;
@@ -221,26 +295,25 @@ namespace TempReg {
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public:
-		TempRegViewer(void);
-		~TempRegViewer();
+		TempRegApplication(void);
+		~TempRegApplication();
 
-		void init(void); //TODO
-		void initTemplateFromFile(TemplateFitter::GeometryType GeometryType, std::string Filepath);
-		void initTargetFromFile(TemplateFitter::GeometryType GeometryType, std::string Filepath);
-
-		void processInput(void);
-		void render(void);
-		bool shutdown(void);
-		void finishFrame(void);
-		void releaseShaderManager(void);
-				
+		void run(void);
+					
 	private:
 		void initViewports(void);
 		void initMarkerActors(std::string Filepath);
+		void initTemplateMeshFromFile(std::string Filepath);
+		void initTargetMeshFromFile(std::string Filepath);
+		void initTargetPclFromFile(std::string Filepath);
 
+		void listen(CForge::GLWindowMsg Msg);
+		void processInput(void);
 		void processGeneralKeyboardInput(void);
 		void processViewportContentAreaInput(void);
 		void processGUIInput(void);
+
+		void render(void);
 		
 		void resizeActiveViewports(void);
 		std::vector<Vector4f> calculateViewportTiling(void);

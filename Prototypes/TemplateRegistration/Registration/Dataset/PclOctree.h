@@ -45,8 +45,9 @@ namespace TempReg {
 		float sqDistToNode(const Vector3f& Point, const Vector3f& NodeCenter, const float& NodeWidth);
 
 		const bool intersectsRayNode(const Vector3f& RayOrigin, const Vector3f& RayDir, const int NodeIndex) const;
-		const bool intersectRaySlab(const float RayOrigin, const float RayDir, const float Min, const float Max, float& TFirst, float& TLast) const;
-		const bool intersectRaySphere(const Vector3f& RayOrigin, const Vector3f& RayDir, const Vector3f& SphereCenter, const float SphereRadiusSq) const;
+		const bool intersectsRaySlab(const float RayOrigin, const float RayDir, const float Min, const float Max, float& TFirst, float& TLast) const;
+		const bool intersectsRaySphere(const Vector3f& RayOrigin, const Vector3f& RayDir, const Vector3f& SphereCenter, const float SphereRadiusSq) const;
+		const float minSqDistPointToRay(const Vector3f& RayOrigin, const Vector3f& RayDir, const Vector3f& Point) const;
 
 		// Useful lists of numbers
 		static const Matrix<int, 8, 1> m_ZeroToSeven;

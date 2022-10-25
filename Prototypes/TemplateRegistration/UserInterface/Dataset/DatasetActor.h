@@ -1,8 +1,8 @@
 #ifndef __TEMPREG_DATASETACTOR_H__
 #define __TEMPREG_DATASETACTOR_H__
 
-#include "../../../CForge/AssetIO/T3DMesh.hpp"
-#include "../../../CForge/Graphics/Actors/StaticActor.h"
+#include "../../CForge/AssetIO/T3DMesh.hpp"
+#include "../../CForge/Graphics/Actors/StaticActor.h"
 
 namespace TempReg {
 	

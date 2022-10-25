@@ -22,6 +22,7 @@ namespace TempReg {
 
 		void addMarkerInstance(size_t ID, const Vector3f MarkerPos, DatasetMarkerActor* pActor);
 		void removeMarkerInstance(size_t ID);
+		void clearMarkerInstances(void);
 
 		void show(bool Show);
 
