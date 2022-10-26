@@ -287,8 +287,10 @@ namespace CForge {
         void registerKeyPressEvent(BaseWidget* widget);
 
         /** \brief      Passes the entered character on to the focused widget.
-         *              In the past, this used to receive the glfwSetCharCallback() more directly,
-         *              hence it being a function of its own. Now it just passes the characters on.
+         *
+         *  In the past, this used to receive the glfwSetCharCallback() more directly,
+         *  hence it being a function of its own. Now it just passes the characters on.
+         *
          *  \param[in]  codepoint    The 32-bit Unicode representation of the entered character.
          *  \sa         CForge::Keyboard glfwSetCharCallback() */
         void listen(char32_t codepoint) override;
@@ -359,6 +361,13 @@ namespace CForge {
          * Registers the widget to its top level widget as accepting of events of the
          * specified type.
          *
+         * The reference to the widget will be added to the lists of the respective
+         * TopLevelWidgetHandler in such a way, that it remains sorted by
+         * CForge::BaseWidget::m_level in descending order. Because the search for
+         * the clicked-on widget will stop after the first viable candidate widget has
+         * been found, this effectively prevents larger parent widgets from stealing
+         * input meant for their smaller child widgets.
+         *
          * \param[in] widget    The widget to register for the events.
          * \param[in] et        The event type the widget should be registered to.
          * \sa registerMouseDownEvent registerMouseDragEvent
@@ -387,7 +396,8 @@ namespace CForge {
          * The checks rely on the top level widgets for accurate results and good
          * performance. See TopLevelWidgetHandler for more details.
          *
-         * This function triggers both current mouse events: left click and dragging.
+         * This function triggers both current mouse events (left click and dragging)
+         * and the focus event for any type of event.
          *
          * \param[in] widget    The widget to register as top level widget.
          * \sa TopLevelWidgetHandler
@@ -411,9 +421,9 @@ namespace CForge {
         FT_Library library;                     ///< The FreeType library handler.
 
         CForge::GLWindow* m_pWin;               ///< Reference to the GLWindow the GUI is shown in.
-        BaseWidget* focusedWidget = nullptr;    /**< Reference to the widget that was last clicked.
+        BaseWidget* focusedWidget = nullptr;    /**< \brief Reference to the widget that was last clicked.
                                                      Only the focused widget will receive keyboard inputs. **/
-        Eigen::Vector2f focusedClickOffset;     /**< The cursor position within a widget when the mouse button was clicked.
+        Eigen::Vector2f focusedClickOffset;     /**< \brief The cursor position within a widget when the mouse button was clicked.
                                                      Used to calculate CForge::mouseEventInfo::adjustedPosition **/
 
         /**

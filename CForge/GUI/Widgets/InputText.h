@@ -6,7 +6,7 @@
 *          .                                         *
 *                                                                           *
 *                                                                           *
-* Author(s): Tom Uhlmann                                                    *
+* Author(s): Simon Kretzschmar, Tom Uhlmann                                                    *
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
@@ -20,6 +20,15 @@
 
 #include "../Widget.h"
 #include "../GUI.h"
+
+/* IDEA:
+The widget could be refactored to be split into an inheritable
+base class and the specific text input class seen here. That would
+mostly amount to splitting out \ref m_value (and related code) and
+\ref m_limits. Would allow for more minimal adaptations to other
+inputs (see also CForge::InputSliderWidget_Text, currently is
+keeping the string value variables around despite them being
+unused). */
 
 namespace CForge {
     class InputTextWidget;
@@ -92,6 +101,19 @@ namespace CForge {
         //     void onClick(mouseEventInfo mouse) override;
         /**
          * \brief Receive user text input.
+         *
+         * Inputs apart from Enter/Return are passed on to the CForge::TextWidget
+         * used to display the entered text. Once either Enter is pressed
+         * or the user clicks away from the text widget, the text widget's
+         * current text is requested and run through \ref validateInput.
+         * If it is accepted as valid, it is in turn written into \ref m_value.
+         * Otherwise, it is higlighted as invalid and m_value remains
+         * unmodified at the last valid value.
+         *
+         * As mentioned elsewhere, registering for any kind of event also
+         * enables receiving of focus callbacks. Those are used for color
+         * highlighting to indicate input is being accepted.
+         *
          * \param[in] c         Entered character.
          */
         void onKeyPress(char32_t c) override;
@@ -112,18 +134,30 @@ namespace CForge {
          *
          * By default checks if the length complies with the set limits.
          * However, it can be overwritten to do any other checks.
+         * For example, in CForge::InputSliderWidget_Text it is overwritten
+         * to check if the input can be parsed as float value and if so,
+         * sets its parent CForge::InputSliderWidget's value accordingly.
          */
         virtual bool validateInput();
-        std::u32string m_value;
-        TextWidget* m_text;
+        std::u32string m_value;     ///< The widget's (last) valid input or `U""` if no valide input was ever entered.
+        TextWidget* m_text;         ///< Reference to the text widget used to display the inputs.
     private:
+        /**
+         * \brief Recompute the widget's layout information.
+         *
+         * Since text input changes the width of the widget, this function
+         * includes the necessary logic to compute the new total width
+         * and height and move the InputTextWidget_ClearButton to its
+         * proper new location on-screen.
+         */
         void recalculateLayout();
 
+        /// Struct containing the set limitations.
         struct {
-            int min;
-            int max;
-        } m_limits;
-        InputTextWidget_ClearButton* m_clear;
+            int min;                ///< The lower limit.
+            int max;                ///< The upper limit.
+        } m_limits;                 ///< Currently applied limitations.
+        InputTextWidget_ClearButton* m_clear;   ///< Reference to the clear button.
     };
 
 }//name space

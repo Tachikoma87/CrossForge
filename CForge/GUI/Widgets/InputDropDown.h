@@ -148,6 +148,12 @@ namespace CForge {
 
     /**
      * \brief An input widget realising a drop down menu.
+     *
+     * Implements an input mechanic commonly called a drop down menu.
+     * That is, it indicates the currently selected value and, only
+     * upon clicking the widget, will show a list of all predefined
+     * possible values for the user to select one.
+     *
      * \ingroup GUI
      */
     class CFORGE_API InputDropDownWidget : public BaseWidget {
