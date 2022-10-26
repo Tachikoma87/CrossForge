@@ -18,6 +18,7 @@
 #include "Examples/exampleSkybox.hpp"
 #include "Examples/exampleMultiViewport.hpp"
 #include "Examples/exampleSockets.hpp"
+#include "Examples/exampleShapeDeformer.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
@@ -63,7 +64,8 @@ int main(int argc, char* argv[]) {
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
-		exampleSkeletalAnimation(); 
+		//exampleSkeletalAnimation(); 
+		exampleShapeDeformer();
 		//exampleSkeletalAnimationThrice(); 
 		//exampleSkeletonCollisionResolver();
 		//exampleSkybox();

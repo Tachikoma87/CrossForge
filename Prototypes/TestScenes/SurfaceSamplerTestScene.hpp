@@ -30,7 +30,7 @@ namespace CForge {
 	public:
 		SurfaceSamplerTestScene(void) {
 			m_WindowTitle = "CForge Prototype - Surface Sampler";
-			m_SampleCount = 30;
+			m_SampleCount = 1000;
 		}//Constructor
 
 		~SurfaceSamplerTestScene(void) {
@@ -57,10 +57,19 @@ namespace CForge {
 			m_Sphere.init(&M);
 			M.clear();
 
-			SAssetIO::load("Assets/tmp/MuscleManPosed.obj", &m_ModelData);
+			//SAssetIO::load("Assets/tmp/MuscleManPosed.obj", &m_ModelData);
+			SAssetIO::load("Assets/tmp/MuscleManWalking.glb", &m_ModelData);
+			//SAssetIO::load("Assets/ExampleScenes/Eric_Anim.fbx", &m_ModelData);
+			//SAssetIO::load("Assets/tmp/WalkingSittingEve.glb", &m_ModelData);
+			m_ModelData.mergeRedundantVertices();
+
 			setMeshShader(&m_ModelData, 0.1f, 0.04f);
 			m_ModelData.computePerVertexNormals();
+			
 			m_Surface.init(&m_ModelData);
+
+			//m_MuscleManController.init(&m_ModelData);
+			//m_MuscleMan.init(&m_ModelData, &m_MuscleManController);
 
 
 			// build scene graph	
@@ -74,7 +83,9 @@ namespace CForge {
 			// add muscle man		
 			m_MuscleManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
 			m_MuscleManTransformSGN.scale(Vector3f(1.0f / 40.0f, 1.0f / 40.0f, 1.0f / 40.0f));
+			
 			m_MuscleManSGN.init(&m_MuscleManTransformSGN, &m_Surface);
+			//m_MuscleManSGN.init(&m_MuscleManTransformSGN, &m_MuscleMan);
 
 			// rotate about the y-axis at 45 degree every second
 			Quaternionf R = Quaternionf::Identity();
@@ -116,7 +127,10 @@ namespace CForge {
 
 
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_0, true)) {
-					float MaxDist = 0.5f;
+
+				//	m_SSampler
+
+					float MaxDist = 2.0f;
 					std::vector<int32_t> Samples;
 					m_SSampler.sampleEquidistant(MaxDist, m_SampleCount, &Samples);
 

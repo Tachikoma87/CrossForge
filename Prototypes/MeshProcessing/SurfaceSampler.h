@@ -32,15 +32,19 @@ namespace CForge {
 		void release(void);
 
 		void sampleEquidistant(float MaxSampleDistance, int32_t MaxSamplePoints, std::vector<int32_t>* pSamplePoints);
-
+		/*void removeDoubleVerts(void);
+		bool sameVertex(float distance, int32_t vert1, int32_t vert2);
+		void editMatrices(void);*/
 	private:
 		T3DMesh<float>* m_pMesh;		///< The mesh to process.
 		std::vector<uint32_t> m_Nodes;	///< The sampled nodes.
 
 		void toIGLMesh(Eigen::MatrixXf *pVertices, Eigen::MatrixXi *pFaces, const T3DMesh<float>* pMesh);
+		//Eigen::VectorXi findTargetFaces(int32_t submeshIndex);
 
 		Eigen::MatrixXf m_Vertices; // Vertex data
 		Eigen::MatrixXi m_Faces; // Face data
+		Eigen::VectorXf vertexMapping;
 
 	};//SurfaceSampler
 

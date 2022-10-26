@@ -121,7 +121,7 @@ add_library(crossforge SHARED
 	# Internet
 	CForge/Internet/UDPSocket.cpp
 	CForge/Internet/TCPSocket.cpp
-  "Examples/exampleSkeletalAnimationThrice.hpp" "Examples/exampleSkeletalCollisionResolver.hpp")
+  "Examples/exampleSkeletalAnimationThrice.hpp" "Examples/exampleSkeletalCollisionResolver.hpp" "Prototypes/MeshProcessing/ShapeDeformer.h" "Prototypes/MeshProcessing/ShapeDeformer.cpp"  "Examples/exampleShapeDeformer.hpp")
 #set_target_properties(crossforge PROPERTIES VERSION ${PROJECT_VERSION})
 
 if(WIN32)
@@ -175,7 +175,7 @@ add_executable(CForgeSandbox
 	Prototypes/Assets/AnimationIO.cpp
 
 	Prototypes/MeshProcessing/SurfaceSampler.cpp
-	 "Examples/exampleSkeletalAnimationThrice.hpp" "Examples/exampleSkeletalCollisionResolver.hpp")
+	 "Examples/exampleSkeletalAnimationThrice.hpp" "Examples/exampleSkeletalCollisionResolver.hpp" "Prototypes/MeshProcessing/ShapeDeformer.h" "Prototypes/MeshProcessing/ShapeDeformer.cpp" "Examples/exampleShapeDeformer.hpp")
 
 
 if(WIN32)
@@ -229,7 +229,7 @@ add_custom_command(
 
 project(ExportLibrary)
 add_executable(ExportLibrary 
-	ExportLibrary.cpp "Examples/exampleSkeletalAnimationThrice.hpp" "Examples/exampleSkeletalCollisionResolver.hpp")
+	ExportLibrary.cpp "Examples/exampleSkeletalAnimationThrice.hpp" "Examples/exampleSkeletalCollisionResolver.hpp" "Examples/exampleShapeDeformer.hpp")
 
 target_link_libraries(ExportLibrary
 	PRIVATE crossforge)
