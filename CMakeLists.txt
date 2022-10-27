@@ -33,6 +33,7 @@ FIND_PACKAGE(libigl CONFIG REQUIRED)
 include_directories(
 	"${CMAKE_SOURCE_DIR}/thirdparty/glad/include"
 	"${OpenCV_INCLUDE_DIRS}"
+	"./"
 )
 
 add_library(crossforge SHARED 

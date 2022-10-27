@@ -932,6 +932,37 @@ namespace CForge {
 			//igl::writeOBJ("TestOriginal.obj", MeshVertices, mat_Faces);
 			std::string objName = "MuscleMan" + std::to_string(i) + ".obj";
 			igl::writeOBJ(objName, newV, mat_Faces);
+
+			// Export with CForge
+			/*T3DMesh<float> M;
+			std::vector<Vector3f> Vertices;
+			std::vector<T3DMesh<float>::Face> Faces;
+			T3DMesh<float>::Submesh* pSub = new T3DMesh<float>::Submesh();
+			pSub->Material = 0;
+
+			for (uint32_t i = 0; i < newV.rows(); i++) {
+				Vector3f v = Vector3f(newV(i, 0), newV(i, 1), newV(i, 2));
+				Vertices.push_back(v);
+			}
+
+			for (uint32_t i = 0; i < mat_Faces.rows(); ++i) {
+				T3DMesh<float>::Face F;
+				F.Vertices[0] = mat_Faces(i, 0);
+				F.Vertices[1] = mat_Faces(i, 1);
+				F.Vertices[2] = mat_Faces(i, 2);
+				pSub->Faces.push_back(F);
+			}
+
+			T3DMesh<float>::Material Mat;
+			Mat.Color = Vector4f(0.7f, 0.7f, 0.7f, 1.0f);
+			Mat.ID = 0;
+			Mat.Metallic = 0.04f;
+			Mat.Roughness = 0.1f
+				;
+			M.addMaterial(&Mat, true);
+			M.addSubmesh(pSub, false);
+			M.vertices(&Vertices);
+			AssetIO::store(objName, &M);*/
 			
 		}
 

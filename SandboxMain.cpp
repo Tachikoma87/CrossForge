@@ -26,6 +26,7 @@
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
+#include "Prototypes/TestScenes/ShapeDeformerTestScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -65,7 +66,7 @@ int main(int argc, char* argv[]) {
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
 		//exampleSkeletalAnimation(); 
-		exampleShapeDeformer();
+		
 		//exampleSkeletalAnimationThrice(); 
 		//exampleSkeletonCollisionResolver();
 		//exampleSkybox();
@@ -77,6 +78,11 @@ int main(int argc, char* argv[]) {
 		//shadowTest();	
 		//surfaceSamplerTestScene();
 		//vertexColorTestScene();
+
+		if (!File::exists("MuscleMan0.obj")) {
+			exampleShapeDeformer();
+		}
+		shapeDeformerTest();
 		
 	}
 	catch (const CrossForgeException & e) {
