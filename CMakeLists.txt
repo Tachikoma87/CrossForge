@@ -58,6 +58,7 @@ add_executable(CForgeSandbox
 	Prototypes/LODHandler.cpp
 	Prototypes/UBOInstancedData.cpp
 	Prototypes/MeshDecimate.cpp
+	Prototypes/AutoRig.cpp;
 	)
 
 
@@ -209,13 +210,8 @@ add_custom_command(
 	${CMAKE_SOURCE_DIR}/Terrain/Assets
 	${CMAKE_CURRENT_BINARY_DIR}/Assets
 )
-target_link_libraries(ExportLibrary
-	PRIVATE crossforge)
-	
 
-
-if(WIN32)
-	add_library(Pinocchio SHARED
+add_library(Pinocchio SHARED
 	thirdparty/Pinocchio/refinement.cpp
 	thirdparty/Pinocchio/attachment.cpp
 	thirdparty/Pinocchio/pinocchioApi.cpp
@@ -230,24 +226,6 @@ if(WIN32)
 	thirdparty/Pinocchio/intersector.cpp
 	thirdparty/Pinocchio/skeleton.cpp
 )
-endif (WIN32)
-
-if(UNIX)
-	add_library(Pinocchio SHARED
-	thirdparty/Pinocchio/refinement.cpp
-	thirdparty/Pinocchio/attachment.cpp
-	thirdparty/Pinocchio/pinocchioApi.cpp
-	thirdparty/Pinocchio/discretization.cpp
-	thirdparty/Pinocchio/mesh.cpp
-	thirdparty/Pinocchio/embedding.cpp
-	thirdparty/Pinocchio/graphutils.cpp
-	thirdparty/Pinocchio/matrix.cpp
-	thirdparty/Pinocchio/lsqSolver.cpp
-	thirdparty/Pinocchio/indexer.cpp
-	thirdparty/Pinocchio/intersector.cpp
-	thirdparty/Pinocchio/skeleton.cpp
-)
-endif(UNIX)
 target_include_directories(Pinocchio PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/Pinocchio")
 set_property(TARGET Pinocchio PROPERTY CXX_STANDARD 98)
 target_compile_options(Pinocchio PRIVATE -fPIC)
@@ -256,6 +234,7 @@ add_compile_definitions(PINOCCHIO_EXPORTS)
 # bridge lib for convertig crossforge <-> pinocchio
 add_library(PinocchioTools SHARED
 	thirdparty/PinocchioTools/PinocchioTools.cpp
+	thirdparty/Pinocchio/indexer.cpp
 )
 target_include_directories(PinocchioTools PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/PinocchioTools")
 set_property(TARGET PinocchioTools PROPERTY CXX_STANDARD 98)

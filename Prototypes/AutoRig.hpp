@@ -11,7 +11,6 @@
 #include "../CForge/Graphics/RenderDevice.h"
 #include "../CForge/AssetIO/SAssetIO.h"
 #include "../CForge/Graphics/GraphicsUtility.h"
-#include "../Examples/SceneUtilities.hpp"
 
 namespace CForge {
 	class AutoRigger : public CForgeObject {
@@ -101,6 +100,21 @@ namespace CForge {
 		T3DMesh<float>::Bone* m_targetSkeleton;
 		
 		static bool cmpSDFGridCell(const GridCell &a, const GridCell &b);
+
+		virtual void setMeshShader(T3DMesh<float>* pM, float Roughness, float Metallic) {
+			for (uint32_t i = 0; i < pM->materialCount(); ++i) {
+				T3DMesh<float>::Material* pMat = pM->getMaterial(i);
+
+				pMat->VertexShaderGeometryPass.push_back("Shader/BasicGeometryPass.vert");
+				pMat->FragmentShaderGeometryPass.push_back("Shader/BasicGeometryPass.frag");
+
+				pMat->VertexShaderShadowPass.push_back("Shader/ShadowPassShader.vert");
+				pMat->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");
+
+				pMat->Metallic = Metallic;
+				pMat->Roughness = Roughness;
+			}//for[materials]
+		};//setMeshShader
 	};
 }
 #endif

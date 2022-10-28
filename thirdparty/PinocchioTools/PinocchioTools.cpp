@@ -3,6 +3,8 @@
 #include <iostream>
 #include "PinocchioTools.hpp"
 
+#include "thirdparty/Pinocchio/indexer.h"
+
 namespace nsPinocchioTools {
 
 	void pnSkeleton::PinitCompressed() {
@@ -144,7 +146,7 @@ namespace nsPinocchioTools {
 		}
 	}
 
-	void applyWeights(nsPiR::Skeleton* in, CForge::T3DMesh<float>* out, const CVScalingInfo& CVSInfo,
+	void applyWeights(nsPiR::Skeleton* in, nsPiR::Mesh* inMesh, CForge::T3DMesh<float>* out, const CVScalingInfo& CVSInfo,
 	                  nsPiR::PinocchioOutput& piO, uint32_t vertexCount) {
 		if (!piO.attachment)
 			throw CForgeExcept("PinocchioTools: applyWeights attatchment not valid");
@@ -153,8 +155,14 @@ namespace nsPinocchioTools {
 		// center embedding and mesh at boneRoot = 0
 		std::vector<Eigen::Vector3f> centeredVertices;
 		Eigen::Vector3f center = Eigen::Vector3f(piO.embedding[0][0],piO.embedding[0][1],piO.embedding[0][2]);
-		for (uint32_t i = 0; i < out->vertexCount(); i++) {
-			centeredVertices.push_back(out->vertex(i)-center);
+		for (uint32_t i = 0; i < out->vertexCount(); i++) {	
+			// mesh to PiR cube (0-1)
+			Eigen::Vector3f toAdd = Eigen::Vector3f(inMesh->toAdd[0],inMesh->toAdd[1],inMesh->toAdd[2]);
+			Eigen::Vector3f newVec = out->vertex(i) * inMesh->scale + toAdd;
+			
+			// make root node of skeleton center
+			newVec -= center;
+			centeredVertices.push_back(newVec);
 			//centeredVertices.back() *= 1.0/CVSInfo.scaling;
 		}
 		out->vertices(&centeredVertices);
@@ -188,6 +196,59 @@ namespace nsPinocchioTools {
 				}
 			}
 		}
+	}
+
+	nsPinocchio::PinocchioOutput autorig(const nsPiR::Skeleton &given, nsPiR::Mesh* m)
+	{
+		using namespace nsPinocchio;
+		int i;
+		PinocchioOutput out;
+
+		Mesh newMesh = prepareMesh(*m);
+		*m = newMesh;
+		if(newMesh.vertices.size() == 0)
+			return out;
+
+		TreeType *distanceField = constructDistanceField(newMesh);
+
+		//discretization
+		vector<Sphere> medialSurface = sampleMedialSurface(distanceField);
+
+		vector<Sphere> spheres = packSpheres(medialSurface);
+
+		PtGraph graph = connectSamples(distanceField, spheres);
+
+		//discrete embedding
+		vector<vector<int> > possibilities = computePossibilities(graph, spheres, given);
+
+		//constraints can be set by respecifying possibilities for skeleton joints:
+		//to constrain joint i to sphere j, use: possiblities[i] = vector<int>(1, j);
+
+		vector<int> embeddingIndices = discreteEmbed(graph, spheres, given, possibilities);
+
+		if(embeddingIndices.size() == 0) { //failure
+			delete distanceField;
+			return out;
+		}
+
+		vector<Vector3> discreteEmbedding = splitPaths(embeddingIndices, graph, given);
+
+		//continuous refinement
+		vector<Vector3> medialCenters(medialSurface.size());
+		for(i = 0; i < (int)medialSurface.size(); ++i)
+			medialCenters[i] = medialSurface[i].center;
+
+		out.embedding = refineEmbedding(distanceField, medialCenters, discreteEmbedding, given);
+
+		//attachment
+		VisTester<TreeType> *tester = new VisTester<TreeType>(distanceField);
+		out.attachment = new Attachment(newMesh, given, out.embedding, tester);
+
+		//cleanup
+		delete tester;
+		delete distanceField;
+
+		return out;
 	}
 
 	void copyAnimation(CForge::T3DMesh<float>* source, CForge::T3DMesh<float>* target, uint32_t animationIndex) {
@@ -260,16 +321,40 @@ namespace nsPinocchioTools {
 		}
 
 		fixDupFaces(ret);
-		ret->computeTopology();
-		if(ret->integrityCheck())
+		computeTopology(ret);
+		//if(ret->integrityCheck())
 			std::cout << "Correct convert: " << ret->vertices.size() << " vertices, " << ret->edges.size() << " edges" << endl;
-		else
-			std::cout << "Somehow convert: " << ret->vertices.size() << " vertices, " << ret->edges.size() << " edges" << endl;
+		//else
+		//	std::cout << "Somehow convert: " << ret->vertices.size() << " vertices, " << ret->edges.size() << " edges" << endl;
 		ret->computeVertexNormals();
 	}
 	
 	
 	// from nsPiR::Mesh
+	//TODO revert to nsPiR function
+	void computeTopology(nsPiR::Mesh* mesh)
+	{
+		for(int i = 0; i < mesh->edges.size(); ++i)
+			mesh->edges[i].prev = (i - i % 3) + (i + 2) % 3;
+		
+		vector<map<int, int> > halfEdgeMap(mesh->vertices.size());
+		for(int i = 0; i < mesh->edges.size(); ++i) {
+			int v1 = mesh->edges[i].vertex;
+			int v2 = mesh->edges[mesh->edges[i].prev].vertex;
+
+			mesh->vertices[v1].edge = mesh->edges[mesh->edges[i].prev].prev; //assign the vertex' edge
+			
+			if(halfEdgeMap[v1].count(v2)) {
+				std::cout << "Error: duplicate edge detected: " << v1 << " to " << v2 << endl;
+			}
+			halfEdgeMap[v1][v2] = i;
+			if(halfEdgeMap[v2].count(v1)) {
+				int twin = halfEdgeMap[v2][v1];
+				mesh->edges[twin].twin = i;
+				mesh->edges[i].twin = twin;
+			}
+		}
+	}
 	struct MFace
 	{
 		MFace(int v1, int v2, int v3)
@@ -289,6 +374,7 @@ namespace nsPinocchioTools {
 			MFace current(mesh->edges[i].vertex, mesh->edges[i + 1].vertex, mesh->edges[i + 2].vertex);
 
 			if(faces.count(current)) {
+				std::cout << "fixDumpFaces: found" << i << "\n";
 				int oth = faces[current];
 				if(oth == -1) {
 					faces[current] = i;

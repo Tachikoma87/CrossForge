@@ -23,12 +23,12 @@ namespace CForge {
 		
 		T3DMesh<float> cubeMesh;
 		AssetIO::load("Assets/cube.obj", &cubeMesh);
-		SceneUtilities::setMeshShader(&cubeMesh, 0.8f, 0.04f);
+		setMeshShader(&cubeMesh, 0.8f, 0.04f);
 		cubeMesh.computePerVertexNormals();
 		cube.init(&cubeMesh);
 		T3DMesh<float> sphereMesh;
 		AssetIO::load("Assets/sphere.obj", &sphereMesh);
-		SceneUtilities::setMeshShader(&sphereMesh, 0.8f, 0.04f);
+		setMeshShader(&sphereMesh, 0.8f, 0.04f);
 		sphereMesh.computePerVertexNormals();
 		sphere.init(&sphereMesh);
 	}

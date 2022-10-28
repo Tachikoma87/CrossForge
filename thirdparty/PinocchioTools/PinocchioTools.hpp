@@ -18,6 +18,8 @@ namespace nsPinocchioTools {
 	
 	namespace nsPiR = nsPinocchio;
 	
+	nsPinocchio::PinocchioOutput PINOCCHIOTOOLS_API autorig(const nsPiR::Skeleton &given, nsPiR::Mesh* m);
+	
 	// wrapper class for converting
 	class pnSkeleton : nsPiR::Skeleton {
 	public:
@@ -64,7 +66,7 @@ namespace nsPinocchioTools {
 	* @param out 
 	* @param CVSInfo scaling of skeleton
 	*/
-	void PINOCCHIOTOOLS_API applyWeights(nsPiR::Skeleton* in, CForge::T3DMesh<float>* out, const CVScalingInfo& CVSInfo,
+	void PINOCCHIOTOOLS_API applyWeights(nsPiR::Skeleton* in, nsPiR::Mesh* inMesh, CForge::T3DMesh<float>* out, const CVScalingInfo& CVSInfo,
 		nsPiR::PinocchioOutput& piO, uint32_t vertexCount);
 	
 	/* morphs and scales mesh to targetSkl
@@ -98,5 +100,6 @@ namespace nsPinocchioTools {
 	// copies and scales animation
 	void PINOCCHIOTOOLS_API copyAnimation(CForge::T3DMesh<float>* source, CForge::T3DMesh<float>* target, uint32_t animationIndex);
 	
+	void computeTopology(nsPiR::Mesh* mesh);
 	void fixDupFaces(nsPiR::Mesh* mesh);
 }

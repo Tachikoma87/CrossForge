@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 		//exampleSceneBase();
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
-		exampleMultiViewport();
+		//exampleMultiViewport();
 		//exampleSkeletalAnimation(); 
 		//exampleSkybox();  
 		//exampleSockets();

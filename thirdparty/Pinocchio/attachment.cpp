@@ -53,15 +53,69 @@ public:
         int i, j;
         int nv = mesh.vertices.size();
         //compute edges
-        vector<vector<int> > edges(nv);
-
+        vector<vector<int> > edges(nv); // 1 neigbour edges
+		
+		bool gMeshBroken=false;
         for(i = 0; i < nv; ++i) {
             int cur, start;
             cur = start = mesh.vertices[i].edge;
-            do {
-                edges[i].push_back(mesh.edges[cur].vertex);
-                cur = mesh.edges[mesh.edges[cur].prev].twin;
-            } while(cur != start);
+			std::map<int,bool> visited;
+			
+			bool meshBroken = false;
+			int vertCount = 0;
+			do {
+				if (visited[cur]==true || cur == -1 || vertCount>10) { //std::cout << "node visited\n";
+					meshBroken = true;
+					gMeshBroken = true;
+					break;
+				}
+				edges[i].push_back(mesh.edges[cur].vertex);
+				visited[cur]=true;
+				cur = mesh.edges[mesh.edges[cur].prev].twin;
+				vertCount++;
+			} while(cur != start);
+			
+			if (meshBroken) { // try finding neighbours differently
+				edges[i].clear();
+				
+				std::cout << "1-Ring N: " << i << "/" << nv << "\r";
+				//TODO make sure ring vertices are in order
+				for (uint32_t j = 0; j < mesh.edges.size(); j++) {
+					int next = mesh.edges[j].vertex;
+					int pre = mesh.edges[mesh.edges[j].prev].vertex;
+					if (pre == i) {
+						edges[i].push_back(next);
+						//breaks edges[i].push_back(mesh.edges[mesh.edges[mesh.edges[j].prev].prev].vertex);
+						//edges[i].push_back(mesh.edges[mesh.edges[j].prev].vertex); //inc
+					}
+				}
+				
+				// sort vertices
+				//TODO sort counter clockwise?
+				std::vector<int> edgesCopy = edges[i];
+				edges[i].clear();
+				edges[i].push_back(edgesCopy[0]);
+				edgesCopy.erase(edgesCopy.begin()+0);
+				int curEdge = 0;
+				while (edgesCopy.size() > 0) {
+					int vertI = -1;
+					float vertD = std::numeric_limits<float>::max();
+					for (uint32_t j = 0; j < edgesCopy.size(); j++) {
+						// update if distance is smaller
+						float newLen = (mesh.vertices[edgesCopy[j]].pos-mesh.vertices[edgesCopy.back()].pos).lengthsq();
+						if (newLen < vertD) {
+							vertI = j;
+							vertD = newLen;
+						}
+					}
+					assert(vertI != -1);
+					
+					// push back closest vertex
+					edges[i].push_back(edgesCopy[vertI]);
+					// remove closest vertex from copy
+					edgesCopy.erase(edgesCopy.begin()+vertI);
+				}
+			}
         }
 
         weights.resize(nv);
@@ -182,6 +236,27 @@ public:
                     nzweights[i].push_back(make_pair(j, rhs[i]));
             }
         }
+	//	
+	//	std::cout << "copy weights\n";
+	//	for (i = 0; i < nv; ++i) {
+	//		int vertI=i;
+	//		std::map<int,bool> visited;
+	//		visited[i]=true;
+	//		if (nzweights[vertI].size() == 0) {
+	//			std::cout << "vert: " << vertI << " from " << nv << " has no weights\n";
+	//			// find nearest vertex and copy weights
+	//			float vertD = std::numeric_limits<float>::max();
+	//			for (uint32_t k = 0; k < nv; ++k) {
+	//				std::cout << "checking vert: " << k << " of " << nv << " for weights...\r";
+	//				float newLen = (mesh.vertices[i].pos-mesh.vertices[k].pos).lengthsq();
+	//				if (newLen < vertD || visited[k]==false || nzweights[k].size() > 0) {
+	//					vertD=newLen;
+	//					vertI=k;
+	//				}
+	//			}
+	//		}
+	//		nzweights[i] = nzweights[vertI];
+	//	}
 
         for(i = 0; i < nv; ++i) {
             double sum = 0.;
