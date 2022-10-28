@@ -87,7 +87,7 @@ namespace CForge {
 				pRDev->activeShader(i->pShaderGeometryPass);
 				pRDev->activeMaterial(&i->Material);
 				int32_t MTTex = i->pShaderGeometryPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
-				if (MTTex >= 0) {
+				if (MTTex >= 0 && MTTex != GL_INVALID_INDEX) {
 					m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
 					glUniform1i(MTTex, MTTex);
 				}
@@ -105,7 +105,7 @@ namespace CForge {
 					glUniform1i(MTTex, MTTex);
 				}
 				int32_t MTUBO = i->pShaderShadowPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
-				m_MorphTargetUBO.bind(MTUBO);
+				if(MTUBO != GL_INVALID_INDEX)	m_MorphTargetUBO.bind(MTUBO);
 			}break;
 			case RenderDevice::RENDERPASS_FORWARD: {
 				if (nullptr == i->pShaderForwardPass) continue;
@@ -118,7 +118,7 @@ namespace CForge {
 					glUniform1i(MTTex, MTTex);
 				}
 				int32_t MTUBO = i->pShaderForwardPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
-				m_MorphTargetUBO.bind(MTUBO);
+				if(MTUBO != GL_INVALID_INDEX) m_MorphTargetUBO.bind(MTUBO);
 			}break;
 			default: continue;
 			}//switch[active pass]
