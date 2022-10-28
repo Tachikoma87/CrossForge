@@ -65,6 +65,7 @@ namespace CForge {
 	}//Destructor
 
 	void SkyboxActor::init(std::string Right, std::string Left, std::string Top, std::string Bottom, std::string Back, std::string Front) {
+        clear();
 
         // create skybox data (unit cube)
         T3DMesh<float> M;
@@ -75,13 +76,14 @@ namespace CForge {
             Vertices.push_back(Vector3f(SkyboxVertices[i*3 + 0], SkyboxVertices[i*3 + 1], SkyboxVertices[i*3 + 2]));
         }
 
+        Sub.Material = 0;
+
         // create faces
         for (uint32_t i = 0; i < 12; ++i) {
             T3DMesh<float>::Face F;
             F.Vertices[0] = SkyboxIndices[i*3 + 0];
             F.Vertices[1] = SkyboxIndices[i*3 + 1];
             F.Vertices[2] = SkyboxIndices[i*3 + 2];
-            F.Material = 0;
             Sub.Faces.push_back(F);
         }
         
@@ -90,20 +92,20 @@ namespace CForge {
 
         T3DMesh<float>::Material Mat;
         Mat.ID = 0;
-        Mat.VertexShaderSources.push_back("Shader/Skybox.vert");
-        Mat.FragmentShaderSources.push_back("Shader/Skybox.frag");
+        Mat.VertexShaderForwardPass.push_back("Shader/Skybox.vert");
+        Mat.FragmentShaderForwardPass.push_back("Shader/Skybox.frag");
         M.addMaterial(&Mat, true);
 
         uint16_t VertexProperties = VertexUtility::VPROP_POSITION;
 
         uint32_t BufferSize;
-        void* pBuffer = nullptr;
+        uint8_t* pBuffer = nullptr;
         try {
             m_VertexUtility.init(VertexProperties);
-            m_VertexUtility.buildBuffer(M.vertexCount(), &pBuffer, &BufferSize, &M);
+            m_VertexUtility.buildBuffer(M.vertexCount(), (void**)&pBuffer, &BufferSize, &M);
             m_VertexBuffer.init(GLBuffer::BTYPE_VERTEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
 
-            delete[] pBuffer;
+            if(nullptr != pBuffer) delete[] pBuffer;
             pBuffer = nullptr;
             BufferSize = 0;
         }
@@ -114,9 +116,9 @@ namespace CForge {
 
         // build render groups and element array
         try {
-            m_RenderGroupUtility.init(&M, &pBuffer, &BufferSize);
+            m_RenderGroupUtility.init(&M, (void**)&pBuffer, &BufferSize);
             m_ElementBuffer.init(GLBuffer::BTYPE_INDEX, GLBuffer::BUSAGE_STATIC_DRAW, pBuffer, BufferSize);
-            delete[] pBuffer;
+            if(nullptr != pBuffer) delete[] pBuffer;
             pBuffer = nullptr;
             BufferSize = 0;
         }
@@ -182,14 +184,36 @@ namespace CForge {
         glDepthFunc(GL_LEQUAL);
 
         for (auto i : m_RenderGroupUtility.renderGroups()) {
-            if (i->pShader == nullptr) continue;
 
-            pRDev->activeShader(i->pShader);
-            pRDev->activeMaterial(&i->Material);
-            m_Cubemap.bind();
+            switch (pRDev->activePass()) {
+            case RenderDevice::RENDERPASS_SHADOW: {
+                continue;
+            }break;
+            case RenderDevice::RENDERPASS_GEOMETRY: {
+                continue;
+            }break;
+            case RenderDevice::RENDERPASS_FORWARD: {
+                if (nullptr == i->pShaderForwardPass) continue;
 
-            uint32_t BindingPoint = i->pShader->uboBindingPoint(GLShader::DEFAULTUBO_COLORADJUSTMENT); // i->pShader->uboBindingPoint("ColorAdjustmentData");
-            if (BindingPoint != GL_INVALID_INDEX) m_ColorAdjustUBO.bind(BindingPoint);        
+                pRDev->activeShader(i->pShaderForwardPass);
+                pRDev->activeMaterial(&i->Material);
+                m_Cubemap.bind();
+
+                uint32_t BindingPoint = i->pShaderForwardPass->uboBindingPoint(GLShader::DEFAULTUBO_COLORADJUSTMENT); 
+                if (BindingPoint != GL_INVALID_INDEX) m_ColorAdjustUBO.bind(BindingPoint);
+                
+            }break;
+            default: continue;
+            }
+
+            //if (i->pShader == nullptr) continue;
+
+            //pRDev->activeShader(i->pShader);
+            //pRDev->activeMaterial(&i->Material);
+            //m_Cubemap.bind();
+
+            //uint32_t BindingPoint = i->pShader->uboBindingPoint(GLShader::DEFAULTUBO_COLORADJUSTMENT); // i->pShader->uboBindingPoint("ColorAdjustmentData");
+            //if (BindingPoint != GL_INVALID_INDEX) m_ColorAdjustUBO.bind(BindingPoint);        
 
             glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
             
@@ -197,6 +221,7 @@ namespace CForge {
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
 
+        m_VertexArray.unbind();
 	}//render
 
     void SkyboxActor::saturation(float Saturation) {

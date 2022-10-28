@@ -11,7 +11,7 @@ using namespace Assimp;
 
 namespace CForge {
 	AssimpMeshIO::AssimpMeshIO(void): I3DMeshIO("AssimpMeshIO") {
-
+		m_PluginName = "AssImp Mesh IO";
 	}//Constructor
 
 	AssimpMeshIO::~AssimpMeshIO(void) {
@@ -32,8 +32,12 @@ namespace CForge {
 
 	void AssimpMeshIO::load(const std::string Filepath, T3DMesh<float> *pMesh){
 		const aiScene *pScene = m_Importer.ReadFile(Filepath, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_LimitBoneWeights | aiProcess_OptimizeGraph | aiProcess_ValidateDataStructure);
+		//const aiScene* pScene = m_Importer.ReadFile(Filepath, aiProcess_Triangulate | aiProcess_ValidateDataStructure);
 
-		if (nullptr == pScene) throw CForgeExcept("Failed to load model from resource " + Filepath);
+		if (nullptr == pScene) {
+			std::string ErrorMsg = m_Importer.GetErrorString();
+			throw CForgeExcept("Failed to load model from resource " + Filepath + "\n\t" + ErrorMsg);		
+		}
 
 		try {
 			aiSceneTo3DMesh(pScene, pMesh, File::removeFilename(Filepath));
@@ -73,6 +77,7 @@ namespace CForge {
 			else if (Filepath.find(".x") != std::string::npos) Rval = true;
 			else if (Filepath.find(".glb") != std::string::npos) Rval = true;
 			else if (Filepath.find(".bvh") != std::string::npos) Rval = true;
+			else if (Filepath.find(".gltf") != std::string::npos) Rval = true;
 		}
 		else {
 			if (Filepath.find(".fbx") != std::string::npos) Rval = true;
@@ -122,15 +127,12 @@ namespace CForge {
 
 			// now we retrieve the faces (create submesh)
 			T3DMesh<float>::Submesh* pSubmesh = new T3DMesh<float>::Submesh();
+			pSubmesh->Material = (int32_t)pM->mMaterialIndex;
 			for (uint32_t k = 0; k < pM->mNumFaces; ++k) {
 				aiFace F = pM->mFaces[k];
 				T3DMesh<float>::Face Face;
-				Face.Material = (int32_t)pM->mMaterialIndex;
 				for (uint32_t j = 0; j < F.mNumIndices && j < 4; j++) {
 					Face.Vertices[j] = PositionsOffset + F.mIndices[j];
-					if (nullptr != pM->mNormals) Face.Normals[j] = NormalsOffset + F.mIndices[j];
-					if (nullptr != pM->mTangents) Face.Tangents[j] =  TangentsOffset + F.mIndices[j];
-					if (nullptr != pM->mTextureCoords) Face.UVWs[j] = UVWsOffset + F.mIndices[j];
 				}//for[face indices]
 
 				pSubmesh->Faces.push_back(Face);
@@ -268,7 +270,7 @@ namespace CForge {
 			pSkelAnim->Name = pAnim->mName.C_Str();
 
 			// create keyframe for every bone
-			for (uint32_t k = 0; k < Bones.size() /*pAnim->mNumChannels*/; k++) {
+			for (uint32_t k = 0; k < std::max((uint32_t)Bones.size(), pAnim->mNumChannels); k++) {
 				pSkelAnim->Keyframes.push_back(new T3DMesh<float>::BoneKeyframes());
 				pSkelAnim->Keyframes[k]->ID = k;
 			}//for[all bones]
@@ -277,6 +279,7 @@ namespace CForge {
 				aiNodeAnim *pNodeAnim = pAnim->mChannels[k];
 
 				T3DMesh<float>::Bone* pB = getBoneFromName(pNodeAnim->mNodeName.C_Str(), &Bones);
+
 
 				int32_t KeyID = (nullptr == pB) ? k : pB->ID;
 
@@ -339,7 +342,7 @@ namespace CForge {
 			// set faces
 			const T3DMesh<float>::Submesh* pSub = pMesh->getSubmesh(i);
 
-			pM->mMaterialIndex = pSub->Faces[0].Material;
+			pM->mMaterialIndex = pSub->Material;
 
 			pM->mFaces = new aiFace[pSub->Faces.size()];
 			for (uint32_t k = 0; k < pSub->Faces.size(); ++k) {

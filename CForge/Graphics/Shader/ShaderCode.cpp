@@ -15,7 +15,7 @@ namespace CForge {
 
 	}//Destructor
 
-	void ShaderCode::init(std::string ShaderCode, std::string VersionTag, uint8_t ConfigOptions, std::string PrecisionTag, std::string IntegerPrecisionTag) {
+	void ShaderCode::init(std::string ShaderCode, std::string VersionTag, uint8_t ConfigOptions, std::string PrecisionTag) {
 		if (ShaderCode.empty()) throw CForgeExcept("Empty shader code specified!");
 		if (ShaderCode[0] == '#') {
 			// already is shader code
@@ -85,7 +85,7 @@ namespace CForge {
 			removeDefine("PCF_SHADOWS");
 		}
 		else {
-			addDefine("PDF_SHADOWS");	
+			addDefine("PCF_SHADOWS");	
 			changeConst("const int PCFFilterSize", to_string(pConfig->PCFSize));
 		}
 
@@ -129,6 +129,7 @@ namespace CForge {
 		if (ConfigOptions & CONF_SKELETALANIMATION) config(&m_SkeletalAnimationConfig);
 		if (ConfigOptions & CONF_MORPHTARGETANIMATION) config(&m_MorphTargetAnimationConfig);
 		if (ConfigOptions & CONF_VERTEXCOLORS) addDefine("VERTEX_COLORS");
+		if (ConfigOptions & CONF_NORMALMAPPING) addDefine("NORMAL_MAPPING");
 	}//config
 
 	std::string ShaderCode::code(void)const {
@@ -175,5 +176,19 @@ namespace CForge {
 	string ShaderCode::originalCode(void)const {
 		return m_OrigCode;
 	}//originalCode
+
+	std::string ShaderCode::versionTag(void)const {
+		return m_VersionTag;
+	}//versionTag
+
+	uint8_t ShaderCode::configOptions(void)const {
+		return m_ConfigOptions;
+	}//configOptions
+
+	std::string ShaderCode::precisionTag(void)const {
+		return m_PrecisionTag;;
+	}//floatPrecisionTag
+
+	
 
 }//name-space

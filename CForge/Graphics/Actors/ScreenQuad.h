@@ -44,9 +44,6 @@ namespace CForge {
 	protected:
 		void setBufferData(void);
 
-		/*GLVertexArray m_VertexArray;
-		GLBuffer m_VertexBuffer;
-		GLBuffer m_ElementBuffer;*/
 		GLShader *m_pShader;
 
 	};//ScreenQuad

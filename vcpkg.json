@@ -1,0 +1,14 @@
+{
+	"name": "crossforge",
+	"version":  "0.1",
+	"dependencies": [
+		"glad",
+		"glfw3",
+		"assimp",
+		"freetype",
+		"libigl",
+		"libwebp",
+		"tinyxml2"
+	]
+}
+

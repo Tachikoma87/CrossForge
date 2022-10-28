@@ -249,11 +249,15 @@ namespace CForge {
 		
 		int32_t x = Viewport[0];
 		int32_t y = Viewport[1];
-		int32_t Width = Viewport[2] - Viewport[0];
-		int32_t Height = Viewport[3] - Viewport[1];
+		int32_t Width = Viewport[2];
+		int32_t Height = Viewport[3];
+
+		//Width -= Width % 2;
+		//Height -= Height % 2;
+		//x = y = 0;
 
 		if (nullptr != pColor) {
-			uint8_t* pBuffer = new uint8_t[Width * Height * 3];
+			uint8_t* pBuffer = new uint8_t[Width * Height * 4];
 			glReadPixels(x, y, Width, Height, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 			pColor->init(Width, Height, T2DImage<uint8_t>::COLORSPACE_RGB, pBuffer);
 			delete[] pBuffer;

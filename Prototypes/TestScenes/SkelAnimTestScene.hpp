@@ -18,305 +18,390 @@
 #ifndef __CFORGE_SKELANIMTESTSCENE_HPP__
 #define __CFORGE_SKELANIMTESTSCENE_HPP__
 
-#include "../../CForge/AssetIO/SAssetIO.h"
-#include "../../CForge/Graphics/Shader/SShaderManager.h"
-#include "../../CForge/Graphics/STextureManager.h"
-
-#include "../../CForge/Graphics/GLWindow.h"
-#include "../../CForge/Graphics/GraphicsUtility.h"
-#include "../../CForge/Graphics/RenderDevice.h"
-
-#include "../../CForge/Graphics/Lights/DirectionalLight.h"
-#include "../../CForge/Graphics/Lights/PointLight.h"
-
-#include "../../CForge/Graphics/SceneGraph/SceneGraph.h"
-#include "../../CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "../../CForge/Graphics/SceneGraph/SGNTransformation.h"
-
-#include "../../CForge/Graphics/Actors/StaticActor.h"
 #include "../../CForge/Graphics/Actors/SkeletalActor.h"
-
-#include "../../Examples/SceneUtilities.hpp"
+#include "../../Examples/exampleSceneBase.hpp"
 
 using namespace Eigen;
 using namespace std;
 
 namespace CForge {
 
-	void skelAnimTestScene(void) {
-		SShaderManager* pSMan = SShaderManager::instance();
+	class SkelAnimTestScene : public ExampleSceneBase {
+	public:
 
-		std::string WindowTitle = "CForge - Skeletal Animation Example";
-		float FPS = 60.0f;
+		uint32_t getMatchingVertex(uint32_t RedundantVertexID, std::vector<std::pair<uint32_t, uint32_t>> *pRedundantVertices) {
+			uint32_t Rval = 0;
 
-		bool const LowRes = false;
-		bool const HighRes = false;
+			for (auto i : (*pRedundantVertices)) {
+				if (i.second == RedundantVertexID) {
+					Rval = i.first;
+					break;
+				}
+			}
+			return Rval;
+		}//getMatchingVertex
 
-		uint32_t WinWidth = 1280;
-		uint32_t WinHeight = 720;
-
-		if (LowRes) {
-			WinWidth = 720;
-			WinHeight = 576;
-		}
-
-		if (HighRes) {
-			WinWidth = 1920;
-			WinHeight = 1080;
-		}
-
-		// create an OpenGL capable windows
-		GLWindow RenderWin;
-		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
-
-		// configure and initialize rendering pipeline
-		RenderDevice RDev;
-		RenderDevice::RenderDeviceConfig Config;
-		Config.DirectionalLightsCount = 2;
-		Config.PointLightsCount = 1;
-		Config.SpotLightsCount = 0;
-		Config.ExecuteLightingPass = true;
-		Config.GBufferHeight = WinHeight;
-		Config.GBufferWidth = WinWidth;
-		Config.pAttachedWindow = &RenderWin;
-		Config.PhysicallyBasedShading = true;
-		Config.UseGBuffer = true;
-		RDev.init(&Config);
-
-		// configure and initialize shader configuration device
-		ShaderCode::LightConfig LC;
-		LC.DirLightCount = 2;
-		LC.PointLightCount = 1;
-		LC.SpotLightCount = 0;
-		LC.PCFSize = 0;
-		LC.ShadowBias = 0.00001f;
-		LC.ShadowMapCount = 1;
-		pSMan->configShader(LC);
-
-		// initialize camera
-		VirtualCamera Cam;
-		Cam.init(Vector3f(15.0f, 5.0f, 35.0f), Vector3f::UnitY());
-		Cam.lookAt(Vector3f(10.0f, 5.0f, 35.0f), Vector3f(0.0f, 4.0f, 25.0f), Vector3f::UnitY());
-		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
-
-		// initialize sun (key lights) and back ground light (fill light)
-		Vector3f SunPos = Vector3f(-15.0f, 80.0f, 40.0f);
-		Vector3f SunLookAt = Vector3f(0.0f, 0.0f, -10.0f);
-		Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -20.0f);
-		Vector3f FillLightPos = Vector3f(25.0f, 30.0f, 30.0f);
-		DirectionalLight Sun;
-		DirectionalLight  Fill;
-		PointLight BGLight;
-		Sun.init(SunPos, (SunLookAt - SunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 4.0f);
-		// sun will cast shadows
-		int32_t ShadowMapSize = 4096;
-		Sun.initShadowCasting(ShadowMapSize, ShadowMapSize, GraphicsUtility::orthographicProjection(40.0f, 40.0f, 0.1f, 1000.0f));
-		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 2.5f, Vector3f(0.0f, 0.0f, 0.0f));
-		Fill.init(FillLightPos, (SunLookAt - FillLightPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 3.5f);
-
-		// set camera and lights
-		RDev.activeCamera(&Cam);
-		RDev.addLight(&Sun);
-		RDev.addLight(&BGLight);
-		RDev.addLight(&Fill);
-
-		// load skydome and a textured cube
-		T3DMesh<float> M;
-		StaticActor Skydome;
-		SkeletalActor Captured;
-		SkeletalActor Synth;
-		SkeletalActor Style;
-		SkeletalAnimationController ControllerCaptured;
-		SkeletalAnimationController ControllerSynth;
-		SkeletalAnimationController ControllerStyle;
-
-		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
-		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
-		M.computePerVertexNormals();
-		Skydome.init(&M);
-		M.clear();
-
-		// initialize skeletal actor (Eric) and its animation controller
-		SAssetIO::load("MyAssets/DoubleCaptured.glb", &M);
-		SceneUtilities::setMeshShader(&M, 0.7f, 0.04f);
-		// male textures
-		//M.getMaterial(0)->TexAlbedo = "Assets/tmp/MHTextures/young_lightskinned_male_diffuse2.png";
-		//M.getMaterial(1)->TexAlbedo = "Assets/tmp/MHTextures/brown_eye.png";
-		//M.getMaterial(2)->TexAlbedo = "Assets/tmp/MHTextures/male_casualsuit04_diffuse.png";
-		//M.getMaterial(3)->TexAlbedo = "Assets/tmp/MHTextures/shoes06_diffuse.png";
-
-		// female textures
-		M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
-		M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
-		M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
-		M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
-
-		M.computePerVertexNormals();
-		ControllerCaptured.init(&M);
-		Captured.init(&M, &ControllerCaptured);
-		M.clear();
-
-		SAssetIO::load("MyAssets/DoubleSynth.glb", &M);
-		SceneUtilities::setMeshShader(&M, 0.7f, 0.04f);
-		M.computePerVertexNormals();
-		M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
-		M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
-		M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
-		M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
-		ControllerSynth.init(&M);
-		Synth.init(&M, &ControllerSynth);
-		M.clear();
-
-		SAssetIO::load("MyAssets/DoubleStylized.glb", &M);
-		SceneUtilities::setMeshShader(&M, 0.7f, 0.04f);
-		M.computePerVertexNormals();
-		M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
-		M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
-		M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
-		M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
-		ControllerStyle.init(&M);
-		Style.init(&M, &ControllerStyle);
-		M.clear();
-
-		// build scene graph
-		SceneGraph SG;
-		SGNTransformation RootSGN;
-		RootSGN.init(nullptr);
-		SG.init(&RootSGN);
-
-		// add skydome
-		SGNGeometry SkydomeSGN;
-		SkydomeSGN.init(&RootSGN, &Skydome);
-		SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
-
-		// add skeletal actor to scene graph (Eric)
-		SGNGeometry CapturedSGN;
-		SGNGeometry StyleSGN;
-		SGNGeometry SynthSGN;
-		SGNTransformation CapturedTransformSGN;
-		SGNTransformation StyleTransformSGN;
-		SGNTransformation SynthTransformSGN;
-
-		Vector3f ModelPos = Vector3f(0.0f, 0.0f, 0.0f);
-		Vector3f Offset = Vector3f(0.0f, 0.0f, -5.0f);
-
-		float Sc = 0.05f;
-
-		Quaternionf Rot;
-		Rot = Quaternionf::Identity();
-
-	
-		CapturedTransformSGN.init(&RootSGN, ModelPos + 2 * Offset, Rot, Vector3f(Sc, Sc, Sc));
-		CapturedSGN.init(&CapturedTransformSGN, &Captured);
-
-		StyleTransformSGN.init(&RootSGN, ModelPos + Offset, Rot, Vector3f(Sc, Sc, Sc));
-		StyleSGN.init(&StyleTransformSGN, &Style);
-
-		SynthTransformSGN.init(&RootSGN, ModelPos, Rot, Vector3f(Sc, Sc, Sc));
-		SynthSGN.init(&SynthTransformSGN, &Synth);
-
-		// stuff for performance monitoring
-		uint64_t LastFPSPrint = CoreUtility::timestamp();
-		int32_t FPSCount = 0;
-
-		// check wheter a GL error occurred
-		std::string GLError = "";
-		GraphicsUtility::checkGLError(&GLError);
-		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
-
-		SkeletalAnimationController::Animation* pAnimFront = nullptr;
-		SkeletalAnimationController::Animation* pAnimBack = nullptr;
-
-		bool RepeatAnim = false;
-		float LastAnimSpeed = 16.666f;
-
-		// start main loop
-		while (!RenderWin.shutdown()) {
-			RenderWin.update();
-			SG.update(FPS / 60.0f);
-
-			// this will progress all active skeletal animations for this controller
-			ControllerCaptured.update(60.0f/FPS);
-			ControllerSynth.update(60.0f/FPS);
-			ControllerStyle.update(60.0f/FPS);
-
-			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
-
-			// if user hits key 1, animation will be played
-			// if user also presses shift, animation speed is doubled
-			float AnimationSpeed = 16.666f;
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed /= 2.0f;
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
-				Captured.activeAnimation(ControllerCaptured.createAnimation(0, AnimationSpeed, 0.0f));
-				Synth.activeAnimation(ControllerSynth.createAnimation(0, AnimationSpeed, 0.0f));
-				Style.activeAnimation(ControllerStyle.createAnimation(0, AnimationSpeed, 0.0f));
-				LastAnimSpeed = AnimationSpeed;
+		void mergeRedundantVertices(T3DMesh<float>* pMesh) {
+			float Epsilon = 0.00025f;
+ 
+			std::vector<std::pair<uint32_t, uint32_t>> RedundantVertices;
+			std::vector<bool> IsRedundant;
+			std::vector <uint32_t> VertexMapping;
+			for (uint32_t i = 0; i < pMesh->vertexCount(); ++i) {
+				IsRedundant.push_back(false);
+				VertexMapping.push_back(i);
 			}
 
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {	
-				RepeatAnim = !RepeatAnim;		
+			for (uint32_t i = 0; i < pMesh->vertexCount(); ++i) {
+				if (IsRedundant[i]) continue;
+				auto v1 = pMesh->vertex(i);
+				printf("Checking vertex %d/%d\r", i, pMesh->vertexCount());
+
+				for (uint32_t k = i+1; k < pMesh->vertexCount(); ++k) {
+					auto v2 = pMesh->vertex(k);
+
+					if ((v2 - v1).dot(v2 - v1) < Epsilon) {
+						RedundantVertices.push_back(std::pair<uint32_t, uint32_t>(i,k));
+						IsRedundant[k] = true;
+						break;
+					}
+
+				}//for[all remaining vertices]
+			}//for[all vertices]
+
+			printf("Found %d double vertices                             \n", uint32_t(RedundantVertices.size()));
+
+			// rebuild vertices, normals, tangents
+			std::vector<Eigen::Vector3f> Vertices;
+			std::vector<Eigen::Vector3f> Normals;
+			std::vector<Eigen::Vector3f> Tangents;
+
+
+			for (uint32_t i = 0; i < pMesh->vertexCount(); ++i) {
+				VertexMapping[i] = Vertices.size();
+				if (!IsRedundant[i]) {
+					Vertices.push_back(pMesh->vertex(i));
+				}
+			}
+			for (uint32_t i = 0; i < pMesh->normalCount(); ++i) {
+				if (!IsRedundant[i]) Normals.push_back(pMesh->normal(i));
+			}
+			for (uint32_t i = 0; i < pMesh->tangentCount(); ++i) {
+				if (!IsRedundant[i]) Tangents.push_back(pMesh->tangent(i));
 			}
 
-			if (RepeatAnim && (Style.activeAnimation() == nullptr || Captured.activeAnimation() == nullptr || Synth.activeAnimation() == nullptr)) {
-				Captured.activeAnimation(ControllerCaptured.createAnimation(0, LastAnimSpeed, 0.0f));
-				Synth.activeAnimation(ControllerSynth.createAnimation(0, LastAnimSpeed, 0.0f));
-				Style.activeAnimation(ControllerStyle.createAnimation(0, LastAnimSpeed, 0.0f));
-			}
+			// replace indices in faces
+			for (uint32_t i = 0; i < pMesh->submeshCount(); ++i) {
+				auto* pM = pMesh->getSubmesh(i);
+				for (auto& f : pM->Faces) {
+					if (IsRedundant[f.Vertices[0]]) f.Vertices[0] = getMatchingVertex(f.Vertices[0], &RedundantVertices);
+					if (IsRedundant[f.Vertices[1]]) f.Vertices[1] = getMatchingVertex(f.Vertices[1], &RedundantVertices);
+					if (IsRedundant[f.Vertices[2]]) f.Vertices[2] = getMatchingVertex(f.Vertices[2], &RedundantVertices);
+
+					// and remapp
+					f.Vertices[0] = VertexMapping[f.Vertices[0]];
+					f.Vertices[1] = VertexMapping[f.Vertices[1]];
+					f.Vertices[2] = VertexMapping[f.Vertices[2]];
+
+				}//for[faces of submesh]
+			}//for[submeshes]
+
+			// replace vertex weights
+			for (uint32_t i = 0; i < pMesh->boneCount(); ++i) {
+				auto* pBone = pMesh->getBone(i);
+
+				// collect data
+				std::vector<int32_t> Influences;
+				std::vector<float> Weights;
+
+				for (uint32_t k = 0; k < pBone->VertexInfluences.size(); ++k) {
+					uint32_t ID = pBone->VertexInfluences[k];
+					if (IsRedundant[ID]) pBone->VertexInfluences[k] = getMatchingVertex(ID, &RedundantVertices);
+
+					pBone->VertexInfluences[k] = VertexMapping[pBone->VertexInfluences[k]];
+				}
+
+			}//for[all bones]
+
+			// replace mesh data
+			if (Vertices.size() > 0) pMesh->vertices(&Vertices);
+			if (Normals.size() > 0) pMesh->normals(&Normals);
+			if (Tangents.size() > 0) pMesh->tangents(&Tangents);
+
+		}//mergeDoubleVertices
+
+		SkelAnimTestScene(void) {
+
+		}//Constructor
+
+		~SkelAnimTestScene(void) {
+
+		}//Destructor
+
+		void init(void) {
+			initWindowAndRenderDevice();
+			// initialize camera
+			m_Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
+			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+
+			// initialize sun (key light) and back ground light (fill light)
+			Vector3f SunPos = Vector3f(-15.0f, 15.0f, 25.0f);
+			Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -30.0f);
+			m_Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
+			// sun will cast shadows
+			m_Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(30.0f, 30.0f, 0.1f, 1000.0f));
+			m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
+
+			// set camera and lights
+			m_RenderDev.activeCamera(&m_Cam);
+			m_RenderDev.addLight(&m_Sun);
+			m_RenderDev.addLight(&m_BGLight);
+
+
+			m_Cam.position(Vector3f(15.0f, 5.0f, 35.0f));
+			m_Cam.lookAt(Vector3f(10.0f, 5.0f, 35.0f), Vector3f(0.0f, 4.0f, 25.0f), Vector3f::UnitY());
+
+			T3DMesh<float> M;
+
+			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
+			setMeshShader(&M, 0.8f, 0.04f);
+			M.computePerVertexNormals();
+			m_Skydome.init(&M);
+			M.clear();
+
+
+			//SAssetIO::load("MyAssets/WalkingSittingEve.glb", &M);
+			SAssetIO::load("MyAssets/WalkingSittingEve.glb", &M);
+			setMeshShader(&M, 0.6f, 0.04f);
+			
+			printf("Vertex count before: %d\n", M.vertexCount());
+			mergeRedundantVertices(&M);
+			printf("Vertex count after: %d\n", M.vertexCount());
+
+			M.computePerVertexNormals();
+			m_ControllerCaptured.init(&M);
+			m_Captured.init(&M, &m_ControllerCaptured);
+
+			M.bones(nullptr);
+			m_ComparisonModel.init(&M);
+
+			//AssetIO::store("MyAssets/TestModel_After.obj", &M);
+
+			M.clear();
 
 			
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
-				bool En;
-				SynthSGN.enabled(nullptr, &En);
-				SynthSGN.enable(true, !En);
-			}
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) {
-				bool En;
-				StyleSGN.enabled(nullptr, &En);
-				StyleSGN.enable(true, !En);
-			}
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_5, true)) {
-				bool En;
-				CapturedSGN.enabled(nullptr, &En);
-				CapturedSGN.enable(true, !En);
-			}
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_6, true)) {
-				
-			}
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_7, true)) {
-				
-			}
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_8, true)) {
-				
-			}
 
-			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-			SG.render(&RDev);
 
-			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			SG.render(&RDev);
+			/*T3DMesh<float> M2;
+			SAssetIO::load("Assets/tmp/MuscleManPosed.glb", &M2);
+			M2.computePerFaceNormals();*/
 
-			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			//// initialize skeletal actor (Eric) and its animation controller
+			//SAssetIO::load("MyAssets/DoubleCaptured.glb", &M);
+			//setMeshShader(&M, 0.6f, 0.04f);
+			//// male textures
+			//M.getMaterial(0)->TexAlbedo = "Assets/tmp/MHTextures/young_lightskinned_male_diffuse2.png";
+			//M.getMaterial(1)->TexAlbedo = "Assets/tmp/MHTextures/brown_eye.png";
+			//M.getMaterial(2)->TexAlbedo = "Assets/tmp/MHTextures/male_casualsuit04_diffuse.png";
+			//M.getMaterial(3)->TexAlbedo = "Assets/tmp/MHTextures/shoes06_diffuse.png";
 
-			RenderWin.swapBuffers();
+			//// female textures
+			//M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
+			//M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
+			//M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+			//M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
+			//M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
 
-			FPSCount++;
-			if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {
-				char Buf[64];
-				sprintf(Buf, "FPS: %d\n", FPSCount);
-				FPS = float(FPSCount);
-				FPSCount = 0;
-				LastFPSPrint = CoreUtility::timestamp();
+			//M.computePerVertexNormals();
+			//M.computePerVertexTangents();
+			//m_ControllerCaptured.init(&M);
+			//m_Captured.init(&M, &m_ControllerCaptured);
+			//M.clear();
 
-				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
-			}
+			//SAssetIO::load("MyAssets/DoubleSynth.glb", &M);
+			//setMeshShader(&M, 0.6f, 0.04f);
+			//M.computePerVertexNormals();
+			//M.computePerVertexTangents();
+			//M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
+			//M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
+			//M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+			//M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
+			//M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
+			//m_ControllerSynth.init(&M);
+			//m_Synth.init(&M, &m_ControllerSynth);
+			//M.clear();
 
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
-				RenderWin.closeWindow();
-			}
-		}//while[main loop]
+			//SAssetIO::load("MyAssets/DoubleStylized.glb", &M);
+			//setMeshShader(&M, 0.7f, 0.04f);
+			//M.computePerVertexNormals();
+			//M.computePerVertexTangents();
+			//M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
+			//M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.png";
+			//M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+			//M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
+			//M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.png";
+			//m_ControllerStyle.init(&M);
+			//m_Style.init(&M, &m_ControllerStyle);
+			//M.clear();
 
-		pSMan->release();
+			// build scene graph
+			m_RootSGN.init(nullptr);
+			m_SG.init(&m_RootSGN);
+
+			// add skydome
+			
+			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
+			m_SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
+
+			// add skeletal actor to scene graph (Eric)
+			float Sc = 0.05f;
+
+			Quaternionf Rot;
+			Rot = Quaternionf::Identity();
+
+
+			m_ComparisonModelSGN.init(&m_RootSGN, &m_ComparisonModel, Vector3f(-5.0f, 0.0f, 0.0f), Rot, Vector3f(Sc, Sc, Sc));
+
+			Vector3f ModelPos = Vector3f(0.0f, 0.0f, 0.0f);
+			Vector3f Offset = Vector3f(0.0f, 0.0f, -5.0f);
+
+			m_CapturedTransformSGN.init(&m_RootSGN, ModelPos + 2 * Offset, Rot, Vector3f(Sc, Sc, Sc));
+			m_CapturedSGN.init(&m_CapturedTransformSGN, &m_Captured);
+
+			/*m_StyleTransformSGN.init(&m_RootSGN, ModelPos + Offset, Rot, Vector3f(Sc, Sc, Sc));
+			m_StyleSGN.init(&m_StyleTransformSGN, &m_Style);
+
+			m_SynthTransformSGN.init(&m_RootSGN, ModelPos, Rot, Vector3f(Sc, Sc, Sc));
+			m_SynthSGN.init(&m_SynthTransformSGN, &m_Synth);*/
+
+			// stuff for performance monitoring
+			uint64_t LastFPSPrint = CoreUtility::timestamp();
+			int32_t FPSCount = 0;
+
+			// check wheter a GL error occurred
+			std::string GLError = "";
+			GraphicsUtility::checkGLError(&GLError);
+			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
+
+		}//initialize
+
+		void clear(void) {
+			ExampleSceneBase::clear();
+		}//clear
+
+		void run(void) {
+			SkeletalAnimationController::Animation* pAnimFront = nullptr;
+			SkeletalAnimationController::Animation* pAnimBack = nullptr;
+
+			bool RepeatAnim = false;
+			float LastAnimSpeed = 16.666f;
+
+			while (!m_RenderWin.shutdown()) {
+				m_RenderWin.update();
+				m_SG.update(60.0f / m_FPS);
+
+				// this will progress all active skeletal animations for this controller
+				m_ControllerCaptured.update(60.0f / m_FPS);
+				m_ControllerSynth.update(60.0f / m_FPS);
+				m_ControllerStyle.update(60.0f / m_FPS);
+
+
+
+				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+
+				// if user hits key 1, animation will be played
+				// if user also presses shift, animation speed is doubled
+				float AnimationSpeed = 16.666f;
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed /= 2.0f;
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
+					m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, AnimationSpeed, 0.0f));
+					m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, AnimationSpeed, 0.0f));
+					m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed, 0.0f));
+					LastAnimSpeed = AnimationSpeed;
+				}
+
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
+					RepeatAnim = !RepeatAnim;
+				}
+
+				if (RepeatAnim && (m_Style.activeAnimation() == nullptr || m_Captured.activeAnimation() == nullptr || m_Synth.activeAnimation() == nullptr)) {
+					m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, LastAnimSpeed, 0.0f));
+					m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, LastAnimSpeed, 0.0f));
+					m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, LastAnimSpeed, 0.0f));
+				}
+
+
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
+					bool En;
+					m_SynthSGN.enabled(nullptr, &En);
+					m_SynthSGN.enable(true, !En);
+				}
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) {
+					bool En;
+					m_StyleSGN.enabled(nullptr, &En);
+					m_StyleSGN.enable(true, !En);
+				}
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_5, true)) {
+					bool En;
+					m_CapturedSGN.enabled(nullptr, &En);
+					m_CapturedSGN.enable(true, !En);
+				}
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_6, true)) {
+
+				}
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_7, true)) {
+
+				}
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_8, true)) {
+
+				}
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+				m_SG.render(&m_RenderDev);
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+				m_SG.render(&m_RenderDev);
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+
+				m_RenderWin.swapBuffers();
+
+				updateFPS();
+				defaultKeyboardUpdate(m_RenderWin.keyboard());
+
+			}//while[main loop]
+
+		}//run
+
+	protected:
+		StaticActor m_Skydome;
+		SkeletalActor m_Captured;
+		SkeletalActor m_Synth;
+		SkeletalActor m_Style;
+		SkeletalAnimationController m_ControllerCaptured;
+		SkeletalAnimationController m_ControllerSynth;
+		SkeletalAnimationController m_ControllerStyle;
+
+		StaticActor m_ComparisonModel;
+		SGNGeometry m_ComparisonModelSGN;
+
+		SGNTransformation m_RootSGN;
+		SGNGeometry m_SkydomeSGN;
+		SGNGeometry m_CapturedSGN;
+		SGNGeometry m_StyleSGN;
+		SGNGeometry m_SynthSGN;
+		SGNTransformation m_CapturedTransformSGN;
+		SGNTransformation m_StyleTransformSGN;
+		SGNTransformation m_SynthTransformSGN;
+	};//SkelAnimTestScene
+
+	void skelAnimTestScene(void) {
+
+		SkelAnimTestScene Scene;
+		Scene.init();
+		Scene.run();
+		Scene.clear();
 
 	}//exampleMinimumGraphicsSetup
 

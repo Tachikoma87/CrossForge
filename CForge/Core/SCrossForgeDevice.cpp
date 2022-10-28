@@ -1,3 +1,6 @@
+#ifdef WIN32
+#include <WinSock2.h>
+#endif
 #include <GLFW/glfw3.h>
 #include "SCrossForgeDevice.h"
 #include "SLogger.h"
@@ -5,6 +8,7 @@
 #include "../AssetIO/SAssetIO.h"
 #include "../Graphics/STextureManager.h"
 #include "../Graphics/Shader/SShaderManager.h"
+
 
 using namespace std;
 
@@ -44,17 +48,27 @@ namespace CForge {
 		m_pGPIO = nullptr;
 		m_pSMan = nullptr;
 		m_pTexMan = nullptr;
-
 	}//Constructor
 
 	SCrossForgeDevice::~SCrossForgeDevice(void) {	
 		// cleanup duty handled in clear
 		glfwTerminate();
-		
+
+		#ifdef WIN32
+		// clean WSA
+		WSACleanup();
+		#endif
 	}//Destructor
 
 	void SCrossForgeDevice::init(void) {
 		glfwInit();
+
+		#ifdef WIN32
+		WSADATA wsa;
+		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+			SLogger::log("Error initializing wsa" + std::to_string(WSAGetLastError()), "SCrossForgeDevice", SLogger::LOGTYPE_ERROR);
+		}
+		#endif
 
 		m_RegisteredObjects.clear();
 		m_FreeObjSlots.clear();
@@ -63,6 +77,7 @@ namespace CForge {
 		m_pAssIO = SAssetIO::instance();
 		m_pSMan = SShaderManager::instance();
 		m_pTexMan = STextureManager::instance();
+
 
 #ifdef _WIN32
 		m_pGPIO = nullptr;

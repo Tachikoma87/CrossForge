@@ -80,12 +80,13 @@ namespace CForge {
 			CONF_SKELETALANIMATION		= 0x04,
 			CONF_MORPHTARGETANIMATION	= 0x08,
 			CONF_VERTEXCOLORS			= 0x10,
+			CONF_NORMALMAPPING			= 0x20,
 		};
 
 		ShaderCode(void);
 		~ShaderCode(void);
 
-		void init(std::string ShaderCode, std::string VersionTag, uint8_t ConfigOptions, std::string FloatPrecisionTag, std::string IntegerPrecisionTag);
+		void init(std::string ShaderCode, std::string VersionTag, uint8_t ConfigOptions, std::string PrecisionTag);
 		void clear(void);
 
 		void config(LightConfig* pConfig);
@@ -97,7 +98,11 @@ namespace CForge {
 		std::string code(void)const;
 
 		bool requiresConfig(uint8_t ConfigOptions);
+
 		std::string originalCode(void)const;
+		std::string versionTag(void)const;
+		uint8_t configOptions(void)const;
+		std::string precisionTag(void)const;
 
 	protected:
 		std::string m_Code;

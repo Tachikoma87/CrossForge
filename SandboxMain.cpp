@@ -12,23 +12,31 @@
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
 
+#include "Examples/exampleSceneBase.hpp"
 #include "Examples/exampleMinimumGraphicsSetup.hpp"
 #include "Examples/exampleSkeletalAnimation.hpp"
 #include "Examples/exampleMorphTargetAnimation.hpp"
+#include "Examples/exampleSkybox.hpp"
+#include "Examples/exampleMultiViewport.hpp"
+#include "Examples/exampleSockets.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
 #include "Prototypes/TestScenes/ForestTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
-#include "Prototypes/TestScenes/SocketTestScene.hpp"
-#include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
-#include "Prototypes/TestScenes/SkyboxTestScene.hpp"
+#include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
+#include "Prototypes/TestScenes/ImageTestScene.hpp"
 
 #include "Prototypes/TestScenes/AutoRiggingTestScene.hpp"
 
+#include "Prototypes/TestScenes/GUITestScene.hpp"
+
+
+
 using namespace CForge;
 using namespace Eigen;
+
 
 int main(int argc, char* argv[]) {
 #ifdef WIN32
@@ -40,8 +48,6 @@ int main(int argc, char* argv[]) {
 
 	try {
 		 pDev = SCrossForgeDevice::instance();
-		 // to fetch OpenGL function points in main program
-
 		 SLogger::logFile("Logs/ErrorLog.txt", SLogger::LOGTYPE_ERROR, true, true);
 		 SLogger::logFile("Logs/DebugLog.txt", SLogger::LOGTYPE_DEBUG, true, true);
 		 SLogger::logFile("Logs/InfoLog.txt", SLogger::LOGTYPE_INFO, true, true);
@@ -59,19 +65,34 @@ int main(int argc, char* argv[]) {
 
 
 	try {
+		//exampleSceneBase();
 		//exampleMinimumGraphicsSetup();
-		//exampleSkeletalAnimation();
-		//exampleMorphTargetAnimation(); 
-		//shadowTest();
+		//exampleMorphTargetAnimation();
+		exampleMultiViewport();
+		//exampleSkeletalAnimation(); 
+		//exampleSkybox();  
+		//exampleSockets();
+	
+
+		//forestTestScene();
+		//imuInputDeviceTestScene();	 
+		//skelAnimTestScene();
+		//shadowTest();	
+		//surfaceSamplerTestScene();
 		//vertexColorTestScene();
 		//forestTestScene();
 		//skelAnimTestScene();
+
+		//GUITestScene S;
+		//S.guiTestScene();
 
 		//imuInputDeviceTestScene();
 		//socketTestScene();
 		//assetGLTFTestScene();
 		//skyboxTestScene();
 		autoRiggingTestScene();
+		//imageTestScene();
+		
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
