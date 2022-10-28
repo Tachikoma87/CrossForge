@@ -20,6 +20,16 @@
 
 #include <string>
 
+/**
+ * \file
+ * \brief Default values used across the GUI.
+ *
+ * This file includes many default values used within the GUI and
+ * its widgets. Because no proper dynamic theming is implemented at
+ * this point, these definitions can be used to adjust basic aspects
+ * of the GUI's visual appearance.
+ */
+
 namespace CForge {
 
     /** \brief The default style for CForge::WidgetBackgroundColored

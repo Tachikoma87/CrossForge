@@ -98,6 +98,11 @@ namespace CForge {
 
     /**
      * \brief A widget representing a movable, minimizable window.
+     *
+     * In case the user moved the window off-screen, the position of all top level
+     * widgets (which windows most likely are) can be reset by pressing `R` while
+     * holding the *right* CTRL key.
+     *
      * \ingroup GUI
      */
     class CFORGE_API WindowWidget : public BaseWidget {

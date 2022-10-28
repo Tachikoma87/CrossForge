@@ -131,6 +131,13 @@ namespace CForge {
         /**
          * \brief Determines the expected pixel width for the multi-line input string if it was rendered.
          *
+         * \todo
+         * I don't think **automatic breaking up of long lines of text** has been
+         * thoroughly tested yet, and in any case it should be improved to try
+         * and break lines on spaces instead of whereever. So it is probably
+         * best not to rely on this specific functionality at this point.
+         *
+         *
          * The input string will be split on new line characters (``U'\n'``),
          * and the individual lines will be written into the lines parameter.
          *

@@ -62,7 +62,9 @@ namespace CForge {
      *
      * This definition is used for forms and their callbacks into program code.
      * It can indicate what the original data type of the pointer in the
-     * \ref GUICallbackDatum is.
+     * \ref GUICallbackDatum is. Refer to each input widget's documentation
+     * for more details on their data types and what they represent (particularly
+     * for the drop down menu input).
      *
      * \ingroup GUI
      */
@@ -289,13 +291,20 @@ namespace CForge {
         /** \brief      Passes the entered character on to the focused widget.
          *
          *  In the past, this used to receive the glfwSetCharCallback() more directly,
-         *  hence it being a function of its own. Now it just passes the characters on.
+         *  hence it being a function of its own. Now it just passes the characters on
+         *  to the \ref focusedWidget.
          *
          *  \param[in]  codepoint    The 32-bit Unicode representation of the entered character.
          *  \sa         CForge::Keyboard glfwSetCharCallback() */
         void listen(char32_t codepoint) override;
 
         /** \brief      Receives the entered characters or other keypresses from CForge::Keyboard.
+         *
+         * This function also checks for key combinations used within the GUI.
+         * Currently that is:
+         *      - Right CTRL + R: Reset the position of top level widgets.
+         *        Useful if a window was moved off-screen.
+         *
          *  \param[in]  kc      CForge::Keyboard's callback object.
          *  \sa         CForge::Keyboard */
         void listen(CForge::KeyboardCallback kc) override;
