@@ -58,8 +58,6 @@ int main(int argc, char* argv[]) {
 	}
 
 
-
-
 	try {
 		//exampleSceneBase();
 		//exampleMinimumGraphicsSetup();
@@ -77,10 +75,10 @@ int main(int argc, char* argv[]) {
 		//skelAnimTestScene();
 		//shadowTest();	
 		//surfaceSamplerTestScene();
-		//vertexColorTestScene();
+//		vertexColorTestScene();
 
 		if (!File::exists("MuscleMan0.obj")) {
-			exampleShapeDeformer();
+			exampleShapeDeformer(1, 0, 150);
 		}
 		shapeDeformerTest();
 		

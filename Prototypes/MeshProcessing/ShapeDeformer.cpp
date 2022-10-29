@@ -202,7 +202,7 @@ namespace CForge {
 			return pPoint;
 		}
 
-		float translationDistance = optimalCapsuleRadius - distanceToCenter;
+		float translationDistance = (optimalCapsuleRadius - distanceToCenter)/2.0f;
 		//Eigen::Vector3f pNormal = m_pMesh->getUpdatedNormal(frame, vertexID);
 		distance.normalize();
 		//Eigen::Vector3f Rval = pPoint + (-1) *translationDistance * distance;
@@ -217,7 +217,7 @@ namespace CForge {
 	}
 	
 	Eigen::Vector3f ShapeDeformer::bestLocationSamplePoint2(T3DMesh<float>::Line Capsule1, T3DMesh<float>::Line Capsule2, float optimalCapsuleRadius, Eigen::Vector3f pPoint, int32_t frame) {
-		
+		Eigen::Vector3f Rval = pPoint;
 		Eigen::Vector3f A1 = Capsule1.p;
 		Eigen::Vector3f B1 = A1 + Capsule1.direction;
 
@@ -228,13 +228,14 @@ namespace CForge {
 		Eigen::Vector3f center1 = m_pMesh->closestPointOnLineSegment(A1, B1, pPoint);
 		Eigen::Vector3f center2 = m_pMesh->closestPointOnLineSegment(A2, B2, pPoint);
 
-		Eigen::Vector3f center3 = m_pMesh->closestPointOnLineSegment(center1, center2, pPoint);
+		Eigen::Vector3f distance = pPoint - center2;
+		Eigen::Vector3f direction = center1 - pPoint;
+		direction.normalize();
+		float dist = m_pMesh->vectorLength(distance);
 
-		Eigen::Vector3f distance = center2 - center1;
-		Eigen::Vector3f center4 = center1 + 0.5f * distance;
-
-		Eigen::Vector3f translation = center4 - center3;
-		Eigen::Vector3f Rval = pPoint + translation;
+		if (dist < optimalCapsuleRadius) {
+			Rval = pPoint + (optimalCapsuleRadius - dist) / 2.0f * direction;
+		}
 
 		return Rval;
 	}
@@ -662,7 +663,7 @@ namespace CForge {
 
 	}
 
-	Eigen::MatrixXf ShapeDeformer::collisionTestShapeDeformation(int Submesh1Index, int Submesh2Index, int frame, int AnimationID, Eigen::MatrixXf U_bc) {
+	Eigen::MatrixXf ShapeDeformer::collisionTestShapeDeformation(int Submesh1Index, int Submesh2Index, int frame, int AnimationID, int32_t method, Eigen::MatrixXf U_bc) {
 
 		Eigen::MatrixXf MeshVertices = m_pMesh->getTriDeformation(frame);
 
@@ -843,7 +844,16 @@ namespace CForge {
 				int32_t vertexID = this->m_SamplePoints(samplePointID);
 				Eigen::Vector3f VertexPosition = m_pMesh->getUpdatedVertexPosition(frame, vertexID);
 				Eigen::Vector3f closestVert = getcloseVert(Capsule2, Submesh2Index - 1, VertexPosition, frame);
-				Eigen::Vector3f newPosition = (VertexPosition + closestVert) / 2.0f;
+				Eigen::Vector3f center = m_pMesh->closestPointOnLineSegment(Capsule2.p, Capsule2.p + Capsule2.direction, closestVert);
+				float accurateRadius = m_pMesh->vectorLength(closestVert - center);
+				Eigen::Vector3f newPosition;
+				if (method == 1) {
+					newPosition = bestLocationSamplePoint(Capsule2, accurateRadius, VertexPosition, frame);
+				}
+				else {
+					newPosition = bestLocationSamplePoint2(Capsule1, Capsule2, accurateRadius, VertexPosition, frame);
+				}
+				
 				U_bc.row(samplePointID) = Eigen::RowVector3f(newPosition);
 			}
 
@@ -852,7 +862,17 @@ namespace CForge {
 				int32_t vertexID = this->m_SamplePoints(samplePointID);
 				Eigen::Vector3f VertexPosition = m_pMesh->getUpdatedVertexPosition(frame, vertexID);
 				Eigen::Vector3f closestVert = getcloseVert(Capsule1, Submesh1Index - 1, VertexPosition, frame);
-				Eigen::Vector3f newPosition = (VertexPosition + closestVert) / 2.0f;
+				Eigen::Vector3f center = m_pMesh->closestPointOnLineSegment(Capsule1.p, Capsule1.p + Capsule1.direction, closestVert);
+				float accurateRadius = m_pMesh->vectorLength(closestVert - center);
+				
+				Eigen::Vector3f newPosition;
+				if (method == 1) {
+					newPosition = bestLocationSamplePoint(Capsule1, accurateRadius, VertexPosition, frame);
+				}
+				else {
+					newPosition = bestLocationSamplePoint2(Capsule2, Capsule1, accurateRadius, VertexPosition, frame);
+				}
+				
 				U_bc.row(samplePointID) = Eigen::RowVector3f(newPosition);
 			}
 
@@ -907,7 +927,7 @@ namespace CForge {
 		//this->Tri_Deformations.at(frame) = V;
 	}
 	
-	void ShapeDeformer::resolveCollisionsShapeDeformation(int Submesh1Index, int Submesh2Index, int32_t startFrame, int32_t endFrame, int32_t AnimationID) {
+	void ShapeDeformer::resolveCollisionsShapeDeformation(int Submesh1Index, int Submesh2Index, int32_t startFrame, int32_t endFrame, int32_t AnimationID, int32_t method) {
 		Eigen::Vector2i bones;
 		bones(0) = Submesh1Index - 1;
 		bones(1) = Submesh2Index - 1;
@@ -927,7 +947,7 @@ namespace CForge {
 			for (int32_t j = 0; j < m_SamplePoints.rows(); j++) {
 				U_bc.row(j) = MeshVertices.row(m_SamplePoints(j));
 			}
-			U_bc = collisionTestShapeDeformation(Submesh1Index, Submesh2Index, i, AnimationID, U_bc);
+			U_bc = collisionTestShapeDeformation(Submesh1Index, Submesh2Index, i, AnimationID, method, U_bc);
 			Eigen::MatrixXf newV = ShapeDeformation(i, U_bc);
 			//igl::writeOBJ("TestOriginal.obj", MeshVertices, mat_Faces);
 			std::string objName = "MuscleMan" + std::to_string(i) + ".obj";

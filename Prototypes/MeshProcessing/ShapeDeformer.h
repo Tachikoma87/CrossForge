@@ -28,9 +28,9 @@ namespace CForge {
 		Eigen::Vector3f bestLocationSamplePoint(T3DMesh<float>::Line Capsule, float optimalCapsuleRadius, Eigen::Vector3f pPoint, int32_t frame);
 		Eigen::Vector3f bestLocationSamplePoint2(T3DMesh<float>::Line Capsule1, T3DMesh<float>::Line Capsule2, float optimalCapsuleRadius, Eigen::Vector3f pPoint, int32_t frame);
 		Eigen::Vector3f bestLocationSamplePoint3(T3DMesh<float>::Line Capsule, int32_t vertexID, int32_t TriIDs[3], int32_t frame);
-		Eigen::MatrixXf collisionTestShapeDeformation(int Submesh1Index, int Submesh2Index, int frame, int AnimationID, Eigen::MatrixXf U_bc);
+		Eigen::MatrixXf collisionTestShapeDeformation(int Submesh1Index, int Submesh2Index, int frame, int AnimationID, int32_t method, Eigen::MatrixXf U_bc);
 		Eigen::MatrixXf ShapeDeformation(int32_t frame, Eigen::MatrixXf U_bc);
-		void resolveCollisionsShapeDeformation(int Submesh1Index, int Submesh2Index, int32_t startFrame, int32_t endFrame, int32_t AnimationID);
+		void resolveCollisionsShapeDeformation(int Submesh1Index, int Submesh2Index, int32_t startFrame, int32_t endFrame, int32_t AnimationID, int32_t method);
 
 	private:
 		T3DMesh<float>* m_pMesh;		///< The mesh to process.

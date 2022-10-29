@@ -59,26 +59,54 @@ namespace CForge {
 			m_Skydome.init(&M);
 			M.clear();
 
+			std::string filepath("Assets/tmp/samplePoints1000.txt");
+			int SamplePoints;
+			int numSamplePoints;
+			std::ifstream myfile(filepath);
+
+			if (!myfile.is_open()) {
+				std::cout << "Unable to open file\n";
+			}
+			else {
+				myfile >> numSamplePoints;
+				for (int i = 0; i < numSamplePoints; i++)
+				{
+					myfile >> SamplePoints;
+					ControlPoints.push_back(SamplePoints);
+					SGNGeometry temp1;
+					SGNTransformation temp2;
+					SGNTransformation temp3;
+
+					markerSGN1.push_back(temp2);
+					markerSGN2.push_back(temp3);
+					markerSphere.push_back(temp1);
+				}
+
+				myfile.close();
+
+			}
+
 			// load shape model
 			// start first 1 frame, 0 is T-Pose
 			M.clear();
 			Eigen::MatrixXf V;
 			Eigen::MatrixXi F;
 			igl::readOBJ("MuscleMan1.obj", V, F);
-			toCForgeMesh(&M, V, F);
-			setMeshShader(&M, 0.5f, 0.04f);
-			M.computePerVertexNormals();
+			toCForgeMesh(&m_ModelData, V, F);
+			setMeshShader(&m_ModelData, 0.5f, 0.04f);
+			m_ModelData.computePerVertexNormals();
 			// build the morph targets
-			buildMTModel(&M);
+			buildMTModel(&m_ModelData);
 			// initialize morph target controller and actor
-			m_MTController.init(&M);
+			m_MTController.init(&m_ModelData);
 			buildMTSequences(&m_MTController);
-			m_Shape.init(&M, &m_MTController);
-			M.clear();
+			m_Shape.init(&m_ModelData, &m_MTController);
+			//M.clear();
 
 			// build scene graph			
 			m_RootSGN.init(nullptr);
 			m_SG.init(&m_RootSGN);
+					
 
 			// add skydome		
 			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
@@ -88,6 +116,34 @@ namespace CForge {
 			m_ShapeTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
 			m_ShapeSGN.init(&m_ShapeTransformSGN, &m_Shape);
 			m_ShapeSGN.scale(Vector3f(0.01f, 0.01f, 0.01f));
+
+			// prepare node to add markers		
+			m_MarkerGroupSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f)); // markers will always belong to this object for the purpose of this demo
+
+			SAssetIO::load("Assets/tmp/Sphere.glb", &M);
+			setMeshShader(&M, 0.8f, 0.04f);
+			M.computePerVertexNormals();
+			for (uint32_t i = 0; i < M.materialCount(); ++i) M.getMaterial(i)->Color = Vector4f(0.0f, 0.0f, 1.0f, 1.0f); // red spheres
+			m_Sphere.init(&M);
+			M.clear();
+
+
+			int current = 0;
+			T3DMesh<float>::MorphTarget* current_MorphTarget = m_ModelData.getMorphTarget(0);
+			for (int i = 0; i < ControlPoints.size(); i++) {
+				int32_t vert = ControlPoints.at(i);
+				if (vert == current_MorphTarget->VertexIDs.at(current)) {
+					Eigen::Vector3f position = (m_ModelData.vertex(vert) + current_MorphTarget->VertexOffsets.at(current)) / 100.0f;
+					markerSGN1.at(i).init(&m_MarkerGroupSGN, position.cwiseProduct(m_ShapeTransformSGN.scale()));
+					current++;
+				}
+				else {
+					markerSGN1.at(i).init(&m_MarkerGroupSGN, (m_ModelData.vertex(vert) / 100.0f).cwiseProduct(m_ShapeTransformSGN.scale()));
+				}
+				markerSGN2.at(i).init(&markerSGN1.at(i), Vector3f::Zero(), m_ShapeTransformSGN.rotation(), m_ShapeTransformSGN.scale(), Vector3f::Zero(), m_ShapeTransformSGN.rotationDelta());
+				markerSphere.at(i).init(&markerSGN2.at(i), &m_Sphere, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(0.003f, 0.003f, 0.003f));
+			}
+
 
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CoreUtility::timestamp();
@@ -102,6 +158,11 @@ namespace CForge {
 		void clear(void) {
 			if (nullptr != m_pShaderMan) m_pShaderMan->release();
 			m_pShaderMan = nullptr;
+			ControlPoints.clear();
+			markerSGN1.clear();
+			markerSGN2.clear();
+			markerSphere.clear();
+			m_ModelData.clear();
 		}//clear
 
 		void run(void) {
@@ -114,6 +175,7 @@ namespace CForge {
 
 				// progres morph target animations
 				m_MTController.update(60.0f / m_FPS);
+		
 
 				Keyboard* pKeyboard = m_RenderWin.keyboard();
 
@@ -123,8 +185,12 @@ namespace CForge {
 				
 				// scale animation speed
 				float MTAnimationSpeed = 1.0f;
-				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) MTAnimationSpeed = 0.5f;
-				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) MTAnimationSpeed = 0.25f;
+				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) {
+					MTAnimationSpeed = 0.5f;
+				}
+				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) {
+					MTAnimationSpeed = 0.25f;
+				}
 
 				// play animation
 				if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) {
@@ -143,16 +209,74 @@ namespace CForge {
 
 				// toggle pause animation
 				if (pKeyboard->keyPressed(Keyboard::KEY_P, true)) {
-					if (pAnim->Speed > 0.0f) pAnim->Speed = 0.0f;
-					else pAnim->Speed = MTAnimationSpeed;
+					if (pAnim != nullptr) {
+						if (pAnim->Speed > 0.0f) pAnim->Speed = 0.0f;
+						else pAnim->Speed = MTAnimationSpeed;
+					}
+					
 				}
 
 				// single step
 				if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) {
-					if (pAnim->Speed > 0.0f) pAnim->Speed = 0.0f;
+					if (nullptr == pAnim) {
+						pAnim = m_MTController.play(0, 0.0f);
+						m_Shape.addAnimation(pAnim);
+					}
+					if (pAnim->Speed > 0.0f) {
+						pAnim->Speed = 0.0f;
+					}
+					
 					pAnim->CurrentSquenceIndex++;
+					if (pAnim->CurrentSquenceIndex > m_ModelData.morphTargetCount() - 1) {
+						pAnim->CurrentSquenceIndex = 0;
+					}
+
+					if (pAnim != nullptr) {
+						T3DMesh<float>::MorphTarget* current_MorphTarget = m_ModelData.getMorphTarget(pAnim->CurrentSquenceIndex);
+						int current = 0;
+						for (int i = 0; i < current_MorphTarget->VertexIDs.size(); i++) {
+							int32_t vert = current_MorphTarget->VertexIDs.at(i);
+							if (current < ControlPoints.size()) {
+								if (vert == ControlPoints.at(current)) {
+									Eigen::Vector3f position = (current_MorphTarget->VertexOffsets.at(i) + m_ModelData.vertex(vert)) / 100.0f;
+									markerSGN1.at(current).translation(position);
+									current++;
+								}
+							}
+
+						}
+					}
 				}
-				
+
+				// single step
+				if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) {
+					if (nullptr == pAnim) {
+						pAnim = m_MTController.play(0, 0.0f);
+						m_Shape.addAnimation(pAnim);
+					}
+					if (pAnim->Speed > 0.0f) pAnim->Speed = 0.0f;
+					pAnim->CurrentSquenceIndex--;
+					if (pAnim->CurrentSquenceIndex < 0) {
+						pAnim->CurrentSquenceIndex = m_ModelData.morphTargetCount() - 1;
+					}
+					if (pAnim != nullptr) {
+						T3DMesh<float>::MorphTarget* current_MorphTarget = m_ModelData.getMorphTarget(pAnim->CurrentSquenceIndex);
+						int current = 0;
+						for (int i = 0; i < current_MorphTarget->VertexIDs.size(); i++) {
+							int32_t vert = current_MorphTarget->VertexIDs.at(i);
+							if (current < ControlPoints.size()) {
+								if (vert == ControlPoints.at(current)) {
+									Eigen::Vector3f position = (current_MorphTarget->VertexOffsets.at(i) + m_ModelData.vertex(vert)) / 100.0f;
+									markerSGN1.at(current).translation(position);
+									current++;
+								}
+							}
+
+						}
+					}
+					
+				}
+
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 				m_SG.render(&m_RenderDev);
 
@@ -175,7 +299,8 @@ namespace CForge {
 				defaultKeyboardUpdate(m_RenderWin.keyboard());
 			}//while[main loop]
 		}//run
-	protected:
+	
+protected:
 
 		void toCForgeMesh(T3DMesh<float>* pM, Eigen::MatrixXf V, Eigen::MatrixXi Faces) {
 			std::vector<Vector3f> Vertices;
@@ -199,8 +324,7 @@ namespace CForge {
 			Mat.Color = Vector4f(0.7f, 0.7f, 0.7f, 1.0f);
 			Mat.ID = 0;
 			Mat.Metallic = 0.04f;
-			Mat.Roughness = 0.1f
-				;
+			Mat.Roughness = 0.1f;
 			pM->addMaterial(&Mat, true);
 			pM->addSubmesh(pSub, false);
 			pM->vertices(&Vertices);
@@ -292,6 +416,15 @@ namespace CForge {
 		SGNTransformation m_ShapeTransformSGN;
 		SGNTransformation m_RootSGN;
 		SGNGeometry m_SkydomeSGN;
+
+		SGNTransformation m_MarkerGroupSGN;
+		std::vector<int32_t> ControlPoints;
+		std::vector<SGNTransformation> markerSGN1;
+		std::vector<SGNTransformation> markerSGN2;
+		std::vector<SGNGeometry> markerSphere;
+		T3DMesh<float> m_ModelData;
+		StaticActor m_Sphere;
+
 
 	};//ExampleMorphTargetAnimation
 
