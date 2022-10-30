@@ -43,7 +43,7 @@ namespace CForge {
 
 		}//Destructor
 
-		void init(void) {
+		void init(int32_t startFrame, int32_t endFrame) {
 
 			initWindowAndRenderDevice();
 			initCameraAndLights();
@@ -91,16 +91,28 @@ namespace CForge {
 			M.clear();
 			Eigen::MatrixXf V;
 			Eigen::MatrixXi F;
-			igl::readOBJ("MuscleMan1.obj", V, F);
+			Eigen::MatrixXf V2;
+			Eigen::MatrixXi F2;
+			igl::readOBJ("MuscleMan" + std::to_string(startFrame) + ".obj", V, F);
+			igl::readOBJ("OriginalMuscleMan" + std::to_string(startFrame) + ".obj", V2, F2);
 			toCForgeMesh(&m_ModelData, V, F);
+			toCForgeMesh(&m_ModelDataOriginal, V2, F2);
 			setMeshShader(&m_ModelData, 0.5f, 0.04f);
+			setMeshShader(&m_ModelDataOriginal, 0.5f, 0.04f);
 			m_ModelData.computePerVertexNormals();
+			m_ModelDataOriginal.computePerVertexNormals();
 			// build the morph targets
-			buildMTModel(&m_ModelData);
+			buildMTModel(&m_ModelData, "MuscleMan" + std::to_string(startFrame) + ".obj", startFrame, endFrame);
+			buildMTModel(&m_ModelDataOriginal, "OriginalMuscleMan" + std::to_string(startFrame) + ".obj", startFrame, endFrame);
+
 			// initialize morph target controller and actor
 			m_MTController.init(&m_ModelData);
 			buildMTSequences(&m_MTController);
 			m_Shape.init(&m_ModelData, &m_MTController);
+
+			m_MTControllerOriginal.init(&m_ModelDataOriginal);
+			buildMTSequences(&m_MTControllerOriginal);
+			m_ShapeOriginal.init(&m_ModelDataOriginal, &m_MTControllerOriginal);
 			//M.clear();
 
 			// build scene graph			
@@ -116,6 +128,10 @@ namespace CForge {
 			m_ShapeTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
 			m_ShapeSGN.init(&m_ShapeTransformSGN, &m_Shape);
 			m_ShapeSGN.scale(Vector3f(0.01f, 0.01f, 0.01f));
+
+			m_ShapeTransformSGNOriginal.init(&m_RootSGN, Vector3f(-0.5f, 3.0f, 0.0f));
+			m_ShapeSGNOriginal.init(&m_ShapeTransformSGNOriginal, &m_ShapeOriginal);
+			m_ShapeSGNOriginal.scale(Vector3f(0.01f, 0.01f, 0.01f));
 
 			// prepare node to add markers		
 			m_MarkerGroupSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f)); // markers will always belong to this object for the purpose of this demo
@@ -163,19 +179,20 @@ namespace CForge {
 			markerSGN2.clear();
 			markerSphere.clear();
 			m_ModelData.clear();
+			m_ModelDataOriginal.clear();
 		}//clear
 
 		void run(void) {
 
 			MorphTargetAnimationController::ActiveAnimation* pAnim = nullptr;  
-
+			MorphTargetAnimationController::ActiveAnimation* pAnim2 = nullptr;
 			while (!m_RenderWin.shutdown()) {
 				m_RenderWin.update();
 				m_SG.update(60.0f / m_FPS);
 
 				// progres morph target animations
 				m_MTController.update(60.0f / m_FPS);
-		
+				m_MTControllerOriginal.update(60.0f / m_FPS);
 
 				Keyboard* pKeyboard = m_RenderWin.keyboard();
 
@@ -197,6 +214,9 @@ namespace CForge {
 					if (nullptr == pAnim) {
 						pAnim = m_MTController.play(0, MTAnimationSpeed);
 						m_Shape.addAnimation(pAnim);
+
+						pAnim2 = m_MTControllerOriginal.play(0, MTAnimationSpeed);
+						m_ShapeOriginal.addAnimation(pAnim2);
 					}
 					else {
 						pAnim->Finished = false;
@@ -204,6 +224,12 @@ namespace CForge {
 						pAnim->t = 0.0f;
 						pAnim->CurrentSquenceIndex = 0;
 						pAnim->SequenceStartTimestamp = CoreUtility::timestamp();
+						
+						pAnim2->Finished = false;
+						pAnim2->Speed = MTAnimationSpeed;
+						pAnim2->t = 0.0f;
+						pAnim2->CurrentSquenceIndex = 0;
+						pAnim2->SequenceStartTimestamp = CoreUtility::timestamp();
 					}
 				}
 
@@ -212,6 +238,8 @@ namespace CForge {
 					if (pAnim != nullptr) {
 						if (pAnim->Speed > 0.0f) pAnim->Speed = 0.0f;
 						else pAnim->Speed = MTAnimationSpeed;
+						if (pAnim2->Speed > 0.0f) pAnim2->Speed = 0.0f;
+						else pAnim2->Speed = MTAnimationSpeed;
 					}
 					
 				}
@@ -221,14 +249,20 @@ namespace CForge {
 					if (nullptr == pAnim) {
 						pAnim = m_MTController.play(0, 0.0f);
 						m_Shape.addAnimation(pAnim);
+
+						pAnim2 = m_MTControllerOriginal.play(0, 0.0f);
+						m_ShapeOriginal.addAnimation(pAnim2);
 					}
 					if (pAnim->Speed > 0.0f) {
 						pAnim->Speed = 0.0f;
+						pAnim2->Speed = 0.0f;
 					}
 					
 					pAnim->CurrentSquenceIndex++;
+					pAnim2->CurrentSquenceIndex++;
 					if (pAnim->CurrentSquenceIndex > m_ModelData.morphTargetCount() - 1) {
 						pAnim->CurrentSquenceIndex = 0;
+						pAnim2->CurrentSquenceIndex = 0;
 					}
 
 					if (pAnim != nullptr) {
@@ -253,11 +287,18 @@ namespace CForge {
 					if (nullptr == pAnim) {
 						pAnim = m_MTController.play(0, 0.0f);
 						m_Shape.addAnimation(pAnim);
+						pAnim2 = m_MTControllerOriginal.play(0, 0.0f);
+						m_ShapeOriginal.addAnimation(pAnim2);
 					}
-					if (pAnim->Speed > 0.0f) pAnim->Speed = 0.0f;
+					if (pAnim->Speed > 0.0f) {
+						pAnim->Speed = 0.0f;
+						pAnim2->Speed = 0.0f;
+					}
 					pAnim->CurrentSquenceIndex--;
+					pAnim2->CurrentSquenceIndex--;
 					if (pAnim->CurrentSquenceIndex < 0) {
 						pAnim->CurrentSquenceIndex = m_ModelData.morphTargetCount() - 1;
+						pAnim2->CurrentSquenceIndex = m_ModelData.morphTargetCount() - 1;
 					}
 					if (pAnim != nullptr) {
 						T3DMesh<float>::MorphTarget* current_MorphTarget = m_ModelData.getMorphTarget(pAnim->CurrentSquenceIndex);
@@ -330,7 +371,7 @@ protected:
 			pM->vertices(&Vertices);
 		}
 
-		void buildMTModel(T3DMesh<float>* pBaseMesh) {
+		void buildMTModel(T3DMesh<float>* pBaseMesh, string modelName, int32_t startFrame, int32_t endFrame) {
 			if (nullptr == pBaseMesh) throw NullpointerExcept("pBaseMesh");
 
 			printf("Building morph target model...");
@@ -342,12 +383,27 @@ protected:
 
 			// define models we want to add
 			// models have to bin in full vertex correspondence (same number of vertices, each having the same meaning)
+				
 			vector<pair<string, string>> MTList;
 			char Name[32];
 			char Path[256];
-			for (uint16_t i = 2; i < 150; ++i) {
+
+			if (startFrame == 0) {
+				startFrame = 2;
+			}
+			else {
+				startFrame = startFrame + 1;
+			}
+
+			for (uint16_t i = startFrame; i < endFrame + 1; ++i) {
 				sprintf(Name, "Frame %d", i);
-				sprintf(Path, "MuscleMan%d.obj", i);
+				if (modelName.length() > 16) {
+					sprintf(Path, "OriginalMuscleMan%d.obj", i);
+				}
+				else {
+					sprintf(Path, "MuscleMan%d.obj", i);
+				}
+				
 				MTList.push_back(pair<string, string>(Name, Path));
 			}//for[all frames]
 			
@@ -410,10 +466,13 @@ protected:
 		StaticActor m_Skydome;
 		MorphTargetActor m_Shape;
 		MorphTargetAnimationController m_MTController;
-
+		MorphTargetActor m_ShapeOriginal;
+		MorphTargetAnimationController m_MTControllerOriginal;
 		// scene graph nodes
 		SGNGeometry m_ShapeSGN;
 		SGNTransformation m_ShapeTransformSGN;
+		SGNGeometry m_ShapeSGNOriginal;
+		SGNTransformation m_ShapeTransformSGNOriginal;
 		SGNTransformation m_RootSGN;
 		SGNGeometry m_SkydomeSGN;
 
@@ -423,15 +482,16 @@ protected:
 		std::vector<SGNTransformation> markerSGN2;
 		std::vector<SGNGeometry> markerSphere;
 		T3DMesh<float> m_ModelData;
+		T3DMesh<float> m_ModelDataOriginal;
 		StaticActor m_Sphere;
 
 
 	};//ExampleMorphTargetAnimation
 
-	void shapeDeformerTest(void) {
+	void shapeDeformerTest(int32_t startFrame, int32_t endFrame) {
 
 		ShapeDeformerTestScene Ex;
-		Ex.init();
+		Ex.init(startFrame, endFrame);
 		Ex.run();
 		Ex.clear();
 

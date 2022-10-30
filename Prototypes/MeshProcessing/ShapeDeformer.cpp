@@ -951,7 +951,9 @@ namespace CForge {
 			Eigen::MatrixXf newV = ShapeDeformation(i, U_bc);
 			//igl::writeOBJ("TestOriginal.obj", MeshVertices, mat_Faces);
 			std::string objName = "MuscleMan" + std::to_string(i) + ".obj";
+			std::string objName2 = "OriginalMuscleMan" + std::to_string(i) + ".obj";
 			igl::writeOBJ(objName, newV, mat_Faces);
+			igl::writeOBJ(objName2, MeshVertices, mat_Faces);
 
 			// Export with CForge
 			/*T3DMesh<float> M;

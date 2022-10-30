@@ -77,10 +77,15 @@ int main(int argc, char* argv[]) {
 		//surfaceSamplerTestScene();
 //		vertexColorTestScene();
 
-		if (!File::exists("MuscleMan0.obj")) {
-			exampleShapeDeformer(1, 0, 150);
+		int32_t startFrame = 0;
+		int32_t endFrame = 150;
+		int32_t method = 1;
+		//int32_t method = 2;
+
+		if (!File::exists("MuscleMan" + to_string(startFrame) + ".obj")) {
+			exampleShapeDeformer(method, startFrame, endFrame);
 		}
-		shapeDeformerTest();
+		shapeDeformerTest(startFrame, endFrame);
 		
 	}
 	catch (const CrossForgeException & e) {
