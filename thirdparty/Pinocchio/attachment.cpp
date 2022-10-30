@@ -236,28 +236,30 @@ public:
                     nzweights[i].push_back(make_pair(j, rhs[i]));
             }
         }
-	//	
-	//	std::cout << "copy weights\n";
-	//	for (i = 0; i < nv; ++i) {
-	//		int vertI=i;
-	//		std::map<int,bool> visited;
-	//		visited[i]=true;
-	//		if (nzweights[vertI].size() == 0) {
-	//			std::cout << "vert: " << vertI << " from " << nv << " has no weights\n";
-	//			// find nearest vertex and copy weights
-	//			float vertD = std::numeric_limits<float>::max();
-	//			for (uint32_t k = 0; k < nv; ++k) {
-	//				std::cout << "checking vert: " << k << " of " << nv << " for weights...\r";
-	//				float newLen = (mesh.vertices[i].pos-mesh.vertices[k].pos).lengthsq();
-	//				if (newLen < vertD || visited[k]==false || nzweights[k].size() > 0) {
-	//					vertD=newLen;
-	//					vertI=k;
-	//				}
-	//			}
-	//		}
-	//		nzweights[i] = nzweights[vertI];
-	//	}
-
+		
+		//TODO find better solution
+		if (gMeshBroken) {
+			std::cout << "copy weights\n";
+			for (i = 0; i < nv; ++i) {
+				int vertI=i;
+				std::map<int,bool> isCopy;
+				if (nzweights[vertI].size() == 0) {
+					isCopy[i]=true;
+					std::cout << "vert: " << vertI << " from " << nv << " has no weights\n";
+					// find nearest vertex and copy weights
+					float vertD = std::numeric_limits<float>::max();
+					for (uint32_t k = 0; k < nv; ++k) {
+						//std::cout << "checking vert: " << k << " of " << nv << " for weights...\r";
+						float newLen = (mesh.vertices[i].pos-mesh.vertices[k].pos).lengthsq();
+						if (newLen < vertD && isCopy[k]==false && nzweights[k].size() > 0) {
+							vertD=newLen;
+							vertI=k;
+						}
+					}
+				}
+				nzweights[i] = nzweights[vertI];
+			}
+		}
         for(i = 0; i < nv; ++i) {
             double sum = 0.;
             for(j = 0; j < (int)nzweights[i].size(); ++j)
