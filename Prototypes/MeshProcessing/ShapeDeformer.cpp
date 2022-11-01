@@ -240,7 +240,7 @@ namespace CForge {
 		return Rval;
 	}
 
-	Eigen::Vector3f ShapeDeformer::bestLocationSamplePoint3(T3DMesh<float>::Line Capsule, int32_t vertexID, int32_t TriIDs[3], int32_t frame) {
+	/*Eigen::Vector3f ShapeDeformer::bestLocationSamplePoint3(T3DMesh<float>::Line Capsule, int32_t vertexID, int32_t TriIDs[3], int32_t frame) {
 
 		Eigen::Vector3f pPoint = m_pMesh->getUpdatedVertexPosition(frame, vertexID);
 		Eigen::Vector3f Tri[3];
@@ -268,6 +268,30 @@ namespace CForge {
 		float translationDistance = distance2Length - distance1Length;
 		distance1.normalize();
 		Eigen::Vector3f Rval = pPoint + translationDistance * distance1;
+		return Rval;
+	}*/
+
+	Eigen::Vector3f ShapeDeformer::bestLocationSamplePoint3(T3DMesh<float>::Line Capsule1, T3DMesh<float>::Line Capsule2, float optimalCapsuleRadius, Eigen::Vector3f pPoint, int32_t frame) {
+		Eigen::Vector3f Rval = pPoint;
+		Eigen::Vector3f A1 = Capsule1.p;
+		Eigen::Vector3f B1 = A1 + Capsule1.direction;
+
+		Eigen::Vector3f A2 = Capsule2.p;
+		Eigen::Vector3f B2 = A2 + Capsule2.direction;
+		//pPoint belongs to Capsule 1
+		//A and B belong to Capsule 2
+		Eigen::Vector3f center1 = m_pMesh->closestPointOnLineSegment(A1, B1, pPoint);
+		Eigen::Vector3f center2 = m_pMesh->closestPointOnLineSegment(A2, B2, pPoint);
+
+		Eigen::Vector3f distance = pPoint - center2;
+		Eigen::Vector3f direction = center1 - pPoint;
+		direction.normalize();
+		float dist = m_pMesh->vectorLength(distance);
+
+		if (dist < optimalCapsuleRadius) {
+			Rval = pPoint + ((optimalCapsuleRadius - dist) * 1.25f) * direction;
+		}
+
 		return Rval;
 	}
 
@@ -850,8 +874,11 @@ namespace CForge {
 				if (method == 1) {
 					newPosition = bestLocationSamplePoint(Capsule2, accurateRadius, VertexPosition, frame);
 				}
-				else {
+				else if (method == 2) {
 					newPosition = bestLocationSamplePoint2(Capsule1, Capsule2, accurateRadius, VertexPosition, frame);
+				}
+				else {
+					newPosition = bestLocationSamplePoint3(Capsule1, Capsule2, accurateRadius, VertexPosition, frame);
 				}
 				
 				U_bc.row(samplePointID) = Eigen::RowVector3f(newPosition);

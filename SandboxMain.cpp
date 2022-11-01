@@ -78,8 +78,9 @@ int main(int argc, char* argv[]) {
 //		vertexColorTestScene();
 
 		int32_t startFrame = 0;
-		int32_t endFrame = 150;
-		int32_t method = 1;
+		int32_t endFrame = 5;
+		int32_t method = 3;
+		//int32_t method = 1;
 		//int32_t method = 2;
 
 		if (!File::exists("MuscleMan" + to_string(startFrame) + ".obj")) {
