@@ -19,7 +19,7 @@ namespace CForge {
 			clear();
 		}//Destructor
 
-		void run(void) {
+		void run(int32_t method, int32_t startFrame, int32_t endFrame) {
 			// load skydome
 			T3DMesh<float> M;
 			// initialize skeletal actor (Eric) and its animation controller
@@ -30,9 +30,7 @@ namespace CForge {
 			//-------- Deformation Part
 			ShapeDeformer TestDeformer;
 			TestDeformer.init(&M);
-			int startFrame = 0;
-			int endFrame = 150;
-			TestDeformer.resolveCollisionsShapeDeformation(16, 20, startFrame, endFrame, 0);
+			TestDeformer.resolveCollisionsShapeDeformation(16, 20, startFrame, endFrame, 0, method);
 			//---------------
 
 			M.clear();
@@ -47,10 +45,10 @@ namespace CForge {
 	
 	};//ExampleShapeDeformer 
 
-	void exampleShapeDeformer(void) {
+	void exampleShapeDeformer(int32_t method, int32_t startFrame, int32_t endFrame) {
 
 		ExampleShapeDeformer Ex;
-		Ex.run();
+		Ex.run(method, startFrame, endFrame);
 		Ex.clear();
 
 	}//exampleMinimumGraphicsSetup
