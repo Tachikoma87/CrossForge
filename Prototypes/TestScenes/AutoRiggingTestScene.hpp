@@ -43,6 +43,8 @@
 #include "../../thirdparty/Pinocchio/pinocchioApi.h"
 #include "../../thirdparty/PinocchioTools/PinocchioTools.hpp"
 
+#include <filesystem>
+
 namespace nsPiT = nsPinocchioTools;
 
 using namespace Eigen;
@@ -138,17 +140,26 @@ namespace CForge {
 			Skydome.init(&M);
 			M.clear();
 
+			/////////////////////////////////////////////////////////////////
+
 			// initialize skeletal actor (Eric) and its animation controller
 			SAssetIO::load("Assets/ExampleScenes/Eric_Anim.fbx", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
-			//AssetIO::store("AssetOut/out.fbx", &M);
-			//return;
 			
 			T3DMesh<float> MT;
-			//SAssetIO::load("Assets/muppetshow/Model1.obj", &MT);
-			//SAssetIO::load("Assets/muppetshow/female_body.obj", &MT);
-			SAssetIO::load("Assets/autorig/spock/spockR2.fbx", &MT);
+			std::filesystem::path modelPath;
+			//modelPath = std::filesystem::path("Assets/muppetshow/Model1.obj");
+			//modelPath = std::filesystem::path("Assets/muppetshow/Model2.obj");
+			//modelPath = std::filesystem::path("Assets/muppetshow/Model3.obj");
+			//modelPath = std::filesystem::path("Assets/muppetshow/Model6.obj");
+			//modelPath = std::filesystem::path("Assets/muppetshow/female_body.obj");
+			modelPath = std::filesystem::path("Assets/autorig/spock/spockR2.fbx");
+			//modelPath = std::filesystem::path("Assets/autorig/spock/spockR3.fbx");
+			//modelPath = std::filesystem::path("Assets/autorig/Armadillo.fbx");
+			std::string modelName = modelPath.stem().string();
+			
+			SAssetIO::load(modelPath.string(), &MT);
 			setMeshShader(&MT, 0.7f, 0.04f);
 			mergeRedundantVertices(&MT);
 			MT.computePerVertexNormals();
@@ -185,13 +196,14 @@ namespace CForge {
 				
 				bones.push_back(cur);
 			}
+			
 			std::vector<Eigen::Vector3f> joints;
 			nsPiT::convertSkeleton(M.rootBone(), &sklEric, &cvsInfo, sym, fat, foot,
 			GraphicsUtility::rotationMatrix((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f),Vector3f::UnitX())).block<3,3>(0,0), &joints);
 			
 			nsPinocchio::Mesh piM;// = new nsPinocchio::Mesh(); //("Assets/muppetshow/Model1.obj");
 			nsPiT::convertMesh(&MT, &piM);
-			//nsPinocchio::Mesh piM("Assets/autorig/eric.obj");
+			
 			vector<Vector3f> poss;
 			vector<float> rads;
 			nsPinocchioTools::autorigCust(sklEric, piM, &poss, &rads);
@@ -210,27 +222,17 @@ namespace CForge {
 			if (rig.attachment)
 				nsPiT::applyWeights(&sklEric, &piM, &MT, cvsInfo, rig, MT.vertexCount());
 			
-			AutoRigger autoRigger;
-			autoRigger.init(&MT,M.getBone(0));
+			/////////////////////////////////////////////////////////////////////////////
+			
+			AutoRigger autoRigger; // for sphere visualisation
+			//autoRigger.init(&MT,M.getBone(0));
 			//autoRigger.process();
-			Controller.init(&MT);
-			Eric.init(&MT, &Controller);
-			AssetIO::store("AssetOut/out.fbx", &MT);
-			return;
-			//Controller.init(&M);
-			//Eric.init(&M, &Controller);
-			M.clear();
-
+			
 			// build scene graph
 			SceneGraph SG;
 			SGNTransformation RootSGN;
 			RootSGN.init(nullptr);
 			SG.init(&RootSGN);
-
-			// add skydome
-			SGNGeometry SkydomeSGN;
-			//SkydomeSGN.init(&RootSGN, &Skydome);
-			//SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
 
 			// add skeletal actor to scene graph (Eric)
 			SGNGeometry EricSGN;
@@ -238,9 +240,29 @@ namespace CForge {
 			EricTransformSGN.init(&RootSGN, Vector3f(0.0f, 0.0f, 0.0f));
 			EricSGN.init(&EricTransformSGN, &Eric);
 			//EricSGN.init(&EricTransformSGN, &Spock);
-			//EricSGN.scale(Vector3f(0.05f, 0.05f, 0.05f));
-			//EricTransformSGN.scale(Eigen::Vector3f(100.0f,100.0f,100.0f));
+			EricTransformSGN.scale(Eigen::Vector3f(10.0f,10.0f,10.0f));
+			
+			/**/
+			Controller.init(&MT);
+			Eric.init(&MT, &Controller);
+			/**/
+			
+			/*/
+			Controller.init(&M);
+			Eric.init(&M, &Controller);
+			EricSGN.scale(Vector3f(0.005f, 0.005f, 0.005f));
 			//EricTransformSGN.rotation((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()));
+			/**/
+			
+			std::string outName = "AssetOut/out" + modelName + ".fbx";
+			AssetIO::store(outName, &MT);
+			M.clear();
+
+
+			// add skydome
+			SGNGeometry SkydomeSGN;
+			//SkydomeSGN.init(&RootSGN, &Skydome);
+			//SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
 
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CoreUtility::timestamp();
@@ -283,45 +305,38 @@ namespace CForge {
 				//glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 				SG.render(&RDev);
 				//glDisable(GL_BLEND);
-				//for (uint32_t i = 0; i < (uint32_t) rig.embedding.size(); i++) {
-				//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(rig.embedding[i][0],rig.embedding[i][1],rig.embedding[i][2]));
-				//	float r = 0.1f;
-				//	Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
-				//	RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
-				//	autoRigger.sphere.render(&RDev);
-				//}
-				//for (uint32_t i = 0; i < (uint32_t) joints.size(); i++) {
-				//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(joints[i]);
-				//	float r = 0.1f;
-				//	Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
-				//	RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
-				//	autoRigger.sphere.render(&RDev);
-				//}
+				/*/ // render embedded joints
+				for (uint32_t i = 0; i < (uint32_t) rig.embedding.size(); i++) {
+					Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(rig.embedding[i][0],rig.embedding[i][1],rig.embedding[i][2]));
+					float r = 0.1f;
+					Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+					Eigen::Matrix4f scale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(10.0f,10.0f,10.0f));
+					RDev.modelUBO()->modelMatrix(scale*cubeTransform*cubeScale);
+					autoRigger.sphere.render(&RDev);
+				}
+				/**/
+				
+				/**/ // render sphere packing
 				for (uint32_t i = 0; i < (uint32_t) poss.size(); i++) {
 					Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(poss[i]);
 					float r = rads[i];
 					Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
-					RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
-					//autoRigger.sphere.render(&RDev);
+					Eigen::Matrix4f scale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(10.0f,10.0f,10.0f));
+					RDev.modelUBO()->modelMatrix(scale*cubeTransform*cubeScale);
+					autoRigger.sphere.render(&RDev);
 				}
-				//glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_TRUE);
-				//{
-				//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(1.0,1.0,1.0));
-				//	float r = 0.1;
-				//	Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
-				//	RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
-				//	autoRigger.sphere.render(&RDev);
-				//}
-				//glColorMask(GL_FALSE,GL_TRUE,GL_FALSE,GL_TRUE);
-				//{
-				//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(-1.0,-1.0,-1.0));
-				//	float r = 0.1;
-				//	Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
-				//	RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
-				//	autoRigger.sphere.render(&RDev);
-				//}
-				//glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-
+				/**/
+				
+				
+				/*/ // render joints
+				for (uint32_t i = 0; i < (uint32_t) joints.size(); i++) {
+					Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(joints[i]);
+					float r = 0.1f;
+					Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+					RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
+					autoRigger.sphere.render(&RDev);
+				}
+				/**/
 				RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 				RenderWin.swapBuffers();

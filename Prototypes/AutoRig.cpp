@@ -9,6 +9,16 @@ namespace CForge {
 	AutoRigger::AutoRigger() : CForgeObject("AutoRigger") {
 		m_targetMesh = nullptr;
 		m_targetSkeleton = nullptr;
+		T3DMesh<float> cubeMesh;
+		AssetIO::load("Assets/cube.obj", &cubeMesh);
+		setMeshShader(&cubeMesh, 0.8f, 0.04f);
+		cubeMesh.computePerVertexNormals();
+		cube.init(&cubeMesh);
+		T3DMesh<float> sphereMesh;
+		AssetIO::load("Assets/sphere.obj", &sphereMesh);
+		setMeshShader(&sphereMesh, 0.8f, 0.04f);
+		sphereMesh.computePerVertexNormals();
+		sphere.init(&sphereMesh);
 	}
 	AutoRigger::~AutoRigger() {
 		clear();
@@ -21,16 +31,6 @@ namespace CForge {
 		m_targetMesh = targetMesh;
 		m_targetSkeleton = targetSkeleton;
 		
-		T3DMesh<float> cubeMesh;
-		AssetIO::load("Assets/cube.obj", &cubeMesh);
-		setMeshShader(&cubeMesh, 0.8f, 0.04f);
-		cubeMesh.computePerVertexNormals();
-		cube.init(&cubeMesh);
-		T3DMesh<float> sphereMesh;
-		AssetIO::load("Assets/sphere.obj", &sphereMesh);
-		setMeshShader(&sphereMesh, 0.8f, 0.04f);
-		sphereMesh.computePerVertexNormals();
-		sphere.init(&sphereMesh);
 	}
 	void AutoRigger::clear() {
 		m_targetMesh = nullptr;
