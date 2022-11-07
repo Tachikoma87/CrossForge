@@ -202,7 +202,7 @@ namespace CForge {
                 glActiveTexture(GL_TEXTURE0);
                 m_Cubemap.bind();
                 uint32_t Loc = i->pShaderForwardPass->uniformLocation("Skybox");
-                if (Loc != GL_INVALID_INDEX) glUniform1i(Loc, Loc);
+                if (Loc != GL_INVALID_INDEX) glUniform1i(Loc, 0);
 
                 uint32_t BindingPoint = i->pShaderForwardPass->uboBindingPoint(GLShader::DEFAULTUBO_COLORADJUSTMENT); 
                 if (BindingPoint != GL_INVALID_INDEX) m_ColorAdjustUBO.bind(BindingPoint);
