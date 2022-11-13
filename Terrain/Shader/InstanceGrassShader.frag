@@ -110,7 +110,7 @@ void main(){
 	float scale = 10;
 	float noiseValue = cnoise(worldSpacePos / scale) / 10;
 	
-	gPosition = vec4(Pos, 0.0);
+	gPosition = vec4(worldSpacePos, 0.0);
 	gNormal = vec4(vertPos, 0.0);
 	gAlbedoSpec = vec4(texture(TexAlbedo, UV).rgb, 0) * (1 - noiseValue) + vec4(220 / 255.0, 210 / 255.0, 25 / 255.0, 0) * noiseValue;;
 }

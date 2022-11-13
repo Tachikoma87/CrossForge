@@ -64,6 +64,7 @@ public:
 		int posT = mPoolShader->uniformLocation("posTexture");
 		int normalT = mPoolShader->uniformLocation("normalTexture");
 		int worldPosT = mPoolShader->uniformLocation("worldPosTexture");
+		int wCausticsT = mPoolShader->uniformLocation("waterCausticsTexture");
 
 		int backT = mPoolShader->uniformLocation("skyBackTexture");
 		int botT = mPoolShader->uniformLocation("skyBotTexture");
@@ -78,13 +79,14 @@ public:
 		glUniform1i(posT, 3);
 		glUniform1i(normalT, 4);
 		glUniform1i(worldPosT, 5);
+		glUniform1i(wCausticsT, 6);
 
-		glUniform1i(backT, 6);
-		glUniform1i(botT, 7);
-		glUniform1i(frontT, 8);
-		glUniform1i(leftT, 9);
-		glUniform1i(rightT, 10);
-		glUniform1i(topT, 11);
+		glUniform1i(backT, 7);
+		glUniform1i(botT, 8);
+		glUniform1i(frontT, 9);
+		glUniform1i(leftT, 10);
+		glUniform1i(rightT, 11);
+		glUniform1i(topT, 12);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, mPoolDUDVTexture);
@@ -98,9 +100,11 @@ public:
 		glBindTexture(GL_TEXTURE_2D, mPoolNormalTexture);
 		glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_2D, mPositionTexture);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, mWaterCausticsTexture);
 
 		for (int i = 0; i < 6; i++) {
-			glActiveTexture(GL_TEXTURE6 + i);
+			glActiveTexture(GL_TEXTURE7 + i);
 			glBindTexture(GL_TEXTURE_2D, mSkyboxTextures[i]);
 		}
 
@@ -266,6 +270,7 @@ public:
 		glBindTexture(GL_TEXTURE_2D, oceanNormalsTextureHandle);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
 		
 		for (int i = 0; i < 6; i++) {
 			glActiveTexture(GL_TEXTURE10 + i);

@@ -2,13 +2,10 @@
 #define M_PI 3.1415926535897932384626433832795
 
 layout(local_size_x = 1, local_size_y = 32, local_size_z = 1) in;
-
 layout(rgba32f, binding = 0) uniform image2D textureTwiddleIndices;
-
 layout(std430, binding = 1) buffer indices {
 	int j[];
 } bit_reversed;
-
 uniform int gridSize;
 
 struct complex {
@@ -17,40 +14,23 @@ struct complex {
 };
 
 void main() {
-	ivec2 pixelPos = ivec2(gl_GlobalInvocationID.xy);
 	vec2 x = gl_GlobalInvocationID.xy;
 
-	float k = mod(x.y * (float(gridSize) / pow(2, x.x + 1)), gridSize);
-	complex twiddle = complex(cos(2.0 * M_PI * k / float(gridSize)), sin(2.0 * M_PI * k / float(gridSize)));
+	float k = 2.0 * M_PI * mod(x.y * (float(gridSize) / pow(2, x.x + 1)), gridSize) / float(gridSize);
+	complex twiddle = complex(cos(k), sin(k));
 
 	int butterflyspan = int(pow(2, x.x));
+	bool isTopWing = mod(x.y, pow(2, x.x + 1)) < pow(2, x.x);
 
-	int butterflywing;
-
-	if (mod(x.y, pow(2, x.x + 1)) < pow(2, x.x)) {
-		butterflywing = 1;
-	}
-	else {
-		butterflywing = 0;
-	}
-
-
+	// bit reversed indices, used for first stage
 	if (x.x == 0) {
-		if (butterflywing == 1) {
-			imageStore(textureTwiddleIndices, pixelPos, vec4(twiddle.real, twiddle.im, bit_reversed.j[int(x.y)], bit_reversed.j[int(x.y + 1)]));
-		}
-		else {
-			imageStore(textureTwiddleIndices, pixelPos, vec4(twiddle.real, twiddle.im, bit_reversed.j[int(x.y - 1)], bit_reversed.j[int(x.y)]));
-		}
+		if (isTopWing)	imageStore(textureTwiddleIndices, ivec2(x), vec4(twiddle.real, twiddle.im, bit_reversed.j[int(x.y)], bit_reversed.j[int(x.y + 1)]));
+		else imageStore(textureTwiddleIndices, ivec2(x), vec4(twiddle.real, twiddle.im, bit_reversed.j[int(x.y - 1)], bit_reversed.j[int(x.y)]));
 	}
 	else {
-		if (butterflywing == 1) {
-			imageStore(textureTwiddleIndices, pixelPos, vec4(twiddle.real, twiddle.im, x.y, x.y + butterflyspan));
+		if (isTopWing)	imageStore(textureTwiddleIndices, ivec2(x), vec4(twiddle.real, twiddle.im, x.y, x.y + butterflyspan));
 			//imageStore(textureTwiddleIndices, pixelPos, vec4(sqrt(twiddle.real), sqrt(twiddle.im), x.y, x.y + butterflyspan));
-		}
-		else {
-			imageStore(textureTwiddleIndices, pixelPos, vec4(twiddle.real, twiddle.im, x.y - butterflyspan, x.y));
+		else imageStore(textureTwiddleIndices, ivec2(x), vec4(twiddle.real, twiddle.im, x.y - butterflyspan, x.y));
 			//imageStore(textureTwiddleIndices, pixelPos, vec4(sqrt(twiddle.real), sqrt(twiddle.im), x.y - butterflyspan, x.y));
-		}
 	}
 }

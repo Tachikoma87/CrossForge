@@ -206,7 +206,7 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 
 vec3 getFoamColor(float depth) {
 	float foamUVScale = 1;
-	float maxDepth = 0.3;
+	float maxDepth = 0.5;
 	
 
 

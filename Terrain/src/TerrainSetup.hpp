@@ -290,14 +290,14 @@ namespace Terrain {
             Vector3f pos = river.getPos(0);
             iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(pos.z(), pos.y(), pos.x())) * R * S);
 
-            
-            for (double t = 1; t < river.getLength(); t += randomF(1, 3)) {
-                R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(90), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
-                S = GraphicsUtility::scaleMatrix(Vector3f(randomF(rockScale.x(), rockScale.y()), randomF(rockScale.x(), rockScale.y()), randomF(rockScale.x(), rockScale.y())));
-                pos = river.getPos(t) + river.getNormal(t) * river.getWidth(t) * randomF(-0.6, 0.6);
-                iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(pos.z(), map.getHeightAt(pos.z(), pos.x()), pos.x())) * R * S);
+            if (!maximumQuality) {
+                for (double t = 1; t < river.getLength(); t += randomF(1, 3)) {
+                    R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(90), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
+                    S = GraphicsUtility::scaleMatrix(Vector3f(randomF(rockScale.x(), rockScale.y()), randomF(rockScale.x(), rockScale.y()), randomF(rockScale.x(), rockScale.y())));
+                    pos = river.getPos(t) + river.getNormal(t) * river.getWidth(t) * randomF(-0.6, 0.6);
+                    iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(pos.z(), map.getHeightAt(pos.z(), pos.x()), pos.x())) * R * S);
+                }
             }
-          
         }
 
         if (!lowQuality && !maximumQuality) {
@@ -466,7 +466,7 @@ namespace Terrain {
         SceneGraph sceneGraph;
 
         OceanSimulation oceanSimulation(lowQuality ? 64 : 256, lowQuality ? 500 : 500, lowQuality ? 0.1 : 40, Vector2f(1.0f, 1.0f), lowQuality ? 1000 : 50);
-        OceanObject oceanObject(lowQuality ? 16 : 256, lowQuality ? 25 : 200, lowQuality ? 0.5 : 4, 1, 1, 1, lowQuality ? 29 : 15, nearPlane, farPlane);
+        OceanObject oceanObject(lowQuality ? 16 : 256, lowQuality ? 25 : 200, lowQuality ? 0.5 : 2, 1, 1, 1, lowQuality ? 29 : 15, nearPlane, farPlane);
         
         bool pause = false;
         oceanSimulation.initOceanSimulation();
@@ -650,6 +650,7 @@ namespace Terrain {
                 //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 if (wireframe) {
                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                    glLineWidth(3);
                 }
 
                 oceanSimulation.updateWaterSimulation(current_ticks / (float)CLOCKS_PER_SEC / 5 * (pause ? 0 : 1));
@@ -739,7 +740,7 @@ namespace Terrain {
                 window.keyboard()->keyState(Keyboard::KEY_L, Keyboard::KEY_RELEASED);
 
                 //waterManager.trySpawnLake((int)(camera.position().z() + map.getMapSize().y() / 2)* map.getMapSize().x() + (int)(camera.position().x() + map.getMapSize().x() / 2.0));
-                waterManager.trySpawnLakes(25 * settingSizeScale);
+                waterManager.trySpawnLakes(35 * settingSizeScale);
 
                 waterManager.updateTextures();
                 oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
@@ -773,9 +774,9 @@ namespace Terrain {
                 waterManager.refreshMaps();
                 waterManager.updateTextures();
       
-                waterManager.trySpawnLakes(50 * settingSizeScale);
+                waterManager.trySpawnLakes(25 * settingSizeScale);
                 waterManager.updateTextures();
-                waterManager.tryGenerateRivers(lowQuality ? 200 : 300);
+                waterManager.tryGenerateRivers(35 * settingSizeScale * settingSizeScale);
                 waterManager.updateTextures();
                 //waterManager.updateShoreDistTexture();
 

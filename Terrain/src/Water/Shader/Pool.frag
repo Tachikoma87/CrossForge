@@ -15,6 +15,7 @@ uniform sampler2D depthTexture;
 uniform sampler2D posTexture;
 uniform sampler2D normalTexture;
 uniform sampler2D worldPosTexture;
+uniform sampler2D waterCausticsTexture;
 
 uniform sampler2D skyBackTexture;
 uniform sampler2D skyBotTexture;
@@ -51,6 +52,8 @@ vec4 getSkyboxColor(vec3 dir) {
 }
 
 vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
+	vec4 baseSkyColor = vec4(17*3, 28*3, 50*3, 55) / 255;
+
 	float maxDistance = 300;
 	int steps = 100;
 	float resolution = maxDistance / steps;
@@ -88,22 +91,18 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 	}
 
 	vec4 skyC = getSkyboxColor(reflectDirection);
+	vec4 ret = skyC;
 
-	if (!hit) {
-			return skyC;
-	}
-	else {
+	if (hit) {
 		float scaleFactor = 1 - pow(length((uv - 0.5) * 2), 8);
 
 		float visibility = 1 - max(dot(normalize(CAM - POS), reflectDirection), 0);
 		if (scaleFactor > 0) {
-			vec4 ret = mix(skyC, texture(colorTexture, uv), visibility * scaleFactor);// texture(colorTexture, uv), visibility);
-			ret.w = scaleFactor;
-			return ret;
+			ret = mix(skyC, texture(colorTexture, uv), visibility * scaleFactor);// texture(colorTexture, uv), visibility);
 		}
 	}
 
-	return skyC;
+	return ret;
 	
 }
 
@@ -191,6 +190,14 @@ vec3 hsv2rgb(vec3 c)
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
+vec4 getWaterCausics(vec2 backGroundUV, float depthColorScale) {
+	float uvScale = 0.1;
+	vec2 wPos = texture(worldPosTexture, backGroundUV).xz;
+	vec2 causticsUV1 = wPos * uvScale + windDirection * time / 30;
+	vec2 causticsUV2 = wPos * uvScale - windDirection * time / 40;
+	return mix(texture(waterCausticsTexture, causticsUV1), texture(waterCausticsTexture, causticsUV2), 0.5) * clamp((3 - depthColorScale * 3), 0, 1);
+}
+
 void main(){
 	vec3 screenUV = vec3(gl_FragCoord.xy / textureSize(colorTexture, 0), gl_FragCoord.z);
 
@@ -199,7 +206,7 @@ void main(){
 	vec2 uvCord2 = vec2(-POS.x, -POS.z) / uvScale - windDirection * time / 40;
 
 	vec3 sunPos  = vec3(-1000000000, 600000000, 1000000000);
-	vec4 baseBlue = vec4(62, 78, 95, 255) / 255;//vec4(9, 12, 17, 255) / 255;
+	vec4 baseBlue = vec4(9, 12, 17, 255) / 255;
 	vec4 baseSkyColor = vec4(17*3, 28*3, 50*3, 55) / 255;
 
 	vec2 dudv = ((texture(dudvTexture, uvCord).rg * 2 - 1) + (texture(dudvTexture, uvCord2).rg * 2 - 1)) * (distance(POS, CAM) < 300 ? 0.01 : 0);
@@ -210,16 +217,22 @@ void main(){
 	vec3 viewDir = normalize(Camera.Position.xyz - POS);
 	vec3 halfwayDir = normalize(sunDir + viewDir);
 
-	float R = clamp(dot(N, viewDir), 0.001, 1.0);
+	float R = dot(N, viewDir);
 
 	vec4 reflectColor = reflectionColor(N, screenUV);
-	vec4 backgroundColor = vec4(texture(colorTexture, clamp(screenUV.xy + dudv, 0, 1)));
-	backgroundColor = vec4(hsv2rgb(rgb2hsv(backgroundColor.rgb) * vec3(1, 0.3, 1)), 1);
-
 
 	float depthBackground = 2.0 * nearFarPlane.x * nearFarPlane.y / (nearFarPlane.x + nearFarPlane.y - (texture(depthTexture, clamp(screenUV.xy, 0.01, 0.99)).r * 2.0 - 1) * (nearFarPlane.y - nearFarPlane.x)) / (nearFarPlane.y - nearFarPlane.x);
 	float depthWater = 2.0 * nearFarPlane.x * nearFarPlane.y / (nearFarPlane.x + nearFarPlane.y - (screenUV.z * 2.0 - 1) * (nearFarPlane.y - nearFarPlane.x)) / (nearFarPlane.y - nearFarPlane.x);
 	float depthColorScale = 1 - clamp((depthBackground - depthWater) * nearFarPlane.y * 0.2, 0, 1);
+
+	vec2 backGroundUV = clamp(screenUV.xy + dudv, 0, 1);
+	vec4 backgroundColor = vec4(texture(colorTexture, backGroundUV));
+	backgroundColor = vec4(hsv2rgb(rgb2hsv(backgroundColor.rgb) * vec3(1, 0.3, 1)), 1);
+	vec4 causticsColor = getWaterCausics(backGroundUV, depthColorScale);
+	backgroundColor += causticsColor;
+
+
+	
 
 	float shininess = 300;
 	float spec = pow(max(dot(normalize(N * vec3(1, 10, 1)), halfwayDir), 0.0), shininess);
@@ -227,7 +240,7 @@ void main(){
 
 	// COLOR ---------------------------------------------------------
 
-	gColor = mix(vec4(spec), mix(baseBlue, backgroundColor, depthColorScale), R);
-	gColor = vec4(gColor.rgb, R);
+	gColor = mix(vec4(spec), mix(baseBlue, backgroundColor, depthColorScale), clamp(R, 0.001, 1.0));
+	gColor = vec4(gColor.rgb, clamp(R, 0.001, 1.0));
 	gReflection = reflectColor;
 }

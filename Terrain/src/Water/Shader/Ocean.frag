@@ -61,12 +61,15 @@ vec4 getSkyboxColor(vec3 dir) {
 }
 
 vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
+	vec4 baseSkyColor = vec4(47, 78, 108, 255) / 255;
 	float maxDistance = 300;
 	int steps = 100;
 	float resolution = maxDistance / steps;
 	
 	vec2 tSize = textureSize(colorTexture, 0);
 	vec3 reflectDirection = normalize(reflect(normalize(POS - CAM), normal));
+	if (reflectDirection.y < 0) return baseSkyColor;
+
 	vec4 end = vec4(POS + reflectDirection * maxDistance, 1);
 	vec3 posIncrement = (end.xyz - POS) / steps;
 	
@@ -235,8 +238,8 @@ float shoreWave(float factor) {
 	float waveLength = 1.0;
 	float waveSpeed = 0.1;
 
-	float foamBuildUp = waveLength * 0.12;
-	float foamBuildDown = waveLength * 0.04;
+	float foamBuildUp = waveLength * 0.3;
+	float foamBuildDown = waveLength * 0.1;
 
 	float a = mod(-time * waveSpeed + factor, waveLength) / foamBuildUp - waveLength / foamBuildUp + 1;
 	a = clamp(a, 0, 1);
@@ -262,7 +265,7 @@ vec3 getFoamColor(float foamFactor) {
 
 vec4 getWaterCausics(vec2 backGroundUV, float depthColorScale) {
 	float speed = 0.05;
-	float uvScale = 0.01;
+	float uvScale = 0.03;
 	vec2 wPos = texture(worldPosTexture, backGroundUV).xz;
 	vec2 causticsUV1 = wPos * uvScale + vec2(time * speed / 4) + normalize(wPos) * speed * time;
 	vec2 causticsUV2 = wPos * uvScale + vec2(-time * speed / 4) + normalize(wPos) * speed * time;
@@ -273,10 +276,10 @@ vec4 getWaterCausics(vec2 backGroundUV, float depthColorScale) {
 void main(){
 	vec3 screenUV = vec3(gl_FragCoord.xy / textureSize(colorTexture, 0), gl_FragCoord.z);
 	vec3 N;
-	vec2 UV = mod(UVcord, 1);
+	vec2 UV = UVcord;
 
 	vec4 derivatives = texture(normalsTexture, UV);// sampleNorm(UV);
-	N = normalize(vec3((derivatives.x / (1 + derivatives.z)), uvScale / newAmplitudeScale * 0.075, (derivatives.y / (1 + derivatives.w))));
+	N = normalize(vec3((derivatives.x / (1 + derivatives.z)), uvScale / newAmplitudeScale * 0.02, (derivatives.y / (1 + derivatives.w))));
 
 	//vec3 sunPos  = vec3(-1000000000, 1000000000, 1000000000);
 	vec3 sunDir =	normalize(vec3(-0.6, 0.5, 1));	//normalize(sunPos - POS);

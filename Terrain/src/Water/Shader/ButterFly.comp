@@ -37,7 +37,6 @@ complex compExp(complex c0) {
 }
 
 void horizontalButterflies() {
-	complex H;
 	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
 
 	vec4 data = imageLoad(textureTwiddleIndices, ivec2(stage, pos.x)).rgba;
@@ -49,13 +48,12 @@ void horizontalButterflies() {
 
 	complex w = complex(data.x, -data.y);
 
-	H = add(p, mul(w, q));
+	complex H = add(p, mul(w, q));
 
 	imageStore(pingpong == 0 ? texturepingpong1 : texturepingpong0, pos, vec4(H.real, 0, H.im, 0));
 }
 
 void verticalButterflies() {
-	complex H;
 	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
 
 	vec4 data = imageLoad(textureTwiddleIndices, ivec2(stage, pos.y)).rgba;
@@ -67,7 +65,7 @@ void verticalButterflies() {
 
 	complex w = complex(data.x, -data.y);
 
-	H = add(p, mul(w, q));
+	complex H = add(p, mul(w, q));
 	
 	imageStore(pingpong == 0 ? texturepingpong1 : texturepingpong0, pos, vec4(H.real, 0, H.im, 0));
 }

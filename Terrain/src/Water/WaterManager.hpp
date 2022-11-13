@@ -115,7 +115,7 @@ public:
 			Vector3f n = getNormal(pos);
 			Vector2f speed = Vector2f(n.x(), n.z()).normalized();
 
-			simulateDroplet(pos, lowQuality ? 3 : 5.0, speed);
+			simulateDroplet(pos, mRiverStartWidth, speed);
 			
 		}
 
@@ -409,6 +409,7 @@ private:
 	int mMaxLakeSize = pow(120 * settingSizeScale, 2);
 	int mMinLakeSize = pow(8 * settingSizeScale, 2);
 	vector<int> mOffsets;
+	float mRiverStartWidth = lowQuality ? 3 : 4.0;
 
 	Vector3f getNormal(Vector2f pos) {
 		if (pos.x() < 2 || pos.x() >= mDimension.x() - 2 || pos.y() < 2 || pos.y() >= mDimension.y() - 2) return Vector3f(0, 1, 0);
@@ -658,18 +659,18 @@ private:
 				
 			}
 
-			if (mPoolMap[index] > 0.005 || mHeightMap[index] < 0.45) {
+			if (mPoolMap[index] > 0.005 || mHeightMap[index] < 0.49) {
 				riverPoints.push_back(Vector3d((double)pos.x(), (double)mHeightMap[index], (double)pos.y()));
 				break;
 			}
 
 			n = getNormal(pos);
-			curveFactor = 0.0003 / settingSizeScale / settingSizeScale * endWidth;
+			curveFactor = 0.0002 / settingSizeScale / settingSizeScale * endWidth;
 			speed = (speed * curveFactor + Vector2f(n.x(), n.z()) * (1 - curveFactor)).normalized();
 			pos = pos + speed;
 			index = (int)pos.x() * mDimension.y() + (int)pos.y();
 
-			if (lowestHeight < mHeightMap[index] - 0.0075) {
+			if (lowestHeight < mHeightMap[index] - 0.01) {
 				return;
 			}
 
@@ -743,7 +744,7 @@ private:
 			}
 		}
 
-		ret = ret || (mPoolMap[index] > 0) || (mHeightMap[index] < 0.5);
+		ret = ret || (mPoolMap[index] > 0) || ((mHeightMap[index] < 0.5) && mRivers[riverID].getWidth(mRivers[riverID].getLength() - 1) > mRiverStartWidth + 0.1);
 
 
 		return ret;
