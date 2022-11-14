@@ -187,4 +187,4 @@ elseif(UNIX)
 	PRIVATE gpiod 
 	PRIVATE stdc++fs
 	)
-endif(UNIX)
+endif(WIN32)
