@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 		//exampleSkeletalAnimation(); 
 		
 		//exampleSkeletalAnimationThrice(); 
-		exampleSkeletonCollisionResolver();
+		//exampleSkeletonCollisionResolver();
 		//exampleSkybox();
 		//exampleSockets();
 	
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
 		//int32_t method = 1;
 		//int32_t method = 2;
 		
-		/*if (!File::exists("samplePoints1000.txt")) {
+		if (!File::exists("samplePoints1000.txt")) {
 			surfaceSamplerTestScene();
 		}
 
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
 			exampleShapeDeformer(method, startFrame, endFrame);
 			printf("ShapeDeformation finished in %d ms\n", uint32_t(CoreUtility::timestamp() - Start));
 		}
-		shapeDeformerTest(startFrame, endFrame);*/
+		shapeDeformerTest(startFrame, endFrame);
 		
 	}
 	catch (const CrossForgeException & e) {

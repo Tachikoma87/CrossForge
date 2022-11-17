@@ -765,9 +765,7 @@ namespace CForge {
 
 	}
 
-	Eigen::MatrixXf ShapeDeformer::collisionTestShapeDeformation(int Submesh1Index, int Submesh2Index, int frame, int AnimationID, int32_t method, Eigen::MatrixXf U_bc) {
-
-		Eigen::MatrixXf MeshVertices = m_pMesh->getTriDeformation(frame);
+	Eigen::MatrixXf ShapeDeformer::collisionTestShapeDeformation(int Submesh1Index, int Submesh2Index, int frame, int AnimationID, int32_t method, Eigen::MatrixXf U_bc, Eigen::MatrixXf MeshVertices) {
 
 		//Submesh, where Bones shall be updated in case of collision
 		T3DMesh<float>::Submesh* Submesh1 = m_pMesh->getBoneSubmesh(Submesh1Index);
@@ -808,7 +806,7 @@ namespace CForge {
 			tri[1] = Eigen::Vector3f(MeshVertices.row(i.Vertices[1]));
 			tri[2] = Eigen::Vector3f(MeshVertices.row(i.Vertices[2]));
 
-			checkMesh2.push_back(m_pMesh->inBoundingBox(tri, LapMinMax));
+			checkMesh2.push_back(m_pMesh->inBoundingBox(tri, Eigen::Vector3f(LapMinMax.row(0)), Eigen::Vector3f(LapMinMax.row(1))));
 		}
 
 		for (auto i : Submesh1->Faces) {
@@ -817,7 +815,7 @@ namespace CForge {
 			tri[1] = Eigen::Vector3f(MeshVertices.row(i.Vertices[1]));
 			tri[2] = Eigen::Vector3f(MeshVertices.row(i.Vertices[2]));
 
-			checkMesh1.push_back(m_pMesh->inBoundingBox(tri, LapMinMax));
+			checkMesh1.push_back(m_pMesh->inBoundingBox(tri, Eigen::Vector3f(LapMinMax.row(0)), Eigen::Vector3f(LapMinMax.row(1))));
 		}
 
 		//Triangle Test
@@ -1014,7 +1012,7 @@ namespace CForge {
 
 	}
 
-	Eigen::MatrixXf ShapeDeformer::ShapeDeformation(int32_t frame, Eigen::MatrixXf U_bc) {
+	Eigen::MatrixXf ShapeDeformer::ShapeDeformation(int32_t frame, Eigen::MatrixXf U_bc, Eigen::MatrixXf V) {
 
 		//Eigen::VectorXi VS, FS, VT, FT;
 		//Eigen::VectorXf d;
@@ -1023,7 +1021,7 @@ namespace CForge {
 		//Eigen::MatrixXi F; -->mat_Faces
 		//Eigen::VectorXi b; -->SamplePoints
 		Eigen::MatrixXf D;
-		Eigen::MatrixXf V = m_pMesh->getTriDeformation(frame);
+		//Eigen::MatrixXf V = m_pMesh->getTriDeformationMatrix(frame);
 
 		// set targets (all vertices)
 		//VT.setLinSpaced(V.rows(), 0, V.rows() - 1);
@@ -1060,13 +1058,15 @@ namespace CForge {
 		for (int32_t i = startFrame; i <= endFrame; i++) {
 			printf("Frame: %d\n", i);
 			Eigen::MatrixXf U_bc;
-			Eigen::MatrixXf MeshVertices = m_pMesh->getTriDeformation(i);
+
+			Eigen::MatrixXf MeshVertices = m_pMesh->getTriDeformationMatrix(i);
+
 			U_bc.resize(this->m_SamplePoints.rows(), 3);
 			for (int32_t j = 0; j < m_SamplePoints.rows(); j++) {
-				U_bc.row(j) = MeshVertices.row(m_SamplePoints(j));
+				U_bc.row(j) = Eigen::RowVector3f(MeshVertices(m_SamplePoints(j),0), MeshVertices(m_SamplePoints(j), 1), MeshVertices(m_SamplePoints(j), 2));
 			}
-			U_bc = collisionTestShapeDeformation(Submesh1Index, Submesh2Index, i, AnimationID, method, U_bc);
-			Eigen::MatrixXf newV = ShapeDeformation(i, U_bc);
+			U_bc = collisionTestShapeDeformation(Submesh1Index, Submesh2Index, i, AnimationID, method, U_bc, MeshVertices);
+			Eigen::MatrixXf newV = ShapeDeformation(i, U_bc, MeshVertices);
 			//igl::writeOBJ("TestOriginal.obj", MeshVertices, mat_Faces);
 			std::string objName = "MuscleMan" + std::to_string(i) + ".obj";
 			std::string objName2 = "OriginalMuscleMan" + std::to_string(i) + ".obj";
