@@ -22,12 +22,16 @@ namespace CForge {
 		Eigen::Vector2f getOptimalCapsuleRadius(T3DMesh<float>::Line Capsule1, float capsuleRadius1, T3DMesh<float>::Line Capsule2, float capsuleRadius2);
 		float getAccurateCapsuleRadius(T3DMesh<float>::Line Capsule, int32_t BoneID, Eigen::Vector3f pVertex, int frame);
 		Eigen::Vector3f getcloseVert(T3DMesh<float>::Line Capsule, int32_t BoneID, Eigen::Vector3f pVertex, int frame);
+		
+		Eigen::Vector3f getcloseVert2(T3DMesh<float>::Line Capsule, int32_t BoneID, Eigen::Vector3f pVertex, int frame);
 		int findInUnsortedVector(std::vector<int32_t> vector, int32_t value);
 		std::vector<int32_t> findAdditionalVertices(T3DMesh<float>::Submesh* Mesh, std::vector<int32_t> goodVertices, std::vector<int32_t> forbiddenVertices, std::vector<int32_t> trianglesToCheck);
 		std::vector<std::vector<int32_t>> findAffectedControlPoints(T3DMesh<float>::Submesh* Submesh1, T3DMesh<float>::Submesh* Submesh2, std::vector<bool> checkMesh1, std::vector<bool> checkMesh2, std::vector<Eigen::Vector2i> affectedTriangles, int frame);
 		Eigen::Vector3f bestLocationSamplePoint(T3DMesh<float>::Line Capsule, float optimalCapsuleRadius, Eigen::Vector3f pPoint, int32_t frame);
 		Eigen::Vector3f bestLocationSamplePoint2(T3DMesh<float>::Line Capsule1, T3DMesh<float>::Line Capsule2, float optimalCapsuleRadius, Eigen::Vector3f pPoint, int32_t frame);
 		Eigen::Vector3f bestLocationSamplePoint3(T3DMesh<float>::Line Capsule1, T3DMesh<float>::Line Capsule2, float optimalCapsuleRadius, Eigen::Vector3f pPoint, int32_t frame);
+		Eigen::Vector3f bestLocationSamplePoint4(T3DMesh<float>::Line Capsule1, T3DMesh<float>::Line Capsule2, float optimalCapsuleRadius, Eigen::Vector3f pPoint, int32_t frame);
+		
 		//Eigen::Vector3f bestLocationSamplePoint3(T3DMesh<float>::Line Capsule, int32_t vertexID, int32_t TriIDs[3], int32_t frame);
 		Eigen::MatrixXf collisionTestShapeDeformation(int Submesh1Index, int Submesh2Index, int frame, int AnimationID, int32_t method, Eigen::MatrixXf U_bc);
 		Eigen::MatrixXf ShapeDeformation(int32_t frame, Eigen::MatrixXf U_bc);

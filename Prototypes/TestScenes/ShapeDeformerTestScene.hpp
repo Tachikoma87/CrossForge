@@ -143,7 +143,6 @@ namespace CForge {
 			m_Sphere.init(&M);
 			M.clear();
 
-
 			int current = 0;
 			T3DMesh<float>::MorphTarget* current_MorphTarget = m_ModelData.getMorphTarget(0);
 			for (int i = 0; i < ControlPoints.size(); i++) {

@@ -33,12 +33,12 @@ namespace CForge {
 
 	/**
 	* \brief Template class that stores a triangle mesh.
-	* 
+	*
 	* \todo Do full documentation
 	*/
 
 	template<typename T>
-	class T3DMesh: public CForgeObject {
+	class T3DMesh : public CForgeObject {
 	public:
 		/**
 		* \brief Face data structure. Only supports triangles.
@@ -126,7 +126,6 @@ namespace CForge {
 			}
 		};//Submesh
 
-
 		struct Line {
 			Eigen::Vector3f p;
 			Eigen::Vector3f direction;
@@ -149,7 +148,7 @@ namespace CForge {
 			int Vertices[4]; //Index of Verts of TetMesh
 			std::vector<Baryc_Vertex*> Embedded_Vertices;
 		};
-		
+
 		struct TetMesh {
 			Eigen::MatrixXd TV; //Vertice Positions
 			Eigen::MatrixXi TF;
@@ -205,7 +204,7 @@ namespace CForge {
 					Color = pMat->Color;
 					TexAlbedo = pMat->TexAlbedo;
 					TexNormal = pMat->TexNormal;
-					
+
 					VertexShaderGeometryPass = pMat->VertexShaderGeometryPass;
 					FragmentShaderGeometryPass = pMat->FragmentShaderGeometryPass;
 					VertexShaderShadowPass = pMat->VertexShaderShadowPass;
@@ -238,9 +237,10 @@ namespace CForge {
 			Eigen::Matrix4f			OffsetMatrix;
 			std::vector<int32_t>	VertexInfluences;
 			std::vector<float>		VertexWeights;
-			Bone*					pParent;
+			Bone* pParent;
 			std::vector<Bone*>		Children;
 			float					capsuleRadius = 0;
+			int32_t					endEffectorVert;
 		};
 
 		struct RotationAxis {
@@ -256,6 +256,7 @@ namespace CForge {
 			std::vector<Eigen::Quaternionf> Rotations;
 			std::vector<Eigen::Vector3f> Scalings;
 			std::vector<Eigen::Matrix4f> SkinningMatrix;
+			std::vector<Eigen::Matrix4f> LocalTransform;
 		};
 
 		struct BoneKeyframes {
@@ -290,10 +291,10 @@ namespace CForge {
 			std::vector<int32_t> VertexIDs;	///< Affected vertex
 			std::vector<Eigen::Vector3f> VertexOffsets; ///< Offset from original position
 			std::vector<Eigen::Vector3f> NormalOffsets; ///< Normal Offsets
-			
+
 		};
 
-		T3DMesh(void): CForgeObject("TDMesh") {
+		T3DMesh(void) : CForgeObject("TDMesh") {
 			m_pRoot = nullptr;
 			m_pRootBone = nullptr;
 		}//Constructor
@@ -341,7 +342,7 @@ namespace CForge {
 			m_Bones.clear();
 			for (auto& i : m_SkeletalAnimations) delete i;
 			m_SkeletalAnimations.clear();
-			
+
 			for (auto& i : m_MorphTargets) delete i;
 			m_MorphTargets.clear();
 
@@ -497,14 +498,28 @@ namespace CForge {
 
 		Line getBoneDirection(Bone* pBone, Bone* childBone, int32_t AnimationID, int frame) {
 			int ID1 = pBone->ID;
-			int ID2 = childBone->ID;
 			BoneKeyframes* pBoneKeyframe = this->m_SkeletalAnimations.at(AnimationID)->Keyframes.at(ID1);
-			BoneKeyframes* childBoneKeyframe = this->m_SkeletalAnimations.at(AnimationID)->Keyframes.at(ID2);
-
 			Eigen::Matrix4f pBoneTransform = pBoneKeyframe->LocalTransform.at(frame);
 			Eigen::Vector3f pBonePosition(pBoneTransform(0, 3) / pBoneTransform(3, 3), pBoneTransform(1, 3) / pBoneTransform(3, 3), pBoneTransform(2, 3) / pBoneTransform(3, 3));
-			Eigen::Matrix4f childTransform = childBoneKeyframe->LocalTransform.at(frame);
-			Eigen::Vector3f childPosition(childTransform(0, 3), childTransform(1, 3), childTransform(2, 3));
+			Eigen::Matrix4f childTransform;
+			Eigen::Vector3f childPosition;
+			if (childBone == nullptr) {
+				if (pBone->Name == "RightWrist") {
+					const Matrix4f T = GraphicsUtility::translationMatrix(Eigen::Vector3f(-1 * wristLength, 0, 0));
+					childTransform = pBoneTransform * T;
+				}
+				else {
+					const Matrix4f T = GraphicsUtility::translationMatrix(Eigen::Vector3f(wristLength, 0, 0));
+					childTransform = pBoneTransform * T;
+				}
+				childPosition = Eigen::Vector3f(childTransform(0, 3), childTransform(1, 3), childTransform(2, 3));
+			}
+			else {
+				int ID2 = childBone->ID;
+				BoneKeyframes* childBoneKeyframe = this->m_SkeletalAnimations.at(AnimationID)->Keyframes.at(ID2);
+				childTransform = childBoneKeyframe->LocalTransform.at(frame);
+				childPosition = Eigen::Vector3f(childTransform(0, 3), childTransform(1, 3), childTransform(2, 3));
+			}
 
 			Line Rval(pBonePosition, childPosition - pBonePosition);
 			return Rval;
@@ -517,26 +532,41 @@ namespace CForge {
 		Line getCapsuleDirection(Bone* pBone, int32_t AnimationID, int frame) {
 			Line Rval(Eigen::Vector3f(0, 0, 0), Eigen::Vector3f(0, 0, 0));
 
-			/*if (pBone->Children.size() > 1) {
-				for (auto i : pBone->Children) {
-					Line temp = boneDirection(pbone, i, AnimationID);
-					if (vectorLength(temp.direction) > vectorLength(Rval.direction)) {
-						Rval = temp;
-					}
-				}
+			if (pBone->Name == "RightWrist" || pBone->Name == "LeftWrist") {
+				Rval = getBoneDirection(pBone, nullptr, AnimationID, 1);
 			}
 			else {
-				Rval = boneDirection(pBone, pBone->Children.at(0), AnimationID);
-			}*/
-
-			Rval = getBoneDirection(pBone, pBone->Children.at(0), AnimationID, frame);
+				Rval = getBoneDirection(pBone, pBone->Children.at(0), AnimationID, frame);
+			}
 
 			return Rval;
 		}
 
-		void setCapsuleRadius(Bone* pBone, int32_t AnimationID) {
-			Line boneDirection;
+		void setEndEffectorVert(Bone* pBone, int32_t AnimationID) {
+			Line boneDir = getBoneDirection(pBone, nullptr, AnimationID, 1);
+			Eigen::Vector3f endEffector = boneDir.p + boneDir.direction;
 
+			int32_t closestVert = pBone->VertexInfluences.at(0);
+			Eigen::Vector3f vertex(this->Tri_Deformations.at(1)(pBone->VertexInfluences.at(0) * 3),
+				this->Tri_Deformations.at(1)(pBone->VertexInfluences.at(0) * 3 + 1), this->Tri_Deformations.at(1)(pBone->VertexInfluences.at(0) * 3 + 2));
+
+			float smallestDistance = vectorLength(vertex - endEffector);
+
+			for (int i = 1; i < pBone->VertexInfluences.size(); i++) {
+				vertex = Eigen::Vector3f(this->Tri_Deformations.at(1)(pBone->VertexInfluences.at(i) * 3),
+					this->Tri_Deformations.at(1)(pBone->VertexInfluences.at(i) * 3 + 1), this->Tri_Deformations.at(1)(pBone->VertexInfluences.at(i) * 3 + 2));
+				float tempDistance = vectorLength(vertex - endEffector);
+
+				if (smallestDistance > tempDistance) {
+					smallestDistance = tempDistance;
+					closestVert = pBone->VertexInfluences.at(i);
+				}
+			}
+			pBone->endEffectorVert = closestVert;
+		}
+
+		void setCapsuleRadius(Bone* pBone, int32_t AnimationID) {
+			/*Line boneDirection;
 			if (pBone->Name == "RightWrist" || pBone->Name == "LeftWrist") {
 
 				int ID = pBone->ID;
@@ -565,7 +595,27 @@ namespace CForge {
 					Eigen::Vector3f nearestPoint = closestPointOnLineSegment(boneDirection.p, boneDirection.p + boneDirection.direction, vertex);
 					//float distanceRadius = GetDistanceLinePoint(boneDirection, vertex);
 					float distanceRadius = vectorLength(nearestPoint - vertex);
-					
+
+					if (distanceRadius > -1) {
+						radiusTemp += distanceRadius;
+						numVerts += 1.0;
+					}
+				}
+
+			}*/
+			Line boneDir = getCapsuleDirection(pBone, AnimationID, 1);
+			float radiusTemp = 0;
+			float numVerts = 0;
+
+			for (int i = 0; i < pBone->VertexInfluences.size(); i++) {
+				if (pBone->VertexWeights.at(i) > 0.95f) {
+					//Eigen::Vector3f vertex = this->m_Positions.at(pBone->VertexInfluences.at(i));
+					Eigen::Vector3f vertex(this->Tri_Deformations.at(1)(pBone->VertexInfluences.at(i) * 3),
+						this->Tri_Deformations.at(1)(pBone->VertexInfluences.at(i) * 3 + 1), this->Tri_Deformations.at(1)(pBone->VertexInfluences.at(i) * 3 + 2));
+
+
+					//float distanceRadius = GetDistanceLinePoint(boneDirection, vertex);
+					float distanceRadius = GetDistanceRayPoint(boneDir, vertex);
 					if (distanceRadius > -1) {
 						radiusTemp += distanceRadius;
 						numVerts += 1.0;
@@ -573,7 +623,6 @@ namespace CForge {
 				}
 
 			}
-
 			//radiusTemp = radiusTemp / pBone->VertexInfluences.size() + max_rad;
 			radiusTemp = radiusTemp / numVerts;
 			pBone->capsuleRadius = radiusTemp;
@@ -594,7 +643,7 @@ namespace CForge {
 				pNor_Def = getDeformationNormals(T);
 
 				while (this->Tri_Deformations.size() <= frame) {
-					Eigen::MatrixXf Test(m_Positions.size(),3);
+					Eigen::MatrixXf Test(m_Positions.size(), 3);
 					this->Tri_Deformations.push_back(Test);
 					this->Tri_Normal_Deformations.push_back(Test);
 				}
@@ -931,6 +980,54 @@ namespace CForge {
 
 			return sphereTriangleIntersectionTest(tri, center, capsuleRadius);
 
+		}
+
+		bool resolveCapsuleCollisions(Bone* bone1, Bone* bone2, int32_t AnimationID, int32_t frame) {
+
+			Line boneDirection1 = getBoneDirection(bone1, nullptr, AnimationID, frame);
+			Line boneDirection2 = getBoneDirection(bone2, bone2->Children.at(0), AnimationID, frame);
+			Eigen::Vector3f endEffector = boneDirection1.p + boneDirection1.direction;
+
+			Eigen::Vector3f onBone2 = closestPointOnLineSegment(boneDirection2.p, boneDirection2.p + boneDirection2.direction, endEffector);
+			Eigen::Vector3f onBone1 = closestPointOnLineSegment(boneDirection1.p, endEffector, onBone2);
+
+			Eigen::Vector3f distanceVec = onBone1 - onBone2;
+			float currentDistance = vectorLength(distanceVec);
+
+			if (currentDistance < bone2->capsuleRadius) {
+
+				Pose pPose = copyFrame(frame, AnimationID);
+				Eigen::Vector3f Target(this->Tri_Deformations.at(frame)(bone1->endEffectorVert * 3),
+					this->Tri_Deformations.at(frame)(bone1->endEffectorVert * 3 + 1), this->Tri_Deformations.at(frame)(bone1->endEffectorVert * 3 + 2));
+
+				std::vector<int32_t> vertices;
+				vertices.push_back(bone1->endEffectorVert);
+
+				distanceVec.normalize();
+				Target = Target + (bone2->capsuleRadius - currentDistance) * distanceVec;
+
+
+				std::vector<Eigen::Vector3f> TargetPosition;
+				TargetPosition.push_back(Target);
+				Pose newFrame;
+				std::vector<Eigen::Vector3f> end;
+				newFrame = computeInverseKinematic(bone1->ID + 1, vertices, pPose, TargetPosition, DeltaTheta, LearningRate, Epsilon);
+				end = getEndeffector(newFrame, vertices);
+
+				pPose = newFrame;
+				TargetPosition.clear();
+				vertices.clear();
+				end.clear();
+
+				for (int i = 0; i < 23; i++) {
+					this->m_SkeletalAnimations.at(AnimationID)->Keyframes.at(i)->Rotations.at(frame) = newFrame.Rotations.at(i);
+					this->m_SkeletalAnimations.at(AnimationID)->Keyframes.at(i)->SkinningMatrix.at(frame) = newFrame.SkinningMatrix.at(i);
+					this->m_SkeletalAnimations.at(AnimationID)->Keyframes.at(i)->LocalTransform.at(frame) = newFrame.LocalTransform.at(i);
+				}
+				return true;
+			}
+
+			return false;
 		}
 		//----------------------------------------------------------------------------------
 
@@ -1286,6 +1383,20 @@ namespace CForge {
 			return true;
 		}
 
+		bool sameSide(Eigen::Vector3f point1, Eigen::Vector3f point2, Eigen::Vector3f point3, Eigen::Vector3f point4)
+		{
+			Eigen::Vector3f cp1 = (point4 - point3).cross(point1 - point3);
+			Eigen::Vector3f cp2 = (point4 - point3).cross(point2 - point3);
+
+			if (cp1.dot(cp2) >= 0.0f)
+				return true;
+			return false;
+		}
+
+		bool vertInsideTriangle(Eigen::Vector3f tri[3], Eigen::Vector3f vert) {
+			bool Rval = sameSide(vert, tri[0], tri[1], tri[2]) && sameSide(vert, tri[1], tri[0], tri[2]) && sameSide(vert, tri[2], tri[0], tri[1]);
+			return Rval;
+		}
 		//End Triangle Triangle Intersection test --------------------------
 
 
@@ -1314,6 +1425,20 @@ namespace CForge {
 				Eigen::Vector3f pointToPoint = point - tip;
 				Rval = vectorLength(pointToPoint);
 			}*/
+			return Rval;
+		}
+
+		float GetDistanceRayPoint(Line pLine, Eigen::Vector3f point) {
+			float Rval;
+			Eigen::Vector3f normalizedDirection = pLine.direction.normalized();
+
+			Eigen::Vector3f OriginToPoint = point - pLine.p;
+			float t = normalizedDirection.dot(OriginToPoint);
+
+			Eigen::Vector3f pointPrime = pLine.p + t * normalizedDirection;
+			Eigen::Vector3f pointToPointPrime = point - pointPrime;
+			Rval = vectorLength(pointToPointPrime);
+
 			return Rval;
 		}
 
@@ -1459,6 +1584,7 @@ namespace CForge {
 				poseCopy.Rotations.push_back(boneKeyframe->Rotations.at(frame));
 				poseCopy.Scalings.push_back(boneKeyframe->Scalings.at(frame));
 				poseCopy.SkinningMatrix.push_back(boneKeyframe->SkinningMatrix.at(frame));
+				poseCopy.LocalTransform.push_back(boneKeyframe->LocalTransform.at(frame));
 
 			}
 			return poseCopy;
@@ -1488,6 +1614,7 @@ namespace CForge {
 				LocalTransformList[i] = LocalTransform;
 				Matrix4f SkinningMatrix = LocalTransform * getBone(i)->OffsetMatrix;
 				P.SkinningMatrix.at(i) = SkinningMatrix;
+				P.LocalTransform.at(i) = LocalTransform;
 			}
 
 
@@ -1706,102 +1833,102 @@ namespace CForge {
 			return allTrianglesInside;
 		}
 	*/
-		/*
-		std::vector<Eigen::Vector3f> getTargetPositionVersion1(int frame, std::vector<int32_t> goodVerticesNew, std::vector<int32_t> affectedTrianglesSorted2, std::vector<int32_t> affectedVertices2, Eigen::MatrixXf MeshVertices) {
+	/*
+	std::vector<Eigen::Vector3f> getTargetPositionVersion1(int frame, std::vector<int32_t> goodVerticesNew, std::vector<int32_t> affectedTrianglesSorted2, std::vector<int32_t> affectedVertices2, Eigen::MatrixXf MeshVertices) {
 
-			std::vector<Eigen::Vector3f> TargetPosition;
-			Eigen::Vector3f sumNormals(0, 0, 0);
-			float max_distance = 0.0f;
-			//printf("%d\n", max_distance);
-			for (int i = 0; i < affectedTrianglesSorted2.size(); i++) {
+		std::vector<Eigen::Vector3f> TargetPosition;
+		Eigen::Vector3f sumNormals(0, 0, 0);
+		float max_distance = 0.0f;
+		//printf("%d\n", max_distance);
+		for (int i = 0; i < affectedTrianglesSorted2.size(); i++) {
 
-				int32_t IndexNormal[3];
-				IndexNormal[0] = m_BoneSubmeshes.at(0)->Faces.at(affectedTrianglesSorted2.at(i)).Vertices[0];
-				IndexNormal[1] = m_BoneSubmeshes.at(0)->Faces.at(affectedTrianglesSorted2.at(i)).Vertices[1];
-				IndexNormal[2] = m_BoneSubmeshes.at(0)->Faces.at(affectedTrianglesSorted2.at(i)).Vertices[2];
+			int32_t IndexNormal[3];
+			IndexNormal[0] = m_BoneSubmeshes.at(0)->Faces.at(affectedTrianglesSorted2.at(i)).Vertices[0];
+			IndexNormal[1] = m_BoneSubmeshes.at(0)->Faces.at(affectedTrianglesSorted2.at(i)).Vertices[1];
+			IndexNormal[2] = m_BoneSubmeshes.at(0)->Faces.at(affectedTrianglesSorted2.at(i)).Vertices[2];
 
-				for (int j = 0; j < 3; j++) {
-					Eigen::Vector3f Normal = Eigen::Vector3f(this->Tri_Normal_Deformations.at(frame)(IndexNormal[j] * 3 + 0),
-						this->Tri_Normal_Deformations.at(frame)(IndexNormal[j] * 3 + 1),
-						this->Tri_Normal_Deformations.at(frame)(IndexNormal[j] * 3 + 2));
+			for (int j = 0; j < 3; j++) {
+				Eigen::Vector3f Normal = Eigen::Vector3f(this->Tri_Normal_Deformations.at(frame)(IndexNormal[j] * 3 + 0),
+					this->Tri_Normal_Deformations.at(frame)(IndexNormal[j] * 3 + 1),
+					this->Tri_Normal_Deformations.at(frame)(IndexNormal[j] * 3 + 2));
 
-					sumNormals = sumNormals + Normal;
-				}
+				sumNormals = sumNormals + Normal;
 			}
+		}
 
-			sumNormals.normalize();
+		sumNormals.normalize();
 
-			float approximateD = findFittingD(MeshVertices, affectedVertices2, sumNormals);
+		float approximateD = findFittingD(MeshVertices, affectedVertices2, sumNormals);
 
-			for (int i = 0; i < goodVerticesNew.size(); i++) {
-				Eigen::Vector3f Vertex = Eigen::Vector3f(MeshVertices.row(goodVerticesNew.at(i)));
+		for (int i = 0; i < goodVerticesNew.size(); i++) {
+			Eigen::Vector3f Vertex = Eigen::Vector3f(MeshVertices.row(goodVerticesNew.at(i)));
+			Line pLine(Vertex, sumNormals);
+			float temp = linePlaneIntersection(pLine, sumNormals, -1 * approximateD);
+			if (temp > max_distance) {
+				max_distance = temp;
+			}
+		}
+
+		for (int i = 0; i < goodVerticesNew.size(); i++) {
+			Eigen::Vector3f temp = Eigen::Vector3f(MeshVertices.row(goodVerticesNew.at(i)));
+			temp = temp + (max_distance * sumNormals);
+			TargetPosition.push_back(temp);
+		}
+
+		return TargetPosition;
+	}
+
+	std::vector<Eigen::Vector3f> getTargetPositionVersion2(int frame, std::vector<Eigen::Vector2i> affectedTriangles, Submesh* Submesh1, Submesh* Submesh2, Eigen::MatrixXf MeshVertices) {
+		std::vector<Eigen::Vector3f> TargetPosition;
+		Eigen::Vector3f sumNormals(0, 0, 0);
+		float max_distance = 0;
+
+
+		//Normal from Vertices in Mesh2
+		for (int i = 0; i < affectedTrianglesSorted2.size(); i++) {
+			int32_t IndexNormal[3];
+			IndexNormal[0] = m_BoneSubmeshes.at(0)->Faces.at(affectedTrianglesSorted2.at(i)).Vertices[0];
+			IndexNormal[1] = m_BoneSubmeshes.at(0)->Faces.at(affectedTrianglesSorted2.at(i)).Vertices[1];
+			IndexNormal[2] = m_BoneSubmeshes.at(0)->Faces.at(affectedTrianglesSorted2.at(i)).Vertices[2];
+
+			for (int j = 0; j < 3; j++) {
+				Eigen::Vector3f Normal = Eigen::Vector3f(this->Tri_Normal_Deformations.at(frame)(IndexNormal[j] * 3 + 0),
+					this->Tri_Normal_Deformations.at(frame)(IndexNormal[j] * 3 + 1),
+					this->Tri_Normal_Deformations.at(frame)(IndexNormal[j] * 3 + 2));
+				sumNormals = sumNormals + Normal;
+			}
+		}
+
+		sumNormals.normalize();
+
+		//max_distance from Intersection Ray-Triangle / Vert Mesh1 to Triangle Mesh2
+		for (int i = 0; i < affectedTriangles.size(); i++) {
+
+			Eigen::Vector3f Tri2[3];
+			Tri2[0] = Eigen::Vector3f(MeshVertices.row(m_BoneSubmeshes.at(0)->Faces.at(affectedTriangles.at(i).y()).Vertices[0]));
+			Tri2[1] = Eigen::Vector3f(MeshVertices.row(m_BoneSubmeshes.at(0)->Faces.at(affectedTriangles.at(i).y()).Vertices[1]));
+			Tri2[2] = Eigen::Vector3f(MeshVertices.row(m_BoneSubmeshes.at(0)->Faces.at(affectedTriangles.at(i).y()).Vertices[2]));
+			for (int j = 0; j < 3; j++) {
+				Eigen::Vector3f Vertex = Eigen::Vector3f(MeshVertices.row(m_BoneSubmeshes.at(0)->Faces.at(affectedTriangles.at(i).x()).Vertices[j]));
 				Line pLine(Vertex, sumNormals);
-				float temp = linePlaneIntersection(pLine, sumNormals, -1 * approximateD);
-				if (temp > max_distance) {
+
+				float temp = lineTriangleIntersection(pLine, Tri2);
+				if (max_distance < temp) {
 					max_distance = temp;
 				}
 			}
-
-			for (int i = 0; i < goodVerticesNew.size(); i++) {
-				Eigen::Vector3f temp = Eigen::Vector3f(MeshVertices.row(goodVerticesNew.at(i)));
-				temp = temp + (max_distance * sumNormals);
-				TargetPosition.push_back(temp);
-			}
-
-			return TargetPosition;
 		}
 
-		std::vector<Eigen::Vector3f> getTargetPositionVersion2(int frame, std::vector<Eigen::Vector2i> affectedTriangles, std::vector<int32_t> affectedVertices, std::vector<int32_t> affectedTrianglesSorted2, Eigen::MatrixXf MeshVertices) {
-			std::vector<Eigen::Vector3f> TargetPosition;
-			Eigen::Vector3f sumNormals(0, 0, 0);
-			float max_distance = 0;
-
-
-			//Normal from Vertices in Mesh2
-			for (int i = 0; i < affectedTrianglesSorted2.size(); i++) {
-				int32_t IndexNormal[3];
-				IndexNormal[0] = m_BoneSubmeshes.at(0)->Faces.at(affectedTrianglesSorted2.at(i)).Vertices[0];
-				IndexNormal[1] = m_BoneSubmeshes.at(0)->Faces.at(affectedTrianglesSorted2.at(i)).Vertices[1];
-				IndexNormal[2] = m_BoneSubmeshes.at(0)->Faces.at(affectedTrianglesSorted2.at(i)).Vertices[2];
-
-				for (int j = 0; j < 3; j++) {
-					Eigen::Vector3f Normal = Eigen::Vector3f(this->Tri_Normal_Deformations.at(frame)(IndexNormal[j] * 3 + 0),
-						this->Tri_Normal_Deformations.at(frame)(IndexNormal[j] * 3 + 1),
-						this->Tri_Normal_Deformations.at(frame)(IndexNormal[j] * 3 + 2));
-					sumNormals = sumNormals + Normal;
-				}
-			}
-
-			sumNormals.normalize();
-
-			//max_distance from Intersection Ray-Triangle / Vert Mesh1 to Triangle Mesh2
-			for (int i = 0; i < affectedTriangles.size(); i++) {
-
-				Eigen::Vector3f Tri2[3];
-				Tri2[0] = Eigen::Vector3f(MeshVertices.row(m_BoneSubmeshes.at(0)->Faces.at(affectedTriangles.at(i).y()).Vertices[0]));
-				Tri2[1] = Eigen::Vector3f(MeshVertices.row(m_BoneSubmeshes.at(0)->Faces.at(affectedTriangles.at(i).y()).Vertices[1]));
-				Tri2[2] = Eigen::Vector3f(MeshVertices.row(m_BoneSubmeshes.at(0)->Faces.at(affectedTriangles.at(i).y()).Vertices[2]));
-				for (int j = 0; j < 3; j++) {
-					Eigen::Vector3f Vertex = Eigen::Vector3f(MeshVertices.row(m_BoneSubmeshes.at(0)->Faces.at(affectedTriangles.at(i).x()).Vertices[j]));
-					Line pLine(Vertex, sumNormals);
-
-					float temp = lineTriangleIntersection(pLine, Tri2);
-					if (max_distance < temp) {
-						max_distance = temp;
-					}
-				}
-			}
-
-			for (int i = 0; i < affectedVertices.size(); i++) {
-				Eigen::Vector3f temp = Eigen::Vector3f(MeshVertices.row(affectedVertices.at(i)));
-				temp += (max_distance * sumNormals);
-				TargetPosition.push_back(temp);
-			}
-
-
-			return TargetPosition;
+		for (int i = 0; i < affectedVertices.size(); i++) {
+			Eigen::Vector3f temp = Eigen::Vector3f(MeshVertices.row(affectedVertices.at(i)));
+			temp += (max_distance * sumNormals);
+			TargetPosition.push_back(temp);
 		}
-		*/
+
+
+		return TargetPosition;
+	}
+	*/
 		std::vector<Eigen::Vector3f> getTargetPositionVersion3(int frame, std::vector<Eigen::Vector2i> affectedTriangles, std::vector<int32_t> affectedVertices, std::vector<int32_t> affectedTrianglesSorted, Eigen::MatrixXf MeshVertices) {
 			std::vector<Eigen::Vector3f> TargetPosition;
 			Eigen::Vector3f sumNormals(0, 0, 0);
@@ -2115,8 +2242,8 @@ namespace CForge {
 			if (thisEditedBefore == true || beforeEditedBefore == false) {
 				Pose newFrame;
 				std::vector<Eigen::Vector3f> end;
-				/*
-				if (Version == 1) {
+
+				/*if (Version == 1) {
 
 					std::vector<int32_t> forbiddenVertices;
 					std::vector<int32_t> TrianglesToCheck;
@@ -2158,13 +2285,101 @@ namespace CForge {
 					goodVerticesNew.clear();
 					affectedVertices2.clear();
 				}
-				else if (Version == 2) {
+				else */
+				if (Version == 2) {
 
-					TargetPosition = getTargetPositionVersion2(frame, affectedTriangles, affectedVertices, affectedTrianglesSorted2, MeshVertices);
-					newFrame = computeInverseKinematic(Submesh1->ID, affectedVertices, pPose, TargetPosition, DeltaTheta, LearningRate, Epsilon);
-					end = getEndeffector(newFrame, affectedVertices);
+					std::vector<int32_t> vertsInside;
+
+					for (int i = 0; i < affectedTriangles.size(); i++) {
+						Eigen::Vector3f Tri1[3];
+						int32_t Vertex1[3] = { getBoneSubmesh(0)->Faces.at(affectedTriangles.at(i).x()).Vertices[0],
+						getBoneSubmesh(0)->Faces.at(affectedTriangles.at(i).x()).Vertices[1],
+						getBoneSubmesh(0)->Faces.at(affectedTriangles.at(i).x()).Vertices[2] };
+
+						Eigen::Vector3f Tri2[3];
+						int32_t Vertex2[3] = { getBoneSubmesh(0)->Faces.at(affectedTriangles.at(i).y()).Vertices[0],
+						getBoneSubmesh(0)->Faces.at(affectedTriangles.at(i).y()).Vertices[1],
+						getBoneSubmesh(0)->Faces.at(affectedTriangles.at(i).y()).Vertices[2] };
+
+						Tri1[0] = Eigen::Vector3f(MeshVertices.row(Vertex1[0]));
+						Tri1[1] = Eigen::Vector3f(MeshVertices.row(Vertex1[1]));
+						Tri1[2] = Eigen::Vector3f(MeshVertices.row(Vertex1[2]));
+
+						Tri2[0] = Eigen::Vector3f(MeshVertices.row(Vertex2[0]));
+						Tri2[1] = Eigen::Vector3f(MeshVertices.row(Vertex2[1]));
+						Tri2[2] = Eigen::Vector3f(MeshVertices.row(Vertex2[2]));
+
+						Eigen::Vector3f TriNormal2 = get_normal(Tri2[0], Tri2[1], Tri2[2]);
+
+						//sort the vertices of intersecting triangles depending on their location inside or outside the
+						//other mesh, Vertices of Mesh1 that are outside of Mesh2 are in vertsOutsideMesh2 etc
+						for (int j = 0; j < 3; j++) {
+
+							T3DMesh<float>::Line pLine1(Tri1[j], TriNormal2);
+							//Check if this performs correctly
+							float temp1 = lineTriangleIntersection(pLine1, Tri2);
+
+							if (temp1 < 0) {
+								if (findInVector(vertsInside, Vertex1[j]) == false) {
+									vertsInside.push_back(Vertex1[j]);
+									TargetPosition.push_back(Tri1[j]);
+								}
+							}
+						}
+					}
+
+
+					T3DMesh<float>::Line Capsule = getCapsuleDirection(boneMesh2, AnimationID, frame);
+
+					float distance = 0;
+					Eigen::Vector3f dir(0, 0, 0);
+
+					for (int v = 0; v < vertsInside.size(); v++)
+					{
+						Eigen::Vector3f pVertex = TargetPosition.at(v);
+						Eigen::Vector3f A = Capsule.p;
+						Eigen::Vector3f B = A + Capsule.direction;
+						//Eigen::Vector3f pVertex = m_pMesh->getUpdatedVertexPosition(frame, vertexID);
+						Eigen::Vector3f closestPointOnBone = closestPointOnLineSegment(A, B, pVertex);
+						std::vector<int32_t> VerticesInSubmesh = getVerticesInSubmesh(Submesh2->ID - 1);
+
+						Eigen::Vector3f Original = pVertex - closestPointOnBone;
+
+						Eigen::Vector3f vertWithSmallestAngle = getUpdatedVertexPosition(frame, VerticesInSubmesh.at(0));
+						Eigen::Vector3f tempVector = vertWithSmallestAngle - closestPointOnBone;
+						float smallestAngle = acosf((Original.dot(tempVector)) / (vectorLength(Original) * vectorLength(tempVector)));
+
+						for (int i = 1; i < VerticesInSubmesh.size(); i++) {
+							Eigen::Vector3f tempVert = getUpdatedVertexPosition(frame, VerticesInSubmesh.at(i));
+							tempVector = tempVert - closestPointOnBone;
+							if (vectorLength(tempVector) > vectorLength(Original)) {
+								float tempAngle = acosf((Original.dot(tempVector)) / (vectorLength(Original) * vectorLength(tempVector)));
+
+								if (tempAngle < smallestAngle) {
+									smallestAngle = tempAngle;
+									vertWithSmallestAngle = tempVert;
+								}
+							}
+
+						}
+
+						Eigen::Vector3f center2 = closestPointOnLineSegment(A, B, vertWithSmallestAngle);
+						float accurateRadius = vectorLength(vertWithSmallestAngle - center2);
+						Eigen::Vector3f center1 = closestPointOnLineSegment(A, B, pVertex);
+						Eigen::Vector3f distance = pVertex - center1;
+						float currentRadius = vectorLength(distance);
+						if (currentRadius < accurateRadius) {
+							distance.normalize();
+							TargetPosition.at(v) = pVertex + (accurateRadius - currentRadius) * distance;
+						}
+
+					}
+
+					newFrame = computeInverseKinematic(Submesh1->ID, vertsInside, pPose, TargetPosition, DeltaTheta, LearningRate, Epsilon);
+					end = getEndeffector(newFrame, vertsInside);
+					vertsInside.clear();
 				}
-				else if (Version == 4) {
+				else /* if (Version == 4) {
 
 					std::vector<int32_t> forbiddenVertices;
 					std::vector<int32_t> TrianglesToCheck;
@@ -2255,7 +2470,7 @@ namespace CForge {
 			}
 
 			//calculateChanges(pPose, newFrame, frame);
-			for (int i = 0; i < 23; i++) {
+			for (int i = 0; i < this->boneCount(); i++) {
 				this->m_SkeletalAnimations.at(AnimationID)->Keyframes.at(i)->Rotations.at(frame) = pPose.Rotations.at(i);
 				this->m_SkeletalAnimations.at(AnimationID)->Keyframes.at(i)->SkinningMatrix.at(frame) = pPose.SkinningMatrix.at(i);
 			}
@@ -2322,7 +2537,7 @@ namespace CForge {
 			uint32_t unIterationCount = 0; // failsafe to prohibit endless computations
 			// iterate until end effector's position is close to target position
 			//fEpsilon is the aspired remainingError
-			while (unIterationCount < 20 && fRemainingError > fEpsilon/*... Exercise 13 - Task 1.(e)...*/) {
+			while (unIterationCount < 30 && fRemainingError > fEpsilon/*... Exercise 13 - Task 1.(e)...*/) {
 				// copy Pose for this iteration
 				P = pPose;
 
@@ -2375,7 +2590,7 @@ namespace CForge {
 			return pPose;
 		}
 
-		bool findInVector(std::vector<int32_t> Vector, int32_t wanted) {
+		/*bool findInVector(std::vector<int32_t> Vector, int32_t wanted) {
 
 			int32_t index = findNewPosition(Vector, wanted);
 
@@ -2383,6 +2598,14 @@ namespace CForge {
 				return true;
 			else return false;
 
+		}*/
+		bool findInVector(std::vector<int32_t> Vector, int32_t wanted) {
+
+			for (int i = 0; i < Vector.size(); i++) {
+				if (Vector.at(i) == wanted)
+					return true;
+			}
+			return false;
 		}
 
 		int findNewPosition(std::vector<int32_t> Vector, int32_t toBeInserted) {
@@ -2409,8 +2632,6 @@ namespace CForge {
 			return currentIndex;
 
 		}
-
-		
 
 		std::vector<int32_t> findTrianglesInside(Submesh* Mesh, std::vector<int32_t> goodVertices, std::vector<int32_t> forbiddenVertices, std::vector<int32_t> trianglesToCheck) {
 
@@ -2959,7 +3180,7 @@ namespace CForge {
 
 		//-------- Collisionfunctions, for now between two Submeshes, where Submesh1 is supposed to be manipulated in case of collision
 		bool collisionTestInverseKinematic(int Submesh1Index, int Submesh2Index, int frame, int AnimationID, int Version) {
-			
+
 			Eigen::MatrixXf MeshVertices = this->Tri_Deformations.at(frame);
 
 			//Submesh, where Bones shall be updated in case of collision
@@ -2974,7 +3195,7 @@ namespace CForge {
 			AABB mesh2BB = Submesh2->initBB(MeshVertices);
 
 			bool spheresIntersect, boxesIntersect, trianglesIntersect = false;
-			
+
 			//Sphere Test -------------------------
 			spheresIntersect = boundingSphereIntersectionTest(mesh1BB, mesh2BB);
 			if (!spheresIntersect) return false;
@@ -3042,7 +3263,7 @@ namespace CForge {
 					affectedTriangles.push_back(Eigen::Vector2i(Submesh1->FaceID.at(i), Submesh2->FaceID.at(j)));
 				}
 			}
-			
+
 			float newError = 0;
 			//do stuff with colliding triangles
 			if (affectedTriangles.size() > 0) {
@@ -3071,23 +3292,25 @@ namespace CForge {
 
 			return trianglesIntersect;
 		}
-		
+
 		//startFunktion
 		void resolveCollisions(int32_t BoneIDs1[4], int32_t BoneIDs2[4], int32_t startFrame, int32_t endFrame, int32_t numFrames, int32_t numAnimations, int32_t AnimationToEdit, int32_t Version, int32_t numIterations) {
 
 			//Sort Bones starting from Root / Hip
 			this->sortBones(numAnimations);
 			//compile all existing Submeshes into m_BoneSubmeshes(0) and add Submeshes for each Bone
-			this->initBoneSubmeshes();
-
+			//this->initBoneSubmeshes(0.3f);
+			this->initBoneSubmeshes(0.0f);
 			//calculate Mesh Deformation
 			this->interpolateKeyframes(numFrames, this->getBone(0), AnimationToEdit);
 			this->setSkinningMats(0, numFrames - 1, AnimationToEdit, 0);
+			this->setTri_Deformation(0, numFrames - 1, AnimationToEdit);
 
 			setCapsuleRadius(getBone(BoneIDs2[0]), AnimationToEdit);
 			setCapsuleRadius(getBone(BoneIDs2[2]), AnimationToEdit);
 
-			this->setTri_Deformation(0, numFrames - 1, AnimationToEdit);
+			//setEndEffectorVert(getBone(BoneIDs1[1]), AnimationToEdit);
+			//setEndEffectorVert(getBone(BoneIDs1[3]), AnimationToEdit);
 
 			//aRotationAxis.at(i), i = BoneID, that is colliding
 			// 
@@ -3103,6 +3326,28 @@ namespace CForge {
 
 			//Actual collision resolvement
 			for (int i = startFrame; i <= endFrame; i++) {
+
+				//this->DeltaTheta = 0.0005f;
+				//this->LearningRate = 0.00035f;
+				//if (resolveCapsuleCollisions(getBone(BoneIDs1[1]), getBone(BoneIDs2[1]), AnimationToEdit, i)) {
+					//this->setSkinningMats(i, i, AnimationToEdit, 0);
+				//	this->setTri_Deformation(i, i, AnimationToEdit);
+					/*if (resolveCapsuleCollisions(getBone(BoneIDs1[1]), getBone(BoneIDs2[1]), AnimationToEdit, i)) {
+						//this->setSkinningMats(i, i, AnimationToEdit, 0);
+						this->setTri_Deformation(i, i, AnimationToEdit);
+					}*/
+
+				//}
+
+			//	if (resolveCapsuleCollisions(getBone(BoneIDs1[3]), getBone(BoneIDs2[3]), AnimationToEdit, i)) {
+					//this->setSkinningMats(i, i, AnimationToEdit, 0);
+				//	this->setTri_Deformation(i, i, AnimationToEdit);
+					/*if (resolveCapsuleCollisions(getBone(BoneIDs1[3]), getBone(BoneIDs2[3]), AnimationToEdit, i)) {
+						this->setSkinningMats(i, i, AnimationToEdit, 0);
+						this->setTri_Deformation(i, i, AnimationToEdit);
+					}*/
+				//}
+
 
 				bool collision = true;
 				int iteration = 0;
@@ -3155,12 +3400,12 @@ namespace CForge {
 			}
 
 			//CurveFitting with B-Splines
-			afterMatch(AnimationToEdit, 3);
+			//afterMatch(AnimationToEdit, 3);
 
 		}
 
 		//Need Submeshes for Bones, if model contains more than one mesh need a Submesh that combines them
-		void initBoneSubmeshes() {
+		void initBoneSubmeshes(float minWeight) {
 
 			Submesh* combinedMesh = new Submesh;
 			combinedMesh->ID = 0;
@@ -3175,11 +3420,11 @@ namespace CForge {
 
 			this->m_BoneSubmeshes.push_back(combinedMesh);
 
-			initSubmeshes(m_pRootBone);
+			initSubmeshes(m_pRootBone, minWeight);
 
 		}
 
-		void initSubmeshes(Bone* pBone) {
+		void initSubmeshes(Bone* pBone,float minWeight) {
 
 			Submesh* pMesh = new Submesh;
 			pMesh->ID = pBone->ID + 1;
@@ -3192,7 +3437,7 @@ namespace CForge {
 
 				while (i < pBone->VertexInfluences.size() && found == false) {
 					float weight = pBone->VertexWeights.at(i);
-					if (weight > 0.5f) {
+					if (weight > minWeight) {
 						int VertexID = pBone->VertexInfluences.at(i);
 						if (face.Vertices[0] == VertexID || face.Vertices[1] == VertexID || face.Vertices[2] == VertexID) {
 							found = true;
@@ -3201,7 +3446,6 @@ namespace CForge {
 							i++;
 						}
 					}
-					
 					else {
 						i++;
 					}
@@ -3223,7 +3467,7 @@ namespace CForge {
 			}
 
 			m_BoneSubmeshes.push_back(pMesh);
-			
+
 			std::vector<int32_t> verticesInSubmesh;
 
 			for (int i = 0; i < pMesh->Faces.size(); i++) {
@@ -3248,7 +3492,7 @@ namespace CForge {
 			m_SubmeshVertices.push_back(verticesInSubmesh);
 
 			for (auto child : pBone->Children) {
-				initSubmeshes(child);
+				initSubmeshes(child, minWeight);
 			}
 
 		}
@@ -3428,7 +3672,7 @@ namespace CForge {
 						pPointsInside.push_back(i);
 					}
 				}
-				
+
 				//Eigen::VectorXi vPointsInside(pPointsInside.size());
 				//for (int32_t i = 0; i < pPointsInside.size(); i++) {
 				//	vPointsInside(i) = pPointsInside.at(i);
@@ -3548,11 +3792,11 @@ namespace CForge {
 			if (LapMinMax(0, 2) > LapMinMax(1, 2)) boxesIntersect = false;
 
 			if (!boxesIntersect) return false;
-				
-			
+
+
 			for (int32_t i = 0; i < m_SamplePoints.rows(); i++) {
 				Eigen::Vector3f vertex(MeshVertices.row(m_SamplePoints(i)));
-				
+
 				if (vertex.x() >= LapMinMax(0, 0) && vertex.x() <= LapMinMax(1, 0)) {
 					if (vertex.y() >= LapMinMax(0, 1) && vertex.y() <= LapMinMax(1, 1)) {
 						if (vertex.z() >= LapMinMax(0, 2) && vertex.z() <= LapMinMax(1, 2))
@@ -3578,7 +3822,7 @@ namespace CForge {
 				int32_t currentSamplePoint = this->m_SamplePoints(possiblyAffectedSamplePoints.at(i));
 				Eigen::Vector3f newPosition(MeshVertices.row(currentSamplePoint));
 				int32_t possibleIndex = binarySearch(0, this->m_SamplePointsInBones.at(0).size() - 1, currentSamplePoint ,this->m_SamplePointsInBones.at(0));
-				
+
 				if (m_SamplePointsInBones.at(0).at(possibleIndex) == currentSamplePoint) {
 					newPosition = bestLocationSamplePoint(Capsule1, optimalRadius(0), Eigen::Vector3f(MeshVertices.row(currentSamplePoint)));
 					affectedSamplePoints.push_back(currentSamplePoint);
@@ -3602,7 +3846,7 @@ namespace CForge {
 
 			return true;
 		}
-		
+
 		Eigen::MatrixXf ShapeDeformation(int32_t frame, Eigen::MatrixXf U_bc) {
 
 			//Eigen::VectorXi VS, FS, VT, FT;
@@ -3629,7 +3873,7 @@ namespace CForge {
 			return (V + D);
 			//this->Tri_Deformations.at(frame) = V;
 		}
-		
+
 		void resolveCollisionsShapeDeformation(int Submesh1Index, int Submesh2Index, int32_t startFrame, int32_t endFrame, int32_t AnimationID) {
 			Eigen::Vector2i bones;
 			bones(0) = Submesh1Index - 1;
@@ -3677,7 +3921,7 @@ namespace CForge {
 		//--------------------
 
 		////// Setter
-		void vertices(std::vector<Eigen::Matrix<T, 3, 1>> *pCoords) {
+		void vertices(std::vector<Eigen::Matrix<T, 3, 1>>* pCoords) {
 			if (nullptr != pCoords) m_Positions = (*pCoords);
 		}//positions
 
@@ -3700,8 +3944,8 @@ namespace CForge {
 		void bones(std::vector<Bone*>* pBones, bool Copy = true) {
 			for (auto i : m_Bones) delete i;
 			m_Bones.clear();
-			
-			if (nullptr != pBones && Copy) {	
+
+			if (nullptr != pBones && Copy) {
 				// create bones
 				for (size_t i = 0; i < pBones->size(); ++i) m_Bones.push_back(new Bone());
 
@@ -3718,9 +3962,9 @@ namespace CForge {
 						m_Bones[i]->Children.push_back(m_Bones[pBones->at(i)->Children[k]->ID]);
 					}//for[children]
 				}//for[bones]
-		
+
 			}
-			else if(nullptr != pBones) {
+			else if (nullptr != pBones) {
 				m_Bones = (*pBones);
 			}
 
@@ -3757,7 +4001,7 @@ namespace CForge {
 				pSM = new Submesh();
 				pSM->init(pSubmesh);
 			}
-			m_Submeshes.push_back(pSM);			
+			m_Submeshes.push_back(pSM);
 		}//addSubmesh
 
 		void addMaterial(Material* pMat, bool Copy) {
@@ -3781,7 +4025,7 @@ namespace CForge {
 			pNewMT->ID = m_MorphTargets.size();
 			m_MorphTargets.push_back(pNewMT);
 		}//addMorphTarget
-		 
+
 		uint32_t vertexCount(void)const {
 			return m_Positions.size();
 		}//vertexCount
@@ -3828,7 +4072,7 @@ namespace CForge {
 
 		////////// Getter
 		Eigen::Vector3f getUpdatedVertexPosition(int32_t frame, int32_t vertexID) {
-			if (vertexID < 0 || frame > Tri_Deformations.size() -1) throw IndexOutOfBoundsExcept("Index");
+			if (vertexID < 0 || frame > Tri_Deformations.size() - 1) throw IndexOutOfBoundsExcept("Index");
 			return Eigen::Vector3f(this->Tri_Deformations.at(frame).row(vertexID));
 		}
 		Eigen::Vector3f getUpdatedNormal(int32_t frame, int32_t vertexID) {
@@ -3851,7 +4095,7 @@ namespace CForge {
 			return m_Normals[Index];
 		}//normal
 
-		const Eigen::Matrix<T, 3, 1> normal(int32_t Index) const{
+		const Eigen::Matrix<T, 3, 1> normal(int32_t Index) const {
 			if (Index < 0 || Index >= normalCount()) throw IndexOutOfBoundsExcept("Index");
 			return m_Normals[Index];
 		}//normal
@@ -3891,7 +4135,7 @@ namespace CForge {
 			return m_BoneSubmeshes[Index];
 		}//getSubmesh
 
-		Submesh* getSubmesh(int32_t Index){
+		Submesh* getSubmesh(int32_t Index) {
 			if (Index < 0 || Index >= m_Submeshes.size()) throw IndexOutOfBoundsExcept("Index");
 			return m_Submeshes[Index];
 		}//getSubmesh
@@ -3920,7 +4164,7 @@ namespace CForge {
 			if (Index < 0 || Index >= m_Bones.size()) throw IndexOutOfBoundsExcept("Index");
 			return m_Bones[Index];
 		}//getBone
-		
+
 		SkeletalAnimation* getSkeletalAnimation(int32_t Index) {
 			if (Index < 0 || Index >= m_SkeletalAnimations.size()) throw IndexOutOfBoundsExcept("Index");
 			return m_SkeletalAnimations[Index];
@@ -3992,7 +4236,7 @@ namespace CForge {
 		}//computeTangents
 
 		void computePerVertexNormals(bool ComputePerFaceNormals = true) {
-			if(ComputePerFaceNormals) computePerFaceNormals();
+			if (ComputePerFaceNormals) computePerFaceNormals();
 
 			m_Normals.clear();
 			// create normals
@@ -4098,11 +4342,15 @@ namespace CForge {
 		std::vector<Eigen::MatrixXf> Tri_Deformations;
 		std::vector<Eigen::MatrixXf> Tri_Normal_Deformations;
 
+		/*	float DeltaTheta = 0.000025f;
+			float Epsilon = 0.20f;
+			float LearningRate = 0.000035f;*/
 		float DeltaTheta = 0.000025f;
 		float Epsilon = 0.20f;
 		float LearningRate = 0.000035f;
 		float initialGuess = 0.9f;
 		bool enableInitialGuess = true;
+		float wristLength = 15.8855f;
 
 		//shape deformation
 		//Eigen::MatrixXf mat_Faces; //F for biharmonic
@@ -4184,7 +4432,7 @@ namespace CForge {
 				Eigen::Matrix4f TransformationMatrix = T.at(i);
 				Eigen::Vector4f defPosition = TransformationMatrix * Position;
 
-				pTri_Def.row(i) = Eigen::RowVector3f(defPosition.x()/ defPosition.w(), defPosition.y()/ defPosition.w(), defPosition.z()/ defPosition.w());
+				pTri_Def.row(i) = Eigen::RowVector3f(defPosition.x() / defPosition.w(), defPosition.y() / defPosition.w(), defPosition.z() / defPosition.w());
 			}
 
 			return pTri_Def;

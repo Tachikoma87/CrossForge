@@ -55,7 +55,11 @@ namespace CForge {
 			// initialize skeletal actor (Eric) and its animation controller
 			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
-			M.sortBones(8);
+			M.sortBones(M.skeletalAnimationCount());
+			M.clearSkeletalAnimations();
+
+			AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/Version2_3It_Initial_BSpline.dat", &M);
+
 			M.computePerVertexNormals();
 			Controller.init(&M);
 			Eric.init(&M, &Controller);
@@ -65,7 +69,7 @@ namespace CForge {
 			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 
-			M.sortBones(8);
+			M.sortBones(M.skeletalAnimationCount());
 			M.clearSkeletalAnimations();
 
 			AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/Version3_2It_Initial_BSpline.dat", &M);
@@ -84,12 +88,16 @@ namespace CForge {
 			//Eric 3
 			// initialize skeletal actor (Eric) and its animation controller
 			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
+			//SAssetIO::load("Assets/tmp/WalkingSittingEve.fbx", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 
-			M.sortBones(8);
+			M.sortBones(M.skeletalAnimationCount());
 			M.clearSkeletalAnimations();
-
-			AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/Version5_2It_Initial_BSpline.dat", &M);
+			AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/EricVersion3_3It_Initial_BSpline.dat", &M);
+			//	
+			
+			//AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/Version5_2It_Initial_BSpline.dat", &M);
+		//	AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/EveVersion3_5It_Initial_BSpline.dat", &M);
 
 			M.computePerVertexNormals();
 			for (uint32_t i = 0; i < M.materialCount(); ++i) {
@@ -154,8 +162,8 @@ namespace CForge {
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
-					SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(7, AnimationSpeed, 0.0f);
-					//SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
+					//SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(7, AnimationSpeed, 0.0f);
+					SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
 					Eric.activeAnimation(pAnim);
 
 					SkeletalAnimationController::Animation* pAnim2 = Controller2.createAnimation(0, AnimationSpeed, 0.0f);
@@ -169,6 +177,12 @@ namespace CForge {
 					Controller.update(m_FPS / 60.0f);
 					Controller2.update(m_FPS / 60.0f);
 					Controller3.update(m_FPS / 60.0f);
+				}
+
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
+					Controller.update(m_FPS / -60.0f);
+					Controller2.update(m_FPS / -60.0f);
+					Controller3.update(m_FPS / -60.0f);
 				}
 
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) {

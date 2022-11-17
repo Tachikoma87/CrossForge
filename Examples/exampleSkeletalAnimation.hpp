@@ -21,6 +21,7 @@
 #include "../CForge/Graphics/Actors/SkeletalActor.h"
 
 #include "exampleSceneBase.hpp"
+#include "../Prototypes/MeshProcessing/ShapeDeformer.h"
 
 using namespace Eigen;
 using namespace std;
@@ -52,9 +53,21 @@ namespace CForge {
 			M.clear();
 
 			// initialize skeletal actor (Eric) and its animation controller
-			SAssetIO::load("Assets/tmp/MuscleManWalking.glb", &M);
+			SAssetIO::load("Assets/tmp/MuscleManSittingWalking.glb", &M);
+			//SAssetIO::load("Assets/tmp/WalkingSittingEve.glb", &M);
+			M.sortBones(1);
+			M.mergeRedundantVertices();
 			setMeshShader(&M, 0.7f, 0.04f);
+			
 			M.computePerVertexNormals();
+
+			//-------- Deformation Part
+			/*ShapeDeformer TestDeformer;
+			TestDeformer.init(&M);
+			int startFrame = 0;
+			int endFrame = 150;
+			TestDeformer.resolveCollisionsShapeDeformation(16, 20, startFrame, endFrame, 0);*/
+			//---------------
 			m_BipedController.init(&M);
 			m_MuscleMan.init(&M, &m_BipedController);
 			M.clear();
@@ -71,6 +84,7 @@ namespace CForge {
 			m_MuscleManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, -0.06f, 0.0f));
 			m_MuscleManSGN.init(&m_MuscleManTransformSGN, &m_MuscleMan);
 			m_MuscleManSGN.scale(Vector3f(0.025f, 0.025f, 0.025f));
+			m_MuscleManSGN.rotation(Eigen::Quaternionf(-0.7071068, 0.7071068, 0, 0));
 
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CoreUtility::timestamp();
@@ -98,13 +112,16 @@ namespace CForge {
 
 				// if user hits key 1, animation will be played
 				// if user also presses shift, animation speed is doubled
-				float AnimationSpeed = 1000 / 60.0f;
+				//float AnimationSpeed = 1000 / 60.0f;
+				float AnimationSpeed = 0.5f;
+				int currentFrame = 0;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 					SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
 					m_MuscleMan.activeAnimation(pAnim);
 				}
+				
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 				m_SG.render(&m_RenderDev);
@@ -125,7 +142,7 @@ namespace CForge {
 		StaticActor m_Skydome;
 		SkeletalActor m_MuscleMan;
 		SkeletalAnimationController m_BipedController;
-
+		
 		SGNTransformation m_RootSGN;
 		SGNGeometry m_SkydomeSGN;
 		SGNGeometry m_MuscleManSGN;

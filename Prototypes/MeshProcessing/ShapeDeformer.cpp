@@ -83,7 +83,7 @@ namespace CForge {
 	void ShapeDeformer::setFaceMatrix(void) {
 
 		if (m_pMesh->boneSubmeshCount()== 0) {
-			m_pMesh->initBoneSubmeshes();
+			m_pMesh->initBoneSubmeshes(0.5f);
 		}
 
 		int32_t faceCount = m_pMesh->getBoneSubmesh(0)->Faces.size();
@@ -107,7 +107,7 @@ namespace CForge {
 			for (int32_t i = 0; i < m_SamplePoints.rows(); i++) {
 				int32_t possibleIndex = binarySearch(0, b->VertexInfluences.size() - 1, this->m_SamplePoints(i), b->VertexInfluences);
 
-				if (b->VertexInfluences.at(possibleIndex) == m_SamplePoints(i) && b->VertexWeights.at(possibleIndex) > 0.80f) {
+				if (b->VertexInfluences.at(possibleIndex) == m_SamplePoints(i) && b->VertexWeights.at(possibleIndex) > 0.50f) {
 					pPointsInside.push_back(i);
 				}
 			}
@@ -128,10 +128,6 @@ namespace CForge {
 		this->sortSamplePoints(importantBones);
 		this->setFaceMatrix();
 		m_pMesh->setSkinningMats(startFrame, endFrame, AnimationID, m_pMesh->rootBone()->ID);
-
-		for (int32_t i = 0; i < importantBones.rows(); i++) {
-			m_pMesh->setCapsuleRadius(m_pMesh->getBone(importantBones(i)), AnimationID);
-		}
 	}
 	
 	Eigen::Vector2f ShapeDeformer::getOptimalCapsuleRadius(T3DMesh<float>::Line Capsule1, float capsuleRadius1, T3DMesh<float>::Line Capsule2, float capsuleRadius2) {
@@ -289,7 +285,31 @@ namespace CForge {
 		float dist = m_pMesh->vectorLength(distance);
 
 		if (dist < optimalCapsuleRadius) {
-			Rval = pPoint + ((optimalCapsuleRadius - dist) * 1.25f) * direction;
+			Rval = pPoint + ((optimalCapsuleRadius - dist) * 0.6f) * direction;
+		}
+
+		return Rval;
+	}
+
+	Eigen::Vector3f ShapeDeformer::bestLocationSamplePoint4(T3DMesh<float>::Line Capsule1, T3DMesh<float>::Line Capsule2, float optimalCapsuleRadius, Eigen::Vector3f pPoint, int32_t frame) {
+		Eigen::Vector3f Rval = pPoint;
+		Eigen::Vector3f A1 = Capsule1.p;
+		Eigen::Vector3f B1 = A1 + Capsule1.direction;
+
+		Eigen::Vector3f A2 = Capsule2.p;
+		Eigen::Vector3f B2 = A2 + Capsule2.direction;
+		//pPoint belongs to Capsule 1
+		//A and B belong to Capsule 2
+		Eigen::Vector3f center1 = m_pMesh->closestPointOnLineSegment(A1, B1, pPoint);
+		Eigen::Vector3f center2 = m_pMesh->closestPointOnLineSegment(A2, B2, pPoint);
+
+		Eigen::Vector3f distance = pPoint - center2;
+		Eigen::Vector3f direction = center1 - pPoint;
+		direction.normalize();
+		float dist = m_pMesh->vectorLength(distance);
+
+		if (dist < optimalCapsuleRadius) {
+			Rval = pPoint + ((optimalCapsuleRadius - dist)) * direction;
 		}
 
 		return Rval;
@@ -325,6 +345,37 @@ namespace CForge {
 		}
 
 		return vertWithSmallestAngle;
+	}
+
+	Eigen::Vector3f ShapeDeformer::getcloseVert2(T3DMesh<float>::Line Capsule, int32_t BoneID, Eigen::Vector3f pVertex, int frame) {
+		//float Rval;
+		Eigen::Vector3f A = Capsule.p;
+		Eigen::Vector3f B = A + Capsule.direction;
+		//Eigen::Vector3f pVertex = m_pMesh->getUpdatedVertexPosition(frame, vertexID);
+		Eigen::Vector3f closestPointOnBone = m_pMesh->closestPointOnLineSegment(A, B, pVertex);
+		int32_t faceCount = m_pMesh->getBoneSubmesh(BoneID + 1)->Faces.size();
+		Eigen::Vector3f Original = pVertex - closestPointOnBone;
+		float beginningDepth = m_pMesh->vectorLength(Original);
+		Original.normalize();
+		T3DMesh<float>::Line OriginalLine(closestPointOnBone, Original);
+		Eigen::Vector3f bestGuess = closestPointOnBone;
+
+		for (int i = 0; i < faceCount; i++) {
+			T3DMesh<float>::Face currentFace = m_pMesh->getBoneSubmesh(BoneID + 1)->Faces.at(i);
+			Eigen::Vector3f Tri[3];
+			Tri[0] = m_pMesh->getUpdatedVertexPosition(frame, currentFace.Vertices[0]);
+			Tri[1] = m_pMesh->getUpdatedVertexPosition(frame, currentFace.Vertices[1]);
+			Tri[2] = m_pMesh->getUpdatedVertexPosition(frame, currentFace.Vertices[2]);
+
+			float templength = m_pMesh->lineTriangleIntersection(OriginalLine, Tri);
+			if (templength > 0) {
+				Eigen::Vector3f temp = closestPointOnBone + templength * Original;
+				if (m_pMesh->vertInsideTriangle(Tri, temp) == true) {
+					bestGuess = temp;
+				}
+			}
+		}
+		return bestGuess;
 	}
 
 	float ShapeDeformer::getAccurateCapsuleRadius(T3DMesh<float>::Line Capsule, int32_t BoneID, Eigen::Vector3f pVertex, int frame) {
@@ -495,8 +546,10 @@ namespace CForge {
 				Submesh1->Faces.at(i).Vertices[2]};
 
 				for (int j = 0; j < 3; j++) {
-					int32_t index = findInUnsortedVector(vertsOutsideMesh2, Vertex[j]);
-					if (index == -1) {
+					bool found = m_pMesh->findInVector(vertsOutsideMesh2, Vertex[j]);
+					//int32_t index = findInUnsortedVector(vertsOutsideMesh2, Vertex[j]);
+					//if (index == -1) {
+					if (found == false) {
 						vertsOutsideMesh2.push_back(Vertex[j]);
 					}
 				}
@@ -553,8 +606,14 @@ namespace CForge {
 				float temp2 = m_pMesh->lineTriangleIntersection(pLine2, Tri1);
 
 				if (temp1 < 0) {
-
-					int32_t index = findInUnsortedVector(vertsOutsideMesh2, Vertex1[j]);
+					bool found = m_pMesh->findInVector(vertsInsideMesh2, Vertex1[j]);
+					if (found == false) {
+						found = m_pMesh->findInVector(vertsOutsideMesh2, Vertex1[j]);
+						if (found == false) {
+							vertsOutsideMesh2.push_back(Vertex1[j]);
+						}
+					}
+					/*int32_t index = findInUnsortedVector(vertsOutsideMesh2, Vertex1[j]);
 					if (index == -1) {
 						vertsOutsideMesh2.push_back(Vertex1[j]);
 					}
@@ -565,18 +624,30 @@ namespace CForge {
 						if (vertsInsideMesh2.at(index) == Vertex1[j]) {
 							vertsInsideMesh2.erase(vertsInsideMesh2.begin() + index);
 						}
-					}
+					}*/
 				}
 				else {
-					int index = findInUnsortedVector(vertsInsideMesh2, Vertex1[j]);
-					if (index == -1) {
+
+					bool found = m_pMesh->findInVector(vertsInsideMesh2, Vertex1[j]);
+					if (found == false) {
 						vertsInsideMesh2.push_back(Vertex1[j]);
+					}
+
+					int index = findInUnsortedVector(vertsOutsideMesh2, Vertex1[j]);
+					if (index > -1) {
+						vertsOutsideMesh2.erase(vertsOutsideMesh2.begin() + index);
 					}
 				}
 
 				if (temp2 < 0) {
-
-					int32_t index = findInUnsortedVector(vertsOutsideMesh1, Vertex2[j]);
+					bool found = m_pMesh->findInVector(vertsInsideMesh1, Vertex2[j]);
+					if (found == false) {
+						found = m_pMesh->findInVector(vertsOutsideMesh1, Vertex2[j]);
+						if (found == false) {
+							vertsOutsideMesh1.push_back(Vertex2[j]);
+						}
+					}
+					/*int32_t index = findInUnsortedVector(vertsOutsideMesh1, Vertex2[j]);
 					if (index == -1) {
 						vertsOutsideMesh1.push_back(Vertex2[j]);
 					}
@@ -587,12 +658,18 @@ namespace CForge {
 						if (vertsInsideMesh1.at(index) == Vertex2[j]) {
 							vertsInsideMesh1.erase(vertsInsideMesh1.begin() + index);
 						}
-					}
+					}*/
 				}
 				else {
-					int index = findInUnsortedVector(vertsInsideMesh1, Vertex2[j]);
-					if (index == -1) {
+
+					bool found = m_pMesh->findInVector(vertsInsideMesh1, Vertex2[j]);
+					if (found == false) {
 						vertsInsideMesh1.push_back(Vertex2[j]);
+					}
+
+					int index = findInUnsortedVector(vertsOutsideMesh1, Vertex2[j]);
+					if (index > -1) {
+						vertsOutsideMesh1.erase(vertsOutsideMesh1.begin() + index);
 					}
 				}
 			}
@@ -603,12 +680,13 @@ namespace CForge {
 				int32_t Vertex[3] = { Submesh1->Faces.at(i).Vertices[0],
 				Submesh1->Faces.at(i).Vertices[1],
 				Submesh1->Faces.at(i).Vertices[2]};
-				bool foundOutside[3] = { false, false, false };
+				bool foundOutside[3];// = { false, false, false };
 				for (int j = 0; j < 3; j++) {
-					int index = findInUnsortedVector(vertsOutsideMesh2, Vertex[j]);
-					if (index > -1){
-					foundOutside[j] = true;
-					}
+					foundOutside[j] = m_pMesh->findInVector(vertsOutsideMesh2, Vertex[j]);
+					//int index = findInUnsortedVector(vertsOutsideMesh2, Vertex[j]);
+					//if (index > -1){
+					//foundOutside[j] = true;
+					//}
 				}
 				if (foundOutside[0] == false && foundOutside[1] == false && foundOutside[2] == false) {
 					TrianglesToCheck1.push_back(i);
@@ -867,7 +945,7 @@ namespace CForge {
 				int32_t samplePointID = affectedControlPoints.at(0).at(i);
 				int32_t vertexID = this->m_SamplePoints(samplePointID);
 				Eigen::Vector3f VertexPosition = m_pMesh->getUpdatedVertexPosition(frame, vertexID);
-				Eigen::Vector3f closestVert = getcloseVert(Capsule2, Submesh2Index - 1, VertexPosition, frame);
+				Eigen::Vector3f closestVert = getcloseVert2(Capsule2, Submesh2Index - 1, VertexPosition, frame);
 				Eigen::Vector3f center = m_pMesh->closestPointOnLineSegment(Capsule2.p, Capsule2.p + Capsule2.direction, closestVert);
 				float accurateRadius = m_pMesh->vectorLength(closestVert - center);
 				Eigen::Vector3f newPosition;
@@ -876,6 +954,9 @@ namespace CForge {
 				}
 				else if (method == 2) {
 					newPosition = bestLocationSamplePoint2(Capsule1, Capsule2, accurateRadius, VertexPosition, frame);
+				}
+				else if (method == 4) {
+					newPosition = bestLocationSamplePoint4(Capsule1, Capsule2, accurateRadius, VertexPosition, frame);
 				}
 				else {
 					newPosition = bestLocationSamplePoint3(Capsule1, Capsule2, accurateRadius, VertexPosition, frame);
@@ -888,7 +969,7 @@ namespace CForge {
 				int32_t samplePointID = affectedControlPoints.at(1).at(i);
 				int32_t vertexID = this->m_SamplePoints(samplePointID);
 				Eigen::Vector3f VertexPosition = m_pMesh->getUpdatedVertexPosition(frame, vertexID);
-				Eigen::Vector3f closestVert = getcloseVert(Capsule1, Submesh1Index - 1, VertexPosition, frame);
+				Eigen::Vector3f closestVert = getcloseVert2(Capsule1, Submesh1Index - 1, VertexPosition, frame);
 				Eigen::Vector3f center = m_pMesh->closestPointOnLineSegment(Capsule1.p, Capsule1.p + Capsule1.direction, closestVert);
 				float accurateRadius = m_pMesh->vectorLength(closestVert - center);
 				
@@ -896,8 +977,14 @@ namespace CForge {
 				if (method == 1) {
 					newPosition = bestLocationSamplePoint(Capsule1, accurateRadius, VertexPosition, frame);
 				}
-				else {
+				else if (method == 2) {
 					newPosition = bestLocationSamplePoint2(Capsule2, Capsule1, accurateRadius, VertexPosition, frame);
+				}
+				else if (method == 4) {
+					newPosition = VertexPosition;
+				}
+				else {
+				newPosition = bestLocationSamplePoint3(Capsule2, Capsule1, accurateRadius, VertexPosition, frame);
 				}
 				
 				U_bc.row(samplePointID) = Eigen::RowVector3f(newPosition);
@@ -958,7 +1045,11 @@ namespace CForge {
 		Eigen::Vector2i bones;
 		bones(0) = Submesh1Index - 1;
 		bones(1) = Submesh2Index - 1;
-		prepareShapeDeformation(bones, AnimationID, startFrame, endFrame);
+
+		this->setSamplePoints();
+		this->sortSamplePoints(bones);
+		this->setFaceMatrix();
+		m_pMesh->setSkinningMats(startFrame, endFrame, AnimationID, m_pMesh->rootBone()->ID);
 
 		m_pMesh->setSkinningMats(startFrame, endFrame, AnimationID, m_pMesh->rootBone()->ID);
 		m_pMesh->setTri_Deformation(startFrame, endFrame, AnimationID);

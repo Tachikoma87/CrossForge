@@ -54,6 +54,9 @@ namespace CForge {
 
 			// initialize skeletal actor (Eric) and its animation controller
 			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
+			
+			//SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
+			
 			setMeshShader(&M, 0.7f, 0.04f);
 
 			//Versions:
@@ -74,9 +77,9 @@ namespace CForge {
 			// 5 = some collisions are still there
 			// 15 = almost all resolved
 
-			M.resolveCollisions(BoneIDs1, BoneIDs2, 0, 815, 816, 8, 7, 5, 2);
+			M.resolveCollisions(BoneIDs1, BoneIDs2, 0, 50, 816, 8, 7, 3, 3);
 
-			AnimationIO::storeSkeletalAnimation("MyAssets/Version5_2It_Initial_BSpline.dat", &M, 7, 7);
+			//AnimationIO::storeSkeletalAnimation("MyAssets/EricVersion3_3It_Initial_BSpline.dat", &M, 7, 7);
 
 			M.computePerVertexNormals();
 			Controller.init(&M);
@@ -168,6 +171,7 @@ namespace CForge {
 		SkeletalAnimationController Controller;
 		int32_t BoneIDs1[4] = { 9, 10, 13, 14 }; //10=RightWrist, 14=LeftWrist (After Bones were Sorted)
 		int32_t BoneIDs2[4] = { 15, 15, 19, 19 }; //15=RightHip, 19=LeftHip
+		//int32_t BoneIDs2[4] = { 15, 15, 18, 18 }; //15=RightHip, 19=LeftHip
 
 		SGNTransformation m_RootSGN;
 		SGNGeometry m_SkydomeSGN;
