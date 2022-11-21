@@ -28,6 +28,8 @@
 
 using namespace std;
 
+namespace nsPinocchio {
+
 namespace _VectorPrivate {
 template <int Dim> class VecOp;
 }
@@ -328,5 +330,5 @@ public:
 };
 #undef VRD
 #undef VRD1
-
+}
 #endif //VECTOR_H_INCLUDED

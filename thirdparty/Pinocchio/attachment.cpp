@@ -237,6 +237,17 @@ public:
             }
         }
 		
+		if (gMeshBroken) {
+			for (uint32_t i = 0; i < nv; ++i) {
+				for (uint32_t j = 0; j < nzweights[i].size(); ++j) {
+					if (nzweights[i][j].second <= (double) std::numeric_limits<float>::min()) {
+						nzweights[i].erase(nzweights[i].begin()+j);
+						j = 0;
+					}
+				}
+			}
+		}
+		
 		//TODO find better solution
 		if (gMeshBroken) {
 			std::cout << "copy weights\n";
@@ -245,7 +256,7 @@ public:
 				std::map<int,bool> isCopy;
 				if (nzweights[vertI].size() == 0) {
 					isCopy[i]=true;
-					std::cout << "vert: " << vertI << " from " << nv << " has no weights\n";
+					//std::cout << "vert: " << vertI << " from " << nv << " has no weights\n";
 					// find nearest vertex and copy weights
 					float vertD = std::numeric_limits<float>::max();
 					for (uint32_t k = 0; k < nv; ++k) {
@@ -266,7 +277,6 @@ public:
                 sum += nzweights[i][j].second;
 
             for(j = 0; j < (int)nzweights[i].size(); ++j) {
-                nzweights[i][j].second /= sum;
                 weights[i][nzweights[i][j].first] = nzweights[i][j].second;
             }
         }

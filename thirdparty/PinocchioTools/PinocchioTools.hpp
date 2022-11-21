@@ -11,10 +11,13 @@
 #include "../Pinocchio/graphutils.h"
 #include "../Pinocchio/attachment.h"
 #include "../../CForge/Graphics/GraphicsUtility.h"
+#include "../Pinocchio/vector.h"
 
-using namespace CForge;
 // tools for converting engine format to pinocchio and vice versa
 namespace nsPinocchioTools {
+	
+	using namespace CForge;
+	using namespace nsPinocchio;
 	
 	namespace nsPiR = nsPinocchio;
 	
@@ -27,7 +30,7 @@ namespace nsPinocchioTools {
 		// public wrappers
 		map<string, int> getJointNames();
 		void setJointNames(map<string, int> jointNames);
-		void PmakeJoint(const string &name, const Vector3 &pos, const string &previous = string());
+		void PmakeJoint(const string &name, const nsPiR::Vector3 &pos, const string &previous = string());
 		void PmakeSymmetric(const string &name1, const string &name2);
 		void PsetFoot(const string &name);
 		void PsetFat(const string &name);

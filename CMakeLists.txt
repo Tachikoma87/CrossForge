@@ -212,31 +212,31 @@ add_custom_command(
 )
 
 add_library(Pinocchio SHARED
-	thirdparty/Pinocchio/refinement.cpp
-	thirdparty/Pinocchio/attachment.cpp
-	thirdparty/Pinocchio/pinocchioApi.cpp
-	thirdparty/Pinocchio/Pinocchio.cpp
-	thirdparty/Pinocchio/discretization.cpp
-	thirdparty/Pinocchio/mesh.cpp
-	thirdparty/Pinocchio/embedding.cpp
-	thirdparty/Pinocchio/graphutils.cpp
-	thirdparty/Pinocchio/matrix.cpp
-	thirdparty/Pinocchio/lsqSolver.cpp
-	thirdparty/Pinocchio/indexer.cpp
-	thirdparty/Pinocchio/intersector.cpp
-	thirdparty/Pinocchio/skeleton.cpp
+	Thirdparty/Pinocchio/refinement.cpp
+	Thirdparty/Pinocchio/attachment.cpp
+	Thirdparty/Pinocchio/pinocchioApi.cpp
+	Thirdparty/Pinocchio/Pinocchio.cpp
+	Thirdparty/Pinocchio/discretization.cpp
+	Thirdparty/Pinocchio/mesh.cpp
+	Thirdparty/Pinocchio/embedding.cpp
+	Thirdparty/Pinocchio/graphutils.cpp
+	Thirdparty/Pinocchio/matrix.cpp
+	Thirdparty/Pinocchio/lsqSolver.cpp
+	Thirdparty/Pinocchio/indexer.cpp
+	Thirdparty/Pinocchio/intersector.cpp
+	Thirdparty/Pinocchio/skeleton.cpp
 )
-target_include_directories(Pinocchio PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/Pinocchio")
+target_include_directories(Pinocchio PUBLIC "${CMAKE_SOURCE_DIR}/Thirdparty/Pinocchio")
 set_property(TARGET Pinocchio PROPERTY CXX_STANDARD 98)
 target_compile_options(Pinocchio PRIVATE -fPIC)
 add_compile_definitions(PINOCCHIO_EXPORTS)
 
 # bridge lib for convertig crossforge <-> pinocchio
 add_library(PinocchioTools SHARED
-	thirdparty/PinocchioTools/PinocchioTools.cpp
-	thirdparty/Pinocchio/indexer.cpp
+	Thirdparty/PinocchioTools/PinocchioTools.cpp
+	Thirdparty/Pinocchio/indexer.cpp
 )
-target_include_directories(PinocchioTools PUBLIC "${CMAKE_SOURCE_DIR}/thirdparty/PinocchioTools")
+target_include_directories(PinocchioTools PUBLIC "${CMAKE_SOURCE_DIR}/Thirdparty/PinocchioTools")
 set_property(TARGET PinocchioTools PROPERTY CXX_STANDARD 98)
 target_link_libraries(PinocchioTools
 	PRIVATE crossforge

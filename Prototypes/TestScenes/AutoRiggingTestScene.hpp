@@ -149,12 +149,12 @@ namespace CForge {
 			
 			T3DMesh<float> MT;
 			std::filesystem::path modelPath;
-			//modelPath = std::filesystem::path("Assets/muppetshow/Model1.obj");
+			modelPath = std::filesystem::path("Assets/muppetshow/Model1.obj");
 			//modelPath = std::filesystem::path("Assets/muppetshow/Model2.obj");
 			//modelPath = std::filesystem::path("Assets/muppetshow/Model3.obj");
 			//modelPath = std::filesystem::path("Assets/muppetshow/Model6.obj");
 			//modelPath = std::filesystem::path("Assets/muppetshow/female_body.obj");
-			modelPath = std::filesystem::path("Assets/autorig/spock/spockR2.fbx");
+			//modelPath = std::filesystem::path("Assets/autorig/spock/spockR2.fbx");
 			//modelPath = std::filesystem::path("Assets/autorig/spock/spockR3.fbx");
 			//modelPath = std::filesystem::path("Assets/autorig/Armadillo.fbx");
 			std::string modelName = modelPath.stem().string();

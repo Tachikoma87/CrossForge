@@ -9,6 +9,13 @@
 		"libigl",
 		"libwebp",
 		"tinyxml2"
-	]
+	],
+	"overrides": [
+		{
+			"name": "assimp",
+			"version": "5.0.1#4"
+		}
+	],
+	"builtin-baseline":"3426db05b996481ca31e95fff3734cf23e0f51bc"
 }
 

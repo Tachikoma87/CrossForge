@@ -16,7 +16,7 @@ namespace nsPinocchioTools {
 	void pnSkeleton::setJointNames(map<string, int> jointNames) {
 		this->jointNames = jointNames;
 	}
-	void pnSkeleton::PmakeJoint(const string& name, const Vector3& pos, const string& previous) {
+	void pnSkeleton::PmakeJoint(const string& name, const nsPiR::Vector3& pos, const string& previous) {
 		makeJoint(name,pos,previous);
 	}
 	void pnSkeleton::PmakeSymmetric(const string& name1, const string& name2) {

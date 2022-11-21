@@ -36,7 +36,7 @@ namespace CForge {
 
 		if (nullptr == pScene) {
 			std::string ErrorMsg = m_Importer.GetErrorString();
-			throw CForgeExcept("Failed to load model from resource " + Filepath + "\n\t" + ErrorMsg);		
+			throw CForgeExcept("Failed to load model from resource " + Filepath + "\n\t" + ErrorMsg);
 		}
 
 		try {
@@ -102,7 +102,6 @@ namespace CForge {
 		std::vector<Eigen::Vector3f> UVWs;
 
 		std::vector<T3DMesh<float>::Bone*> Bones;
-		std::vector<T3DMesh<float>::SkeletalAnimation*> SekeltonAnimations;
 
 		uint32_t PositionsOffset = 0;
 		uint32_t NormalsOffset = 0;
@@ -479,6 +478,74 @@ namespace CForge {
 			rotateBones(pScene->mRootNode->mChildren[pScene->mRootNode->mNumChildren-1],Eigen::Matrix3f::Identity());
 		}
 		
+		std::vector<const T3DMesh<float>::Bone*> Bones;
+		for (uint32_t i = 0; i < pMesh->boneCount(); ++i) {
+			Bones.push_back(pMesh->getBone(i));
+		}
+		
+		// store animation data
+		for (uint32_t i = 0; i < pMesh->skeletalAnimationCount(); ++i) {
+			const T3DMesh<float>::SkeletalAnimation* anim = pMesh->getSkeletalAnimation(i);
+			
+			aiAnimation** newAnimationBlock = (aiAnimation**) realloc(pScene->mAnimations,sizeof(aiAnimation*)*((size_t) pScene->mNumAnimations+1));
+			if (newAnimationBlock) {
+				pScene->mAnimations = newAnimationBlock;
+				pScene->mNumAnimations++;
+			}
+			else
+				throw CForgeExcept("Could not allocate memory for Animation exporting");
+			
+			if (newAnimationBlock) {
+				uint32_t naIdx = pScene->mNumAnimations-1;
+				pScene->mAnimations[naIdx] = new aiAnimation();
+				aiAnimation* nAnim = pScene->mAnimations[naIdx];
+				
+				// make sure only channels are added which are both available in animation channels and skeleton
+				std::vector<T3DMesh<float>::BoneKeyframes*> aKeyf;
+				for (uint32_t i = 0; i < Bones.size(); ++i) {
+					for (uint32_t j = 0; j < anim->Keyframes.size(); ++j) {
+					if (Bones[i]->Name.compare(anim->Keyframes[j]->BoneName) == 0) {
+							aKeyf.push_back(anim->Keyframes[j]);
+							break;
+						}
+					}
+				}
+				
+				nAnim->mDuration = anim->Duration;
+				nAnim->mTicksPerSecond = anim->Speed;
+				nAnim->mName = anim->Name;
+				
+				nAnim->mNumChannels = aKeyf.size();//anim->Keyframes.size();
+				nAnim->mChannels = (aiNodeAnim**) malloc(nAnim->mNumChannels*sizeof(aiNodeAnim*));
+				
+				for (uint32_t j = 0; j < nAnim->mNumChannels; ++j) {
+					nAnim->mChannels[j] = new aiNodeAnim();
+					auto cChan = nAnim->mChannels[j];
+					T3DMesh<float>::BoneKeyframes* cKeyf = aKeyf[j];
+					
+					cChan->mNodeName = aiString(cKeyf->BoneName);
+					cChan->mNumPositionKeys = cKeyf->Positions.size();
+					cChan->mPositionKeys = new aiVectorKey[cChan->mNumPositionKeys]();
+					for (uint32_t k = 0; k < cKeyf->Positions.size(); ++k) {
+						cChan->mPositionKeys[k].mTime = cKeyf->Timestamps[k];
+						cChan->mPositionKeys[k].mValue = toAiVector(cKeyf->Positions[k]);
+					}
+					cChan->mNumRotationKeys = cKeyf->Rotations.size();
+					cChan->mRotationKeys = new aiQuatKey[cChan->mNumRotationKeys]();
+					for (uint32_t k = 0; k < cKeyf->Rotations.size(); ++k) {
+						cChan->mRotationKeys[k].mTime = cKeyf->Timestamps[k];
+						cChan->mRotationKeys[k].mValue = toAiQuat(cKeyf->Rotations[k]);
+					}
+					cChan->mNumScalingKeys = cKeyf->Scalings.size();
+					cChan->mScalingKeys = new aiVectorKey[cChan->mNumScalingKeys]();
+					for (uint32_t k = 0; k < cKeyf->Scalings.size(); ++k) {
+						cChan->mScalingKeys[k].mTime = cKeyf->Timestamps[k];
+						cChan->mScalingKeys[k].mValue = toAiVector(cKeyf->Scalings[k]);
+					}
+				}
+			}
+		}
+		
 		pScene->mMetaData = new aiMetadata();
 		pScene->mMetaData->Add<int32_t>("UpAxis", 1);
 		pScene->mMetaData->Add<int32_t>("UpAxisSign", 1);
@@ -560,7 +627,7 @@ namespace CForge {
 			for (uint32_t i = 0; i < pNode->mNumChildren; ++i) {
 				T3DMesh<float>::Bone* pChild = getBoneFromName(pNode->mChildren[i]->mName.C_Str(), pBones);
 				if(nullptr != pChild) pCurrentBone->Children.push_back(pChild);
-			}//for[all child nodes]	
+			}//for[all child nodes]
 		}//if[current bone was found]
 
 		// recursion
