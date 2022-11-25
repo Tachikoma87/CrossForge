@@ -155,10 +155,16 @@ namespace CForge {
 		if (Filepath.empty()) throw CForgeExcept("Empty filepath specified");
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 
-		for (auto i : m_ModelIOPlugins) {
+		for (auto &i : m_ModelIOPlugins) {
 			if (i.pInstance->accepted(Filepath, I3DMeshIO::OP_LOAD)) {
 				try {
 					i.pInstance->load(Filepath, pMesh);
+
+					// Assimp requires restart of the plugin if .bvh is loaded or next loading operation of a bvh will terminate with an unexpected end of file error :-(
+					if (Filepath.find(".bvh") != std::string::npos && i.Name.compare("AssImp Mesh IO") == 0) {
+						i.pInstance->release();
+						i.pInstance = new AssimpMeshIO();
+					}
 				}
 				catch (CrossForgeException& e) {
 					SLogger::logException(e);
