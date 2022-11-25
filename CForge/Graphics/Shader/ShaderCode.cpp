@@ -32,6 +32,13 @@ namespace CForge {
 		m_VersionTag = VersionTag;
 		m_PrecisionTag = PrecisionTag;
 
+		changeVersionTag(VersionTag);
+
+		m_ConfigOptions = ConfigOptions;
+
+	}//initialize
+
+	void ShaderCode::changeVersionTag(const std::string VersionTag) {
 		// set version tag
 		uint32_t Pos = m_Code.find("#version");
 		// overwrite whole line with whitespaces
@@ -39,12 +46,9 @@ namespace CForge {
 		while (m_Code[P] != '\n') m_Code[P++] = ' ';
 		string Tag = "#version " + VersionTag + "\n";
 		m_Code.insert(Pos, Tag);
-
 		m_InsertPosition = Pos + Tag.length();
+	}//changeVersionTag
 
-		m_ConfigOptions = ConfigOptions;
-
-	}//initialize
 
 	void ShaderCode::clear(void) {
 
@@ -87,6 +91,15 @@ namespace CForge {
 		else {
 			addDefine("PCF_SHADOWS");	
 			changeConst("const int PCFFilterSize", to_string(pConfig->PCFSize));
+		}
+
+		if (pConfig->ShadowMapCount > 1) {
+			// requies at least version 400
+			changeVersionTag("400 core");
+			addDefine("MULTIPLE_SHADOWS");
+		}
+		else {
+			removeDefine("MULTIPLE_SHADOWS");
 		}
 
 		changeConst("const uint ShadowMapCount", to_string(pConfig->ShadowMapCount) + "U");

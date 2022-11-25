@@ -111,6 +111,9 @@ namespace CForge {
 			m_RenderWin.init(Vector2i(100, 100), Vector2i(m_WinWidth, m_WinHeight), m_WindowTitle);
 			m_RenderWin.startListening(this);
 
+			auto Traits = GraphicsUtility::retrieveGPUTraits();
+			SLogger::log("Created context with GL version: " + Traits.GLVersion, "ProgramFlow");
+
 			m_pShaderMan = SShaderManager::instance();
 
 			// configure and initialize rendering pipeline
@@ -130,7 +133,7 @@ namespace CForge {
 			LC.DirLightCount = 1;
 			LC.PointLightCount = 1;
 			LC.SpotLightCount = 0;
-			LC.PCFSize = 1;
+			LC.PCFSize = 2;
 			LC.ShadowBias = 0.00001f;
 			LC.ShadowMapCount = 1;
 			m_pShaderMan->configShader(LC);

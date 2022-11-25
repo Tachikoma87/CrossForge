@@ -1,5 +1,6 @@
 #version 330 core 
 
+#define MULTIPLE_SHADOWS
 #define DIRECTIONAL_LIGHTS 
 #define POINT_LIGHTS 
 #define SPOT_LIGHTS
@@ -107,6 +108,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float Roughness){
 }//GeometrySmith 
 
 #ifdef DIRECTIONAL_LIGHTS
+#ifdef MULTIPLE_SHADOWS
 float shadowCalculationDirectionalLight(vec3 FragPosWorldSpace, vec3 Normal, vec3 LightDir, uint LightIndex){
 	float Rval = 0.0f; // no shadow
 	int ShadowIndex = DirLights.ShadowIDs[LightIndex].x;
@@ -121,48 +123,57 @@ float shadowCalculationDirectionalLight(vec3 FragPosWorldSpace, vec3 Normal, vec
 
 		#ifdef PCF_SHADOWS
 		// soft shadows 
-		vec2 TexelSize = vec2(0);
-		#if (ShadowMapCount > 0)
-		if(ShadowIndex == 0) TexelSize = 1.0 / vec2(textureSize(TexShadow[0], 0));
-		#endif 
-		#if (ShadowMapCount > 1)
-		else if(ShadowIndex == 1) TexelSize = 1.0 / vec2(textureSize(TexShadow[1], 0));
-		#endif
-
-//		vec2 TexelSize = 1.0/vec2(textureSize(TexShadow[ShadowIndex], 0));
+		vec2 TexelSize = 1.0/vec2(textureSize(TexShadow[ShadowIndex], 0));
 		
-
 		for(int x = -PCFFilterSize; x <= PCFFilterSize; ++x){
 			for(int y = -PCFFilterSize; y <= PCFFilterSize; ++y){
-				float pcfDepth = 0.0f;
-				if(ShadowIndex == 0) pcfDepth = texture(TexShadow[0], ProjCoords.xy + vec2(x,y) * TexelSize).r;
-				#if (ShadowMapCount > 1)
-				else if(ShadowIndex == 1) pcfDepth = texture(TexShadow[1], ProjCoords.xy + vec2(x,y) * TexelSize).r;
-				#endif
-
-//				pcfDepth = texture(TexShadow[ShadowIndex], ProjCoords.xy + vec2(x,y) * TexelSize).r;
-
+				float pcfDepth = texture(TexShadow[ShadowIndex], ProjCoords.xy + vec2(x,y) * TexelSize).r;
 				Rval += (CurrentDepth - bias > pcfDepth) ? 1.0 : 0.0;
 			}
 		}
 		Rval /= float((PCFFilterSize*2 +1) * (PCFFilterSize*2 + 1));
 		#else
 		// simple computations 
-		float ClosestDepth = 0.0f;
-		#if ShadowMapCount > 0
-		if(ShadowIndex == 0) ClosestDepth = texture(TexShadow[0], ProjCoords.xy).r;
-		#endif
-		#if ShadowMapCount > 1
-		else if(ShadowIndex == 1) ClosestDepth = texture(TexShadow[1], ProjCoords.xy).r;
-		#endif 
-		#if ShadowMapCount > 2
-		else if(ShadowIndex == 2) ClosestDepth = texture(TexShadow[2], ProjCoords.xy).r;
-		#endif
+		float ClosestDepth = texture(TexShadow[ShadowIndex], ProjCoords.xy).r;
 		Rval = (CurrentDepth - bias > ClosestDepth) ? 1.0 : 0.0;
 		#endif
 	}
 	return Rval;
 }//shadowCalculationDirectionalLight
+#else
+// only allow one shadow for older devices
+float shadowCalculationDirectionalLight(vec3 FragPosWorldSpace, vec3 Normal, vec3 LightDir, uint LightIndex){
+	float Rval = 0.0f; // no shadow
+	int ShadowIndex = DirLights.ShadowIDs[LightIndex].x;
+	if(ShadowIndex != -1){
+		float bias = max(10.0*ShadowBias * (1.0 - dot(Normal, LightDir)), ShadowBias);
+
+		vec4 FragPosLightSpace = (DirLights.LightSpaceMatrices[LightIndex] * vec4(FragPosWorldSpace, 1.0));
+		FragPosLightSpace /= FragPosLightSpace.w;
+
+		vec3 ProjCoords = FragPosLightSpace.xyz * vec3(0.5) + vec3(0.5);  // mapping [-1,1] -> [0,1]	
+		float CurrentDepth = ProjCoords.z;
+
+		#ifdef PCF_SHADOWS
+		// soft shadows 
+		vec2 TexelSize = 1.0/vec2(textureSize(TexShadow[0], 0));
+		
+		for(int x = -PCFFilterSize; x <= PCFFilterSize; ++x){
+			for(int y = -PCFFilterSize; y <= PCFFilterSize; ++y){
+				float pcfDepth = texture(TexShadow[0], ProjCoords.xy + vec2(x,y) * TexelSize).r;
+				Rval += (CurrentDepth - bias > pcfDepth) ? 1.0 : 0.0;
+			}
+		}
+		Rval /= float((PCFFilterSize*2 +1) * (PCFFilterSize*2 + 1));
+		#else
+		// simple computations 
+		float ClosestDepth = texture(TexShadow[0], ProjCoords.xy).r;
+		Rval = (CurrentDepth - bias > ClosestDepth) ? 1.0 : 0.0;
+		#endif
+	}
+	return Rval;
+}//shadowCalculationDirectionalLight
+#endif
 #endif
 
 
