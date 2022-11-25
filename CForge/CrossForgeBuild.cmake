@@ -21,7 +21,7 @@ FIND_PACKAGE(OpenGL REQUIRED)		# OpenGl core library
 FIND_PACKAGE(glad CONFIG REQUIRED)	# GL extension library
 FIND_PACKAGE(glfw3 CONFIG REQUIRED)	# cross-plattform window management
 FIND_PACKAGE(assimp CONFIG REQUIRED)# Asset import library (and partially export)
-FIND_PACKAGE(Freetype REQUIRED)		# Library to load and process vector based fonts
+FIND_PACKAGE(freetype REQUIRED)		# Library to load and process vector based fonts
 FIND_PACKAGE(libigl CONFIG REQUIRED)	# mesh processing library
 FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp 
 
