@@ -167,7 +167,7 @@ namespace CForge {
 
 		
 		std::sort(pSamplePoints->data(), pSamplePoints->data() + pSamplePoints->size());
-		std::ofstream myfile("Assets/tmp/samplePoints1000.txt");
+		std::ofstream myfile("Assets/tmp/FBXsamplePoints1000.txt");
 		if (myfile.is_open())
 		{
 			myfile << pSamplePoints->size() << "\n";

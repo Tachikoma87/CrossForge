@@ -56,7 +56,10 @@ namespace CForge {
 			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
 			
 			//SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
-			
+			SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
+			//M.mergeRedundantVertices();
+			M.clearSkeletalAnimations();
+			AnimationIO::loadSkeletalAnimation("Assets/Animations/MM6V6+3_2+4It_I.dat", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 
 			//Versions:
@@ -77,13 +80,26 @@ namespace CForge {
 			// 5 = some collisions are still there
 			// 15 = almost all resolved
 
-			M.resolveCollisions(BoneIDs1, BoneIDs2, 0, 50, 816, 8, 7, 3, 3);
+			M.resolveCollisions(BoneIDs1, BoneIDs2, 0, 815, 816, 1, 0, 6, 1);
 
-			//AnimationIO::storeSkeletalAnimation("MyAssets/EricVersion3_3It_Initial_BSpline.dat", &M, 7, 7);
+			//AnimationIO::storeSkeletalAnimation("MM6V6+3_2+4It_I.dat", &M, 0, 0);
 
 			M.computePerVertexNormals();
 			Controller.init(&M);
 			Eric.init(&M, &Controller);
+			M.clear();
+
+			//SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
+			SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
+			//SAssetIO::load("Assets/tmp/MuscleMan3.glb", &M);
+			//SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
+			M.clearSkeletalAnimations();
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/Eve2V6+3_5It_IB.dat", &M);
+			AnimationIO::loadSkeletalAnimation("Assets/Animations/MM6V6+3_2+4It_IB.dat", &M);
+			setMeshShader(&M, 0.7f, 0.04f);
+			M.computePerVertexNormals();
+			ControllerOriginal.init(&M);
+			EricOriginal.init(&M, &ControllerOriginal);
 			M.clear();
 
 			// build scene graph	
@@ -99,6 +115,13 @@ namespace CForge {
 			EricSGN.init(&EricTransformSGN, &Eric);
 			EricSGN.scale(Vector3f(0.05f, 0.05f, 0.05f));
 			EricSGN.rotation(Eigen::Quaternionf(-0.7071068, 0.7071068, 0, 0));
+
+			// add skeletal actor to scene graph (Eric)			
+			EricOriginalTransformSGN.init(&m_RootSGN, Vector3f(0.0f, -0.06f, 0.0f));
+			EricOriginalSGN.init(&EricOriginalTransformSGN, &EricOriginal);
+			EricOriginalSGN.scale(Vector3f(0.05f, 0.05f, 0.05f));
+			EricOriginalSGN.position(Vector3f(-3.0f, 0.0f, 0.0f));
+			EricOriginalSGN.rotation(Eigen::Quaternionf(-0.7071068, 0.7071068, 0, 0));
 
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CoreUtility::timestamp();
@@ -135,15 +158,19 @@ namespace CForge {
 					m_MuscleMan.activeAnimation(pAnim);
 				}*/
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
-					SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(7, AnimationSpeed, 0.0f);
+					SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
 					Eric.activeAnimation(pAnim);
+					SkeletalAnimationController::Animation* pAnimOriginal = ControllerOriginal.createAnimation(0, AnimationSpeed, 0.0f);
+					EricOriginal.activeAnimation(pAnimOriginal);
 				}
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
 					Controller.update(m_FPS / 60.0f);
+					ControllerOriginal.update(m_FPS / 60.0f);
 				}
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) {
 					for (int i = 0; i < 540; i++) {
 						Controller.update(m_FPS / 60.0f);
+						ControllerOriginal.update(m_FPS / 60.0f);
 					}
 				}
 
@@ -169,6 +196,8 @@ namespace CForge {
 
 		SkeletalActor Eric;
 		SkeletalAnimationController Controller;
+		SkeletalActor EricOriginal;
+		SkeletalAnimationController ControllerOriginal;
 		int32_t BoneIDs1[4] = { 9, 10, 13, 14 }; //10=RightWrist, 14=LeftWrist (After Bones were Sorted)
 		int32_t BoneIDs2[4] = { 15, 15, 19, 19 }; //15=RightHip, 19=LeftHip
 		//int32_t BoneIDs2[4] = { 15, 15, 18, 18 }; //15=RightHip, 19=LeftHip
@@ -176,7 +205,9 @@ namespace CForge {
 		SGNTransformation m_RootSGN;
 		SGNGeometry m_SkydomeSGN;
 		SGNGeometry EricSGN;
-		SGNTransformation EricTransformSGN;
+		SGNTransformation EricTransformSGN; 
+		SGNGeometry EricOriginalSGN;
+		SGNTransformation EricOriginalTransformSGN;
 		//SGNGeometry m_MuscleManSGN;
 		//SGNTransformation m_MuscleManTransformSGN;
 

@@ -19,6 +19,7 @@
 #include "Examples/exampleMultiViewport.hpp"
 #include "Examples/exampleSockets.hpp"
 #include "Examples/exampleShapeDeformer.hpp"
+#include "Examples/exportAngles.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/VertexColorTestScene.hpp"
@@ -63,9 +64,10 @@ int main(int argc, char* argv[]) {
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
-		//exampleSkeletalAnimation(); 
+	//	exampleSkeletalAnimation(); 
 		
 		//exampleSkeletalAnimationThrice(); 
+		//exportAngles();
 		//exampleSkeletonCollisionResolver();
 		//exampleSkybox();
 		//exampleSockets();
@@ -77,20 +79,20 @@ int main(int argc, char* argv[]) {
 //		vertexColorTestScene();
 
 		int32_t startFrame = 0;
-		int32_t endFrame = 2;
+		int32_t endFrame = 3;
 		int32_t method = 3;
 		//int32_t method = 1;
 		//int32_t method = 2;
 		
-		if (!File::exists("samplePoints1000.txt")) {
+		/*if (!File::exists("FBXsamplePoints1000.txt")) {
 			surfaceSamplerTestScene();
-		}
+		}*/
 
-		if (!File::exists("MuscleMan" + to_string(startFrame) + ".obj")) {
+		//if (!File::exists("MuscleMan" + to_string(startFrame) + ".obj")) {
 			uint64_t Start = CoreUtility::timestamp();
 			exampleShapeDeformer(method, startFrame, endFrame);
 			printf("ShapeDeformation finished in %d ms\n", uint32_t(CoreUtility::timestamp() - Start));
-		}
+		//}
 		shapeDeformerTest(startFrame, endFrame);
 		
 	}

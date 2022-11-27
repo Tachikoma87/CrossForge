@@ -45,6 +45,8 @@ namespace CForge {
 
 			// load skydome
 			T3DMesh<float> M;
+
+			T3DMesh<float> M2;
 			
 			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
@@ -54,23 +56,19 @@ namespace CForge {
 
 			// initialize skeletal actor (Eric) and its animation controller
 			SAssetIO::load("Assets/tmp/MuscleManSittingWalking.glb", &M);
+			SAssetIO::load("Assets/tmp/MuscleMan3.glb", &M2);
 			//SAssetIO::load("Assets/tmp/WalkingSittingEve.glb", &M);
 			M.sortBones(1);
+			M2.sortBones(1);
 			M.mergeRedundantVertices();
 			setMeshShader(&M, 0.7f, 0.04f);
 			
 			M.computePerVertexNormals();
 
-			//-------- Deformation Part
-			/*ShapeDeformer TestDeformer;
-			TestDeformer.init(&M);
-			int startFrame = 0;
-			int endFrame = 150;
-			TestDeformer.resolveCollisionsShapeDeformation(16, 20, startFrame, endFrame, 0);*/
-			//---------------
 			m_BipedController.init(&M);
 			m_MuscleMan.init(&M, &m_BipedController);
 			M.clear();
+			M2.clear();
 
 			// build scene graph	
 			m_RootSGN.init(nullptr);

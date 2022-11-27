@@ -54,12 +54,15 @@ namespace CForge {
 
 			// initialize skeletal actor (Eric) and its animation controller
 			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
+			//SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
+		//	SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
+
 			setMeshShader(&M, 0.7f, 0.04f);
-			M.sortBones(M.skeletalAnimationCount());
-			M.clearSkeletalAnimations();
+			//M.sortBones(M.skeletalAnimationCount());
+			//M.clearSkeletalAnimations();
 
-			AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/Version2_3It_Initial_BSpline.dat", &M);
-
+			//AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/Version2_3It_Initial_BSpline.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/Eve2V6+3_5It_IB.dat", &M);
 			M.computePerVertexNormals();
 			Controller.init(&M);
 			Eric.init(&M, &Controller);
@@ -67,13 +70,19 @@ namespace CForge {
 
 			//Eric 2
 			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
+			//SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
+			//SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 
 			M.sortBones(M.skeletalAnimationCount());
 			M.clearSkeletalAnimations();
 
-			AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/Version3_2It_Initial_BSpline.dat", &M);
-
+			//AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/Version3_2It_Initial_BSpline.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EveV6+3_5It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/Eve2V6+3_5It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM1V6+3_3It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM3V6_2It_IB.dat", &M); 
+			AnimationIO::loadSkeletalAnimation("Assets/Animations/EricV6+3_3It_I.dat", &M);
 			M.computePerVertexNormals();
 			for (uint32_t i = 0; i < M.materialCount(); ++i) {
 				M.getMaterial(i)->Color = Vector4f(1.0f, 0.6f, 0.6f, 1.0f);
@@ -88,14 +97,17 @@ namespace CForge {
 			//Eric 3
 			// initialize skeletal actor (Eric) and its animation controller
 			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
-			//SAssetIO::load("Assets/tmp/WalkingSittingEve.fbx", &M);
+			//SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
+			//SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 
 			M.sortBones(M.skeletalAnimationCount());
 			M.clearSkeletalAnimations();
-			AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/EricVersion3_3It_Initial_BSpline.dat", &M);
-			//	
-			
+		//	AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/EricVersion3_3It_Initial_BSpline.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/Eve3V6+3_3It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM2V6+3_3It_IB.dat", &M);
+			AnimationIO::loadSkeletalAnimation("Assets/Animations/EricV6+3_3It_IB.dat", &M);
+		
 			//AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/Version5_2It_Initial_BSpline.dat", &M);
 		//	AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/EveVersion3_5It_Initial_BSpline.dat", &M);
 
@@ -162,8 +174,8 @@ namespace CForge {
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
-					//SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(7, AnimationSpeed, 0.0f);
-					SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
+					SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(7, AnimationSpeed, 0.0f);
+					//SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
 					Eric.activeAnimation(pAnim);
 
 					SkeletalAnimationController::Animation* pAnim2 = Controller2.createAnimation(0, AnimationSpeed, 0.0f);

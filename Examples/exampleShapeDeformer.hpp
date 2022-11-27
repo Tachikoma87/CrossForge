@@ -23,10 +23,17 @@ namespace CForge {
 			// load skydome
 			T3DMesh<float> M;
 			// initialize skeletal actor (Eric) and its animation controller
-			SAssetIO::load("Assets/tmp/MuscleManSittingWalking.glb", &M);
+			//SAssetIO::load("Assets/tmp/MuscleManSittingWalking.glb", &M);
 			//SAssetIO::load("Assets/tmp/WalkingSittingEve.glb", &M);
+			SAssetIO::load("Assets/tmp/MuscleMan3.glb", &M);
+			//SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
+			
 			M.sortBones(1);
 			M.mergeRedundantVertices();
+			
+			//M.clearSkeletalAnimations();
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM6V6+3_2+4It_I.dat", &M);
+			
 			//-------- Deformation Part
 			ShapeDeformer TestDeformer;
 			TestDeformer.init(&M);
