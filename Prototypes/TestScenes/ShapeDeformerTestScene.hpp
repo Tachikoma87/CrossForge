@@ -59,7 +59,7 @@ namespace CForge {
 			m_Skydome.init(&M);
 			M.clear();
 
-			std::string filepath("Assets/tmp/samplePoints1000.txt");
+			std::string filepath("Assets/tmp/FBXsamplePoints1000.txt");
 			int SamplePoints;
 			int numSamplePoints;
 			std::ifstream myfile(filepath);
@@ -128,13 +128,16 @@ namespace CForge {
 			m_ShapeTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
 			m_ShapeSGN.init(&m_ShapeTransformSGN, &m_Shape);
 			m_ShapeSGN.scale(Vector3f(0.01f, 0.01f, 0.01f));
+			m_ShapeSGN.rotation(Eigen::Quaternionf(-0.7071068, 0.7071068, 0, 0));
 
 			m_ShapeTransformSGNOriginal.init(&m_RootSGN, Vector3f(-0.5f, 3.0f, 0.0f));
 			m_ShapeSGNOriginal.init(&m_ShapeTransformSGNOriginal, &m_ShapeOriginal);
 			m_ShapeSGNOriginal.scale(Vector3f(0.01f, 0.01f, 0.01f));
+			m_ShapeSGNOriginal.rotation(Eigen::Quaternionf(-0.7071068, 0.7071068, 0, 0));
 
 			// prepare node to add markers		
 			m_MarkerGroupSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f)); // markers will always belong to this object for the purpose of this demo
+			m_MarkerGroupSGN.rotation(Eigen::Quaternionf(-0.7071068, 0.7071068, 0, 0));
 
 			SAssetIO::load("Assets/tmp/Sphere.glb", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
@@ -211,10 +214,10 @@ namespace CForge {
 				// play animation
 				if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) {
 					if (nullptr == pAnim) {
-						pAnim = m_MTController.play(0, MTAnimationSpeed);
+						pAnim = m_MTController.play(0, 0);
 						m_Shape.addAnimation(pAnim);
 
-						pAnim2 = m_MTControllerOriginal.play(0, MTAnimationSpeed);
+						pAnim2 = m_MTControllerOriginal.play(0, 0);
 						m_ShapeOriginal.addAnimation(pAnim2);
 					}
 					else {

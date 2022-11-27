@@ -58,7 +58,7 @@ namespace CForge {
 	}
 
 	void ShapeDeformer::setSamplePoints(void) {
-		std::string filepath("Assets/tmp/samplePoints1000.txt");
+		std::string filepath("Assets/tmp/FBXsamplePoints1000.txt");
 		int numSamplePoints;
 
 		std::ifstream myfile(filepath);
@@ -1090,7 +1090,6 @@ namespace CForge {
 		this->setSamplePoints();
 		this->sortSamplePoints(bones);
 		this->setFaceMatrix();
-		//m_pMesh->setSkinningMats(startFrame, endFrame, AnimationID, m_pMesh->rootBone()->ID);
 
 		m_pMesh->setSkinningMats(startFrame, endFrame, AnimationID, m_pMesh->rootBone()->ID);
 		m_pMesh->setTri_Deformation(startFrame, endFrame, AnimationID);
@@ -1100,9 +1099,8 @@ namespace CForge {
 
 		for (int32_t i = startFrame; i <= endFrame; i++) {
 			m_pMesh->updateCurrentTri_Deformation(i, AnimationID);
-			printf("Frame: %d\n", i);
+			
 			Eigen::MatrixXf U_bc;
-
 			Eigen::MatrixXf MeshVertices = m_pMesh->getTriDeformationMatrix(i);
 
 			//Eigen::MatrixXf MeshVertices(m_pMesh->vertexCount(), 3);
@@ -1118,11 +1116,11 @@ namespace CForge {
 			}
 			U_bc = collisionTestShapeDeformation(Submesh1Index, Submesh2Index, i, AnimationID, method, U_bc, MeshVertices);
 			Eigen::MatrixXf newV = ShapeDeformation(i, U_bc, MeshVertices);
-			//igl::writeOBJ("TestOriginal.obj", MeshVertices, mat_Faces);
+			
 			std::string objName = "MuscleMan" + std::to_string(i) + ".obj";
 			std::string objName2 = "OriginalMuscleMan" + std::to_string(i) + ".obj";
 			igl::writeOBJ(objName, newV, mat_Faces);
-			igl::writeOBJ(objName2, MeshVertices, mat_Faces);
+			//igl::writeOBJ(objName2, MeshVertices, mat_Faces);
 
 			// Export with CForge
 			/*T3DMesh<float> M;

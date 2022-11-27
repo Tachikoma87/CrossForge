@@ -1334,9 +1334,9 @@ namespace CForge {
 
 			igl::writeOBJ("OriginalEve.obj", V, F);
 			*/
-			Eigen::MatrixXf insideOutsideCount(m_Positions.size(), 3);
+			Eigen::MatrixXf insideOutsideCount(m_Positions.size(), 2);
 			for (int i = 0; i < m_Positions.size(); i++) {
-				insideOutsideCount.row(i) = Eigen::Vector2f(0, 0);
+				insideOutsideCount.row(i) = Eigen::RowVector2f(0, 0);
 			}
 
 			//Vertices of Triangles outside of intersection area can't possibly be inside the other mesh
