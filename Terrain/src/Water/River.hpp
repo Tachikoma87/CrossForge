@@ -198,7 +198,7 @@ public:
 		return &w;
 	}
 private:
-	float mDepth = 0.08 / settingSizeScale;
+	float mDepth = 0.08 / gSettings.sizeScale;
 
 	int mResolution = 1;
 
@@ -247,7 +247,7 @@ private:
 		}
 		*/
 		for (int i = 0; i < heightList->size(); i++) {
-			heightList->at(i) -= lowQuality ? 0.002 : 0.0005;
+			heightList->at(i) -= 0.0005;
 		}
 		
 	}

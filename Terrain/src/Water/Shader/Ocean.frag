@@ -32,9 +32,13 @@ uniform float choppyness;
 uniform float widthScale;
 uniform vec2 nearFarPlane;
 uniform float uvScale;
-uniform bool lowQuality;
 uniform float time;
 uniform vec2 windDirection;
+
+uniform bool doSSR;
+uniform float ssrRes;
+uniform bool doShoreWave;
+uniform float sSizeScale;
 
 in vec2 UVcord;
 in vec3 POS;
@@ -63,12 +67,14 @@ vec4 getSkyboxColor(vec3 dir) {
 vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 	vec4 baseSkyColor = vec4(47, 78, 108, 255) / 255;
 	float maxDistance = 300;
-	int steps = 100;
+	float steps = 100.0 * ssrRes;
 	float resolution = maxDistance / steps;
 	
 	vec2 tSize = textureSize(colorTexture, 0);
 	vec3 reflectDirection = normalize(reflect(normalize(POS - CAM), normal));
-	if (reflectDirection.y < 0) return baseSkyColor;
+	if (reflectDirection.y < 0) return baseSkyColor * 2;
+
+	if (!doSSR) return getSkyboxColor(reflectDirection);
 
 	vec4 end = vec4(POS + reflectDirection * maxDistance, 1);
 	vec3 posIncrement = (end.xyz - POS) / steps;
@@ -80,13 +86,13 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 	bool hit = false;
 
 	for(int i = 0; i < steps; ++i) {
-		middlePos += posIncrement;
+		middlePos += posIncrement / ssrRes;
 		vec4 mid = Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(middlePos, 1);
 		uv = mid.xy / mid.w / 2 + 0.5;
 		posIncrement *= 1.05;
 
 		if (uv.x > 1 || uv.x < 0 || uv.y > 1 || uv.y < 0 ) {
-			return getSkyboxColor(reflectDirection);
+			return getSkyboxColor(reflectDirection) * 2;
 		}
 
 		depth = distance(middlePos, CAM);
@@ -103,7 +109,7 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 	
 
 	if (!hit) {
-			return getSkyboxColor(reflectDirection);
+			return getSkyboxColor(reflectDirection) * 2;
 	}
 	else {
 		float scaleFactor = 1 - pow(length((uv - 0.5) * 2), 8);
@@ -116,7 +122,7 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 		}
 	}
 
-	return getSkyboxColor(reflectDirection);
+	return getSkyboxColor(reflectDirection)  * 2;
 	
 }
 
@@ -264,7 +270,7 @@ vec3 getFoamColor(float foamFactor) {
 }
 
 vec4 getWaterCausics(vec2 backGroundUV, float depthColorScale) {
-	float speed = 0.05;
+	float speed = 0.02 * sqrt(sSizeScale);
 	float uvScale = 0.03;
 	vec2 wPos = texture(worldPosTexture, backGroundUV).xz;
 	vec2 causticsUV1 = wPos * uvScale + vec2(time * speed / 4) + normalize(wPos) * speed * time;
@@ -279,7 +285,7 @@ void main(){
 	vec2 UV = UVcord;
 
 	vec4 derivatives = texture(normalsTexture, UV);// sampleNorm(UV);
-	N = normalize(vec3((derivatives.x / (1 + derivatives.z)), uvScale / newAmplitudeScale * 0.02, (derivatives.y / (1 + derivatives.w))));
+	N = normalize(vec3((derivatives.x / (1 + derivatives.z)), uvScale / newAmplitudeScale * 0.03, (derivatives.y / (1 + derivatives.w))));
 
 	//vec3 sunPos  = vec3(-1000000000, 1000000000, 1000000000);
 	vec3 sunDir =	normalize(vec3(-0.6, 0.5, 1));	//normalize(sunPos - POS);
@@ -311,15 +317,15 @@ void main(){
 
 
 	vec4 reflectColor = reflectionColor(N, screenUV);
-	float reflectiveness = 1;
-	reflectColor.w *= reflectiveness;
+	float reflectiveness = 0.3;
+	reflectColor = mix(baseSkyColor, reflectColor, reflectiveness);
 	R = clamp(pow(R, 0.5),0, 1);
 	// COLOR ---------------------------------------------------------
 	
 	//gColor = mix(mix(baseSkyColor, reflectColor, reflectColor.w) + spec, mix(baseOceanBlue, backgroundColor, depthColorScale), R);
 	gColor = mix(vec4(0) + spec, mix(baseOceanBlue, backgroundColor, depthColorScale), R);
 	
-	gColor += vec4(getFoamColor(shoreWave(getShoreWaveFactor() * 2)), 1);
+	gColor += vec4(getFoamColor(shoreWave(getShoreWaveFactor() * 2)), 1) * (doShoreWave ? 1 : 0);
 
 	//gAlbedoSpec = texture(worldPosTexture, screenUV.xy) / 500;
 	//gAlbedoSpec = vec4(getShoreWaveFactor() * 2);

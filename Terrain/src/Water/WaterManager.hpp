@@ -55,7 +55,7 @@ public:
 	bool validTreeLocation(float x, float y) {
 		bool ret = true;
 		int index = (int)x * mDimension.y() + (int)y;
-		int maxDist = lowQuality ? 6 : 10;
+		int maxDist = 10;
 
 		if (x - 1 < maxDist || x + 1 > mDimension.x() - maxDist ||
 			y - 1 < maxDist || y + 1 > mDimension.y() - maxDist) return false;
@@ -221,7 +221,7 @@ public:
 	}
 
 	void updateShoreDistTexture() {
-		int maxDist = lowQuality ? 12 : 50;
+		int maxDist = 10 * gSettings.sizeScale;
 		vector<float> shoreDistances(mDimension.x() * mDimension.y() * 4, maxDist);
 
 		for (int i = 0; i < shoreDistances.size(); i += 4) {
@@ -252,7 +252,7 @@ public:
 		*/
 
 		
-		int res = lowQuality ? 1 : 3;
+		int res = gSettings.sizeScale / 2 + 1;
 
 		for (int x = 0; x < mDimension.x(); x += res) {
 			for (int y = 0; y < mDimension.y(); y += res) {
@@ -406,10 +406,10 @@ private:
 	float mFadeRate = 0.05;
 	unsigned int mPoolMapTextureHandle, mShoreDistanceTextureHandle;
 	vector<Vector2f> mPoolPositions;
-	int mMaxLakeSize = pow(120 * settingSizeScale, 2);
-	int mMinLakeSize = pow(8 * settingSizeScale, 2);
+	int mMaxLakeSize = pow(120 * gSettings.sizeScale, 2);
+	int mMinLakeSize = pow(8 * gSettings.sizeScale, 2);
 	vector<int> mOffsets;
-	float mRiverStartWidth = lowQuality ? 3 : 4.0;
+	float mRiverStartWidth = 4;
 
 	Vector3f getNormal(Vector2f pos) {
 		if (pos.x() < 2 || pos.x() >= mDimension.x() - 2 || pos.y() < 2 || pos.y() >= mDimension.y() - 2) return Vector3f(0, 1, 0);
@@ -582,9 +582,9 @@ private:
 
 
 	void simulateDroplet(Vector2f pos, float startWidth, Vector2f startSpeed) {
-		int riverResolution = lowQuality ? 3 : 5;
-		int maxLoopCycles = 2000 * settingSizeScale;
-		int minLoopCycles = riverResolution * 4 * (int)sqrt(settingSizeScale);
+		int riverResolution = 3;
+		int maxLoopCycles = 2000 * gSettings.sizeScale;
+		int minLoopCycles = riverResolution * 4 * (int)sqrt(gSettings.sizeScale);
 
 		
 
@@ -665,7 +665,7 @@ private:
 			}
 
 			n = getNormal(pos);
-			curveFactor = 0.0002 / settingSizeScale / settingSizeScale * endWidth;
+			curveFactor = 0.0002 / gSettings.sizeScale / gSettings.sizeScale * endWidth;
 			speed = (speed * curveFactor + Vector2f(n.x(), n.z()) * (1 - curveFactor)).normalized();
 			pos = pos + speed;
 			index = (int)pos.x() * mDimension.y() + (int)pos.y();

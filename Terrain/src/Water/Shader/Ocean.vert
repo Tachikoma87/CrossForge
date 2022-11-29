@@ -24,7 +24,9 @@ uniform float widthScale;
 uniform float time;
 uniform vec2 windDirection;
 uniform float uvScale;
-uniform bool lowQuality;
+uniform bool doShoreWave;
+uniform float sSizeScale;
+uniform vec2 nearFarPlane;
 
 
 
@@ -69,12 +71,12 @@ float shoreWave(float factor) {
 	float b = -mod(-time * waveSpeed + factor, waveLength) / foamBuildDown + 1;
 	b = clamp(b, 0, 1);
 	
-	return clamp((a + b) * factor / 4, 0, 1) * (lowQuality ? 2.5 : 20);
+	return clamp((a + b) * factor / 4, 0, 1) * 20;
 }
 
 
 void main(){
-	float circleRadius = lowQuality ? 300 : 1200;
+	float circleRadius = nearFarPlane.y / 2.2;
 
 	POS = Camera.Position.xyz * vec3(1, 0, 1);
 	POS.x = int(POS.x / widthScale) * widthScale;
@@ -89,11 +91,11 @@ void main(){
 
     float shoreFactor = getShoreWaveFactor(Position.xz + instanceOffset.xz + POS.xz) * 2;
     float waveFactor = shoreWave(shoreFactor);
-    shoreFactor = clamp(shoreFactor, 0.0, 0.3);
+    //shoreFactor = clamp(shoreFactor, 0.0, 0.3);
 
-    newAmplitudeScale = amplitudeScale * (1 - shoreFactor);
-    vec3 displacement = dist > circleRadius ? vec3(0) : texture(displacementTexture, UVcord).xyz * newAmplitudeScale + waveFactor * shoreFactor;// imageLoad(textureDisplacement, ivec2(mod(UVcord, 1) * imageSize(textureDisplacement))).xyz * newAmplitudeScale + waveFactor * shoreFactor;
-	
+    newAmplitudeScale = amplitudeScale * (1 - clamp(shoreFactor, 0.0, 0.75) * (doShoreWave ? 1 : 0.3));
+    vec3 displacement = dist > circleRadius ? vec3(0) : texture(displacementTexture, UVcord).xyz * newAmplitudeScale + waveFactor * clamp(shoreFactor, 0.0, 0.3)  * (doShoreWave ? 1 : 0) * 0.1 * sSizeScale;// imageLoad(textureDisplacement, ivec2(mod(UVcord, 1) * imageSize(textureDisplacement))).xyz * newAmplitudeScale + waveFactor * shoreFactor;
+	displacement *= sqrt(sSizeScale) * (1 - dist / circleRadius);
 
     //vec4 derivatives = imageLoad(textureNormal, ivec2(mod(UVcord, 1) * imageSize(textureNormal)));
 	

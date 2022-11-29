@@ -225,13 +225,13 @@ namespace Terrain {
         float noiseOffset = randomF(-500, 500);
         float noiseScale = 1;
 
-        float sizeScale = lowQuality ? 1.0 : 3.0f / 4.0f * settingSizeScale;
+        float sizeScale = gSettings.sizeScale;
 
-        int ammount = lowQuality ? 30 : 400;
+        int ammount = sqrt(gSettings.sizeScale) * gSettings.dekorationDensity;
         Matrix4f S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale, sizeScale, sizeScale));
         Matrix4f R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY())));
         float randomSizeScale;
-        if (!maximumQuality) {
+        if (gSettings.dekorationDensity > 0) {
             for (int x = 2; x < ammount - 2; x++) {
                 for (int z = 2; z < ammount - 2; z++) {
                     float xCord = (x - ammount / 2.0 + 0.5) * map.getMapSize().x() / (float)ammount;
@@ -247,14 +247,14 @@ namespace Terrain {
 
                         R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitY())));
                         if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale + noiseOffset, 0, zCord * noiseScale, 1) < -0.1) {
-                            if (map.getHeightAt(xCord, zCord) > 225 / (8 / settingSizeScale) && map.getHeightAt(xCord, zCord) < 305 / (8 / settingSizeScale)) {
+                            if (map.getHeightAt(xCord, zCord) > 225 / (8 / gSettings.sizeScale) && map.getHeightAt(xCord, zCord) < 305 / (8 / gSettings.sizeScale)) {
                                 randomSizeScale = randomF(0.25f, 1.5f);
                                 S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
                                 iPineActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
                                 iPineLeavesActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * S);
                             }
 
-                            else if (map.getHeightAt(xCord, zCord) > 202 / (8 / settingSizeScale) && map.getHeightAt(xCord, zCord) < 208 / (8 / settingSizeScale)) {
+                            else if (map.getHeightAt(xCord, zCord) > 202 / (8 / gSettings.sizeScale) && map.getHeightAt(xCord, zCord) < 208 / (8 / gSettings.sizeScale)) {
                                 randomSizeScale = randomF(0.8f, 2.2f);
                                 S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale, sizeScale * randomSizeScale, sizeScale));
                                 iPalmActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord) - 0.3, zCord)) * R * S);
@@ -262,7 +262,7 @@ namespace Terrain {
                             }
                         }
                         else if (pNoise.accumulatedOctaveNoise3D(xCord * noiseScale + noiseOffset, 0, zCord * noiseScale, 1) > 0.1) {
-                            if (map.getHeightAt(xCord, zCord) > 208 / (8 / settingSizeScale) && map.getHeightAt(xCord, zCord) < 235 / (8 / settingSizeScale)) {
+                            if (map.getHeightAt(xCord, zCord) > 208 / (8 / gSettings.sizeScale) && map.getHeightAt(xCord, zCord) < 235 / (8 / gSettings.sizeScale)) {
                                 randomSizeScale = randomF(1.25f, 1.75f);
                                 S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
                                 iTreeActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(xCord, map.getHeightAt(xCord, zCord), zCord)) * R * S);
@@ -270,7 +270,7 @@ namespace Terrain {
                             }
                         }
                         else {
-                            if (map.getHeightAt(xCord, zCord) > 208 / (8 / settingSizeScale) && map.getHeightAt(xCord, zCord) < 255 / (8 / settingSizeScale)) {
+                            if (map.getHeightAt(xCord, zCord) > 208 / (8 / gSettings.sizeScale) && map.getHeightAt(xCord, zCord) < 255 / (8 / gSettings.sizeScale)) {
                                 if (x % 5 == 0 && z % 5 == 0) {
                                     randomSizeScale = randomF(0.2f, 0.8f);
                                     S = GraphicsUtility::scaleMatrix(Vector3f(sizeScale * randomSizeScale, sizeScale * randomSizeScale, sizeScale * randomSizeScale));
@@ -283,14 +283,14 @@ namespace Terrain {
             }
         }
         
-        Vector2f rockScale = lowQuality ? Vector2f(0.4, 0.6) : Vector2f(0.6, 1.0);
+        Vector2f rockScale = Vector2f(0.6, 1.0);
         for (auto river : *rivers) {
             R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(90), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
             S = GraphicsUtility::scaleMatrix(Vector3f(river.getWidth(0) / 3.0, river.getWidth(0) / 3.0, river.getWidth(0) / 3.0));
             Vector3f pos = river.getPos(0);
             iRockActor.addInstance(GraphicsUtility::translationMatrix(Vector3f(pos.z(), pos.y(), pos.x())) * R * S);
 
-            if (!maximumQuality) {
+            if (gSettings.allowRocks) {
                 for (double t = 1; t < river.getLength(); t += randomF(1, 3)) {
                     R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(90), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
                     S = GraphicsUtility::scaleMatrix(Vector3f(randomF(rockScale.x(), rockScale.y()), randomF(rockScale.x(), rockScale.y()), randomF(rockScale.x(), rockScale.y())));
@@ -300,7 +300,7 @@ namespace Terrain {
             }
         }
 
-        if (!lowQuality && !maximumQuality) {
+        if (gSettings.allowRocks) {
             for (auto river : *rivers) {
                 for (double t = 1; t < river.getLength(); t += randomF(0.1, 0.3)) {
                     R = GraphicsUtility::rotationMatrix(static_cast<Quaternionf>(AngleAxisf(GraphicsUtility::degToRad(90), Vector3f::UnitY()) * AngleAxisf(GraphicsUtility::degToRad(randomF(0, 360)), Vector3f::UnitX())));
@@ -441,9 +441,9 @@ namespace Terrain {
         VirtualCamera camera;
         DirectionalLight sun, light;
         float nearPlane = 1.0f;
-        float farPlane = 1000.0f * settingSizeScale;
-        float screenWidth = 5120 / 4;
-        float screenHeight = 1440 / 2;
+        float farPlane = 1000.0f * gSettings.sizeScale;
+        float screenWidth = gSettings.windowWidth;
+        float screenHeight = gSettings.windowHeight;
         initCForge(&window, &renderDevice, &camera, &sun, &light, nearPlane, farPlane, screenWidth, screenHeight);
 
         SGNTransformation rootTransform;
@@ -455,8 +455,8 @@ namespace Terrain {
             .octaves = 10,
             .persistence = 0.5f,
             .lacunarity = 2.0f};
-        HeightMap::HeightMapConfig heightMapConfig = {.width = (uint32_t)(512 * settingSizeScale), .height = (uint32_t)(512 * settingSizeScale),
-                                                      .mapHeight = (float)(50 * settingSizeScale), .noiseConfig = noiseConfig};
+        HeightMap::HeightMapConfig heightMapConfig = {.width = (uint32_t)(512 * gSettings.sizeScale), .height = (uint32_t)(512 * gSettings.sizeScale),
+                                                      .mapHeight = (float)(50 * gSettings.sizeScale), .noiseConfig = noiseConfig};
 
 
         TerrainMap map = TerrainMap(&rootTransform);
@@ -465,8 +465,8 @@ namespace Terrain {
 
         SceneGraph sceneGraph;
 
-        OceanSimulation oceanSimulation(lowQuality ? 64 : 256, lowQuality ? 500 : 500, lowQuality ? 0.1 : 40, Vector2f(1.0f, 1.0f), lowQuality ? 1000 : 50);
-        OceanObject oceanObject(lowQuality ? 16 : 256, lowQuality ? 25 : 200, lowQuality ? 0.5 : 2, 1, 1, 1, lowQuality ? 29 : 15, nearPlane, farPlane);
+        OceanSimulation oceanSimulation(gSettings.wSGridSize, 500, 0.1 * gSettings.wSGridSize * gSettings.wSGridSize * gSettings.wSGridSize * gSettings.wSGridSize / 64.0f / 64.0f / 64.0f / 64.0f, Vector2f(1.0f, 1.0f), 20);
+        OceanObject oceanObject(gSettings.wSGridSize, gSettings.wSGridSize * 3, 1 + gSettings.sizeScale * gSettings.sizeScale / 4, 1, 1, 1, (int)(farPlane / gSettings.wSGridSize / 6) * 2 + 1, nearPlane, farPlane);
         
         bool pause = false;
         oceanSimulation.initOceanSimulation();
@@ -481,6 +481,7 @@ namespace Terrain {
         oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
             heightMapConfig.mapHeight, 1,
             waterManager.getHeightMap(), waterManager.getPoolMap(), waterManager.getRivers());
+
 
 
 
@@ -678,8 +679,8 @@ namespace Terrain {
                 glActiveTexture(GL_TEXTURE0);
                 map.bindTexture();
                 glBindTexture(GL_TEXTURE_2D, selectedTexture);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                 quad.render(&renderDevice);
             }
 
@@ -740,7 +741,7 @@ namespace Terrain {
                 window.keyboard()->keyState(Keyboard::KEY_L, Keyboard::KEY_RELEASED);
 
                 //waterManager.trySpawnLake((int)(camera.position().z() + map.getMapSize().y() / 2)* map.getMapSize().x() + (int)(camera.position().x() + map.getMapSize().x() / 2.0));
-                waterManager.trySpawnLakes(35 * settingSizeScale);
+                waterManager.trySpawnLakes(35 * gSettings.sizeScale);
 
                 waterManager.updateTextures();
                 oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
@@ -751,7 +752,7 @@ namespace Terrain {
 
             if (window.keyboard()->keyPressed(Keyboard::KEY_K)) {
                 window.keyboard()->keyState(Keyboard::KEY_K, Keyboard::KEY_RELEASED);
-                waterManager.tryGenerateRivers(25 * settingSizeScale * settingSizeScale);
+                waterManager.tryGenerateRivers(25 * gSettings.sizeScale * gSettings.sizeScale);
                 waterManager.updateTextures();
                 oceanObject.generateWaterGeometry(Vector2i(heightMapConfig.width, heightMapConfig.height),
                     heightMapConfig.mapHeight, 1,
@@ -767,16 +768,16 @@ namespace Terrain {
                     .octaves = 10,
                     .persistence = 0.5f,
                     .lacunarity = 2.0f };
-                HeightMap::HeightMapConfig heightMapConfig = { .width = (uint32_t)(512 * settingSizeScale), .height = (uint32_t)(512 * settingSizeScale),
-                                                      .mapHeight = (float)(50 * settingSizeScale), .noiseConfig = noiseConfig };
+                HeightMap::HeightMapConfig heightMapConfig = { .width = (uint32_t)(512 * gSettings.sizeScale), .height = (uint32_t)(512 * gSettings.sizeScale),
+                                                      .mapHeight = (float)(50 * gSettings.sizeScale), .noiseConfig = noiseConfig };
                 map.generateHeightMap(heightMapConfig);
 
                 waterManager.refreshMaps();
                 waterManager.updateTextures();
       
-                waterManager.trySpawnLakes(25 * settingSizeScale);
+                waterManager.trySpawnLakes(25 * gSettings.sizeScale);
                 waterManager.updateTextures();
-                waterManager.tryGenerateRivers(35 * settingSizeScale * settingSizeScale);
+                waterManager.tryGenerateRivers(35 * gSettings.sizeScale * gSettings.sizeScale);
                 waterManager.updateTextures();
                 //waterManager.updateShoreDistTexture();
 
@@ -823,8 +824,8 @@ namespace Terrain {
                     .octaves = 10,
                     .persistence = 0.5f,
                     .lacunarity = 2.0f};
-                HeightMap::HeightMapConfig heightMapConfig = { .width = (uint32_t)(512 * settingSizeScale), .height = (uint32_t)(512 * settingSizeScale),
-                                                      .mapHeight = (float)(50 * settingSizeScale), .noiseConfig = noiseConfig };
+                HeightMap::HeightMapConfig heightMapConfig = { .width = (uint32_t)(512 * gSettings.sizeScale), .height = (uint32_t)(512 * gSettings.sizeScale),
+                                                      .mapHeight = (float)(50 * gSettings.sizeScale), .noiseConfig = noiseConfig };
                 map.generateHeightMap(heightMapConfig);
                 
                 placeDekoElements(map, iPineActor, iPineLeavesActor, iTreeActor, iTreeLeavesActor, iPalmActor, iPalmLeavesActor, iRockActor, iBushActor, waterManager, waterManager.getRivers());

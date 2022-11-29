@@ -51,12 +51,14 @@ public:
 		int time = mPoolShader->uniformLocation("time");
 		int windDirection = mPoolShader->uniformLocation("windDirection");
 		int nearFar = mPoolShader->uniformLocation("nearFarPlane");
-		int lowQ = mPoolShader->uniformLocation("lowQuality");
+		int uSSR = mPoolShader->uniformLocation("doSSR");
+		int uSSRRes = mPoolShader->uniformLocation("ssrRes");
 
 		glUniform1f(time, timeCount);
 		glUniform2f(windDirection, mWindDirectionX, mWindDirectionZ);
 		glUniform2f(nearFar, mNearPlane, mFarPlane);
-		glUniform1i(lowQ, lowQuality);
+		glUniform1i(uSSR, gSettings.ssr);
+		glUniform1f(uSSRRes, gSettings.ssrResolution);
 
 		int dudvT = mPoolShader->uniformLocation("dudvTexture");
 		int colorT = mPoolShader->uniformLocation("colorTexture");
@@ -120,12 +122,14 @@ public:
 		int time = mStreamShader->uniformLocation("time");
 		int windDirection = mStreamShader->uniformLocation("windDirection");
 		int nearFar = mStreamShader->uniformLocation("nearFarPlane");
-		int lowQ = mStreamShader->uniformLocation("lowQuality");
+		int uSSR = mStreamShader->uniformLocation("doSSR");
+		int uSSRRes = mStreamShader->uniformLocation("ssrRes");
 
 		glUniform1f(time, timeCount);
 		glUniform2f(windDirection, mWindDirectionX, mWindDirectionZ);
 		glUniform2f(nearFar, mNearPlane, mFarPlane);
-		glUniform1i(lowQ, lowQuality);
+		glUniform1i(uSSR, gSettings.ssr);
+		glUniform1f(uSSRRes, gSettings.ssrResolution);
 
 		int dudvT = mStreamShader->uniformLocation("dudvTexture");
 		int colorT = mStreamShader->uniformLocation("colorTexture");
@@ -198,7 +202,10 @@ public:
 		int windDirection = mShader->uniformLocation("windDirection");
 		int nearFar = mShader->uniformLocation("nearFarPlane");
 		int uvScale = mShader->uniformLocation("uvScale");
-		int lowQ = mShader->uniformLocation("lowQuality");
+		int uSSR = mShader->uniformLocation("doSSR");
+		int uSSRRes = mShader->uniformLocation("ssrRes");
+		int uShoreWave = mShader->uniformLocation("doShoreWave");
+		int uSizeScale = mShader->uniformLocation("sSizeScale");
 
 		// set uniforms
 		glUniform1f(amplitudeScale, (float)mAmplitudeScale);
@@ -208,7 +215,10 @@ public:
 		glUniform2f(windDirection, mWindDirectionX, mWindDirectionZ);
 		glUniform2f(nearFar, mNearPlane, mFarPlane);
 		glUniform1f(uvScale, mScale);
-		glUniform1i(lowQ, lowQuality);
+		glUniform1i(uSSR, gSettings.ssr);
+		glUniform1f(uSSRRes, gSettings.ssrResolution);
+		glUniform1i(uShoreWave, gSettings.shoreWaves);
+		glUniform1f(uSizeScale, gSettings.sizeScale);
 
 		//glDrawElements(GL_TRIANGLES, (mGridSize - 1) * (mGridSize - 1) * 3 * 2, GL_UNSIGNED_INT, 0);
 
@@ -341,8 +351,10 @@ public:
 		renderPool(renderDevice, timeCount);
 		renderStreams(renderDevice, timeCount);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		blurHReflection(renderDevice);
-		blurVReflection(renderDevice);
+		if (gSettings.blur) {
+			blurHReflection(renderDevice);
+			blurVReflection(renderDevice);
+		}
 		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -732,7 +744,7 @@ public:
 				Vector3f pos = river.getPos(sampleTime);
 				float width = river.getWidth(sampleTime);
 				//width = width > 6 ? width : 6;
-				Vector3f normal = river.getNormal(sampleTime) * (width / (lowQuality ? 1.3f : 1.8f));
+				Vector3f normal = river.getNormal(sampleTime) * (width / 1.8);
 				Vector3f tangent = river.get3DTangent(sampleTime);
 				Vector3f normal3D = river.get3DNormal(sampleTime);
 
@@ -799,7 +811,7 @@ private:
 	int mAmount = 0;
 	int mNumInstances;
 	float mNearPlane, mFarPlane;
-	float mSealevel = 25 * settingSizeScale;
+	float mSealevel = 25 * gSettings.sizeScale;
 
 	Vector2i mHeightMapDimension;
 

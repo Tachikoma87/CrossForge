@@ -27,7 +27,8 @@ uniform sampler2D skyTopTexture;
 uniform vec2 nearFarPlane;
 uniform float time;
 uniform vec2 windDirection;
-uniform bool lowQuality;
+uniform bool doSSR;
+uniform float ssrRes;
 
 in vec3 POS;
 in vec3 CAM;
@@ -52,14 +53,17 @@ vec4 getSkyboxColor(vec3 dir) {
 }
 
 vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
-	vec4 baseSkyColor = vec4(17*3, 28*3, 50*3, 55) / 255;
-
+	vec4 baseSkyColor = vec4(47, 78, 108, 255) / 255;
 	float maxDistance = 300;
-	int steps = 100;
+	float steps = 100.0 * ssrRes;
 	float resolution = maxDistance / steps;
 	
 	vec2 tSize = textureSize(colorTexture, 0);
 	vec3 reflectDirection = normalize(reflect(normalize(POS - CAM), normal));
+	if (reflectDirection.y < 0) return baseSkyColor;
+
+	if (!doSSR) return getSkyboxColor(reflectDirection);
+
 	vec4 end = vec4(POS + reflectDirection * maxDistance, 1);
 	vec3 posIncrement = (end.xyz - POS) / steps;
 	
@@ -70,7 +74,7 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 	bool hit = false;
 
 	for(int i = 0; i < steps; ++i) {
-		middlePos += posIncrement;
+		middlePos += posIncrement / ssrRes;
 		vec4 mid = Camera.ProjectionMatrix * Camera.ViewMatrix * vec4(middlePos, 1);
 		uv = mid.xy / mid.w / 2 + 0.5;
 		posIncrement *= 1.05;
@@ -90,19 +94,23 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 		}
 	}
 
-	vec4 skyC = getSkyboxColor(reflectDirection);
-	vec4 ret = skyC;
+	
 
-	if (hit) {
+	if (!hit) {
+			return getSkyboxColor(reflectDirection);
+	}
+	else {
 		float scaleFactor = 1 - pow(length((uv - 0.5) * 2), 8);
 
 		float visibility = 1 - max(dot(normalize(CAM - POS), reflectDirection), 0);
 		if (scaleFactor > 0) {
-			ret = mix(skyC, texture(colorTexture, uv), visibility * scaleFactor);// texture(colorTexture, uv), visibility);
+			vec4 ret = mix(getSkyboxColor(reflectDirection), texture(colorTexture, uv), visibility * scaleFactor);// texture(colorTexture, uv), visibility);
+			ret.w = scaleFactor;
+			return ret;
 		}
 	}
 
-	return ret;
+	return getSkyboxColor(reflectDirection);
 	
 }
 

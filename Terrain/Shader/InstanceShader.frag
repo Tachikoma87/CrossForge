@@ -19,9 +19,10 @@ in vec3 Pos;
 in vec3 N;
 in vec2 UV;
 in vec3 test;
+in vec3 worldSpacePos;
 
 void main(){
-	gPosition = vec4(Pos, 0.0); //texture(TexAlbedo, UV);
+	gPosition = vec4(worldSpacePos, 0.0); //texture(TexAlbedo, UV);
 	gNormal = vec4(N, 0.0);
 	gAlbedoSpec = texture(TexAlbedo, UV);
 	gAlbedoSpec.a = 0.1;

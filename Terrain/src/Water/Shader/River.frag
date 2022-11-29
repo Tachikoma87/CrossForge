@@ -28,7 +28,8 @@ uniform sampler2D skyTopTexture;
 uniform vec2 nearFarPlane;
 uniform float time;
 uniform vec2 windDirection;
-uniform bool lowQuality;
+uniform bool doSSR;
+uniform float ssrRes;
 
 in vec3 POS;
 in vec3 CAM;
@@ -85,6 +86,8 @@ vec4 reflectionColor(vec3 normal, vec3 SCREENUV) {
 	vec3 reflectDirection = normalize(reflect(normalize(POS - CAM), normal));
 	vec4 end = vec4(POS + reflectDirection * maxDistance, 1);
 	vec3 posIncrement = (end.xyz - POS) / steps;
+
+	if (!doSSR) return getSkyboxColor(reflectDirection);
 	
 	vec2 uv;
 	float depth;
