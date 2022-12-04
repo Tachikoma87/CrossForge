@@ -19,8 +19,17 @@ void main() {
 	int index = int(mod((int(pos.x + pos.y)), 2));
 	float perm = perms[index];
 
-	float h = imageLoad(pingpong == 0 ? texturePingpong0 : texturePingpong1, pos).r;
-	float h2 = imageLoad(pingpong == 0 ? texturePingpong0 : texturePingpong1, pos).b;
+	float h, h2;
+	if (pingpong == 0) {
+		h = imageLoad(texturePingpong0, pos).r;
+		h2 = imageLoad(texturePingpong0, pos).b;
+
+	}
+	else {
+		h = imageLoad(texturePingpong1, pos).r;
+		h2 = imageLoad(texturePingpong1, pos).b;
+
+	}
 
 	float displacement = perm * (h / float(gridSize * gridSize));
 	float displacement2 = perm * (h2 / float(gridSize * gridSize));

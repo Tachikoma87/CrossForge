@@ -95,7 +95,7 @@ void main() {
 
         // Stop simulating droplet if it's not moving or has flowed over edge of map
         // Todo: give new random direction
-        if (dir == 0 || newCoord.x < BorderSize || newCoord.x >= mapSize.x - BorderSize ||
+        if (dir == vec2(0) || newCoord.x < BorderSize || newCoord.x >= mapSize.x - BorderSize ||
                         newCoord.y < BorderSize || newCoord.y >= mapSize.y - BorderSize) {
             break;
         }

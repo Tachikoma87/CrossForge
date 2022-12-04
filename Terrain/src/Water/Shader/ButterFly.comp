@@ -41,8 +41,18 @@ void horizontalButterflies() {
 
 	vec4 data = imageLoad(textureTwiddleIndices, ivec2(stage, pos.x)).rgba;
 
-	vec2 p_ = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(data.z, pos.y)).rb;
-	vec2 q_ = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(data.w, pos.y)).rb;
+
+	vec2 p_, q_;
+	if (pingpong == 0) {
+		p_ = imageLoad(texturepingpong0, ivec2(data.z, pos.y)).rb;
+		q_ = imageLoad(texturepingpong0, ivec2(data.w, pos.y)).rb;
+	}
+	else {
+		p_ = imageLoad(texturepingpong1, ivec2(data.z, pos.y)).rb;
+		q_ = imageLoad(texturepingpong1, ivec2(data.w, pos.y)).rb;
+	}
+
+
 	complex p = complex(p_.x, p_.y);
 	complex q = complex(-q_.x, -q_.y);
 
@@ -50,7 +60,14 @@ void horizontalButterflies() {
 
 	complex H = add(p, mul(w, q));
 
-	imageStore(pingpong == 0 ? texturepingpong1 : texturepingpong0, pos, vec4(H.real, 0, H.im, 0));
+	if (pingpong == 0) {
+		imageStore(texturepingpong1, pos, vec4(H.real, 0, H.im, 0));
+	}
+	else {
+		imageStore(texturepingpong0, pos, vec4(H.real, 0, H.im, 0));
+	}
+
+	
 }
 
 void verticalButterflies() {
@@ -58,8 +75,16 @@ void verticalButterflies() {
 
 	vec4 data = imageLoad(textureTwiddleIndices, ivec2(stage, pos.y)).rgba;
 
-	vec2 p_ = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(pos.x, data.z)).rb;
-	vec2 q_ = imageLoad(pingpong == 0 ? texturepingpong0 : texturepingpong1, ivec2(pos.x, data.w)).rb;
+	vec2 p_, q_;
+	if (pingpong == 0) {
+		p_ = imageLoad(texturepingpong0, ivec2(pos.x, data.z)).rb;
+		q_ = imageLoad(texturepingpong0, ivec2(pos.x, data.w)).rb;
+	}
+	else {
+		p_ = imageLoad(texturepingpong1, ivec2(pos.x, data.z)).rb;
+		q_ = imageLoad(texturepingpong1, ivec2(pos.x, data.w)).rb;
+	}
+
 	complex p = complex(p_.x, p_.y);
 	complex q = complex(-q_.x, -q_.y);
 
@@ -67,7 +92,13 @@ void verticalButterflies() {
 
 	complex H = add(p, mul(w, q));
 	
-	imageStore(pingpong == 0 ? texturepingpong1 : texturepingpong0, pos, vec4(H.real, 0, H.im, 0));
+	if (pingpong == 0) {
+		imageStore(texturepingpong1, pos, vec4(H.real, 0, H.im, 0));
+	}
+	else {
+		imageStore(texturepingpong0, pos, vec4(H.real, 0, H.im, 0));
+	}
+	
 }
 
 

@@ -1,0 +1,10 @@
+low
+
+
+
+Viable quality options are:
+	- min
+	- low
+	- med
+	- hig
+	- max
