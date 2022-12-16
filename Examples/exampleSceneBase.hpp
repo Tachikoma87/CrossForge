@@ -218,7 +218,7 @@ namespace CForge {
 			}//for[materials]
 		}//setMeshShader
 
-		void defaultCameraUpdate(VirtualCamera* pCamera, Keyboard* pKeyboard, Mouse* pMouse, const float MovementSpeed = 0.4f, const float RotationSpeed = 1.0f, const float SpeedScale = 4.0f) {
+		void defaultCameraUpdate(VirtualCamera* pCamera, Keyboard* pKeyboard, Mouse* pMouse, const float MovementSpeed = 0.1f, const float RotationSpeed = 1.0f, const float SpeedScale = 4.0f) {
 			if (nullptr == pCamera) throw NullpointerExcept("pCamera");
 			if (nullptr == pKeyboard) throw NullpointerExcept("pKeyboard");
 			if (nullptr == pMouse) throw NullpointerExcept("pMouse");

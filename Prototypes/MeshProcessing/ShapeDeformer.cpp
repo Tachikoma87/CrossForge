@@ -58,7 +58,8 @@ namespace CForge {
 	}
 
 	void ShapeDeformer::setSamplePoints(void) {
-		std::string filepath("Assets/tmp/FBXsamplePoints1000.txt");
+		std::string filepath("Assets/tmp/EveSamplePoints1000.txt");
+		//std::string filepath("Assets/tmp/FBXsamplePoints1000.txt");
 		int numSamplePoints;
 
 		std::ifstream myfile(filepath);
@@ -285,7 +286,6 @@ namespace CForge {
 		float dist = m_pMesh->vectorLength(distance);
 
 		if (dist < optimalCapsuleRadius) {
-			printf("ControlPoint going to be moved\n");
 			Rval = pPoint + ((optimalCapsuleRadius - dist) * 0.6f) * direction;
 		}
 
@@ -386,7 +386,6 @@ namespace CForge {
 		//Eigen::Vector3f pVertex = m_pMesh->getUpdatedVertexPosition(frame, vertexID);
 		Eigen::Vector3f closestPointOnBone = m_pMesh->closestPointOnLineSegment(A, B, pVertex);
 		std::vector<int32_t> VerticesInSubmesh = m_pMesh->getVerticesInSubmesh(BoneID);
-		printf("%d Verts In Submesh %d\n", VerticesInSubmesh.size(), BoneID + 1);
 		Eigen::Vector3f Original = pVertex - closestPointOnBone;
 
 		Eigen::Vector3f vertWithSmallestAngle = m_pMesh->getUpdatedVertexPositionOld(frame, VerticesInSubmesh.at(0));
@@ -564,20 +563,7 @@ namespace CForge {
 		std::vector<std::vector<int32_t>> Rval;
 		Rval.push_back(ControlPointsMesh1);
 		Rval.push_back(ControlPointsMesh2);
-		
-		Eigen::MatrixXf testV = m_pMesh->getTriDeformationMatrix(frame);
-
-		for (int i = 0; i < vertsInsideMesh.at(0).size(); i++) {
-			testV(vertsInsideMesh.at(0).at(i), 0) = testV(vertsInsideMesh.at(0).at(i), 0) + 1.0f;
-		}
-		for (int i = 0; i < vertsInsideMesh.at(1).size(); i++) {
-			testV(vertsInsideMesh.at(1).at(i), 0) = testV(vertsInsideMesh.at(1).at(i), 0) - 1.0f;
-		}
-
-		std::string filename = "Whatever" + std::to_string(frame) + ".obj";
-		igl::writeOBJ(filename, testV, mat_Faces);
-
-
+	
 		vertsInsideMesh.at(0).clear();
 		vertsInsideMesh.at(1).clear();
 		vertsInsideMesh.clear();
@@ -982,20 +968,14 @@ namespace CForge {
 			T3DMesh<float>::Line Capsule1 = m_pMesh->getCapsuleDirectionOld(boneMesh1, AnimationID, frame);
 			T3DMesh<float>::Line Capsule2 = m_pMesh->getCapsuleDirectionOld(boneMesh2, AnimationID, frame);
 			
-			printf("Mesh1, Capsule Point %.2f , %.2f, %.2f, Dir  %.2f , %.2f, %.2f\n", 
-				Capsule1.p.x(), Capsule1.p.y(), Capsule1.p.z(), Capsule1.direction.x(), Capsule1.direction.y(), Capsule1.direction.z());
 			for (int i = 0; i < affectedControlPoints.at(0).size(); i++) {
 				int32_t samplePointID = affectedControlPoints.at(0).at(i);
 				int32_t vertexID = this->m_SamplePoints(samplePointID);
 				Eigen::Vector3f VertexPosition = m_pMesh->getUpdatedVertexPositionOld(frame, vertexID);
-				printf("Vertex %d has Pos %.2f, %.2f, %.2f\n", vertexID, VertexPosition.x(), VertexPosition.y(), VertexPosition.z());
 				Eigen::Vector3f closestVert = getcloseVert2(Capsule2, Submesh2Index - 1, VertexPosition, frame);
-				printf("ClosestVertex has Pos %.2f, %.2f, %.2f\n", closestVert.x(), closestVert.y(), closestVert.z());
 				Eigen::Vector3f center = m_pMesh->closestPointOnLineSegment(Capsule2.p, Capsule2.p + Capsule2.direction, closestVert);
 				float accurateRadius = m_pMesh->vectorLength(closestVert - center);
-
-				printf("%.2f\n", accurateRadius);
-
+				//float accurateRadius = boneMesh1->capsuleRadius;
 				Eigen::Vector3f newPosition;
 				if (method == 1) {
 					newPosition = bestLocationSamplePoint(Capsule2, accurateRadius, VertexPosition, frame);
@@ -1012,18 +992,16 @@ namespace CForge {
 
 				U_bc.row(samplePointID) = Eigen::RowVector3f(newPosition);
 			}
-			printf("Mesh2, Capsule Point %.2f , %.2f, %.2f, Dir  %.2f , %.2f, %.2f\n",
-				Capsule2.p.x(), Capsule2.p.y(), Capsule2.p.z(), Capsule2.direction.x(), Capsule2.direction.y(), Capsule2.direction.z());
+			
 			for (int i = 0; i < affectedControlPoints.at(1).size(); i++) {
 				int32_t samplePointID = affectedControlPoints.at(1).at(i);
 				int32_t vertexID = this->m_SamplePoints(samplePointID);
 				Eigen::Vector3f VertexPosition = m_pMesh->getUpdatedVertexPositionOld(frame, vertexID);
-				printf("Vertex %d has Pos %.2f, %.2f, %.2f\n", vertexID, VertexPosition.x(), VertexPosition.y(), VertexPosition.z());
 				Eigen::Vector3f closestVert = getcloseVert2(Capsule1, Submesh1Index - 1, VertexPosition, frame);
-				printf("ClosestVertex has Pos %.2f, %.2f, %.2f\n", closestVert.x(), closestVert.y(), closestVert.z());
 				Eigen::Vector3f center = m_pMesh->closestPointOnLineSegment(Capsule1.p, Capsule1.p + Capsule1.direction, closestVert);
 				float accurateRadius = m_pMesh->vectorLength(closestVert - center);
-				printf("%.2f\n", accurateRadius);
+				
+				//float accurateRadius = boneMesh2->capsuleRadius;
 				Eigen::Vector3f newPosition;
 				if (method == 1) {
 					newPosition = bestLocationSamplePoint(Capsule1, accurateRadius, VertexPosition, frame);
@@ -1089,15 +1067,21 @@ namespace CForge {
 
 		this->setSamplePoints();
 		this->sortSamplePoints(bones);
+		m_pMesh->interpolateKeyframes(816, m_pMesh->getBone(0), 0);
 		this->setFaceMatrix();
 
-		m_pMesh->setSkinningMats(startFrame, endFrame, AnimationID, m_pMesh->rootBone()->ID);
+		m_pMesh->setSkinningMats(startFrame, endFrame, AnimationID, 0);
 		m_pMesh->setTri_Deformation(startFrame, endFrame, AnimationID);
 
 		T3DMesh<float>::Bone* boneMesh1 = m_pMesh->getBone(Submesh1Index - 1);
 		T3DMesh<float>::Bone* boneMesh2 = m_pMesh->getBone(Submesh2Index - 1);
+		m_pMesh->updateCurrentTri_Deformation(1, AnimationID);
+		//m_pMesh->setCapsuleRadius(m_pMesh->getBone(Submesh1Index - 1), AnimationID);
+		//m_pMesh->setCapsuleRadius(m_pMesh->getBone(Submesh2Index - 1), AnimationID);
+
 
 		for (int32_t i = startFrame; i <= endFrame; i++) {
+			printf("Deforming Frame %d/%d\r", i, endFrame);
 			m_pMesh->updateCurrentTri_Deformation(i, AnimationID);
 			
 			Eigen::MatrixXf U_bc;
@@ -1117,10 +1101,10 @@ namespace CForge {
 			U_bc = collisionTestShapeDeformation(Submesh1Index, Submesh2Index, i, AnimationID, method, U_bc, MeshVertices);
 			Eigen::MatrixXf newV = ShapeDeformation(i, U_bc, MeshVertices);
 			
-			std::string objName = "MuscleMan" + std::to_string(i) + ".obj";
-			std::string objName2 = "OriginalMuscleMan" + std::to_string(i) + ".obj";
+			std::string objName = "EveBestDeformed" + std::to_string(i) + ".obj";
+			std::string objName2 = "EveBest" + std::to_string(i) + ".obj";
 			igl::writeOBJ(objName, newV, mat_Faces);
-			//igl::writeOBJ(objName2, MeshVertices, mat_Faces);
+			igl::writeOBJ(objName2, MeshVertices, mat_Faces);
 
 			// Export with CForge
 			/*T3DMesh<float> M;

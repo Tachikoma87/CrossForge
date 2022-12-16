@@ -26,13 +26,15 @@ namespace CForge {
 			//SAssetIO::load("Assets/tmp/MuscleManSittingWalking.glb", &M);
 			//SAssetIO::load("Assets/tmp/WalkingSittingEve.glb", &M);
 			//SAssetIO::load("Assets/tmp/MuscleMan5.glb", &M);
-			SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
+			SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
+			//SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
 			
 			M.sortBones(1);
-			//M.mergeRedundantVertices();
+			M.mergeRedundantVertices();
 			
 			M.clearSkeletalAnimations();
-			AnimationIO::loadSkeletalAnimation("Assets/Animations/MM6V6+3_2+4It_I.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MuscleManNoIG.dat", &M);
+			AnimationIO::loadSkeletalAnimation("Assets/Animations/EveBest.dat", &M);
 			
 			//-------- Deformation Part
 			ShapeDeformer TestDeformer;

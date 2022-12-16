@@ -59,7 +59,8 @@ namespace CForge {
 
 			//SAssetIO::load("Assets/tmp/MuscleManPosed.obj", &m_ModelData);
 			//SAssetIO::load("Assets/tmp/MuscleManWalking.glb", &m_ModelData);
-			SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &m_ModelData);
+			//SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &m_ModelData);
+			SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &m_ModelData);
 			//SAssetIO::load("Assets/ExampleScenes/Eric_Anim.fbx", &m_ModelData);
 			//SAssetIO::load("Assets/tmp/WalkingSittingEve.glb", &m_ModelData);
 			m_ModelData.mergeRedundantVertices();

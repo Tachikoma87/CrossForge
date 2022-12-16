@@ -59,7 +59,8 @@ namespace CForge {
 			m_Skydome.init(&M);
 			M.clear();
 
-			std::string filepath("Assets/tmp/FBXsamplePoints1000.txt");
+			//std::string filepath("Assets/tmp/FBXsamplePoints1000.txt"); //for MuscleMan
+			std::string filepath("Assets/tmp/EveSamplePoints1000.txt");
 			int SamplePoints;
 			int numSamplePoints;
 			std::ifstream myfile(filepath);
@@ -93,8 +94,15 @@ namespace CForge {
 			Eigen::MatrixXi F;
 			Eigen::MatrixXf V2;
 			Eigen::MatrixXi F2;
-			igl::readOBJ("MuscleMan" + std::to_string(startFrame) + ".obj", V, F);
-			igl::readOBJ("OriginalMuscleMan" + std::to_string(startFrame) + ".obj", V2, F2);
+			
+			//igl::readOBJ("Assets/Animations/MuscleMan/OriginalMuscleMan" + std::to_string(startFrame) + ".obj", V2, F2);
+			//igl::readOBJ("Assets/Animations/MuscleManBest/MuscleManBest" + std::to_string(startFrame) + ".obj", V2, F2);
+			//igl::readOBJ("Assets/Animations/MuscleManBest/MuscleManBestDeformed" + std::to_string(startFrame) + ".obj", V, F);
+			
+			//igl::readOBJ("Assets/Animations/Eve/OriginalEve" + std::to_string(startFrame) + ".obj", V2, F2);
+			igl::readOBJ("Assets/Animations/EveBest/EveBest" + std::to_string(startFrame) + ".obj", V2, F2);
+			igl::readOBJ("Assets/Animations/EveBest/EveBestDeformed" + std::to_string(startFrame) + ".obj", V, F);
+			
 			toCForgeMesh(&m_ModelData, V, F);
 			toCForgeMesh(&m_ModelDataOriginal, V2, F2);
 			setMeshShader(&m_ModelData, 0.5f, 0.04f);
@@ -102,8 +110,13 @@ namespace CForge {
 			m_ModelData.computePerVertexNormals();
 			m_ModelDataOriginal.computePerVertexNormals();
 			// build the morph targets
-			buildMTModel(&m_ModelData, "MuscleMan" + std::to_string(startFrame) + ".obj", startFrame, endFrame);
-			buildMTModel(&m_ModelDataOriginal, "OriginalMuscleMan" + std::to_string(startFrame) + ".obj", startFrame, endFrame);
+			//buildMTModel(&m_ModelData, "MuscleManBestDeformed", startFrame, endFrame);
+			//buildMTModel(&m_ModelDataOriginal, "MuscleManBest", startFrame, endFrame);
+			//buildMTModel(&m_ModelDataOriginal, "OriginalMuscleMan", startFrame, endFrame);
+			
+			buildMTModel(&m_ModelData, "EveBestDeformed", startFrame, endFrame);
+			buildMTModel(&m_ModelDataOriginal, "EveBest", startFrame, endFrame);
+			//buildMTModel(&m_ModelDataOriginal, "OriginalEve", startFrame, endFrame);
 
 			// initialize morph target controller and actor
 			m_MTController.init(&m_ModelData);
@@ -113,7 +126,7 @@ namespace CForge {
 			m_MTControllerOriginal.init(&m_ModelDataOriginal);
 			buildMTSequences(&m_MTControllerOriginal);
 			m_ShapeOriginal.init(&m_ModelDataOriginal, &m_MTControllerOriginal);
-			//M.clear();
+			M.clear();
 
 			// build scene graph			
 			m_RootSGN.init(nullptr);
@@ -397,14 +410,36 @@ protected:
 				startFrame = startFrame + 1;
 			}
 
+			
+
 			for (uint16_t i = startFrame; i < endFrame + 1; ++i) {
 				sprintf(Name, "Frame %d", i);
-				if (modelName.length() > 16) {
-					sprintf(Path, "OriginalMuscleMan%d.obj", i);
+
+				//Eve
+
+				if (modelName.length() > 14) {
+					sprintf(Path, "Assets/Animations/EveBest/EveBestDeformed%d.obj", i);
+				}
+				else if (modelName.length() > 9) {
+					sprintf(Path, "Assets/Animations/Eve/OriginalEve%d.obj", i);
 				}
 				else {
-					sprintf(Path, "MuscleMan%d.obj", i);
+					sprintf(Path, "Assets/Animations/EveBest/EveBest%d.obj", i);
 				}
+
+
+				//MuscleMan
+				/*
+				if (modelName.length() > 19) {
+					sprintf(Path, "Assets/Animations/MuscleManBest/MuscleManBestDeformed%d.obj", i);
+				}
+				else if (modelName.length() > 14) {
+					sprintf(Path, "Assets/Animations/MuscleMan/OriginalMuscleMan%d.obj", i);
+				}
+				else {
+					sprintf(Path, "Assets/Animations/MuscleManBest/MuscleManBest%d.obj", i);
+				}*/
+
 				
 				MTList.push_back(pair<string, string>(Name, Path));
 			}//for[all frames]

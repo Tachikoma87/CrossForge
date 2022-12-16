@@ -21,7 +21,7 @@ namespace CForge {
 		void run() {
 			// load skydome
 			T3DMesh<float> M;
-			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
+			AssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
 			//SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
 			//SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
 
@@ -30,10 +30,11 @@ namespace CForge {
 			M.clearSkeletalAnimations();		
 			//AnimationIO::loadSkeletalAnimation("Assets/Animations/Eve3V6+3_3It_IB.dat", &M);
 			//AnimationIO::loadSkeletalAnimation("Assets/Animations/Eve2V6+3_5It_IB.dat", &M);
-			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM1V6+3_3It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EveV6+3_3It_IB_HalfLearning.dat", &M);
 			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM5V6+3_2It_IB.dat", &M); 
-			AnimationIO::loadSkeletalAnimation("Assets/Animations/TestEricV6+3_3It_I.dat", &M);
-
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM4V6+3_2+3It_IB_DoubleLearning.dat", &M); 
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/TestEricV6+3_3It_I.dat", &M);
+			AnimationIO::loadSkeletalAnimation("Assets/Animations/EricNoIGWristElbow.dat", &M);
 			int32_t importantBones[6] = { 8,9,10,12,13,14 };
 
 

@@ -53,36 +53,33 @@ namespace CForge {
 			M.clear();
 
 			// initialize skeletal actor (Eric) and its animation controller
-			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
 			
+			//SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
 			//SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
 			SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
+			
+			
 			//M.mergeRedundantVertices();
-			M.clearSkeletalAnimations();
-			AnimationIO::loadSkeletalAnimation("Assets/Animations/MM6V6+3_2+4It_I.dat", &M);
+			//M.clearSkeletalAnimations();
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/NewEveV6+3_3It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EricNoIGWristElbow.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM4V6+3_2+3It_IB_HalfLearning.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EveV6+3_3It_IB_HalfLearning.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EricV3_5It_NoIG_HalfLearning.dat", &M);
+			for (uint32_t i = 0; i < M.materialCount(); ++i) {
+				M.getMaterial(i)->Color = Vector4f(1.0f, 0.6f, 0.6f, 1.0f);
+				M.getMaterial(i)->TexAlbedo = "";
+			}
 			setMeshShader(&M, 0.7f, 0.04f);
+			
+			//M.sortBones(1);
+			//M.printOutWeights();
 
-			//Versions:
-			//1: calculate all Verts (goodVerts) of Mesh1 inside Mesh2, 
-			//   calculate Ray based off average Normal of colliding Mesh2 Triangles
-			//   calculate max_distance / TargetPosition based off Ray-Plane Intersection goodVerts, Normal & Mesh2
-			//2: calculate Ray based off average Normal of colliding Mesh2 Triangles
-			//   calculate max_distance / TargetPosition based off Ray-Plane Intersection Verts Mesh1, Normal & Mesh2
-			//-----Best One----
-			//3: calculate Ray based off average Normal of colliding Mesh1 Triangles
-			//   calculate max_distance / TargetPosition based off Ray-Plane Intersection Verts Mesh1, Normal & Mesh2
-			//-----------------
-			//4: calculate all Verts (goodVerts) of Mesh1 inside Mesh2, 
-			//   calculate Ray based off average Normal of goodVerts
-			//   calculate max_distance / TargetPosition based off Ray-Plane Intersection goodVerts, Normal & Mesh2
+			//uint64_t Start = CoreUtility::timestamp();
+			//M.resolveCollisions(BoneIDs1, BoneIDs2, 0, 815, 816, 1, 0, 6, 1);
+			//printf("Collision Resolved in %d ms\n", uint32_t(CoreUtility::timestamp() - Start));
 
-			//Adjust numIterations to higher number, if collisions aren't supposed to be there at all
-			// 5 = some collisions are still there
-			// 15 = almost all resolved
-
-			M.resolveCollisions(BoneIDs1, BoneIDs2, 0, 815, 816, 1, 0, 6, 1);
-
-			//AnimationIO::storeSkeletalAnimation("MM6V6+3_2+4It_I.dat", &M, 0, 0);
+			//AnimationIO::storeSkeletalAnimation("EricNoIGWrist4It.dat", &M, 7, 7);
 
 			M.computePerVertexNormals();
 			Controller.init(&M);
@@ -91,12 +88,28 @@ namespace CForge {
 
 			//SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
 			SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
-			//SAssetIO::load("Assets/tmp/MuscleMan3.glb", &M);
 			//SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
+			
 			M.clearSkeletalAnimations();
-			//AnimationIO::loadSkeletalAnimation("Assets/Animations/Eve2V6+3_5It_IB.dat", &M);
-			AnimationIO::loadSkeletalAnimation("Assets/Animations/MM6V6+3_2+4It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM4V6+3_2+3It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM4V6+3_2+3It_IB_HalfLearning.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/NewEveV6+3_3It_IB.dat", &M); 
+
+			AnimationIO::loadSkeletalAnimation("Assets/Animations/MuscleManNoIG.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MuscleManBest.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EveBest.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EricBest.dat", &M); 
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EricNoIGWristElbow.dat", &M); 
+
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EveV6+3_265-310V6_4It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EricNoIGWristElbow.dat", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
+
+			for (uint32_t i = 0; i < M.materialCount(); ++i) {
+				M.getMaterial(i)->Color = Vector4f(0.6f, 0.6f, 1.0f, 1.0f);
+				M.getMaterial(i)->TexAlbedo = "";
+			}
+
 			M.computePerVertexNormals();
 			ControllerOriginal.init(&M);
 			EricOriginal.init(&M, &ControllerOriginal);
@@ -138,9 +151,15 @@ namespace CForge {
 		}
 
 		void run(void) {
+			bool paused = true;
 			while (!m_RenderWin.shutdown()) {
 				m_RenderWin.update();
 				m_SG.update(60.0f / m_FPS);
+
+				if (paused == false) {
+					Controller.update(m_FPS / 60.0f);
+					ControllerOriginal.update(m_FPS / 60.0f);
+				}
 
 				// this will progress all active skeletal animations for this controller
 				//m_BipedController.update(60.0f / m_FPS);
@@ -150,7 +169,7 @@ namespace CForge {
 				// if user hits key 1, animation will be played
 				// if user also presses shift, animation speed is doubled
 				//float AnimationSpeed = 1000 / 60.0f;
-				float AnimationSpeed = 1.0f;
+				float AnimationSpeed = 0.25f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
 				/*if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
@@ -164,14 +183,19 @@ namespace CForge {
 					EricOriginal.activeAnimation(pAnimOriginal);
 				}
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
+					paused = true;
 					Controller.update(m_FPS / 60.0f);
 					ControllerOriginal.update(m_FPS / 60.0f);
 				}
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) {
+					paused = true;
 					for (int i = 0; i < 540; i++) {
 						Controller.update(m_FPS / 60.0f);
 						ControllerOriginal.update(m_FPS / 60.0f);
 					}
+				}
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
+					paused = !paused;
 				}
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);

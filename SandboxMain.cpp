@@ -64,11 +64,11 @@ int main(int argc, char* argv[]) {
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
-	//	exampleSkeletalAnimation(); 
+		//exampleSkeletalAnimation(); 
 		
 		//exampleSkeletalAnimationThrice(); 
 		//exportAngles();
-		//exampleSkeletonCollisionResolver();
+		exampleSkeletonCollisionResolver();
 		//exampleSkybox();
 		//exampleSockets();
 	
@@ -78,20 +78,21 @@ int main(int argc, char* argv[]) {
 		//shadowTest();	
 //		vertexColorTestScene();
 
-		int32_t startFrame = 0;
-		int32_t endFrame = 50;
-		int32_t method = 3;
+		//int32_t startFrame = 0;
+		//int32_t endFrame = 20;
+		//int32_t method = 1;
 		
 		//if (!File::exists("samplePoints1000.txt")) {
-		//	surfaceSamplerTestScene();
+		//surfaceSamplerTestScene();
 		//}
 
-		if (!File::exists("MuscleMan" + to_string(endFrame) + ".obj")) {
-			uint64_t Start = CoreUtility::timestamp();
-			exampleShapeDeformer(method, startFrame, endFrame);
-			printf("ShapeDeformation finished in %d ms\n", uint32_t(CoreUtility::timestamp() - Start));
-		}
-		shapeDeformerTest(startFrame, endFrame);
+		//if (!File::exists("MuscleMan" + to_string(endFrame) + ".obj")) {
+		//	uint64_t Start = CoreUtility::timestamp();
+		//exampleShapeDeformer(method, startFrame, endFrame);
+		//	printf("ShapeDeformation finished in %d ms\n", uint32_t(CoreUtility::timestamp() - Start));
+		//}
+		// 
+		//shapeDeformerTest(startFrame, endFrame);
 		
 	}
 	catch (const CrossForgeException & e) {

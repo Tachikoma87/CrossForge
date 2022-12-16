@@ -53,36 +53,50 @@ namespace CForge {
 			M.clear();
 
 			// initialize skeletal actor (Eric) and its animation controller
-			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
+			SAssetIO::load("Assets/tmp/ManMulti.fbx", &M);
 			//SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
-		//	SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
+			//SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
 
 			setMeshShader(&M, 0.7f, 0.04f);
 			//M.sortBones(M.skeletalAnimationCount());
-			//M.clearSkeletalAnimations();
+			M.clearSkeletalAnimations();
 
-			//AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/Version2_3It_Initial_BSpline.dat", &M);
+			AnimationIO::loadSkeletalAnimation("Assets/Animations/EricBest.dat", &M);
+			
 			//AnimationIO::loadSkeletalAnimation("Assets/Animations/Eve2V6+3_5It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EveV6+3_3It_IB_HalfLearning.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM4V6+3_2+3It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EricV3_5It_NoIG_DoubleLearning.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EricV3_3It_IB.dat", &M);
+			
 			M.computePerVertexNormals();
+			for (uint32_t i = 0; i < M.materialCount(); ++i) {
+				M.getMaterial(i)->Color = Vector4f(0.6f, 1.0f, 0.6f, 1.0f);
+				M.getMaterial(i)->TexAlbedo = "";
+			}
 			Controller.init(&M);
 			Eric.init(&M, &Controller);
 			M.clear();
 
 			//Eric 2
-			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
-			//SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
+			//SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
+			SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
 			//SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 
-			M.sortBones(M.skeletalAnimationCount());
+			//M.sortBones(M.skeletalAnimationCount());
 			M.clearSkeletalAnimations();
 
 			//AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/Version3_2It_Initial_BSpline.dat", &M);
-			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EveV6+3_5It_IB.dat", &M);
+			AnimationIO::loadSkeletalAnimation("Assets/Animations/EveBest.dat", &M);
 			//AnimationIO::loadSkeletalAnimation("Assets/Animations/Eve2V6+3_5It_IB.dat", &M);
-			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM1V6+3_3It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM5V6+3_2It_I.dat", &M);
 			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM3V6_2It_IB.dat", &M); 
-			AnimationIO::loadSkeletalAnimation("Assets/Animations/EricV6+3_3It_I.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EricV6+3_3It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM4V6+3_2+3It_IB.dat", &M);
+		//	AnimationIO::loadSkeletalAnimation("Assets/Animations/EricV3_5It_NoIG.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EricV3_2It_IG_HalfLearning.dat", &M);
+
 			M.computePerVertexNormals();
 			for (uint32_t i = 0; i < M.materialCount(); ++i) {
 				M.getMaterial(i)->Color = Vector4f(1.0f, 0.6f, 0.6f, 1.0f);
@@ -96,20 +110,21 @@ namespace CForge {
 
 			//Eric 3
 			// initialize skeletal actor (Eric) and its animation controller
-			SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
+			//SAssetIO::load("Assets/ExampleScenes/ManMulti.fbx", &M);
 			//SAssetIO::load("Assets/tmp/WalkingSittingEve2.fbx", &M);
-			//SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
+			SAssetIO::load("Assets/tmp/MuscleMan3.fbx", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 
 			M.sortBones(M.skeletalAnimationCount());
 			M.clearSkeletalAnimations();
-		//	AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/EricVersion3_3It_Initial_BSpline.dat", &M);
-			//AnimationIO::loadSkeletalAnimation("Assets/Animations/Eve3V6+3_3It_IB.dat", &M);
+			AnimationIO::loadSkeletalAnimation("Assets/Animations/MuscleManBest.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EveV6+3_265-310V6_4It_IB.dat", &M); //Release
 			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM2V6+3_3It_IB.dat", &M);
-			AnimationIO::loadSkeletalAnimation("Assets/Animations/EricV6+3_3It_IB.dat", &M);
-		
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EricV6+3_3It_IB.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/MM6V6+3_2+4It_IB.dat", &M);
 			//AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/Version5_2It_Initial_BSpline.dat", &M);
 		//	AnimationIO::loadSkeletalAnimation("Assets/ExampleScenes/EveVersion3_5It_Initial_BSpline.dat", &M);
+			//AnimationIO::loadSkeletalAnimation("Assets/Animations/EricV3_5It_NoIG_DoubleLearning.dat", &M);
 
 			M.computePerVertexNormals();
 			for (uint32_t i = 0; i < M.materialCount(); ++i) {
@@ -161,20 +176,27 @@ namespace CForge {
 		}
 
 		void run(void) {
+			bool paused = true;
 			while (!m_RenderWin.shutdown()) {
 				m_RenderWin.update();
 				m_SG.update(60.0f / m_FPS);
+				
+				if (paused == false) {
+					Controller.update(m_FPS / 60.0f);
+					Controller2.update(m_FPS / 60.0f);
+					Controller3.update(m_FPS / 60.0f);
+				}
 
 				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
 				// if user hits key 1, animation will be played
 				// if user also presses shift, animation speed is doubled
-				float AnimationSpeed = 1.0f;
+				float AnimationSpeed = 0.25f;
 
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
-					SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(7, AnimationSpeed, 0.0f);
+					SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
 					//SkeletalAnimationController::Animation* pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
 					Eric.activeAnimation(pAnim);
 
@@ -204,6 +226,10 @@ namespace CForge {
 						Controller3.update(m_FPS / 60.0f);
 					}
 
+				}
+
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_5, true)) {
+					paused = !paused;
 				}
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 				m_SG.render(&m_RenderDev);
