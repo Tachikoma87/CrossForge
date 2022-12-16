@@ -70,6 +70,9 @@ namespace CForge {
 			uint32_t GBufferWidth;
 			uint32_t GBufferHeight;
 
+			int32_t ForwardBufferWidth;
+			int32_t ForwardBufferHeight;
+
 			RenderDeviceConfig(void);
 			~RenderDeviceConfig(void);
 			void init(void);

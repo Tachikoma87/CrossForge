@@ -169,7 +169,7 @@ namespace CForge {
 
 		if (nullptr != pVerbose) (*pVerbose) = ErrorMsg;
 
-		return (GL_NO_ERROR != Rval);
+		return Rval;
 	}//checkGLError
 
 	uint32_t GraphicsUtility::gpuMemoryAvailable(void) {

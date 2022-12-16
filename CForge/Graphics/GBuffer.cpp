@@ -116,12 +116,14 @@ namespace CForge {
 		if (glIsTexture(m_TexAlbedo)) glDeleteTextures(1, &m_TexAlbedo);
 		if (glIsTexture(m_TexNormal)) glDeleteTextures(1, &m_TexNormal);
 		if (glIsTexture(m_TexPosition)) glDeleteTextures(1, &m_TexPosition);
+		if (glIsTexture(m_TexDepthStencil)) glDeleteTextures(1, &m_TexDepthStencil);
 
 		m_Framebuffer = GL_INVALID_INDEX;
 		m_Renderbuffer = GL_INVALID_INDEX;
 		m_TexAlbedo = GL_INVALID_INDEX;
 		m_TexNormal = GL_INVALID_INDEX;
 		m_TexPosition = GL_INVALID_INDEX;
+		m_TexDepthStencil = GL_INVALID_INDEX;
 
 		m_Width = 0;
 		m_Height = 0;

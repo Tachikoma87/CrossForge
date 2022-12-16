@@ -58,6 +58,8 @@ add_executable(CForgeSandbox
 	Prototypes/LODHandler.cpp
 	Prototypes/UBOInstancedData.cpp
 	Prototypes/MeshDecimate.cpp
+
+	Prototypes/Graphics/GLRenderbuffer.cpp
 	)
 
 

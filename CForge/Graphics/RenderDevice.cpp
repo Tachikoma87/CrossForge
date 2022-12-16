@@ -32,6 +32,9 @@ namespace CForge {
 
 		UseGBuffer = true;
 		ExecuteLightingPass = true;
+
+		ForwardBufferWidth = 0;
+		ForwardBufferHeight = 0;
 	}
 
 	RenderDevice::RenderDevice(void) : CForgeObject("RenderDevice") {
@@ -122,6 +125,11 @@ namespace CForge {
 
 		}//if[GBuffer]
 
+		
+		std::string ErrorMsg;
+		if (GL_NO_ERROR != GraphicsUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred during initialization of RenderDevice: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
+		}
 	}//initialize
 
 	void RenderDevice::clear(void) {
