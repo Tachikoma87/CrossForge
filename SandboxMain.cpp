@@ -68,9 +68,9 @@ int main(int argc, char* argv[]) {
 	
 
 
-		//forestTestScene();
+		forestTestScene();
 		//imuInputDeviceTestScene();	 
-		skelAnimTestScene();
+		//skelAnimTestScene();
 		//shadowTest();	
 		//surfaceSamplerTestScene();
 		//vertexColorTestScene();

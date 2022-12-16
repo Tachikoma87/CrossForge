@@ -9,6 +9,7 @@ namespace CForge {
 		m_TexPosition = GL_INVALID_INDEX;
 		m_TexNormal = GL_INVALID_INDEX;
 		m_TexAlbedo = GL_INVALID_INDEX;
+		m_TexDepthStencil = GL_INVALID_INDEX;
 		m_Width = 0;
 		m_Height = 0;
 	}//Constructor
@@ -26,7 +27,6 @@ namespace CForge {
 
 		clear();
 
-
 		m_Width = Width;
 		m_Height = Height;
 
@@ -43,6 +43,8 @@ namespace CForge {
 		glGenTextures(1, &m_TexNormal);
 		// create texture for albedo/specular data
 		glGenTextures(1, &m_TexAlbedo);
+		// create texture for depth and stencil
+		glGenTextures(1, &m_TexDepthStencil);
 
 
 		if (Multisample > 0) {
@@ -81,9 +83,13 @@ namespace CForge {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, nullptr);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_TexAlbedo, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_TexAlbedo, 0);	
 		}
-		
+
+		// and now the depth and stencil attachment
+		glBindTexture(GL_TEXTURE_2D, m_TexDepthStencil);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_Width, m_Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_TexDepthStencil, 0);
 		
 		uint32_t Attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 		glDrawBuffers(3, Attachments);
@@ -91,18 +97,6 @@ namespace CForge {
 		// generate Renerbuffer
 		glGenRenderbuffers(1, &m_Renderbuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, m_Renderbuffer);
-
-		if (Multisample > 0) {
-			glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, m_Width, m_Height);
-		}
-		else {
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Width, m_Height);
-		}
-		
-
-		glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_Renderbuffer);
 
 		if (GL_FRAMEBUFFER_COMPLETE != glCheckFramebufferStatus(GL_FRAMEBUFFER)) {
 			std::string Error;
@@ -161,6 +155,9 @@ namespace CForge {
 		case COMP_ALBEDO: {
 			glBindTexture(GL_TEXTURE_2D, m_TexAlbedo);
 		}break;
+		case COMP_DEPTH_STENCIL: {
+			glBindTexture(GL_TEXTURE_2D, m_TexDepthStencil);
+		}break;
 		default: throw CForgeExcept("Invalid gBuffer component specified!");
 		}
 	}//bindTexture
@@ -197,5 +194,10 @@ namespace CForge {
 		delete[] pBuffer;
 
 	}//retrieveAlbedoBuffer
+
+	void GBuffer::retrieveDepthBuffer(T2DImage<uint8_t>* pImg, float Near, float Far) {
+		if (nullptr == pImg) throw NullpointerExcept("pImg");
+		GraphicsUtility::retrieveDepthTexture(m_TexDepthStencil, pImg, Near, Far);
+	}//retrieveDepthBuffer
 
 }//name space

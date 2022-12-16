@@ -205,7 +205,9 @@ namespace CForge {
 					static int32_t ScreenshotCount = 0;
 					T2DImage<uint8_t> Img;
 					T2DImage<uint8_t> DepthBuffer;
-					GraphicsUtility::retrieveFrameBuffer(&Img, &DepthBuffer, 0.1f, 200.0f);
+					GraphicsUtility::retrieveFrameBuffer(&Img, nullptr, 0.1f, 200.0f);
+					m_RenderDev.gBuffer()->retrieveDepthBuffer(&DepthBuffer, 0.1, 200.0f);
+
 					AssetIO::store("../../Screenshot_" + std::to_string(ScreenshotCount) + ".jpg", &Img);
 					AssetIO::store("../../DepthBuffer_" + std::to_string(ScreenshotCount) + ".jpg", &DepthBuffer);
 
