@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 
 	try {
 		//exampleSceneBase();
-		exampleMinimumGraphicsSetup();
+		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
 		//exampleSkeletalAnimation(); 
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 
 		//forestTestScene();
 		//imuInputDeviceTestScene();	 
-		//skelAnimTestScene();
+		skelAnimTestScene();
 		//shadowTest();	
 		//surfaceSamplerTestScene();
 		//vertexColorTestScene();

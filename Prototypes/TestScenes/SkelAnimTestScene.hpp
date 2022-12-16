@@ -24,6 +24,10 @@
 using namespace Eigen;
 using namespace std;
 
+// chose only one!
+#define ART_HUMAN_2_TEST
+//#define MAKE_HUMAN_TEST
+
 namespace CForge {
 
 	class SkelAnimTestScene : public ExampleSceneBase {
@@ -162,6 +166,7 @@ namespace CForge {
 			m_Cam.lookAt(Vector3f(10.0f, 5.0f, 35.0f), Vector3f(0.0f, 4.0f, 25.0f), Vector3f::UnitY());
 
 			T3DMesh<float> M;
+			T3DMesh<float> AnimData;
 
 			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
@@ -174,10 +179,10 @@ namespace CForge {
 			// 2 is Models with applied animation data and recomputed inverse bind pose matrices
 			// 3 is models with transferred animation data rotations only, than recompute inverse rest pose matrix
 			// 4 is models with transferred animations data rotations only, that recomputed inverse rest pose matrix and scaled movement speed
-
+#ifdef MAKE_HUMAN_TEST
 			const uint32_t Presentation = 4;
 
-			T3DMesh<float> AnimData;
+			
 
 			float Model1YOffset = 0.0f;
 			float Model2YOffset = 0.0f;
@@ -389,6 +394,43 @@ namespace CForge {
 			m_ControllerSynth.init(&M);
 			m_Synth.init(&M, &m_ControllerSynth);
 			M.clear();
+#endif
+
+#ifdef ART_HUMAN_2_TEST
+			SAssetIO::load("MyAssets/RiggedForART2.glb", &M);
+			setMeshShader(&M, 0.6f, 0.04f);
+			M.computePerVertexNormals();
+			
+			// take other animation
+			// not working since the coordinate systems between rigged model and whatever ART uses do not match
+			// requires further investigation how the data gets imported
+
+			/*SAssetIO::load("MyAssets/Aufnahme2_ARTHumanV2.bvh", &AnimData);
+			M.clearSkeletalAnimations();
+			for (uint32_t i = 0; i < AnimData.skeletalAnimationCount(); ++i) {
+				M.addSkeletalAnimation(AnimData.getSkeletalAnimation(i));
+			}*/
+
+			/*
+			// Also not working
+			T3DMesh<float>::SkeletalAnimation Merged;
+			mergeAnimationData(M.getSkeletalAnimation(0), AnimData.getSkeletalAnimation(0), &Merged, "pelvis");
+
+			M.clearSkeletalAnimations();
+			M.addSkeletalAnimation(&Merged);
+			//recomputeInverseBindPoseMatrix(&M, false);*/
+
+			printf("Avaialable skeletal Animations: %d\n", M.skeletalAnimationCount());
+
+			m_ControllerSynth.init(&M);
+			m_Synth.init(&M, &m_ControllerSynth);
+			M.clear();
+			AnimData.clear();
+
+
+
+#endif
+
 
 			//SAssetIO::load("MyAssets/DoubleStylized.glb", &M);
 			//setMeshShader(&M, 0.7f, 0.04f);
@@ -418,7 +460,7 @@ namespace CForge {
 
 			Quaternionf Rot;
 			Rot = Quaternionf::Identity();
-
+#ifdef MAKE_HUMAN_TEST
 			m_ComparisonModelSGN.init(&m_RootSGN, &m_ComparisonModel, Vector3f(-5.0f, 0.0f, 0.0f), Rot, Vector3f(Sc, Sc, Sc));
 
 			Vector3f ModelPos = Vector3f(0.0f, 0.0f, 0.0f);
@@ -432,6 +474,17 @@ namespace CForge {
 
 			m_SynthTransformSGN.init(&m_RootSGN, ModelPos + 2 * Offset + Vector3f(0.0f, Model2YOffset*Sc, 0.0f), Rot, Vector3f(Sc, Sc, Sc));
 			m_SynthSGN.init(&m_SynthTransformSGN, &m_Synth);
+
+#endif
+
+#ifdef ART_HUMAN_2_TEST
+			Sc = 0.01f;
+			Rot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
+			Vector3f ModelPos = Vector3f(0.0f, 0.0f, 0.0f);
+			Vector3f Offset = Vector3f(0.0f, 0.0f, 0.0f);
+			m_SynthTransformSGN.init(&m_RootSGN, Vector3f::Zero(), Rot, Vector3f(Sc, Sc, Sc));
+			m_SynthSGN.init(&m_SynthTransformSGN, &m_Synth);
+#endif
 
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CoreUtility::timestamp();
@@ -460,9 +513,9 @@ namespace CForge {
 				m_SG.update(60.0f / m_FPS);
 
 				// this will progress all active skeletal animations for this controller
-				m_ControllerCaptured.update(60.0f / m_FPS);
+				//m_ControllerCaptured.update(60.0f / m_FPS);
 				m_ControllerSynth.update(60.0f / m_FPS);
-				m_ControllerStyle.update(60.0f / m_FPS);
+				//m_ControllerStyle.update(60.0f / m_FPS);
 
 				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
@@ -472,9 +525,9 @@ namespace CForge {
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed /= 20.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
-					m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, AnimationSpeed, 0.0f));
+					//m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, AnimationSpeed, 0.0f));
 					m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, AnimationSpeed, 0.0f));
-					m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed, 0.0f));
+					//m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed, 0.0f));
 					LastAnimSpeed = AnimationSpeed;
 				}
 
@@ -494,7 +547,18 @@ namespace CForge {
 					m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, LastAnimSpeed, 0.0f));
 				}
 
+#ifdef ART_HUMAN_2_TEST
+				auto* pKeyboard = m_RenderWin.keyboard();
+				if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) {
+					m_Synth.activeAnimation(m_ControllerSynth.createAnimation(2, AnimationSpeed, 0.0f));
+				}
+				if (pKeyboard->keyPressed(Keyboard::KEY_4, true)) {
+					m_Synth.activeAnimation(m_ControllerSynth.createAnimation(3, AnimationSpeed, 0.0f));
+				}
 
+#endif
+
+#if MAKE_HUMAN_TEST
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
 					bool En;
 					m_SynthSGN.enabled(nullptr, &En);
@@ -519,6 +583,7 @@ namespace CForge {
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_8, true)) {
 					m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(3, AnimationSpeed, 0.0f));
 				}
+#endif
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 				m_SG.render(&m_RenderDev);
@@ -551,9 +616,12 @@ namespace CForge {
 
 			Eigen::Matrix4f JointTransform = Matrix4f::Identity();
 			if (pFrame != nullptr) {
-				const Matrix4f R = (pFrame->Rotations.size() > 0) ? GraphicsUtility::rotationMatrix(pFrame->Rotations[0]) : Matrix4f::Identity();
-				const Matrix4f T = (pFrame->Positions.size() > 0) ? GraphicsUtility::translationMatrix(pFrame->Positions[0]) : Matrix4f::Identity();
-				const Matrix4f S = (pFrame->Scalings.size() > 0) ? GraphicsUtility::scaleMatrix(pFrame->Scalings[0]) : Matrix4f::Identity();
+				Matrix4f R = (pFrame->Rotations.size() > 0) ? GraphicsUtility::rotationMatrix(pFrame->Rotations[0]) : Matrix4f::Identity();
+				Matrix4f T = (pFrame->Positions.size() > 0) ? GraphicsUtility::translationMatrix(pFrame->Positions[0]) : Matrix4f::Identity();
+				Matrix4f S = (pFrame->Scalings.size() > 0) ? GraphicsUtility::scaleMatrix(pFrame->Scalings[0]) : Matrix4f::Identity();
+
+				R = Matrix4f::Identity();
+
 				if (pBone->pParent == nullptr) {
 					JointTransform = R * S;
 				}
