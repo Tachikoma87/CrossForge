@@ -22,7 +22,7 @@ namespace CForge {
        1.0f, -1.0f, 1.0f,
        -1.0f, -1.0f, 1.0f,
 
-       // to vertices (CCW)
+       // top vertices (CCW)
        -1.0f, 1.0f, -1.0f,
        1.0f, 1.0f, -1.0f,
        1.0f, 1.0f, 1.0f,
@@ -143,6 +143,7 @@ namespace CForge {
             CubeImages[1].rotate180();
             CubeImages[4].rotate180();
             CubeImages[5].rotate180();
+            
         }
         catch (const CrossForgeException& e) {
             Logger::logException(e);

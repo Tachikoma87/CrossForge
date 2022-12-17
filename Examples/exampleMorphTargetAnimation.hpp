@@ -222,14 +222,7 @@ namespace CForge {
 
 	};//ExampleMorphTargetAnimation
 
-	void exampleMorphTargetAnimation(void) {
-
-		ExampleMorphTargetAnimation Ex;
-		Ex.init();
-		Ex.run();
-		Ex.clear();
-
-	}//exampleMorphTargetAnimation
+	
 
 }
 

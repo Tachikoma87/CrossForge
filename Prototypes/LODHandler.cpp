@@ -1,5 +1,5 @@
 #include "LODHandler.h"
-#include <CForge/Core/SLogger.h>
+#include "../../CForge/Core/SLogger.h"
 #include <tinyxml2.h>
 #include "../CForge/AssetIO/SAssetIO.h"
 #include "MeshDecimate.h"

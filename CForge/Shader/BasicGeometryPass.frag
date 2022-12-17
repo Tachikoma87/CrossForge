@@ -32,6 +32,18 @@ in vec3 N;
 in vec2 UV;
 
 void main(){
+	
+	vec4 TexColor = texture(TexAlbedo, UV);
+
+	// and the diffuse per-fragment color 
+	if(TexColor.a < 0.01) discard;
+	
+	#ifdef VERTEX_COLORS
+	gAlbedoSpec.rgb = TexColor.a * (Color * Material.Color.rgb * TexColor.rgb);
+	#else
+	gAlbedoSpec.rgb = TexColor.a * (Material.Color.rgb * TexColor.rgb);
+	#endif
+
 	// store the framgent position vector in the first gBuffer texture 
 	gPosition = vec4(Pos, Material.AO);
 
@@ -41,14 +53,6 @@ void main(){
 	gNormal = vec4(normalize(TBN * normal), Material.Roughness);
 	#else
 	gNormal = vec4(normalize(N), Material.Roughness);
-	#endif
-
-
-	// and the diffuse per-fragment color 
-	#ifdef VERTEX_COLORS
-	gAlbedoSpec.rgb = Color * Material.Color.rgb * texture(TexAlbedo, UV).rgb;
-	#else
-	gAlbedoSpec.rgb = Material.Color.rgb * texture(TexAlbedo, UV).rgb;
 	#endif
 
 	// store the specular intensity in gAlbedoSpec s alpha component 

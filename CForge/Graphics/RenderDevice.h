@@ -45,7 +45,7 @@ namespace CForge {
 	* \todo Write appropriate clear() function
 	* \todo Full documentation
 	*/
-	class CFORGE_API RenderDevice: public CForgeObject, public ITListener<VirtualCameraMsg> {
+	class CFORGE_API RenderDevice: public CForgeObject, public ITListener<VirtualCameraMsg>, public ITListener<LightMsg> {
 	public:
 		enum RenderPass: int8_t {
 			RENDERPASS_UNKNOWN = -1,
@@ -110,6 +110,7 @@ namespace CForge {
 		uint32_t activeLightsCount(ILight::LightType Type)const;
 
 		void listen(const VirtualCameraMsg Msg);
+		void listen(const LightMsg Msg);
 
 		GBuffer* gBuffer(void);
 

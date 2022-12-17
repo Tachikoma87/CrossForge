@@ -259,14 +259,7 @@ namespace CForge {
 
 	};//ExampleSocket
 
-	void exampleSockets(void) {
-
-		ExampleSocket Ex;
-		Ex.init();
-		Ex.run();
-		Ex.clear();
-
-	}//exampleSocketTestScene
+	
 
 }//name space
 

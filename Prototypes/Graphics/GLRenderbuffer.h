@@ -18,8 +18,8 @@
 #ifndef __CFORGE_GLRENDERBUFFER_H__
 #define __CFORGE_GLRENDERBUFFER_H__
 
-#include <CForge/Core/CForgeObject.h>
-#include <CForge/AssetIO/T2DImage.hpp>
+#include "../../CForge/Core/CForgeObject.h"
+#include "../../CForge/AssetIO/T2DImage.hpp"
 
 namespace CForge {
 

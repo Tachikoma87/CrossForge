@@ -20,15 +20,25 @@
 
 #include "../Shader/GLShader.h"
 #include "../../AssetIO/T2DImage.hpp"
+#include "../../Core/ITCaller.hpp"
 
 namespace CForge {
+
+	struct LightMsg {
+		enum MsgCode {
+			MC_SHADOW_CHANGED = 0,
+		};
+
+		MsgCode Code;
+		void* pHandle;
+	};
 
 	/**
 	* \brief Basic interface for all light classes. Implements basic properties and shadow casting.
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_API ILight: public CForgeObject {
+	class CFORGE_API ILight: public CForgeObject, public ITCaller<LightMsg> {
 	public:
 		enum LightType: int8_t {
 			LIGHT_UNKNOWN = -1,

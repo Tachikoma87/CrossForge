@@ -133,14 +133,7 @@ namespace CForge {
 
 	};//ExampleSkeletalAnimation
 
-	void exampleSkeletalAnimation(void) {
-
-		ExampleSkeletalAnimation Ex;
-		Ex.init();
-		Ex.run();
-		Ex.clear();
-
-	}//exampleMinimumGraphicsSetup
+	
 
 }
 

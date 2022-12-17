@@ -36,7 +36,7 @@ namespace CForge {
 		return m_Position;
 	}//position
 
-	Eigen::Vector2f Mouse::movement(void)const {
+	Eigen::Vector2f Mouse::movement(void) const{
 		return m_Movement;
 	}//movement
 
@@ -50,7 +50,7 @@ namespace CForge {
 	}//buttonState
 
 	void Mouse::position(Eigen::Vector2f Pos) {
-		m_Movement = Pos - m_Position;
+		m_Movement += Pos - m_Position;
 		m_Position = Pos;
 	}//position
 

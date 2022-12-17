@@ -117,14 +117,16 @@ add_custom_command(
 )
 
 ######## Project - Export library ######################
-project(ExportLibrary)
-add_executable(ExportLibrary ExportLibrary.cpp)
+#project(ExportLibrary)
+#add_executable(ExportLibrary ExportLibrary.cpp)
 
-target_link_libraries(ExportLibrary PRIVATE crossforge)
+#FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
 
-include_directories(
-	"./"
-)
+#target_link_libraries(ExportLibrary PRIVATE crossforge)
+
+#include_directories(
+#	"./"
+#)
 
 ######## Project - Terrain ##############################
 

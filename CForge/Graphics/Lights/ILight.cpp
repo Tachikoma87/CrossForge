@@ -89,28 +89,40 @@ namespace CForge {
 	void ILight::initShadowCasting(uint32_t ShadowMapWidth, uint32_t ShadowMapHeight, Eigen::Matrix4f Projection) {
 		m_ShadowMapSize = Eigen::Vector2i(ShadowMapWidth, ShadowMapHeight);
 
-		//// generate shadow map
-		glGenTextures(1, &m_ShadowTex);
-		glBindTexture(GL_TEXTURE_2D, m_ShadowTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_ShadowMapSize.x(), m_ShadowMapSize.y(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		// set border to 1.0f (farthest possible depth value) so that regions outside the shadow map are not in shadow
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		float BorderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, BorderColor);
-
-		// generate and configure framebuffer object
-		glGenFramebuffers(1, &m_FBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_ShadowTex, 0);
-		glDrawBuffer(GL_NONE);
-		glReadBuffer(GL_NONE);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 		m_Projection = Projection;
+
+		if (m_ShadowTex != GL_INVALID_INDEX) {
+			glBindTexture(GL_TEXTURE_2D, m_ShadowTex);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_ShadowMapSize.x(), m_ShadowMapSize.y(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);	
+		}
+		else {
+			//// generate shadow map
+			glGenTextures(1, &m_ShadowTex);
+			glBindTexture(GL_TEXTURE_2D, m_ShadowTex);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_ShadowMapSize.x(), m_ShadowMapSize.y(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+			// set border to 1.0f (farthest possible depth value) so that regions outside the shadow map are not in shadow
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			float BorderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, BorderColor);
+
+			// generate and configure framebuffer object
+			glGenFramebuffers(1, &m_FBO);
+			glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_ShadowTex, 0);
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
+		LightMsg Msg;
+		Msg.Code = LightMsg::MC_SHADOW_CHANGED;
+		Msg.pHandle = (void*)this;
+		broadcast(Msg);
+	
 	}//initShadowCasting
 
 	void ILight::bindShadowFBO(void) {
@@ -122,7 +134,6 @@ namespace CForge {
 	}//viewMatrix
 
 	Eigen::Matrix4f ILight::projectionMatrix(void)const {
-		//return GraphicsUtility::orthographicProjection(m_ViewDimension.x(), m_ViewDimension.y(), m_NearPlane, m_FarPlane);
 		return m_Projection;
 	}//projectionMatrix
 

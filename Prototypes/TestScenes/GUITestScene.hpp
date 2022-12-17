@@ -46,7 +46,7 @@
 
 //since the includes of the GUI source files are so convoluted, this is enough to pull in the entirety of the GUI
 //(or more like, the entirety of classes we would want to interface with)
-#include <CForge/GUI/Widgets/Form.h>
+#include <../../CForge/GUI/Widgets/Form.h>
 
 #include <iostream>
 //#include <filesystem>

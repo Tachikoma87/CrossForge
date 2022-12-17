@@ -17,6 +17,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 option(USE_OPENCV "Include OpenCV in build" OFF)
 
 # required core packages
+FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenGL REQUIRED)		# OpenGl core library
 FIND_PACKAGE(glad CONFIG REQUIRED)	# GL extension library
 FIND_PACKAGE(glfw3 CONFIG REQUIRED)	# cross-plattform window management
@@ -37,7 +38,7 @@ else()
 endif(USE_OPENCV)
 
 include_directories(
-	"${FREETYPE_INCLUDE_DIRS}"
+#	"${FREETYPE_INCLUDE_DIRS}"
 	"Thirdparty/stb/"
 )
 
@@ -160,6 +161,7 @@ endif(UNIX)
 
 if(WIN32)
 target_link_libraries(crossforge 
+	PRIVATE Eigen3::Eigen
 	PRIVATE glfw 
 	PRIVATE glad::glad
 	PRIVATE assimp::assimp
@@ -174,6 +176,7 @@ target_link_libraries(crossforge
 
 elseif(UNIX)
 	target_link_libraries(crossforge 
+	PRIVATE Eigen3::Eigen
 	PRIVATE glfw
 	PRIVATE glad::glad
 	PRIVATE assimp::assimp
@@ -182,6 +185,7 @@ elseif(UNIX)
 	PRIVATE WebP::webp 
 	PRIVATE WebP::webpdecoder
 	${FREETYPE_LIBRARIES}	# for Text rendering
+	freetype
 #	${OpenCV_LIBS}
 
 	PRIVATE gpiod 

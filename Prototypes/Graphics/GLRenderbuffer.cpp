@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 #include "GLRenderbuffer.h"
-#include <CForge/Graphics/GraphicsUtility.h>
+#include "../../CForge/Graphics/GraphicsUtility.h"
 
 namespace CForge {
 

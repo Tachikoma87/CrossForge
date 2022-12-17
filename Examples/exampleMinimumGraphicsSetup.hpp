@@ -129,13 +129,6 @@ namespace CForge {
 
 	};//ExampleMinimumGraphicsSetup
 
-	void exampleMinimumGraphicsSetup(void) {
-		ExampleMinimumGraphicsSetup Ex;
-		Ex.init();
-		Ex.run();
-		Ex.clear();
-	}//exampleMinimumGraphicsSetup
-
-}
+}//name space
 
 #endif

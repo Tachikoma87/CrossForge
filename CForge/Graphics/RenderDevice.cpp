@@ -266,6 +266,19 @@ namespace CForge {
 		}
 	}//listen
 
+	void RenderDevice::listen(const LightMsg Msg) {
+		uint32_t ObjectID = ((CForgeObject*)Msg.pHandle)->objectID();
+
+		for (auto i : m_ShadowCastingLights) {
+			if (nullptr == i) continue;
+			if (i->pLight->objectID() == ObjectID) {
+				Matrix4f LightSpaceMatrix = i->pLight->projectionMatrix() * i->pLight->viewMatrix();
+				m_LightsUBO.lightSpaceMatrix(LightSpaceMatrix, i->pLight->type(), i->UBOIndex);
+				break;
+			}
+		}
+	}//listen
+
 	void RenderDevice::updateMaterial(void) {
 		if (nullptr != m_pActiveMaterial && nullptr != m_pActiveShader) {
 			if (nullptr != m_pActiveMaterial->albedoMap()) m_pActiveShader->bindTexture(GLShader::DEFAULTTEX_ALBEDO, m_pActiveMaterial->albedoMap());
@@ -434,6 +447,8 @@ namespace CForge {
 			m_LightsUBO.lightSpaceMatrix(LightSpaceMatrix, pAL->pLight->type(), pAL->UBOIndex);
 
 		}//if[cast shadows]
+
+		pAL->pLight->startListening(this);
 
 	}//addLight
 

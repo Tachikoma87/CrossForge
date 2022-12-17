@@ -9,17 +9,10 @@
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
 
-#include "Examples/exampleSceneBase.hpp"
-#include "Examples/exampleMinimumGraphicsSetup.hpp"
-#include "Examples/exampleSkeletalAnimation.hpp"
-#include "Examples/exampleMorphTargetAnimation.hpp"
-#include "Examples/exampleSkybox.hpp"
-#include "Examples/exampleMultiViewport.hpp"
-#include "Examples/exampleSockets.hpp"
+#include "Examples/Examples.hpp"
+
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
-#include "Prototypes/TestScenes/VertexColorTestScene.hpp"
-#include "Prototypes/TestScenes/ForestTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
@@ -62,13 +55,14 @@ int main(int argc, char* argv[]) {
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
+		exampleSceneGraph();
 		//exampleSkeletalAnimation(); 
 		//exampleSkybox();
 		//exampleSockets();
+		//exampleSceneGraph();
 	
+		
 
-
-		forestTestScene();
 		//imuInputDeviceTestScene();	 
 		//skelAnimTestScene();
 		//shadowTest();	

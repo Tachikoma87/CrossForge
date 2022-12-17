@@ -53,6 +53,7 @@ namespace CForge {
 			m_FPS = 60.0f;
 			m_FPSCount = 0;
 			m_LastFPSPrint = CoreUtility::timestamp();
+			m_CameraRotation = false;
 		}//Constructor
 
 		~ExampleSceneBase(void) {
@@ -134,7 +135,7 @@ namespace CForge {
 			LC.PointLightCount = 1;
 			LC.SpotLightCount = 0;
 			LC.PCFSize = 2;
-			LC.ShadowBias = 0.00001f;
+			LC.ShadowBias = 0.000001f;
 			LC.ShadowMapCount = 1;
 			m_pShaderMan->configShader(LC);
 
@@ -240,10 +241,20 @@ namespace CForge {
 			if (pKeyboard->keyPressed(Keyboard::KEY_D)) pCamera->right(S * MovementSpeed);
 
 			if (pMouse->buttonState(Mouse::BTN_RIGHT)) {
-				const Eigen::Vector2f MouseDelta = pMouse->movement();
-				pCamera->rotY(GraphicsUtility::degToRad(-0.1f * RotationSpeed * MouseDelta.x()));
-				pCamera->pitch(GraphicsUtility::degToRad(-0.1f * RotationSpeed * MouseDelta.y()));
+				if (m_CameraRotation) {
+					const Eigen::Vector2f MouseDelta = pMouse->movement();
+					pCamera->rotY(GraphicsUtility::degToRad(-0.1f * RotationSpeed * MouseDelta.x()));
+					pCamera->pitch(GraphicsUtility::degToRad(-0.1f * RotationSpeed * MouseDelta.y()));
+					
+				}
+				else {
+					m_CameraRotation = true;
+					
+				}
 				pMouse->movement(Eigen::Vector2f::Zero());
+			}
+			else {
+				m_CameraRotation = false;
 			}
 		}//defaultCameraUpdate
 
@@ -299,16 +310,8 @@ namespace CForge {
 		SGNTransformation m_SkyboxTransSGN;
 		SGNGeometry m_SkyboxGeomSGN;
 
+		bool m_CameraRotation;
 	};//ExampleMinimumGraphicsSetup
-
-
-
-	void exampleSceneBase(void) {
-		ExampleSceneBase Ex;
-		Ex.init();
-		Ex.run();
-		Ex.clear();
-	}//exampleMinimumGraphicsSetup
 
 }
 

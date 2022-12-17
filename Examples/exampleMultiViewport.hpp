@@ -183,14 +183,7 @@ namespace CForge {
 	};//ExampleMultiViewport
 
 
-	void exampleMultiViewport(void) {
-
-		ExampleMultiViewport Ex;
-		Ex.init();
-		Ex.run();
-		Ex.clear();
-
-	}//exampleMultiViewport
+	
 
 }
 
