@@ -52,10 +52,10 @@ namespace CForge {
 			m_Skydome.init(&M);
 			M.clear();
 
-			SAssetIO::load("Assets/ExampleScenes/TexturedUnitCube.gltf", &M);
+			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
-			m_Cube.init(&M);
+			m_Duck.init(&M);
 			M.clear();
 
 			// build scene graph
@@ -67,14 +67,14 @@ namespace CForge {
 			m_SkydomeSGN.scale(Vector3f(50.0f, 50.0f, 50.0f));
 
 			// add cube
-			m_CubeTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
-			m_CubeSGN.init(&m_CubeTransformSGN, &m_Cube);
-			m_CubeSGN.scale(Vector3f(3.0f, 3.0f, 3.0f));
+			m_DuckTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 1.5f, 0.0f));
+			m_DuckSGN.init(&m_DuckTransformSGN, &m_Duck);
+			m_DuckSGN.scale(Vector3f(0.02f, 0.02f, 0.02f));
 
 			// rotate about the y-axis at 45 degree every second
 			Quaternionf R;
 			R = AngleAxisf(GraphicsUtility::degToRad(45.0f / 60.0f), Vector3f::UnitY());
-			m_CubeTransformSGN.rotationDelta(R);
+			m_DuckTransformSGN.rotationDelta(R);
 
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CoreUtility::timestamp();
@@ -121,11 +121,11 @@ namespace CForge {
 		// Scene Graph
 		SGNTransformation m_RootSGN;
 		SGNGeometry m_SkydomeSGN;
-		SGNGeometry m_CubeSGN;
-		SGNTransformation m_CubeTransformSGN;
+		SGNGeometry m_DuckSGN;
+		SGNTransformation m_DuckTransformSGN;
 
 		StaticActor m_Skydome;
-		StaticActor m_Cube;
+		StaticActor m_Duck;
 
 	};//ExampleMinimumGraphicsSetup
 

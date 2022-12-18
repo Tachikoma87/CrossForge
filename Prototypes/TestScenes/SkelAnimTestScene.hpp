@@ -168,7 +168,7 @@ namespace CForge {
 			T3DMesh<float> M;
 			T3DMesh<float> AnimData;
 
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
+			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			m_Skydome.init(&M);

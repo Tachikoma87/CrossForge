@@ -52,11 +52,14 @@ namespace CForge {
 			m_Skydome.init(&M);
 			M.clear();
 
-			SAssetIO::load("Assets/ExampleScenes/TexturedUnitCube.gltf", &M);
+			SAssetIO::load("MyAssets/StarCoin/StarCoin.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
+			//M.computePerVertexTangents();
 			m_Cube.init(&M);
 			M.clear();
+
+
 
 
 			// build scene graph

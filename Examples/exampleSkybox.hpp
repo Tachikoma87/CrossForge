@@ -45,10 +45,10 @@ namespace CForge {
 			T3DMesh<float> M;
 			
 
-			SAssetIO::load("Assets/ExampleScenes/TexturedCube.fbx", &M);
+			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
-			m_Cube.init(&M);
+			m_Duck.init(&M);
 			M.clear();
 
 			// build scene graph	
@@ -57,14 +57,15 @@ namespace CForge {
 
 			// add cube
 			
-			m_CubeTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
-			m_CubeSGN.init(&m_CubeTransformSGN, &m_Cube);
+			m_DuckTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 2.0f, 0.0f));
+			m_DuckTransformSGN.scale(Vector3f(0.02f, 0.02f, 0.02f));
+			m_DuckSGN.init(&m_DuckTransformSGN, &m_Duck);
 
 			// rotate about the y-axis at 45 degree every second and about the X axis to make it a bit more interesting
 			Quaternionf RY, RX;
 			RY = AngleAxisf(GraphicsUtility::degToRad(45.0f / 60.0f), Vector3f::UnitY());
 			RX = AngleAxisf(GraphicsUtility::degToRad(-25.0f / 60.0f), Vector3f::UnitZ());
-			m_CubeTransformSGN.rotationDelta(RX * RY);
+			m_DuckTransformSGN.rotationDelta(RX * RY);
 
 			/// gather textures for the skyboxes
 			m_ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_right.png");
@@ -172,7 +173,7 @@ namespace CForge {
 		}//run
 	protected:
 
-		StaticActor m_Cube;
+		StaticActor m_Duck;
 		SGNTransformation m_RootSGN;
 
 		vector<string> m_ClearSky;
@@ -182,8 +183,8 @@ namespace CForge {
 
 		SkyboxActor m_Skybox;
 
-		SGNGeometry m_CubeSGN;
-		SGNTransformation m_CubeTransformSGN;
+		SGNGeometry m_DuckSGN;
+		SGNTransformation m_DuckTransformSGN;
 
 		SceneGraph m_SkyboxSG;
 		SGNTransformation m_SkyboxTransSGN;

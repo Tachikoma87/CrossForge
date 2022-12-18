@@ -113,7 +113,7 @@ namespace CForge {
 
 			// change sun settings to cover this large area
 			m_Sun.position(Vector3f(100.0f, 1000.0f, 500.0f));
-			m_Sun.initShadowCasting(2048, 2048, Vector2i(1000, 1000), 1.0f, 5000.0f);
+			m_Sun.initShadowCasting(2048*2, 2048*2, Vector2i(1000, 1000), 1.0f, 5000.0f);
 		}//initialize
 
 		void clear(void) {

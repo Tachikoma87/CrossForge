@@ -89,13 +89,13 @@ endif(UNIX)
 
 #copy shaders
 add_custom_command(
-	TARGET CForgeSandbox PRE_BUILD 
+	TARGET CForgeSandbox POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${CMAKE_SOURCE_DIR}/CForge/Shader
 	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 add_custom_command(
-	TARGET CForgeSandbox PRE_BUILD 
+	TARGET CForgeSandbox POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory 
 	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
 	${CMAKE_CURRENT_BINARY_DIR}/Shader
@@ -103,14 +103,14 @@ add_custom_command(
 
 #copy assets
 add_custom_command(
-	TARGET CForgeSandbox PRE_BUILD 
+	TARGET CForgeSandbox POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory 
 	${CMAKE_SOURCE_DIR}/Assets
 	${CMAKE_CURRENT_BINARY_DIR}/Assets
 )
 
 add_custom_command(
-	TARGET CForgeSandbox PRE_BUILD 
+	TARGET CForgeSandbox POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory 
 	${CMAKE_SOURCE_DIR}/MyAssets
 	${CMAKE_CURRENT_BINARY_DIR}/MyAssets

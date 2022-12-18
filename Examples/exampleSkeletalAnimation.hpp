@@ -52,11 +52,11 @@ namespace CForge {
 			M.clear();
 
 			// initialize skeletal actor (Eric) and its animation controller
-			SAssetIO::load("Assets/tmp/MuscleManWalking.glb", &M);
+			SAssetIO::load("Assets/ExampleScenes/CesiumMan/CesiumMan.gltf", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
 			m_BipedController.init(&M);
-			m_MuscleMan.init(&M, &m_BipedController);
+			m_CesiumMan.init(&M, &m_BipedController);
 			M.clear();
 
 			// build scene graph	
@@ -68,9 +68,13 @@ namespace CForge {
 			m_SkydomeSGN.scale(Vector3f(50.0f, 50.0f, 50.0f));
 
 			// add skeletal actor to scene graph (Eric)			
-			m_MuscleManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, -0.06f, 0.0f));
-			m_MuscleManSGN.init(&m_MuscleManTransformSGN, &m_MuscleMan);
-			m_MuscleManSGN.scale(Vector3f(0.025f, 0.025f, 0.025f));
+			m_CesiumManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 0.0f, 0.0f));
+			m_CesiumManSGN.init(&m_CesiumManTransformSGN, &m_CesiumMan);
+			m_CesiumManSGN.scale(Vector3f(2.0f, 2.0f, 2.0f));
+
+			Quaternionf Rot;
+			Rot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
+			m_CesiumManSGN.rotation(Rot);
 
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CoreUtility::timestamp();
@@ -103,7 +107,7 @@ namespace CForge {
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 					SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
-					m_MuscleMan.activeAnimation(pAnim);
+					m_CesiumMan.activeAnimation(pAnim);
 				}
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
@@ -123,13 +127,13 @@ namespace CForge {
 		}//run
 	protected:
 		StaticActor m_Skydome;
-		SkeletalActor m_MuscleMan;
+		SkeletalActor m_CesiumMan;
 		SkeletalAnimationController m_BipedController;
 
 		SGNTransformation m_RootSGN;
 		SGNGeometry m_SkydomeSGN;
-		SGNGeometry m_MuscleManSGN;
-		SGNTransformation m_MuscleManTransformSGN;
+		SGNGeometry m_CesiumManSGN;
+		SGNTransformation m_CesiumManTransformSGN;
 
 	};//ExampleSkeletalAnimation
 
