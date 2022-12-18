@@ -36,7 +36,7 @@ if(USE_OPENCV)
 endif(USE_OPENCV)
 
 add_executable(CForgeSandbox 
-	SandboxMain.cpp 
+	SandboxMain.cpp
 
 	CForge/Core/SGPIO.cpp
 	Prototypes/Hardware/I2C.cpp 
@@ -116,17 +116,6 @@ add_custom_command(
 	${CMAKE_CURRENT_BINARY_DIR}/MyAssets
 )
 
-######## Project - Export library ######################
-#project(ExportLibrary)
-#add_executable(ExportLibrary ExportLibrary.cpp)
-
-#FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
-
-#target_link_libraries(ExportLibrary PRIVATE crossforge)
-
-#include_directories(
-#	"./"
-#)
 
 ######## Project - Terrain ##############################
 

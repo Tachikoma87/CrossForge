@@ -6,6 +6,8 @@
 
 #endif
 
+#include "ExportLibrary.hpp"
+
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
 
@@ -56,7 +58,7 @@ int main(int argc, char* argv[]) {
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
-		exampleSceneGraph();
+		//exampleSceneGraph();
 		//exampleSkeletalAnimation(); 
 		//exampleSkybox();
 		//exampleSockets();
@@ -79,6 +81,8 @@ int main(int argc, char* argv[]) {
 		Scene.init();
 		Scene.run();*/
 		
+		//exportLibrary();
+
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

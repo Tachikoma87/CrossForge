@@ -58,7 +58,7 @@ void copyFile(filesystem::path From, filesystem::path To) {
 
 #endif
 
-int main(int argc, char* argv[]) {
+void exportLibrary(void) {
 
 	std::vector<std::string> Directories;
 	std::vector<std::string> IncludeFiles;
