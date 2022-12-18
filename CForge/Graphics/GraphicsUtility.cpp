@@ -43,7 +43,7 @@ namespace CForge {
 
 	void GraphicsUtility::asymmetricFrusti(uint32_t Width, uint32_t Height, float Near, float Far, float FOV, float FocalLength, float EyeSep, Eigen::Matrix4f* pLeftEye, Eigen::Matrix4f* pRightEye) {
 		float Aspect = Width / (float)Height;
-		float YnMax = Near * std::tanf(FOV / 2.0f);
+		float YnMax = Near * std::tan(FOV / 2.0f);
 		float Delta = 0.5f * EyeSep * Near / FocalLength;
 
 		float Top = YnMax;

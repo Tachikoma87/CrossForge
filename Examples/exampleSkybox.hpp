@@ -155,7 +155,7 @@ namespace CForge {
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 				// Skybox should be last thing to render
 				m_SkyboxSG.render(&m_RenderDev);
 

@@ -222,6 +222,9 @@ namespace CForge {
 				pMat->VertexShaderShadowPass.push_back("Shader/ShadowPassShader.vert");
 				pMat->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");
 
+				pMat->VertexShaderForwardPass.push_back("Shader/ForwardPassPBS.vert");
+				pMat->FragmentShaderForwardPass.push_back("Shader/ForwardPassPBS.frag");
+
 				pMat->Metallic = Metallic;
 				pMat->Roughness = Roughness;
 			}//for[materials]

@@ -93,7 +93,7 @@ namespace CForge {
 			m_pShaderMan = nullptr;
 		}//clear
 
-		bool Deferred = true;
+		bool Deferred = false;
 
 		void run(void) {
 			while (!m_RenderWin.shutdown()) {
@@ -115,7 +115,7 @@ namespace CForge {
 					m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, true);
 					m_SG.render(&m_RenderDev);
 				}
-				
+
 
 				m_RenderWin.swapBuffers();
 
@@ -156,6 +156,7 @@ namespace CForge {
 				pMat->Roughness = Roughness;
 			}//for[materials]
 		}//setMeshShader
+
 
 		// Scene Graph
 		SGNTransformation m_RootSGN;

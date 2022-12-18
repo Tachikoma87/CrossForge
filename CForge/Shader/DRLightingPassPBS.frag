@@ -4,6 +4,7 @@
 #define DIRECTIONAL_LIGHTS 
 #define POINT_LIGHTS 
 #define SPOT_LIGHTS
+#define PHYSICALLY_BASED_SHADING
 
 // just PI
 const float PI = 3.14159265359;

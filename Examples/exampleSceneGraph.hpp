@@ -145,7 +145,7 @@ namespace CForge {
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 				m_SkyboxSG.render(&m_RenderDev);
 
 				m_RenderWin.swapBuffers();

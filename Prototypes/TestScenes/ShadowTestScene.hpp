@@ -428,18 +428,18 @@ namespace CForge {
 
 				// point lights get darker and brighter [0, 2.0f]
 				uint32_t Stamp = (uint32_t)CoreUtility::timestamp();
-				float PLIntensity =  (std::sinf(Stamp/1000.0f) + 1.0f);
+				float PLIntensity =  (std::sin(Stamp/1000.0f) + 1.0f);
 				m_PointLights[0].intensity(0.0f);
 				m_PointLights[1].intensity(0.0f);
 
 				//printf("Intensity: %.2f\n", PLIntensity);
 
-				float ColorTeint = (std::sinf(Stamp / 1000.0f) + 1.0f) / 2.0f;
+				float ColorTeint = (std::sin(Stamp / 1000.0f) + 1.0f) / 2.0f;
 				//m_Sun1.color(Vector3f(ColorTeint, 0.1f, 0.1f));
 
 				// change Position of second sun
-				float OffsetX = std::sinf(Stamp / 5000.0f) * 100.0f;
-				float OffsetZ = std::cosf(Stamp / 5000.0f) * 100.0f;
+				float OffsetX = std::sin(Stamp / 5000.0f) * 100.0f;
+				float OffsetZ = std::cos(Stamp / 5000.0f) * 100.0f;
 				Vector3f Pos = m_Sun2.position();
 				Pos.x() = OffsetX;
 				Pos.z() = OffsetZ;

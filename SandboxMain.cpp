@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
-		//exampleSceneGraph();
+		exampleSceneGraph();
 		//exampleSkeletalAnimation(); 
 		//exampleSkybox();
 		//exampleSockets();
@@ -75,9 +75,9 @@ int main(int argc, char* argv[]) {
 
 		//imageTestScene();
 
-		ForwardTestScene Scene;
+		/*ForwardTestScene Scene;
 		Scene.init();
-		Scene.run();
+		Scene.run();*/
 		
 	}
 	catch (const CrossForgeException & e) {
