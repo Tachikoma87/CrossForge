@@ -14,5 +14,5 @@ out vec2 UV;
 
 void main(){
 	gl_Position = Model.ModelMatrix * vec4(Position.x, Position.y, 0.0, 1.0);
-	UV = UVW; // (Model.ModelMatrix * vec4(UVW.x, UVW.y, 0.0, 0.0)).xy;
+	UV = UVW; 
 }//main 

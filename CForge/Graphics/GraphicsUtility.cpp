@@ -28,6 +28,37 @@ namespace CForge {
 		return Rval;
 	}//perspective
 
+	// same as glFrustum
+	Eigen::Matrix4f GraphicsUtility::perspectiveProjection(float Left, float Right, float Bottom, float Top, float Near, float Far) {
+		Eigen::Matrix4f Rval = Matrix4f::Zero();
+		Rval(0, 0) = 2.0f * Near / (Right - Left);
+		Rval(0, 2) = (Right + Left) / (Right - Left);
+		Rval(1, 1) = 2.0f * Near / (Top - Bottom);
+		Rval(1, 2) = (Top + Bottom) / (Top - Bottom);
+		Rval(2, 2) = -(Far + Near) / (Far - Near);
+		Rval(2, 3) = (-2.0f * Far * Near) / (Far - Near);
+		Rval(3, 2) = -1.0f;
+		return Rval;
+	}//persepctiveProjection
+
+	void GraphicsUtility::asymmetricFrusti(uint32_t Width, uint32_t Height, float Near, float Far, float FOV, float FocalLength, float EyeSep, Eigen::Matrix4f* pLeftEye, Eigen::Matrix4f* pRightEye) {
+		float Aspect = Width / (float)Height;
+		float YnMax = Near * std::tanf(FOV / 2.0f);
+		float Delta = 0.5f * EyeSep * Near / FocalLength;
+
+		float Top = YnMax;
+		float Bottom = -YnMax;
+		float Left = -(Aspect * YnMax) - Delta;
+		float Right = (Aspect * YnMax) - Delta;
+
+		if (nullptr != pRightEye) (*pRightEye) = perspectiveProjection(Left, Right, Bottom, Top, Near, Far);
+
+		Left = -(Aspect * YnMax) + Delta;
+		Right = (Aspect * YnMax) + Delta;
+		if (nullptr != pLeftEye) (*pLeftEye) = perspectiveProjection(Left, Right, Bottom, Top, Near, Far);
+
+	}//asymmetricFrusti
+
 	Eigen::Matrix4f GraphicsUtility::orthographicProjection(float Left, float Right, float Bottom, float Top, float Near, float Far) {
 		Eigen::Matrix4f Rval = Eigen::Matrix4f::Identity();
 		Rval(0, 0) = 2.0f / (Right - Left);

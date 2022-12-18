@@ -24,7 +24,7 @@ const uint SpotLightCount = 1U;
 #define PCF_SHADOWS // enable percentage closer filtering (PCF)
 const int PCFFilterSize = 1;
 const float ShadowBias = 0.0002;
-const uint ShadowMapCount = 2U;
+const uint ShadowMapCount = 1U;
 
 
 layout (std140) uniform CameraData{
@@ -64,12 +64,29 @@ layout(std140) uniform SpotLightsData{
 }SpotLights;
 #endif
 
-in vec2 UV; 
+in vec3 Pos;
+in vec3 N;
+in vec2 UV;
 
-uniform sampler2D TexDepth; // gBuffer position data 
-uniform sampler2D TexAlbedo; // gBuffer albedo/spec data
-uniform sampler2D TexNormal; // gBuffer normal data 
+uniform sampler2D TexAlbedo;
 uniform sampler2D TexShadow[ShadowMapCount];
+
+layout (std140) uniform MaterialData{
+	vec4 Color;
+	float Metallic;
+	float Roughness;
+	float AO; // ambient occlusion
+	float Padding;
+}Material;
+
+#ifdef NORMAL_MAPPING 
+uniform sampler2D TexNormal;
+in mat3 TBN;
+#endif 
+
+#ifdef VERTEX_COLORS
+in vec3 Color;
+#endif
 
 out vec4 FragColor;
 
@@ -223,16 +240,44 @@ vec3 cookTorranceBRDF(vec3 V, vec3 N, vec3 H, vec3 L, vec3 Radiance, vec3 F0, ve
 }//cookTorranceBRDF
 
 void main(){
-	float Roughness = texture(TexNormal, UV).w;
-	float Metallic = texture(TexAlbedo, UV).w;
-	float Ao = texture(TexDepth, UV).w;
+	float Roughness = Material.Roughness; // texture(TexNormal, UV).w;
+	float Metallic = Material.Metallic; // texture(TexAlbedo, UV).w;
+	float Ao = Material.AO; //0.0; //texture(TexDepth, UV).w;
 
-	vec3 Albedo = pow(texture(TexAlbedo, UV).rgb, vec3(Gamma));
+	vec4 TexColor = texture(TexAlbedo, UV);
+
+	// and the diffuse per-fragment color 
+	if(TexColor.a < 0.01) discard;
+	
+	#ifdef VERTEX_COLORS
+	vec3 Albedo = TexColor.a * (Color * Material.Color.rgb * TexColor.rgb);
+	#else
+	vec3 Albedo = TexColor.a * (Material.Color.rgb * TexColor.rgb);
+	#endif
+	Albedo = pow(Albedo, vec3(Gamma));
+
+	// store the framgent position vector in the first gBuffer texture 
+	//gPosition = vec4(Pos, Material.AO);
+
+	// also store the per-fragment normals into the gBuffer 
+	#ifdef NORMAL_MAPPING 
+	vec3 Norm = texture(TexNormal, UV).rgb * 2.0 - 1.0;
+	vec3 Normal = normalize(TBN * Norm);
+	#else
+	vec3 Normal = normalize(N);
+	#endif
+
+	// store the specular intensity in gAlbedoSpec s alpha component 
+	//gAlbedoSpec.a = Material.Metallic;
+
 
 	vec3 CameraPos = Camera.Position.xyz;
 
-	vec3 N = texture(TexNormal, UV).rgb;
-	vec3 WorldPos = texture(TexDepth, UV).xyz;
+	//vec3 N = texture(TexNormal, UV).rgb; //get this as shader input
+
+
+	//vec3 WorldPos = texture(TexDepth, UV).xyz;
+	vec3 WorldPos = Pos;
 	vec3 V = normalize(CameraPos - WorldPos);
 
 	vec3 F0 = vec3(0.04);
@@ -246,9 +291,9 @@ void main(){
 		// calculate per-light radiance
 		vec3 L = normalize(-DirLights.Directions[i].xyz);
 		vec3 H = normalize(V + L);
-		float Shadow = shadowCalculationDirectionalLight(WorldPos, N, L, i);
+		float Shadow = shadowCalculationDirectionalLight(WorldPos, Normal, L, i);
 		vec3 Radiance = DirLights.Colors[i].w * DirLights.Colors[i].xyz; // color * intensity
-		Lo += (1.0 - Shadow) * cookTorranceBRDF(V, N, H, L, Radiance, F0, Albedo, Roughness, Metallic);
+		Lo += (1.0 - Shadow) * cookTorranceBRDF(V, Normal, H, L, Radiance, F0, Albedo, Roughness, Metallic);
 	}//for[all light sources]
 	#endif
 
@@ -266,7 +311,7 @@ void main(){
 			vec3 H = normalize(V + L);
 			float Shadow = 0.0;
 			vec3 Radiance = Attenuation * PointLights.Color[i].w * PointLights.Color[i].xyz;
-			Lo += (1.0 - Shadow) * cookTorranceBRDF(V,N,H,L, Radiance, F0, Albedo, Roughness, Metallic);
+			Lo += (1.0 - Shadow) * cookTorranceBRDF(V,Normal,H,L, Radiance, F0, Albedo, Roughness, Metallic);
 		}
 	}//for[point lights]
 	#endif
@@ -291,7 +336,7 @@ void main(){
 			float Damping = clamp((Theta-OuterCutOff) / Epsilon, 0.0, 1.0);
 
 			vec3 Radiance = Damping * Attenuation * SpotLights.Color[i].w * SpotLights.Color[i].xyz;
-			Lo += (1.0 - Shadow) * cookTorranceBRDF(V,N,H,L, Radiance, F0, Albedo, Roughness, Metallic);
+			Lo += (1.0 - Shadow) * cookTorranceBRDF(V,Normal,H,L, Radiance, F0, Albedo, Roughness, Metallic);
 		}
 
 	}//for[spot lights]

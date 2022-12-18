@@ -57,9 +57,11 @@ namespace CForge {
 		void clear(void);
 
 		static Eigen::Matrix4f perspectiveProjection(uint32_t Width, uint32_t Height, float FieldOfView, float Near, float Far);
+		static Eigen::Matrix4f perspectiveProjection(float Left, float Right, float Bottom, float Top, float Near, float Far);
 		static Eigen::Matrix4f orthographicProjection(float Left, float Right, float Bottom, float Top, float Near, float Far);
 		static Eigen::Matrix4f orthographicProjection(float Right, float Top, float Near, float Far);
 		static Eigen::Matrix4f lookAt(Eigen::Vector3f Position, Eigen::Vector3f Target, Eigen::Vector3f Up = Eigen::Vector3f::UnitY());
+		static void asymmetricFrusti(uint32_t Width, uint32_t Height, float Near, float Far, float FOV, float FocalLength, float EyeSep, Eigen::Matrix4f* pLeftEye, Eigen::Matrix4f* pRightEye);
 
 		static Eigen::Matrix4f rotationMatrix(Eigen::Quaternionf Rot);
 		static Eigen::Matrix4f translationMatrix(Eigen::Vector3f Trans);

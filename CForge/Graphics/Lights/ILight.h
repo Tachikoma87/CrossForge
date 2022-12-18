@@ -26,12 +26,18 @@ namespace CForge {
 
 	struct LightMsg {
 		enum MsgCode {
-			MC_SHADOW_CHANGED = 0,
+			MC_POSITION_CHANGED = 0,
+			MC_DIRECTION_CHANGED,
+			MC_COLOR_CHANGED,
+			MC_INTENSITY_CHANGED,
+			MC_SHADOW_CHANGED,
+			MC_DESTROYED,
 		};
 
 		MsgCode Code;
-		void* pHandle;
-	};
+		void* pHandle; // of type ILight
+
+	};//LightMsg
 
 	/**
 	* \brief Basic interface for all light classes. Implements basic properties and shadow casting.
@@ -86,6 +92,7 @@ namespace CForge {
 		Eigen::Vector2i m_ShadowMapSize;
 
 		Eigen::Matrix4f m_Projection;
+		LightMsg m_Msg;
 	};//ILight
 
 }//name space

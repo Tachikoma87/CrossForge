@@ -15,18 +15,22 @@ namespace CForge {
 		m_ShadowMapSize = Eigen::Vector2i(0, 0);
 		m_ShadowTex = GL_INVALID_INDEX;
 		m_FBO = GL_INVALID_INDEX;
+		m_Msg.pHandle = (void*)this;
 	}//Constructor
 
 	ILight::~ILight(void) {
+		m_Msg.Code = LightMsg::MC_DESTROYED;
+		broadcast(m_Msg);
+
 		clear();
 	}//Destructor
 
 	void ILight::init(const Eigen::Vector3f Pos, const Eigen::Vector3f Dir, const Eigen::Vector3f Color, float Intensity) {
 		clear();
-		m_Position = Pos;
-		m_Direction = Dir.normalized();
-		m_Color = Color;
-		m_Intensity = Intensity;
+		position(Pos);
+		direction(Dir.normalized());
+		color(Color);
+		intensity(Intensity);
 	}//initialize
 
 	void ILight::clear(void) {
@@ -46,18 +50,30 @@ namespace CForge {
 
 	void ILight::position(Eigen::Vector3f Pos) {
 		m_Position = Pos;
+
+		m_Msg.Code = LightMsg::MC_POSITION_CHANGED;
+		broadcast(m_Msg);
 	}//position
 
 	void ILight::direction(Eigen::Vector3f Dir, bool Normalize) {
 		m_Direction = (Normalize) ? Dir.normalized() : Dir;
+
+		m_Msg.Code = LightMsg::MC_DIRECTION_CHANGED;
+		broadcast(m_Msg);
 	}//direction
 
 	void ILight::color(Eigen::Vector3f Color) {
 		m_Color = Color;
+
+		m_Msg.Code = LightMsg::MC_COLOR_CHANGED;
+		broadcast(m_Msg);
 	}//color
 
 	void ILight::intensity(float Intensity) {
 		m_Intensity = Intensity;
+
+		m_Msg.Code = LightMsg::MC_INTENSITY_CHANGED;
+		broadcast(m_Msg);
 	}//intensity
 
 	Eigen::Vector3f ILight::position(void)const {
@@ -118,10 +134,9 @@ namespace CForge {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
-		LightMsg Msg;
-		Msg.Code = LightMsg::MC_SHADOW_CHANGED;
-		Msg.pHandle = (void*)this;
-		broadcast(Msg);
+
+		m_Msg.Code = LightMsg::MC_SHADOW_CHANGED;
+		broadcast(m_Msg);
 	
 	}//initShadowCasting
 

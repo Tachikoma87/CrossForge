@@ -180,6 +180,8 @@ namespace CForge {
 
 	}//exampleMinimumGraphicsSetup
 
+	
+
 }
 
 #endif

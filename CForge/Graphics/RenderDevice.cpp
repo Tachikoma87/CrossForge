@@ -181,12 +181,22 @@ namespace CForge {
 			BindingPoint = m_pActiveShader->uboBindingPoint(GLShader::DEFAULTUBO_SPOTLIGHTSDATA);
 			if (GL_INVALID_INDEX != BindingPoint) m_LightsUBO.bind(BindingPoint, ILight::LIGHT_SPOT);
 
-			// set shadow maps
-			for (auto i : m_ShadowCastingLights) {
-				if (i->pLight != nullptr && i->DefaultTexture != GLShader::DEFAULTTEX_UNKNOWN) {
-					i->pLight->bindShadowTexture(m_pActiveShader, i->DefaultTexture);
-				}
-			}//for[shadow casting lights]
+
+			uint32_t LocShadow1 = m_pActiveShader->uniformLocation(GLShader::DEFAULTTEX_SHADOW0);
+			uint32_t LocShadow2 = m_pActiveShader->uniformLocation(GLShader::DEFAULTTEX_SHADOW1);
+			if (m_ShadowCastingLights.size() > 0 && LocShadow1 != GL_INVALID_INDEX) {
+				m_ShadowCastingLights[0]->pLight->bindShadowTexture(m_pActiveShader, GLShader::DEFAULTTEX_SHADOW0);
+			}
+			if (m_ShadowCastingLights.size() > 1 && LocShadow2 != GL_INVALID_INDEX) {
+				m_ShadowCastingLights[1]->pLight->bindShadowTexture(m_pActiveShader, GLShader::DEFAULTTEX_SHADOW1);
+			}
+
+			//// set shadow maps
+			//for (auto i : m_ShadowCastingLights) {
+			//	if (i->pLight != nullptr && i->DefaultTexture != GLShader::DEFAULTTEX_UNKNOWN) {
+			//		i->pLight->bindShadowTexture(m_pActiveShader, i->DefaultTexture);
+			//	}
+			//}//for[shadow casting lights]
 
 
 			// set active light
@@ -268,15 +278,75 @@ namespace CForge {
 
 	void RenderDevice::listen(const LightMsg Msg) {
 		uint32_t ObjectID = ((CForgeObject*)Msg.pHandle)->objectID();
+		ActiveLight *pActiveLight = nullptr;
+		UBOLightData* pUBO = nullptr;
 
-		for (auto i : m_ShadowCastingLights) {
+
+		for (auto i : m_ActiveDirLights) {
 			if (nullptr == i) continue;
 			if (i->pLight->objectID() == ObjectID) {
-				Matrix4f LightSpaceMatrix = i->pLight->projectionMatrix() * i->pLight->viewMatrix();
-				m_LightsUBO.lightSpaceMatrix(LightSpaceMatrix, i->pLight->type(), i->UBOIndex);
+				pActiveLight = i;
 				break;
 			}
+		}//for[active directional lights]
+
+		for (auto i : m_ActivePointLights) {
+			if (nullptr == i) continue;
+			if (i->pLight->objectID() == ObjectID) {
+				pActiveLight = i;
+				break;
+			}
+		}//for[active point lights]
+
+		for (auto i : m_ActiveSpotLights) {
+			if (nullptr == i) continue;
+			if (i->pLight->objectID() == ObjectID) {
+				pActiveLight = i;
+				break;
+			}
+		}//for[active spot lights]
+
+		if (nullptr == pActiveLight) return;
+
+		bool ChangeLightSpaceMatrix = false;
+
+		switch (Msg.Code) {
+		case LightMsg::MC_COLOR_CHANGED: {
+			m_LightsUBO.color(pActiveLight->pLight->color(), pActiveLight->pLight->type(), pActiveLight->UBOIndex);
+		}break;
+		case LightMsg::MC_POSITION_CHANGED: {
+			m_LightsUBO.position(pActiveLight->pLight->position(), pActiveLight->pLight->type(), pActiveLight->UBOIndex);
+			ChangeLightSpaceMatrix = true;
+		}break;
+		case LightMsg::MC_DIRECTION_CHANGED: {
+			m_LightsUBO.direction(pActiveLight->pLight->direction(), pActiveLight->pLight->type(), pActiveLight->UBOIndex);
+			ChangeLightSpaceMatrix = true;
+		}break;
+		case LightMsg::MC_INTENSITY_CHANGED: {
+			m_LightsUBO.intensity(pActiveLight->pLight->intensity(), pActiveLight->pLight->type(), pActiveLight->UBOIndex);
+		}break;
+		case LightMsg::MC_SHADOW_CHANGED: {
+			ChangeLightSpaceMatrix = true;
+		}break;
+		case LightMsg::MC_DESTROYED: {
+			// \ToDo implement removing lights
+			//removeLight(pActiveLight->pLight);
+		}break;
+		default: break; //ignore others
 		}
+
+		if (ChangeLightSpaceMatrix) {
+			for (auto i : m_ShadowCastingLights) {
+				if (nullptr == i) continue;
+				if (i->pLight->objectID() == ObjectID) {
+					Matrix4f LightSpaceMatrix = i->pLight->projectionMatrix() * i->pLight->viewMatrix();
+					m_LightsUBO.lightSpaceMatrix(LightSpaceMatrix, i->pLight->type(), i->UBOIndex);
+					break;
+				}
+			}
+		}//if[change light space matrix]
+
+		
 	}//listen
 
 	void RenderDevice::updateMaterial(void) {
@@ -369,19 +439,22 @@ namespace CForge {
 				if (m_ShadowCastingLights.size() > 1 && LocShadow2 != GL_INVALID_INDEX) {
 					m_ShadowCastingLights[1]->pLight->bindShadowTexture(m_pActiveShader, GLShader::DEFAULTTEX_SHADOW1);
 				}
-
-
 				requestRendering(&m_ScreenQuad, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
 			}
 		}break;
 		case RENDERPASS_FORWARD: {
+			
 			if (m_Config.UseGBuffer) {
 				// blit depth buffer
 				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 				m_GBuffer.blitDepthBuffer(m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				glViewport(m_Viewport[RENDERPASS_FORWARD].Position.x(), m_Viewport[RENDERPASS_FORWARD].Position.y(), m_Viewport[RENDERPASS_FORWARD].Size.x(), m_Viewport[RENDERPASS_FORWARD].Size.y());
+				/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glViewport(m_Viewport[RENDERPASS_FORWARD].Position.x(), m_Viewport[RENDERPASS_FORWARD].Position.y(), m_Viewport[RENDERPASS_FORWARD].Size.x(), m_Viewport[RENDERPASS_FORWARD].Size.y());*/
 			}
+			glCullFace(GL_BACK);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glViewport(m_Viewport[RENDERPASS_FORWARD].Position.x(), m_Viewport[RENDERPASS_FORWARD].Position.y(), m_Viewport[RENDERPASS_FORWARD].Size.x(), m_Viewport[RENDERPASS_FORWARD].Size.y());
+			if (ClearBuffer) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}break;
 		default: break;
 		}

@@ -17,6 +17,7 @@
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
 #include "Prototypes/TestScenes/ImageTestScene.hpp"
+#include "Prototypes/TestScenes/ForwardTestScene.hpp"
 
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 
@@ -55,7 +56,7 @@ int main(int argc, char* argv[]) {
 		//exampleMinimumGraphicsSetup();
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
-		exampleSceneGraph();
+		//exampleSceneGraph();
 		//exampleSkeletalAnimation(); 
 		//exampleSkybox();
 		//exampleSockets();
@@ -73,6 +74,10 @@ int main(int argc, char* argv[]) {
 		//S.guiTestScene();
 
 		//imageTestScene();
+
+		ForwardTestScene Scene;
+		Scene.init();
+		Scene.run();
 		
 	}
 	catch (const CrossForgeException & e) {

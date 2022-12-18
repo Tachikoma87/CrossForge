@@ -152,7 +152,7 @@ namespace CForge {
 				}
 
 				// requires lighting? (currently using name of shader, that is not very clean and clever, change later)
-				if (k.find("Shadow") != std::string::npos) {
+				if (k.find("ShadowPassShader") != std::string::npos) {
 					ConfigOptions |= ShaderCode::CONF_LIGHTING;
 				}
 
@@ -181,6 +181,10 @@ namespace CForge {
 				}
 				if (pMesh->tangentCount() > 0 && !pMat->TexNormal.empty()) {
 					ConfigOptions |= ShaderCode::CONF_NORMALMAPPING;
+				}
+
+				if (k.find("ForwardPassPBS") != std::string::npos) {
+					ConfigOptions |= ShaderCode::CONF_LIGHTING;
 				}
 
 				ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp");
