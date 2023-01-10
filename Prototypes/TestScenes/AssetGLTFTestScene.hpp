@@ -149,10 +149,10 @@ namespace CForge {
 		gltfio.load(gltfPath + "_debug.gltf", &testModel);
 		*/
 		
-		SAssetIO::load("Assets/ExampleScenes/Eric_Anim.fbx", &testModel);
-		gltfio.store("Assets/ExampleScenes/Eric_Anim.gltf", &testModel);
+		SAssetIO::load("Assets/ExampleScenes/nathan.fbx", &testModel);
+		gltfio.store("Assets/ExampleScenes/output.gltf", &testModel);
 		testModel.clear();
-		gltfio.load("Assets/ExampleScenes/Eric_Anim.gltf", &testModel);
+		gltfio.load("Assets/ExampleScenes/output.gltf", &testModel);
 		
 		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);
 		testModel.computePerVertexNormals();

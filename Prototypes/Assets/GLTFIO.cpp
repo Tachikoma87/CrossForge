@@ -837,6 +837,8 @@ namespace CForge {
 			for (int j = 0; j < 3; j++) {
 				int32_t index = face.Vertices[j];
 
+				if (index < 0) index = 0;
+
 				if (min == -1 || index < min) {
 					min = index;
 				}
@@ -852,59 +854,62 @@ namespace CForge {
 		std::pair<int, int> minmax(min, max);
 
 		for (int i = 0; i < indices.size(); i++) {
+
+			auto current_index = indices[i];
+
 			// fill up to index
-			for (int k = coord.size(); k <= indices[i] - min; k++) {
+			for (int k = coord.size(); k <= current_index - min; k++) {
 				Eigen::Vector3f vec3(0, 0, 0);
 				coord.push_back(vec3);
 			}
-			auto pos = pCMesh->vertex(indices[i]);
-			coord[indices[i] - min] = pos;
+			auto pos = pCMesh->vertex(current_index);
+			coord[current_index - min] = pos;
 
 			if (pCMesh->normalCount() > 0) {
 				// fill up to index
-				for (int k = normal.size(); k <= indices[i] - min; k++) {
+				for (int k = normal.size(); k <= current_index - min; k++) {
 					Eigen::Vector3f vec3(0, 0, 0);
 					normal.push_back(vec3);
 				}
-				auto norm = pCMesh->normal(indices[i]).normalized();
-				normal[indices[i] - min] = norm;
+				auto norm = pCMesh->normal(current_index).normalized();
+				normal[current_index - min] = norm;
 			}
 
 			if (pCMesh->tangentCount() > 0) {
 				// fill up to index
-				for (int k = tangent.size(); k <= indices[i] - min; k++) {
+				for (int k = tangent.size(); k <= current_index - min; k++) {
 					Eigen::Vector3f vec3(0, 0, 0);
 					tangent.push_back(vec3);
 				}
-				auto tan = pCMesh->tangent(indices[i]);
-				tangent[indices[i] - min] = tan;
+				auto tan = pCMesh->tangent(current_index);
+				tangent[current_index - min] = tan;
 			}
 
 			if (pCMesh->textureCoordinatesCount() > 0) {
 				// fill up to index
-				for (int k = texCoord.size(); k <= indices[i] - min; k++) {
+				for (int k = texCoord.size(); k <= current_index - min; k++) {
 					Eigen::Vector2f vec2(0, 0);
 					texCoord.push_back(vec2);
 				}
-				auto tex = pCMesh->textureCoordinate(indices[i]);
+				auto tex = pCMesh->textureCoordinate(current_index);
 				tex(1) = 1.0f - tex(1);
-				texCoord[indices[i] - min](0) = tex(0);
-				texCoord[indices[i] - min](1) = tex(1);
+				texCoord[current_index - min](0) = tex(0);
+				texCoord[current_index - min](1) = tex(1);
 			}
 
 			if (pCMesh->colorCount() > 0) {
 				// fill up to index
-				for (int k = color.size(); k <= indices[i] - min; k++) {
+				for (int k = color.size(); k <= current_index - min; k++) {
 					Eigen::Vector4f vec4(0, 0, 0, 0);
 					color.push_back(vec4);
 				}
-				auto meshCol = pCMesh->color(indices[i]);
+				auto meshCol = pCMesh->color(current_index);
 				Eigen::Vector4f col;
 				col(0) = meshCol(0);
 				col(1) = meshCol(1);
 				col(2) = meshCol(2);
 				col(3) = meshCol(3);
-				color[indices[i] - min] = col;
+				color[current_index - min] = col;
 			}
 
 			indices[i] -= min;
@@ -1029,7 +1034,7 @@ namespace CForge {
 	}
 
 	int GLTFIO::writeTexture(const std::string path) {
-		if (path.empty()) return -1;
+		if (path.empty() || !std::filesystem::exists(path)) return -1;
 		
 		std::filesystem::path texPath(path);
 
@@ -1235,6 +1240,8 @@ namespace CForge {
 			newNode.name = "bone_" + std::to_string(i);
 
 			model.nodes.push_back(newNode);
+
+			if (pBone->VertexInfluences.size() == 0) continue;
 
 			int mesh_index = getMeshIndexByCrossForgeVertexIndex(pBone->VertexInfluences[0]);
 
