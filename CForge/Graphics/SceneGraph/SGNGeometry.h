@@ -46,10 +46,10 @@ namespace CForge {
 		Eigen::Vector3f scale(void)const;
 		IRenderableActor* actor(void)const;
 
-		void update(float FPSScale);
-		void render(RenderDevice* pRDev, const Eigen::Vector3f Position, const Eigen::Quaternionf Rotation, const Eigen::Vector3f Scale);
-		void buildTansformation(Eigen::Vector3f* pPosition, Eigen::Quaternionf* pRotation, Eigen::Vector3f* pScale);
-	private:
+		virtual void update(float FPSScale);
+		virtual void render(RenderDevice* pRDev, const Eigen::Vector3f Position, const Eigen::Quaternionf Rotation, const Eigen::Vector3f Scale);
+		virtual void buildTansformation(Eigen::Vector3f* pPosition, Eigen::Quaternionf* pRotation, Eigen::Vector3f* pScale);
+	protected:
 		Eigen::Vector3f m_Position;
 		Eigen::Quaternionf m_Rotation;
 		Eigen::Vector3f m_Scale;

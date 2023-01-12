@@ -29,6 +29,7 @@ namespace CForge {
 		struct Animation {
 			int32_t AnimationID;
 			float Speed;
+			float Duration;
 			float t; //current
 			float TicksPerSecond;
 			bool Finished;
@@ -54,6 +55,9 @@ namespace CForge {
 		uint32_t animationCount(void)const;
 
 		GLShader* shadowPassShader(void);
+
+		UBOBoneData* boneUBO(void);
+		void retrieveSkinningMatrices(std::vector<Eigen::Matrix4f>* pSkinningMats);
 
 	protected:
 

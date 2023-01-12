@@ -163,6 +163,7 @@ namespace CForge {
 		pRval->Speed = Speed;
 		pRval->t = Offset;
 		pRval->Finished = false;
+		pRval->Duration = m_SkeletalAnimations[AnimationID]->Duration;
 		Animation* pTemp = pRval;
 		for (uint32_t i = 0; i < m_ActiveAnimations.size(); ++i) {
 			if (m_ActiveAnimations[i] == nullptr) {
@@ -270,5 +271,15 @@ namespace CForge {
 	uint32_t SkeletalAnimationController::animationCount(void)const {
 		return m_SkeletalAnimations.size();
 	}//animationCount
+
+	UBOBoneData* SkeletalAnimationController::boneUBO(void) {
+		return &m_UBO;
+	}
+
+	void SkeletalAnimationController::retrieveSkinningMatrices(std::vector<Eigen::Matrix4f>* pSkinningMats) {
+		if (nullptr == pSkinningMats) throw NullpointerExcept("pSkinningMats");
+		pSkinningMats->clear();
+		for (auto i : m_Joints) pSkinningMats->push_back(i->SkinningMatrix);
+	}//retrieveSkinningMatrices
 
 }//name space

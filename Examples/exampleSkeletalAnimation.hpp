@@ -53,6 +53,7 @@ namespace CForge {
 
 			// initialize skeletal actor (Eric) and its animation controller
 			SAssetIO::load("Assets/ExampleScenes/CesiumMan/CesiumMan.gltf", &M);
+
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
 			m_BipedController.init(&M);
@@ -70,7 +71,7 @@ namespace CForge {
 			// add skeletal actor to scene graph (Eric)			
 			m_CesiumManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 0.0f, 0.0f));
 			m_CesiumManSGN.init(&m_CesiumManTransformSGN, &m_CesiumMan);
-			m_CesiumManSGN.scale(Vector3f(2.0f, 2.0f, 2.0f));
+			m_CesiumManSGN.scale(Vector3f(3.0f, 3.0f, 3.0f));
 
 			Quaternionf Rot;
 			Rot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
@@ -84,6 +85,8 @@ namespace CForge {
 			std::string GLError = "";
 			GraphicsUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
+
+			m_RepeatAnimation = false;
 		}//initialize
 
 		void clear(void) {
@@ -91,12 +94,17 @@ namespace CForge {
 		}
 
 		void run(void) {
+
 			while (!m_RenderWin.shutdown()) {
 				m_RenderWin.update();
 				m_SG.update(60.0f / m_FPS);
 
 				// this will progress all active skeletal animations for this controller
 				m_BipedController.update(60.0f / m_FPS);
+				if (m_RepeatAnimation && nullptr != m_CesiumMan.activeAnimation()) {
+					auto* pAnim = m_CesiumMan.activeAnimation();
+					if (pAnim->t >= pAnim->Duration) pAnim->t -= pAnim->Duration;
+				}
 
 				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
@@ -108,6 +116,9 @@ namespace CForge {
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 					SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
 					m_CesiumMan.activeAnimation(pAnim);
+				}
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_R, true)) {
+					m_RepeatAnimation = !m_RepeatAnimation;
 				}
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
@@ -134,6 +145,8 @@ namespace CForge {
 		SGNGeometry m_SkydomeSGN;
 		SGNGeometry m_CesiumManSGN;
 		SGNTransformation m_CesiumManTransformSGN;
+
+		bool m_RepeatAnimation;
 
 	};//ExampleSkeletalAnimation
 

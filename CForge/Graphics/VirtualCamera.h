@@ -86,6 +86,11 @@ namespace CForge {
 		void rotZ(float Theta);
 
 		float getFOV();
+		uint32_t viewportWidth(void)const;
+		uint32_t viewportHeight(void)const;
+		float fieldOfView(void)const;
+		float nearPlane(void)const;
+		float farPlane(void)const;
 
 	protected:
 		void notifyListeners(VirtualCameraMsg::MsgCode Code);
@@ -93,7 +98,13 @@ namespace CForge {
 		Eigen::Vector3f m_Position;
 		Eigen::Quaternionf m_Rotation;
 		Eigen::Matrix4f m_Projection;
+		
+
+		uint32_t m_ViewportWidth;
+		uint32_t m_ViewportHeight;
 		float m_FOV;
+		float m_FarPlane;
+		float m_NearPlane;
 	};//VirtualCamera
 
 }//name space

@@ -134,7 +134,7 @@ namespace CForge {
 			LC.DirLightCount = 1;
 			LC.PointLightCount = 1;
 			LC.SpotLightCount = 0;
-			LC.PCFSize = 2;
+			LC.PCFSize = 1;
 			LC.ShadowBias = 0.00005f;
 			LC.ShadowMapCount = 1;
 			m_pShaderMan->configShader(LC);

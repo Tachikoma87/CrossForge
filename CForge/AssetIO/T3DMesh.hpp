@@ -161,6 +161,38 @@ namespace CForge {
 			Bone* pParent;
 			std::vector<Bone*>		Children;
 
+			Bone(void) {
+				clear();
+			}
+
+			~Bone(void) {
+				clear();
+			}
+
+			void init(const Bone* pRef, std::vector<Bone*> *pAllBones) {
+				clear();
+				ID = pRef->ID;
+				Name = pRef->Name;
+				Position = pRef->Position;
+				OffsetMatrix = pRef->OffsetMatrix;
+				VertexInfluences = pRef->VertexInfluences;
+				VertexWeights = pRef->VertexWeights;
+				pParent = (pRef->pParent == nullptr) ? nullptr : pAllBones->at(pRef->pParent->ID);
+				for (auto i : pRef->Children) {
+					Children.push_back(pAllBones->at(i->ID));
+				}
+			}//initialize
+
+			void clear(void) {
+				ID = -1;
+				Name = "";
+				Position = Eigen::Vector3f::Zero();
+				OffsetMatrix = Eigen::Matrix4f::Identity();
+				VertexInfluences.clear();
+				VertexWeights.clear();
+				pParent = nullptr;
+				Children.clear();
+			}//clear
 		};
 
 		struct BoneKeyframes {
@@ -171,6 +203,35 @@ namespace CForge {
 			std::vector<Eigen::Quaternionf> Rotations;
 			std::vector<Eigen::Vector3f> Scalings;
 			std::vector<float> Timestamps;
+
+			BoneKeyframes(void) {
+				clear();
+			}
+
+			~BoneKeyframes(void) {
+				clear();
+			}
+
+			void init(const BoneKeyframes* pRef) {
+				clear();
+				ID = pRef->ID;
+				BoneID = pRef->BoneID;
+				BoneName = pRef->BoneName;
+				Positions = pRef->Positions;
+				Rotations = pRef->Rotations;
+				Scalings = pRef->Scalings;
+				Timestamps = pRef->Timestamps;
+			}//initialize
+
+			void clear(void) {
+				ID = -1;
+				BoneID = -1;
+				BoneName = "";
+				Positions.clear();
+				Rotations.clear();
+				Scalings.clear();
+				Timestamps.clear();
+			}
 		};
 
 		struct SkeletalAnimation {
@@ -178,6 +239,33 @@ namespace CForge {
 			float Duration; // total duration in seconds
 			float Speed; // keyframes per second
 			std::vector<BoneKeyframes*> Keyframes;
+
+			SkeletalAnimation(void) {
+				clear();
+			}
+
+			~SkeletalAnimation(void) {
+				clear();
+			}
+
+			void init(const SkeletalAnimation* pRef) {
+				clear();
+				Name = pRef->Name;
+				Duration = pRef->Duration;
+				Speed = pRef->Speed;
+				for (auto i : pRef->Keyframes) {
+					BoneKeyframes* pKey = new BoneKeyframes();
+					pKey->init(i);
+					Keyframes.push_back(pKey);
+				}
+			}
+
+			void clear(void) {
+				Name = "";
+				Duration = 0.0f;
+				Speed = 0.0f;
+				for (auto& i : Keyframes) delete i;
+			}//clear
 		};
 
 		struct MorphTarget {
@@ -217,6 +305,27 @@ namespace CForge {
 					m_Materials.push_back(pMat);
 				}//for[materials]
 				m_AABB = pRef->m_AABB;
+
+				// create new bones
+				for (auto i : pRef->m_Bones) {
+					Bone* pNewBone = new Bone();
+					m_Bones.push_back(pNewBone);
+				}
+				// initalize bones
+				for (auto i : pRef->m_Bones) {
+					m_Bones[i->ID]->init(i, &m_Bones);
+				}
+
+				// copy skeletal animations
+				for (auto i : pRef->m_SkeletalAnimations) {
+					SkeletalAnimation* pAnim = new SkeletalAnimation();
+					pAnim->init(i);
+					m_SkeletalAnimations.push_back(pAnim);
+				}
+
+				//// morph target related
+				//std::vector<MorphTarget*> m_MorphTargets;
+
 			}
 		}//initialize
 

@@ -6,6 +6,7 @@
 #include "../../CForge/Core/SLogger.h"
 
 
+
 using namespace Assimp;
 
 namespace CForge {
@@ -52,12 +53,14 @@ namespace CForge {
 		if (Filepath.empty()) throw CForgeExcept("Empty filepath specified!");
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 
+		std::string Str = CoreUtility::toLowerCase(Filepath);
+
 		std::string FileType = "";
-		if (Filepath.find(".fbx") != std::string::npos) FileType = "fbx";
-		else if (Filepath.find(".obj") != std::string::npos) FileType = "obj";
-		else if (Filepath.find(".ply") != std::string::npos) FileType = "ply";
-		else if (Filepath.find(".stl") != std::string::npos) FileType = "stl";
-		else if (Filepath.find(".x") != std::string::npos) FileType = "x";
+		if (Str.find(".fbx") != std::string::npos) FileType = "fbx";
+		else if (Str.find(".obj") != std::string::npos) FileType = "obj";
+		else if (Str.find(".ply") != std::string::npos) FileType = "ply";
+		else if (Str.find(".stl") != std::string::npos) FileType = "stl";
+		else if (Str.find(".x") != std::string::npos) FileType = "x";
 
 		// convert mesh to aiScene
 		aiScene S;
@@ -68,22 +71,25 @@ namespace CForge {
 
 	bool AssimpMeshIO::accepted(const std::string Filepath, Operation Op) {
 		bool Rval = false;
+
+		std::string Str = CoreUtility::toLowerCase(Filepath);
+
 		if (Op == OP_LOAD) {
-			if (Filepath.find(".fbx") != std::string::npos) Rval = true;
-			else if (Filepath.find(".obj") != std::string::npos) Rval = true;
-			else if (Filepath.find(".ply") != std::string::npos) Rval = true;
-			else if (Filepath.find(".stl") != std::string::npos) Rval = true;
-			else if (Filepath.find(".x") != std::string::npos) Rval = true;
-			else if (Filepath.find(".glb") != std::string::npos) Rval = true;
-			else if (Filepath.find(".bvh") != std::string::npos) Rval = true;
-			else if (Filepath.find(".gltf") != std::string::npos) Rval = true;
+			if (Str.find(".fbx") != std::string::npos) Rval = true;
+			else if (Str.find(".obj") != std::string::npos) Rval = true;
+			else if (Str.find(".ply") != std::string::npos) Rval = true;
+			else if (Str.find(".stl") != std::string::npos) Rval = true;
+			else if (Str.find(".x") != std::string::npos) Rval = true;
+			else if (Str.find(".glb") != std::string::npos) Rval = true;
+			else if (Str.find(".bvh") != std::string::npos) Rval = true;
+			else if (Str.find(".gltf") != std::string::npos) Rval = true;
 		}
 		else {
-			if (Filepath.find(".fbx") != std::string::npos) Rval = true;
-			else if (Filepath.find(".obj") != std::string::npos) Rval = true;
-			else if (Filepath.find(".ply") != std::string::npos) Rval = true;
-			else if (Filepath.find(".stl") != std::string::npos) Rval = true;
-			else if (Filepath.find(".x") != std::string::npos) Rval = true;
+			if (Str.find(".fbx") != std::string::npos) Rval = true;
+			else if (Str.find(".obj") != std::string::npos) Rval = true;
+			else if (Str.find(".ply") != std::string::npos) Rval = true;
+			else if (Str.find(".stl") != std::string::npos) Rval = true;
+			else if (Str.find(".x") != std::string::npos) Rval = true;
 		}
 		
 		return Rval;
@@ -134,7 +140,8 @@ namespace CForge {
 					Face.Vertices[j] = PositionsOffset + F.mIndices[j];
 				}//for[face indices]
 
-				pSubmesh->Faces.push_back(Face);
+				if(Face.Vertices[0] != -1 && Face.Vertices[1] != -1 && Face.Vertices[2] != -1) 
+					pSubmesh->Faces.push_back(Face);
 			}//for[number of faces]
 			// add submesh to model
 			pMesh->addSubmesh(pSubmesh, false);
@@ -160,6 +167,7 @@ namespace CForge {
 			if (nullptr != pM->mTangents) TangentsOffset += pM->mNumVertices;
 			if (nullptr != pM->mTextureCoords) UVWsOffset += pM->mNumVertices;
 		}//for[all meshes]
+
 
 		// apply global transformation
 		Eigen::Matrix4f GlobalTransform = toEigenMat(pScene->mRootNode->mTransformation);
@@ -197,20 +205,24 @@ namespace CForge {
 			
 			if (pMat->GetTextureCount(aiTextureType_DIFFUSE) > 0){
 				pMat->GetTexture(aiTextureType_DIFFUSE, 0, &Filepath);
-				Mat.TexAlbedo = File::absolute(Directory + Filepath.C_Str());
+				if (File::exists(Filepath.C_Str())) Mat.TexAlbedo = std::string(Filepath.C_Str());
+				else Mat.TexAlbedo = File::absolute(Directory + Filepath.C_Str());
 			}else if (pMat->GetTextureCount(aiTextureType_AMBIENT) > 0) {
 				pMat->GetTexture(aiTextureType_AMBIENT, 0, &Filepath);
-				Mat.TexAlbedo = File::absolute(Directory + Filepath.C_Str());
+				if (File::exists(Filepath.C_Str())) Mat.TexAlbedo = std::string(Filepath.C_Str());
+				else Mat.TexAlbedo = File::absolute(Directory + Filepath.C_Str());
 			}
 
 			if (pMat->GetTextureCount(aiTextureType_NORMALS) > 0 ){
 				pMat->GetTexture(aiTextureType_NORMALS, 0, &Filepath);
-				Mat.TexNormal = File::absolute(Directory + Filepath.C_Str());
+				if (File::exists(Filepath.C_Str())) Mat.TexNormal = std::string(Filepath.C_Str());
+				else Mat.TexNormal = File::absolute(Directory + Filepath.C_Str());
 			}
 
 			if (pMat->GetTextureCount(aiTextureType_HEIGHT) > 0) {
 				pMat->GetTexture(aiTextureType_HEIGHT, 0, &Filepath);
-				Mat.TexDepth = File::absolute(Directory + Filepath.C_Str());
+				if (File::exists(Filepath.C_Str())) Mat.TexDepth = std::string(Filepath.C_Str());
+				else Mat.TexDepth = File::absolute(Directory + Filepath.C_Str());
 			}
 
 			ai_real Buffer[4];
@@ -247,12 +259,12 @@ namespace CForge {
 		aiNode* pRoot = pScene->mRootNode;
 		retrieveBoneHierarchy(pRoot, &Bones);
 
-
 		// find root bone (the one without parent)
 		T3DMesh<float>::Bone* pRootBone = nullptr;
 		for (auto i : Bones) {
 			if (i->pParent == nullptr) pRootBone = i;
 		}//for[all bones]
+
 
 		std::vector<T3DMesh<float>::SkeletalAnimation*> BoneAnimations;
 
@@ -303,7 +315,6 @@ namespace CForge {
 			}//for[channels]
 
 		}//for[all animations]
-
 
 		if (Bones.size() > 0) {
 			// set skeleton

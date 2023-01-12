@@ -40,6 +40,7 @@ endif(USE_OPENCV)
 include_directories(
 #	"${FREETYPE_INCLUDE_DIRS}"
 	"Thirdparty/stb/"
+	"./"
 )
 
 #enable edit and continue and hot reload (Visual Studio 2022)

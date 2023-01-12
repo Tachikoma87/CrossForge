@@ -165,10 +165,10 @@ namespace CForge {
 			m_Mutex.unlock();
 			throw IndexOutOfBoundsExcept("Index of registered object!");
 		}
-		/*if (m_RegisteredObjects[Index] != pObj) {
+		if (m_RegisteredObjects[Index] != pObj) {
 			m_Mutex.unlock();
 			throw CForgeExcept("Registered object ID and stored position do not match. That should not happen!");
-		}*/
+		}
 
 		m_RegisteredObjects[Index] = nullptr;
 		m_FreeObjSlots.push_back(Index);

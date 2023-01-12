@@ -108,6 +108,8 @@ namespace CForge {
 					SLogger::logException(e);
 					pRG->Material.clear();
 				}
+
+
 			}//if[initialize material]
 
 		}//for[render groups]

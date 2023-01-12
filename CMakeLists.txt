@@ -60,6 +60,9 @@ add_executable(CForgeSandbox
 	Prototypes/MeshDecimate.cpp
 
 	Prototypes/Graphics/GLRenderbuffer.cpp
+
+	Prototypes/Math/ViewFrustum.cpp
+	Prototypes/Graphics/SGNCullingGeom.cpp
 	)
 
 

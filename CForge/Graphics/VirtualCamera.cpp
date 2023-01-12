@@ -114,11 +114,13 @@ namespace CForge {
 		notifyListeners(VirtualCameraMsg::POSITION_CHANGED);
 	}//position
 
-
-
 	void VirtualCamera::projectionMatrix(uint32_t ViewportWidth, uint32_t ViewportHeight, float FieldOfView, float NearPlane, float FarPlane) {
 		m_Projection = GraphicsUtility::perspectiveProjection(ViewportWidth, ViewportHeight, FieldOfView, NearPlane, FarPlane);
 		m_FOV = FieldOfView;
+		m_ViewportWidth = ViewportWidth;
+		m_ViewportHeight = ViewportHeight;
+		m_NearPlane = NearPlane;
+		m_FarPlane = FarPlane;
 		notifyListeners(VirtualCameraMsg::PROJECTION_CHANGED);
 	}//projectionMatrix
 
@@ -178,4 +180,25 @@ namespace CForge {
 	float VirtualCamera::getFOV() {
 		return m_FOV;
 	}
+
+	uint32_t VirtualCamera::viewportWidth(void)const {
+		return m_ViewportWidth;
+	}//viewportWidth
+
+	uint32_t VirtualCamera::viewportHeight(void)const {
+		return m_ViewportHeight;
+	}//viewportHeight
+
+	float VirtualCamera::fieldOfView(void)const {
+		return m_FOV;
+	}//fieldOfView
+
+	float VirtualCamera::nearPlane(void)const {
+		return m_NearPlane;
+	}//nearPlane
+
+	float VirtualCamera::farPlane(void)const {
+		return m_FarPlane;
+	}//farPlane
+
 }//name space

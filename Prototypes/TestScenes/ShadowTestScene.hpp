@@ -87,8 +87,8 @@ namespace CForge {
 			m_RenderDev.activeCamera(&m_Cam);
 
 			// initialize  lights
-			m_PointLights[0].init(Eigen::Vector3f(0.0f, 20.0f, 0.0f), -Eigen::Vector3f(0.0f, 10.0f, 0.0f).normalized(), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 1.2f, Eigen::Vector3f(0.5, 0.01, 0.0));
-			m_PointLights[1].init(Eigen::Vector3f(100.0f, 20.0f, -100.0f), -Eigen::Vector3f(0.0f, 20.0f, 20.0f).normalized(), Eigen::Vector3f(1.0f, 1.0, 1.0f), 1.5f, Eigen::Vector3f(0.0, 0.2, 0.02));
+			m_PointLights[0].init(Eigen::Vector3f(0.0f, 20.0f, 0.0f), -Eigen::Vector3f(0.0f, 10.0f, 0.0f).normalized(), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 0.5f, Eigen::Vector3f(0.5, 0.01, 0.0));
+			m_PointLights[1].init(Eigen::Vector3f(100.0f, 20.0f, -100.0f), -Eigen::Vector3f(0.0f, 20.0f, 20.0f).normalized(), Eigen::Vector3f(1.0f, 1.0, 1.0f), 0.2f, Eigen::Vector3f(0.0, 0.2, 0.02));
 	
 			float InnerCutOff = GraphicsUtility::degToRad(15.0f);
 			float OuterCutOff = GraphicsUtility::degToRad(25.0f);
@@ -99,10 +99,10 @@ namespace CForge {
 			Eigen::Vector3f Sun2Pos(-120.0f, 100.0f, 50.0f);
 
 			const uint32_t ShadowMapDim = 1024;
-			m_Sun1.init(Sun1Pos, -Sun1Pos.normalized(), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 3.5f);
+			m_Sun1.init(Sun1Pos, -Sun1Pos.normalized(), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 2.5f);
 			m_Sun1.initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(125, 125), 0.5f, 1000.0f);
 
-			m_Sun2.init(Sun2Pos, -Sun2Pos.normalized(), Eigen::Vector3f(1.0f, 0.9f, 0.9f), 4.1f);
+			m_Sun2.init(Sun2Pos, -Sun2Pos.normalized(), Eigen::Vector3f(1.0f, 0.9f, 0.9f), 3.1f);
 			m_Sun2.initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(150, 150), 0.5f, 1000.0f);
 
 			m_RenderDev.addLight(&m_Sun1);
@@ -114,20 +114,20 @@ namespace CForge {
 
 			// load assets
 			T3DMesh<float> M;
-			SAssetIO::load("MyAssets/TexturedGround.fbx", &M);
+			SAssetIO::load("Assets/ExampleScenes/TexturedGround.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
 			m_Ground.init(&M);
 			M.clear();
 
-			SAssetIO::load("Assets/ExampleScenes/TexturedUnitCube.gltf", &M);
+			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
 			setMeshShader(&M, 0.6f, 0.04f);
 			M.computePerVertexNormals();
 			m_Cube.init(&M);
 			M.clear();
 
-			SAssetIO::load("Assets/ExampleScenes/TexturedUnitCube.gltf", &M);
+			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
 			setMeshShader(&M, 0.6f, 0.04f);
 			M.computePerVertexNormals();
 			m_Sphere.init(&M);
@@ -139,14 +139,14 @@ namespace CForge {
 			m_Armchair.init(&M);
 			M.clear();
 
-			SAssetIO::load("MyAssets/Helmet/DamagedHelmet.gltf", &M);
+			SAssetIO::load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &M);
 			setMeshShader(&M, 0.15f, 0.25f);
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
 			m_Helmet.init(&M);
 			M.clear();
 
-			SAssetIO::load("MyAssets/ManMulti.fbx", &M);
+			SAssetIO::load("MyAssets/Gehen_3-005.glb", &M);
 
 			setMeshShader(&M, 0.6f, 0.04f);
 
@@ -172,9 +172,9 @@ namespace CForge {
 
 			
 			Eigen::Vector3f GroundPos(0.0f, 0.0f, 0.0f);
-			Eigen::Vector3f GroundScale(300.0f, 300.0f, 300.0f);
-			Eigen::Quaternionf GroundRot;
-			GroundRot = Eigen::AngleAxis(GraphicsUtility::degToRad(-90.0f), Eigen::Vector3f::UnitX());
+			Eigen::Vector3f GroundScale(30.0f, 30.0f, 30.0f);
+			Eigen::Quaternionf GroundRot = Quaternionf::Identity();
+			//GroundRot = Eigen::AngleAxis(GraphicsUtility::degToRad(-90.0f), Eigen::Vector3f::UnitX());
 
 			// initialize scene graph
 			m_SGNRoot.init(nullptr);
@@ -210,7 +210,7 @@ namespace CForge {
 			float EricScale = 0.25f;
 			Quaternionf EricRot;
 			EricRot = Quaternionf::Identity();
-			EricRot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
+			//EricRot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
 			m_EricTransform.init(&m_SGNRoot);
 			Quaternionf R;
 			R = AngleAxisf(GraphicsUtility::degToRad(60.0f), Vector3f::UnitY());
@@ -385,7 +385,7 @@ namespace CForge {
 				glEndQuery(GL_TIME_ELAPSED);
 
 				glBeginQuery(GL_TIME_ELAPSED, m_TimingForwardPass);
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 				m_SkyboxSG.update(m_FPS/60.0f);
 				m_SkyboxSG.render(&m_RenderDev);
 				glEndQuery(GL_TIME_ELAPSED);
@@ -427,25 +427,25 @@ namespace CForge {
 				// change light settings
 
 				// point lights get darker and brighter [0, 2.0f]
-				uint32_t Stamp = (uint32_t)CoreUtility::timestamp();
-				float PLIntensity =  (std::sin(Stamp/1000.0f) + 1.0f);
-				m_PointLights[0].intensity(0.0f);
-				m_PointLights[1].intensity(0.0f);
+				//uint32_t Stamp = (uint32_t)CoreUtility::timestamp();
+				//float PLIntensity =  (std::sin(Stamp/1000.0f) + 1.0f);
+				//m_PointLights[0].intensity(0.0f);
+				//m_PointLights[1].intensity(0.0f);
 
-				//printf("Intensity: %.2f\n", PLIntensity);
+				////printf("Intensity: %.2f\n", PLIntensity);
 
-				float ColorTeint = (std::sin(Stamp / 1000.0f) + 1.0f) / 2.0f;
-				//m_Sun1.color(Vector3f(ColorTeint, 0.1f, 0.1f));
+				//float ColorTeint = (std::sin(Stamp / 1000.0f) + 1.0f) / 2.0f;
+				////m_Sun1.color(Vector3f(ColorTeint, 0.1f, 0.1f));
 
-				// change Position of second sun
-				float OffsetX = std::sin(Stamp / 5000.0f) * 100.0f;
-				float OffsetZ = std::cos(Stamp / 5000.0f) * 100.0f;
-				Vector3f Pos = m_Sun2.position();
-				Pos.x() = OffsetX;
-				Pos.z() = OffsetZ;
-				Vector3f Dir = -Pos.normalized();
-				m_Sun2.direction(Dir);
-				m_Sun2.position(Pos);
+				//// change Position of second sun
+				//float OffsetX = std::sin(Stamp / 5000.0f) * 100.0f;
+				//float OffsetZ = std::cos(Stamp / 5000.0f) * 100.0f;
+				//Vector3f Pos = m_Sun2.position();
+				//Pos.x() = OffsetX;
+				//Pos.z() = OffsetZ;
+				//Vector3f Dir = -Pos.normalized();
+				//m_Sun2.direction(Dir);
+				//m_Sun2.position(Pos);
 
 			}//while[run]
 		}//run

@@ -20,6 +20,7 @@
 #include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
 #include "Prototypes/TestScenes/ImageTestScene.hpp"
 #include "Prototypes/TestScenes/ForwardTestScene.hpp"
+#include "Prototypes/TestScenes/FrustumCullingTestScene.hpp"
 
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 
@@ -65,7 +66,6 @@ int main(int argc, char* argv[]) {
 		//exampleSceneGraph();
 	
 		
-
 		//imuInputDeviceTestScene();	 
 		//skelAnimTestScene();
 		//shadowTest();	
@@ -82,6 +82,10 @@ int main(int argc, char* argv[]) {
 		Scene.run();*/
 		
 		//exportLibrary();
+
+		/*FrustumCullingTestScene Scene;
+		Scene.init();
+		Scene.run();*/
 
 	}
 	catch (const CrossForgeException & e) {
