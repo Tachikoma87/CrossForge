@@ -73,6 +73,18 @@ namespace CForge {
 		return &(m_RenderGroupUtility.renderGroups()[Index]->Material);
 	}//material
 
+	BoundingVolume IRenderableActor::boundingVolume(void)const {
+		return m_BV;
+	}//boundingVolume
+
+	void IRenderableActor::boundingVolume(const BoundingVolume BV) {
+		if (BV.type() == BoundingVolume::TYPE_UNKNOWN) m_BV.clear();
+		else if (BV.type() == BoundingVolume::TYPE_AABB) m_BV.init(BV.aabb());
+		else if (BV.type() == BoundingVolume::TYPE_SPHERE) m_BV.init(BV.boundingSphere());
+	}//boundingVolume
+
+
+
 	T3DMesh<float>::AABB IRenderableActor::getAABB()
 	{
 		T3DMesh<float>::AABB aabb;

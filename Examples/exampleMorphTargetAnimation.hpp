@@ -20,7 +20,7 @@
 
 #include "../CForge/Graphics/Actors/MorphTargetActor.h"
 #include "../CForge/MeshProcessing/Builder/MorphTargetModelBuilder.h"
-#include "exampleSceneBase.hpp"
+#include "ExampleSceneBase.hpp"
 
 using namespace Eigen;
 using namespace std;
@@ -47,7 +47,7 @@ namespace CForge {
 			// load skydome and a textured cube
 			T3DMesh<float> M;
 			
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
+			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			m_Skydome.init(&M);
@@ -72,7 +72,7 @@ namespace CForge {
 
 			// add skydome		
 			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
-			m_SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
+			m_SkydomeSGN.scale(Vector3f(50.0f, 50.0f, 50.0f));
 
 			// add cube		
 			m_FaceTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f));

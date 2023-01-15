@@ -69,6 +69,9 @@ namespace CForge {
 		uint32_t registerObject(CForgeObject* pObj);
 		void unregisterObject(CForgeObject* pObj);
 
+		uint32_t retrieveUniqueID(void);
+		void returnUniqueID(void);
+
 	private:
 		static SCrossForgeDevice* m_pInstance; ///< Unique instance pointer.
 		static int16_t m_InstanceCount; ///< Number of instantiation calls

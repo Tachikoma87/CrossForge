@@ -19,7 +19,7 @@
 #ifndef __CFORGE_EXAMPLESCENEGRAPH_HPP__
 #define __CFORGE_EXAMPLESCENEGRAPH_HPP__
 
-#include "exampleSceneBase.hpp"
+#include "ExampleSceneBase.hpp"
 
 namespace CForge {
 	class ExampleSceneGraph : public ExampleSceneBase {
@@ -29,7 +29,7 @@ namespace CForge {
 		}//Constructor
 
 		~ExampleSceneGraph(void) {
-
+			clear();
 		}//Destructor
 
 		void init(void) {
@@ -51,6 +51,8 @@ namespace CForge {
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
 			m_Ground.init(&M);
+			BoundingVolume BV;
+			m_Ground.boundingVolume(BV);
 			M.clear();
 
 			// initialize ground transformation and geometry scene graph node
@@ -63,6 +65,7 @@ namespace CForge {
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			scaleAndOffsetModel(&M, 0.5f);
+			M.computeAxisAlignedBoundingBox();
 			m_Trees[0].init(&M);
 			M.clear();
 
@@ -109,6 +112,9 @@ namespace CForge {
 				uint8_t TreeType = CoreUtility::rand() % 3;
 				pGeomSGN->init(pTransformSGN, &m_Trees[TreeType]);
 
+				m_TreeTransformSGNs.push_back(pTransformSGN);
+				m_TreeSGNs.push_back(pGeomSGN);
+
 			}//for[TreeCount]
 
 			// change sun settings to cover this large area
@@ -117,6 +123,9 @@ namespace CForge {
 		}//initialize
 
 		void clear(void) {
+			for (auto& i : m_TreeSGNs) if (nullptr != i) delete i;
+			for (auto& i : m_TreeTransformSGNs) if (nullptr != i) delete i;
+
 			ExampleSceneBase::clear();
 		}//clear
 
@@ -138,9 +147,11 @@ namespace CForge {
 				m_SG.update(60.0f / m_FPS);
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+				m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
 				m_SG.render(&m_RenderDev);
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+				m_RenderDev.activeCamera(&m_Cam);
 				m_SG.render(&m_RenderDev);
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);

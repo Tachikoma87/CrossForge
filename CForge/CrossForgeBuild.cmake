@@ -83,6 +83,9 @@ add_library(crossforge SHARED
 	CForge/Graphics/VirtualCamera.cpp
 	CForge/Graphics/GraphicsUtility.cpp
 
+	# Camera related
+	CForge/Graphics/Camera/ViewFrustum.cpp
+
 
 	# Actor related
 	CForge/Graphics/Actors/IRenderableActor.cpp 
@@ -123,6 +126,9 @@ add_library(crossforge SHARED
 	CForge/Graphics/SceneGraph/SceneGraph.cpp 
 	CForge/Graphics/SceneGraph/SGNGeometry.cpp
 	CForge/Graphics/SceneGraph/SGNTransformation.cpp
+
+	# Math
+	CForge/Math/BoundingVolume.cpp
 
 	# Input related
 	CForge/Input/Keyboard.cpp

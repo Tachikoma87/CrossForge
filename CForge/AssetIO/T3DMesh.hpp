@@ -20,6 +20,7 @@
 
 #include "../Core/CForgeObject.h"
 #include "../Core/CoreUtility.hpp"
+#include "../Math/Box.hpp"
 
 
 namespace CForge {
@@ -276,6 +277,26 @@ namespace CForge {
 			std::vector<Eigen::Vector3f> NormalOffsets; ///< Normal Offsets
 			
 		};
+
+
+		static Box computeAxisAlignedBoundingBox(const T3DMesh<T>* pMesh) {
+			if (pMesh->vertexCount() == 0) throw CForgeExcept("Mesh contains no vertex data. Can not compute axis aligned bounding box");
+			Eigen::Vector3f Min = pMesh->m_Positions[0];
+			Eigen::Vector3f Max = pMesh->m_Positions[0];
+			for (auto i : pMesh->m_Positions) {
+				if (i.x() < Min.x()) Min.x() = i.x();
+				if (i.y() < Min.y()) Min.y() = i.y();
+				if (i.z() < Min.z()) Min.z() = i.z();
+				if (i.x() > Max.x()) Max.x() = i.x();
+				if (i.y() > Max.y()) Max.y() = i.y();
+				if (i.z() > Max.z()) Max.z() = i.z();
+			}//for[all position values]
+
+			Box Rval;
+			Rval.init(Min, Max);
+			return Rval;
+		}//computeAxisAlignedBoundingBox
+
 
 		T3DMesh(void): CForgeObject("TDMesh") {
 			m_pRoot = nullptr;
@@ -722,6 +743,8 @@ namespace CForge {
 				if (i.z() > m_AABB.Max.z()) m_AABB.Max.z() = i.z();
 			}//for[all position values]
 		}//computeAxisAlignedBoundingBox
+
+		
 
 	protected:
 		std::vector<Eigen::Matrix<T, 3, 1>> m_Positions; ///< Vertex positions

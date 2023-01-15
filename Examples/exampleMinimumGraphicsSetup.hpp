@@ -19,7 +19,7 @@
 #define __CFORGE_EXAMPLEMINIMUMGRAPHICSSETUP_HPP__
 
 
-#include "exampleSceneBase.hpp"
+#include "ExampleSceneBase.hpp"
 
 using namespace Eigen;
 using namespace std;

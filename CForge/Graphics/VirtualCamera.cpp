@@ -18,11 +18,13 @@ namespace CForge {
 	void VirtualCamera::init(Eigen::Vector3f Position, Eigen::Vector3f Up) {
 		clear();
 		m_Position = Position;
+		m_ViewFrustum.init(this);
 	}//initialize
 
 	void VirtualCamera::clear(void) {
 		m_Rotation = Quaternionf::Identity();
 		m_Position = Vector3f::Zero();
+		m_ViewFrustum.clear();
 		notifyListeners(VirtualCameraMsg::POSITION_CHANGED);
 		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);
 	}//clear
@@ -30,6 +32,7 @@ namespace CForge {
 	void VirtualCamera::resetToOrigin(void) {
 		m_Rotation = Quaternionf(1, 0, 0, 0);
 		m_Position = Vector3f(0, 0, 0);
+		m_ViewFrustum.update();
 
 		notifyListeners(VirtualCameraMsg::POSITION_CHANGED);
 		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);	
@@ -54,6 +57,7 @@ namespace CForge {
 		Rot.transposeInPlace();
 		m_Rotation = Rot;
 		m_Position = Position;
+		m_ViewFrustum.update();
 
 		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);
 		notifyListeners(VirtualCameraMsg::POSITION_CHANGED);
@@ -101,21 +105,25 @@ namespace CForge {
 
 	void VirtualCamera::forward(float Speed) {
 		m_Position += Speed * dir();
+		m_ViewFrustum.update();
 		notifyListeners(VirtualCameraMsg::POSITION_CHANGED);
 	}//forward
 
 	void VirtualCamera::right(float Speed) {
 		m_Position += Speed * right();
+		m_ViewFrustum.update();
 		notifyListeners(VirtualCameraMsg::POSITION_CHANGED);
 	}//right
 
 	void VirtualCamera::up(float Speed) {
 		m_Position += Speed * up();
+		m_ViewFrustum.update();
 		notifyListeners(VirtualCameraMsg::POSITION_CHANGED);
 	}//up
 
 	void VirtualCamera::position(Eigen::Vector3f Pos) {
 		m_Position = Pos;
+		m_ViewFrustum.update();
 		notifyListeners(VirtualCameraMsg::POSITION_CHANGED);
 	}//position
 
@@ -126,6 +134,7 @@ namespace CForge {
 		m_ViewportHeight = ViewportHeight;
 		m_NearPlane = NearPlane;
 		m_FarPlane = FarPlane;
+		m_ViewFrustum.update();
 		notifyListeners(VirtualCameraMsg::PROJECTION_CHANGED);
 	}//projectionMatrix
 
@@ -136,6 +145,9 @@ namespace CForge {
 		m_ViewportHeight = Top - Bottom;
 		m_NearPlane = Near;
 		m_FarPlane = Far;
+
+		m_ViewFrustum.update();
+		notifyListeners(VirtualCameraMsg::PROJECTION_CHANGED);
 	}//orthographicProjection
 
 	Matrix4f VirtualCamera::projectionMatrix(void)const {
@@ -147,6 +159,7 @@ namespace CForge {
 		Quaternionf q;
 		q = AngleAxisf(Theta, up());
 		m_Rotation = q * m_Rotation;
+		m_ViewFrustum.update();
 		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);
 	}//yaw
 
@@ -154,6 +167,7 @@ namespace CForge {
 		Quaternionf q;
 		q = AngleAxisf(Theta, dir());
 		m_Rotation = q * m_Rotation;
+		m_ViewFrustum.update();
 		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);
 	}//roll
 
@@ -161,6 +175,7 @@ namespace CForge {
 		Quaternionf q;
 		q = AngleAxisf(Theta, right());
 		m_Rotation = q * m_Rotation;
+		m_ViewFrustum.update();
 		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);
 	}//pitch
 
@@ -168,6 +183,7 @@ namespace CForge {
 		Quaternionf q;
 		q = AngleAxisf(Theta, Eigen::Vector3f::UnitX()).toRotationMatrix();
 		m_Rotation = q * m_Rotation;
+		m_ViewFrustum.update();
 		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);
 	}//rotX
 
@@ -175,6 +191,7 @@ namespace CForge {
 		Quaternionf q;
 		q = AngleAxisf(Theta, Eigen::Vector3f::UnitY()).toRotationMatrix();
 		m_Rotation = q * m_Rotation;
+		m_ViewFrustum.update();
 		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);
 	}//rotY
 
@@ -182,6 +199,7 @@ namespace CForge {
 		Quaternionf q;
 		q = AngleAxisf(Theta, Eigen::Vector3f::UnitZ()).toRotationMatrix();
 		m_Rotation = q * m_Rotation;
+		m_ViewFrustum.update();
 		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);
 	}//rotZ
 
@@ -214,5 +232,9 @@ namespace CForge {
 	float VirtualCamera::farPlane(void)const {
 		return m_FarPlane;
 	}//farPlane
+
+	const ViewFrustum* VirtualCamera::viewFrustum(void)const {
+		return &m_ViewFrustum;
+	}//viewFrustum
 
 }//name space

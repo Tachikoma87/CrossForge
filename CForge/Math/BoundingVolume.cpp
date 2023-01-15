@@ -4,7 +4,7 @@ using namespace Eigen;
 
 namespace CForge {
 
-	BoundingVolume::BoundingVolume(void) {
+	BoundingVolume::BoundingVolume(void): CForgeObject("BoundingVolume") {
 		m_Type = TYPE_UNKNOWN;
 	}//Constructor
 
@@ -15,20 +15,23 @@ namespace CForge {
 	void BoundingVolume::init(const T3DMesh<float>* pMesh, Type T) {
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 		clear();
-		m_AABB.init(pMesh->aabb().Min, pMesh->aabb().Max);
+
+		if (pMesh->aabb().diagonal().norm() < 0.01f) m_AABB = T3DMesh<float>::computeAxisAlignedBoundingBox(pMesh);
+		else m_AABB.init(pMesh->aabb().Min, pMesh->aabb().Max);
+
 		m_Sphere.init(m_AABB.min() + 0.5f * m_AABB.diagonal(), 0.5f * m_AABB.diagonal().norm());
 		m_Type = T;
 	}//initialize
 
-	void BoundingVolume::init(const AABB Box) {
-		m_AABB = Box;
+	void BoundingVolume::init(const Box AABB) {
+		m_AABB = AABB;
 		m_Sphere.init(m_AABB.min() + 0.5f * m_AABB.diagonal(), 0.5f * m_AABB.diagonal().norm());
 		m_Type = TYPE_AABB;
 	}//initialize
 
-	void BoundingVolume::init(const BoundingSphere Sphere) {
-		m_Sphere = Sphere;
-		m_AABB.init(Sphere.center() - Vector3f::Ones() * Sphere.radius(), Sphere.center() + Vector3f::Ones() * Sphere.radius());
+	void BoundingVolume::init(const Sphere BS) {
+		m_Sphere = BS;
+		m_AABB.init(m_Sphere.center() - Vector3f::Ones() * m_Sphere.radius(), m_Sphere.center() + Vector3f::Ones() * m_Sphere.radius());
 		m_Type = TYPE_SPHERE;
 	}//initialize
 
@@ -42,11 +45,11 @@ namespace CForge {
 		delete this;
 	}//release
 
-	AABB BoundingVolume::aabb(void)const {
+	Box BoundingVolume::aabb(void)const {
 		return m_AABB;
 	}//aabb
 
-	BoundingSphere BoundingVolume::boundingSphere(void)const {
+	Sphere BoundingVolume::boundingSphere(void)const {
 		return m_Sphere;
 	}//boundingSphere
 

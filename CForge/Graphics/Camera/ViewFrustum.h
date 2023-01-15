@@ -19,17 +19,15 @@
 #ifndef __CFORGE_VIEWFRUSTUM_H__
 #define __CFORGE_VIEWFRUSTUM_H__
 
-#include <CForge/Core/CForgeObject.h>
-#include <CForge/Graphics/VirtualCamera.h>
-#include "Plane.hpp"
-#include "AABB.hpp"
-#include "BoundingSphere.hpp"
-#include "BoundingVolume.h"
+#include "../../Core/CForgeObject.h"
+#include "../../Math/Plane.hpp"
+#include "../../Math/BoundingVolume.h"
+
 
 namespace CForge {
-	class ViewFrustum : public CForgeObject {
+	class CFORGE_API ViewFrustum: public CForgeObject {
 	public:
-		enum Planes: int8_t {
+		enum Planes : int8_t {
 			PLANE_TOP = 0,
 			PLANE_BOTTOM,
 			PLANE_RIGHT,
@@ -42,24 +40,23 @@ namespace CForge {
 		ViewFrustum(void);
 		~ViewFrustum(void);
 
-		void init(VirtualCamera* pCamera);
+		void init(class VirtualCamera* pCamera);
 		void clear(void);
+		void release(void);
 
 		// thanks to: https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
 		void update(void);
 
-		bool visible(const BoundingVolume BV, const Eigen::Quaternionf Rot, const Eigen::Vector3f Trans, const Eigen::Vector3f Scale);
+		bool visible(const BoundingVolume BV, const Eigen::Quaternionf Rot, const Eigen::Vector3f Trans, const Eigen::Vector3f Scale)const;
 
-		bool visible(const BoundingSphere Sphere, const Eigen::Quaternionf Rot, const Eigen::Vector3f Trans, const Eigen::Vector3f Scale);
+		bool visible(const Sphere BS, const Eigen::Quaternionf Rot, const Eigen::Vector3f Trans, const Eigen::Vector3f Scale)const;
 
 		// thanks to: https://www.braynzarsoft.net/viewtutorial/q16390-34-aabb-cpu-side-frustum-culling
-		bool visible(const AABB BoundingBox, const Eigen::Quaternionf Rot, const Eigen::Vector3f Trans, const Eigen::Vector3f Scale);
+		bool visible(const Box AABB, const Eigen::Quaternionf Rot, const Eigen::Vector3f Trans, const Eigen::Vector3f Scale)const;
 
 	protected:
-		bool sphereInFrustum(const Plane P, const Eigen::Vector3f Center, float Radius);
-		
 		Plane m_Planes[PLANE_COUNT];
-		VirtualCamera* m_pCamera;
+		class VirtualCamera* m_pCamera;
 
 	};//ViewFrustum
 

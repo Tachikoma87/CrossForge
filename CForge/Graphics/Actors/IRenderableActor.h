@@ -23,6 +23,7 @@
 #include "RenderGroupUtility.h"
 #include "../GLBuffer.h"
 #include "../GLVertexArray.h"
+#include "../../Math/BoundingVolume.h"
 
 namespace CForge {
 
@@ -47,6 +48,9 @@ namespace CForge {
 
 		uint32_t materialCount(void)const;
 		RenderMaterial* material(uint32_t Index);
+
+		virtual BoundingVolume boundingVolume(void)const;
+		virtual void boundingVolume(const BoundingVolume BV);
 		
 		// 
 		virtual void testAABBvis(RenderDevice* pRDev, Eigen::Matrix4f sgMat);
@@ -83,6 +87,8 @@ namespace CForge {
 
 		int32_t m_TypeID;
 		std::string m_TypeName;
+
+		BoundingVolume m_BV;
 		
 		//
 		bool m_isInstanced = false;

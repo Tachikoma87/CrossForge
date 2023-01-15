@@ -20,7 +20,7 @@
 
 #include "../CForge/Graphics/Actors/SkeletalActor.h"
 
-#include "exampleSceneBase.hpp"
+#include "ExampleSceneBase.hpp"
 
 using namespace Eigen;
 using namespace std;

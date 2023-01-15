@@ -52,7 +52,7 @@ namespace CForge {
 		m_VertexArray.unbind();
 
 		m_pAnimationController = pController;
-
+		m_BV.init(pMesh, BoundingVolume::TYPE_AABB);
 	}//initialize
 
 	void SkeletalActor::clear(void) {

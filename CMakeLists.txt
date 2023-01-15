@@ -61,9 +61,9 @@ add_executable(CForgeSandbox
 
 	Prototypes/Graphics/GLRenderbuffer.cpp
 
-	Prototypes/Math/ViewFrustum.cpp
-	Prototypes/Math/BoundingVolume.cpp
-	Prototypes/Graphics/SGNCullingGeom.cpp
+	
+	
+	
 	)
 
 

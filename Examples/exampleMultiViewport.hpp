@@ -18,7 +18,7 @@
 #ifndef __CFORGE_EXAMPLEMULTIVIEWPORT_HPP__
 #define __CFORGE_EXAMPLEMULTIVIEWPORT_HPP__
 
-#include "exampleSceneBase.hpp"
+#include "ExampleSceneBase.hpp"
 
 using namespace Eigen;
 using namespace std;
@@ -47,6 +47,7 @@ namespace CForge {
 			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
+			M.computeAxisAlignedBoundingBox();
 			m_Skydome.init(&M);
 			M.clear();
 
@@ -54,6 +55,7 @@ namespace CForge {
 			setMeshShader(&M, 0.2f, 0.24f);
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
+			M.computeAxisAlignedBoundingBox();
 			m_Helmet.init(&M);
 			M.clear();
 
@@ -113,6 +115,7 @@ namespace CForge {
 					//m_RenderDev.viewport(RenderDevice::RENDERPASS_GEOMETRY, m_GBufferVP);
 					m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 					m_SGs[i].render(&m_RenderDev);
+
 					m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 					m_SGs[i].render(&m_RenderDev);
 

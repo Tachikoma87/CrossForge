@@ -20,8 +20,7 @@
 #define __CFORGE_FRUSTUMCULLINGTESTSCENE_HPP__
 
 #include "../../Examples/exampleSceneBase.hpp"
-#include "../Math/ViewFrustum.h"
-#include "../Graphics/SGNCullingGeom.h"
+#include <CForge/Graphics/Camera/ViewFrustum.h>
 
 namespace CForge {
 	class FrustumCullingTestScene : public ExampleSceneBase {
@@ -46,9 +45,6 @@ namespace CForge {
 			// initialize ground plane
 			T3DMesh<float> M;
 
-			BoundingSphere BS[4];
-			AABB AABBs[4];
-
 			// load the ground model
 			SAssetIO::load("Assets/ExampleScenes/TexturedGround.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
@@ -70,8 +66,7 @@ namespace CForge {
 			scaleAndOffsetModel(&M, 0.5f);
 			m_Trees[0].init(&M);
 			M.computeAxisAlignedBoundingBox();
-			BS[0] = computeBoundingSphere(&M);
-			AABBs[0] = computeAABB(&M);
+			
 			M.clear();
 
 			SAssetIO::load("Assets/ExampleScenes/Trees/LowPolyTree_02.glb", &M);
@@ -79,8 +74,7 @@ namespace CForge {
 			M.computePerVertexNormals();
 			m_Trees[1].init(&M);
 			M.computeAxisAlignedBoundingBox();
-			BS[1] = computeBoundingSphere(&M);
-			AABBs[1] = computeAABB(&M);
+			
 			M.clear();
 
 			SAssetIO::load("Assets/ExampleScenes/Trees/LowPolyTree_03.gltf", &M);
@@ -89,17 +83,21 @@ namespace CForge {
 			scaleAndOffsetModel(&M, 5.0f, Vector3f(0.0f, 0.25f, 0.0f));
 			m_Trees[2].init(&M);
 			M.computeAxisAlignedBoundingBox();
-			BS[2] = computeBoundingSphere(&M);
-			AABBs[2] = computeAABB(&M);
+			
 			M.clear();
 
-			AssetIO::load("MyAssets/StarCoin/StarCoin.gltf", &M);
+			AssetIO::load("Assets/ExampleScenes/StarCoin/StarCoin.gltf", &M);
 			setMeshShader(&M, 0.2f, 0.2f);
 			M.computePerVertexTangents();
 			m_Coin.init(&M);
 			M.computeAxisAlignedBoundingBox();
-			BS[3] = computeBoundingSphere(&M);
-			AABBs[3] = computeAABB(&M);
+			
+			// this way we can turn off frustum culling
+			/*BoundingVolume BV;
+			m_Trees[0].boundingVolume(BV);
+			m_Trees[1].boundingVolume(BV);
+			m_Trees[2].boundingVolume(BV);
+			m_Coin.boundingVolume(BV);*/
 
 			// sceen graph node that holds our forest
 			m_TreeGroupSGN.init(&m_RootSGN);
@@ -111,7 +109,7 @@ namespace CForge {
 
 			for (uint32_t i = 0; i < TreeCount; ++i) { 
 				// create the scene graph nodes
-				SGNCullingGeom* pGeomSGN = nullptr;
+				SGNGeometry* pGeomSGN = nullptr;
 				SGNTransformation* pTransformSGN = nullptr;
 
 				// initialize position and scaling of the tree
@@ -130,20 +128,20 @@ namespace CForge {
 
 				// initialize geometry
 				// choose one of the trees randomly
-				pGeomSGN = new SGNCullingGeom();
+				pGeomSGN = new SGNGeometry();
 				uint8_t TreeType = CoreUtility::rand() % 3;
 				pGeomSGN->init(pTransformSGN, &m_Trees[TreeType]);
 
-				BoundingVolume BV;
+				/*BoundingVolume BV;
 				BV.init(AABBs[TreeType]);
 				pGeomSGN->boundingVolume(&BV);
 				pGeomSGN->boundingSphere(BS[TreeType]);
-				pGeomSGN->aabb(AABBs[TreeType]);
+				pGeomSGN->aabb(AABBs[TreeType]);*/
 
 			}//for[TreeCount]
 
 			for (uint32_t i = 0; i < CoinCount; ++i) {
-				SGNCullingGeom* pGeomSGN = nullptr;
+				SGNGeometry* pGeomSGN = nullptr;
 				SGNTransformation* pTransformSGN = nullptr;
 
 				pTransformSGN = new SGNTransformation();
@@ -164,15 +162,15 @@ namespace CForge {
 				pTransformSGN->init(&m_CoinGroupSGN, CoinPos, Quaternionf::Identity(), Vector3f(CoinScale, CoinScale, CoinScale));
 				pTransformSGN->rotationDelta(RotDelta);
 
-				pGeomSGN = new SGNCullingGeom();
+				pGeomSGN = new SGNGeometry();
 				pGeomSGN->init(pTransformSGN, &m_Coin);
 
-				BoundingVolume BV;
+				/*BoundingVolume BV;
 				BV.init(AABBs[3]);
 				pGeomSGN->boundingVolume(&BV);
 
 				pGeomSGN->boundingSphere(BS[3]);
-				pGeomSGN->aabb(AABBs[3]);
+				pGeomSGN->aabb(AABBs[3]);*/
 
 
 			}//for[CoinCount]
@@ -219,7 +217,7 @@ namespace CForge {
 				m_SG.render(&m_RenderDev);
 
 				// culled in shadow pass
-				uint32_t CulledShadowPass = SGNCullingGeom::culled();
+				//uint32_t CulledShadowPass = SGNCullingGeom::culled();
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 				m_RenderDev.activeCamera(&m_Cam);
@@ -232,12 +230,12 @@ namespace CForge {
 
 				m_RenderWin.swapBuffers();
 
-				uint32_t CulledRenderPass = SGNCullingGeom::culled();
+				/*uint32_t CulledRenderPass = SGNCullingGeom::culled();
 
 				if (CoreUtility::timestamp() - LastPrint > 1000) {
 					printf("Culled - Shadow Pass (%d) | Render Pass (%d)\n", CulledShadowPass, CulledRenderPass);
 					LastPrint = CoreUtility::timestamp();
-				}
+				}*/
 
 				updateFPS();
 
@@ -280,22 +278,7 @@ namespace CForge {
 			for (uint32_t i = 0; i < pModel->vertexCount(); ++i) pModel->vertex(i) = Sc * pModel->vertex(i) - Offset;
 		}//scaleModel
 
-		BoundingSphere computeBoundingSphere(T3DMesh<float>* pM) {
-			BoundingSphere Rval;
-
-			T3DMesh<float>::AABB aabb = pM->aabb();
-
-			Rval.center(aabb.Min + 0.5f * aabb.diagonal());
-			Rval.radius(0.5f * aabb.diagonal().norm());
-
-			return Rval;
-		}//computeBoundingSphere
-
-		AABB computeAABB(T3DMesh<float>* pM) {
-			AABB Rval;
-			Rval.init(pM->aabb().Min, pM->aabb().Max);
-			return Rval;
-		}
+		
 
 		SGNTransformation m_RootSGN;
 
@@ -305,11 +288,11 @@ namespace CForge {
 
 		StaticActor m_Trees[3];
 		std::vector<SGNTransformation*> m_TreeTransformSGNs;
-		std::vector<SGNCullingGeom*> m_TreeSGNs;
+		std::vector<SGNGeometry*> m_TreeSGNs;
 
 		StaticActor m_Coin;
 		std::vector<SGNTransformation*> m_CoinTransformSGNs;
-		std::vector<SGNCullingGeom*> m_CoinSGNs;
+		std::vector<SGNGeometry*> m_CoinSGNs;
 
 		SGNTransformation m_TreeGroupSGN;
 		SGNTransformation m_CoinGroupSGN;

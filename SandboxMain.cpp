@@ -11,8 +11,13 @@
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
 
-#include "Examples/Examples.hpp"
-
+#include "../../Examples/ExampleMinimumGraphicsSetup.hpp"
+#include "../../Examples/ExampleMorphTargetAnimation.hpp"
+#include "../../Examples/ExampleMultiViewport.hpp"
+#include "../../Examples/ExampleSceneGraph.hpp"
+#include "../../Examples/ExampleSkeletalAnimation.hpp"
+#include "../../Examples/ExampleSkybox.hpp"
+#include "../../Examples/ExampleSockets.hpp"
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
@@ -55,17 +60,17 @@ int main(int argc, char* argv[]) {
 
 
 	try {
-		//exampleSceneBase();
-		//exampleMinimumGraphicsSetup();
-		//exampleMorphTargetAnimation();
-		//exampleMultiViewport();
-		//exampleSceneGraph();
-		//exampleSkeletalAnimation(); 
-		//exampleSkybox();
-		//exampleSockets();
-		//exampleSceneGraph();
-	
 		
+		//ExampleSceneBase Scene;
+		//ExampleMinimumGraphicsSetup Scene;
+		//ExampleMorphTargetAnimation Scene;
+		//ExampleMultiViewport Scene;
+		//ExampleSceneGraph Scene;
+		//ExampleSkeletalAnimation Scene;
+		//ExampleSkybox Scene;
+		//ExampleSocket Scene;
+		
+	
 		//imuInputDeviceTestScene();	 
 		//skelAnimTestScene();
 		//shadowTest();	
@@ -81,11 +86,13 @@ int main(int argc, char* argv[]) {
 		Scene.init();
 		Scene.run();*/
 		
-		//exportLibrary();
-
+		
 		FrustumCullingTestScene Scene;
+
 		Scene.init();
 		Scene.run();
+
+		//exportLibrary();
 
 	}
 	catch (const CrossForgeException & e) {

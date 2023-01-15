@@ -33,16 +33,20 @@ namespace CForge {
 	*/
 	class CFORGE_API CForgeObject {
 	public:
-		static const uint32_t INVALID_ID = 0xFFFFFFFF;
+		enum SpecialIDs : uint32_t {
+			INVALID_ID = 0xFFFFFFFF,
+		};
 
 		uint32_t objectID(void)const;
 		std::string className(void)const;
 
 	protected:
+		
+
 		CForgeObject(const std::string ClassName);
+		CForgeObject(const CForgeObject& other);
 		virtual ~CForgeObject(void);
 
-	private:
 		uint32_t m_ObjectID;
 		std::string m_ClassName;
 	};//CForgeObject

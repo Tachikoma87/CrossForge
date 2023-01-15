@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): BoundingVolume.hpp                               *
+* File(s): Sphere.hpp                               *
 *                                                                           *
 * Content:                    *
 *                *
@@ -16,44 +16,60 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_BOUNDINGVOLUME_H__
-#define __CFORGE_BOUNDINGVOLUME_H__
+#ifndef __CFORGE_SPHERE_HPP__
+#define __CFORGE_SPHERE_HPP__
 
-#include <CForge/Core/CForgeObject.h>
-#include <CForge/AssetIO/T3DMesh.hpp>
-#include "BoundingSphere.hpp"
-#include "AABB.hpp"
+#include "../Core/CForgeObject.h"
 
 namespace CForge {
-	class BoundingVolume {
+	class Sphere {
 	public:
-		enum Type: int8_t {
-			TYPE_UNKNOWN = -1,
-			TYPE_AABB,
-			TYPE_SPHERE,
-		};
+		Sphere(void){
+			m_Center = Eigen::Vector3f::Zero();
+			m_Radius = 0.0f;
+		}//Constructor
 
-		BoundingVolume(void);
-		~BoundingVolume(void);
+		~Sphere(void) {
+			clear();
+		}//Destructor
 
-		void init(const T3DMesh<float>* pMesh, Type T);
-		void init(const AABB Box);
-		void init(const BoundingSphere Sphere);
-		void clear(void);
-		void release(void);
+		void init(const Eigen::Vector3f Center, const float Radius) {
+			m_Center = Center;
+			m_Radius = Radius;
+		}//initialize
 
-		AABB aabb(void)const;
-		BoundingSphere boundingSphere(void)const;
-		Type type(void)const;
+		void clear(void) {
+			m_Center = Eigen::Vector3f::Zero();
+			m_Radius = 0.0f;
+		}//clear
+
+		void release(void) {
+			delete this;
+		}//release
+
+		Eigen::Vector3f center(void)const {
+			return m_Center;
+		}//center
+
+		float radius(void)const {
+			return m_Radius;
+		}//radius
+
+		void center(const Eigen::Vector3f Center) {
+			m_Center = Center;
+		}//center
+
+		void radius(const float Radius) {
+			m_Radius = Radius;
+		}//radius
 
 	protected:
-		BoundingSphere m_Sphere;
-		AABB m_AABB;
-		Type m_Type; ///< The main type
-
-	};//BoundingVolume
-
+		Eigen::Vector3f m_Center;
+		float m_Radius;
+	};//Sphere
 
 }//name space
 
+
 #endif 
+

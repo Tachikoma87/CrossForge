@@ -157,8 +157,8 @@ namespace CForge {
 
 	void SCrossForgeDevice::unregisterObject(CForgeObject* pObj) {
 		if (nullptr == pObj) throw NullpointerExcept("pObj");
-		m_Mutex.lock();
 
+		m_Mutex.lock();
 
 		uint32_t Index = pObj->objectID();
 		if (Index >= m_RegisteredObjects.size()) {
@@ -166,12 +166,16 @@ namespace CForge {
 			throw IndexOutOfBoundsExcept("Index of registered object!");
 		}
 
-		m_RegisteredObjects[Index] = nullptr;
-		m_FreeObjSlots.push_back(Index);
+		if (m_RegisteredObjects[Index] == nullptr || m_RegisteredObjects[Index]->objectID() != pObj->objectID()) {
+			//printf("That should not happen!\n");
+		}
+		else {
+			m_RegisteredObjects[Index] = nullptr;
+			m_FreeObjSlots.push_back(Index);
+		}
 
 		m_Mutex.unlock();
 	}//unregisterObject
 
-	
 
 }//name-space

@@ -54,6 +54,10 @@ namespace CForge {
 		m_MorphTargetUBO.dataOffset(pMesh->vertexCount());
 
 		m_pAnimationController = pController;
+
+	
+		m_BV.init(pMesh, BoundingVolume::TYPE_AABB);
+
 	}//initialize
 
 	void MorphTargetActor::clear(void) {

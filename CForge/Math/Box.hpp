@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): Plane.hpp                               *
+* File(s): Box.hpp                               *
 *                                                                           *
 * Content:                    *
 *                *
@@ -16,57 +16,67 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_PLANE_HPP__
-#define __CFORGE_PLANE_HPP__
+#ifndef __CFORGE_BOX_HPP__
+#define __CFORGE_BOX_HPP__
 
-#include <CForge/Core/CForgeObject.h>
+#include "../Core/CForgeObject.h"
 
 namespace CForge {
-	class Plane {
+	class Box {
 	public:
-		Plane(void) {
-
+		Box(void) {
+			m_Min = Eigen::Vector3f::Zero();
+			m_Max = Eigen::Vector3f::Zero();
 		}//Constructor
 
-		~Plane(void) {
-
+		~Box(void) {
+			clear();
 		}//Destructor
 
-		void init(float Distance, Eigen::Vector3f Normal) {
-			m_Normal = Normal;
-			m_Distance = Distance;
+		void init(Eigen::Vector3f Min, Eigen::Vector3f Max) {
+			m_Min = Min;
+			m_Max = Max;
 		}//initialize
 
-		void init(Eigen::Vector3f OnPoint, Eigen::Vector3f Normal) {
-			m_Normal = Normal.normalized();
-			m_Distance = OnPoint.dot(m_Normal);
-		}//initialize
+		void clear(void) {
+			m_Min = Eigen::Vector3f::Zero();
+			m_Max = Eigen::Vector3f::Zero();
+		}//clear
 
-		Eigen::Vector3f normal(void)const {
-			return m_Normal;
-		}//normal
+		void release(void) {
+			delete this;
+		}//release
 
-		void normal(Eigen::Vector3f Normal) {
-			m_Normal = Normal;
-		}//normal
+		Eigen::Vector3f min(void)const {
+			return m_Min;
+		}//min
 
-		float distance(void)const {
-			return m_Distance;
-		}//distance
+		Eigen::Vector3f max(void)const {
+			return m_Max;
+		}//max
 
-		void distance(float Distance) {
-			m_Distance = Distance;
-		}//distance
+		void min(const Eigen::Vector3f Min) {
+			m_Min = Min;
+		}//min
 
-		float signedDistance(Eigen::Vector3f Point)const {
-			return m_Normal.dot(Point) - m_Distance;
-		}//distance
+		void max(const Eigen::Vector3f Max) {
+			m_Max = Max;
+		}//max
+
+		Eigen::Vector3f diagonal(void)const {
+			return (m_Max - m_Min);
+		}//diagonal
+
+		Eigen::Vector3f center(void)const {
+			return m_Min + 0.5f * diagonal();
+		}//center
 
 	protected:
-		Eigen::Vector3f m_Normal;
-		float m_Distance;
-	};//Plane
+		Eigen::Vector3f m_Min;
+		Eigen::Vector3f m_Max;
+	};//Box
 
 }//name space
+
 
 #endif 

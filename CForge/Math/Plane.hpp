@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): BoundingSphere.hpp                               *
+* File(s): Plane.hpp                               *
 *                                                                           *
 * Content:                    *
 *                *
@@ -16,51 +16,67 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_BOUNDINGSPHERE_HPP__
-#define __CFORGE_BOUNDINGSPHERE_HPP__
+#ifndef __CFORGE_PLANE_HPP__
+#define __CFORGE_PLANE_HPP__
 
-#include <CForge/Core/CForgeObject.h>
+#include "../Core/CForgeObject.h"
 
 namespace CForge {
-	class BoundingSphere {
+	class Plane {
 	public:
-		BoundingSphere(void){
-			m_Center = Eigen::Vector3f::Zero();
-			m_Radius = 0.0f;
+		Plane(void) {
+			m_Normal = Eigen::Vector3f::Zero();
+			m_Distance = 0.0f;
 		}//Constructor
 
-		~BoundingSphere(void) {
-
+		~Plane(void) {
+			clear();
 		}//Destructor
 
-		void init(const Eigen::Vector3f Center, const float Radius) {
-			m_Center = Center;
-			m_Radius = Radius;
+		void init(float Distance, Eigen::Vector3f Normal) {
+			m_Normal = Normal;
+			m_Distance = Distance;
 		}//initialize
 
-		Eigen::Vector3f center(void)const {
-			return m_Center;
-		}//center
+		void init(Eigen::Vector3f OnPoint, Eigen::Vector3f Normal) {
+			m_Normal = Normal.normalized();
+			m_Distance = OnPoint.dot(m_Normal);
+		}//initialize
 
-		float radius(void)const {
-			return m_Radius;
-		}//radius
+		void clear(void) {
+			m_Normal = Eigen::Vector3f::Zero();
+			m_Distance = 0.0f;
+		}//clear
 
-		void center(const Eigen::Vector3f Center) {
-			m_Center = Center;
-		}//center
+		void release(void) {
+			delete this;
+		}//release
 
-		void radius(const float Radius) {
-			m_Radius = Radius;
-		}//radius
+		Eigen::Vector3f normal(void)const {
+			return m_Normal;
+		}//normal
+
+		void normal(Eigen::Vector3f Normal) {
+			m_Normal = Normal;
+		}//normal
+
+		float distance(void)const {
+			return m_Distance;
+		}//distance
+
+		void distance(float Distance) {
+			m_Distance = Distance;
+		}//distance
+
+		float signedDistance(Eigen::Vector3f Point)const {
+			return m_Normal.dot(Point) - m_Distance;
+		}//distance
 
 	protected:
-		Eigen::Vector3f m_Center;
-		float m_Radius;
-	};//BoundingSphere
+		Eigen::Vector3f m_Normal;
+		float m_Distance;
+	};//Plane
 
 }//name space
 
-
 #endif 
-

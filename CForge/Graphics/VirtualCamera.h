@@ -20,6 +20,7 @@
 
 #include "../Core/CForgeObject.h"
 #include "../Core/ITCaller.hpp"
+#include "Camera/ViewFrustum.h"
 
 namespace CForge {
 	/**
@@ -93,6 +94,8 @@ namespace CForge {
 		float nearPlane(void)const;
 		float farPlane(void)const;
 
+		const ViewFrustum* viewFrustum(void)const;
+
 	protected:
 		void notifyListeners(VirtualCameraMsg::MsgCode Code);
 
@@ -106,6 +109,8 @@ namespace CForge {
 		float m_FOV;
 		float m_FarPlane;
 		float m_NearPlane;
+
+		ViewFrustum m_ViewFrustum;
 	};//VirtualCamera
 
 }//name space

@@ -69,10 +69,15 @@ namespace CForge {
 
 	void SGNGeometry::render(RenderDevice* pRDev, const Eigen::Vector3f Position, const Eigen::Quaternionf Rotation, const Eigen::Vector3f Scale) {
 		if (nullptr != m_pRenderable && m_RenderingEnabled) {
-			Eigen::Vector3f Pos = Position + m_Position;
-			Eigen::Quaternionf Rot = Rotation * m_Rotation;
-			Eigen::Vector3f S = m_Scale.cwiseProduct(Scale);
-			pRDev->requestRendering(m_pRenderable, Rot, Pos, S);
+			const Eigen::Vector3f Pos = Position + m_Position;
+			const Eigen::Quaternionf Rot = Rotation * m_Rotation;
+			const Eigen::Vector3f S = m_Scale.cwiseProduct(Scale);
+
+			const BoundingVolume BV = m_pRenderable->boundingVolume();
+
+			if (BV.type() == BoundingVolume::TYPE_UNKNOWN || pRDev->activeCamera()->viewFrustum()->visible(BV, Rot, Pos, S))
+				pRDev->requestRendering(m_pRenderable, Rot, Pos, S);
+
 		}
 	}//render
 

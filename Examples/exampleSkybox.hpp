@@ -18,7 +18,7 @@
 #ifndef __CFORGE_EXAMPLESKYBOX_HPP__
 #define __CFORGE_EXAMPLESKYBOX_HPP__
 
-#include "exampleSceneBase.hpp"
+#include "ExampleSceneBase.hpp"
 #include "../CForge/Graphics/Actors/SkyboxActor.h"
 
 
