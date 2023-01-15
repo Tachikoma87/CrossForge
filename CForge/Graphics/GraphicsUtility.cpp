@@ -86,13 +86,10 @@ namespace CForge {
 		Eigen::Matrix4f Rval = Eigen::Matrix4f::Identity();
 
 		Eigen::Vector3f f = Target - Position;
-
 		Eigen::Vector3f s = f.cross(Up);
-		Eigen::Vector3f u = s.cross(f);
-
 		f.normalize();
 		s.normalize();
-		u.normalize();
+		Eigen::Vector3f u = s.cross(f);
 
 		Rval(0, 0) = s.x();
 		Rval(0, 1) = s.y();

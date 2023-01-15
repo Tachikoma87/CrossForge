@@ -89,7 +89,8 @@ namespace CForge {
 			m_Sun.init(SunPos, (Vector3f(0.0f, 0.0f, 0.0f) - SunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 15.0f);
 			// sun will cast shadows
 			uint32_t ShadowMapSize = 4 * 1024;
-			m_Sun.initShadowCasting(ShadowMapSize, ShadowMapSize, GraphicsUtility::orthographicProjection(275.0f, 275.0f, 5.0f, 1500.0f));
+			//m_Sun.initShadowCasting(ShadowMapSize, ShadowMapSize, GraphicsUtility::orthographicProjection(275.0f, 275.0f, 5.0f, 1500.0f));
+			m_Sun.initShadowCasting(ShadowMapSize, ShadowMapSize, Vector2i(275, 275), 5.0f, 1500.0f);
 			m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f, Vector3f(0.0f, 0.0f, 0.0f));
 
 			// set camera and lights

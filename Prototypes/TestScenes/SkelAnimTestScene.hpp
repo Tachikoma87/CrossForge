@@ -154,7 +154,8 @@ namespace CForge {
 			Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -30.0f);
 			m_Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
 			// sun will cast shadows
-			m_Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(30.0f, 30.0f, 0.1f, 1000.0f));
+			//m_Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(30.0f, 30.0f, 0.1f, 1000.0f));
+			m_Sun.initShadowCasting(1024, 1024, Vector2i(30, 30), 01.f, 1000.0f);
 			m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
 
 			// set camera and lights
@@ -439,6 +440,7 @@ namespace CForge {
 #ifdef TECHNIQUE_EVALUATION
 			AssetIO::load("MyAssets/Technique_Evaluation/OldModel.gltf", &M);
 			
+			// mesh 1 (captured mesh)
 			setMeshShader(&M, 0.6f, 0.04f);
 			M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
 			M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
@@ -457,6 +459,7 @@ namespace CForge {
 			m_CapturedMeshOrig.init(&M);
 			m_CapturedMeshTransformed.init(&M);
 
+			// Mesh2 (Modified Skeleton from Blender)
 			AssetIO::load("MyAssets/Technique_Evaluation/OldModel_Modified.gltf", &M);
 			setMeshShader(&M, 0.6f, 0.04f);
 			M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
@@ -468,24 +471,30 @@ namespace CForge {
 
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
+
+			
 			m_ControllerSynth.init(&M);
 			m_Synth.init(&M, &m_ControllerSynth);
 
 			m_SynthMeshOrig.init(&M);
 			m_SynthMeshTransformed.init(&M);
 
+			// Mesh3 (Modified Skeleton from Blender) and recomputed inverse bind pose matrix
+			/*recomputeInverseBindPoseMatrix(&M, false, false);
+			m_ControllerStyle2.init(&M);
+			m_Style2.init(&M, &m_ControllerStyle2);
 
+			m_Style2MeshOrig.init(&M);
+			m_Style2MeshTransformed.init(&M);*/
 
-			//AssetIO::load("MyAssets/Technique_Evaluation/OldGait.bvh", &AnimData); // Subject 12
-			//M.clearSkeletalAnimations();
-			//M.addSkeletalAnimation(AnimData.getSkeletalAnimation(0), true);
-			//recomputeInverseBindPoseMatrix(&M, false);
+			
+			// Mesh 4 (modified skeleton from bvh and recomputed inverse bind pose matrix)
 
 			AnimData.clear();
 			AssetIO::load("MyAssets/Technique_Evaluation/OldGait.bvh", &AnimData);
 			M.clearSkeletalAnimations();
 			M.addSkeletalAnimation(AnimData.getSkeletalAnimation(0), true);
-			recomputeInverseBindPoseMatrix(&M, false);
+			recomputeInverseBindPoseMatrix(&M, false, true);
 
 
 			// copy timeline from captured mesh
@@ -565,7 +574,7 @@ namespace CForge {
 #endif
 
 #ifdef TECHNIQUE_EVALUATION
-			Vector3f ModelPos = Vector3f(0.0f, 0.0f, 0.0f);
+			Vector3f ModelPos = Vector3f(-5.0f, 0.0f, 0.0f);
 			Vector3f ModelOffset = Vector3f(6.0f, 0.0f, 0.0f);
 			m_CapturedTransformSGN.init(&m_RootSGN, ModelPos - ModelOffset, Rot, Vector3f(Sc, Sc, Sc));
 			m_CapturedSGN.init(&m_CapturedTransformSGN, &m_Captured);
@@ -573,8 +582,11 @@ namespace CForge {
 			m_SynthTransformSGN.init(&m_RootSGN, ModelPos, Rot, Vector3f(Sc, Sc, Sc));
 			m_SynthSGN.init(&m_SynthTransformSGN, &m_Synth);
 
+			/*m_Style2TransformSGN.init(&m_RootSGN, ModelPos + ModelOffset, Rot, Vector3f(Sc, Sc, Sc));
+			m_Style2SGN.init(&m_Style2TransformSGN, &m_Style2);*/
+
 			m_StyleTransformSGN.init(&m_RootSGN, ModelPos + ModelOffset, Rot, Vector3f(Sc, Sc, Sc));
-			m_StyleSGN.init(&m_StyleTransformSGN, &m_Style);
+			m_StyleSGN.init(&m_StyleTransformSGN, &m_Style);		
 #endif
 
 			// stuff for performance monitoring
@@ -607,6 +619,7 @@ namespace CForge {
 				m_ControllerCaptured.update(60.0f / m_FPS);
 				m_ControllerSynth.update(60.0f / m_FPS);
 				m_ControllerStyle.update(60.0f / m_FPS);
+				m_ControllerStyle2.update(60.0f / m_FPS);
 
 				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
@@ -619,6 +632,7 @@ namespace CForge {
 					if(m_ControllerCaptured.animationCount() > 0) m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, AnimationSpeed, 0.0f));
 					if(m_ControllerSynth.animationCount() > 0) m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, AnimationSpeed, 0.0f));
 					if(m_ControllerStyle.animationCount() > 0) m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed, 0.0f));
+					if (m_ControllerStyle2.animationCount() > 0) m_Style2.activeAnimation(m_ControllerStyle2.createAnimation(0, AnimationSpeed, 0.0f));
 					LastAnimSpeed = AnimationSpeed;
 				}
 
@@ -636,6 +650,7 @@ namespace CForge {
 					m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, LastAnimSpeed, 0.0f));
 					m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, LastAnimSpeed, 0.0f));
 					m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, LastAnimSpeed, 0.0f));
+					m_Style2.activeAnimation(m_ControllerStyle2.createAnimation(0, LastAnimSpeed, 0.0f));
 				}
 
 #ifdef ART_HUMAN_2_TEST
@@ -695,7 +710,15 @@ namespace CForge {
 					if (m_Captured.activeAnimation() == nullptr) {
 						m_RecordingFile.end();
 						m_Recording = false;
+
+						m_ErrorsSynth.z() /= float(m_RecordingCounter);
+						m_ErrorsStyle.z() /= float(m_RecordingCounter);
+						m_ErrorsStyle2.z() /= float(m_RecordingCounter);
+
 						printf("Recording finished\n");
+						printf("\t Errors Synth (Max | Min | Avg): %.5f %.5f %.5f\n", m_ErrorsSynth.x(), m_ErrorsSynth.y(), m_ErrorsSynth.z());
+						printf("\t Errors Style (Max | Min | Avg): %.5f %.5f %.5f\n", m_ErrorsStyle.x(), m_ErrorsStyle.y(), m_ErrorsStyle.z());
+						printf("\t Errors Style2 (Max | Min | Avg): %.5f %.5f %.5f\n", m_ErrorsStyle2.x(), m_ErrorsStyle2.y(), m_ErrorsStyle2.z());
 					}
 					else {
 						std::vector<Eigen::Matrix4f> SkinningMats;
@@ -712,6 +735,12 @@ namespace CForge {
 						transformSkinnedMesh(&m_SynthMeshOrig, &m_SynthMeshTransformed, &SkinningMats);
 						SkinningMats.clear();
 
+						//// deform Style2 mesh
+						//m_ControllerStyle2.applyAnimation(m_Style2.activeAnimation(), true);
+						//m_ControllerStyle2.retrieveSkinningMatrices(&SkinningMats);
+						//transformSkinnedMesh(&m_Style2MeshOrig, &m_Style2MeshTransformed, &SkinningMats);
+						//SkinningMats.clear();
+
 						// deform style mesh
 						m_ControllerStyle.applyAnimation(m_Style.activeAnimation(), true);
 						m_ControllerStyle.retrieveSkinningMatrices(&SkinningMats);
@@ -720,11 +749,21 @@ namespace CForge {
 
 						// compute mesh deviations
 						float Dev1 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_SynthMeshTransformed);
-						float Dev2 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_StyleMeshTransformed);
+						if (Dev1 > m_ErrorsSynth.x()) m_ErrorsSynth.x() = Dev1;
+						if (Dev1 < m_ErrorsSynth.y()) m_ErrorsSynth.y() = Dev1;
+						m_ErrorsSynth.z() += Dev1;
 
-						//printf("Deviations: %.4f | %.4f\n", Dev1, Dev2);
+						/*float Dev2 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_Style2MeshTransformed);
+						if (Dev2 > m_ErrorsStyle2.x()) m_ErrorsStyle2.x() = Dev2;
+						if (Dev2 < m_ErrorsStyle2.y()) m_ErrorsStyle2.y() = Dev2;
+						m_ErrorsStyle2.z() += Dev2;*/
 
-						string Msg = std::to_string(m_RecordingCounter) + ", " + std::to_string(Dev1) + ", " + std::to_string(Dev2) + "\n";
+						float Dev3 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_StyleMeshTransformed);
+						if (Dev3 > m_ErrorsStyle.x()) m_ErrorsStyle.x() = Dev3;
+						if (Dev3 < m_ErrorsStyle.y()) m_ErrorsStyle.y() = Dev3;
+						m_ErrorsStyle.z() += Dev3;
+
+						string Msg = std::to_string(m_RecordingCounter) + ", " + std::to_string(Dev1) + ", " + std::to_string(Dev3) + "\n";
 						m_RecordingFile.write(Msg.c_str(), Msg.length());
 						m_RecordingCounter++;
 					}
@@ -742,13 +781,31 @@ namespace CForge {
 						string Msg = "Frame Number, Error M1, Error M2\n";
 						m_RecordingFile.write(Msg.c_str(), Msg.length());
 
-						if (m_ControllerCaptured.animationCount() > 0) m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, AnimationSpeed, 0.0f));
-						if (m_ControllerSynth.animationCount() > 0) m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, AnimationSpeed, 0.0f));
-						if (m_ControllerStyle.animationCount() > 0) m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed, 0.0f));
+						if (m_ControllerCaptured.animationCount() > 0) m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, AnimationSpeed/2.0f, 0.0f));
+						if (m_ControllerSynth.animationCount() > 0) m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, AnimationSpeed/2.0f, 0.0f));
+						if (m_ControllerStyle.animationCount() > 0) m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed/2.0f, 0.0f));
+						//if (m_ControllerStyle2.animationCount() > 0) m_Style2.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed/2.0f, 0.0f));
+
+						float t = 1.0f * 1000.0f / 60.0f;
+
+						m_Captured.activeAnimation()->t = t;
+						m_Synth.activeAnimation()->t = t;
+						m_Style.activeAnimation()->t = t;
+						//m_Style2.activeAnimation()->t = t;
 
 						m_Recording = true;
 						m_RecordingCounter = 0;
+
+						m_ErrorsStyle = Vector3f::Zero();
+						m_ErrorsSynth = Vector3f::Zero();
+						//m_ErrorsStyle2 = Vector3f::Zero();
+
+						m_ErrorsStyle.y() = std::numeric_limits<float>::max();
+						m_ErrorsSynth.y() = std::numeric_limits<float>::max();
+						//m_ErrorsStyle2.y() = std::numeric_limits<float>::max();
+
 						printf("Recording started\n");
+
 					}
 					
 
@@ -758,7 +815,6 @@ namespace CForge {
 				else if( m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_M, true)) {
 					std::vector<Eigen::Matrix4f> SkinningMats;
 
-					m_Style.activeAnimation()->t = m_Captured.activeAnimation()->t;
 
 					// deform capture mesh
 					m_ControllerCaptured.applyAnimation(m_Captured.activeAnimation(), true);
@@ -800,7 +856,7 @@ namespace CForge {
 	protected:
 		
 
-		void transformSkeleton(T3DMesh<float>::Bone* pBone, Eigen::Matrix4f ParentTransform, std::vector<T3DMesh<float>::BoneKeyframes*>* pKeyframes, Eigen::Vector4f *pMinMax, bool DryRun) {
+		void transformSkeleton(T3DMesh<float>::Bone* pBone, Eigen::Matrix4f ParentTransform, std::vector<T3DMesh<float>::BoneKeyframes*>* pKeyframes, Eigen::Vector4f *pMinMax, bool ConsiderTranslationOnly, bool DryRun) {
 			// compute local transform
 			T3DMesh<float>::BoneKeyframes* pFrame = nullptr;
 			
@@ -814,8 +870,9 @@ namespace CForge {
 				Matrix4f T = (pFrame->Positions.size() > 0) ? GraphicsUtility::translationMatrix(pFrame->Positions[0]) : Matrix4f::Identity();
 				Matrix4f S = (pFrame->Scalings.size() > 0) ? GraphicsUtility::scaleMatrix(pFrame->Scalings[0]) : Matrix4f::Identity();
 
-				//R = Matrix4f::Identity();
-				S = R = Matrix4f::Identity();
+				if (ConsiderTranslationOnly) {
+					S = R = Matrix4f::Identity();
+				}
 
 				if (pBone->pParent == nullptr) {
 					JointTransform = R * S;
@@ -858,11 +915,11 @@ namespace CForge {
 			if(!DryRun)	pBone->OffsetMatrix = LocalTransform.inverse();
 
 			// recursion
-			for (auto i : pBone->Children) transformSkeleton(i, LocalTransform, pKeyframes, pMinMax, DryRun);
+			for (auto i : pBone->Children) transformSkeleton(i, LocalTransform, pKeyframes, pMinMax, ConsiderTranslationOnly, DryRun);
 
 		}//transformSkeleton
 
-		void recomputeInverseBindPoseMatrix(T3DMesh<float>* pMesh, bool ScaleRootAnimation) {
+		void recomputeInverseBindPoseMatrix(T3DMesh<float>* pMesh, bool ScaleRootAnimation, bool ConsiderTranslationOnly) {
 			if (nullptr == pMesh->rootBone()) throw CForgeExcept("Mesh contains no root bone!");
 			if (0 == pMesh->skeletalAnimationCount()) throw CForgeExcept("Mesh contains no animations!");
 
@@ -872,7 +929,7 @@ namespace CForge {
 			Eigen::Vector4f MinMax[3] = { Eigen::Vector4f::Zero(), Eigen::Vector4f::Zero(), Eigen::Vector4f::Zero() };
 
 			//for(auto i: pRoot->Children) transformSkeleton(i, Eigen::Matrix4f::Identity(), &pAnim->Keyframes, MinMax, false);
-			transformSkeleton(pRoot, Eigen::Matrix4f::Identity(), &pAnim->Keyframes, MinMax, false);
+			transformSkeleton(pRoot, Eigen::Matrix4f::Identity(), &pAnim->Keyframes, MinMax, ConsiderTranslationOnly, false);
 
 		
 			if (ScaleRootAnimation) {
@@ -998,9 +1055,11 @@ namespace CForge {
 		SkeletalActor m_Captured;
 		SkeletalActor m_Synth;
 		SkeletalActor m_Style;
+		SkeletalActor m_Style2;
 		SkeletalAnimationController m_ControllerCaptured;
 		SkeletalAnimationController m_ControllerSynth;
 		SkeletalAnimationController m_ControllerStyle;
+		SkeletalAnimationController m_ControllerStyle2;
 
 		StaticActor m_ComparisonModel;
 		SGNGeometry m_ComparisonModelSGN;
@@ -1010,21 +1069,29 @@ namespace CForge {
 		SGNGeometry m_CapturedSGN;
 		SGNGeometry m_StyleSGN;
 		SGNGeometry m_SynthSGN;
+		SGNGeometry m_Style2SGN;
+
 		SGNTransformation m_CapturedTransformSGN;
 		SGNTransformation m_StyleTransformSGN;
 		SGNTransformation m_SynthTransformSGN;
+		SGNTransformation m_Style2TransformSGN;
 
 
 		T3DMesh<float> m_CapturedMeshOrig;
 		T3DMesh<float> m_SynthMeshOrig;
 		T3DMesh<float> m_StyleMeshOrig;
+		T3DMesh<float> m_Style2MeshOrig;
 		T3DMesh<float> m_CapturedMeshTransformed;
 		T3DMesh<float> m_SynthMeshTransformed;
 		T3DMesh<float> m_StyleMeshTransformed;
+		T3DMesh<float> m_Style2MeshTransformed;
 
 		bool m_Recording;
 		File m_RecordingFile;
 		uint32_t m_RecordingCounter;
+		Eigen::Vector3f m_ErrorsSynth;
+		Eigen::Vector3f m_ErrorsStyle;
+		Eigen::Vector3f m_ErrorsStyle2;
 	};//SkelAnimTestScene
 
 	void skelAnimTestScene(void) {

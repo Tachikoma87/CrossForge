@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 		//exampleMorphTargetAnimation();
 		//exampleMultiViewport();
 		//exampleSceneGraph();
-		exampleSkeletalAnimation(); 
+		//exampleSkeletalAnimation(); 
 		//exampleSkybox();
 		//exampleSockets();
 		//exampleSceneGraph();
@@ -83,9 +83,9 @@ int main(int argc, char* argv[]) {
 		
 		//exportLibrary();
 
-		/*FrustumCullingTestScene Scene;
+		FrustumCullingTestScene Scene;
 		Scene.init();
-		Scene.run();*/
+		Scene.run();
 
 	}
 	catch (const CrossForgeException & e) {

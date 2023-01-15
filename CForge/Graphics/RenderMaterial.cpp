@@ -1,5 +1,6 @@
 #include "RenderMaterial.h"
 #include "STextureManager.h"
+#include "../Core/SLogger.h"
 
 namespace CForge {
 
@@ -17,10 +18,38 @@ namespace CForge {
 		clear();
 		if (nullptr == pMat) throw NullpointerExcept("pMat");
 
-		if (!pMat->TexAlbedo.empty()) m_pAlbedoMap = STextureManager::create(pMat->TexAlbedo);
+		
+		if (!pMat->TexAlbedo.empty()) {
+			try {
+			m_pAlbedoMap = STextureManager::create(pMat->TexAlbedo);
+			}
+			catch (const CrossForgeException& e) {
+				SLogger::logException(e);
+				m_pAlbedoMap = STextureManager::create(8, 8, uint8_t(255U), uint8_t(255U), uint8_t(255U), false);
+			}
+		}
 		else m_pAlbedoMap = STextureManager::create(8, 8, uint8_t(255U), uint8_t(255U), uint8_t(255U), false);
-		if (!pMat->TexNormal.empty()) m_pNormalMap = STextureManager::create(pMat->TexNormal);
-		if (!pMat->TexDepth.empty()) m_pDepthMap = STextureManager::create(pMat->TexDepth);
+		
+			
+		if (!pMat->TexNormal.empty()) {
+			try {
+				m_pNormalMap = STextureManager::create(pMat->TexNormal);
+			}
+			catch (const CrossForgeException& e) {
+				SLogger::logException(e);
+				m_pNormalMap = STextureManager::create(8, 8, uint8_t(0), uint8_t(0), uint8_t(255U), false);
+			}
+		}
+
+		if (!pMat->TexDepth.empty()) {
+			try {
+				m_pDepthMap = STextureManager::create(pMat->TexDepth);
+			}catch (const CrossForgeException& e) {
+				SLogger::logException(e);
+				m_pDepthMap = STextureManager::create(8, 8, uint8_t(0), uint8_t(0), uint8_t(0), false);
+			}
+			
+		}
 
 		m_Color = pMat->Color;
 		m_Metallic = pMat->Metallic;

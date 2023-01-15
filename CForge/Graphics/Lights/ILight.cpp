@@ -8,8 +8,8 @@ namespace CForge {
 
 	ILight::ILight(LightType T, const std::string ClassName): CForgeObject("ILight::" + ClassName) {
 		m_Type = T;
-		m_Position = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-		m_Direction = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+		/*m_Position = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+		m_Direction = Eigen::Vector3f(0.0f, -1.0f, 0.0f);*/
 		m_Color = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
 		m_Intensity = 1.0f;
 		m_ShadowMapSize = Eigen::Vector2i(0, 0);
@@ -34,8 +34,9 @@ namespace CForge {
 	}//initialize
 
 	void ILight::clear(void) {
-		m_Position = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-		m_Direction = Eigen::Vector3f(0.0f, -1.0f, 0.0f);
+		/*m_Position = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+		m_Direction = Eigen::Vector3f(0.0f, -1.0f, 0.0f);*/
+		m_Camera.init(Vector3f::Zero(), Vector3f::UnitY());
 		m_Color = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
 		m_Intensity = 1.0f;
 
@@ -44,19 +45,22 @@ namespace CForge {
 		m_ShadowTex = GL_INVALID_INDEX;
 		m_FBO = GL_INVALID_INDEX;
 		m_ShadowMapSize = Vector2i(0, 0);
-		m_Projection = Matrix4f::Identity();
+		//m_Projection = Matrix4f::Identity();
 
 	}//clear
 
 	void ILight::position(Eigen::Vector3f Pos) {
-		m_Position = Pos;
+		//m_Position = Pos;
+		m_Camera.position(Pos);
 
 		m_Msg.Code = LightMsg::MC_POSITION_CHANGED;
 		broadcast(m_Msg);
 	}//position
 
 	void ILight::direction(Eigen::Vector3f Dir, bool Normalize) {
-		m_Direction = (Normalize) ? Dir.normalized() : Dir;
+		//m_Direction = (Normalize) ? Dir.normalized() : Dir;
+
+		m_Camera.lookAt(m_Camera.position(), m_Camera.position() + Dir);
 
 		m_Msg.Code = LightMsg::MC_DIRECTION_CHANGED;
 		broadcast(m_Msg);
@@ -77,11 +81,13 @@ namespace CForge {
 	}//intensity
 
 	Eigen::Vector3f ILight::position(void)const {
-		return m_Position;
+		return m_Camera.position();
+		//return m_Position;
 	}//position
 
 	Eigen::Vector3f ILight::direction(void)const {
-		return m_Direction;
+		return m_Camera.dir();
+		//return m_Direction;
 	}//direction
 
 	Eigen::Vector3f ILight::color(void)const {
@@ -97,15 +103,17 @@ namespace CForge {
 	}//type
 
 	void ILight::initShadowCasting(uint32_t Width, uint32_t Height, Eigen::Vector2i ViewDimension, float NearPlane, float FarPlane) {
-		Eigen::Matrix4f Projection = GraphicsUtility::orthographicProjection(ViewDimension.x(), ViewDimension.y(), NearPlane, FarPlane);
-		initShadowCasting(Width, Height, Projection);
+		//Eigen::Matrix4f Projection = GraphicsUtility::orthographicProjection(ViewDimension.x(), ViewDimension.y(), NearPlane, FarPlane);
+		m_Camera.orthographicProjection(-ViewDimension.x(), ViewDimension.x(), -ViewDimension.y(), ViewDimension.y(), NearPlane, FarPlane);
+		initShadowCasting(Width, Height, m_Camera.projectionMatrix());
 
 	}//initShadowMap
 
 	void ILight::initShadowCasting(uint32_t ShadowMapWidth, uint32_t ShadowMapHeight, Eigen::Matrix4f Projection) {
 		m_ShadowMapSize = Eigen::Vector2i(ShadowMapWidth, ShadowMapHeight);
 
-		m_Projection = Projection;
+		//m_Projection = Projection;
+		//m_Camera.projectionMatrix(Projection);
 
 		if (m_ShadowTex != GL_INVALID_INDEX) {
 			glBindTexture(GL_TEXTURE_2D, m_ShadowTex);
@@ -134,7 +142,6 @@ namespace CForge {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
-
 		m_Msg.Code = LightMsg::MC_SHADOW_CHANGED;
 		broadcast(m_Msg);
 	
@@ -145,11 +152,13 @@ namespace CForge {
 	}//bindShadowFBO
 
 	Eigen::Matrix4f ILight::viewMatrix(void)const {
-		return GraphicsUtility::lookAt(m_Position, m_Position + m_Direction);
+		return GraphicsUtility::lookAt(m_Camera.position(), m_Camera.position() + m_Camera.dir());
+		/*return GraphicsUtility::lookAt(m_Position, m_Camera.position() + m_Camera.dir()  m_Position + m_Direction);*/
 	}//viewMatrix
 
 	Eigen::Matrix4f ILight::projectionMatrix(void)const {
-		return m_Projection;
+		return m_Camera.projectionMatrix();
+		//return m_Projection;
 	}//projectionMatrix
 
 	void ILight::retrieveDepthBuffer(T2DImage<uint8_t>* pImg) {
@@ -176,5 +185,8 @@ namespace CForge {
 		return m_ShadowMapSize;
 	}//shadowMapSize
 
+	const VirtualCamera* ILight::camera(void)const {
+		return &m_Camera;
+	}//camera
 
 }//name space

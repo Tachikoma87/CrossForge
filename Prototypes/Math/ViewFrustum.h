@@ -24,6 +24,7 @@
 #include "Plane.hpp"
 #include "AABB.hpp"
 #include "BoundingSphere.hpp"
+#include "BoundingVolume.h"
 
 namespace CForge {
 	class ViewFrustum : public CForgeObject {
@@ -47,6 +48,7 @@ namespace CForge {
 		// thanks to: https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
 		void update(void);
 
+		bool visible(const BoundingVolume BV, const Eigen::Quaternionf Rot, const Eigen::Vector3f Trans, const Eigen::Vector3f Scale);
 
 		bool visible(const BoundingSphere Sphere, const Eigen::Quaternionf Rot, const Eigen::Vector3f Trans, const Eigen::Vector3f Scale);
 
@@ -58,8 +60,6 @@ namespace CForge {
 		
 		Plane m_Planes[PLANE_COUNT];
 		VirtualCamera* m_pCamera;
-
-
 
 	};//ViewFrustum
 

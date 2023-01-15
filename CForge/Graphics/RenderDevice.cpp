@@ -228,10 +228,12 @@ namespace CForge {
 				m_pActiveCamera->stopListening(this);
 			}
 			m_pActiveCamera = pCamera;
-			m_CameraUBO.viewMatrix(m_pActiveCamera->cameraMatrix());
-			m_CameraUBO.projectionMatrix(m_pActiveCamera->projectionMatrix());
-			m_CameraUBO.position(m_pActiveCamera->position());
-			m_pActiveCamera->startListening(this);
+			if (m_pActiveCamera != nullptr) {
+				m_CameraUBO.viewMatrix(m_pActiveCamera->cameraMatrix());
+				m_CameraUBO.projectionMatrix(m_pActiveCamera->projectionMatrix());
+				m_CameraUBO.position(m_pActiveCamera->position());
+				m_pActiveCamera->startListening(this);
+			}	
 		}
 	}//activeCamera
 

@@ -21,6 +21,7 @@
 #include "../Shader/GLShader.h"
 #include "../../AssetIO/T2DImage.hpp"
 #include "../../Core/ITCaller.hpp"
+#include "../VirtualCamera.h"
 
 namespace CForge {
 
@@ -55,7 +56,7 @@ namespace CForge {
 
 		virtual void init(const Eigen::Vector3f Pos, const Eigen::Vector3f Dir, const Eigen::Vector3f Color, float Intensity);
 		virtual void initShadowCasting(uint32_t ShadowMapWidth, uint32_t ShadowMapHeight, Eigen::Vector2i ViewDimension, float NearPlane, float FarPlane);
-		virtual void initShadowCasting(uint32_t ShadowMapWidth, uint32_t ShadowMapHeight, Eigen::Matrix4f Projection);
+		
 		virtual void clear(void);
 
 		virtual void position(Eigen::Vector3f Pos);
@@ -76,13 +77,16 @@ namespace CForge {
 		virtual void retrieveDepthBuffer(T2DImage<uint8_t>* pImg);
 		virtual bool castsShadows(void)const;
 		virtual Eigen::Vector2i shadowMapSize(void)const;
+		virtual const VirtualCamera *camera(void)const;
 
 	protected:
 		ILight(LightType T, const std::string ClassName);
 		~ILight(void);
 
-		Eigen::Vector3f m_Position;
-		Eigen::Vector3f m_Direction;
+		virtual void initShadowCasting(uint32_t ShadowMapWidth, uint32_t ShadowMapHeight, Eigen::Matrix4f Projection);
+
+		//Eigen::Vector3f m_Position;
+		//Eigen::Vector3f m_Direction;
 		Eigen::Vector3f m_Color;
 		float m_Intensity;
 		LightType m_Type;
@@ -91,8 +95,9 @@ namespace CForge {
 		uint32_t m_FBO; ///< Framebuffer object
 		Eigen::Vector2i m_ShadowMapSize;
 
-		Eigen::Matrix4f m_Projection;
+		//Eigen::Matrix4f m_Projection;
 		LightMsg m_Msg;
+		VirtualCamera m_Camera;
 	};//ILight
 
 }//name space

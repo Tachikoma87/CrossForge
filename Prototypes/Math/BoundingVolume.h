@@ -1,9 +1,10 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): GLRenderbuffer.h and GLRenderbuffer.cpp                                     *
+* File(s): BoundingVolume.hpp                               *
 *                                                                           *
-* Content:    *
-*          .                                         *
+* Content:                    *
+*                *
+*                               *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,40 +16,43 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SGNCULLINGGEOM_H__
-#define __CFORGE_SGNCULLINGGEOM_H__
+#ifndef __CFORGE_BOUNDINGVOLUME_H__
+#define __CFORGE_BOUNDINGVOLUME_H__
 
-#include <CForge/Graphics/SceneGraph/SGNGeometry.h>
-#include "../Math/ViewFrustum.h"
-#include "../Math/BoundingSphere.hpp"
-#include "../Math/AABB.hpp"
-#include "../Math/BoundingVolume.h"
+#include <CForge/Core/CForgeObject.h>
+#include <CForge/AssetIO/T3DMesh.hpp>
+#include "BoundingSphere.hpp"
+#include "AABB.hpp"
 
 namespace CForge {
-	class SGNCullingGeom : public SGNGeometry {
+	class BoundingVolume {
 	public:
-		SGNCullingGeom(void);
-		~SGNCullingGeom(void);
+		enum Type: int8_t {
+			TYPE_UNKNOWN = -1,
+			TYPE_AABB,
+			TYPE_SPHERE,
+		};
 
-		virtual void render(RenderDevice* pRDev, const Eigen::Vector3f Position, const Eigen::Quaternionf Rotation, const Eigen::Vector3f Scale);
+		BoundingVolume(void);
+		~BoundingVolume(void);
 
-		void boundingSphere(BoundingSphere Sphere);
-		void aabb(AABB aabb);
-		void boundingVolume(const BoundingVolume* pBV);
-		BoundingVolume boundingVolume(void)const;
-
+		void init(const T3DMesh<float>* pMesh, Type T);
+		void init(const AABB Box);
+		void init(const BoundingSphere Sphere);
+		void clear(void);
 		void release(void);
 
-		static uint32_t culled(bool Reset = true);
+		AABB aabb(void)const;
+		BoundingSphere boundingSphere(void)const;
+		Type type(void)const;
 
 	protected:
-		BoundingVolume m_BV;
-		ViewFrustum m_ViewFrustum;
-		BoundingSphere m_BoundingSphere;
+		BoundingSphere m_Sphere;
 		AABB m_AABB;
+		Type m_Type; ///< The main type
 
-		static uint32_t m_Culled;
-	};
+	};//BoundingVolume
+
 
 }//name space
 

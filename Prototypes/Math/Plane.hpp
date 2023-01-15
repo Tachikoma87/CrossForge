@@ -39,7 +39,7 @@ namespace CForge {
 
 		void init(Eigen::Vector3f OnPoint, Eigen::Vector3f Normal) {
 			m_Normal = Normal.normalized();
-			m_Distance = std::abs(OnPoint.dot(m_Normal));
+			m_Distance = OnPoint.dot(m_Normal);
 		}//initialize
 
 		Eigen::Vector3f normal(void)const {
@@ -59,7 +59,7 @@ namespace CForge {
 		}//distance
 
 		float signedDistance(Eigen::Vector3f Point)const {
-			return m_Normal.dot(Point) + m_Distance;
+			return m_Normal.dot(Point) - m_Distance;
 		}//distance
 
 	protected:

@@ -26,6 +26,8 @@ namespace CForge {
 	}//release
 
     GLTexture2D* STextureManager::create(const std::string Filepath) {
+		if (!File::exists(Filepath)) throw CForgeExcept("File " + Filepath + " does not exist!");
+
         GLTexture2D* pRval = nullptr;
         STextureManager* pTexMan = STextureManager::instance();
         pRval = pTexMan->createTexture2D(Filepath);

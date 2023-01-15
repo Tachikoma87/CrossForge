@@ -87,7 +87,8 @@ namespace CForge {
 			Vector3f BGLightPos = Vector3f(0.0f, 5.0f, 60.0f);
 			m_Sun.init(SunPos, (SunLookAt - SunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 14.0f);
 			// sun will cast shadows
-			m_Sun.initShadowCasting(2048, 2048, GraphicsUtility::orthographicProjection(70.0f, 70.0f, 0.1f, 1000.0f));
+			//m_Sun.initShadowCasting(2048, 2048, GraphicsUtility::orthographicProjection(70.0f, 70.0f, 0.1f, 1000.0f));
+			m_Sun.initShadowCasting(2048, 2048, Vector2i(70, 70), 0.1f, 1000.0f);
 
 			m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 13.5f, Vector3f(0.0f, 0.0f, 0.0f));
 

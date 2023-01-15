@@ -53,15 +53,17 @@ namespace CForge {
 		Rot(2, 2) = Z.z();
 		Rot.transposeInPlace();
 		m_Rotation = Rot;
+		m_Position = Position;
 
 		notifyListeners(VirtualCameraMsg::ROTATION_CHANGED);
+		notifyListeners(VirtualCameraMsg::POSITION_CHANGED);
 	}//lookAt
 
 	Matrix4f VirtualCamera::cameraMatrix(void)const {
 		Matrix4f Rval;
 		Rval.setIdentity();
 
-		const Quaternion q = m_Rotation.conjugate();
+		const Quaternion q = m_Rotation.normalized().conjugate();
 		const Matrix3f R = q.toRotationMatrix();
 		const Eigen::Vector3f T = -(q * m_Position);
 		
@@ -79,15 +81,18 @@ namespace CForge {
 
 
 	Vector3f VirtualCamera::dir(void)const {
-		return -(m_Rotation * Vector3f::UnitZ());
+		Vector3f Rval = -(m_Rotation * Vector3f::UnitZ());
+		return Rval.normalized();
 	}//direction
 
 	Vector3f VirtualCamera::up(void)const {
-		return m_Rotation * Vector3f::UnitY();
+		Vector3f Rval = m_Rotation * Vector3f::UnitY();
+		return Rval.normalized();
 	}//up
 
 	Vector3f VirtualCamera::right(void)const {
-		return m_Rotation * Vector3f::UnitX();
+		Vector3f Rval = m_Rotation * Vector3f::UnitX();
+		return Rval.normalized();
 	}//right
 
 	Vector3f VirtualCamera::position(void)const {
@@ -123,6 +128,15 @@ namespace CForge {
 		m_FarPlane = FarPlane;
 		notifyListeners(VirtualCameraMsg::PROJECTION_CHANGED);
 	}//projectionMatrix
+
+	void VirtualCamera::orthographicProjection(float Left, float Right, float Bottom, float Top, float Near, float Far) {
+		m_Projection = GraphicsUtility::orthographicProjection(Left, Right, Bottom, Top, Near, Far);
+		m_FOV = 0.0f;
+		m_ViewportWidth = Right - Left;
+		m_ViewportHeight = Top - Bottom;
+		m_NearPlane = Near;
+		m_FarPlane = Far;
+	}//orthographicProjection
 
 	Matrix4f VirtualCamera::projectionMatrix(void)const {
 		return m_Projection;

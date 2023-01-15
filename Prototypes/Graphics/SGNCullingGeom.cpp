@@ -21,16 +21,14 @@ namespace CForge {
 		Eigen::Quaternionf Rot = Rotation * m_Rotation;
 		Eigen::Vector3f S = m_Scale.cwiseProduct(Scale);
 
-
-		// check again BoundingBox
-		if (m_ViewFrustum.visible(m_BoundingSphere, Rot, Pos, S)) SGNGeometry::render(pRDev, Position, Rotation, Scale);
-		else m_Culled++;
-
-		/*if (m_ViewFrustum.visible(m_AABB, Rot, Pos, S)) SGNGeometry::render(pRDev, Position, Rotation, Scale);
+		/*if (m_ViewFrustum.visible(m_BoundingSphere, Rot, Pos, S)) pRDev->requestRendering(m_pRenderable, Rot, Pos, S);
 		else m_Culled++;*/
 
-		
+		if(m_BV.type() == BoundingVolume::TYPE_UNKNOWN) pRDev->requestRendering(m_pRenderable, Rot, Pos, S);
+		else if (m_ViewFrustum.visible(m_AABB, Rot, Pos, S)) pRDev->requestRendering(m_pRenderable, Rot, Pos, S);
+		else m_Culled++;
 
+		//pRDev->requestRendering(m_pRenderable, Rot, Pos, S);
 	}//render
 
 	void SGNCullingGeom::boundingSphere(BoundingSphere Sphere) {
@@ -50,5 +48,14 @@ namespace CForge {
 	void SGNCullingGeom::release(void) {
 		delete this;
 	}//release
+
+	void SGNCullingGeom::boundingVolume(const BoundingVolume* pBV) {
+		if (nullptr == pBV) m_BV.clear();
+		else m_BV = (*pBV);
+	}//boundingVolume
+
+	BoundingVolume SGNCullingGeom::boundingVolume(void)const {
+		return m_BV;
+	}//boundingVolume
 
 }//name space

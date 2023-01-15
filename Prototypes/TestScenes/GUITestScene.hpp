@@ -163,7 +163,8 @@ public:
 		PointLight BGLight;
 		Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
 		// sun will cast shadows
-		Sun.initShadowCasting(shadowMapRes, shadowMapRes, GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
+		//Sun.initShadowCasting(shadowMapRes, shadowMapRes, GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
+		Sun.initShadowCasting(shadowMapRes, shadowMapRes, Vector2i(10, 10), 0.1f, 1000.0f);
 		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.0f, Vector3f(0.0f, 0.0f, 0.0f));
 
 		// set camera and lights
