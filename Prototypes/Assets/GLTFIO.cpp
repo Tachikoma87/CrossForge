@@ -1360,7 +1360,7 @@ namespace CForge {
 		// find skeleton root, will be set to a node with mesh later and this root will be a child of that mesh.
 		int skeleton_root = 0;
 		
-		for (int i = 0; i < has_parent.size(); i++) {
+		for (int i = has_parent.size() - 1; i >= 0; i--) {
 			if (!has_parent[i]) {
 				skeleton_root = node_offset + i;
 				break;
