@@ -375,7 +375,9 @@ class GLTFIO {
 			accessor.componentType = getGltfComponentType(t);
 			accessor.type = type;
 			accessor.count = pData->size();
-
+			
+			std::cout << "DEBUG Accessor index: " << model.accessors.size() << " count: " << accessor.count << " type: " << accessor.type << std::endl;
+			
 			model.accessors.push_back(accessor);
 
 			BufferView bufferView;
