@@ -891,6 +891,9 @@ namespace CForge {
 					Eigen::Vector2f vec2(0, 0);
 					texCoord.push_back(vec2);
 				}
+
+				if (current_index >= pCMesh->textureCoordinatesCount()) continue;
+
 				auto tex = pCMesh->textureCoordinate(current_index);
 				tex(1) = 1.0f - tex(1);
 				texCoord[current_index - min](0) = tex(0);
@@ -1292,16 +1295,17 @@ namespace CForge {
 				auto joints = &mesh_influences[i][j];
 				auto weights = &mesh_weights[i][j];
 
-
-				//bubble sort
-				bool found = true;
-				while (found) {
-					found = false;
-					for (int pos = 0; pos < joints->size() - 1; pos++) {
-						if ((*joints)[pos] < (*joints)[pos + 1]) {
-							std::swap((*joints)[pos], (*joints)[pos + 1]);
-							std::swap((*weights)[pos], (*weights)[pos + 1]);
-							found = true;
+				if (joints->size() > 0 && weights->size() > 0) {
+					//bubble sort
+					bool found = true;
+					while (found) {
+						found = false;
+						for (int pos = 0; pos < joints->size() - 1; pos++) {
+							if ((*joints)[pos] < (*joints)[pos + 1]) {
+								std::swap((*joints)[pos], (*joints)[pos + 1]);
+								std::swap((*weights)[pos], (*weights)[pos + 1]);
+								found = true;
+							}
 						}
 					}
 				}
@@ -1319,6 +1323,8 @@ namespace CForge {
 				}
 				(*weights)[0] += 1.0f - sum;
 			}
+
+			if (mesh_weights[i].size() == 0 || mesh_influences[i].size() == 0) continue;
 
 			//write primitive attributes
 			Primitive* pPrimitive = &model.meshes[i].primitives[0];

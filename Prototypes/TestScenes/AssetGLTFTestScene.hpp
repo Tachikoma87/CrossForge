@@ -150,6 +150,18 @@ namespace CForge {
 		*/
 		
 		SAssetIO::load("Assets/ExampleScenes/nathan.fbx", &testModel);
+		for (int i = 0; i < testModel.submeshCount(); i++) {
+			auto s = testModel.getSubmesh(i);
+
+			for (int j = 0; j < s->Faces.size(); j++) {
+				auto f = &(s->Faces[j]);
+				
+				for (int k = 0; k < 3; k++) {
+					if (f->Vertices[k] < 0) f->Vertices[k] = 0;
+				}
+			}
+		}
+		testModel.computePerVertexNormals();
 		gltfio.store("Assets/ExampleScenes/output.gltf", &testModel);
 		testModel.clear();
 		gltfio.load("Assets/ExampleScenes/output.gltf", &testModel);
