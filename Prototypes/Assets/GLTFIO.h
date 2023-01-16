@@ -313,6 +313,7 @@ class GLTFIO {
 
 			BufferView bufferView;
 
+			// The combined byteOffset must be a multiple of the size of the component datatype.
 			int type_size = sizeof(T);
 			int alignment = type_size - pBuffer->data.size() % type_size;
 
@@ -379,6 +380,7 @@ class GLTFIO {
 
 			BufferView bufferView;
 
+			// The combined byteOffset must be a multiple of the size of the component datatype.
 			int type_size = sizeof(T);
 			int alignment = type_size - pBuffer->data.size() % type_size;
 
