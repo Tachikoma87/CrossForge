@@ -45,6 +45,9 @@
 
 #include "../Assets/GLTFSDKIO.h"
 
+#include <filesystem>
+#include <iostream>
+
 using namespace Eigen;
 using namespace std;
 
@@ -149,22 +152,28 @@ namespace CForge {
 		gltfio.load(gltfPath + "_debug.gltf", &testModel);
 		*/
 		
-		SAssetIO::load("Assets/ExampleScenes/nathan.fbx", &testModel);
-		for (int i = 0; i < testModel.submeshCount(); i++) {
-			auto s = testModel.getSubmesh(i);
+		
+		std::string file = "Assets/ExampleScenes/CartoonGirl/Girl_FBX2020.fbx";
+		std::string output = "Assets/ExampleScenes/CartoonGirl/output.gltf";
 
-			for (int j = 0; j < s->Faces.size(); j++) {
-				auto f = &(s->Faces[j]);
-				
-				for (int k = 0; k < 3; k++) {
-					if (f->Vertices[k] < 0) f->Vertices[k] = 0;
-				}
-			}
+		auto absolute_path = std::filesystem::absolute(file);
+		
+		if (!std::filesystem::exists(file)) {
+			std::cout << "File does not exist: " << absolute_path << std::endl;
+			return;
 		}
+
+		SAssetIO::load(file, &testModel);
+		assert(testModel.submeshCount() > 0);
+		
 		testModel.computePerVertexNormals();
-		gltfio.store("Assets/ExampleScenes/output.gltf", &testModel);
+		
+		gltfio.store(output, &testModel);
+		
 		testModel.clear();
-		gltfio.load("Assets/ExampleScenes/output.gltf", &testModel);
+		
+		gltfio.load(output, &testModel);
+		
 		
 		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);
 		testModel.computePerVertexNormals();

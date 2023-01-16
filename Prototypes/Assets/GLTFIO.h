@@ -313,7 +313,10 @@ class GLTFIO {
 
 			BufferView bufferView;
 
-			bufferView.byteOffset = pBuffer->data.size();
+			int type_size = sizeof(T);
+			int alignment = type_size - pBuffer->data.size() % type_size;
+
+			bufferView.byteOffset = pBuffer->data.size() + alignment;
 			bufferView.buffer = bufferIndex;
 			bufferView.byteLength = pData->size() * sizeof(T);
 
@@ -376,7 +379,10 @@ class GLTFIO {
 
 			BufferView bufferView;
 
-			bufferView.byteOffset = pBuffer->data.size();
+			int type_size = sizeof(T);
+			int alignment = type_size - pBuffer->data.size() % type_size;
+
+			bufferView.byteOffset = pBuffer->data.size() + alignment;
 			bufferView.buffer = bufferIndex;
 			bufferView.byteLength = pData->size() * sizeof(T) * component_count;
 			bufferView.byteStride = 0;
