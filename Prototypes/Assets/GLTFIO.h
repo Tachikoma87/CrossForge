@@ -376,7 +376,7 @@ class GLTFIO {
 			accessor.type = type;
 			accessor.count = pData->size();
 			
-			std::cout << "DEBUG Accessor index: " << model.accessors.size() << " count: " << accessor.count << " type: " << accessor.type << std::endl;
+			// std::cout << "DEBUG Accessor index: " << model.accessors.size() << " count: " << accessor.count << " type: " << accessor.type << std::endl;
 			
 			model.accessors.push_back(accessor);
 

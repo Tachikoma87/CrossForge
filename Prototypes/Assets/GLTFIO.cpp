@@ -952,6 +952,14 @@ namespace CForge {
 		if (normal.size() > 0) {
 			pPrimitive->attributes.emplace("NORMAL", accessorIndex++);
 			
+			for (int i = 0; i < normal.size(); i++) {
+				if (normal[i].norm() != 1.0) {
+					normal[i](0) = 1.0;
+					normal[i](1) = 0.0;
+					normal[i](2) = 0.0;
+				}
+			}
+
 			fromVec3f(&normal, &data);
 
 			writeAccessorData(bufferIndex, TINYGLTF_TYPE_VEC3, &data);
@@ -1207,12 +1215,15 @@ namespace CForge {
 		if (pCMesh->boneCount() == 0) return;
 
 		/*
-		* TODO
+		* Vorgehensweise:
 		* Alle Bones als Nodes in gltf einfügen.
-		* Eine Umrechnung oder Datenstruktur bereithalten um die Bone-Indices auf die Node-Indices umzurechnen, da ja schon Nodes existieren.
+		* Eine Umrechnung oder Datenstruktur bereithalten, um die Bone-Indices auf die Node-Indices umzurechnen, da ja schon Nodes existieren.
 		* Alle Bones durchgehen und das Primitiv ermitteln was sie beeinflussen.
-		* Für den Bone alle influences (indices) und weights durchgehen und in zwei Datenstrukturen (vector<vector<float>>) sammeln.
+		* Nun muss eine Umwandlung gefunden werden, sodass nicht die Vertices pro Knochen aufgelistet werden,
+		* sondern die 4 beeinflussenden Knochen für jeden Vertex.
+		* Dafür pro Bone alle influences (indices) und weights durchgehen und in zwei Datenstrukturen (vector<vector<float>>) sammeln.
 		* Die Datenstrukturen sollten die selbe Indexbasis haben wie die Attribute des Primitivs.
+		* Dadurch entstehen pro Vertex eine Liste mit Knochen und Gewichten, welche Schritt für Schritt mit den Werten ausgefüllt werden.
 		* Pro Vertex gibt es also eine Liste mit Node-Indices die ihn beeinflussen und eine Liste mit den Gewichtungen für diese Nodes.
 		* Diese Listen werden dann gekürzt so dass nur die stärksten 4 Einflüsse erhalten bleiben.
 		* Die Listen werden dann als Joints und Weights in Accessoren geschrieben und als Attribute dem Primitiv zugefügt.
@@ -1269,7 +1280,7 @@ namespace CForge {
 					}
 				}
 
-				if (!found) {
+				if (!found && weight > 0.0) {
 					mesh_influences[mesh_index][vertex_index].push_back(i);
 					mesh_weights[mesh_index][vertex_index].push_back(weight);
 				}
@@ -1279,7 +1290,7 @@ namespace CForge {
 		std::vector<bool> has_parent;
 		for (int i = 0; i < pCMesh->boneCount(); i++) has_parent.push_back(false);
 
-		//set children of nodes
+		// set children of nodes
 		for (int i = node_offset; i < model.nodes.size(); i++) {
 			auto pBone = pCMesh->getBone(i - node_offset);
 			
@@ -1289,14 +1300,14 @@ namespace CForge {
 			}
 		}
 
-		//sort and write the 4 strongest weights per vertex
+		// sort and write the 4 strongest weights per vertex
 		for (int i = 0; i < mesh_influences.size(); i++) {
 			for (int j = 0; j < mesh_influences[i].size(); j++) {
 				auto joints = &mesh_influences[i][j];
 				auto weights = &mesh_weights[i][j];
 
 				if (joints->size() > 0 && weights->size() > 0) {
-					//bubble sort
+					// bubble sort
 					bool found = true;
 					while (found) {
 						found = false;
@@ -1314,21 +1325,28 @@ namespace CForge {
 					joints->pop_back();
 					weights->pop_back();
 				}
+				
 				while (joints->size() < 4) joints->push_back(0);
 				while (weights->size() < 4) weights->push_back(0.0f);
 
 				float sum = 0.0f;
+
 				for (int k = 0; k < weights->size(); k++) {
 					sum += (*weights)[k];
 				}
-				(*weights)[0] += 1.0f - sum;
+				if (sum < 1.0f) (*weights)[0] += 1.0f - sum;
 			}
 
 			if (mesh_weights[i].size() == 0 || mesh_influences[i].size() == 0) continue;
 
-			//write primitive attributes
+			// write primitive attributes
 			Primitive* pPrimitive = &model.meshes[i].primitives[0];
-			
+
+			int count = model.accessors[pPrimitive->attributes["POSITION"]].count;
+
+			while (mesh_weights[i].size() > count) mesh_weights[i].pop_back();
+			while (mesh_influences[i].size() > count) mesh_influences[i].pop_back();
+
 			writeAccessorData(0, TINYGLTF_TYPE_VEC4, &mesh_weights[i]);
 			int accessor = model.accessors.size() - 1;
 			pPrimitive->attributes.emplace("WEIGHTS_0", accessor);
@@ -1338,11 +1356,11 @@ namespace CForge {
 			pPrimitive->attributes.emplace("JOINTS_0", accessor);
 		}
 
-		//write inverse bind matrices
+		// write inverse bind matrices
 		std::vector<std::vector<float>> data;
 		fromMat4f(&inverseBindMatrices, &data);
 
-		//Validator complains if last value of mat4 is not 1.
+		// Validator complains if last value of mat4 is not 1.
 		for (int i = 0; i < data.size(); i++) {
 			data[i][15] = 1.0f;
 		}
