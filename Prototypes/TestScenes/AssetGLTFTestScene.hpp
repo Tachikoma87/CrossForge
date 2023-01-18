@@ -153,8 +153,8 @@ namespace CForge {
 		*/
 		
 		
-		std::string file = "Assets/ExampleScenes/CartoonGirl/Girl_FBX2020.fbx";
-		std::string output = "Assets/ExampleScenes/CartoonGirl/output.gltf";
+		std::string file = "C:/Users/Ossit/Downloads/Kuratchi_ver.1.0/Kuratchi_ver.1.0/high/fbx_rigged";
+		std::string output = std::filesystem::path(file).replace_extension("gltf").string();
 
 		auto absolute_path = std::filesystem::absolute(file);
 		
