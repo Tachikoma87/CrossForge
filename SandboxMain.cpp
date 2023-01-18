@@ -11,14 +11,6 @@
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
 
-#include "../../Examples/ExampleMinimumGraphicsSetup.hpp"
-#include "../../Examples/ExampleMorphTargetAnimation.hpp"
-#include "../../Examples/ExampleMultiViewport.hpp"
-#include "../../Examples/ExampleSceneGraph.hpp"
-#include "../../Examples/ExampleSkeletalAnimation.hpp"
-#include "../../Examples/ExampleSkybox.hpp"
-#include "../../Examples/ExampleSockets.hpp"
-
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
@@ -28,6 +20,8 @@
 #include "Prototypes/TestScenes/FrustumCullingTestScene.hpp"
 
 #include "Prototypes/TestScenes/GUITestScene.hpp"
+
+#include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -89,10 +83,10 @@ int main(int argc, char* argv[]) {
 		Scene.run();*/
 		
 		
-		FrustumCullingTestScene Scene;
-
-		Scene.init();
-		Scene.run();
+		//FrustumCullingTestScene Scene;
+		
+		//Scene.init();
+		//Scene.run();
 
 		//exportLibrary();
 

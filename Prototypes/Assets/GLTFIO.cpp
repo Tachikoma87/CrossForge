@@ -9,7 +9,7 @@
 #include <filesystem>
 #include <algorithm>
 
-//using namespace tinygltf;
+using namespace tinygltf;
 
 namespace CForge {
 

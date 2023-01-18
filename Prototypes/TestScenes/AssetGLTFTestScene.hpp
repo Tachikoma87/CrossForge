@@ -41,9 +41,9 @@
 
 #include "../../CForge/Graphics/Actors/StaticActor.h"
 
-#include "../../Examples/SceneUtilities.hpp" 
+// #include "../../Examples/SceneUtilities.hpp" 
 
-#include "../Assets/GLTFSDKIO.h"
+// #include "../Assets/GLTFSDKIO.h"
 
 #include <filesystem>
 #include <iostream>
