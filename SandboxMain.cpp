@@ -52,11 +52,10 @@ int main(int argc, char* argv[]) {
 		return -1;	
 	}
 
-	assetGLTFTestScene();
-	//exampleSkeletalAnimation();
-
 	try {
 		
+		AssetGLTFTestScene Scene;
+
 		//ExampleSceneBase Scene;
 		//ExampleMinimumGraphicsSetup Scene;
 		//ExampleMorphTargetAnimation Scene;
@@ -85,8 +84,8 @@ int main(int argc, char* argv[]) {
 		
 		//FrustumCullingTestScene Scene;
 		
-		//Scene.init();
-		//Scene.run();
+		Scene.init();
+		Scene.run();
 
 		//exportLibrary();
 
@@ -95,9 +94,9 @@ int main(int argc, char* argv[]) {
 		SLogger::logException(e);
 		printf("Exception occurred. See Log.");
 	}
-	/*catch (...) {
+	catch (...) {
 		printf("A not handled exception occurred!\n");
-	}*/
+	}
 
 	if(nullptr != pDev) pDev->release();
 	

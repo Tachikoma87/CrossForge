@@ -20,30 +20,9 @@
 
 #ifndef __unix__
 
-
-#include "../../CForge/AssetIO/SAssetIO.h"
-
+#include "../../Examples/exampleSceneBase.hpp"
 #include "../../Prototypes/Assets/GLTFIO.h"
 
-#include "../../CForge/Graphics/Shader/SShaderManager.h"
-#include "../../CForge/Graphics/STextureManager.h"
-
-#include "../../CForge/Graphics/GLWindow.h"
-#include "../../CForge/Graphics/GraphicsUtility.h"
-#include "../../CForge/Graphics/RenderDevice.h"
-
-#include "../../CForge/Graphics/Lights/DirectionalLight.h"
-#include "../../CForge/Graphics/Lights/PointLight.h"
-
-#include "../../CForge/Graphics/SceneGraph/SceneGraph.h"
-#include "../../CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "../../CForge/Graphics/SceneGraph/SGNTransformation.h"
-
-#include "../../CForge/Graphics/Actors/StaticActor.h"
-
-// #include "../../Examples/SceneUtilities.hpp" 
-
-// #include "../Assets/GLTFSDKIO.h"
 
 #include <filesystem>
 #include <iostream>
@@ -53,203 +32,148 @@ using namespace std;
 
 namespace CForge {
 
-	void assetGLTFTestScene(void) {
-		SShaderManager* pSMan = SShaderManager::instance();
+	class AssetGLTFTestScene : public ExampleSceneBase {
+	public:
+		AssetGLTFTestScene(void) {
+			m_WindowTitle = "CrossForge - GLTF Test Scene";
+		}//Constructor
 
-		std::string WindowTitle = "CForge - Minimum Graphics Setup";
-		float FPS = 60.0f;
+		~AssetGLTFTestScene(void) {
+			clear();
+		}//Destructor
 
-		bool const LowRes = false;
+		void init(void) {
 
-		uint32_t WinWidth = 1280;
-		uint32_t WinHeight = 720;
+			initWindowAndRenderDevice();
+			m_RenderWin.title(m_WindowTitle);
 
-		if (LowRes) {
-			WinWidth = 720;
-			WinHeight = 576;
-		}
+			initCameraAndLights();
 
-		// create an OpenGL capable windows
-		GLWindow RenderWin;
-		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
+			// load skydome and a textured cube
+			T3DMesh<float> M, testModel;
+
+			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
+			setMeshShader(&M, 0.8f, 0.04f);
+			M.computePerVertexNormals();
+			m_Skydome.init(&M);
+			M.clear();
 
 
-		/*T3DMesh<float> GLModel;
-		GLTFSDKIO GLReader;
-		GLReader.load("MyAssets/FemaleModel.glb", &GLModel);*/
+			//gltf testing
+			GLTFIO gltfio;
+			/*
+			std::string name = "AnimatedCube";
 
-		// configure and initialize rendering pipeline
-		RenderDevice RDev;
-		RenderDevice::RenderDeviceConfig Config;
-		Config.DirectionalLightsCount = 1;
-		Config.PointLightsCount = 1;
-		Config.SpotLightsCount = 0;
-		Config.ExecuteLightingPass = true;
-		Config.GBufferHeight = WinHeight;
-		Config.GBufferWidth = WinWidth;
-		Config.pAttachedWindow = &RenderWin;
-		Config.PhysicallyBasedShading = true;
-		Config.UseGBuffer = true;
-		RDev.init(&Config);
+			std::string gltfPath = "Assets/gltf sample models/" + name + "/glTF/" + name;
 
-		// configure and initialize shader configuration device
-		ShaderCode::LightConfig LC;
-		LC.DirLightCount = 1;
-		LC.PointLightCount = 1;
-		LC.SpotLightCount = 0;
-		LC.PCFSize = 1;
-		LC.ShadowBias = 0.0004f;
-		LC.ShadowMapCount = 1;
-		pSMan->configShader(LC);
+			gltfio.load(gltfPath + ".gltf", &testModel);
+			gltfio.store(gltfPath + "_debug.gltf", &testModel);
+			testModel.clear();
+			gltfio.load(gltfPath + "_debug.gltf", &testModel);
+			*/
 
-		// initialize camera
-		VirtualCamera Cam;
-		Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
-		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
 
-		// initialize sun (key lights) and back ground light (fill light)
-		Vector3f SunPos = Vector3f(-5.0f, 15.0f, 35.0f);
-		Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -30.0f);
-		DirectionalLight Sun;
-		PointLight BGLight;
-		Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
-		// sun will cast shadows
-		Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
-		BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
+			//std::string file = "C:/Users/Ossit/Downloads/Kuratchi_ver.1.0/Kuratchi_ver.1.0/high/fbx_rigged";
+			std::string file = "Assets/Examplescenes/Helmet/simple_skin.gltf";
+			std::string output = std::filesystem::path(file).replace_extension("gltf").string();
 
-		// set camera and lights
-		RDev.activeCamera(&Cam);
-		RDev.addLight(&Sun);
-		RDev.addLight(&BGLight);
+			auto absolute_path = std::filesystem::absolute(file);
 
-		// load skydome and a textured cube
-		T3DMesh<float> M, testModel;
-		StaticActor Skydome;
-		StaticActor Cube;
-
-		SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
-		SceneUtilities::setMeshShader(&M, 0.8f, 0.04f);
-		M.computePerVertexNormals();
-		Skydome.init(&M);
-		M.clear();
-
-		SAssetIO::load("Assets/ExampleScenes/TexturedCube.fbx", &M);
-		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
-		M.computePerVertexNormals();
-		// Cube.init(&M);
-		M.clear();
-
-		//gltf testing
-		GLTFIO gltfio;
-		/*
-		std::string name = "AnimatedCube";
-
-		std::string gltfPath = "Assets/gltf sample models/" + name + "/glTF/" + name;
-		
-		gltfio.load(gltfPath + ".gltf", &testModel);
-		gltfio.store(gltfPath + "_debug.gltf", &testModel);
-		testModel.clear();
-		gltfio.load(gltfPath + "_debug.gltf", &testModel);
-		*/
-		
-		
-		std::string file = "C:/Users/Ossit/Downloads/Kuratchi_ver.1.0/Kuratchi_ver.1.0/high/fbx_rigged";
-		std::string output = std::filesystem::path(file).replace_extension("gltf").string();
-
-		auto absolute_path = std::filesystem::absolute(file);
-		
-		if (!std::filesystem::exists(file)) {
-			std::cout << "File does not exist: " << absolute_path << std::endl;
-			return;
-		}
-
-		SAssetIO::load(file, &testModel);
-		assert(testModel.submeshCount() > 0);
-		
-		testModel.computePerVertexNormals();
-		
-		gltfio.store(output, &testModel);
-		
-		testModel.clear();
-		
-		gltfio.load(output, &testModel);
-		
-		
-		SceneUtilities::setMeshShader(&testModel, 0.1f, 0.04f);
-		testModel.computePerVertexNormals();
-		testModel.bones(&std::vector<T3DMesh<float>::Bone*>(), false);
-		Cube.init(&testModel);
-		testModel.clear();
-
-		
-		// build scene graph
-		SceneGraph SG;
-		SGNTransformation RootSGN;
-		RootSGN.init(nullptr);
-		SG.init(&RootSGN);
-
-		// add skydome
-		SGNGeometry SkydomeSGN;
-		SkydomeSGN.init(&RootSGN, &Skydome);
-		SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
-
-		// add cube
-		SGNGeometry CubeSGN;
-		SGNTransformation CubeTransformSGN;
-		CubeTransformSGN.init(&RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
-		CubeSGN.init(&CubeTransformSGN, &Cube);
-		//CubeSGN.scale(Eigen::Vector3f(2.0f, 2.0f, 2.0f));
-
-		// rotate about the y-axis at 45 degree every second
-		Quaternionf R;
-		R = AngleAxisf(GraphicsUtility::degToRad(45.0f / 20000.0f), Vector3f::UnitY());
-		CubeTransformSGN.rotationDelta(R);
-
-		// stuff for performance monitoring
-		uint64_t LastFPSPrint = CoreUtility::timestamp();
-		int32_t FPSCount = 0;
-
-		std::string GLError = "";
-		GraphicsUtility::checkGLError(&GLError);
-		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
-
-		
-		while (!RenderWin.shutdown()) {
-			RenderWin.update();
-			SG.update(FPS / 60.0f);
-
-			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse());
-
-			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-			SG.render(&RDev);
-
-			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			SG.render(&RDev);
-
-			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
-			//SG.render(&RDev);
-
-			RenderWin.swapBuffers();
-
-			FPSCount++;
-			if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {
-				char Buf[64];
-				sprintf(Buf, "FPS: %d\n", FPSCount);
-				FPS = float(FPSCount);
-				FPSCount = 0;
-				LastFPSPrint = CoreUtility::timestamp();
-
-				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
+			if (!std::filesystem::exists(file)) {
+				std::cout << "File does not exist: " << absolute_path << std::endl;
+				return;
 			}
 
-			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
-				RenderWin.closeWindow();
-			}
-		}//while[main loop]
+			SAssetIO::load(file, &testModel);
+			assert(testModel.submeshCount() > 0);
 
-		pSMan->release();
+			testModel.computePerVertexNormals();
 
-	}//exampleMinimumGraphicsSetup
+			gltfio.store(output, &testModel);
+
+			testModel.clear();
+
+			gltfio.load(output, &testModel);
+
+
+			setMeshShader(&testModel, 0.1f, 0.04f);
+			testModel.computePerVertexNormals();
+			testModel.bones(&std::vector<T3DMesh<float>::Bone*>(), false);
+			m_Cube.init(&testModel);
+			testModel.clear();
+
+
+			// build scene graph
+			m_RootSGN.init(nullptr);
+			m_SG.init(&m_RootSGN);
+
+			// add skydome
+			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
+			m_SkydomeSGN.scale(Vector3f(50.0f, 50.0f, 50.0f));
+
+			// add cube
+			m_CubeTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
+			m_CubeSGN.init(&m_CubeTransformSGN, &m_Cube);
+
+			// rotate about the y-axis at 45 degree every second
+			Quaternionf R;
+			R = AngleAxisf(GraphicsUtility::degToRad(45.0f / 20000.0f), Vector3f::UnitY());
+			m_CubeTransformSGN.rotationDelta(R);
+
+			// stuff for performance monitoring
+			uint64_t LastFPSPrint = CoreUtility::timestamp();
+			int32_t FPSCount = 0;
+
+			std::string GLError = "";
+			GraphicsUtility::checkGLError(&GLError);
+			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
+		}//initialize
+
+		void clear(void) {
+
+		}//clear
+
+		void release(void) {
+			delete this;
+		}//release
+
+		void run(void) {
+			while (!m_RenderWin.shutdown()) {
+				m_RenderWin.update();
+				m_SG.update(60.0f/m_FPS);
+
+				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+				m_SG.render(&m_RenderDev);
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+				m_SG.render(&m_RenderDev);
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+
+				m_RenderWin.swapBuffers();
+
+				updateFPS();
+
+				defaultKeyboardUpdate(m_RenderWin.keyboard());
+			}//while[main loop]
+
+		}//run
+
+	protected:
+		StaticActor m_Skydome;
+		StaticActor m_Cube;
+
+		SceneGraph m_SG;
+		SGNTransformation m_RootSGN;
+
+		SGNGeometry m_SkydomeSGN;
+
+		SGNGeometry m_CubeSGN;
+		SGNTransformation m_CubeTransformSGN;
+
+	};//AssetGLTFTestScene
 
 }
 
