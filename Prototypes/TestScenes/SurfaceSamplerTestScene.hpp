@@ -18,7 +18,7 @@
 #ifndef __CFORGE_SURFACESAMPLERTESTSCENE_HPP__
 #define __CFORGE_SURFACESAMPLERTESTSCENE_HPP__
 
-#include "../../Examples/exampleSceneBase.hpp"
+#include "../../Examples/ExampleSceneBase.hpp"
 #include "../MeshProcessing/SurfaceSampler.h"
 
 using namespace Eigen;

@@ -21,7 +21,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "../../Examples/exampleSceneBase.hpp"
+#include "../../Examples/ExampleSceneBase.hpp"
 #include "../../CForge/Graphics/Actors/SkeletalActor.h"
 #include "../../CForge/Graphics/Lights/SpotLight.h"
 

@@ -19,7 +19,7 @@
 #define __CFORGE_SKELANIMTESTSCENE_HPP__
 
 #include "../../CForge/Graphics/Actors/SkeletalActor.h"
-#include "../../Examples/exampleSceneBase.hpp"
+#include "../../Examples/ExampleSceneBase.hpp"
 
 using namespace Eigen;
 using namespace std;

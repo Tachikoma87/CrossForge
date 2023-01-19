@@ -19,7 +19,7 @@
 #define __CFORGE_IMAGETESTSCENE_HPP__
 
 #include "../../CForge/Graphics/Actors/SkyboxActor.h"
-#include "../../Examples/exampleSceneBase.hpp"
+#include "../../Examples/ExampleSceneBase.hpp"
 #include "../../CForge/GUI/Widgets/Form.h"
 
 using namespace Eigen;

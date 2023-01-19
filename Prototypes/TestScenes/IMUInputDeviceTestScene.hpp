@@ -18,7 +18,7 @@
 #ifndef __CFORGE_IMUINPUTDEVICETESTSCENE_HPP__
 #define __CFORGE_IMUINPUTDEVICETESTSCENE_HPP__
 
-#include "../../Examples/exampleSceneBase.hpp"
+#include "../../Examples/ExampleSceneBase.hpp"
 #include "../Misc/IMUCameraController.h"
 #include "../../CForge/Graphics/Actors/SkyboxActor.h"
 
