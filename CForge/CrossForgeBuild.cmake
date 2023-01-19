@@ -96,6 +96,7 @@ add_library(crossforge SHARED
 	CForge/Graphics/Actors/StaticActor.cpp 
 	CForge/Graphics/Actors/SkeletalActor.cpp 
 	CForge/Graphics/Actors/MorphTargetActor.cpp 
+	CForge/Graphics/Actors/StickFigureActor.cpp
 
 	# Animation Controller 
 	CForge/Graphics/Controller/SkeletalAnimationController.cpp 

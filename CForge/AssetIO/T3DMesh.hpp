@@ -147,6 +147,11 @@ namespace CForge {
 			Eigen::Vector3f Min;
 			Eigen::Vector3f Max;
 
+			AABB(void) {
+				Min = Eigen::Vector3f::Zero();
+				Max = Eigen::Vector3f::Zero();
+			}
+
 			Eigen::Vector3f diagonal(void) {
 				return (Max - Min);
 			}

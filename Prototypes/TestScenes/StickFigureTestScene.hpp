@@ -19,7 +19,8 @@
 #define __CFORGE_STICKFIGURETESTSCENE_HPP__
 
 #include <CForge/Graphics/Actors/SkeletalActor.h>
-#include "../Actor/StickFigureActor.h"
+//#include "../Actor/StickFigureActor.h"
+#include <CForge/Graphics/Actors/StickFigureActor.h>
 
 #include "../../Examples/ExampleSceneBase.hpp"
 
@@ -49,17 +50,25 @@ namespace CForge {
 			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
+			//M.computeAxisAlignedBoundingBox();
 			m_Skydome.init(&M);
 			M.clear();
 
 			// initialize skeletal actor (Eric) and its animation controller
 			SAssetIO::load("Assets/ExampleScenes/CesiumMan/CesiumMan.gltf", &M);
 			//SAssetIO::load("MyAssets/WalkingSittingEve.glb", &M);
+			/*SAssetIO::load("MyAssets/Technique_Evaluation/OldModel.gltf", &M);
+
+			T3DMesh<float> Anim;
+			SAssetIO::load("MyAssets/Technique_Evaluation/OldGait_Modified.bvh", &Anim);
+			M.clearSkeletalAnimations();
+			M.addSkeletalAnimation(Anim.getSkeletalAnimation(0));*/
 
 			//SAssetIO::load("MyAssets/Gehen_Sitzen_1-005.glb", &M);
 
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
+			//M.computeAxisAlignedBoundingBox();
 			m_BipedController.init(&M);
 			m_CesiumMan.init(&M, &m_BipedController);
 			m_StickFigure.init(&M, &m_BipedController);
@@ -71,7 +80,7 @@ namespace CForge {
 
 			// add skydome		
 			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
-			m_SkydomeSGN.scale(Vector3f(50.0f, 50.0f, 50.0f));
+			m_SkydomeSGN.scale(Vector3f(150.0f, 150.0f, 150.0f));
 
 			float Scale = 0.025f;
 			Scale = 5.0f;
@@ -87,13 +96,13 @@ namespace CForge {
 			m_StickFigureSGN.scale(Vector3f(Scale, Scale, Scale));
 		
 
-			m_StickFigure.boneSize(1.0f);
-			m_StickFigure.jointSize(2.0f);
-			m_StickFigure.jointColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-			m_StickFigure.boneColor(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+			/*m_StickFigure.boneSize(1.0f);
+			m_StickFigure.jointSize(2.0f);*/
+			/*m_StickFigure.jointColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+			m_StickFigure.boneColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));*/
 
-			m_StickFigure.boneSize(0.02f);
-			m_StickFigure.jointSize(0.04f);
+			//m_StickFigure.boneSize(0.02f);
+			//m_StickFigure.jointSize(0.04f);
 
 			Quaternionf Rot = Quaternionf::Identity();
 			Rot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
@@ -137,7 +146,7 @@ namespace CForge {
 
 				// if user hits key 1, animation will be played
 				// if user also presses shift, animation speed is doubled
-				float AnimationSpeed = 1000 / 60.0f;
+				float AnimationSpeed = 1000.0f / 60.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {

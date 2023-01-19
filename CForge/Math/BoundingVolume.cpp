@@ -16,7 +16,7 @@ namespace CForge {
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 		clear();
 
-		if (pMesh->aabb().diagonal().norm() < 0.01f) m_AABB = T3DMesh<float>::computeAxisAlignedBoundingBox(pMesh);
+		if (pMesh->aabb().diagonal().norm() < 0.0001f) m_AABB = T3DMesh<float>::computeAxisAlignedBoundingBox(pMesh);
 		else m_AABB.init(pMesh->aabb().Min, pMesh->aabb().Max);
 
 		m_Sphere.init(m_AABB.min() + 0.5f * m_AABB.diagonal(), 0.5f * m_AABB.diagonal().norm());
