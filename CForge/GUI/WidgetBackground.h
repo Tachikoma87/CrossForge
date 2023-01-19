@@ -104,7 +104,7 @@ namespace CForge {
 
         /** \brief Draw the background to the screen using OpenGL.
          *  \param[in] pRDev Pointer to the CForge::RenderDevice used for drawing the GUI/Scene. */
-        virtual void render(class CForge::RenderDevice* pRDev) = 0;
+        virtual void render(class CForge::RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) = 0;
 
     protected:
         Eigen::Matrix4f m_projection;           ///< The projection matrix used to correctly scale and position the text on screen.
@@ -128,7 +128,7 @@ namespace CForge {
         WidgetBackgroundColored(BaseWidget* parent, GUI* root);
         ~WidgetBackgroundColored(void);
         void clear(void);
-        void render(class CForge::RenderDevice* pRDev);
+        void render(class CForge::RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
         //     void release(void);
         // protected:
     };
@@ -144,7 +144,7 @@ namespace CForge {
         ~WidgetBackgroundBorder(void);
         void clear(void);
         void updateSize(bool initialise = false);
-        void render(class CForge::RenderDevice* pRDev);
+        void render(class CForge::RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 
         /** \brief Set the border's line width.
          *  \param[in] lw The new line width in pixels that should be used. */

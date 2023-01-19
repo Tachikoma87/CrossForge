@@ -81,7 +81,7 @@ namespace CForge {
     }
     void WindowWidget_Header::draw(CForge::RenderDevice* renderDevice)
     {
-        if (m_background != nullptr) m_background->render(renderDevice);
+        if (m_background != nullptr) m_background->render(renderDevice, Eigen::Quaternionf::Identity(), Eigen::Vector3f::Zero(), Eigen::Vector3f::Ones());
         m_title->draw(renderDevice);
         m_button->draw(renderDevice);
     }
@@ -174,8 +174,8 @@ namespace CForge {
     }
     void WindowWidget::draw(CForge::RenderDevice* renderDevice)
     {
-        m_background->render(renderDevice);
-        m_border->render(renderDevice);
+        m_background->render(renderDevice, Eigen::Quaternionf::Identity(), Eigen::Vector3f::Zero(), Eigen::Vector3f::Ones());
+        m_border->render(renderDevice, Eigen::Quaternionf::Identity(), Eigen::Vector3f::Zero(), Eigen::Vector3f::Ones());
         m_header->draw(renderDevice);
         if (m_content != nullptr && !m_minimized) m_content->draw(renderDevice);
     }

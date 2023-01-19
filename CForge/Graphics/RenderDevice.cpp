@@ -149,7 +149,7 @@ namespace CForge {
 		m_ModelUBO.modelMatrix(ModelMat);
 
 		// render the object with current settings
-		pActor->render(this);
+		pActor->render(this, Rotation, Translation, Scale);
 
 	}//requestRendering
 

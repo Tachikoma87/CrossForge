@@ -54,7 +54,7 @@ namespace CForge {
     }
     void BaseWidget::draw(CForge::RenderDevice* renderDevice)
     {
-        if (m_background != nullptr) m_background->render(renderDevice);
+        if (m_background != nullptr) m_background->render(renderDevice, Eigen::Quaternionf::Identity(), Eigen::Vector3f::Zero(), Eigen::Vector3f::Ones());
         for (auto x : m_children) {
             x->draw(renderDevice);
         }
@@ -149,7 +149,7 @@ namespace CForge {
     }
     void TextWidget::draw(CForge::RenderDevice* renderDevice)
     {
-        if (m_background != nullptr) m_background->render(renderDevice);
+        if (m_background != nullptr) m_background->render(renderDevice, Eigen::Quaternionf::Identity(), Eigen::Vector3f::Zero(), Eigen::Vector3f::Ones());
         //     m_pText->render(renderDevice);
         for (auto x : m_TextLines) {
             x->render(renderDevice);

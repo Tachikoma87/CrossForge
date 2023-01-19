@@ -45,7 +45,7 @@ namespace CForge {
     }
     void InputCheckboxWidget::draw(CForge::RenderDevice* renderDevice)
     {
-        m_background->render(renderDevice);
+        m_background->render(renderDevice, Eigen::Quaternionf::Identity(), Eigen::Vector3f::Zero(), Eigen::Vector3f::Ones());
         if (m_state) m_checkmark->draw(renderDevice);
     }
 }//name space

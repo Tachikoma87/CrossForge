@@ -27,13 +27,13 @@ namespace CForge {
 		SkeletalActor(void);
 		~SkeletalActor(void);
 
-		void init(T3DMesh<float>* pMesh, SkeletalAnimationController* pController);
-		void activeAnimation(SkeletalAnimationController::Animation* pAnim);
-		SkeletalAnimationController::Animation* activeAnimation(void)const;
-		void clear(void);
-		void release(void);
+		virtual void init(T3DMesh<float>* pMesh, SkeletalAnimationController* pController);
+		virtual void activeAnimation(SkeletalAnimationController::Animation* pAnim);
+		virtual SkeletalAnimationController::Animation* activeAnimation(void)const;
+		virtual void clear(void);
+		virtual void release(void);
 
-		void render(class RenderDevice* pRDev);
+		virtual void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 
 	protected:
 		SkeletalAnimationController* m_pAnimationController;

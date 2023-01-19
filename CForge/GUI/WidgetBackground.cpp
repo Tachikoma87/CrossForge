@@ -137,7 +137,7 @@ namespace CForge {
         m_ElementBuffer.clear();
         m_pShader = nullptr;
     }
-    void WidgetBackgroundColored::render(CForge::RenderDevice* pRDev) {
+    void WidgetBackgroundColored::render(CForge::RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
         m_VertexArray.bind();
         if (nullptr != m_pShader) pRDev->activeShader(m_pShader);
         glUniform4fv(m_pShader->uniformLocation("color"), 1, m_color);
@@ -194,7 +194,7 @@ namespace CForge {
         }
     }
 
-    void WidgetBackgroundBorder::render(class CForge::RenderDevice* pRDev)
+    void WidgetBackgroundBorder::render(class CForge::RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale)
     {
         m_VertexArray.bind();
         if (nullptr != m_pShader) pRDev->activeShader(m_pShader);

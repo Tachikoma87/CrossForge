@@ -74,7 +74,7 @@ namespace CForge {
 		delete this;
 	}//release
 
-	void MorphTargetActor::render(RenderDevice* pRDev) {
+	void MorphTargetActor::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
 
 		m_VertexArray.bind();

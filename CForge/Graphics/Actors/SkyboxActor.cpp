@@ -177,7 +177,7 @@ namespace CForge {
 		delete this;
 	}
 
-	void SkyboxActor::render(RenderDevice* pRDev) {
+	void SkyboxActor::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
         if (pRDev->activePass() != RenderDevice::RENDERPASS_FORWARD) return;
 
         m_VertexArray.bind();

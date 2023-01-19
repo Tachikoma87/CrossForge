@@ -744,8 +744,26 @@ namespace CForge {
 			}//for[all position values]
 		}//computeAxisAlignedBoundingBox
 
-		
+		void applyTransformation(const Eigen::Matrix4f Mat) {
+			// transform vertices
+			for (auto &i : m_Positions) {
+				Eigen::Vector4f v = Mat * Eigen::Vector4f(i.x(), i.y(), i.z(), (T)1.0);
+				i = Eigen::Matrix<T, 3, 1>(v.x(), v.y(), v.z());
+			}//for[positions]
 
+			for (auto& i : m_Normals) {
+				Eigen::Vector4f v = Mat * Eigen::Vector4f(i.x(), i.y(), i.z(), (T)0.0);
+				i = Eigen::Matrix<T, 3, 1>(v.x(), v.y(), v.z());
+			}//for[normals]
+
+			for (auto& i : m_Tangents) {
+				Eigen::Vector4f v = Mat * Eigen::Vector4f(i.x(), i.y(), i.z(), (T)0.0);
+				i = Eigen::Matrix<T, 3, 1>(v.x(), v.y(), v.z());
+			}//for[tangents]
+
+		}//ApplyTransformation
+
+		
 	protected:
 		std::vector<Eigen::Matrix<T, 3, 1>> m_Positions; ///< Vertex positions
 		std::vector<Eigen::Matrix<T, 3, 1>> m_Normals; ///< per vertex normals

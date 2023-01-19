@@ -26,6 +26,7 @@
 #include "Prototypes/TestScenes/ImageTestScene.hpp"
 #include "Prototypes/TestScenes/ForwardTestScene.hpp"
 #include "Prototypes/TestScenes/FrustumCullingTestScene.hpp"
+#include "Prototypes/TestScenes/StickFigureTestScene.hpp"
 
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 
@@ -76,18 +77,15 @@ int main(int argc, char* argv[]) {
 		//shadowTest();	
 		//surfaceSamplerTestScene();
 		//vertexColorTestScene();
+		//ForwardTestScene Scene;
 
 		//GUITestScene S;
 		//S.guiTestScene();
 
 		//imageTestScene();
-
-		/*ForwardTestScene Scene;
-		Scene.init();
-		Scene.run();*/
-		
-		
-		FrustumCullingTestScene Scene;
+	
+		//FrustumCullingTestScene Scene;
+		StickFigureTestScene Scene;
 
 		Scene.init();
 		Scene.run();

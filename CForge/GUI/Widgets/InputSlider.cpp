@@ -57,7 +57,7 @@ namespace CForge {
     }
     void InputSliderWidget_Slider::draw(CForge::RenderDevice* renderDevice)
     {
-        m_background->render(renderDevice);
+        m_background->render(renderDevice, Eigen::Quaternionf::Identity(), Eigen::Vector3f::Zero(), Eigen::Vector3f::Ones());
         m_cursor->draw(renderDevice);
     }
 

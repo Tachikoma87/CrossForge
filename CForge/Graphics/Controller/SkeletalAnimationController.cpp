@@ -282,4 +282,36 @@ namespace CForge {
 		for (auto i : m_Joints) pSkinningMats->push_back(i->SkinningMatrix);
 	}//retrieveSkinningMatrices
 
+	std::vector<SkeletalAnimationController::SkeletalJoint*> SkeletalAnimationController::retrieveSkeleton(void)const {
+		std::vector<SkeletalJoint*> Rval;
+
+		for (auto i : m_Joints) {
+			SkeletalJoint* pNewJoint = new SkeletalJoint();
+			pNewJoint->ID = i->ID;
+			pNewJoint->Name = i->Name;
+			pNewJoint->OffsetMatrix = i->OffsetMatrix;
+			pNewJoint->LocalPosition = i->LocalPosition;
+			pNewJoint->LocalRotation = i->LocalRotation;
+			pNewJoint->LocalScale = i->LocalScale;
+			pNewJoint->SkinningMatrix = i->SkinningMatrix;
+
+			pNewJoint->Parent = (i->pParent == nullptr) ? -1 : i->pParent->ID;
+			for (auto k : i->Children) pNewJoint->Children.push_back(k->ID);
+			Rval.push_back(pNewJoint);
+		}
+		return Rval;
+	}//retrieveSkeleton
+
+	void SkeletalAnimationController::updateSkeletonValues(std::vector<SkeletalAnimationController::SkeletalJoint*>* pSkeleton) {
+		if (nullptr == pSkeleton) throw NullpointerExcept("pSkeleton");
+
+		for (auto i : (*pSkeleton)) {
+			i->OffsetMatrix = m_Joints[i->ID]->OffsetMatrix;
+			i->LocalPosition = m_Joints[i->ID]->LocalPosition;
+			i->LocalRotation = m_Joints[i->ID]->LocalRotation;
+			i->LocalScale = m_Joints[i->ID]->LocalScale;
+			i->SkinningMatrix = m_Joints[i->ID]->SkinningMatrix;
+		}
+	}//updateSkeleton
+
 }//name space

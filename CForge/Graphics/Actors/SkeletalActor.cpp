@@ -63,7 +63,7 @@ namespace CForge {
 		delete this;
 	}//release
 
-	void SkeletalActor::render(RenderDevice* pRDev) {
+	void SkeletalActor::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
 
 		if (nullptr != m_pActiveAnimation && m_pActiveAnimation->Finished) {

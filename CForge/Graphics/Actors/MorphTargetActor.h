@@ -33,7 +33,7 @@ namespace CForge {
 		void clear(void);
 		void release(void);
 
-		void render(class RenderDevice* pRDev);
+		void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 		void update(float fpsScale = 1.0f);
 
 		int32_t addAnimation(MorphTargetAnimationController::ActiveAnimation* pAnim);

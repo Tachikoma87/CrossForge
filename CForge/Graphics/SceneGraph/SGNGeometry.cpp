@@ -1,4 +1,5 @@
 #include "SGNGeometry.h"
+#include <glad/glad.h>
 
 using namespace Eigen;
 
@@ -8,6 +9,7 @@ namespace CForge {
 		m_Rotation = Quaternionf::Identity();
 		m_Scale = Vector3f::Ones();
 		m_pRenderable = nullptr;
+		m_VisualizationMode = VISUALIZATION_FILL;
 	}//Constructor
 
 	SGNGeometry::~SGNGeometry(void) {
@@ -21,6 +23,7 @@ namespace CForge {
 		position(Position);
 		rotation(Rotation);
 		scale(Scale);
+		m_VisualizationMode = VISUALIZATION_FILL;
 	}//initialize
 
 	void SGNGeometry::clear(void) {
@@ -75,8 +78,20 @@ namespace CForge {
 
 			const BoundingVolume BV = m_pRenderable->boundingVolume();
 
-			if (BV.type() == BoundingVolume::TYPE_UNKNOWN || pRDev->activeCamera()->viewFrustum()->visible(BV, Rot, Pos, S))
-				pRDev->requestRendering(m_pRenderable, Rot, Pos, S);
+			if (BV.type() == BoundingVolume::TYPE_UNKNOWN || pRDev->activeCamera()->viewFrustum()->visible(BV, Rot, Pos, S)) {
+				if (m_VisualizationMode != VISUALIZATION_FILL) {
+					switch (m_VisualizationMode) {
+					case VISUALIZATION_WIREFRAME: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
+					case VISUALIZATION_POINTS: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
+					}
+					pRDev->requestRendering(m_pRenderable, Rot, Pos, S);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				}
+				else {
+					pRDev->requestRendering(m_pRenderable, Rot, Pos, S);
+				}		
+			}
+				
 
 		}
 	}//render
@@ -93,5 +108,13 @@ namespace CForge {
 		if (nullptr != pScale) (*pScale) = m_Scale.cwiseProduct(ParentScale);
 
 	}//buildTransformation
+
+	void SGNGeometry::visualization(Visualization Mode) {
+		m_VisualizationMode = Mode;
+	}//visualization
+
+	SGNGeometry::Visualization SGNGeometry::visualization(void)const {
+		return m_VisualizationMode;
+	}//visualization
 
 }//name space

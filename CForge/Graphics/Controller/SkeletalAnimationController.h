@@ -35,6 +35,25 @@ namespace CForge {
 			bool Finished;
 		};
 
+		struct SkeletalJoint: public CForgeObject {
+			int32_t ID;
+			std::string Name;
+			Eigen::Matrix4f OffsetMatrix;
+			Eigen::Vector3f LocalPosition;
+			Eigen::Quaternionf LocalRotation;
+			Eigen::Vector3f LocalScale;
+			Eigen::Matrix4f SkinningMatrix;
+
+			int32_t Parent;
+			std::vector<int32_t> Children;
+
+			SkeletalJoint(void) : CForgeObject("SkeletalAnimationController::SkeletalJoint") {
+				ID = -1;
+				Parent = -1;
+			}
+
+		};
+
 		SkeletalAnimationController(void);
 		~SkeletalAnimationController(void);
 
@@ -58,6 +77,9 @@ namespace CForge {
 
 		UBOBoneData* boneUBO(void);
 		void retrieveSkinningMatrices(std::vector<Eigen::Matrix4f>* pSkinningMats);
+
+		std::vector<SkeletalJoint*> retrieveSkeleton(void)const;
+		void updateSkeletonValues(std::vector<SkeletalJoint*>* pSkeleton);
 
 	protected:
 

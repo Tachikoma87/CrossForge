@@ -72,7 +72,7 @@ namespace CForge {
 		delete this;
 	}//release
 
-	void ScreenQuad::render(RenderDevice* pRDev) {
+	void ScreenQuad::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
 		m_VertexArray.bind();
 			
 		if (nullptr != m_pShader) pRDev->activeShader(m_pShader);

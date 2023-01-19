@@ -127,7 +127,7 @@ namespace CForge {
     }
     void InputTextWidget::draw(CForge::RenderDevice* renderDevice)
     {
-        m_background->render(renderDevice);
+        m_background->render(renderDevice, Eigen::Quaternionf::Identity(), Eigen::Vector3f::Zero(), Eigen::Vector3f::Ones());
         m_text->draw(renderDevice);
         m_clear->draw(renderDevice);
     }

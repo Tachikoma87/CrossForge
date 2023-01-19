@@ -39,7 +39,7 @@ namespace CForge {
 		void clear(void);
 		void release(void);
 
-		void render(class RenderDevice* pRDev);
+		void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 
 	protected:
 		void setBufferData(void);
