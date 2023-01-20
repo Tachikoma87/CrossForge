@@ -424,7 +424,7 @@ namespace Terrain {
         bool richard = false;
         bool erode = false;
         bool cameraMode = false;
-        bool generateNew = false;
+        bool generateNew = true;
         bool renderGrass = false;
         bool renderOcean = true;
         bool oceanOnly = false;
