@@ -61,7 +61,7 @@ add_executable(CForgeSandbox
 
 	Prototypes/Graphics/GLRenderbuffer.cpp
 
-	Prototypes/Actor/StickFigureActor.cpp
+	
 	
 	
 	)

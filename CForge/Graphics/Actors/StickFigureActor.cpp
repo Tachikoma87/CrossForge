@@ -29,7 +29,7 @@ namespace CForge {
 
 		// initialize the actors
 		T3DMesh<float> M;
-		AssetIO::load("MyAssets/UnitSphere.glb", &M);
+		AssetIO::load("Assets/UnitSphere.glb", &M);
 		for (uint32_t i = 0; i < M.materialCount(); ++i) {
 			auto* pMat = M.getMaterial(i);
 			buildMaterial(pMat);
@@ -38,7 +38,7 @@ namespace CForge {
 		m_Joint.init(&M);
 		M.clear();
 
-		AssetIO::load("MyAssets/UnitCylinder.glb", &M);
+		AssetIO::load("Assets/UnitCylinder.glb", &M);
 		for (uint32_t i = 0; i < M.materialCount(); ++i) {
 			auto* pMat = M.getMaterial(i);
 			buildMaterial(pMat);
