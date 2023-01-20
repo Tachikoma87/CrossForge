@@ -55,20 +55,25 @@ namespace CForge {
 			M.clear();
 
 			// initialize skeletal actor (Eric) and its animation controller
-			SAssetIO::load("Assets/ExampleScenes/CesiumMan/CesiumMan.gltf", &M);
+			//SAssetIO::load("Assets/ExampleScenes/CesiumMan/CesiumMan.gltf", &M);
+			//AssetIO::load("MyAssets/pearl.fbx", &M);
+			//AssetIO::load("MyAssets/Pearl/Pearl.glb", &M);
 			//SAssetIO::load("MyAssets/WalkingSittingEve.glb", &M);
-			/*SAssetIO::load("MyAssets/Technique_Evaluation/OldModel.gltf", &M);
+			SAssetIO::load("MyAssets/Technique_Evaluation/OldModel.gltf", &M);
+			
+
 
 			T3DMesh<float> Anim;
 			SAssetIO::load("MyAssets/Technique_Evaluation/OldGait_Modified.bvh", &Anim);
 			M.clearSkeletalAnimations();
-			M.addSkeletalAnimation(Anim.getSkeletalAnimation(0));*/
+			M.addSkeletalAnimation(Anim.getSkeletalAnimation(0));
 
 			//SAssetIO::load("MyAssets/Gehen_Sitzen_1-005.glb", &M);
 
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
-			//M.computeAxisAlignedBoundingBox();
+			M.computePerVertexTangents();
+			M.computeAxisAlignedBoundingBox();
 			m_BipedController.init(&M);
 			m_CesiumMan.init(&M, &m_BipedController);
 			m_StickFigure.init(&M, &m_BipedController);
@@ -82,8 +87,8 @@ namespace CForge {
 			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
 			m_SkydomeSGN.scale(Vector3f(150.0f, 150.0f, 150.0f));
 
-			float Scale = 0.025f;
-			Scale = 5.0f;
+			float Scale = 0.125f;
+			//Scale = 5.0f;
 
 			// add skeletal actor to scene graph (Eric)			
 			m_CesiumManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 0.0f, 0.0f));
@@ -105,7 +110,7 @@ namespace CForge {
 			//m_StickFigure.jointSize(0.04f);
 
 			Quaternionf Rot = Quaternionf::Identity();
-			Rot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
+			//Rot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
 			m_CesiumManSGN.rotation(Rot);
 			m_StickFigureSGN.rotation(Rot);
 
@@ -146,7 +151,7 @@ namespace CForge {
 
 				// if user hits key 1, animation will be played
 				// if user also presses shift, animation speed is doubled
-				float AnimationSpeed = 1000.0f / 60.0f;
+				float AnimationSpeed = 1.0f/10.0f; // 1000.0f / 60.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {

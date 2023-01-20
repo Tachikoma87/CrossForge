@@ -245,27 +245,38 @@ namespace CForge {
 
 	// thanks to: https://math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-a-to-vector-b-in-3d
 	Eigen::Matrix3f GraphicsUtility::alignVectors(const Eigen::Vector3f Source, const Eigen::Vector3f Target) {
-		Vector3f a = Source;
-		Vector3f b = Target;
+		const Vector3f a = Source;
+		const Vector3f b = Target;	
+		const float ADotB = a.dot(b);
 
-		Vector3f v = a.cross(b);
-		float s = v.norm();
-		float c = a.dot(b);
+		Matrix3f Rval;
+		// if both vectors point in the same direction, they are already aligned
+		if (ADotB > 0.999f && ADotB < 1.0001f) {
+			Rval = Matrix3f::Identity();
+		}
+		// if they point in opposite direction, we rotate 180 degrees about a perpendicular axis
+		else if (ADotB < -0.9999f && ADotB > -1.0001f) {
+			Rval = AngleAxisf(GraphicsUtility::degToRad(180.0f), Eigen::Vector3f(a.y(), a.z(), a.x()));	
+		}
+		else {
+			const Vector3f v = a.cross(b);
+			const float c = ADotB;
 
-		Matrix3f vx;
-		vx(0, 0) = 0.0f;
-		vx(0, 1) = -v.z();
-		vx(0, 2) = v.y();
+			Matrix3f vx;
+			vx(0, 0) = 0.0f;
+			vx(0, 1) = -v.z();
+			vx(0, 2) = v.y();
 
-		vx(1, 0) = v.z();
-		vx(1, 1) = 0.0f;
-		vx(1, 2) = -v.x();
+			vx(1, 0) = v.z();
+			vx(1, 1) = 0.0f;
+			vx(1, 2) = -v.x();
 
-		vx(2, 0) = -v.y();
-		vx(2, 1) = v.x();
-		vx(2, 2) = 0.0f;
+			vx(2, 0) = -v.y();
+			vx(2, 1) = v.x();
+			vx(2, 2) = 0.0f;
 
-		Matrix3f Rval = Matrix3f::Identity() + vx + (1.0f - c) / (s * s) * vx * vx;
+			Rval = Matrix3f::Identity() + vx + 1.0f/(1.0f + c) * vx * vx;
+		}
 		return Rval;
 	}//alignVectors
 

@@ -79,6 +79,10 @@ namespace CForge {
 		boneColor(m_BoneColor);
 		jointSize(m_JointSize);
 		boneSize(m_BoneSize);
+
+		BoundingVolume BV;
+		m_Bone.boundingVolume(BV);
+
 	}//initialize
 
 	void StickFigureActor::clear(void) {
@@ -168,10 +172,13 @@ namespace CForge {
 
 			Vector3f BoneVec = m_JointValues[i->ID]->LocalPosition;
 			Matrix3f BoneOrientation = GraphicsUtility::alignVectors(Vector3f::UnitY(), BoneVec.normalized());
-			Quaternionf R = m_JointValues[i->Parent]->LocalRotation;
-			R.inverse();
+
+			Quaternionf R; // = m_JointValues[i->Parent]->LocalRotation;
 			R = BoneOrientation;
-			m_BoneSGNs[i->ID]->rotation(R);
+			if(R.norm() < 1.01f) m_BoneSGNs[i->ID]->rotation(R);
+			else {
+				printf("Error occured\n");
+			}
 
 			float Length = BoneVec.norm();
 			Vector3f s = m_BoneSGNs[i->ID]->scale();

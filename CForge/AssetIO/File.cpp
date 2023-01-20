@@ -25,6 +25,19 @@ namespace CForge {
 		return STD_FS::absolute(P).string();
 	}//absolute
 
+	void File::createDirectory(const std::string Path) {
+		STD_FS::create_directory(Path);
+	}//createDirectory
+
+	void File::createDirectories(const std::string Path) {
+		STD_FS::create_directories(Path);
+	}//createDirectories
+
+	std::string File::parentPath(const std::string Path) {
+		STD_FS::path P = Path;
+		return P.parent_path().string();
+	}//parentPath
+
 	std::string File::relative(const std::string Path, const std::string Basepath) {
 #ifndef EXPERIMENTAL_FILESYSTEM
 		STD_FS::path Relpath = STD_FS::relative(STD_FS::path(Path.c_str()), STD_FS::path(Basepath.c_str()));

@@ -134,6 +134,9 @@ namespace CForge {
 		if (Filepath.empty()) throw CForgeExcept("Empty filepath specified");
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 
+		std::string Parent = File::parentPath(Filepath);
+		if (!Parent.empty() && !File::isDirectory(Parent)) File::createDirectories(Parent);
+
 		for (auto i : m_ModelIOPlugins) {
 			if (i.pInstance->accepted(Filepath, I3DMeshIO::OP_STORE)) {
 				try {
@@ -182,6 +185,9 @@ namespace CForge {
 	void SAssetIO::storeImage(const std::string Filepath, const T2DImage<uint8_t>* pImage) {
 		if (Filepath.empty()) throw CForgeExcept("Empty filepath specified!");
 		if (nullptr == pImage) throw NullpointerExcept("pImage");
+
+		std::string Parent = File::parentPath(Filepath);
+		if (!Parent.empty() && !File::isDirectory(Parent)) File::createDirectories(Parent);
 
 		for (auto i : m_ImageIOPlugins) {
 			if (i.pInstance->accepted(Filepath, I2DImageIO::OP_STORE) ) {

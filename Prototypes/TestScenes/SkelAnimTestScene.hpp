@@ -19,6 +19,7 @@
 #define __CFORGE_SKELANIMTESTSCENE_HPP__
 
 #include "../../CForge/Graphics/Actors/SkeletalActor.h"
+#include <CForge/Graphics/Actors/StickFigureActor.h>
 #include "../../Examples/ExampleSceneBase.hpp"
 
 using namespace Eigen;
@@ -136,7 +137,8 @@ namespace CForge {
 		}//mergeDoubleVertices
 
 		SkelAnimTestScene(void) {
-
+			m_Pause = false;
+			m_ScreenshotExtension = "jpg";
 		}//Constructor
 
 		~SkelAnimTestScene(void) {
@@ -455,6 +457,7 @@ namespace CForge {
 			
 			m_ControllerCaptured.init(&M);
 			m_Captured.init(&M, &m_ControllerCaptured);
+			m_CapturedStick.init(&M, &m_ControllerCaptured);
 
 			m_CapturedMeshOrig.init(&M);
 			m_CapturedMeshTransformed.init(&M);
@@ -475,6 +478,7 @@ namespace CForge {
 			
 			m_ControllerSynth.init(&M);
 			m_Synth.init(&M, &m_ControllerSynth);
+			m_SynthStick.init(&M, &m_ControllerSynth);
 
 			m_SynthMeshOrig.init(&M);
 			m_SynthMeshTransformed.init(&M);
@@ -494,9 +498,7 @@ namespace CForge {
 			AssetIO::load("MyAssets/Technique_Evaluation/OldGait.bvh", &AnimData);
 			M.clearSkeletalAnimations();
 			M.addSkeletalAnimation(AnimData.getSkeletalAnimation(0), true);
-			recomputeInverseBindPoseMatrix(&M, false, true);
-
-
+			
 			// copy timeline from captured mesh
 			auto* pAnim = m_CapturedMeshOrig.getSkeletalAnimation(0);
 			auto* pAnimStyle = M.getSkeletalAnimation(0);
@@ -510,9 +512,18 @@ namespace CForge {
 
 			m_ControllerStyle.init(&M);
 			m_Style.init(&M, &m_ControllerStyle);
+			m_StyleStick.init(&M, &m_ControllerStyle);
 
 			m_StyleMeshOrig.init(&M);
 			m_StyleMeshTransformed.init(&M);
+
+			recomputeInverseBindPoseMatrix(&M, false, true);
+			m_ControllerStyle2.init(&M);
+			m_Style2.init(&M, &m_ControllerStyle2);
+			m_Style2Stick.init(&M, &m_ControllerStyle2);
+			m_Style2MeshOrig.init(&M);
+			m_Style2MeshTransformed.init(&M);
+
 
 			M.clear();
 
@@ -574,19 +585,45 @@ namespace CForge {
 #endif
 
 #ifdef TECHNIQUE_EVALUATION
-			Vector3f ModelPos = Vector3f(-5.0f, 0.0f, 0.0f);
+			Vector3f ModelPos = Vector3f(-10.0f, 0.0f, 0.0f);
 			Vector3f ModelOffset = Vector3f(6.0f, 0.0f, 0.0f);
 			m_CapturedTransformSGN.init(&m_RootSGN, ModelPos - ModelOffset, Rot, Vector3f(Sc, Sc, Sc));
 			m_CapturedSGN.init(&m_CapturedTransformSGN, &m_Captured);
+			m_CapturedStickSGN.init(&m_CapturedTransformSGN, &m_CapturedStick);
 
 			m_SynthTransformSGN.init(&m_RootSGN, ModelPos, Rot, Vector3f(Sc, Sc, Sc));
 			m_SynthSGN.init(&m_SynthTransformSGN, &m_Synth);
-
-			/*m_Style2TransformSGN.init(&m_RootSGN, ModelPos + ModelOffset, Rot, Vector3f(Sc, Sc, Sc));
-			m_Style2SGN.init(&m_Style2TransformSGN, &m_Style2);*/
+			m_SynthStickSGN.init(&m_SynthTransformSGN, &m_SynthStick);
 
 			m_StyleTransformSGN.init(&m_RootSGN, ModelPos + ModelOffset, Rot, Vector3f(Sc, Sc, Sc));
-			m_StyleSGN.init(&m_StyleTransformSGN, &m_Style);		
+			m_StyleSGN.init(&m_StyleTransformSGN, &m_Style);
+			m_StyleStickSGN.init(&m_StyleTransformSGN, &m_StyleStick);
+
+			m_Style2TransformSGN.init(&m_RootSGN, ModelPos + 2.0f * ModelOffset, Rot, Vector3f(Sc, Sc, Sc));
+			m_Style2SGN.init(&m_Style2TransformSGN, &m_Style2);
+			m_Style2StickSGN.init(&m_Style2TransformSGN, &m_Style2Stick);
+
+
+			m_VisualizeSkeleton = false;
+
+			m_StyleStickSGN.enable(true, false);
+			m_CapturedStickSGN.enable(true, false);
+			m_SynthStickSGN.enable(true, false);
+			m_Style2StickSGN.enable(true, false);
+
+
+			Vector4f JointColor = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
+			Vector4f BoneColor = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
+
+			m_CapturedStick.jointColor(JointColor);
+			m_CapturedStick.boneColor(BoneColor);
+			m_SynthStick.jointColor(JointColor);
+			m_SynthStick.boneColor(BoneColor);
+			m_StyleStick.jointColor(JointColor);
+			m_StyleStick.boneColor(BoneColor);
+			m_Style2Stick.jointColor(JointColor);
+			m_Style2Stick.boneColor(BoneColor);
+
 #endif
 
 			// stuff for performance monitoring
@@ -616,11 +653,13 @@ namespace CForge {
 				m_SG.update(60.0f / m_FPS);
 
 				// this will progress all active skeletal animations for this controller
-				m_ControllerCaptured.update(60.0f / m_FPS);
-				m_ControllerSynth.update(60.0f / m_FPS);
-				m_ControllerStyle.update(60.0f / m_FPS);
-				m_ControllerStyle2.update(60.0f / m_FPS);
-
+				if (!m_Pause) {
+					m_ControllerCaptured.update(60.0f / m_FPS);
+					m_ControllerSynth.update(60.0f / m_FPS);
+					m_ControllerStyle.update(60.0f / m_FPS);
+					m_ControllerStyle2.update(60.0f / m_FPS);
+				}
+				
 				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
 				// if user hits key 1, animation will be played
@@ -849,6 +888,42 @@ namespace CForge {
 
 				}//if[print deformed mesh]
 
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F5, true)) {
+					if (m_VisualizeSkeleton) {
+						m_StyleSGN.visualization(SGNGeometry::VISUALIZATION_FILL);
+						m_CapturedSGN.visualization(SGNGeometry::VISUALIZATION_FILL);
+						m_SynthSGN.visualization(SGNGeometry::VISUALIZATION_FILL);
+						m_Style2SGN.visualization(SGNGeometry::VISUALIZATION_FILL);
+
+						m_StyleStickSGN.enable(true, false);
+						m_CapturedStickSGN.enable(true, false);
+						m_SynthStickSGN.enable(true, false);
+						m_Style2StickSGN.enable(true, false);
+					}
+					else {
+						m_StyleSGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
+						m_CapturedSGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
+						m_SynthSGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
+						m_Style2SGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
+
+						m_StyleStickSGN.enable(true, true);
+						m_CapturedStickSGN.enable(true, true);
+						m_SynthStickSGN.enable(true, true);
+						m_Style2StickSGN.enable(true, true);
+					}
+					m_VisualizeSkeleton = !m_VisualizeSkeleton;
+				}
+
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_P, true)) m_Pause = !m_Pause;
+
+				//if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F7, true)) {
+				//	// take screenshot
+				//	T2DImage<uint8_t> Img;
+				//	GraphicsUtility::retrieveFrameBuffer(&Img);
+				//	std::string Filepath = "Screenshots/Screenshot" + to_string(m_ScreenshotCounter++) + ".jpg";
+				//	AssetIO::store(Filepath, &Img);
+				//}
+
 			}//while[main loop]
 
 		}//run
@@ -1056,6 +1131,12 @@ namespace CForge {
 		SkeletalActor m_Synth;
 		SkeletalActor m_Style;
 		SkeletalActor m_Style2;
+
+		StickFigureActor m_CapturedStick;
+		StickFigureActor m_SynthStick;
+		StickFigureActor m_StyleStick;
+		StickFigureActor m_Style2Stick;
+
 		SkeletalAnimationController m_ControllerCaptured;
 		SkeletalAnimationController m_ControllerSynth;
 		SkeletalAnimationController m_ControllerStyle;
@@ -1066,10 +1147,16 @@ namespace CForge {
 
 		SGNTransformation m_RootSGN;
 		SGNGeometry m_SkydomeSGN;
+
 		SGNGeometry m_CapturedSGN;
 		SGNGeometry m_StyleSGN;
 		SGNGeometry m_SynthSGN;
 		SGNGeometry m_Style2SGN;
+
+		SGNGeometry m_CapturedStickSGN;
+		SGNGeometry m_StyleStickSGN;
+		SGNGeometry m_SynthStickSGN;
+		SGNGeometry m_Style2StickSGN;
 
 		SGNTransformation m_CapturedTransformSGN;
 		SGNTransformation m_StyleTransformSGN;
@@ -1092,6 +1179,10 @@ namespace CForge {
 		Eigen::Vector3f m_ErrorsSynth;
 		Eigen::Vector3f m_ErrorsStyle;
 		Eigen::Vector3f m_ErrorsStyle2;
+
+		bool m_VisualizeSkeleton;
+		bool m_Pause;
+
 	};//SkelAnimTestScene
 
 	void skelAnimTestScene(void) {

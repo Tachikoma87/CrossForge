@@ -50,6 +50,7 @@ namespace CForge {
 			m_WinHeight = 720;
 			m_RenderBufferScale = 1;
 			m_ScreenshotCount = 0;
+			m_ScreenshotExtension = "webp";
 			m_FPS = 60.0f;
 			m_FPSCount = 0;
 			m_LastFPSPrint = CoreUtility::timestamp();
@@ -268,8 +269,8 @@ namespace CForge {
 				m_RenderWin.vsync(!m_RenderWin.vsync());
 			}
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F10, true)) {
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
-				std::string ScreenshotURI = "Screenshot_" + std::to_string(m_ScreenshotCount++) + ".webp";
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
+				std::string ScreenshotURI = "Screenshots/Screenshot_" + std::to_string(m_ScreenshotCount++) + "." + m_ScreenshotExtension;
 				takeScreenshot(ScreenshotURI);
 			}
 
@@ -307,6 +308,7 @@ namespace CForge {
 		PointLight m_BGLight; ///< Background light
 
 		uint32_t m_ScreenshotCount;
+		std::string m_ScreenshotExtension;
 
 		// Skybox
 		SkyboxActor m_Skybox;

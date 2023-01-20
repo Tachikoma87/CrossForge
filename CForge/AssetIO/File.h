@@ -35,6 +35,10 @@ namespace CForge {
 		* \return True if the file exists, false otherwise.
 		*/
 		static bool exists(const std::string Path);
+		static void createDirectory(const std::string Path);
+		static void createDirectories(const std::string Path);
+
+		static std::string parentPath(const std::string Path);
 
 		/**
 		* \brief Returns size of the specified file.

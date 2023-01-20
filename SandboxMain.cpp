@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
 		
 	
 		//imuInputDeviceTestScene();	 
-		//skelAnimTestScene();
+		SkelAnimTestScene Scene;
 		//shadowTest();	
 		//surfaceSamplerTestScene();
 		//vertexColorTestScene();
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
 		//imageTestScene();
 	
 		//FrustumCullingTestScene Scene;
-		StickFigureTestScene Scene;
+		//StickFigureTestScene Scene;
 
 		Scene.init();
 		Scene.run();
