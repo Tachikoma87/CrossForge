@@ -14,6 +14,8 @@ namespace CForge {
 		m_JointColor = Vector4f::Ones();
 		m_BoneColor = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
 
+		m_pAnimationController = nullptr;
+
 	}//Constructor
 
 	StickFigureActor::~StickFigureActor(void) {
@@ -21,6 +23,8 @@ namespace CForge {
 	}//Destructor
 
 	void StickFigureActor::init(T3DMesh<float>* pMesh, SkeletalAnimationController* pController) {
+		clear();
+
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 		if (nullptr == pController) throw NullpointerExcept("pController");
 		if (pMesh->boneCount() == 0) throw CForgeExcept("Mesh contains no skeleton. Creation of StickFigureActor not possible!");
@@ -88,13 +92,25 @@ namespace CForge {
 	void StickFigureActor::clear(void) {
 		SkeletalActor::clear();
 
+		StaticActor m_Joint;
+		StaticActor m_Bone;
+
+		m_SG.clear();
+		m_RootSGN.clear();
+		for (auto& i : m_JointSGNs) if (nullptr != i) delete i;	
+		for (auto& i : m_JointTransformSGNs) if (nullptr != i) delete i;	
+		for (auto& i : m_BoneSGNs) if (nullptr != i) delete i;
+		for (auto& i : m_JointValues) if(nullptr != i) delete i;
+		m_JointSGNs.clear();
+		m_JointTransformSGNs.clear();
+		m_BoneSGNs.clear();
+		m_JointValues.clear();
+
 		m_JointSize = 0.0f;
 		m_BoneSize = 0.0f;
 		m_JointColor = Vector4f::Ones();
 		m_BoneColor = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
 
-		for (auto& i : m_JointValues) delete i;
-		m_JointValues.clear();
 	}//clear
 
 	void StickFigureActor::release(void) {

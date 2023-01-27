@@ -8,7 +8,10 @@ using namespace std;
 namespace CForge {
 
 	SkeletalAnimationController::SkeletalAnimationController(void): CForgeObject("SkeletalAnimationController") {
-
+		m_pRoot = nullptr;
+		m_pShadowPassShader = nullptr;
+		m_pShadowPassFSCode = nullptr;
+		m_pShadowPassVSCode = nullptr;
 	}//constructor
 
 	SkeletalAnimationController::~SkeletalAnimationController(void) {
@@ -93,12 +96,26 @@ namespace CForge {
 	}//initialize
 
 	void SkeletalAnimationController::clear(void) {
+		m_pRoot = nullptr;
+		for (auto& i : m_Joints) if (nullptr != i) delete i;
+		for (auto& i : m_SkeletalAnimations) if (nullptr != i) delete i;
+		for (auto& i : m_ActiveAnimations) if (nullptr != i) delete i;
+		m_Joints.clear();
+		m_SkeletalAnimations.clear();
+		m_ActiveAnimations.clear();
+
+		m_UBO.clear();
+
+		// instances get deleted by the Shader Manager
+		m_pShadowPassShader = nullptr;
+		m_pShadowPassFSCode = nullptr;
+		m_pShadowPassVSCode = nullptr;
 
 	}//clear
 
 	GLShader* SkeletalAnimationController::shadowPassShader(void) {
 		return m_pShadowPassShader;
-	}
+	}//shadowPassShader
 
 	void SkeletalAnimationController::addAnimationData(T3DMesh<float>::SkeletalAnimation* pAnimation) {
 		if (nullptr == pAnimation) throw NullpointerExcept("pAnimation");

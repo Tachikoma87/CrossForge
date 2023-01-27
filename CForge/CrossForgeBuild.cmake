@@ -16,6 +16,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(USE_OPENCV "Include OpenCV in build" OFF)
 
+include(FetchContent)
+
+#[[
+## download and install pmp
+FetchContent_Declare(
+	pmp 
+	GIT_REPOSITORY https://github.com/pmp-library/pmp-library.git
+	GIT_TAG 2.0.1
+)
+FetchContent_MakeAvailable(pmp)
+set(PMP_BUILD_APPS OFF CACHE INTERNAL "Build the PMP applications")
+set(PMP_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the PMP examples")
+set(PMP_BUILD_TESTS OFF CACHE INTERNAL "Build the PMP test programs")
+set(PMP_BUILD_DOCS OFF CACHE INTERNAL "Build the PMP documentation")
+set(PMP_BUILD_VIS OFF CACHE INTERNAL "Build the PMP visualization tools")
+set(PMP_INSTALL OFF CACHE INTERNAL "Install the PMP library and headers")
+]]
+
+
 # required core packages
 FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
 FIND_PACKAGE(OpenGL REQUIRED)		# OpenGl core library
@@ -142,6 +161,7 @@ add_library(crossforge SHARED
 
 	# Mesh Processing
 	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
+	CForge/MeshProcessing/PrimitiveShapeFactory.cpp
 
 	# GUI
 	CForge/GUI/Font.cpp
@@ -177,6 +197,7 @@ target_link_libraries(crossforge
 	PRIVATE igl::common		
 	PRIVATE WebP::webp 
 	PRIVATE WebP::webpdecoder
+#	pmp
 	ws2_32					#winsock2
 	${FREETYPE_LIBRARIES}	# for Text rendering
 	${OpenCV_LIBS}

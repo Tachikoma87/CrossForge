@@ -114,7 +114,12 @@ void exportLibrary(void) {
 	IncludeFiles.push_back("Graphics/Actors/SkeletalActor.h");
 	IncludeFiles.push_back("Graphics/Actors/SkyboxActor.h");
 	IncludeFiles.push_back("Graphics/Actors/StaticActor.h");
+	IncludeFiles.push_back("Graphics/Actors/StickFigureActor.h");
 	IncludeFiles.push_back("Graphics/Actors/VertexUtility.h");
+
+	// Graphics/Camera
+	Directories.push_back("crossforge/include/crossforge/Graphics/Camera/");
+	IncludeFiles.push_back("Graphics/Camera/ViewFrustum.h");
 
 	// Graphics/Controller
 	Directories.push_back("crossforge/include/crossforge/Graphics/Controller/");
@@ -180,6 +185,13 @@ void exportLibrary(void) {
 	Directories.push_back("crossforge/include/crossforge/Internet/");
 	IncludeFiles.push_back("Internet/TCPSocket.h");
 	IncludeFiles.push_back("Internet/UDPSocket.h");
+
+	// Math
+	Directories.push_back("crossforge/include/crossforge/Math/");
+	IncludeFiles.push_back("Math/BoundingVolume.h");
+	IncludeFiles.push_back("Math/Box.hpp");
+	IncludeFiles.push_back("Math/Plane.hpp");
+	IncludeFiles.push_back("Math/Sphere.hpp");
 	
 	// Mesh Processing
 	Directories.push_back("crossforge/include/crossforge/MeshProcessing/");

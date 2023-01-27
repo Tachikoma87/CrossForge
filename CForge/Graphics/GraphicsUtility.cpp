@@ -243,7 +243,7 @@ namespace CForge {
 		return Rval;
 	}//scaleMatrix
 
-	// thanks to: https://math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-a-to-vector-b-in-3d
+	// thanks to: ChatGPT
 	Eigen::Matrix3f GraphicsUtility::alignVectors(const Eigen::Vector3f Source, const Eigen::Vector3f Target) {
 		const Vector3f a = Source;
 		const Vector3f b = Target;	
@@ -260,22 +260,7 @@ namespace CForge {
 		}
 		else {
 			const Vector3f v = a.cross(b);
-			const float c = ADotB;
-
-			Matrix3f vx;
-			vx(0, 0) = 0.0f;
-			vx(0, 1) = -v.z();
-			vx(0, 2) = v.y();
-
-			vx(1, 0) = v.z();
-			vx(1, 1) = 0.0f;
-			vx(1, 2) = -v.x();
-
-			vx(2, 0) = -v.y();
-			vx(2, 1) = v.x();
-			vx(2, 2) = 0.0f;
-
-			Rval = Matrix3f::Identity() + vx + 1.0f/(1.0f + c) * vx * vx;
+			Rval = AngleAxisf(std::acos(ADotB), v);
 		}
 		return Rval;
 	}//alignVectors

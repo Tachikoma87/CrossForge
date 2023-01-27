@@ -27,6 +27,7 @@
 #include "Prototypes/TestScenes/ForwardTestScene.hpp"
 #include "Prototypes/TestScenes/FrustumCullingTestScene.hpp"
 #include "Prototypes/TestScenes/StickFigureTestScene.hpp"
+#include "Prototypes/TestScenes/PrimitiveFactoryTestScene.hpp"
 
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 
@@ -73,11 +74,12 @@ int main(int argc, char* argv[]) {
 		
 	
 		//imuInputDeviceTestScene();	 
-		SkelAnimTestScene Scene;
+		//SkelAnimTestScene Scene;
 		//shadowTest();	
 		//surfaceSamplerTestScene();
 		//vertexColorTestScene();
 		//ForwardTestScene Scene;
+		PrimitiveFactoryTestScene Scene;
 
 		//GUITestScene S;
 		//S.guiTestScene();

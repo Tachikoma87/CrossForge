@@ -56,7 +56,8 @@ namespace CForge {
 	}//initialize
 
 	void SkeletalActor::clear(void) {
-	
+		m_pAnimationController = nullptr;
+		m_pActiveAnimation = nullptr;
 	}//clear
 
 	void SkeletalActor::release(void) {
