@@ -1,5 +1,6 @@
 #include "IMUCameraController.h"
 #include <CForge/Math/CForgeMath.h>
+#include <CForge/Utility/CForgeUtility.h>
 
 using namespace Eigen;
 

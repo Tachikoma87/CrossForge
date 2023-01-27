@@ -19,6 +19,7 @@
 #define __CFORGE_EXAMPLESCENEBASE_HPP__
 
 #include <CForge/Math/CForgeMath.h>
+#include <CForge/Utility/CForgeUtility.h>
 #include "../CForge/AssetIO/SAssetIO.h"
 #include "../CForge/Graphics/Shader/SShaderManager.h"
 #include "../CForge/Graphics/STextureManager.h"

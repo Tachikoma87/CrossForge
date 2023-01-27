@@ -1,6 +1,10 @@
 #include <glad/glad.h>
 #include "CForgeUtility.h"
 #include "../Math/CForgeMath.h"
+#include "../AssetIO/T3DMesh.hpp"
+#include "../Graphics/RenderMaterial.h"
+
+using namespace Eigen;
 
 namespace CForge {
 
@@ -190,5 +194,159 @@ namespace CForge {
 
 		return Rval;
 	}//retrieveGPUTraits
+
+	void CForgeUtility::defaultMaterial(T3DMesh<float>::Material* pMat, DefaultMaterial M) {
+		if (nullptr == pMat) throw NullpointerExcept("pMat");
+		MaterialDefinition Mat = retrieveMaterailDefinition(M);
+		pMat->Color = Mat.Color;
+		pMat->Roughness = Mat.Roughness;
+		pMat->Metallic = Mat.Metallic;
+	}//defaultMaterial
+
+	void CForgeUtility::defaultMaterial(RenderMaterial* pMat, DefaultMaterial M) {
+		if (nullptr == pMat) throw NullpointerExcept("pMat");
+		MaterialDefinition Mat = retrieveMaterailDefinition(M);
+		pMat->color(Mat.Color);
+		pMat->roughness(Mat.Roughness);
+		pMat->metallic(Mat.Metallic);
+	}//defaultMaterial
+
+
+	CForgeUtility::MaterialDefinition CForgeUtility::retrieveMaterailDefinition(DefaultMaterial Mat) {
+		MaterialDefinition Rval;
+		switch (Mat) {
+		case METAL_GOLD: {
+			Rval.Color = Vector4f(0xff, 0xe4, 0x49, 0xff) / 255.0f;
+			Rval.Roughness = 0.35f;
+			Rval.Metallic = 1.0f;
+		}break;
+		case METAL_SILVER: {
+			Rval.Color = Vector4f(0xb1, 0xba, 0xbd, 0xff) / 255.0f;
+			Rval.Roughness = 0.3f;
+			Rval.Metallic = 1.0f;
+		}break;
+		case METAL_COPPER: {
+			Rval.Color = Vector4f(0xcd, 0x62, 0x33, 0xff) / 255.0f;
+			Rval.Roughness = 0.4f;
+			Rval.Metallic = 1.0f;
+		}break;
+		case METAL_IRON: {
+			Rval.Color = Vector4f(0x63, 0x66, 0x61, 0xff) / 255.0f;
+			Rval.Roughness = 0.3f;
+			Rval.Metallic = 1.0f;
+		}break;
+		case METAL_STEEL: {
+			Rval.Color = Vector4f(0xaf, 0xb8, 0xb5, 0xff) / 255.0f;
+			Rval.Roughness = 0.3f;
+			Rval.Metallic = 1.0f;
+		}break;
+		case METAL_STAINLESS_STEEL: {
+			Rval.Color = Vector4f(0xca, 0xcc, 0xcf, 0xff) / 255.0f;
+			Rval.Roughness = 0.3f;
+			Rval.Metallic = 1.0f;
+		}break;
+		case METAL_WHITE: {
+			Rval.Color = Vector4f(0xff, 0xff, 0xff, 0xff) / 255.0f;
+			Rval.Roughness = 0.3f;
+			Rval.Metallic = 1.0f;
+		}break;
+		case METAL_RED: {
+			Rval.Color = Vector4f(0xff, 0x00, 0x00, 0xff) / 255.0f;
+			Rval.Roughness = 0.3f;
+			Rval.Metallic = 1.0f;
+		}break;
+		case METAL_BLUE: {
+			Rval.Color = Vector4f(0x00, 0x00, 0xff, 0xff) / 255.0f;
+			Rval.Roughness = 0.3f;
+			Rval.Metallic = 1.0f;
+		}break;
+		case METAL_GREEN: {
+			Rval.Color = Vector4f(0x00, 0xff, 0x00, 0xff) / 255.0f;
+			Rval.Roughness = 0.3f;
+			Rval.Metallic = 1.0f;
+		}break;
+
+		
+		case PLASTIC_WHITE: {
+			Rval.Color = Vector4f(0xff, 0xff, 0xff, 0xff) / 255.0f;
+			Rval.Roughness = 0.15f;
+			Rval.Metallic = 0.04f;
+		}break;
+		case PLASTIC_GREY: {
+			Rval.Color = Vector4f(0x90,0x90,0x90, 0xff) / 255.0f;
+			Rval.Roughness = 0.15f;
+			Rval.Metallic = 0.04f;
+		}break;
+		case PLASTIC_BLACK: {
+			Rval.Color = Vector4f(0x00, 0x00, 0x00, 0xff) / 255.0f;
+			Rval.Roughness = 0.15f;
+			Rval.Metallic = 0.04f;
+		}break;
+		case PLASTIC_RED: {
+			Rval.Color = Vector4f(0xff, 0x00, 0x00, 0xff) / 255.0f;
+			Rval.Roughness = 0.15f;
+			Rval.Metallic = 0.04f;
+		}break;
+		case PLASTIC_GREEN: {
+			Rval.Color = Vector4f(0x00, 0xff, 0x00, 0xff) / 255.0f;
+			Rval.Roughness = 0.15f;
+			Rval.Metallic = 0.04f;
+		}break;
+		case PLASTIC_BLUE: {
+			Rval.Color = Vector4f(0x00, 0x00, 0xff, 0xff) / 255.0f;
+			Rval.Roughness = 0.15f;
+			Rval.Metallic = 0.04f;
+		}break;
+		case PLASTIC_YELLOW: {
+			Rval.Color = Vector4f(0xff, 0xe4, 0x49, 0xff) / 255.0f;
+			Rval.Roughness = 0.15f;
+			Rval.Metallic = 0.04f;
+		}break;
+
+		case STONE_WHITE: {
+			Rval.Color = Vector4f(0xff, 0xff, 0xff, 0xff) / 255.0f;
+			Rval.Roughness = 0.8f;
+			Rval.Metallic = 0.04f;
+		}break;
+		case STONE_GREY: {
+			Rval.Color = Vector4f(0x90, 0x90, 0x90, 0xff) / 255.0f;
+			Rval.Roughness = 0.8f;
+			Rval.Metallic = 0.04f;
+		}break;
+		case STONE_BLACK: {
+			Rval.Color = Vector4f(0x00, 0x00, 0x00, 0xff) / 255.0f;
+			Rval.Roughness = 0.8f;
+			Rval.Metallic = 0.04f;
+		}break;
+		case STONE_RED: {
+			Rval.Color = Vector4f(0xff, 0x00, 0x00, 0xff) / 255.0f;
+			Rval.Roughness = 0.8f;
+			Rval.Metallic = 0.04f;
+		}break;
+		case STONE_GREEN: {
+			Rval.Color = Vector4f(0x00, 0xff, 0x00, 0xff) / 255.0f;
+			Rval.Roughness = 0.8f;
+			Rval.Metallic = 0.04f;
+		}break;
+		case STONE_BLUE: {
+			Rval.Color = Vector4f(0x00, 0x00, 0xff, 0xff) / 255.0f;
+			Rval.Roughness = 0.8f;
+			Rval.Metallic = 0.04f;
+		}break;
+		case STONE_YELLOW: {
+			Rval.Color = Vector4f(0xff, 0xe4, 0x49, 0xff) / 255.0f;
+			Rval.Roughness = 0.8f;
+			Rval.Metallic = 0.04f;
+		}break;
+		default: {
+			Rval.Color = Vector4f(0xff, 0xff, 0xff, 0xff) / 255.0f;
+			Rval.Roughness = 0.8f;
+			Rval.Metallic = 0.04f;
+		};
+		}//switch[Mat]
+
+		return Rval;
+
+	}//retrieveMaterialDefinition
 
 }//name space

@@ -56,21 +56,24 @@ namespace CForge {
 			M.clear();
 
 			//SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
-			//PrimitiveFactory::plane(&M, Vector2f(4.0f, 4.0f), Vector2i(8, 3));
-			//PrimitiveFactory::circle(&M, Vector2f(3.0f, 3.0f), 20, 0.0f);
-			//PrimitiveFactory::cuboid(&M, Vector3f(4, 3, 2), Vector3i(10, 10, 10));
-			//PrimitiveFactory::uvSphere(&M, Vector3f(2, 2, 2), 25, 25);		
-			//PrimitiveFactory::doubleCone(&M, Vector4f(1.0f, 1.5f, 1.0f, 0.0f), 35);
-			//PrimitiveFactory::cylinder(&M, Vector2f(2.0f, 2.0f), Vector2f(2.0f, 2.0f), 3.0f, 20, Vector2f(0.0f, 0.0f));
-			PrimitiveShapeFactory::Torus(&M, 4.0f, 1.5f, 20, 10);
-			
+			//PrimitiveShapeFactory::plane(&M, Vector2f(4.0f, 4.0f), Vector2i(8, 3));
+			//PrimitiveShapeFactory::circle(&M, Vector2f(3.0f, 3.0f), 20, 0.0f);
+			//PrimitiveShapeFactory::cuboid(&M, Vector3f(4, 3, 2), Vector3i(10, 10, 10));
+			//PrimitiveShapeFactory::uvSphere(&M, Vector3f(2, 2, 2), 25, 25);		
+			//PrimitiveShapeFactory::doubleCone(&M, Vector4f(1.0f, 1.5f, 1.0f, 0.0f), 35);
+			//PrimitiveShapeFactory::cylinder(&M, Vector2f(2.0f, 2.0f), Vector2f(2.0f, 2.0f), 3.0f, 20, Vector2f(0.0f, 0.0f));
+			PrimitiveShapeFactory::Torus(&M, 2.0f, 0.5f, 30, 20);
 
 			//M.getMaterial(0)->Color = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
 			//M.getMaterial(0)->Color = Vector4f(0xcc, 0xac, 0x00, 0xff) / 255.0f;
-			M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/ground14.jpg";
+			//M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/ground14.jpg";
 			//M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/tex/rp_eric_rigged_001_dif.jpg";
 			//M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/StarCoin/MaterialStar_baseColor.jpg";
+
 			setMeshShader(&M, 0.2f, 0.04f);
+
+			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::METAL_GOLD);
+
 			M.computePerVertexNormals();
 			m_Duck.init(&M);
 			M.clear();
@@ -137,12 +140,42 @@ namespace CForge {
 					
 				}
 
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_UP, true)) {
+					float Metal = m_Duck.material(0)->metallic();
+					m_Duck.material(0)->metallic(Metal + 0.05f);
+					printf("Metallic now: %.2f\n", m_Duck.material(0)->metallic());
+				}
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_DOWN, true)) {
+					float Metal = m_Duck.material(0)->metallic();
+					m_Duck.material(0)->metallic(Metal - 0.05f);
+					printf("Metallic now: %.2f\n", m_Duck.material(0)->metallic());
+				}
+
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT, true)) {
+					float Roughness = m_Duck.material(0)->roughness();
+					m_Duck.material(0)->roughness(Roughness - 0.05f);
+					printf("Roughness now: %.2f\n", m_Duck.material(0)->roughness());
+				}
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_RIGHT, true)) {
+					float Roughness = m_Duck.material(0)->roughness();
+					m_Duck.material(0)->roughness(Roughness + 0.05f);
+					printf("Roughness now: %.2f\n", m_Duck.material(0)->roughness());
+				}
+
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_M, true)) {
+					m_CurrentMaterial++;
+					//if (m_CurrentMaterial < uint32_t(CForgeUtility::PLASTIC_WHITE)) m_CurrentMaterial = uint32_t(CForgeUtility::PLASTIC_WHITE);
+					if (m_CurrentMaterial > uint32_t(CForgeUtility::DEFAULT_MATERIAL_COUNT)) m_CurrentMaterial = 0;
+					CForgeUtility::defaultMaterial(m_Duck.material(0), (CForgeUtility::DefaultMaterial)m_CurrentMaterial);
+				}
+
 				defaultKeyboardUpdate(m_RenderWin.keyboard());
 
 			}//while[main loop]
 		}//run
 
 	protected:
+
 
 		// Scene Graph
 		SGNTransformation m_RootSGN;
@@ -153,6 +186,7 @@ namespace CForge {
 		StaticActor m_Skydome;
 		StaticActor m_Duck;
 
+		uint32_t m_CurrentMaterial = 0;
 	};//ExampleMinimumGraphicsSetup
 
 }//name space

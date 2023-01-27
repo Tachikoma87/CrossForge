@@ -1,5 +1,6 @@
 #include "MorphTargetAnimationController.h"
 #include "../../Math/CForgeMath.h"
+#include "../../Utility/CForgeUtility.h"
 
 using namespace Eigen;
 using namespace std;

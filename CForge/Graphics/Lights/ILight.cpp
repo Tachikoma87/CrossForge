@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include "../../Math/CForgeMath.h"
+#include "../../Utility/CForgeUtility.h"
 #include "ILight.h"
 
 using namespace Eigen;

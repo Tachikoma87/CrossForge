@@ -23,6 +23,7 @@
 #include "../Core/CForgeObject.h"
 #include "../Core/CoreDefinitions.h"
 #include "../AssetIO/T2DImage.hpp"
+#include "../AssetIO/T3DMesh.hpp"
 
 namespace CForge {
 	class CFORGE_API CForgeUtility : public CForgeObject {
@@ -46,6 +47,37 @@ namespace CForge {
 			int32_t GLMinorVersion;
 			int32_t GLMajorVersion;
 			std::string GLVersion;
+		};
+
+		enum DefaultMaterial : uint8_t {
+			METAL_GOLD = 0,
+			METAL_SILVER,
+			METAL_COPPER,
+			METAL_IRON,
+			METAL_STEEL,
+			METAL_STAINLESS_STEEL,
+			METAL_WHITE,
+			METAL_RED,
+			METAL_BLUE,
+			METAL_GREEN,
+
+			PLASTIC_WHITE,
+			PLASTIC_GREY,
+			PLASTIC_BLACK,
+			PLASTIC_RED,
+			PLASTIC_GREEN,
+			PLASTIC_BLUE,
+			PLASTIC_YELLOW,
+
+			STONE_WHITE,
+			STONE_GREY,
+			STONE_BLACK,
+			STONE_RED,
+			STONE_GREEN,
+			STONE_BLUE,
+			STONE_YELLOW,
+
+			DEFAULT_MATERIAL_COUNT,
 		};
 
 		static uint64_t timestamp(void) {
@@ -79,9 +111,20 @@ namespace CForge {
 
 		static GPUTraits retrieveGPUTraits(void);
 
+		static void defaultMaterial(T3DMesh<float>::Material* pMat, DefaultMaterial M);
+		static void defaultMaterial(class RenderMaterial* pMat, DefaultMaterial M);
+
 		CForgeUtility(void);
 		~CForgeUtility(void);
 	protected:
+
+		struct MaterialDefinition {
+			Eigen::Vector4f Color;
+			float Metallic;
+			float Roughness;
+		};
+
+		static MaterialDefinition retrieveMaterailDefinition(DefaultMaterial Mat);
 
 	};//CForgeUtility
 

@@ -19,9 +19,7 @@
 #define __CFORGE_T3DMESH_H__
 
 #include "../Core/CForgeObject.h"
-#include "../Utility/CForgeUtility.h"
 #include "../Math/Box.hpp"
-
 
 namespace CForge {
 
@@ -41,7 +39,9 @@ namespace CForge {
 			int32_t Vertices[3];
 
 			Face(void) {
-				CForgeUtility::memset(Vertices, -1, 3);
+				Vertices[0] = -1;
+				Vertices[1] = -1;
+				Vertices[2] = -1;
 			}
 		};//Face
 

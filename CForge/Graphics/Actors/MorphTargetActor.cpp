@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include "../RenderDevice.h"
 #include "MorphTargetActor.h"
+#include "../../Utility/CForgeUtility.h"
 
 using namespace Eigen;
 
