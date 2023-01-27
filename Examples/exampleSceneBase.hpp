@@ -18,13 +18,12 @@
 #ifndef __CFORGE_EXAMPLESCENEBASE_HPP__
 #define __CFORGE_EXAMPLESCENEBASE_HPP__
 
-
+#include <CForge/Math/CForgeMath.h>
 #include "../CForge/AssetIO/SAssetIO.h"
 #include "../CForge/Graphics/Shader/SShaderManager.h"
 #include "../CForge/Graphics/STextureManager.h"
 
 #include "../CForge/Graphics/GLWindow.h"
-#include "../CForge/Graphics/GraphicsUtility.h"
 #include "../CForge/Graphics/RenderDevice.h"
 
 #include "../CForge/Graphics/Lights/DirectionalLight.h"
@@ -53,7 +52,7 @@ namespace CForge {
 			m_ScreenshotExtension = "webp";
 			m_FPS = 60.0f;
 			m_FPSCount = 0;
-			m_LastFPSPrint = CoreUtility::timestamp();
+			m_LastFPSPrint = CForgeUtility::timestamp();
 			m_CameraRotation = false;
 		}//Constructor
 
@@ -66,7 +65,7 @@ namespace CForge {
 			initCameraAndLights();
 
 			std::string GLError = "";
-			GraphicsUtility::checkGLError(&GLError);
+			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 		}//initialize
@@ -105,7 +104,7 @@ namespace CForge {
 
 			// change GBuffer resolution
 			m_RenderDev.gBuffer()->init(Msg.iParam[0]/m_RenderBufferScale, Msg.iParam[1]/m_RenderBufferScale);
-			m_Cam.projectionMatrix(Msg.iParam[0]/m_RenderBufferScale, Msg.iParam[1]/m_RenderBufferScale, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+			m_Cam.projectionMatrix(Msg.iParam[0]/m_RenderBufferScale, Msg.iParam[1]/m_RenderBufferScale, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
 		}//listen[GLWindow]
 
@@ -113,7 +112,7 @@ namespace CForge {
 			m_RenderWin.init(Vector2i(100, 100), Vector2i(m_WinWidth, m_WinHeight), m_WindowTitle);
 			m_RenderWin.startListening(this);
 
-			auto Traits = GraphicsUtility::retrieveGPUTraits();
+			auto Traits = CForgeUtility::retrieveGPUTraits();
 			SLogger::log("Created context with GL version: " + Traits.GLVersion, "ProgramFlow");
 
 			m_pShaderMan = SShaderManager::instance();
@@ -154,7 +153,7 @@ namespace CForge {
 		virtual void initCameraAndLights(void) {
 			// initialize camera
 			m_Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
-			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
 			// initialize sun (key light) and back ground light (fill light)
 			Vector3f SunPos = Vector3f(-5.0f, 15.0f, 35.0f);
@@ -194,7 +193,7 @@ namespace CForge {
 			m_SkyboxSG.init(&m_SkyboxTransSGN);
 
 			Quaternionf Rot;
-			Rot = AngleAxisf(GraphicsUtility::degToRad(-0.25f / 60.0f), Vector3f::UnitY());
+			Rot = AngleAxisf(CForgeMath::degToRad(-0.25f / 60.0f), Vector3f::UnitY());
 			m_SkyboxTransSGN.rotationDelta(Rot);
 		}//initSkybox
 
@@ -202,12 +201,12 @@ namespace CForge {
 			m_FPSCount++;
 			const uint32_t UpdateInterval = 250U;
 
-			if (CoreUtility::timestamp() - m_LastFPSPrint > UpdateInterval) {
+			if (CForgeUtility::timestamp() - m_LastFPSPrint > UpdateInterval) {
 				char Buf[64];
 				m_FPS = float(m_FPSCount * 1000 / UpdateInterval);
 				sprintf(Buf, "FPS: %d\n", int32_t(m_FPS));		
 				m_FPSCount = 0;
-				m_LastFPSPrint = CoreUtility::timestamp();
+				m_LastFPSPrint = CForgeUtility::timestamp();
 
 				m_RenderWin.title(m_WindowTitle + "[" + std::string(Buf) + "]");
 			}
@@ -248,8 +247,8 @@ namespace CForge {
 			if (pMouse->buttonState(Mouse::BTN_RIGHT)) {
 				if (m_CameraRotation) {
 					const Eigen::Vector2f MouseDelta = pMouse->movement();
-					pCamera->rotY(GraphicsUtility::degToRad(-0.1f * RotationSpeed * MouseDelta.x()));
-					pCamera->pitch(GraphicsUtility::degToRad(-0.1f * RotationSpeed * MouseDelta.y()));
+					pCamera->rotY(CForgeMath::degToRad(-0.1f * RotationSpeed * MouseDelta.x()));
+					pCamera->pitch(CForgeMath::degToRad(-0.1f * RotationSpeed * MouseDelta.y()));
 					
 				}
 				else {
@@ -282,7 +281,7 @@ namespace CForge {
 
 		void takeScreenshot(std::string Filepath) {
 			T2DImage<uint8_t> ColorBuffer;
-			GraphicsUtility::retrieveFrameBuffer(&ColorBuffer);
+			CForgeUtility::retrieveFrameBuffer(&ColorBuffer);
 			SAssetIO::store(Filepath, &ColorBuffer);
 		}//takeScreen
 

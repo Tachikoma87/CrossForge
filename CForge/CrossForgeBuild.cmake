@@ -77,7 +77,7 @@ add_library(crossforge SHARED
 	CForge/Core/SCrossForgeDevice.cpp
 	CForge/Core/SGPIO.cpp
 	CForge/Core/SLogger.cpp
-	CForge/Core/CoreUtility.cpp
+	
 	
 	# Asset import/exporter stuff
 	CForge/AssetIO/File.cpp
@@ -100,7 +100,7 @@ add_library(crossforge SHARED
 	CForge/Graphics/RenderMaterial.cpp 
 	CForge/Graphics/STextureManager.cpp 
 	CForge/Graphics/VirtualCamera.cpp
-	CForge/Graphics/GraphicsUtility.cpp
+	
 
 	# Camera related
 	CForge/Graphics/Camera/ViewFrustum.cpp
@@ -149,6 +149,7 @@ add_library(crossforge SHARED
 
 	# Math
 	CForge/Math/BoundingVolume.cpp
+	CForge/Math/CForgeMath.cpp
 
 	# Input related
 	CForge/Input/Keyboard.cpp
@@ -176,6 +177,9 @@ add_library(crossforge SHARED
 	CForge/GUI/Widgets/InputText.cpp
 	CForge/GUI/Widgets/Label.cpp
 	CForge/GUI/Widgets/Window.cpp
+
+	# Utility
+	CForge/Utility/CForgeUtility.cpp
 
  )
 

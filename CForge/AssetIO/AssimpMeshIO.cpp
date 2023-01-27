@@ -4,6 +4,8 @@
 #include <assimp/postprocess.h>
 #include <assimp/Exporter.hpp>
 #include "../../CForge/Core/SLogger.h"
+#include "../Utility/CForgeUtility.h"
+#include "../AssetIO/File.h"
 
 
 
@@ -53,7 +55,7 @@ namespace CForge {
 		if (Filepath.empty()) throw CForgeExcept("Empty filepath specified!");
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 
-		std::string Str = CoreUtility::toLowerCase(Filepath);
+		std::string Str = CForgeUtility::toLowerCase(Filepath);
 
 		std::string FileType = "";
 		if (Str.find(".fbx") != std::string::npos) FileType = "fbx";
@@ -72,7 +74,7 @@ namespace CForge {
 	bool AssimpMeshIO::accepted(const std::string Filepath, Operation Op) {
 		bool Rval = false;
 
-		std::string Str = CoreUtility::toLowerCase(Filepath);
+		std::string Str = CForgeUtility::toLowerCase(Filepath);
 
 		if (Op == OP_LOAD) {
 			if (Str.find(".fbx") != std::string::npos) Rval = true;

@@ -97,11 +97,11 @@ namespace CForge {
 				pTransformSGN = new SGNTransformation();
 				pTransformSGN->init(&m_TreeGroupSGN);
 				
-				float TreeScale = CoreUtility::randRange(0.1f, 3.0f);
+				float TreeScale = CForgeMath::randRange(0.1f, 3.0f);
 
 				Vector3f TreePos = Vector3f::Zero();
-				TreePos.x() = CoreUtility::randRange(-Area, Area);
-				TreePos.z() = CoreUtility::randRange(-Area, Area);
+				TreePos.x() = CForgeMath::randRange(-Area, Area);
+				TreePos.z() = CForgeMath::randRange(-Area, Area);
 
 				pTransformSGN->translation(TreePos);
 				pTransformSGN->scale(Vector3f(TreeScale, TreeScale, TreeScale));
@@ -109,7 +109,7 @@ namespace CForge {
 				// initialize geometry
 				// choose one of the trees randomly
 				pGeomSGN = new SGNGeometry();
-				uint8_t TreeType = CoreUtility::rand() % 3;
+				uint8_t TreeType = CForgeMath::rand() % 3;
 				pGeomSGN->init(pTransformSGN, &m_Trees[TreeType]);
 
 				m_TreeTransformSGNs.push_back(pTransformSGN);

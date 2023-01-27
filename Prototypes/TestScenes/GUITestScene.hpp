@@ -24,7 +24,6 @@
 
 
 #include "../../CForge/Graphics/GLWindow.h"
-#include "../../CForge/Graphics/GraphicsUtility.h"
 #include "../../CForge/Graphics/RenderDevice.h"
 
 #include "../../CForge/Graphics/Lights/DirectionalLight.h"
@@ -154,7 +153,7 @@ public:
 		// initialize camera
 		VirtualCamera Cam;
 		Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
-		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+		Cam.projectionMatrix(WinWidth, WinHeight, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
 		// initialize sun (key lights) and back ground light (fill light)
 		Vector3f SunPos = Vector3f(-5.0f, 15.0f, 35.0f);
@@ -194,11 +193,11 @@ public:
 		SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
 		
 		// stuff for performance monitoring
-		uint64_t LastFPSPrint = CoreUtility::timestamp();
+		uint64_t LastFPSPrint = CForgeUtility::timestamp();
 		int32_t FPSCount = 0;
 
 		std::string GLError = "";
-		GraphicsUtility::checkGLError(&GLError);
+		CForgeUtility::checkGLError(&GLError);
 		if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 		ScreenQuad ppquad;
@@ -300,7 +299,7 @@ public:
 			//RDev.LODSG_clear();
 
 			FPSCount++;
-			if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {
+			if (CForgeUtility::timestamp() - LastFPSPrint > 1000U) {
 				char Buf[64];
 				sprintf(Buf, "FPS: %d\n", FPSCount);
 
@@ -316,7 +315,7 @@ public:
 
 				FPS = float(FPSCount);
 				FPSCount = 0;
-				LastFPSPrint = CoreUtility::timestamp();
+				LastFPSPrint = CForgeUtility::timestamp();
 
 				// 				RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
 			}

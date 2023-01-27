@@ -1,5 +1,5 @@
 #include <glad/glad.h>
-#include "../../Core/CoreUtility.hpp"
+#include "../../Utility/CForgeUtility.h"
 #include "../../Core/SLogger.h"
 #include "GLShader.h"
 
@@ -36,8 +36,8 @@ namespace CForge {
 
 		m_BindingPoints.clear();
 
-		CoreUtility::memset(&m_DefaultUBOBindingPoints[0], GL_INVALID_INDEX, DEFAULTUBO_COUNT);
-		CoreUtility::memset(&m_DefaultTextureLocations[0], -1, DEFAULTTEX_COUNT);
+		CForgeUtility::memset(&m_DefaultUBOBindingPoints[0], GL_INVALID_INDEX, DEFAULTUBO_COUNT);
+		CForgeUtility::memset(&m_DefaultTextureLocations[0], -1, DEFAULTTEX_COUNT);
 	}//Constructor
 
 	GLShader::~GLShader(void) {
@@ -60,8 +60,8 @@ namespace CForge {
 		m_BindingPoints.clear();
 	
 
-		CoreUtility::memset(&m_DefaultUBOBindingPoints[0], GL_INVALID_INDEX, DEFAULTUBO_COUNT);
-		CoreUtility::memset(&m_DefaultTextureLocations[0], -1, DEFAULTTEX_COUNT);
+		CForgeUtility::memset(&m_DefaultUBOBindingPoints[0], GL_INVALID_INDEX, DEFAULTUBO_COUNT);
+		CForgeUtility::memset(&m_DefaultTextureLocations[0], -1, DEFAULTTEX_COUNT);
 	}//clear
 
 	void GLShader::bind(void) {

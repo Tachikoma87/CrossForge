@@ -116,12 +116,12 @@ namespace CForge {
 				pTransformSGN = new SGNTransformation();
 				pTransformSGN->init(&m_TreeGroupSGN);
 
-				float TreeScale = CoreUtility::randRange(0.1f, 3.0f);
+				float TreeScale = CForgeMath::randRange(0.1f, 3.0f);
 				//TreeScale = 1.0f;
 
 				Vector3f TreePos = Vector3f::Zero();
-				TreePos.x() = CoreUtility::randRange(-Area, Area);
-				TreePos.z() = CoreUtility::randRange(-Area, Area);
+				TreePos.x() = CForgeMath::randRange(-Area, Area);
+				TreePos.z() = CForgeMath::randRange(-Area, Area);
 
 				pTransformSGN->translation(TreePos);
 				pTransformSGN->scale(Vector3f(TreeScale, TreeScale, TreeScale));
@@ -129,7 +129,7 @@ namespace CForge {
 				// initialize geometry
 				// choose one of the trees randomly
 				pGeomSGN = new SGNGeometry();
-				uint8_t TreeType = CoreUtility::rand() % 3;
+				uint8_t TreeType = CForgeMath::rand() % 3;
 				pGeomSGN->init(pTransformSGN, &m_Trees[TreeType]);
 
 				/*BoundingVolume BV;
@@ -146,17 +146,17 @@ namespace CForge {
 
 				pTransformSGN = new SGNTransformation();
 				Vector3f CoinPos = Vector3f::Zero();
-				CoinPos.y() = 10.0f + CoreUtility::randRange(-5.0f, 5.0f);
-				CoinPos.x() = CoreUtility::randRange(-Area, Area);
-				CoinPos.z() = CoreUtility::randRange(-Area, Area);
+				CoinPos.y() = 10.0f + CForgeMath::randRange(-5.0f, 5.0f);
+				CoinPos.x() = CForgeMath::randRange(-Area, Area);
+				CoinPos.z() = CForgeMath::randRange(-Area, Area);
 
-				float CoinScale = CoreUtility::randRange(0.25f, 5.0f);
+				float CoinScale = CForgeMath::randRange(0.25f, 5.0f);
 
 				Quaternionf RotDelta = Quaternionf::Identity();
 				Quaternionf RotDeltaY, RotDeltaZ;
-				float Angle = GraphicsUtility::degToRad(CoreUtility::randRange(2.0f, 10.0f));
-				RotDeltaY = AngleAxisf(CoreUtility::randRange(-Angle, Angle), Vector3f::UnitY());
-				RotDeltaZ = AngleAxisf(CoreUtility::randRange(-Angle / 5.0f, Angle / 5.0f), Vector3f::UnitZ());
+				float Angle = CForgeMath::degToRad(CForgeMath::randRange(2.0f, 10.0f));
+				RotDeltaY = AngleAxisf(CForgeMath::randRange(-Angle, Angle), Vector3f::UnitY());
+				RotDeltaZ = AngleAxisf(CForgeMath::randRange(-Angle / 5.0f, Angle / 5.0f), Vector3f::UnitZ());
 				RotDelta = RotDeltaY;
 
 				pTransformSGN->init(&m_CoinGroupSGN, CoinPos, Quaternionf::Identity(), Vector3f(CoinScale, CoinScale, CoinScale));
@@ -196,7 +196,7 @@ namespace CForge {
 		void run(void) {
 			bool Fly = false;
 			bool Orthographic = false;
-			uint64_t LastPrint = CoreUtility::timestamp();
+			uint64_t LastPrint = CForgeUtility::timestamp();
 
 			while (!m_RenderWin.shutdown()) {
 				m_RenderWin.update();
@@ -257,7 +257,7 @@ namespace CForge {
 						Orthographic = true;
 					}
 					else {
-						m_Cam.projectionMatrix(m_RenderWin.width(), m_RenderWin.height(), GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+						m_Cam.projectionMatrix(m_RenderWin.width(), m_RenderWin.height(), CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 						Orthographic = false;
 					}
 					m_RenderDev.activeCamera(nullptr);

@@ -148,7 +148,7 @@ namespace CForge {
 		ElementCount = pMesh->morphTargetCount() * (pMesh->vertexCount() * 3);
 		pBufferData = new float[ElementCount];
 		// initialize with 0
-		CoreUtility::memset(pBufferData, 0.0f, ElementCount);
+		CForgeUtility::memset(pBufferData, 0.0f, ElementCount);
 
 		for (uint32_t i = 0; i < pMesh->morphTargetCount(); ++i) {
 			T3DMesh<float>::MorphTarget* pMT = pMesh->getMorphTarget(i);

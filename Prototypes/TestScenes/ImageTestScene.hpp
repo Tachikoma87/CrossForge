@@ -79,7 +79,7 @@ namespace CForge {
 
 			// initialize camera
 			m_Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
-			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
 			// initialize sun (key light) and back ground light (fill light)
 			Vector3f SunPos = Vector3f(-55.0f, 50.0f, 50.0f);
@@ -145,7 +145,7 @@ namespace CForge {
 			m_SkyboxSG.init(&m_SkyboxTransSGN);
 
 			Quaternionf Rot;
-			Rot = AngleAxisf(GraphicsUtility::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
+			Rot = AngleAxisf(CForgeMath::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
 			m_SkyboxTransSGN.rotationDelta(Rot);
 
 			// build scene graph
@@ -157,7 +157,7 @@ namespace CForge {
 
 			m_GroundSGN.init(&m_RootSGN, &m_TexturedGround);
 			m_GroundSGN.scale(Vector3f(500.0f, 500.0f, 500.0f));
-			Rot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
+			Rot = AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX());
 			m_GroundSGN.rotation(Rot);
 
 			// generate a forest
@@ -167,12 +167,12 @@ namespace CForge {
 
 			
 			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CoreUtility::timestamp();
+			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
 
 			// check wheter a GL error occurred
 			std::string GLError = "";
-			GraphicsUtility::checkGLError(&GLError);
+			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 
@@ -238,7 +238,7 @@ namespace CForge {
 					static int32_t ScreenshotCount = 0;
 					T2DImage<uint8_t> Img;
 					T2DImage<uint8_t> DepthBuffer;
-					GraphicsUtility::retrieveFrameBuffer(&Img, &DepthBuffer, 0.1f, 200.0f);
+					CForgeUtility::retrieveFrameBuffer(&Img, &DepthBuffer, 0.1f, 200.0f);
 					AssetIO::store("../../Screenshot_" + std::to_string(ScreenshotCount) + ".jpg", &Img);
 					AssetIO::store("../../DepthBuffer_" + std::to_string(ScreenshotCount) + ".jpg", &DepthBuffer);
 
@@ -253,10 +253,10 @@ namespace CForge {
 					AssetIO::store("../../SunDepthbuffer.jpg", &Img);
 				}
 
-				static uint64_t LastFPSPrint = CoreUtility::timestamp();
+				static uint64_t LastFPSPrint = CForgeUtility::timestamp();
 
-				if (CoreUtility::timestamp() - LastFPSPrint > 500) {
-					LastFPSPrint = CoreUtility::timestamp();
+				if (CForgeUtility::timestamp() - LastFPSPrint > 500) {
+					LastFPSPrint = CForgeUtility::timestamp();
 
 					wchar_t text_wstring[100] = { 0 };
 					int charcount = swprintf(text_wstring, 100, L"FPS: %.2f", m_FPS);

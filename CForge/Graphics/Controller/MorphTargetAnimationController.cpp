@@ -1,4 +1,5 @@
 #include "MorphTargetAnimationController.h"
+#include "../../Math/CForgeMath.h"
 
 using namespace Eigen;
 using namespace std;
@@ -89,7 +90,7 @@ namespace CForge {
 		pRval->Speed = Speed;
 		pRval->t = 0.0f;
 		pRval->CurrentSquenceIndex = 0;
-		pRval->SequenceStartTimestamp = CoreUtility::timestamp();
+		pRval->SequenceStartTimestamp = CForgeUtility::timestamp();
 		pRval->Finished = false;
 
 		pRval->ID = -1;
@@ -116,14 +117,14 @@ namespace CForge {
 		if (pAnim->Finished) return;
 		
 		AnimationSequence* pSeq = m_AnimationSequences[pAnim->SequenceID];
-		float ElapsedTime = float(CoreUtility::timestamp() - pAnim->SequenceStartTimestamp)/1000.0f;
+		float ElapsedTime = float(CForgeUtility::timestamp() - pAnim->SequenceStartTimestamp)/1000.0f;
 		Vector3f Params = pSeq->Parameters[pAnim->CurrentSquenceIndex];
 		pAnim->t = pAnim->Speed * ElapsedTime/Params[2];
 
 		// progress to next morph target in sequence?
 		if (pAnim->t > 1.0f) {
 			pAnim->CurrentSquenceIndex++;
-			pAnim->SequenceStartTimestamp = CoreUtility::timestamp();
+			pAnim->SequenceStartTimestamp = CForgeUtility::timestamp();
 			pAnim->t = 0.0f;
 
 			// end of sequence reached?

@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 #include "GLRenderbuffer.h"
-#include "../../CForge/Graphics/GraphicsUtility.h"
+#include <CForge/Utility/CForgeUtility.h>
 
 namespace CForge {
 
@@ -57,7 +57,7 @@ namespace CForge {
 
 		if (GL_FRAMEBUFFER_COMPLETE != glCheckFramebufferStatus(GL_FRAMEBUFFER)) {
 			std::string Error;
-			GraphicsUtility::checkGLError(&Error);
+			CForgeUtility::checkGLError(&Error);
 			throw CForgeExcept("Generating framebuffer for gBuffer failed!\n\t" + Error);
 		}
 
@@ -119,11 +119,11 @@ namespace CForge {
 	}//height
 
 	void GLRenderbuffer::retrieveColorBuffer(T2DImage<uint8_t>* pImg) {
-		GraphicsUtility::retrieveColorTexture(m_TexColor, pImg);
+		CForgeUtility::retrieveColorTexture(m_TexColor, pImg);
 	}//retrieve
 
 	void GLRenderbuffer::retrieveDepthBuffer(T2DImage<uint8_t>* pImg, float Near, float Far) {
-		GraphicsUtility::retrieveDepthTexture(m_TexDepthStencil, pImg, Near, Far);
+		CForgeUtility::retrieveDepthTexture(m_TexDepthStencil, pImg, Near, Far);
 	}//retrieveDepthBuffer
 
 }//name space

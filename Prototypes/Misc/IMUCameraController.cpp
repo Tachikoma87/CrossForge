@@ -1,6 +1,5 @@
 #include "IMUCameraController.h"
-#include "../../CForge/Core/CoreUtility.hpp"
-#include "../../CForge/Graphics/GraphicsUtility.h"
+#include <CForge/Math/CForgeMath.h>
 
 using namespace Eigen;
 
@@ -62,7 +61,7 @@ namespace CForge {
 
 		if (nullptr != pCamera) apply(pCamera, Scale);
 
-		if (CoreUtility::timestamp() - m_LastSearch > 500) {
+		if (CForgeUtility::timestamp() - m_LastSearch > 500) {
 			IMUWIP::IMUPackage SearchPackage;
 			SearchPackage.Cmd = IMUWIP::IMUPackage::CMD_SEARCH;
 			SearchPackage.setIP("192.168.1.206");
@@ -82,7 +81,7 @@ namespace CForge {
 			}
 			
 			
-			m_LastSearch = CoreUtility::timestamp();
+			m_LastSearch = CForgeUtility::timestamp();
 		}
 
 	}//update
@@ -139,7 +138,7 @@ namespace CForge {
 		}//while[receive data]
 
 		// kill data that is out of scope
-		while (pDataBuffer->size() > 0 && (CoreUtility::timestamp() - pDataBuffer->front().Timestamp) > m_AveragingTime) pDataBuffer->pop_front();
+		while (pDataBuffer->size() > 0 && (CForgeUtility::timestamp() - pDataBuffer->front().Timestamp) > m_AveragingTime) pDataBuffer->pop_front();
 	}//updateFoot
 
 	void IMUCameraController::apply(VirtualCamera* pCamera, float Scale) {
@@ -189,7 +188,7 @@ namespace CForge {
 				m_TurnLeft = false;
 			}
 
-			const float TurnSpeed = GraphicsUtility::degToRad(45.0f / 60.0f); // 20 Degree per second
+			const float TurnSpeed = CForgeMath::degToRad(45.0f / 60.0f); // 20 Degree per second
 			if (m_TurnLeft) pCamera->rotY(TurnSpeed*Scale);
 			if (m_TurnRight) pCamera->rotY(-TurnSpeed*Scale);
 
@@ -209,7 +208,7 @@ namespace CForge {
 
 		if (m_DataRecording) {
 			char Buffer[256];
-			float Time = (CoreUtility::timestamp() - m_RecordingStartTime) / 1000.0f;
+			float Time = (CForgeUtility::timestamp() - m_RecordingStartTime) / 1000.0f;
 			uint32_t MsgSize = sprintf(Buffer, "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n", Time, Speed,
 				m_CmdData.AveragedMovementLeft.Accelerations.x(),
 				m_CmdData.AveragedMovementRight.Accelerations.x(),
@@ -238,7 +237,7 @@ namespace CForge {
 			const char* Header = "Time,Speed,x-Pos-Left,x-Pos-Right,y-Pos-Left,y-Pos-Right,z-Pos-Left,z-Pos-Right,x-Rot-Left,x-Rot-Right,y-Rot-Left,y-Rot-Right,z-Rot-Left,z-Rot-Right\n";
 			m_DataFile.write(Header, std::strlen(Header));
 			m_DataRecording = true;
-			m_RecordingStartTime = CoreUtility::timestamp();
+			m_RecordingStartTime = CForgeUtility::timestamp();
 		}
 	}//recordData
 

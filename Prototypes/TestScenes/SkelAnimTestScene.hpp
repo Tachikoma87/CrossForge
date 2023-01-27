@@ -149,7 +149,7 @@ namespace CForge {
 			initWindowAndRenderDevice();
 			// initialize camera
 			m_Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
-			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
 			// initialize sun (key light) and back ground light (fill light)
 			Vector3f SunPos = Vector3f(-15.0f, 15.0f, 25.0f);
@@ -627,12 +627,12 @@ namespace CForge {
 #endif
 
 			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CoreUtility::timestamp();
+			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
 
 			// check wheter a GL error occurred
 			std::string GLError = "";
-			GraphicsUtility::checkGLError(&GLError);
+			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 		}//initialize
@@ -941,9 +941,9 @@ namespace CForge {
 
 			Eigen::Matrix4f JointTransform = Matrix4f::Identity();
 			if (pFrame != nullptr) {
-				Matrix4f R = (pFrame->Rotations.size() > 0) ? GraphicsUtility::rotationMatrix(pFrame->Rotations[0]) : Matrix4f::Identity();
-				Matrix4f T = (pFrame->Positions.size() > 0) ? GraphicsUtility::translationMatrix(pFrame->Positions[0]) : Matrix4f::Identity();
-				Matrix4f S = (pFrame->Scalings.size() > 0) ? GraphicsUtility::scaleMatrix(pFrame->Scalings[0]) : Matrix4f::Identity();
+				Matrix4f R = (pFrame->Rotations.size() > 0) ? CForgeMath::rotationMatrix(pFrame->Rotations[0]) : Matrix4f::Identity();
+				Matrix4f T = (pFrame->Positions.size() > 0) ? CForgeMath::translationMatrix(pFrame->Positions[0]) : Matrix4f::Identity();
+				Matrix4f S = (pFrame->Scalings.size() > 0) ? CForgeMath::scaleMatrix(pFrame->Scalings[0]) : Matrix4f::Identity();
 
 				if (ConsiderTranslationOnly) {
 					S = R = Matrix4f::Identity();

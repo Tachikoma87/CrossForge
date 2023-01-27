@@ -1,6 +1,6 @@
 #include <GLFW/glfw3.h>
 #include "Mouse.h"
-#include "../Core/CoreUtility.hpp"
+#include "../Utility/CForgeUtility.h"
 
 using namespace Eigen;
 
@@ -11,7 +11,7 @@ namespace CForge {
 		m_Movement = Vector2f(0.0f, 0.0f);
 		m_Wheel = Vector2f(0.0f, 0.0f);
 		m_pWin = nullptr;
-		CoreUtility::memset(&m_BtnState[0], false, BTN_COUNT);
+		CForgeUtility::memset(&m_BtnState[0], false, BTN_COUNT);
 	}//Constructor
 
 	Mouse::~Mouse(void) {
@@ -29,7 +29,7 @@ namespace CForge {
 		m_Position = Vector2f(0.0f, 0.0f);
 		m_Movement = Vector2f(0.0f, 0.0f);
 		m_Wheel = Vector2f(0.0f, 0.0f);
-		CoreUtility::memset(&m_BtnState[0], false, BTN_COUNT);
+		CForgeUtility::memset(&m_BtnState[0], false, BTN_COUNT);
 	}//clear
 
 	Eigen::Vector2f Mouse::position(void)const {

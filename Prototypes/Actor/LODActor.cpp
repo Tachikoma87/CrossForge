@@ -1,7 +1,6 @@
 #include <glad/glad.h>
 #include "LODActor.h"
 #include "../../CForge/Graphics/RenderDevice.h"
-#include "../../CForge/Graphics/GraphicsUtility.h"
 #include "../../CForge/Core/SLogger.h"
 #include "../MeshDecimate.h"
 #include "../../CForge/Graphics/Shader/SShaderManager.h"

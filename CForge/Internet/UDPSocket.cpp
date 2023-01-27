@@ -1,5 +1,4 @@
 #include "UDPSocket.h"
-#include "../../CForge/Core/CoreUtility.hpp"
 
 #ifdef WIN32
 #include <WinSock2.h>

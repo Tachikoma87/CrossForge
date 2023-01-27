@@ -90,8 +90,8 @@ namespace CForge {
 			m_PointLights[0].init(Eigen::Vector3f(0.0f, 20.0f, 0.0f), -Eigen::Vector3f(0.0f, 10.0f, 0.0f).normalized(), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 0.5f, Eigen::Vector3f(0.5, 0.01, 0.0));
 			m_PointLights[1].init(Eigen::Vector3f(100.0f, 20.0f, -100.0f), -Eigen::Vector3f(0.0f, 20.0f, 20.0f).normalized(), Eigen::Vector3f(1.0f, 1.0, 1.0f), 0.2f, Eigen::Vector3f(0.0, 0.2, 0.02));
 	
-			float InnerCutOff = GraphicsUtility::degToRad(15.0f);
-			float OuterCutOff = GraphicsUtility::degToRad(25.0f);
+			float InnerCutOff = CForgeMath::degToRad(15.0f);
+			float OuterCutOff = CForgeMath::degToRad(25.0f);
 			Eigen::Vector3f SpotPosition = Eigen::Vector3f(10.0f, 200.0f, 50.0f);
 			m_Spot.init(SpotPosition, -SpotPosition.normalized(), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 5.0f, Eigen::Vector3f(0.5f, 0.0f, 0.0f), Eigen::Vector2f(InnerCutOff, OuterCutOff));
 
@@ -166,7 +166,7 @@ namespace CForge {
 			m_Eric.activeAnimation(m_pEricAnim);
 
 			std::string GLError;
-			if (GraphicsUtility::checkGLError(&GLError)) {
+			if (CForgeUtility::checkGLError(&GLError)) {
 				printf("GL ErrorOccured: %s\n", GLError.c_str());
 			}
 
@@ -185,7 +185,7 @@ namespace CForge {
 
 			m_HelmetTransform.init(&m_SGNRoot);
 			Quaternionf ACRotDelta;
-			ACRotDelta = AngleAxisf(GraphicsUtility::degToRad(-45.0f / 60.0f), Vector3f::UnitY());
+			ACRotDelta = AngleAxisf(CForgeMath::degToRad(-45.0f / 60.0f), Vector3f::UnitY());
 			m_HelmetTransform.rotationDelta(ACRotDelta);
 
 			m_HelmetGeom.init(&m_HelmetTransform, &m_Helmet);
@@ -198,7 +198,7 @@ namespace CForge {
 				Vector3f Pos = Vector3f(-35.0f + i * 35.0f, 0.0f, 0.0f);
 				float Scale = 0.2f;
 				Quaternionf Rot;
-				Rot = AngleAxisf(GraphicsUtility::degToRad(0.0f), Vector3f::UnitX());
+				Rot = AngleAxisf(CForgeMath::degToRad(0.0f), Vector3f::UnitX());
 
 				m_ArmchairsTransform[i].init(&m_SGNRoot, Pos);
 				m_ArchmairsGeom[i].init(&m_ArmchairsTransform[i], &m_Armchair, Vector3f::Zero(), Rot, Vector3f(Scale, Scale, Scale));
@@ -213,7 +213,7 @@ namespace CForge {
 			//EricRot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
 			m_EricTransform.init(&m_SGNRoot);
 			Quaternionf R;
-			R = AngleAxisf(GraphicsUtility::degToRad(60.0f), Vector3f::UnitY());
+			R = AngleAxisf(CForgeMath::degToRad(60.0f), Vector3f::UnitY());
 			m_EricTransform.rotation(R);
 			m_EricTransform.translation(Vector3f(-100.0f, -17.0f, -120.0f));
 			m_EricSGN.init(&m_EricTransform, &m_Eric, Vector3f(0.0f, 15.0f, 15.0f), EricRot, Vector3f(EricScale, EricScale, EricScale));
@@ -224,17 +224,17 @@ namespace CForge {
 				// object type
 				// positions
 				Eigen::Vector3f Pos;
-				Pos.x() = CoreUtility::randRange<float>(-1.0f, 1.0f) * 100.0f;
-				Pos.y() = CoreUtility::randRange<float>(0.0f, 1.0f) * 50.0f;
-				Pos.z() = CoreUtility::randRange<float>(-1.0f, 1.0f) * 100.0f;
+				Pos.x() = CForgeMath::randRange<float>(-1.0f, 1.0f) * 100.0f;
+				Pos.y() = CForgeMath::randRange<float>(0.0f, 1.0f) * 50.0f;
+				Pos.z() = CForgeMath::randRange<float>(-1.0f, 1.0f) * 100.0f;
 
 				Eigen::Vector3f Move;
-				Move.x() = CoreUtility::randRange<float>(-1.0f, 1.0f);
-				Move.y() = CoreUtility::randRange<float>(-1.0f, 1.0f);
-				Move.z() = CoreUtility::randRange<float>(-1.0f, 1.0f);
+				Move.x() = CForgeMath::randRange<float>(-1.0f, 1.0f);
+				Move.y() = CForgeMath::randRange<float>(-1.0f, 1.0f);
+				Move.z() = CForgeMath::randRange<float>(-1.0f, 1.0f);
 				Move *= 0.5f;
 				if (Move.y() > -0.1f && Move.y() < 0.1f) Move.y() = 0.2f;	
-				float Scale = 0.5f + CoreUtility::randRange<float>(0.0f, 1.0f) * 2.0f;
+				float Scale = 0.5f + CForgeMath::randRange<float>(0.0f, 1.0f) * 2.0f;
 
 				SGNTransformation* pTransform = new SGNTransformation();
 				SGNGeometry* pGeom = new SGNGeometry();
@@ -243,15 +243,15 @@ namespace CForge {
 				pTransform->translation(Pos);
 				pTransform->translationDelta(Move);
 
-				float RotY = CoreUtility::randRange<float>(-1.0f, 1.0f) * 90.0f;
+				float RotY = CForgeMath::randRange<float>(-1.0f, 1.0f) * 90.0f;
 				Eigen::Quaternionf R;
-				R = Eigen::AngleAxisf(GraphicsUtility::degToRad(RotY), Eigen::Vector3f::UnitY());
+				R = Eigen::AngleAxisf(CForgeMath::degToRad(RotY), Eigen::Vector3f::UnitY());
 				pTransform->rotation(R);
 
-				R = Eigen::AngleAxisf(CoreUtility::randRange<float>(-1.0f, 1.0f) / 30.0f, Eigen::Vector3f::UnitY()) * Eigen::AngleAxisf(CoreUtility::randRange<float>(-1.0f, 1.0f) / 60.0f, Eigen::Vector3f::UnitX());
+				R = Eigen::AngleAxisf(CForgeMath::randRange<float>(-1.0f, 1.0f) / 30.0f, Eigen::Vector3f::UnitY()) * Eigen::AngleAxisf(CForgeMath::randRange<float>(-1.0f, 1.0f) / 60.0f, Eigen::Vector3f::UnitX());
 				pTransform->rotationDelta(R);
 
-				pGeom->init(pTransform, (CoreUtility::rand() % 2) ? &m_Cube : &m_Sphere);
+				pGeom->init(pTransform, (CForgeMath::rand() % 2) ? &m_Cube : &m_Sphere);
 				pGeom->scale(Vector3f(Scale, Scale, Scale));
 
 				m_ObjTransforms.push_back(pTransform);
@@ -280,17 +280,17 @@ namespace CForge {
 			Mouse* pMouse = m_RenderWin.mouse();
 			Keyboard* pKeyboard = m_RenderWin.keyboard();
 			m_FPS = 60.0f;
-			m_LastFPSPrint = CoreUtility::timestamp();
+			m_LastFPSPrint = CForgeUtility::timestamp();
 			m_FrameCount = 0;
 
 			while (!m_RenderWin.shutdown()) {
 
 				m_FrameCount++;
-				if (CoreUtility::timestamp() - m_LastFPSPrint > 2000) {
+				if (CForgeUtility::timestamp() - m_LastFPSPrint > 2000) {
 
-					m_LastFPSPrint = CoreUtility::timestamp();
-					float AvailableMemory = GraphicsUtility::gpuMemoryAvailable() / 1000.0f;
-					float MemoryInUse = AvailableMemory - GraphicsUtility::gpuFreeMemory() / 1000.0f;
+					m_LastFPSPrint = CForgeUtility::timestamp();
+					float AvailableMemory = CForgeUtility::gpuMemoryAvailable() / 1000.0f;
+					float MemoryInUse = AvailableMemory - CForgeUtility::gpuFreeMemory() / 1000.0f;
 
 					uint32_t ShadowPassTime;
 					uint32_t GeometryPassTime;
@@ -415,7 +415,7 @@ namespace CForge {
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_9, true)) {
 					T2DImage<uint8_t> ColorBuffer;
 					T2DImage<uint8_t> DepthBuffer;
-					GraphicsUtility::retrieveFrameBuffer(&ColorBuffer, &DepthBuffer, 0.1f, 1000.0f);
+					CForgeUtility::retrieveFrameBuffer(&ColorBuffer, &DepthBuffer, 0.1f, 1000.0f);
 					SAssetIO::store("Screenshots/ScreenshotColor.jpg", &ColorBuffer);
 					SAssetIO::store("Screenshots/ScreenshotDepth.jpg", &DepthBuffer);
 				}

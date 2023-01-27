@@ -1,9 +1,10 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): GraphicsUtility.h and GraphicsUtility.cpp                        *
+* File(s): CForgeMath.h and CForgeMath.cpp                               *
 *                                                                           *
-* Content:    *
-*          .                                         *
+* Content: Utility methods for math stuff.                   *
+*                *
+*                               *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,46 +16,40 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_GRAPHICSUTILITY_H__
-#define __CFORGE_GRAPHICSUTILITY_H__
+#ifndef __CFORGE_CFORGEMATH_H__
+#define __CFORGE_CFORGEMATH_H__
 
+#include <chrono>
 #include "../Core/CForgeObject.h"
-#include "../AssetIO/T2DImage.hpp"
 
 namespace CForge {
-	/**
-	* \brief Support methods for working with graphics.
-	*
-	* \todo Do full documentation.
-	*/
-	class CFORGE_API GraphicsUtility: public CForgeObject {
+	class CFORGE_API CForgeMath : public CForgeObject {
 	public:
-		struct GPUTraits {
-			int32_t MaxTextureImageUnits;
-			int32_t MaxVertexUniformBlocks;
-			int32_t MaxVertexUniformComponents;
-			int32_t MaxFragmentUniformBLocks;
-			int32_t MaxFragmentUniformComponents;
-			int32_t MaxGeometryUniformComponents;
+		
+		template<typename T>
+		static T randRange(T Lower, T Upper) {
+			long double R = (long double)(rand()) / (long double)(randMax());
+			long double Temp = R * (Upper - Lower);
+			return T(Lower + Temp);
+			//return T(Lower + R * (Upper - Lower));
+		}//randRange
 
-			int32_t MaxFramebufferWidth;
-			int32_t MaxFramebufferHeight;
+		static uint64_t rand(void);
+		static void randSeed(uint64_t Seed);
 
-			int32_t MaxUniformBlockSize;
-			int32_t MaxVaryingVectors;
+		static uint64_t randMax(void) {
+			return std::numeric_limits<uint64_t>::max() / 2ull;
+		}//randMax
 
-			int32_t MaxVertexAttribs;
+		template<typename T>
+		static T degToRad(T Deg) {
+			return Deg * T(EIGEN_PI) / T(180);
+		}//degToRad
 
-			int32_t GLMinorVersion;
-			int32_t GLMajorVersion;
-			std::string GLVersion;
-		};
-
-		GraphicsUtility(void);
-		~GraphicsUtility(void);
-
-		void init(void);
-		void clear(void);
+		template<typename T>
+		static T radToDeg(T Rad) {
+			return Rad * T(180) / T(EIGEN_PI);
+		}//radToDeg
 
 		static Eigen::Matrix4f perspectiveProjection(uint32_t Width, uint32_t Height, float FieldOfView, float Near, float Far);
 		static Eigen::Matrix4f perspectiveProjection(float Left, float Right, float Bottom, float Top, float Near, float Far);
@@ -69,30 +64,13 @@ namespace CForge {
 
 		static Eigen::Matrix3f alignVectors(const Eigen::Vector3f Source, const Eigen::Vector3f Target);
 
-		static void retrieveColorTexture(uint32_t TexObj, T2DImage<uint8_t>* pImg);
-		static void retrieveDepthTexture(uint32_t TexObj, T2DImage<uint8_t>* pImg, float Near = -1.0f, float Far = -1.0f);
-		static void retrieveFrameBuffer(T2DImage<uint8_t>* pColor, T2DImage<uint8_t>* pDepth = nullptr, float Near = -1.0f, float Far = -1.0f);
-
-		static uint32_t checkGLError(std::string* pVerbose);
-		static uint32_t gpuMemoryAvailable(void);
-		static uint32_t gpuFreeMemory(void);
-
-		static GPUTraits retrieveGPUTraits(void);
-
-		template<typename T>
-		static T degToRad(T Deg) {
-			return Deg * T(EIGEN_PI) / T(180);
-		}//degToRad
-
-		template<typename T>
-		static T radToDeg(T Rad) {
-			return Rad * T(180) / T(EIGEN_PI);
-		}//radToDeg
+		CForgeMath(void);
+		~CForgeMath(void);
 
 	protected:
+		static uint64_t m_RndState; 
+	};//CForgeMath
 
-	};//GraphicsUtility
 }//name space
 
-
-#endif
+#endif 

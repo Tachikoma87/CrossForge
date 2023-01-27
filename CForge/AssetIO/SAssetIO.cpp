@@ -1,12 +1,10 @@
 #include "SAssetIO.h"
-
 #include "AssimpMeshIO.h"
-
 #include "StbImageIO.h"
 #include "WebPImageIO.h"
 #include "OpenCVImageIO.h"
-
 #include "../Core/SLogger.h"
+#include "../AssetIO/File.h"
 
 namespace CForge {
 	SAssetIO* SAssetIO::m_pInstance = nullptr;

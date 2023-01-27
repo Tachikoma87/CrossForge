@@ -1,8 +1,8 @@
 #include <glad/glad.h>
 #include "../Core/SLogger.h"
-#include "../Core/CoreUtility.hpp"
 #include "Shader/SShaderManager.h"
-#include "GraphicsUtility.h"
+#include "../Utility/CForgeUtility.h"
+#include "../Math/CForgeMath.h"
 #include "RenderDevice.h"
 
 using namespace Eigen;
@@ -127,7 +127,7 @@ namespace CForge {
 
 		
 		std::string ErrorMsg;
-		if (GL_NO_ERROR != GraphicsUtility::checkGLError(&ErrorMsg)) {
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
 			SLogger::log("Not handled OpenGL error occurred during initialization of RenderDevice: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
 		}
 	}//initialize
@@ -141,9 +141,9 @@ namespace CForge {
 		if (nullptr == pActor) throw NullpointerExcept("pActor");
 
 		////// create model matrix and update buffer
-		const Matrix4f R = GraphicsUtility::rotationMatrix(Rotation);
-		const Matrix4f T = GraphicsUtility::translationMatrix(Translation);
-		const Matrix4f S = GraphicsUtility::scaleMatrix(Scale);
+		const Matrix4f R = CForgeMath::rotationMatrix(Rotation);
+		const Matrix4f T = CForgeMath::translationMatrix(Translation);
+		const Matrix4f S = CForgeMath::scaleMatrix(Scale);
 		const Matrix4f ModelMat = T * R * S;
 
 		m_ModelUBO.modelMatrix(ModelMat);

@@ -78,7 +78,7 @@ namespace CForge {
 
 			// rotate about the y-axis at 45 degree every second
 			Quaternionf R = Quaternionf::Identity();
-			R = AngleAxisf(GraphicsUtility::degToRad(45.0f / 60.0f), Vector3f::UnitY());
+			R = AngleAxisf(CForgeMath::degToRad(45.0f / 60.0f), Vector3f::UnitY());
 
 			m_MuscleManTransformSGN.rotationDelta(R);
 
@@ -86,11 +86,11 @@ namespace CForge {
 			m_MarkerGroupSGN.init(&m_MuscleManTransformSGN); // markers will always belong to this object for the purpose of this demo
 
 			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CoreUtility::timestamp();
+			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
 
 			std::string GLError = "";
-			GraphicsUtility::checkGLError(&GLError);
+			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 			// setup for the surface sampler
@@ -108,7 +108,7 @@ namespace CForge {
 
 			m_FPS = 60.0f;
 			m_FPSCount = 0;
-			m_LastFPSPrint = CoreUtility::timestamp();
+			m_LastFPSPrint = CForgeUtility::timestamp();
 
 			while (!m_RenderWin.shutdown()) {
 				m_RenderWin.update();

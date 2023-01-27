@@ -63,8 +63,8 @@ namespace CForge {
 
 			// rotate about the y-axis at 45 degree every second and about the X axis to make it a bit more interesting
 			Quaternionf RY, RX;
-			RY = AngleAxisf(GraphicsUtility::degToRad(45.0f / 60.0f), Vector3f::UnitY());
-			RX = AngleAxisf(GraphicsUtility::degToRad(-25.0f / 60.0f), Vector3f::UnitZ());
+			RY = AngleAxisf(CForgeMath::degToRad(45.0f / 60.0f), Vector3f::UnitY());
+			RX = AngleAxisf(CForgeMath::degToRad(-25.0f / 60.0f), Vector3f::UnitZ());
 			m_DuckTransformSGN.rotationDelta(RX * RY);
 
 			/// gather textures for the skyboxes
@@ -111,7 +111,7 @@ namespace CForge {
 			m_SkyboxSG.init(&m_SkyboxTransSGN);
 
 			std::string GLError = "";
-			GraphicsUtility::checkGLError(&GLError);
+			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 		}//initialize
@@ -137,7 +137,7 @@ namespace CForge {
 				}
 				else if (pKeyboard->keyPressed(Keyboard::KEY_R, true)) {
 					Quaternionf RDelta;
-					RDelta = AngleAxisf(GraphicsUtility::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
+					RDelta = AngleAxisf(CForgeMath::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
 					m_SkyboxTransSGN.rotationDelta(RDelta);
 				}
 
@@ -167,7 +167,7 @@ namespace CForge {
 
 
 				std::string GLError = "";
-				GraphicsUtility::checkGLError(&GLError);
+				CForgeUtility::checkGLError(&GLError);
 				if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 			}//while[main loop]
 		}//run

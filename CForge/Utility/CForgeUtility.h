@@ -1,9 +1,10 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SCoreUtility.hpp                                     *
+* File(s): CForgeUtility.h and CForgeUtility.cpp                               *
 *                                                                           *
-* Content:    *
-*          .                                         *
+* Content: Various utility methods.                   *
+*                *
+*                               *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,59 +16,46 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SCOREUTILITY_H__
-#define __CFORGE_SCOREUTILITY_H__
+#ifndef __CFORGE_CFORGEUTILITY_H__
+#define __CFORGE_CFORGEUTILITY_H__
 
-#include <inttypes.h>
-#include <math.h>
 #include <chrono>
-#include <limits>
-#include <Eigen/Eigen>
-#include "CrossForgeException.h"
-#include "CoreDefinitions.h"
-#include "../AssetIO/File.h"
+#include "../Core/CForgeObject.h"
+#include "../Core/CoreDefinitions.h"
+#include "../AssetIO/T2DImage.hpp"
 
 namespace CForge {
-	/**
-	* \brief Provides basic utility functions.
-	* 
-	* \todo Do full documentation
-	* \todo Add timestamp method
-	*/
-	class CFORGE_API CoreUtility {
+	class CFORGE_API CForgeUtility : public CForgeObject {
 	public:
-		CoreUtility(void) {
+		struct GPUTraits {
+			int32_t MaxTextureImageUnits;
+			int32_t MaxVertexUniformBlocks;
+			int32_t MaxVertexUniformComponents;
+			int32_t MaxFragmentUniformBLocks;
+			int32_t MaxFragmentUniformComponents;
+			int32_t MaxGeometryUniformComponents;
 
-		}//Constructor
+			int32_t MaxFramebufferWidth;
+			int32_t MaxFramebufferHeight;
 
-		~CoreUtility(void) {
+			int32_t MaxUniformBlockSize;
+			int32_t MaxVaryingVectors;
 
-		}//Destructor
+			int32_t MaxVertexAttribs;
 
-		 template<typename T>
-		 static void memset(T* pMemory, T Value, uint32_t Count) {
-			for (uint32_t i = 0; i < Count; ++i) pMemory[i] = Value;
-		}//memset
-
-
-		template<typename T>
-		static T randRange(T Lower, T Upper) {
-			long double R = (long double)(rand()) / (long double)(randMax());
-			long double Temp = R * (Upper - Lower);
-			return T(Lower + Temp);
-			//return T(Lower + R * (Upper - Lower));
-		}//randRange
-
-		static uint64_t rand(void);
-		static void randSeed(uint64_t Seed); 
-
-		static uint64_t randMax(void) {
-			return std::numeric_limits<uint64_t>::max()/2ull;
-		}//randMax
+			int32_t GLMinorVersion;
+			int32_t GLMajorVersion;
+			std::string GLVersion;
+		};
 
 		static uint64_t timestamp(void) {
 			return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		}//timestamp
+
+		template<typename T>
+		static void memset(T* pMemory, T Value, uint32_t Count) {
+			for (uint32_t i = 0; i < Count; ++i) pMemory[i] = Value;
+		}//memset
 
 		static std::string toLowerCase(const std::string Str) {
 			std::string Rval = Str;
@@ -81,10 +69,22 @@ namespace CForge {
 			return Rval;
 		}//toUpperCase
 
+		static void retrieveColorTexture(uint32_t TexObj, T2DImage<uint8_t>* pImg);
+		static void retrieveDepthTexture(uint32_t TexObj, T2DImage<uint8_t>* pImg, float Near = -1.0f, float Far = -1.0f);
+		static void retrieveFrameBuffer(T2DImage<uint8_t>* pColor, T2DImage<uint8_t>* pDepth = nullptr, float Near = -1.0f, float Far = -1.0f);
+
+		static uint32_t checkGLError(std::string* pVerbose);
+		static uint32_t gpuMemoryAvailable(void);
+		static uint32_t gpuFreeMemory(void);
+
+		static GPUTraits retrieveGPUTraits(void);
+
+		CForgeUtility(void);
+		~CForgeUtility(void);
 	protected:
-		static uint64_t m_RndState; // defined in SCrossForgeDevice.cpp
-	};
+
+	};//CForgeUtility
 
 }//name space
 
-#endif
+#endif 

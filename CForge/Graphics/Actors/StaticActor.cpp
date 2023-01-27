@@ -1,7 +1,6 @@
 #include <glad/glad.h>
 #include "StaticActor.h"
 #include "../RenderDevice.h"
-#include "../GraphicsUtility.h"
 #include "../../Core/SLogger.h"
 
 namespace CForge {

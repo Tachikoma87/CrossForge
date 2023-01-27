@@ -1,6 +1,6 @@
 #include "StickFigureActor.h"
 #include "../../AssetIO/SAssetIO.h"
-#include "../GraphicsUtility.h"
+#include "../../Math/CForgeMath.h"
 
 using namespace Eigen;
 
@@ -50,7 +50,7 @@ namespace CForge {
 		M.computePerVertexNormals();
 		M.computeAxisAlignedBoundingBox();
 		float Offset = -M.aabb().Min.y();
-		Matrix4f T = GraphicsUtility::translationMatrix(Vector3f(0.0f, Offset, 0.0f));
+		Matrix4f T = CForgeMath::translationMatrix(Vector3f(0.0f, Offset, 0.0f));
 		M.applyTransformation(T);
 
 		m_Bone.init(&M);
@@ -187,7 +187,7 @@ namespace CForge {
 			if (i->Parent == -1) continue; // we don't care about the root node
 
 			Vector3f BoneVec = m_JointValues[i->ID]->LocalPosition;
-			Matrix3f BoneOrientation = GraphicsUtility::alignVectors(Vector3f::UnitY(), BoneVec.normalized());
+			Matrix3f BoneOrientation = CForgeMath::alignVectors(Vector3f::UnitY(), BoneVec.normalized());
 
 			Quaternionf R; // = m_JointValues[i->Parent]->LocalRotation;
 			R = BoneOrientation;

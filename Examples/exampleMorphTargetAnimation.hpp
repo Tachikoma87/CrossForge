@@ -80,11 +80,11 @@ namespace CForge {
 			m_FaceSGN.scale(Vector3f(0.01f, 0.01f, 0.01f));
 
 			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CoreUtility::timestamp();
+			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
 
 			std::string GLError = "";
-			GraphicsUtility::checkGLError(&GLError);
+			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 		}//initialize
@@ -121,7 +121,7 @@ namespace CForge {
 				if (pKeyboard->keyPressed(Keyboard::KEY_6, true)) PlayMTAnimation = 5;
 				if (pKeyboard->keyPressed(Keyboard::KEY_7, true)) PlayMTAnimation = 6;
 				if (pKeyboard->keyPressed(Keyboard::KEY_8, true)) PlayMTAnimation = 7;
-				if (pKeyboard->keyPressed(Keyboard::KEY_0, true)) PlayMTAnimation = CoreUtility::rand() % m_MTController.animationSequenceCount();
+				if (pKeyboard->keyPressed(Keyboard::KEY_0, true)) PlayMTAnimation = CForgeMath::rand() % m_MTController.animationSequenceCount();
 
 
 				if (-1 != PlayMTAnimation) {
@@ -150,7 +150,7 @@ namespace CForge {
 			if (nullptr == pBaseMesh) throw NullpointerExcept("pBaseMesh");
 
 			printf("Building morph target model...");
-			uint64_t Start = CoreUtility::timestamp();
+			uint64_t Start = CForgeUtility::timestamp();
 
 			// create morph target build and initialize with base mesh
 			MorphTargetModelBuilder MTBuilder;
@@ -185,7 +185,7 @@ namespace CForge {
 			MTBuilder.build();
 			MTBuilder.retrieveMorphTargets(pBaseMesh);
 
-			printf(" finished int %d ms\n", uint32_t(CoreUtility::timestamp() - Start));
+			printf(" finished int %d ms\n", uint32_t(CForgeUtility::timestamp() - Start));
 		}//buildMTModel
 
 		void buildMTSequences(MorphTargetAnimationController* pController) {

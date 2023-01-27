@@ -81,7 +81,7 @@ namespace CForge {
 			
 			// initialize camera
 			m_Cam.init(Vector3f(0.0f, 0.25f, 8.0f), Vector3f::UnitY());
-			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
 			// initialize sun (key lights) and back ground light (fill light)
 			Vector3f SunPos = Vector3f(-15.0f, 625.0f, 500.0f);
@@ -148,13 +148,13 @@ namespace CForge {
 			m_GroundSGN.init(&m_GroundTransformSGN, &m_Ground);
 			m_GroundSGN.scale(Vector3f(600.0f, 600.0f, 1.0f));
 			Quaternionf R = Quaternionf::Identity();
-			R = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
+			R = AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX());
 			m_GroundSGN.rotation(R);
 
 
 
 			// set random seed
-			CoreUtility::randSeed(CoreUtility::timestamp());
+			CForgeMath::randSeed(CForgeUtility::timestamp());
 
 			// generat forest
 			generateForest(m_TreeCount, m_ForestDimension);
@@ -166,14 +166,14 @@ namespace CForge {
 
 
 			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CoreUtility::timestamp();
+			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
 
 			std::string GLError = "";
-			GraphicsUtility::checkGLError(&GLError);
+			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
-			uint64_t LastMessage = CoreUtility::timestamp();
+			uint64_t LastMessage = CForgeUtility::timestamp();
 
 			uint8_t Buffer[256];
 			uint32_t MsgLength;
@@ -211,7 +211,7 @@ namespace CForge {
 
 
 		void run(void) {
-			uint64_t LastMessage = CoreUtility::timestamp();
+			uint64_t LastMessage = CForgeUtility::timestamp();
 
 			uint8_t Buffer[256];
 			uint32_t MsgLength;
@@ -307,21 +307,21 @@ namespace CForge {
 			for (uint32_t i = 0; i < TreeCount; ++i) {
 				// placement in world
 				Vector3f Pos;
-				Pos.x() = CoreUtility::randRange(MinPlane, MaxPlane);
+				Pos.x() = CForgeMath::randRange(MinPlane, MaxPlane);
 				Pos.y() = 0.0f;
-				Pos.z() = CoreUtility::randRange(MinPlane, MaxPlane);
+				Pos.z() = CForgeMath::randRange(MinPlane, MaxPlane);
 
-				float Scaling = CoreUtility::randRange(3.8f, 8.4f);
+				float Scaling = CForgeMath::randRange(3.8f, 8.4f);
 
 				Quaternionf RotationY;
-				RotationY = AngleAxisf(GraphicsUtility::degToRad(CoreUtility::randRange(0.0f, 360.0f)), Vector3f::UnitY());
+				RotationY = AngleAxisf(CForgeMath::degToRad(CForgeMath::randRange(0.0f, 360.0f)), Vector3f::UnitY());
 
 				m_pTreeTransNodes[i].init(&m_RootSGN);
 				m_pTreeTransNodes[i].translation(Pos);
 				m_pTreeTransNodes[i].scale(Vector3f(Scaling, Scaling, Scaling));
 				m_pTreeTransNodes[i].rotation(RotationY);
 
-				if (CoreUtility::rand() % 5 != 0) {
+				if (CForgeMath::rand() % 5 != 0) {
 					Vector3f StaticOffset = Vector3f(0.0f, 1.8f * Scaling, 0.0f);
 					m_pTreeNodes[i].init(&m_pTreeTransNodes[i], &m_Tree1, StaticOffset);
 					m_pTreeSpheres[i].Position = Pos + Vector3f(0.0f, 1.0f, 0.0f);;
@@ -351,17 +351,17 @@ namespace CForge {
 
 			float CoinScale = 1.25f;
 			Quaternionf CoinRotDelta;
-			CoinRotDelta = AngleAxisf(GraphicsUtility::degToRad(180.0f / 60.0f), Vector3f::UnitY());
+			CoinRotDelta = AngleAxisf(CForgeMath::degToRad(180.0f / 60.0f), Vector3f::UnitY());
 
 			for (uint32_t i = 0; i < CoinCount; ++i) {
 				// placement in world
 				Vector3f Pos;
-				Pos.x() = CoreUtility::randRange(MinPlane, MaxPlane);
+				Pos.x() = CForgeMath::randRange(MinPlane, MaxPlane);
 				Pos.y() = 1.5f;
-				Pos.z() = CoreUtility::randRange(MinPlane, MaxPlane);
+				Pos.z() = CForgeMath::randRange(MinPlane, MaxPlane);
 
 				Quaternionf RotationY;
-				RotationY = AngleAxisf(GraphicsUtility::degToRad(CoreUtility::randRange(0.0f, 360.0f)), Vector3f::UnitY());
+				RotationY = AngleAxisf(CForgeMath::degToRad(CForgeMath::randRange(0.0f, 360.0f)), Vector3f::UnitY());
 
 				m_pCoinTransNodes[i].init(&m_RootSGN);
 				m_pCoinTransNodes[i].translation(Pos);

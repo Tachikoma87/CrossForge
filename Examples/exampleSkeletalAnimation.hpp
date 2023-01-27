@@ -74,16 +74,16 @@ namespace CForge {
 			m_CesiumManSGN.scale(Vector3f(3.0f, 3.0f, 3.0f));
 
 			Quaternionf Rot;
-			Rot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
+			Rot = AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX());
 			m_CesiumManSGN.rotation(Rot);
 
 			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CoreUtility::timestamp();
+			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
 
 			// check wheter a GL error occurred
 			std::string GLError = "";
-			GraphicsUtility::checkGLError(&GLError);
+			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 			m_RepeatAnimation = false;

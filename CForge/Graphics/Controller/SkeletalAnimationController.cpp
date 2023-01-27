@@ -1,6 +1,6 @@
 #include "SkeletalAnimationController.h"
 #include "../Shader/SShaderManager.h"
-#include "../GraphicsUtility.h"
+#include "../../Math/CForgeMath.h"
 
 using namespace Eigen;
 using namespace std;
@@ -269,9 +269,9 @@ namespace CForge {
 
 	void SkeletalAnimationController::transformSkeleton(Joint* pJoint, Eigen::Matrix4f ParentTransform) {
 		
-		const Matrix4f R = GraphicsUtility::rotationMatrix(pJoint->LocalRotation);
-		const Matrix4f T = GraphicsUtility::translationMatrix(pJoint->LocalPosition);
-		const Matrix4f S = GraphicsUtility::scaleMatrix(pJoint->LocalScale);
+		const Matrix4f R = CForgeMath::rotationMatrix(pJoint->LocalRotation);
+		const Matrix4f T = CForgeMath::translationMatrix(pJoint->LocalPosition);
+		const Matrix4f S = CForgeMath::scaleMatrix(pJoint->LocalScale);
 		const Matrix4f JointTransform = T * R * S;
 
 		Matrix4f LocalTransform =  ParentTransform * JointTransform;

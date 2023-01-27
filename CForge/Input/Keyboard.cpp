@@ -1,5 +1,5 @@
 #include <GLFW/glfw3.h>
-#include "../Core/CoreUtility.hpp"
+#include "../Utility/CForgeUtility.h"
 #include "Keyboard.h"
 
 namespace CForge {
@@ -7,7 +7,7 @@ namespace CForge {
 
 	Keyboard::Keyboard(void): CForgeObject("Keyboard") {
 		m_pWin = nullptr;
-		CoreUtility::memset(&m_KeyStates[0], KEY_RELEASED, KEY_COUNT);
+		CForgeUtility::memset(&m_KeyStates[0], KEY_RELEASED, KEY_COUNT);
 	}//Constructor
 
 	Keyboard::~Keyboard(void) {
@@ -22,7 +22,7 @@ namespace CForge {
 
 	void Keyboard::clear(void) {
 		m_pWin = nullptr;
-		CoreUtility::memset(&m_KeyStates[0], KEY_RELEASED, KEY_COUNT);
+		CForgeUtility::memset(&m_KeyStates[0], KEY_RELEASED, KEY_COUNT);
 	}//clear
 
 	bool Keyboard::keyPressed(Key K)const {

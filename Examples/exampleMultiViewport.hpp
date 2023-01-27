@@ -63,10 +63,10 @@ namespace CForge {
 
 			float Speed = 10.0f; // Degree per second
 			Quaternionf HelmetRotationDeltas[4];
-			HelmetRotationDeltas[0] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitX());
-			HelmetRotationDeltas[1] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitY());
-			HelmetRotationDeltas[2] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitZ());
-			HelmetRotationDeltas[3] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f(1.0f, 1.0f, 1.0f).normalized());
+			HelmetRotationDeltas[0] = AngleAxisf(CForgeMath::degToRad(Speed / 60.0f), Vector3f::UnitX());
+			HelmetRotationDeltas[1] = AngleAxisf(CForgeMath::degToRad(Speed / 60.0f), Vector3f::UnitY());
+			HelmetRotationDeltas[2] = AngleAxisf(CForgeMath::degToRad(Speed / 60.0f), Vector3f::UnitZ());
+			HelmetRotationDeltas[3] = AngleAxisf(CForgeMath::degToRad(Speed / 60.0f), Vector3f(1.0f, 1.0f, 1.0f).normalized());
 
 			for (uint8_t i = 0; i < 4; ++i) {
 				m_RootSGNs[i].init(nullptr);
@@ -90,11 +90,11 @@ namespace CForge {
 			updateViewportsAndCamera();
 
 			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CoreUtility::timestamp();
+			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
 
 			std::string GLError = "";
-			GraphicsUtility::checkGLError(&GLError);
+			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 		}//initialize
 
@@ -151,7 +151,7 @@ namespace CForge {
 			m_VPs[3].Position = Vector2i(RenderWinWidth / 2, 0) + Vector2i(Margin / 2, Margin);
 			for (uint8_t i = 0; i < 4; ++i) m_VPs[i].Size = VPSize;
 
-			m_Cam.projectionMatrix(m_VPs[0].Size[0], m_VPs[0].Size[1], GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+			m_Cam.projectionMatrix(m_VPs[0].Size[0], m_VPs[0].Size[1], CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
 			m_GBufferVP.Size = Vector2i(m_RenderDev.gBuffer()->width(), m_RenderDev.gBuffer()->height());
 			m_RenderDev.viewport(RenderDevice::RENDERPASS_GEOMETRY, m_GBufferVP);

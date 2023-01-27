@@ -4,7 +4,7 @@
 #include <stb_image_write.h>
 #include "StbImageIO.h"
 #include "File.h"
-#include "../Core/CoreUtility.hpp"
+#include "../Utility/CForgeUtility.h"
 
 namespace CForge {
 
@@ -56,7 +56,7 @@ namespace CForge {
 		if (pImgData->width() == 0 || pImgData->height() == 0) throw CForgeExcept("Image has invalid dimensions!");
 		if (pImgData->data() == nullptr) throw CForgeExcept("Image contains no data!");
 
-		std::string Str = CoreUtility::toLowerCase(Filepath);
+		std::string Str = CForgeUtility::toLowerCase(Filepath);
 
 		int32_t Rval = 0;
 
@@ -82,7 +82,7 @@ namespace CForge {
 
 	bool StbImageIO::accepted(const std::string Filepath, Operation Op) {
 		bool Rval = false;
-		std::string S = CoreUtility::toLowerCase(Filepath);
+		std::string S = CForgeUtility::toLowerCase(Filepath);
 
 		if (Op == OP_LOAD) {
 			if (S.find(".jpeg") != std::string::npos) Rval = true;

@@ -1,4 +1,4 @@
-#include "GraphicsUtility.h"
+#include "../Math/CForgeMath.h"
 #include "../Core/SLogger.h"
 #include "VirtualCamera.h"
 
@@ -128,7 +128,7 @@ namespace CForge {
 	}//position
 
 	void VirtualCamera::projectionMatrix(uint32_t ViewportWidth, uint32_t ViewportHeight, float FieldOfView, float NearPlane, float FarPlane) {
-		m_Projection = GraphicsUtility::perspectiveProjection(ViewportWidth, ViewportHeight, FieldOfView, NearPlane, FarPlane);
+		m_Projection = CForgeMath::perspectiveProjection(ViewportWidth, ViewportHeight, FieldOfView, NearPlane, FarPlane);
 		m_FOV = FieldOfView;
 		m_ViewportWidth = ViewportWidth;
 		m_ViewportHeight = ViewportHeight;
@@ -139,7 +139,7 @@ namespace CForge {
 	}//projectionMatrix
 
 	void VirtualCamera::orthographicProjection(float Left, float Right, float Bottom, float Top, float Near, float Far) {
-		m_Projection = GraphicsUtility::orthographicProjection(Left, Right, Bottom, Top, Near, Far);
+		m_Projection = CForgeMath::orthographicProjection(Left, Right, Bottom, Top, Near, Far);
 		m_FOV = 0.0f;
 		m_ViewportWidth = Right - Left;
 		m_ViewportHeight = Top - Bottom;

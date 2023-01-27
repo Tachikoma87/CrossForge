@@ -3,7 +3,7 @@
 #include <webp/encode.h>
 #include <webp/decode.h>
 #include "File.h"
-#include "../Core/CoreUtility.hpp"
+#include "../Utility/CForgeUtility.h"
 
 namespace CForge {
 
@@ -85,7 +85,7 @@ namespace CForge {
 	}//store
 
 	bool WebPImageIO::accepted(const std::string Filepath, Operation Op) {	
-		std::string Str = CoreUtility::toLowerCase(Filepath);
+		std::string Str = CForgeUtility::toLowerCase(Filepath);
 		if (Str.find(".webp") != !std::string::npos) return true;
 		return false;
 	}//accepted

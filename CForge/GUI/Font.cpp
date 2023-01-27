@@ -2,9 +2,7 @@
 #include <iostream>
 #include <fstream>
 
-
 #include "../AssetIO/SAssetIO.h"
-#include "../Graphics/GraphicsUtility.h"
 #include "Font.h"
 
 namespace CForge {

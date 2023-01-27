@@ -23,9 +23,6 @@
 #include "CForgeObject.h"
 #include "CoreDefinitions.h"
 
-#include "CoreUtility.hpp"
-
-
 
 namespace CForge {
 

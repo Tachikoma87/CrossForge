@@ -1,5 +1,5 @@
 #include <glad/glad.h>
-#include "../GraphicsUtility.h"
+#include "../../Math/CForgeMath.h"
 #include "ILight.h"
 
 using namespace Eigen;
@@ -152,7 +152,7 @@ namespace CForge {
 	}//bindShadowFBO
 
 	Eigen::Matrix4f ILight::viewMatrix(void)const {
-		return GraphicsUtility::lookAt(m_Camera.position(), m_Camera.position() + m_Camera.dir());
+		return CForgeMath::lookAt(m_Camera.position(), m_Camera.position() + m_Camera.dir());
 		/*return GraphicsUtility::lookAt(m_Position, m_Camera.position() + m_Camera.dir()  m_Position + m_Direction);*/
 	}//viewMatrix
 
@@ -162,7 +162,7 @@ namespace CForge {
 	}//projectionMatrix
 
 	void ILight::retrieveDepthBuffer(T2DImage<uint8_t>* pImg) {
-		GraphicsUtility::retrieveDepthTexture(m_ShadowTex, pImg, 0.01f, 50.0f);
+		CForgeUtility::retrieveDepthTexture(m_ShadowTex, pImg, 0.01f, 50.0f);
 
 	}//retrieveDeptBuffer
 
