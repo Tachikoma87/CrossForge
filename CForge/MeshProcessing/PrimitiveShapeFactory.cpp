@@ -1,4 +1,6 @@
 #include "PrimitiveShapeFactory.h"
+#include "../Math/CForgeMath.h"
+
 using namespace Eigen;
 
 namespace CForge {
@@ -113,21 +115,6 @@ namespace CForge {
 		return (z * (Segments.x() + 1) * (Segments.y() + 1)) + (y * (Segments.x() + 1)) + x;
 	}
 
-	Eigen::Vector3f equirectangularMapping(const Vector3f Pos) {
-		Vector3f Rval;
-		Rval.x() = std::atan2(Pos.x(), -Pos.z()) / (2.0f * EIGEN_PI) + 0.5f;
-		Rval.y() = Pos.y() * 0.5f + 0.5f;
-		Rval.z() = 0.0f;
-		return Rval;
-	}//equirectangularMapping
-
-	Eigen::Vector3f equalAreaMapping(const Vector3f Pos) {
-		Vector3f Rval;
-		Rval.x() = (std::atan2(Pos.x(), -Pos.z()) / EIGEN_PI + 1.0f) / 2.0f;
-		Rval.y() = std::asin(Pos.y()) / EIGEN_PI + 0.5f;
-		Rval.z() = 0.0f;
-		return Rval;
-	}//equalAreaMapping
 
 	void PrimitiveShapeFactory::cuboid(T3DMesh<float>* pMesh, Eigen::Vector3f Dimensions, Eigen::Vector3i Segments) {
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
@@ -283,7 +270,7 @@ namespace CForge {
 
 		// add top vertex
 		Vertices.push_back(Vector3f(0.0f, 1.0f, 0.0f).cwiseProduct(Dimensions));
-		uvw = equalAreaMapping(Vector3f(0.0f, 1.0f, 0.0f));
+		uvw = CForgeMath::equalAreaMapping(Vector3f(0.0f, 1.0f, 0.0f));
 		UVWs.push_back(uvw);
 
 		// generate vertices per stack/slice
@@ -298,14 +285,14 @@ namespace CForge {
 				Vertices.push_back(v.cwiseProduct(Dimensions));
 
 				v.z() = -v.z();
-				uvw = equalAreaMapping(v);
+				uvw = CForgeMath::equalAreaMapping(v);
 				UVWs.push_back(uvw);
 			}//for[slices]
 		}//for[stacks]
 
 		// add bottom vertex
 		Vertices.push_back(Vector3f(0.0f, -1.0f, 0.0f).cwiseProduct(Dimensions));
-		uvw = equalAreaMapping(Vector3f(0.0f, -1.0f, 0.0f));
+		uvw = CForgeMath::equalAreaMapping(Vector3f(0.0f, -1.0f, 0.0f));
 		UVWs.push_back(uvw);
 
 		// add top/bottom triangles
@@ -379,10 +366,8 @@ namespace CForge {
 			v.x() = std::cos(Ratio);
 			v.z() = std::sin(Ratio);
 			Vertices.push_back(v.cwiseProduct(Scale));
-			//v.z() = -v.z();
-			//uvw = equirectangularMapping(v);
-			uvw.x() = float(i) / float(Slices - 1);
-			uvw.y() = 0.0f;
+
+			uvw = CForgeMath::equirectangularMapping(v);
 			UVWs.push_back(uvw);
 		}
 		// add the tip of the cone
@@ -520,7 +505,7 @@ namespace CForge {
 				V.x() = (1.0f + 0.5f * std::cos(v)) * std::cos(u);
 				V.y() = 0.5f * std::sin(v);
 				V.z() = (1.0f + 0.5f * std::cos(v)) * std::sin(u);
-				uvw = equirectangularMapping(V);
+				uvw = CForgeMath::equirectangularMapping(V);
 				UVWs.push_back(uvw);
 			}
 		}

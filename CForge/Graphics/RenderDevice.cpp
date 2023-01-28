@@ -146,7 +146,10 @@ namespace CForge {
 		const Matrix4f S = CForgeMath::scaleMatrix(Scale);
 		const Matrix4f ModelMat = T * R * S;
 
+		Matrix4f NormalMat = ModelMat.inverse().transpose();
+
 		m_ModelUBO.modelMatrix(ModelMat);
+		m_ModelUBO.normalMatrix(NormalMat);
 
 		// render the object with current settings
 		pActor->render(this, Rotation, Translation, Scale);

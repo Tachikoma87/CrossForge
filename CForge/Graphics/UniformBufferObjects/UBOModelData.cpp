@@ -16,6 +16,7 @@ namespace CForge {
 	
 		m_Buffer.init(GLBuffer::BTYPE_UNIFORM, GLBuffer::BUSAGE_DYNAMIC_DRAW, nullptr, size());
 		m_ModelMatrixOffset = 0;
+		m_NormalMatrixOffset = 16 * sizeof(float);
 	}//initialize
 
 	void UBOModelData::clear(void) {
@@ -32,12 +33,18 @@ namespace CForge {
 		uint32_t Rval = 0;
 
 		Rval += 16 * sizeof(float); // Model matrix
+		Rval += 12 * sizeof(float); // Normal Matrix
 
 		return Rval;
 	}//size
 
 	void UBOModelData::modelMatrix(Eigen::Matrix4f Mat) {
 		m_Buffer.bufferSubData(m_ModelMatrixOffset, 16 * sizeof(float), Mat.data());
+
 	}//modelMatrix
+
+	void UBOModelData::normalMatrix(Eigen::Matrix4f Mat) {
+		m_Buffer.bufferSubData(m_NormalMatrixOffset, 12 * sizeof(float), Mat.block<4,3>(0,0).data());
+	}//normalMatrix
 
 }//name space

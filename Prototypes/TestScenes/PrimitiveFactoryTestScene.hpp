@@ -55,18 +55,33 @@ namespace CForge {
 			m_Skydome.init(&M);
 			M.clear();
 
-			//SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
-			//PrimitiveShapeFactory::plane(&M, Vector2f(4.0f, 4.0f), Vector2i(8, 3));
+			SAssetIO::load("Assets/ExampleScenes/StarCoin/StarCoin.gltf", &M);
+			//PrimitiveShapeFactory::plane(&M, Vector2f(5.0f, 5.0f), Vector2i(1, 1));
 			//PrimitiveShapeFactory::circle(&M, Vector2f(3.0f, 3.0f), 20, 0.0f);
-			//PrimitiveShapeFactory::cuboid(&M, Vector3f(4, 3, 2), Vector3i(10, 10, 10));
+			//PrimitiveShapeFactory::cuboid(&M, Vector3f(4, 4, 4), Vector3i(3, 3, 3));
 			//PrimitiveShapeFactory::uvSphere(&M, Vector3f(2, 2, 2), 25, 25);		
-			//PrimitiveShapeFactory::doubleCone(&M, Vector4f(1.0f, 1.5f, 1.0f, 0.0f), 35);
+			//PrimitiveShapeFactory::doubleCone(&M, Vector4f(1.5f, 1.5f, 1.5f, 0.0f), 5);
+			//PrimitiveShapeFactory::cone(&M, Vector3f(1.0f, 2.0f, 1.0f), 8);
 			//PrimitiveShapeFactory::cylinder(&M, Vector2f(2.0f, 2.0f), Vector2f(2.0f, 2.0f), 3.0f, 20, Vector2f(0.0f, 0.0f));
-			PrimitiveShapeFactory::Torus(&M, 2.0f, 0.5f, 30, 20);
+			//PrimitiveShapeFactory::Torus(&M, 2.0f, 0.5f, 30, 20);
 
 			//M.getMaterial(0)->Color = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
 			//M.getMaterial(0)->Color = Vector4f(0xcc, 0xac, 0x00, 0xff) / 255.0f;
-			//M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/ground14.jpg";
+			/*M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/ground14.jpg";
+			M.getMaterial(0)->TexNormal = "Assets/ExampleScenes/ground14n.jpg";*/
+
+			/*M.getMaterial(0)->TexAlbedo = "MyAssets/Textures/metal06.jpg";
+			M.getMaterial(0)->TexNormal = "MyAssets/Textures/metal06n.jpg";
+
+			M.getMaterial(0)->TexAlbedo = "MyAssets/Textures/stone03.jpg";
+			M.getMaterial(0)->TexNormal = "MyAssets/Textures/stone03n.jpg";
+
+			M.getMaterial(0)->TexAlbedo = "MyAssets/Textures/misc11.jpg";
+			M.getMaterial(0)->TexNormal = "MyAssets/Textures/misc11n.jpg";*/
+
+			//M.getMaterial(0)->TexAlbedo = "MyAssets/Textures/ground13.jpg";
+			//M.getMaterial(0)->TexNormal = "MyAssets/Textures/ground13n.jpg";
+
 			//M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/tex/rp_eric_rigged_001_dif.jpg";
 			//M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/StarCoin/MaterialStar_baseColor.jpg";
 
@@ -74,7 +89,10 @@ namespace CForge {
 
 			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::METAL_GOLD);
 
+			//M.changeUVTiling(Vector3f(5.0f, 5.0f, 1.0f));
+
 			M.computePerVertexNormals();
+			M.computePerVertexTangents();
 			m_Duck.init(&M);
 			M.clear();
 
@@ -175,6 +193,16 @@ namespace CForge {
 		}//run
 
 	protected:
+
+		//void changeUVTiling(T3DMesh<float> *pMesh, Eigen::Vector3f Factor) {
+
+		//	std::vector<Vector3f> UVWs;
+		//	for (uint32_t i = 0; i < pMesh->textureCoordinatesCount(); ++i)
+		//		UVWs.push_back(pMesh->textureCoordinate(i).cwiseProduct(Factor));
+		//	pMesh->textureCoordinates(&UVWs);
+		//	if (pMesh->tangentCount() > 0) pMesh->computePerVertexTangents();
+
+		//}//changeUVTiling
 
 
 		// Scene Graph

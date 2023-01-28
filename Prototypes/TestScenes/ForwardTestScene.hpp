@@ -52,10 +52,10 @@ namespace CForge {
 			m_Skydome.init(&M);
 			M.clear();
 
-			SAssetIO::load("MyAssets/StarCoin/StarCoin.gltf", &M);
+			SAssetIO::load("Assets/ExampleScenes/StarCoin/StarCoin.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
-			//M.computePerVertexTangents();
+			M.computePerVertexTangents();
 			m_Cube.init(&M);
 			M.clear();
 

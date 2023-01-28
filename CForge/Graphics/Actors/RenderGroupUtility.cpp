@@ -213,6 +213,11 @@ namespace CForge {
 		return m_RenderGroups;
 	}//renderGroups
 
+	const RenderGroupUtility::RenderGroup* RenderGroupUtility::renderGroup(uint32_t Index)const {
+		if (Index >= m_RenderGroups.size()) throw IndexOutOfBoundsExcept("Index");
+		return m_RenderGroups[Index];
+	}//renderGroup
+
 	uint32_t RenderGroupUtility::renderGroupCount(void)const {
 		return m_RenderGroups.size();
 	}//renderGroupCount

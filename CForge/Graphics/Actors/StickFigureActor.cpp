@@ -1,6 +1,8 @@
 #include "StickFigureActor.h"
 #include "../../AssetIO/SAssetIO.h"
 #include "../../Math/CForgeMath.h"
+#include "../../Utility/CForgeUtility.h"
+#include "../../MeshProcessing/PrimitiveShapeFactory.h"
 
 using namespace Eigen;
 
@@ -8,14 +10,9 @@ namespace CForge {
 
 	StickFigureActor::StickFigureActor(void) {
 		m_ClassName = "StickFigureActor";
-
 		m_JointSize = 0.1f;
 		m_BoneSize = 0.2f;
-		m_JointColor = Vector4f::Ones();
-		m_BoneColor = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
-
 		m_pAnimationController = nullptr;
-
 	}//Constructor
 
 	StickFigureActor::~StickFigureActor(void) {
@@ -33,25 +30,29 @@ namespace CForge {
 
 		// initialize the actors
 		T3DMesh<float> M;
-		AssetIO::load("Assets/UnitSphere.glb", &M);
+		PrimitiveShapeFactory::uvSphere(&M, Vector3f(1.0f, 1.0f, 1.0f), 8, 8);
 		for (uint32_t i = 0; i < M.materialCount(); ++i) {
 			auto* pMat = M.getMaterial(i);
 			buildMaterial(pMat);
-		}
-		M.computePerVertexNormals();
-		m_Joint.init(&M);
-		M.clear();
-
-		AssetIO::load("Assets/UnitCylinder.glb", &M);
-		for (uint32_t i = 0; i < M.materialCount(); ++i) {
-			auto* pMat = M.getMaterial(i);
-			buildMaterial(pMat);
+			CForgeUtility::defaultMaterial(pMat, CForgeUtility::METAL_COPPER);
 		}
 		M.computePerVertexNormals();
 		M.computeAxisAlignedBoundingBox();
-		float Offset = -M.aabb().Min.y();
+		m_Joint.init(&M);
+		M.clear();
+
+		PrimitiveShapeFactory::cylinder(&M, Vector2f(1.0f, 1.0f), Vector2f(1.0f, 1.0f), 1.0f, 8, Vector2f(0.0f, 0.0f));
+		for (uint32_t i = 0; i < M.materialCount(); ++i) {
+			auto* pMat = M.getMaterial(i);
+			buildMaterial(pMat);
+			CForgeUtility::defaultMaterial(pMat, CForgeUtility::METAL_STAINLESS_STEEL);
+		}
+		
+		M.computeAxisAlignedBoundingBox();
+		/*float Offset = -M.aabb().Min.y();
 		Matrix4f T = CForgeMath::translationMatrix(Vector3f(0.0f, Offset, 0.0f));
-		M.applyTransformation(T);
+		M.applyTransformation(T);*/
+		M.computePerVertexNormals();
 
 		m_Bone.init(&M);
 		M.clear();
@@ -79,8 +80,6 @@ namespace CForge {
 
 		// create Scene graph nodes for all joints
 		createBone(pMesh->rootBone(), &m_RootSGN);
-		jointColor(m_JointColor);
-		boneColor(m_BoneColor);
 		jointSize(m_JointSize);
 		boneSize(m_BoneSize);
 
@@ -108,29 +107,28 @@ namespace CForge {
 
 		m_JointSize = 0.0f;
 		m_BoneSize = 0.0f;
-		m_JointColor = Vector4f::Ones();
-		m_BoneColor = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
-
 	}//clear
 
 	void StickFigureActor::release(void) {
 		delete this;
 	}//release
 
-	void StickFigureActor::jointColor(const Vector4f Col) {
+	void StickFigureActor::jointMaterial(const T3DMesh<float>::Material Mat) {
 		for (uint32_t i = 0; i < m_Joint.materialCount(); ++i) {
 			auto* pMat = m_Joint.material(i);
-			pMat->color(Col);
+			pMat->color(Mat.Color);
+			pMat->roughness(Mat.Roughness);
+			pMat->metallic(Mat.Metallic);
 		}
-		m_JointColor = Col;
 	}//jointColor
 
-	void StickFigureActor::boneColor(const Vector4f Col) {
+	void StickFigureActor::boneMaterial(const T3DMesh<float>::Material Mat) {
 		for (uint32_t i = 0; i < m_Bone.materialCount(); ++i) {
 			auto* pMat = m_Bone.material(i);
-			pMat->color(Col);
+			pMat->color(Mat.Color);
+			pMat->roughness(Mat.Roughness);
+			pMat->metallic(Mat.Metallic);
 		}
-		m_BoneColor = Col;
 	}//boneColor
 
 	void StickFigureActor::jointSize(float Size) {
@@ -143,13 +141,25 @@ namespace CForge {
 		m_BoneSize = Size;
 	}//boneSize
 
-	Eigen::Vector4f StickFigureActor::jointColor(void)const {
-		return m_JointColor;
-	}//jointColor
+	T3DMesh<float>::Material StickFigureActor::jointMaterial(void)const {
+		T3DMesh<float>::Material Rval;
+		if (m_Joint.materialCount() > 0) {
+			Rval.Color = m_Joint.material(0)->color();
+			Rval.Roughness = m_Joint.material(0)->roughness();
+			Rval.Metallic = m_Joint.material(0)->metallic();
+		}
+		return Rval;
+	}//jointMaterial
 
-	Eigen::Vector4f StickFigureActor::boneColor(void)const {
-		return m_BoneColor;
-	}//boneColor
+	T3DMesh<float>::Material StickFigureActor::boneMaterial(void)const {
+		T3DMesh<float>::Material Rval;
+		if (m_Bone.materialCount() > 0) {
+			Rval.Color = m_Bone.material(0)->color();
+			Rval.Roughness = m_Bone.material(0)->roughness();
+			Rval.Metallic = m_Bone.material(0)->metallic();
+		}
+		return Rval;
+	}//boneMaterial
 
 	float StickFigureActor::jointSize(void)const {
 		return m_JointSize;

@@ -112,11 +112,12 @@ namespace CForge {
 					m_SGs[i].update(60.0f / m_FPS);
 
 					// render scene as usual
-					//m_RenderDev.viewport(RenderDevice::RENDERPASS_GEOMETRY, m_GBufferVP);
 					m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+					m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
 					m_SGs[i].render(&m_RenderDev);
 
 					m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+					m_RenderDev.activeCamera(&m_Cam);
 					m_SGs[i].render(&m_RenderDev);
 
 					// set viewport and perform lighting pass

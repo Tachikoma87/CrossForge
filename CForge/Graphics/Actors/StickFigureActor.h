@@ -36,13 +36,13 @@ namespace CForge {
 
 		void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 
-		void jointColor(const Eigen::Vector4f Col);
-		void boneColor(const Eigen::Vector4f Col);
+		void jointMaterial(const T3DMesh<float>::Material Mat);
+		void boneMaterial(const T3DMesh<float>::Material Mat);
 		void jointSize(float Size);
 		void boneSize(float Size);
 
-		Eigen::Vector4f jointColor(void)const;
-		Eigen::Vector4f boneColor(void)const;
+		T3DMesh<float>::Material jointMaterial(void)const;
+		T3DMesh<float>::Material boneMaterial(void)const;
 		float jointSize(void)const;
 		float boneSize(void)const;
 
@@ -62,11 +62,8 @@ namespace CForge {
 
 		std::vector<SkeletalAnimationController::SkeletalJoint*> m_JointValues;
 
-		Eigen::Vector4f m_JointColor;
-		Eigen::Vector4f m_BoneColor;
 		float m_JointSize;
 		float m_BoneSize;
-
 	};//StickFigureActor
 
 }//name space

@@ -674,7 +674,8 @@ namespace CForge {
 					const Eigen::Vector3f DeltaUV1 = m_UVWs[F.Vertices[1]] - m_UVWs[F.Vertices[0]];
 					const Eigen::Vector3f DeltaUV2 = m_UVWs[F.Vertices[2]] - m_UVWs[F.Vertices[0]];
 
-					float f = 1.0f / (DeltaUV1.x() * DeltaUV2.y() - DeltaUV2.x() + DeltaUV1.y());
+					float f = DeltaUV1.x() * DeltaUV2.y() - DeltaUV2.x() + DeltaUV1.y();
+					f = (std::abs(f) > 0.0f) ? 1.0f / f : 1.0f;
 
 					Eigen::Vector3f Tangent;
 					Tangent.x() = f * (DeltaUV2.y() * Edge1.x() - DeltaUV1.y() * Edge2.x());
@@ -767,6 +768,12 @@ namespace CForge {
 			}//for[tangents]
 
 		}//ApplyTransformation
+
+		void changeUVTiling(const Eigen::Vector3f Factor) {
+			for (auto& i : m_UVWs) i = i.cwiseProduct(Factor);
+			if (tangentCount() > 0) computePerVertexTangents(true);
+		}//changeUVTiling
+		
 
 		
 	protected:

@@ -48,6 +48,7 @@ namespace CForge {
 
 		uint32_t materialCount(void)const;
 		RenderMaterial* material(uint32_t Index);
+		const RenderMaterial* material(uint32_t Index)const;
 
 		virtual BoundingVolume boundingVolume(void)const;
 		virtual void boundingVolume(const BoundingVolume BV);

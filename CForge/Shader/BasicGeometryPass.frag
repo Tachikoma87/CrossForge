@@ -49,7 +49,7 @@ void main(){
 
 	// also store the per-fragment normals into the gBuffer 
 	#ifdef NORMAL_MAPPING 
-	vec3 normal = texture(TexNormal, UV).rgb * 2.0 - 1.0;
+	vec3 normal = normalize(texture(TexNormal, UV).rgb * 2.0 - 1.0);
 	gNormal = vec4(normalize(TBN * normal), Material.Roughness);
 	#else
 	gNormal = vec4(normalize(N), Material.Roughness);

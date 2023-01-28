@@ -8,6 +8,7 @@ layout (std140) uniform CameraData{
 
 layout(std140) uniform ModelData{
 	mat4 ModelMatrix;
+	mat4x3 NormalMatrix;
 }Model;
 
 layout(location = 0) in vec3 Position;

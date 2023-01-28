@@ -266,16 +266,8 @@ void main(){
 	vec3 Normal = normalize(N);
 	#endif
 
-	// store the specular intensity in gAlbedoSpec s alpha component 
-	//gAlbedoSpec.a = Material.Metallic;
-
-
 	vec3 CameraPos = Camera.Position.xyz;
 
-	//vec3 N = texture(TexNormal, UV).rgb; //get this as shader input
-
-
-	//vec3 WorldPos = texture(TexDepth, UV).xyz;
 	vec3 WorldPos = Pos;
 	vec3 V = normalize(CameraPos - WorldPos);
 

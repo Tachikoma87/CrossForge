@@ -63,6 +63,7 @@ namespace CForge {
 		void buildIndexArray(const T3DMesh<float>* pMesh, void** ppBuffer, uint32_t* pBufferSize);
 
 		std::vector<RenderGroup*> renderGroups(void);
+		const RenderGroup* renderGroup(uint32_t Index)const;
 		uint32_t renderGroupCount(void)const;
 
 	protected:

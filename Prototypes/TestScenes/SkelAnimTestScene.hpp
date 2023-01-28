@@ -611,8 +611,13 @@ namespace CForge {
 			m_SynthStickSGN.enable(true, false);
 			m_Style2StickSGN.enable(true, false);
 
+			/*m_StyleSGN.enable(true, false);
+			m_CapturedSGN.enable(true, false);
+			m_SynthSGN.enable(true, false);
+			m_Style2SGN.enable(true, false);*/
 
-			Vector4f JointColor = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
+
+			/*Vector4f JointColor = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
 			Vector4f BoneColor = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
 
 			m_CapturedStick.jointColor(JointColor);
@@ -622,7 +627,7 @@ namespace CForge {
 			m_StyleStick.jointColor(JointColor);
 			m_StyleStick.boneColor(BoneColor);
 			m_Style2Stick.jointColor(JointColor);
-			m_Style2Stick.boneColor(BoneColor);
+			m_Style2Stick.boneColor(BoneColor);*/
 
 #endif
 
@@ -899,6 +904,8 @@ namespace CForge {
 						m_CapturedStickSGN.enable(true, false);
 						m_SynthStickSGN.enable(true, false);
 						m_Style2StickSGN.enable(true, false);
+
+						m_StyleSGN.enable(true, true);
 					}
 					else {
 						m_StyleSGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
@@ -910,8 +917,11 @@ namespace CForge {
 						m_CapturedStickSGN.enable(true, true);
 						m_SynthStickSGN.enable(true, true);
 						m_Style2StickSGN.enable(true, true);
+
+						m_StyleSGN.enable(true, false);
 					}
 					m_VisualizeSkeleton = !m_VisualizeSkeleton;
+
 				}
 
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_P, true)) m_Pause = !m_Pause;

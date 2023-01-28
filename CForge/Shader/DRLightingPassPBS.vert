@@ -8,6 +8,7 @@ layout(location = 3) in vec2 UVW;
 
 layout(std140) uniform ModelData{
 	mat4 ModelMatrix;
+	mat4x3 NormalMatrix;
 }Model;//ModelData
 
 out vec2 UV;

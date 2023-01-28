@@ -27,6 +27,7 @@ layout(std140) uniform DirectionalLightsData{
 
 layout(std140) uniform ModelData{
 	mat4 ModelMatrix;
+	mat4x3 NormalMatrix;
 };//ModelData
 
 void main(){

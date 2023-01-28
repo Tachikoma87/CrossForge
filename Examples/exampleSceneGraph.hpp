@@ -72,6 +72,7 @@ namespace CForge {
 			SAssetIO::load("Assets/ExampleScenes/Trees/LowPolyTree_02.glb", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
+			M.computeAxisAlignedBoundingBox();
 			m_Trees[1].init(&M);
 			M.clear();
 
@@ -79,6 +80,7 @@ namespace CForge {
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			scaleAndOffsetModel(&M, 5.0f, Vector3f(0.0f, 0.25f, 0.0f));
+			M.computeAxisAlignedBoundingBox();
 			m_Trees[2].init(&M);
 			M.clear();
 

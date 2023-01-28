@@ -69,7 +69,7 @@ namespace CForge {
 		setBufferData();
 		m_VertexArray.unbind();
 		
-		m_BV.init(pMesh, BoundingVolume::TYPE_AABB);
+		m_BV.init(pMesh, BoundingVolume::TYPE_SPHERE);
 	}//initialize
 
 	void StaticActor::clear(void) {

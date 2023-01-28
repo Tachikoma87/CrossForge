@@ -52,7 +52,7 @@ add_executable(CForgeSandbox
 	Prototypes/Assets/GLTFIO.cpp
 
 	Prototypes/MeshProcessing/SurfaceSampler.cpp
-	"Prototypes/MeshProcessing/PrimitiveShapeFactory.cpp"
+	
 
 	Prototypes/Actor/LODActor.cpp
 	Prototypes/SLOD.cpp

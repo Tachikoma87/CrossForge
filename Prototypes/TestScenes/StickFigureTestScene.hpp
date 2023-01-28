@@ -63,10 +63,10 @@ namespace CForge {
 			
 
 
-			T3DMesh<float> Anim;
-			SAssetIO::load("MyAssets/Technique_Evaluation/OldGait_Modified.bvh", &Anim);
-			M.clearSkeletalAnimations();
-			M.addSkeletalAnimation(Anim.getSkeletalAnimation(0));
+			//T3DMesh<float> Anim;
+			//SAssetIO::load("MyAssets/Technique_Evaluation/OldGait_Modified.bvh", &Anim);
+			//M.clearSkeletalAnimations();
+			//M.addSkeletalAnimation(Anim.getSkeletalAnimation(0));
 
 			//SAssetIO::load("MyAssets/Gehen_Sitzen_1-005.glb", &M);
 
@@ -100,6 +100,8 @@ namespace CForge {
 			m_StickFigureSGN.init(&m_StickFigureTransformSGN, &m_StickFigure);
 			m_StickFigureSGN.scale(Vector3f(Scale, Scale, Scale));
 		
+
+			//m_StickFigureSGN.enable(false, false);
 
 			/*m_StickFigure.boneSize(1.0f);
 			m_StickFigure.jointSize(2.0f);*/
@@ -151,7 +153,7 @@ namespace CForge {
 
 				// if user hits key 1, animation will be played
 				// if user also presses shift, animation speed is doubled
-				float AnimationSpeed = 1.0f/10.0f; // 1000.0f / 60.0f;
+				float AnimationSpeed = 1000.0f / 60.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
@@ -171,6 +173,14 @@ namespace CForge {
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 				m_RenderWin.swapBuffers();
+
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_O, true)) {
+					T3DMesh<float>::Material M;
+					CForgeUtility::defaultMaterial(&M, CForgeUtility::PLASTIC_RED);
+					m_StickFigure.jointMaterial(M);
+					CForgeUtility::defaultMaterial(&M, CForgeUtility::PLASTIC_WHITE);
+					m_StickFigure.boneMaterial(M);
+				}
 
 				updateFPS();
 				defaultKeyboardUpdate(m_RenderWin.keyboard());

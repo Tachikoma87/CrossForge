@@ -73,6 +73,11 @@ namespace CForge {
 		return &(m_RenderGroupUtility.renderGroups()[Index]->Material);
 	}//material
 
+	const RenderMaterial* IRenderableActor::material(uint32_t Index)const {
+		if (Index >= m_RenderGroupUtility.renderGroupCount()) throw IndexOutOfBoundsExcept("Index");
+		return &m_RenderGroupUtility.renderGroup(Index)->Material;
+	}//material
+
 	BoundingVolume IRenderableActor::boundingVolume(void)const {
 		return m_BV;
 	}//boundingVolume

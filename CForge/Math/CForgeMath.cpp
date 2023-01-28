@@ -171,6 +171,23 @@ namespace CForge {
 		return Rval;
 	}//alignVectors
 
+	Eigen::Vector3f CForgeMath::equirectangularMapping(const Vector3f Pos) {
+		Vector3f Rval;
+		Rval.x() = std::atan2(Pos.x(), -Pos.z()) / (2.0f * EIGEN_PI) + 0.5f;
+		Rval.y() = Pos.y() * 0.5f + 0.5f;
+		Rval.z() = 0.0f;
+		return Rval;
+	}//equirectangularMapping
+
+	Eigen::Vector3f CForgeMath::equalAreaMapping(const Vector3f Pos) {
+		Vector3f Rval;
+		Rval.x() = (std::atan2(Pos.x(), -Pos.z()) / EIGEN_PI + 1.0f) / 2.0f;
+		Rval.y() = std::asin(Pos.y()) / EIGEN_PI + 0.5f;
+		Rval.z() = 0.0f;
+		return Rval;
+	}//equalAreaMapping
+
+
 	CForgeMath::CForgeMath(void): CForgeObject("CForgeMath") {
 
 	}//Constructor

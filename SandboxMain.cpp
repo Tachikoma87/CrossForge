@@ -41,6 +41,7 @@ int main(int argc, char* argv[]) {
 #endif
 
 
+
 	SCrossForgeDevice* pDev = nullptr;
 
 	try {
@@ -79,7 +80,8 @@ int main(int argc, char* argv[]) {
 		//surfaceSamplerTestScene();
 		//vertexColorTestScene();
 		//ForwardTestScene Scene;
-		PrimitiveFactoryTestScene Scene;
+		//PrimitiveFactoryTestScene Scene;
+
 
 		//GUITestScene S;
 		//S.guiTestScene();
@@ -87,7 +89,7 @@ int main(int argc, char* argv[]) {
 		//imageTestScene();
 	
 		//FrustumCullingTestScene Scene;
-		//StickFigureTestScene Scene;
+		StickFigureTestScene Scene;
 
 		Scene.init();
 		Scene.run();

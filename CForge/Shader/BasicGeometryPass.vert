@@ -29,7 +29,8 @@ layout (std140) uniform CameraData{
 
 layout(std140) uniform ModelData{
 	mat4 ModelMatrix;
-};//ModelData
+	mat4x3 NormalMatrix;
+}Model; 
 
 layout (location = 0) in vec3 Position;
 layout (location = 1) in vec3 Normal;
@@ -86,16 +87,19 @@ void main(){
 	Color = VertexColor;
 #endif
 
-	N = normalize((ModelMatrix * No).xyz);
+	N = Model.NormalMatrix * No; // normalization in fragment shader
 
 #ifdef NORMAL_MAPPING 
-	vec3 Tan = normalize((ModelMatrix * vec4(Tangent, 0.0)).xyz);
+	vec3 Tan = normalize((Model.NormalMatrix * vec4(Tangent, 0.0)));
+	// re-orthogonalize
+	Tan = normalize(Tan - dot(Tan, N) * N);
 	vec3 BTan = cross(N, Tan);
 	TBN = mat3(Tan, BTan, N);
+
 #endif
 
 	
-	Pos = (ModelMatrix * Po).xyz;
+	Pos = (Model.ModelMatrix * Po).xyz;
 	UV = UVW.xy;
-	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * ModelMatrix * Po;
+	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * Model.ModelMatrix * Po;
 }//main
