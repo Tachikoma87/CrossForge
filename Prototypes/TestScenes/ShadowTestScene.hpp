@@ -40,7 +40,7 @@ namespace CForge {
 			clear();
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 			
 			//GLWindow RenderWin;
 			m_RenderWin.init(Eigen::Vector2i(0, 0), Eigen::Vector2i(m_WinWidth, m_WinHeight), m_WindowTitle);
@@ -271,11 +271,11 @@ namespace CForge {
 
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override{
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) {	
+		void run(void) override {	
 			bool Wireframe = false;
 			Mouse* pMouse = m_RenderWin.mouse();
 			Keyboard* pKeyboard = m_RenderWin.keyboard();

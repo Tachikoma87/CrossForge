@@ -107,6 +107,9 @@ namespace CForge {
 				pRDev->activeMaterial(&i->Material);
 
 			}break;
+			default: {
+
+			}break;
 			}
 			
 			glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));

@@ -36,7 +36,7 @@ namespace CForge {
 			clear();
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 
 			initWindowAndRenderDevice();
 			initCameraAndLights();
@@ -98,11 +98,11 @@ namespace CForge {
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override{
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) {
+		void run(void) override{
 			while (!m_RenderWin.shutdown()) {
 				m_RenderWin.update();
 				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
@@ -165,7 +165,7 @@ namespace CForge {
 
 		}//updateViewports
 
-		void listen(GLWindowMsg Msg) {
+		void listen(GLWindowMsg Msg) override{
 			ExampleSceneBase::listen(Msg);
 
 			updateViewportsAndCamera();

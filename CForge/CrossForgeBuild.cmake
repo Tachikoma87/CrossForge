@@ -62,20 +62,6 @@ if(EMSCRIPTEN)
 	)
 	FetchContent_MakeAvailable(webp)
 	FetchContent_GetProperties(webp)
-	set(WEBP_USE_THREAD OFF CACHE BOOL "Enable threading support" FORCE)
-	set(WEBP_BUILD_ANIM_UTILS OFF CACHE BOOL "Build animation utilities." FORCE)
-	set(WEBP_BUILD_CWEBP OFF CACHE BOOL "Build the cwebp command line tool." FORCE)
-	set(WEBP_BUILD_DWEBP OFF CACHE BOOL "Build the dwebp command line tool." FORCE)
-	set(WEBP_BUILD_GIF2WEBP OFF CACHE BOOL "Build the gif2webp conversion tool." FORCE)
-	set(WEBP_BUILD_IMG2WEBP OFF CACHE BOOL "Build the img2webp animation tool." FORCE)
-	set(WEBP_BUILD_VWEBP OFF CACHE BOOL "Build the vwebp viewer tool." FORCE)
-	set(WEBP_BUILD_WEBPINFO OFF CACHE BOOL "Build the webpinfo command line tool." FORCE)
-	set(WEBP_BUILD_LIBWEBPMUX OFF CACHE BOOL "Build the libwebpmux library." FORCE)
-	set(WEBP_BUILD_WEBPMUX OFF CACHE BOOL "Build the webpmux command line tool." FORCE)
-	set(WEBP_BUILD_EXTRAS OFF CACHE BOOL "Build extras." FORCE)
-	set(WEBP_BUILD_WEBP_JS ON CACHE BOOL "Emscripten build of webp.js." FORCE)
-	set(WEBP_USE_THREAD OFF CACHE BOOL "Enable threading support" FORCE)
-	set(WEBP_NEAR_LOSSLESS ON CACHE BOOL "Enable near-lossless encoding" FORCE)
 
 	include_directories(${webp_SOURCE_DIR}/src/)
 	link_directories(${webp_BINARY_DIR})
@@ -110,8 +96,6 @@ if(EMSCRIPTEN)
 	FetchContent_MakeAvailable(freetype)
 	include_directories(${freetype_SOURCE_DIR}/include/)
 
-	#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -Wno-unused-command-line-argument -s USE_ZLIB=1 -s USE_GLFW=3 -s USE_LIBPNG=1 -s USE_PTHREADS=1 -s USE_LIBJPEG=1")
-	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unused-command-line-argument -s USE_ZLIB=1 -s USE_GLFW=3 -s USE_LIBPNG=1 -s USE_PTHREADS=1 -s USE_LIBJPEG=1")
 
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
@@ -126,6 +110,9 @@ else()
 	FIND_PACKAGE(freetype REQUIRED)		# Library to load and process vector based fonts
 	FIND_PACKAGE(libigl CONFIG REQUIRED)	# mesh processing library
 	FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp 
+
+	#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-command-line-argument")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W1 -wd4251")
 endif()
 
 if(USE_OPENCV)

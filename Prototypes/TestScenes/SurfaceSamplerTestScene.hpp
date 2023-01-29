@@ -37,7 +37,7 @@ namespace CForge {
 			clear();
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 			initWindowAndRenderDevice();
 			initCameraAndLights();
 
@@ -100,11 +100,11 @@ namespace CForge {
 
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override{
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) {
+		void run(void) override {
 
 			m_FPS = 60.0f;
 			m_FPSCount = 0;

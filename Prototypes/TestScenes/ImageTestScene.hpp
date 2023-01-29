@@ -39,7 +39,6 @@ namespace CForge {
 			vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "420 core",
 				0, ""));
 
-			"";
 			const char* fragmentShaderSource = "#version 420 core\n"
 				"layout (std140) uniform CameraData{			 \n"
 				"mat4 ViewMatrix;								 \n"
@@ -73,7 +72,7 @@ namespace CForge {
 			clear();
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 			initWindowAndRenderDevice();
 
 			gladLoadGL();
@@ -206,11 +205,11 @@ namespace CForge {
 
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override{
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) {
+		void run(void) override {
 			while (!m_RenderWin.shutdown()) {
 				m_RenderWin.update();
 				m_SG.update(60.0f / m_FPS);

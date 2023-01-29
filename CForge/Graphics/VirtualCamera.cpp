@@ -141,8 +141,8 @@ namespace CForge {
 	void VirtualCamera::orthographicProjection(float Left, float Right, float Bottom, float Top, float Near, float Far) {
 		m_Projection = CForgeMath::orthographicProjection(Left, Right, Bottom, Top, Near, Far);
 		m_FOV = 0.0f;
-		m_ViewportWidth = Right - Left;
-		m_ViewportHeight = Top - Bottom;
+		m_ViewportWidth = uint32_t(Right - Left);
+		m_ViewportHeight = uint32_t(Top - Bottom);
 		m_NearPlane = Near;
 		m_FarPlane = Far;
 

@@ -278,7 +278,11 @@ namespace CForge {
 		case VirtualCameraMsg::PROJECTION_CHANGED: {
 			m_CameraUBO.projectionMatrix(m_pActiveCamera->projectionMatrix());
 		}break;
+		case VirtualCameraMsg::UNKNOWN:
+		default: {
+			break;
 		}
+		}//swith[Msg.Code]
 	}//listen
 
 	void RenderDevice::listen(const LightMsg Msg) {

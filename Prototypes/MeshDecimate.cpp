@@ -369,7 +369,7 @@ namespace CForge {
 		createOctree(Root, &DV, &depthNodes);
 
 		// decimate, find targets
-		float progressDiff = DF.rows() - faceAmount;
+		float progressDiff = float(DF.rows()) - float(faceAmount);
 		printf("progress:\n");
 		while (DF.rows() - removeFaceCount > faceAmount) {
 			printf("\r");

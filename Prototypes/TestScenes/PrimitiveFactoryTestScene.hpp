@@ -19,8 +19,7 @@
 #define __CFORGE_PRIMITIVEFACTORYTESTSCENE_HPP__
 
 
-#include "../../Examples/exampleSceneBase.hpp"
-//#include "../MeshProcessing/PrimitiveShapeFactory.h"
+#include "../../Examples/ExampleSceneBase.hpp"
 #include <CForge/MeshProcessing/PrimitiveShapeFactory.h>
 
 using namespace Eigen;
@@ -40,7 +39,7 @@ namespace CForge {
 			clear();
 		}//Destructor
 
-		void init() {
+		void init() override{
 
 			initWindowAndRenderDevice();
 			initCameraAndLights();
@@ -127,13 +126,13 @@ namespace CForge {
 
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override {
 			m_RenderWin.stopListening(this);
 			if (nullptr != m_pShaderMan) m_pShaderMan->release();
 			m_pShaderMan = nullptr;
 		}//clear
 
-		void run(void) {
+		void run(void) override{
 			while (!m_RenderWin.shutdown()) {
 				m_RenderWin.update();
 				m_SG.update(60.0f / m_FPS);

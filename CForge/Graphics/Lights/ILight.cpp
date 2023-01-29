@@ -104,8 +104,7 @@ namespace CForge {
 	}//type
 
 	void ILight::initShadowCasting(uint32_t Width, uint32_t Height, Eigen::Vector2i ViewDimension, float NearPlane, float FarPlane) {
-		//Eigen::Matrix4f Projection = GraphicsUtility::orthographicProjection(ViewDimension.x(), ViewDimension.y(), NearPlane, FarPlane);
-		m_Camera.orthographicProjection(-ViewDimension.x(), ViewDimension.x(), -ViewDimension.y(), ViewDimension.y(), NearPlane, FarPlane);
+		m_Camera.orthographicProjection(float(-ViewDimension.x()), float(ViewDimension.x()), float(-ViewDimension.y()), float(ViewDimension.y()), NearPlane, FarPlane);
 		initShadowCasting(Width, Height, m_Camera.projectionMatrix());
 
 	}//initShadowMap

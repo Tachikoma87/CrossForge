@@ -28,8 +28,8 @@ namespace CForge {
 		static SInputManager* instance(void);
 		void release(void);
 
-		void registerDevice(class GLFWwindow* pWin, Keyboard* pKeyboard);
-		void registerDevice(class GLFWwindow* pWin, Mouse* pMouse);
+		void registerDevice(struct GLFWwindow* pWin, Keyboard* pKeyboard);
+		void registerDevice(struct GLFWwindow* pWin, Mouse* pMouse);
 		void unregisterDevice(Keyboard* pKeyboard);
 		void unregisterDevice(Mouse* pMouse);
 
@@ -43,19 +43,19 @@ namespace CForge {
 		static SInputManager* m_pInstance;
 		static uint32_t m_InstanceCount;
 
-		static void keyboardCallbackFunc(class GLFWwindow* pWin, int Key, int Scancode, int Action, int Mods);
-		static void characterCallbackFunc(class GLFWwindow* pWin, unsigned int codepoint);
-		static void mousePositionCallbackFunc(class GLFWwindow* pWin, double xPos, double yPos);
-		static void mouseButtonCallbackFunc(class GLFWwindow* pWin, int Button, int Action, int Mode);
-		static void mouseWheelCallbackFunc(class GLFWwindow* pWin, double xOffset, double yOffset);
+		static void keyboardCallbackFunc(struct GLFWwindow* pWin, int Key, int Scancode, int Action, int Mods);
+		static void characterCallbackFunc(struct GLFWwindow* pWin, unsigned int codepoint);
+		static void mousePositionCallbackFunc(struct GLFWwindow* pWin, double xPos, double yPos);
+		static void mouseButtonCallbackFunc(struct GLFWwindow* pWin, int Button, int Action, int Mode);
+		static void mouseWheelCallbackFunc(struct GLFWwindow* pWin, double xOffset, double yOffset);
 
 		struct KeyboardEntity {
 			Keyboard* pKeyboard;
-			class GLFWwindow* pWin;
+			struct GLFWwindow* pWin;
 		};
 		struct MouseEntity {
 			Mouse* pMouse;
-			class GLFWwindow* pWin;
+			struct GLFWwindow* pWin;
 		};
 		
 

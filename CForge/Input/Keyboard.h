@@ -154,7 +154,7 @@ namespace CForge {
 		Keyboard(void);
 		~Keyboard(void);
 
-		void init(class GLFWwindow *pWin);
+		void init(struct GLFWwindow *pWin);
 		void clear(void);
 
 		bool keyPressed(Key K, bool Reset);
@@ -167,7 +167,7 @@ namespace CForge {
 	protected:
 
 		State m_KeyStates[KEY_COUNT]; // 0 release, 1 pressed, 2 repeated
-		class GLFWwindow* m_pWin;
+		struct GLFWwindow* m_pWin;
 	};//Keyboard
 
 	struct KeyboardCallback {

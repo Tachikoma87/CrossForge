@@ -49,8 +49,8 @@ namespace CForge {
 		}
 		else {
 			// orthogonal projection
-			float Width = m_pCamera->viewportWidth();
-			float Height = m_pCamera->viewportHeight();
+			float Width = (float)m_pCamera->viewportWidth();
+			float Height = (float)m_pCamera->viewportHeight();
 			m_Planes[PLANE_NEAR].init(CamPos, CamDir);
 			m_Planes[PLANE_FAR].init(CamPos + DirMultFar, -CamDir);
 			m_Planes[PLANE_RIGHT].init(CamPos + m_pCamera->right() * Width / 2.0f, -CamRight);

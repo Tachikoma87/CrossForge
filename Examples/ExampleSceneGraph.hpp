@@ -32,7 +32,7 @@ namespace CForge {
 			clear();
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 			initWindowAndRenderDevice();
 			initCameraAndLights();
 
@@ -124,14 +124,14 @@ namespace CForge {
 			m_Sun.initShadowCasting(2048*2, 2048*2, Vector2i(1000, 1000), 1.0f, 5000.0f);
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override{
 			for (auto& i : m_TreeSGNs) if (nullptr != i) delete i;
 			for (auto& i : m_TreeTransformSGNs) if (nullptr != i) delete i;
 
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) {
+		void run(void) override{
 			bool Fly = false;
 
 			while (!m_RenderWin.shutdown()) {

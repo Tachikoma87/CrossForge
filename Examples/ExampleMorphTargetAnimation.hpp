@@ -39,7 +39,7 @@ namespace CForge {
 
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 
 			initWindowAndRenderDevice();
 			initCameraAndLights();
@@ -89,12 +89,12 @@ namespace CForge {
 
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override{
 			if (nullptr != m_pShaderMan) m_pShaderMan->release();
 			m_pShaderMan = nullptr;
 		}//clear
 
-		void run(void) {
+		void run(void) override{
 			while (!m_RenderWin.shutdown()) {
 				m_RenderWin.update();
 				m_SG.update(60.0f / m_FPS);

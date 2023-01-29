@@ -145,7 +145,7 @@ namespace CForge {
 
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 			initWindowAndRenderDevice();
 			// initialize camera
 			m_Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
@@ -642,11 +642,11 @@ namespace CForge {
 
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override{
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) {
+		void run(void) override{
 			SkeletalAnimationController::Animation* pAnimFront = nullptr;
 			SkeletalAnimationController::Animation* pAnimBack = nullptr;
 
@@ -1089,7 +1089,7 @@ namespace CForge {
 					pMerged->Keyframes[i]->Positions.push_back(Pos);
 					pMerged->Keyframes[i]->Scalings.push_back(Scale);
 					pMerged->Keyframes[i]->Rotations.push_back(pKeyframeNew->Rotations[k]);
-					pMerged->Keyframes[i]->Timestamps.push_back(k); // pKeyframeNew->Timestamps[k]);
+					pMerged->Keyframes[i]->Timestamps.push_back(float(k)); // pKeyframeNew->Timestamps[k]);
 					
 				}//for[rotation data]
 

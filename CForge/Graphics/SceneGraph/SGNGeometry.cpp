@@ -83,6 +83,9 @@ namespace CForge {
 					switch (m_VisualizationMode) {
 					case VISUALIZATION_WIREFRAME: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
 					case VISUALIZATION_POINTS: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
+					default: {
+
+					}break;
 					}
 					glDisable(GL_CULL_FACE);
 					pRDev->requestRendering(m_pRenderable, Rot, Pos, S);

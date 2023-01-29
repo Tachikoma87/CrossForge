@@ -79,7 +79,6 @@ public:
 		vsSources.push_back(shaderManager->createShaderCode("Shader/ScreenQuad.vert", "420 core",
 			0, ""));
 
-		"";
 		const char* fragmentShaderSource = "#version 420 core\n"
 			"layout (std140) uniform CameraData{			 \n"
 			"mat4 ViewMatrix;								 \n"

@@ -93,7 +93,7 @@ namespace CForge {
 	protected:
 
 		// reacts to changing window size
-		virtual void listen(GLWindowMsg Msg) {
+		virtual void listen(GLWindowMsg Msg) override {
 			// retrieve viewport
 			RenderDevice::Viewport VP;
 

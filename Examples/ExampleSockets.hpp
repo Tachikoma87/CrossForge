@@ -43,7 +43,7 @@ namespace CForge {
 
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 			initWindowAndRenderDevice();
 			initCameraAndLights();
 
@@ -89,11 +89,11 @@ namespace CForge {
 	
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override{
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) {
+		void run(void) override{
 
 			// UDP variables
 			UDPSocket UDPServer;

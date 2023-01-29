@@ -37,7 +37,7 @@ namespace CForge {
 			clear();
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 
 			initWindowAndRenderDevice();
 			initCameraAndLights();
@@ -89,11 +89,11 @@ namespace CForge {
 			m_RepeatAnimation = false;
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override{
 			ExampleSceneBase::clear();
 		}
 
-		void run(void) {
+		void run(void) override{
 
 			while (!m_RenderWin.shutdown()) {
 				m_RenderWin.update();

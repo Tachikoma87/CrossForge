@@ -34,7 +34,7 @@ namespace CForge {
 
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 			initWindowAndRenderDevice();
 			initCameraAndLights();
 
@@ -187,14 +187,14 @@ namespace CForge {
 
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override{
 			ExampleSceneBase::clear();
 
 			for (auto& i : m_TreeTransformSGNs) delete i;
 			for (auto& i : m_TreeSGNs) delete i;
 		}//clear
 
-		void run(void) {
+		void run(void) override{
 			bool Fly = false;
 			bool Orthographic = false;
 			uint64_t LastPrint = CForgeUtility::timestamp();

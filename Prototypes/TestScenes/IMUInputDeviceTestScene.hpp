@@ -76,7 +76,7 @@ namespace CForge {
 			clear();
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 			initWindowAndRenderDevice();
 			
 			// initialize camera
@@ -189,7 +189,7 @@ namespace CForge {
 
 		}//init
 
-		void clear(void) {
+		void clear(void) override {
 			ExampleSceneBase::clear();
 			m_IMUCam.clear();
 
@@ -210,7 +210,7 @@ namespace CForge {
 		}//clear
 
 
-		void run(void) {
+		void run(void) override{
 			uint64_t LastMessage = CForgeUtility::timestamp();
 
 			uint8_t Buffer[256];

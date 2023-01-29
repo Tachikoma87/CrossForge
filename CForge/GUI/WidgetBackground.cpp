@@ -75,10 +75,10 @@ namespace CForge {
         m_VertexBuffer.bind();
         // enable vertex and UVS
         glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION));
-        glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION), 2, GL_FLOAT, GL_FALSE, VertexSize, (const void*)(PositionOffset));
+        glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION), 2, GL_FLOAT, GL_FALSE, VertexSize, (const void*)(uint64_t(PositionOffset)));
 
         glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW));
-        glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW), 2, GL_FLOAT, GL_FALSE, VertexSize, (const void*)(UVOffset));
+        glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW), 2, GL_FLOAT, GL_FALSE, VertexSize, (const void*)(uint64_t(UVOffset)));
     }
     void WidgetBackground::updateSize(bool initialise)
     {

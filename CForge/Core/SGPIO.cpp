@@ -288,7 +288,7 @@ namespace CForge {
 	}//Constructor
 
 	SGPIO::~SGPIO(void) {
-		clear();
+		// not on windows
 	}//Destructor
 	
 	

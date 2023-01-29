@@ -39,7 +39,7 @@ namespace CForge {
 		Mouse(void);
 		~Mouse(void);
 
-		void init(class GLFWwindow* pWin);
+		void init(struct GLFWwindow* pWin);
 		void clear(void);
 
 		Eigen::Vector2f position(void)const;
@@ -53,7 +53,7 @@ namespace CForge {
 		void buttonState(Button Btn, bool State);
 
 	protected:
-		class GLFWwindow* m_pWin;
+		struct GLFWwindow* m_pWin;
 		Eigen::Vector2f m_Position;
 		Eigen::Vector2f m_Movement;
 		Eigen::Vector2f m_Wheel;

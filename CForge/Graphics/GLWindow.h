@@ -73,7 +73,7 @@ namespace CForge {
 		bool vsync(int8_t *pThrottleFactor = nullptr)const;
 
 	private:
-		class GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
+		struct GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
 
 		void* m_pHandle;
 		Keyboard m_Keyboard;
@@ -85,8 +85,8 @@ namespace CForge {
 
 		std::string m_Title; ///< The windows title
 
-		static void sizeCallback(class GLFWwindow* pHandle, int32_t Width, int32_t Height);
-		static std::map<GLWindow*, class GLFWwindow*> m_WindowList;
+		static void sizeCallback(struct GLFWwindow* pHandle, int32_t Width, int32_t Height);
+		static std::map<GLWindow*, struct GLFWwindow*> m_WindowList;
 
 	};//GLWindow
 
