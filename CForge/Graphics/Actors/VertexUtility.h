@@ -30,7 +30,7 @@ namespace CForge {
 	*/
 	class CFORGE_API VertexUtility: public CForgeObject {
 	public:
-		enum VertexProperty:uint16_t {
+		enum VertexProperty:uint64_t {
 			VPROP_POSITION			= 0x0001,
 			VPROP_NORMAL			= 0x0002,
 			VPROP_TANGENT			= 0x0004,

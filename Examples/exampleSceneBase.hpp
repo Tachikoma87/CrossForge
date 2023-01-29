@@ -20,22 +20,22 @@
 
 #include <CForge/Math/CForgeMath.h>
 #include <CForge/Utility/CForgeUtility.h>
-#include "../CForge/AssetIO/SAssetIO.h"
-#include "../CForge/Graphics/Shader/SShaderManager.h"
-#include "../CForge/Graphics/STextureManager.h"
+#include <CForge/AssetIO/SAssetIO.h>
+#include <CForge/Graphics/Shader/SShaderManager.h>
+#include <CForge/Graphics/STextureManager.h>
 
-#include "../CForge/Graphics/GLWindow.h"
-#include "../CForge/Graphics/RenderDevice.h"
+#include <CForge/Graphics/GLWindow.h>
+#include <CForge/Graphics/RenderDevice.h>
 
-#include "../CForge/Graphics/Lights/DirectionalLight.h"
-#include "../CForge/Graphics/Lights/PointLight.h"
+#include <CForge/Graphics/Lights/DirectionalLight.h>
+#include <CForge/Graphics/Lights/PointLight.h>
 
-#include "../CForge/Graphics/SceneGraph/SceneGraph.h"
-#include "../CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "../CForge/Graphics/SceneGraph/SGNTransformation.h"
+#include <CForge/Graphics/SceneGraph/SceneGraph.h>
+#include <CForge/Graphics/SceneGraph/SGNGeometry.h>
+#include <CForge/Graphics/SceneGraph/SGNTransformation.h>
 
-#include "../CForge/Graphics/Actors/StaticActor.h"
-#include "../CForge/Graphics/Actors/SkyboxActor.h"
+#include <CForge/Graphics/Actors/StaticActor.h>
+#include <CForge/Graphics/Actors/SkyboxActor.h>
 
 using namespace Eigen;
 using namespace std;
@@ -210,6 +210,8 @@ namespace CForge {
 				m_LastFPSPrint = CForgeUtility::timestamp();
 
 				m_RenderWin.title(m_WindowTitle + "[" + std::string(Buf) + "]");
+
+				printf("%s\n", std::string(Buf).c_str());
 			}
 		}//updateFPS
 

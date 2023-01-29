@@ -34,16 +34,99 @@ set(PMP_BUILD_VIS OFF CACHE INTERNAL "Build the PMP visualization tools")
 set(PMP_INSTALL OFF CACHE INTERNAL "Install the PMP library and headers")
 ]]
 
+if(EMSCRIPTEN)
+	include(FetchContent)
+	
+	## libjpeg-turbo
+#	FetchContent_Declare(
+#		libjpegturbo
+#		URL https://github.com/libjpeg-turbo/libjpeg-turbo/archive/refs/tags/2.1.4.zip
+		#GIT_TAG v2.0.3
+#	)
+#	FetchContent_MakeAvailable(libjpegturbo)
 
-# required core packages
-FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
-FIND_PACKAGE(OpenGL REQUIRED)		# OpenGl core library
-FIND_PACKAGE(glad CONFIG REQUIRED)	# GL extension library
-FIND_PACKAGE(glfw3 CONFIG REQUIRED)	# cross-plattform window management
-FIND_PACKAGE(assimp CONFIG REQUIRED)# Asset import library (and partially export)
-FIND_PACKAGE(freetype REQUIRED)		# Library to load and process vector based fonts
-FIND_PACKAGE(libigl CONFIG REQUIRED)	# mesh processing library
-FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp 
+
+	### Eigen3
+	FetchContent_Declare(
+		eigen3 
+		GIT_REPOSITORY https://github.com/libigl/eigen.git
+	)
+	FetchContent_MakeAvailable(eigen3)
+	include_directories(${eigen3_SOURCE_DIR}/)
+
+	## WebP Library
+	FetchContent_Declare(
+		webp 
+		GIT_REPOSITORY https://github.com/webmproject/libwebp.git
+		GIT_TAG v1.3.0
+	)
+	FetchContent_MakeAvailable(webp)
+	FetchContent_GetProperties(webp)
+	set(WEBP_USE_THREAD OFF CACHE BOOL "Enable threading support" FORCE)
+	set(WEBP_BUILD_ANIM_UTILS OFF CACHE BOOL "Build animation utilities." FORCE)
+	set(WEBP_BUILD_CWEBP OFF CACHE BOOL "Build the cwebp command line tool." FORCE)
+	set(WEBP_BUILD_DWEBP OFF CACHE BOOL "Build the dwebp command line tool." FORCE)
+	set(WEBP_BUILD_GIF2WEBP OFF CACHE BOOL "Build the gif2webp conversion tool." FORCE)
+	set(WEBP_BUILD_IMG2WEBP OFF CACHE BOOL "Build the img2webp animation tool." FORCE)
+	set(WEBP_BUILD_VWEBP OFF CACHE BOOL "Build the vwebp viewer tool." FORCE)
+	set(WEBP_BUILD_WEBPINFO OFF CACHE BOOL "Build the webpinfo command line tool." FORCE)
+	set(WEBP_BUILD_LIBWEBPMUX OFF CACHE BOOL "Build the libwebpmux library." FORCE)
+	set(WEBP_BUILD_WEBPMUX OFF CACHE BOOL "Build the webpmux command line tool." FORCE)
+	set(WEBP_BUILD_EXTRAS OFF CACHE BOOL "Build extras." FORCE)
+	set(WEBP_BUILD_WEBP_JS ON CACHE BOOL "Emscripten build of webp.js." FORCE)
+	set(WEBP_USE_THREAD OFF CACHE BOOL "Enable threading support" FORCE)
+	set(WEBP_NEAR_LOSSLESS ON CACHE BOOL "Enable near-lossless encoding" FORCE)
+
+	include_directories(${webp_SOURCE_DIR}/src/)
+	link_directories(${webp_BINARY_DIR})
+
+	## Assimp
+	FetchContent_Declare(
+		assimp 
+		URL https://github.com/assimp/assimp/archive/refs/tags/v5.2.5.zip
+	)
+	FetchContent_MakeAvailable(assimp)
+	include_directories(${assimp_SOURCE_DIR}/include/)
+	include_directories(${assimp_BINARY_DIR}/include/)
+	link_directories(${assimp_BINARY_DIR}/lib/)
+
+	## glad
+	include_directories(${CMAKE_SOURCE_DIR}/Thirdparty/)
+
+	## libigl
+	FetchContent_Declare(
+		libigl 
+		URL https://github.com/libigl/libigl/archive/refs/tags/v2.4.0.zip
+	)
+	FetchContent_MakeAvailable(libigl)
+	include_directories(${libigl_SOURCE_DIR}/include/)
+
+	## freetype
+	FetchContent_Declare(
+		freetype 
+		GIT_REPOSITORY https://github.com/freetype/freetype.git
+		#GIT_TAG v2.0.3
+	)
+	FetchContent_MakeAvailable(freetype)
+	include_directories(${freetype_SOURCE_DIR}/include/)
+
+	#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -Wno-unused-command-line-argument -s USE_ZLIB=1 -s USE_GLFW=3 -s USE_LIBPNG=1 -s USE_PTHREADS=1 -s USE_LIBJPEG=1")
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unused-command-line-argument -s USE_ZLIB=1 -s USE_GLFW=3 -s USE_LIBPNG=1 -s USE_PTHREADS=1 -s USE_LIBJPEG=1")
+
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
+
+else()
+	# required core packages
+	FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
+	FIND_PACKAGE(OpenGL REQUIRED)		# OpenGl core library
+	FIND_PACKAGE(glad CONFIG REQUIRED)	# GL extension library
+	FIND_PACKAGE(glfw3 CONFIG REQUIRED)	# cross-plattform window management
+	FIND_PACKAGE(assimp CONFIG REQUIRED)# Asset import library (and partially export)
+	FIND_PACKAGE(freetype REQUIRED)		# Library to load and process vector based fonts
+	FIND_PACKAGE(libigl CONFIG REQUIRED)	# mesh processing library
+	FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp 
+endif()
 
 if(USE_OPENCV)
 	FIND_PACKAGE(OpenCV CONFIG REQUIRED)	# Open computer vision library
@@ -100,6 +183,8 @@ add_library(crossforge SHARED
 	CForge/Graphics/RenderMaterial.cpp 
 	CForge/Graphics/STextureManager.cpp 
 	CForge/Graphics/VirtualCamera.cpp
+
+	CForge/Graphics/glad.c # only required with emscripten
 	
 
 	# Camera related
@@ -183,15 +268,17 @@ add_library(crossforge SHARED
 
  )
 
-if(WIN32)
-	add_compile_definitions(CFORGE_EXPORTS)
-endif(WIN32)
 
-if(UNIX)
-	add_compile_definitions(USE_SYSFS_GPIO)
-endif(UNIX)
+if(EMSCRIPTEN)
+	target_link_libraries(crossforge 
+		WebP
+		AssImp
+		freetype
+		glfw
+	)
 
-if(WIN32)
+elseif(WIN32)
+add_compile_definitions(CFORGE_EXPORTS)
 target_link_libraries(crossforge 
 	PRIVATE Eigen3::Eigen
 	PRIVATE glfw 
@@ -208,6 +295,7 @@ target_link_libraries(crossforge
 	)
 
 elseif(UNIX)
+	add_compile_definitions(USE_SYSFS_GPIO)
 	target_link_libraries(crossforge 
 	PRIVATE Eigen3::Eigen
 	PRIVATE glfw
@@ -224,4 +312,10 @@ elseif(UNIX)
 	PRIVATE gpiod 
 	PRIVATE stdc++fs
 	)
-endif(WIN32)
+endif()
+
+
+if(EMSCRIPTEN)
+# Copy libraries to this directory
+
+endif()

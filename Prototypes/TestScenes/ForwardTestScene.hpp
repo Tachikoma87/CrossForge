@@ -19,7 +19,7 @@
 #define __CFORGE_FORWARDTESTSCENE_HPP__
 
 
-#include "../../Examples/ExampleSceneBase.hpp"
+#include "Examples/ExampleSceneBase.hpp"
 
 using namespace Eigen;
 using namespace std;

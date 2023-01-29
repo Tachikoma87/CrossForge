@@ -18,22 +18,22 @@
 #ifndef __CFORGE_GUITESTSCENE_HPP__
 #define __CFORGE_GUITESTSCENE_HPP__
 
-#include "../../CForge/AssetIO/SAssetIO.h"
-#include "../../CForge/Graphics/Shader/SShaderManager.h"
-#include "../../CForge/Graphics/STextureManager.h"
+#include "CForge/AssetIO/SAssetIO.h"
+#include "CForge/Graphics/Shader/SShaderManager.h"
+#include "CForge/Graphics/STextureManager.h"
 
 
-#include "../../CForge/Graphics/GLWindow.h"
-#include "../../CForge/Graphics/RenderDevice.h"
+#include "CForge/Graphics/GLWindow.h"
+#include "CForge/Graphics/RenderDevice.h"
 
-#include "../../CForge/Graphics/Lights/DirectionalLight.h"
-#include "../../CForge/Graphics/Lights/PointLight.h"
+#include "CForge/Graphics/Lights/DirectionalLight.h"
+#include "CForge/Graphics/Lights/PointLight.h"
 
-#include "../../CForge/Graphics/SceneGraph/SceneGraph.h"
-#include "../../CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "../../CForge/Graphics/SceneGraph/SGNTransformation.h"
+#include "CForge/Graphics/SceneGraph/SceneGraph.h"
+#include "CForge/Graphics/SceneGraph/SGNGeometry.h"
+#include "CForge/Graphics/SceneGraph/SGNTransformation.h"
 
-#include "../../CForge/Graphics/Actors/StaticActor.h"
+#include "CForge/Graphics/Actors/StaticActor.h"
 
 //#include "../../Examples/SceneUtilities.hpp" 
 
@@ -45,7 +45,7 @@
 
 //since the includes of the GUI source files are so convoluted, this is enough to pull in the entirety of the GUI
 //(or more like, the entirety of classes we would want to interface with)
-#include <../../CForge/GUI/Widgets/Form.h>
+#include <CForge/GUI/Widgets/Form.h>
 
 #include <iostream>
 //#include <filesystem>

@@ -167,7 +167,7 @@ namespace CForge {
 			PositionsOffset += pM->mNumVertices;
 			if (nullptr != pM->mNormals) NormalsOffset += pM->mNumVertices;
 			if (nullptr != pM->mTangents) TangentsOffset += pM->mNumVertices;
-			if (nullptr != pM->mTextureCoords) UVWsOffset += pM->mNumVertices;
+			if (nullptr != pM->mTextureCoords[0]) UVWsOffset += pM->mNumVertices;
 		}//for[all meshes]
 
 

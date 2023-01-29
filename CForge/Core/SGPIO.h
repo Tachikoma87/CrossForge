@@ -17,7 +17,9 @@
 \****************************************************************************/
 #pragma once
 
-#ifdef __unix__
+#if defined(__EMSCRIPTEN__)
+
+#elif defined(__unix__)
 #include <gpiod.h>
 #endif
 
@@ -75,7 +77,7 @@ namespace CForge {
 
 		std::string m_Chipname;
 
-#ifdef USE_SYSFS_GPIO
+#if defined(USE_SYSFS_GPIO)
 		struct GPIOLine {
 			uint8_t ID;
 			std::string ValueStream;

@@ -10,6 +10,13 @@ How to cite:
         howpublished = {Github (not yet publicly available)},
     }
 
+
+## Building using emscripten
+
+From top directory call
+emcmake cmake -DWEBP_USE_THREAD=OFF -B out/build-em
+cmake --build out/build-em
+
 <!--
 **CrossForge/CrossForge** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 

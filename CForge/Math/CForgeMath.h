@@ -64,8 +64,8 @@ namespace CForge {
 
 		static Eigen::Matrix3f alignVectors(const Eigen::Vector3f Source, const Eigen::Vector3f Target);
 
-		static Eigen::Vector3f CForgeMath::equirectangularMapping(const Eigen::Vector3f Pos);
-		static Eigen::Vector3f CForgeMath::equalAreaMapping(const Eigen::Vector3f Pos);
+		static Eigen::Vector3f equirectangularMapping(const Eigen::Vector3f Pos);
+		static Eigen::Vector3f equalAreaMapping(const Eigen::Vector3f Pos);
 
 		CForgeMath(void);
 		~CForgeMath(void);

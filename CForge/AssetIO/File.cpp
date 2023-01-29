@@ -1,5 +1,5 @@
 
-#if (defined(_MSC_VER) || (defined(__GNUC__) && (__GNUC__ > 7)))
+#if (defined(__EMSCRIPTEN__) || defined(_MSC_VER) || (defined(__GNUC__) && (__GNUC__ > 7)) )
 #include <filesystem>
 #define STD_FS std::filesystem
 #else

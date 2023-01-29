@@ -152,9 +152,10 @@ namespace CForge {
 	
 	bool LODHandler::checkLODmodel(const std::string metaFilePath)
 	{
+		bool Rval = false;
 		// TODO open  Metafile and check valid object
 		if (!File::exists(metaFilePath)) {
-			return false;
+			return Rval;
 		}
 		else {
 			std::vector<float> values;
@@ -163,9 +164,10 @@ namespace CForge {
 			// check if model files for lod exist
 			for (uint32_t i = 0; i < values.size(); i++) {
 				
-				File::exists(metaFilePath);
+				Rval = Rval && File::exists(metaFilePath);
 			}
 		}
+		return Rval;
 	}
 
 	void LODHandler::writeMetaFile(const std::string metaFilePath, const std::vector<float>& decimateAmount, const std::vector<float>& triBBratios) {
@@ -176,7 +178,7 @@ namespace CForge {
 		doc.InsertEndChild(head);
 		
 		tinyxml2::XMLElement* levels = doc.NewElement("levels");
-		levels->SetText(decimateAmount.size());
+		levels->SetText(uint64_t(decimateAmount.size()));
 		head->InsertEndChild(levels);
 		
 		tinyxml2::XMLElement* reductionAmounts = doc.NewElement("reduction");

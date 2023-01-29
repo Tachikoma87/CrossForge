@@ -63,7 +63,7 @@ namespace CForge {
 	void SCrossForgeDevice::init(void) {
 		glfwInit();
 
-		#ifdef WIN32
+		#if defined(WIN32) && !defined(__EMSCRIPTEN__)
 		WSADATA wsa;
 		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
 			SLogger::log("Error initializing wsa" + std::to_string(WSAGetLastError()), "SCrossForgeDevice", SLogger::LOGTYPE_ERROR);
@@ -79,7 +79,7 @@ namespace CForge {
 		m_pTexMan = STextureManager::instance();
 
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__EMSCRIPTEN__)
 		m_pGPIO = nullptr;
 #else
 		m_pGPIO = SGPIO::instance();

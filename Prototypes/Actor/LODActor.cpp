@@ -8,7 +8,9 @@
 #include <iostream>
 
 //#define SKIP_INSTANCED_QUERIES // TODO make changeable using SLOD
+#ifndef M_PI
 #define M_PI 3.1415926535
+#endif
 
 namespace CForge {
 	LODActor::LODActor(void) : IRenderableActor("LODActor", ATYPE_STATIC) {

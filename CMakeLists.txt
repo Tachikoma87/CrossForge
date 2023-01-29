@@ -23,8 +23,24 @@ file(MAKE_DIRECTORY "Prototypes/Shader")
 #################################################################
 project (CForgeSandbox)
 
+if(EMSCRIPTEN)
+	include(FetchContent)
+	
+	### Eigen3
+	FetchContent_Declare(
+		tinyxml2 
+		GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
+		GIT_TAG 9.0.0
+	)
+	FetchContent_MakeAvailable(tinyxml2)
+
+
+	set(CMAKE_EXECUTABLE_SUFFIX .html)
+else()
 # Additional packages not alreday included in the core library
 FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
+endif()
+
 
 # enable OpenCV support
 if(USE_OPENCV)
@@ -62,13 +78,15 @@ add_executable(CForgeSandbox
 
 	Prototypes/Graphics/GLRenderbuffer.cpp
 
-	
-	
-	
 	)
 
-
-if(WIN32)
+if(EMSCRIPTEN)
+	target_link_Libraries(CForgeSandbox
+		tinyxml2
+		crossforge
+		sharpyuv
+	)
+elseif(WIN32)
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
 	PRIVATE glfw 
@@ -78,9 +96,7 @@ if(WIN32)
 #	${FREETYPE_LIBRARIES}
 
 	)
-endif (WIN32)
-
-if(UNIX)
+elseif(UNIX)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
 		PRIVATE glfw
@@ -90,7 +106,8 @@ if(UNIX)
 		PRIVATE gpiod
 		PRIVATE dl	
 		)
-endif(UNIX)
+endif()
+
 
 #copy shaders
 add_custom_command(

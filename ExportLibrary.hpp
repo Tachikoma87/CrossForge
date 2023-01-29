@@ -1,5 +1,7 @@
 #include "CForge/AssetIO/File.h"
-#ifdef WIN32
+
+
+#if (defined(__EMSCRIPTEN__) || defined(_MSC_VER) || (defined(__GNUC__) && (__GNUC__ > 7)) )
 #include <filesystem>
 using namespace std;
 #else

@@ -19,7 +19,8 @@
 #ifndef __CFORGE_FRUSTUMCULLINGTESTSCENE_HPP__
 #define __CFORGE_FRUSTUMCULLINGTESTSCENE_HPP__
 
-#include "../../Examples/ExampleSceneBase.hpp"
+#include "Examples/ExampleSceneBase.hpp"
+
 #include <CForge/Graphics/Camera/ViewFrustum.h>
 
 namespace CForge {

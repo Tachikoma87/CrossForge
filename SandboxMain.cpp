@@ -11,13 +11,13 @@
 #include "CForge/Core/SCrossForgeDevice.h"
 #include "CForge/Core/SLogger.h"
 
-#include "../../Examples/ExampleMinimumGraphicsSetup.hpp"
-#include "../../Examples/ExampleMorphTargetAnimation.hpp"
-#include "../../Examples/ExampleMultiViewport.hpp"
-#include "../../Examples/ExampleSceneGraph.hpp"
-#include "../../Examples/ExampleSkeletalAnimation.hpp"
-#include "../../Examples/ExampleSkybox.hpp"
-#include "../../Examples/ExampleSockets.hpp"
+#include <Examples/ExampleMinimumGraphicsSetup.hpp>
+#include <Examples/ExampleMorphTargetAnimation.hpp>
+#include <Examples/ExampleMultiViewport.hpp>
+#include <Examples/ExampleSceneGraph.hpp>
+#include <Examples/ExampleSkeletalAnimation.hpp>
+#include <Examples/ExampleSkybox.hpp>
+#include <Examples/ExampleSockets.hpp>
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
@@ -40,20 +40,20 @@ int main(int argc, char* argv[]) {
 	_CrtMemCheckpoint(&S1);
 #endif
 
-
-
 	SCrossForgeDevice* pDev = nullptr;
 
 	try {
 		 pDev = SCrossForgeDevice::instance();
+#if !defined(__EMSCRIPTEN__)
 		 SLogger::logFile("Logs/ErrorLog.txt", SLogger::LOGTYPE_ERROR, true, true);
 		 SLogger::logFile("Logs/DebugLog.txt", SLogger::LOGTYPE_DEBUG, true, true);
 		 SLogger::logFile("Logs/InfoLog.txt", SLogger::LOGTYPE_INFO, true, true);
 		 SLogger::logFile("Logs/WarningLog.txt", SLogger::LOGTYPE_WARNING, true, true);
+#endif
 	}
 	catch (const CrossForgeException & e) {
+		printf("Exception occurred during initialization. See Log.");
 		SLogger::logException(e);
-		printf("Exception occurred during init. See Log.");
 		if (nullptr != pDev) pDev->release();
 		pDev = nullptr;
 		char c;
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 
 	try {
 		
-		//ExampleSceneBase Scene;
+		ExampleSceneBase Scene;
 		//ExampleMinimumGraphicsSetup Scene;
 		//ExampleMorphTargetAnimation Scene;
 		//ExampleMultiViewport Scene;
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 		//imageTestScene();
 	
 		//FrustumCullingTestScene Scene;
-		StickFigureTestScene Scene;
+		//StickFigureTestScene Scene;
 
 		Scene.init();
 		Scene.run();
