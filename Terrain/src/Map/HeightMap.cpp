@@ -1,6 +1,8 @@
+#include <CForge/Graphics/OpenGLHeader.h>
+
 #include <CForge/Graphics/Shader/SShaderManager.h>
 #include <CForge/Graphics/STextureManager.h>
-#include <glad/glad.h>
+
 #include "HeightMap.h"
 
 using namespace std;

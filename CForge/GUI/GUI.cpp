@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <iostream>
 
-#include <glad/glad.h>
+#include "../Graphics/OpenGLHeader.h"
 #include "../Graphics/Shader/SShaderManager.h"
 
 using namespace std; 
@@ -75,8 +75,14 @@ namespace CForge {
         vector<ShaderCode*> vsSources;
         vector<ShaderCode*> fsSources;
         string errorLog;
+#ifdef SHADER_GLES
+        ShaderCode* vertexShader = shaderManager->createShaderCode("Shader/text.vert", "300 es", 0, "medium float");
+        ShaderCode* fragmentShader = shaderManager->createShaderCode("Shader/text.frag", "300 es", 0, "medium float");
+#else
         ShaderCode* vertexShader = shaderManager->createShaderCode("Shader/text.vert", "330 core", 0, "");
         ShaderCode* fragmentShader = shaderManager->createShaderCode("Shader/text.frag", "330 core", 0, "");
+#endif
+
         vsSources.push_back(vertexShader);
         fsSources.push_back(fragmentShader);
         TextShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);
@@ -85,8 +91,13 @@ namespace CForge {
         shaderManager = SShaderManager::instance();
         vsSources.clear();
         fsSources.clear();
+#ifdef SHADER_GLES
+        vertexShader = shaderManager->createShaderCode("Shader/BackgroundColored.vert", "300 es", 0, "medium float");
+        fragmentShader = shaderManager->createShaderCode("Shader/BackgroundColored.frag", "300 es", 0, "medium float");
+#else
         vertexShader = shaderManager->createShaderCode("Shader/BackgroundColored.vert", "330 core", 0, "");
         fragmentShader = shaderManager->createShaderCode("Shader/BackgroundColored.frag", "330 core", 0, "");
+#endif
         vsSources.push_back(vertexShader);
         fsSources.push_back(fragmentShader);
         BackgroundColoredShader = shaderManager->buildShader(&vsSources, &fsSources, &errorLog);

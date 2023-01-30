@@ -1,4 +1,6 @@
-#ifdef WIN32
+#if defined(__EMSCRIPTEN__)
+#include <emscripten/emscripten.h>
+#elif defined(WIN32)
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
@@ -34,6 +36,13 @@
 using namespace CForge;
 using namespace Eigen;
 
+
+PrimitiveFactoryTestScene *pScene = nullptr;
+
+void mainLoop(void) {
+	pScene->mainLoop();
+}
+
 int main(int argc, char* argv[]) {
 #ifdef WIN32
 	_CrtMemState S1, S2, S3;
@@ -63,8 +72,8 @@ int main(int argc, char* argv[]) {
 
 
 	try {
-		
-		ExampleSceneBase Scene;
+		pScene = new PrimitiveFactoryTestScene();
+		//ExampleSceneBase Scene;
 		//ExampleMinimumGraphicsSetup Scene;
 		//ExampleMorphTargetAnimation Scene;
 		//ExampleMultiViewport Scene;
@@ -91,8 +100,17 @@ int main(int argc, char* argv[]) {
 		//FrustumCullingTestScene Scene;
 		//StickFigureTestScene Scene;
 
-		Scene.init();
-		Scene.run();
+		//Scene.init();
+		pScene->init();
+
+		printf("Scene initialized!\n");
+
+#if defined(__EMSCRIPTEN__)
+		emscripten_set_main_loop(mainLoop, 0, 1);
+#else
+		//Scene.run();
+		pScene->run();
+#endif
 
 
 		//exportLibrary();
@@ -122,4 +140,7 @@ int main(int argc, char* argv[]) {
 	Tmp &= ~_CRTDBG_LEAK_CHECK_DF;
 	_CrtSetDbgFlag(Tmp);
 #endif
+
+	printf("QUtting now!");
+	return 0;
 }//main

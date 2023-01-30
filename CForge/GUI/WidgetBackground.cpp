@@ -1,5 +1,5 @@
-#include <glad/glad.h>
 
+#include "../Graphics/OpenGLHeader.h"
 #include "WidgetBackground.h"
 #include "Widget.h"
 #include "../Graphics/RenderDevice.h"

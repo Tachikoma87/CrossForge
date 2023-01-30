@@ -38,6 +38,7 @@ namespace CForge {
 
 			int32_t MaxFramebufferWidth;
 			int32_t MaxFramebufferHeight;
+			int32_t MaxColorAttachements;
 
 			int32_t MaxUniformBlockSize;
 			int32_t MaxVaryingVectors;

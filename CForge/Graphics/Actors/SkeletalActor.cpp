@@ -1,5 +1,5 @@
 #include "../RenderDevice.h"
-#include <glad/glad.h>
+#include "../OpenGLHeader.h"
 #include "SkeletalActor.h"
 
 

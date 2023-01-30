@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include "../OpenGLHeader.h"
 #include "../../Utility/CForgeUtility.h"
 #include "../../Core/SLogger.h"
 #include "GLShader.h"
@@ -109,6 +109,7 @@ namespace CForge {
 			}
 			if (!pErrorLog->empty()) {
 				glDeleteShader(ComputeShader);
+				(*pErrorLog) += "\n" + m_ComputeShaderCodes[0];
 				return;
 			}
 
@@ -139,6 +140,7 @@ namespace CForge {
 			uint32_t FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 			int32_t Status = 0;
 
+			
 			// compile vertex shader
 			try {
 				compileShader(VertexShader, &m_VertexShaderCodes, pErrorLog);
@@ -151,6 +153,8 @@ namespace CForge {
 			if (!pErrorLog->empty()) {
 				glDeleteShader(VertexShader);
 				glDeleteShader(FragmentShader);
+				(*pErrorLog) += "\n";
+				for (auto i : m_VertexShaderCodes) (*pErrorLog) += i;
 				return;
 			}
 
@@ -166,6 +170,8 @@ namespace CForge {
 			if (!pErrorLog->empty()) {
 				glDeleteShader(VertexShader);
 				glDeleteShader(FragmentShader);
+				(*pErrorLog) += "\n";
+				for (auto i : m_VertexShaderCodes) (*pErrorLog) += i;
 				return;
 			}
 
@@ -216,6 +222,11 @@ namespace CForge {
 
 			unbind();
 		}//if[build draw shader]
+
+		std::string ErrorMsg;
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred during building shader: " + ErrorMsg, "GLShader", SLogger::LOGTYPE_ERROR);
+		}
 
 	}//build
 

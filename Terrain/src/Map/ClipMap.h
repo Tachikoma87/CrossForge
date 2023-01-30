@@ -2,7 +2,7 @@
 
 #include <CForge/Graphics/GLBuffer.h>
 #include <CForge/Graphics/GLVertexArray.h>
-#include <glad/glad.h>
+#include <CForge/Graphics/OpenGLHeader.h>
 
 using namespace CForge;
 using namespace std;

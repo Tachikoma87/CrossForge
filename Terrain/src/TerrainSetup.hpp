@@ -1,6 +1,7 @@
 #pragma once
 
-#include <glad/glad.h>
+#include <CForge/Graphics/OpenGLHeader.h>
+
 #include <CForge/Graphics/Lights/DirectionalLight.h>
 #include <CForge/Graphics/Lights/PointLight.h>
 #include <CForge/Graphics/GraphicsUtility.h>
@@ -54,7 +55,10 @@ public:
 			window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup", 0, 0, true);
 		else
 			window->init(Vector2i(200, 200), Vector2i(winWidth, winHeight), "Terrain Setup", 0, 0, false);
+        #ifndef __EMSCRIPTEN__
         gladLoadGL();
+        #endif
+
 		//glfwSwapInterval(0);
 
         string GLError;
@@ -760,11 +764,13 @@ public:
             renderDevice.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			
             if (wireframe) {
+#ifndef __EMSCRIPTEN__
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 glLineWidth(1);
                 //sceneGraph.render(&renderDevice);
 				map.renderMap(&renderDevice);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
             } else {
                 //sceneGraph.render(&renderDevice);
 				map.renderMap(&renderDevice);

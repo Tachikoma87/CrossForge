@@ -110,6 +110,8 @@ namespace CForge {
 		ShaderCode* m_pShadowPassVSCode;
 		ShaderCode* m_pShadowPassFSCode;
 
+		std::string m_GLSLVersionTag;
+		std::string m_GLSLPrecisionTag;
 	};//SkeletalAnimationController
 
 }//name space

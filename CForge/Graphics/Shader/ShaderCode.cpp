@@ -17,6 +17,7 @@ namespace CForge {
 
 	void ShaderCode::init(std::string ShaderCode, std::string VersionTag, uint8_t ConfigOptions, std::string PrecisionTag) {
 		if (ShaderCode.empty()) throw CForgeExcept("Empty shader code specified!");
+
 		if (ShaderCode[0] == '#') {
 			// already is shader code
 			m_Code = ShaderCode;		
@@ -32,13 +33,14 @@ namespace CForge {
 		m_VersionTag = VersionTag;
 		m_PrecisionTag = PrecisionTag;
 
-		changeVersionTag(VersionTag);
+		changeVersionTag(VersionTag, PrecisionTag);
+
 
 		m_ConfigOptions = ConfigOptions;
 
 	}//initialize
 
-	void ShaderCode::changeVersionTag(const std::string VersionTag) {
+	void ShaderCode::changeVersionTag(const std::string VersionTag, const std::string PrecisionTag) {
 		// set version tag
 		uint32_t Pos = m_Code.find("#version");
 		// overwrite whole line with whitespaces
@@ -47,6 +49,12 @@ namespace CForge {
 		string Tag = "#version " + VersionTag + "\n";
 		m_Code.insert(Pos, Tag);
 		m_InsertPosition = Pos + Tag.length();
+
+		if (!PrecisionTag.empty()) {
+			Tag = "precision " + PrecisionTag + " float;\n";
+			m_Code.insert(m_InsertPosition, Tag);
+			m_InsertPosition += Tag.length();
+		}
 	}//changeVersionTag
 
 
@@ -95,7 +103,7 @@ namespace CForge {
 
 		if (pConfig->ShadowMapCount > 1) {
 			// requies at least version 400
-			changeVersionTag("400 core");
+			changeVersionTag("400 core", "highp float");
 			addDefine("MULTIPLE_SHADOWS");
 		}
 		else {

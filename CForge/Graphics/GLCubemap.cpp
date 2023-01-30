@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include "OpenGLHeader.h"
 #include "GLCubemap.h"
 
 namespace CForge {

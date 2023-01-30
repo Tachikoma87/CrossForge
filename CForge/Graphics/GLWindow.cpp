@@ -2,10 +2,12 @@
 #define GLFW_INCLUDE_ES3
 #endif
 
-#include <glad/glad.h>
+#include "OpenGLHeader.h"
 #include <GLFW/glfw3.h>
 #include "../Input/SInputManager.h"
 #include "GLWindow.h"
+#include "../Core/SLogger.h"
+#include "../Utility/CForgeUtility.h"
 
 
 using namespace Eigen;
@@ -45,6 +47,25 @@ namespace CForge {
 		clear();
 		GLFWwindow* pWin = nullptr;
 
+
+#if defined(__EMSCRIPTEN__)
+		GLMajorVersion = 2;
+		GLMinorVersion = 0;
+		glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+		pWin = createGLWindow(Size.x(), Size.y(), WindowTitle, GLMajorVersion, GLMinorVersion);
+		if (nullptr == pWin) {
+			printf("Failed creating OpenGL window!\n");
+			throw CForgeExcept("Failed creating OpenGL window");
+		}
+		glfwMakeContextCurrent(pWin);
+
+		GLenum err = glewInit();
+		if (GLEW_OK != err) {
+			std::string e = "GLEW init failed: ";
+			throw CForgeExcept("Failed initialiing glew!");
+		}
+
+#else
 		if (GLMajorVersion == 0) GLMajorVersion = 4;
 		if (GLMinorVersion == 0) GLMinorVersion = 6;
 
@@ -82,32 +103,33 @@ namespace CForge {
 		if (nullptr == pWin) throw CForgeExcept("Failed to crate OpenGL window. OpenGL seems not to be available!");
 
 		glfwMakeContextCurrent(pWin);
-
 		// initialize glad
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-#ifdef __OPENGLES__
-		gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress);
-
-		// glad does not load these on default with OpenGL es
-		glGetUniformBlockIndex = (PFNGLGETUNIFORMBLOCKINDEXPROC)glfwGetProcAddress("glGetUniformBlockIndex");
-		glUniformBlockBinding = (PFNGLUNIFORMBLOCKBINDINGPROC)glfwGetProcAddress("glUniformBlockBinding");
-		glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)glfwGetProcAddress("glGenVertexArrays");
-		glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)glfwGetProcAddress("glBindVertexArray");
-		glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)glfwGetProcAddress("glDrawRangeElements");
-		glBindBufferBase = (PFNGLBINDBUFFERBASEPROC)glfwGetProcAddress("glBindBufferBase");
-
-		glBeginQuery = (PFNGLBEGINQUERYPROC)glfwGetProcAddress("glBeginQuery");
-		glEndQuery = (PFNGLENDQUERYPROC)glfwGetProcAddress("glEndQuery");
-		glGetQueryObjectuiv = (PFNGLGETQUERYOBJECTUIVPROC)glfwGetProcAddress("glGetQueryObjectuiv");
 #endif
+		
+
+//#ifdef __OPENGLES__
+//		gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress);
+//
+//		// glad does not load these on default with OpenGL es
+//		glGetUniformBlockIndex = (PFNGLGETUNIFORMBLOCKINDEXPROC)glfwGetProcAddress("glGetUniformBlockIndex");
+//		glUniformBlockBinding = (PFNGLUNIFORMBLOCKBINDINGPROC)glfwGetProcAddress("glUniformBlockBinding");
+//		glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)glfwGetProcAddress("glGenVertexArrays");
+//		glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)glfwGetProcAddress("glBindVertexArray");
+//		glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)glfwGetProcAddress("glDrawRangeElements");
+//		glBindBufferBase = (PFNGLBINDBUFFERBASEPROC)glfwGetProcAddress("glBindBufferBase");
+//
+//		glBeginQuery = (PFNGLBEGINQUERYPROC)glfwGetProcAddress("glBeginQuery");
+//		glEndQuery = (PFNGLENDQUERYPROC)glfwGetProcAddress("glEndQuery");
+//		glGetQueryObjectuiv = (PFNGLGETQUERYOBJECTUIVPROC)glfwGetProcAddress("glGetQueryObjectuiv");
+//#endif
 
 		glViewport(0, 0, Size.x(), Size.y());
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 
-		if (Multisample > 0) glEnable(GL_MULTISAMPLE);
+		//if (Multisample > 0) glEnable(GL_MULTISAMPLE);
 
 		m_pHandle = pWin;
 
@@ -119,8 +141,13 @@ namespace CForge {
 		m_pInputMan->registerDevice(pWin, &m_Mouse);
 
 		glfwSetWindowSizeCallback((GLFWwindow*)this->m_pHandle, sizeCallback);
-		m_WindowList.insert(std::pair<GLWindow*, GLFWwindow*>(this, pWin));
 		vsync(true);
+		m_WindowList.insert(std::pair<GLWindow*, GLFWwindow*>(this, pWin));
+
+		std::string ErrorMsg;
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred before initialization of RenderDevice: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
+		}
 
 	}//initialize
 

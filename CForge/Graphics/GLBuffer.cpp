@@ -1,6 +1,7 @@
-#include <glad/glad.h>
-#include <GL/gl.h>
+#include "OpenGLHeader.h"
+#include "../Core/SLogger.h"
 #include "GLBuffer.h"
+#include "../Utility/CForgeUtility.h"
 
 namespace CForge {
 
@@ -19,6 +20,12 @@ namespace CForge {
 
 	void GLBuffer::init(BufferType Type, BufferUsage Usage, const void* pBufferData, uint32_t BufferSize ) {
 		clear();
+
+		std::string ErrorMsg;
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred before initialization of a GLBuffer: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
+		}
+
 		glGenBuffers(1, &m_GLID);
 		switch (Type) {
 		case BTYPE_VERTEX: m_GLTarget = GL_ARRAY_BUFFER; break;
@@ -46,6 +53,12 @@ namespace CForge {
 		bind();
 		if (Type == BTYPE_TEXTURE) glGenTextures(1, &m_TextureHandle);
 		unbind();
+
+		//std::string ErrorMsg;
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred during initialization of a GLBuffer: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
+		}
+
 	}//initialize
 
 	void GLBuffer::clear(void) {

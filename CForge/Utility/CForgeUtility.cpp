@@ -1,4 +1,5 @@
-#include <glad/glad.h>
+#include "../Graphics/OpenGLHeader.h"
+
 #include "CForgeUtility.h"
 #include "../Math/CForgeMath.h"
 #include "../AssetIO/T3DMesh.hpp"
@@ -17,14 +18,16 @@ namespace CForge {
 	}//Destructor
 
 	void CForgeUtility::retrieveColorTexture(uint32_t TexObj, T2DImage<uint8_t>* pImg) {
+#ifndef __EMSCRIPTEN__
 		if (nullptr == pImg) throw NullpointerExcept("pImg");
 		if (!glIsTexture(TexObj)) throw CForgeExcept("Specified object is not a valid OpenGL texture.");
 		glBindTexture(GL_TEXTURE_2D, TexObj);
 
 		int32_t TexWidth = 0;
 		int32_t TexHeight = 0;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &TexWidth);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &TexHeight);
+
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WIDTH, &TexWidth);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_HEIGHT, &TexHeight);
 
 		uint8_t* pBuffer = new uint8_t[TexWidth * TexHeight * 3];
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
@@ -32,16 +35,18 @@ namespace CForge {
 		pImg->init(TexWidth, TexHeight, T2DImage<uint8_t>::COLORSPACE_RGB, pBuffer);
 
 		delete[] pBuffer;
+#endif
 	}//retrieveDeptBuffer
 
 	void CForgeUtility::retrieveDepthTexture(uint32_t TexObj, T2DImage<uint8_t>* pImg, float Near, float Far) {
+#ifndef __EMSCRIPTEN__
 		if (nullptr == pImg) throw NullpointerExcept("pImg");
 		if (!glIsTexture(TexObj)) throw CForgeExcept("Specified object is not a valid OpenGL texture.");
 		glBindTexture(GL_TEXTURE_2D, TexObj);
 		int32_t TexWidth = 0;
 		int32_t TexHeight = 0;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &TexWidth);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &TexHeight);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WIDTH, &TexWidth);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_HEIGHT, &TexHeight);
 
 		float* pDepthBuffer = new float[TexWidth * TexHeight];
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, pDepthBuffer);
@@ -66,6 +71,7 @@ namespace CForge {
 
 		delete[] pBuffer;
 		delete[] pDepthBuffer;
+#endif
 	}//retrieveDeptBuffer
 
 
@@ -171,17 +177,17 @@ namespace CForge {
 		GPUTraits Rval;
 
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &Rval.MaxTextureImageUnits);
-
 		glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &Rval.MaxFragmentUniformComponents);
 		glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_BLOCKS, &Rval.MaxFragmentUniformBLocks);
+		glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &Rval.MaxUniformBlockSize);
+		glGetIntegerv(GL_MAX_VARYING_VECTORS, &Rval.MaxVaryingVectors);
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &Rval.MaxVertexAttribs);
+
+#ifndef __EMSCRIPTEN__
 		glGetIntegerv(GL_MAX_FRAMEBUFFER_WIDTH, &Rval.MaxFramebufferWidth);
 		glGetIntegerv(GL_MAX_FRAMEBUFFER_HEIGHT, &Rval.MaxFramebufferHeight);
-
-		glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &Rval.MaxUniformBlockSize);
-
-		glGetIntegerv(GL_MAX_VARYING_VECTORS, &Rval.MaxVaryingVectors);
-
-		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &Rval.MaxVertexAttribs);
+#endif
+		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &Rval.MaxColorAttachements);
 
 		GLint MinorVersion = 0;
 		GLint MajorVersion = 0;

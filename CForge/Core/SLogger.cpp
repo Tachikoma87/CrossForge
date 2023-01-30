@@ -18,6 +18,11 @@ namespace CForge {
 	void SLogger::log(const std::string Msg, const string Tag, LogType Type) {
 		if (nullptr == m_pInstance) throw NotInitializedExcept("SLogger not initialized");
 
+#if defined(__EMSCRIPTEN__)
+		std::string ErrorMsg = Tag + ":" + Msg;
+		printf("%s\n", ErrorMsg.c_str());
+#endif
+
 		LogEntry Entry;
 		Entry.Msg = Msg;
 		Entry.Tag = Tag;

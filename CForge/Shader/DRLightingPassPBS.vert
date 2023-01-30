@@ -1,10 +1,7 @@
 #version 330 core 
 
-//#version 300 es
-//precision lowp float;
-
-layout(location = 0) in vec2 Position;
-layout(location = 3) in vec2 UVW;
+layout (location = 0) in vec2 Position;
+layout (location = 3) in vec2 UVW;
 
 layout(std140) uniform ModelData{
 	mat4 ModelMatrix;

@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include <CForge/Graphics/OpenGLHeader.h>
 #include "GLRenderbuffer.h"
 #include <CForge/Utility/CForgeUtility.h>
 

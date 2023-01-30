@@ -111,7 +111,9 @@ namespace CForge {
 
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), "Absolute Minimum Setup");
+		#ifndef __EMSCRIPTEN__
 		gladLoadGL();
+		#endif
 		//glfwSwapInterval(0);
 
 		GraphicsUtility::GPUTraits gpuTraits = GraphicsUtility::retrieveGPUTraits();
@@ -284,9 +286,10 @@ namespace CForge {
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 				Wireframe = !Wireframe;
 			}
-			
+#ifndef __EMSCRIPTEN__
 			if (Wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 			
 			// Terrain vor objekte Rendern um als occluder zu dienen
 			

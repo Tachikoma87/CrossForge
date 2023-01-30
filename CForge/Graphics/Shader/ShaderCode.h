@@ -124,7 +124,7 @@ namespace CForge {
 		void addDefine(std::string Define);
 
 		void changeConst(std::string Const, std::string Value);
-		void changeVersionTag(const std::string VersionTag);
+		void changeVersionTag(const std::string VersionTag, const std::string PrecisionTag);
 
 		uint32_t m_InsertPosition;
 	};//ShaderCode

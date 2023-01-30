@@ -80,9 +80,10 @@ namespace CForge {
 			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
 
-			std::string GLError = "";
-			CForgeUtility::checkGLError(&GLError);
-			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
+			std::string ErrorMsg;
+			if (0 != CForgeUtility::checkGLError(&ErrorMsg)) {
+				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
+			}
 
 		}//initialize
 
@@ -92,27 +93,35 @@ namespace CForge {
 			m_pShaderMan = nullptr;
 		}//clear
 
+		void mainLoop(void)override {
+			m_RenderWin.update();
+			m_SG.update(60.0f / m_FPS);
+
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_SG.render(&m_RenderDev);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_SG.render(&m_RenderDev);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+
+			m_RenderWin.swapBuffers();
+
+			updateFPS();
+
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
+
+			std::string ErrorMsg;
+			if (0 != CForgeUtility::checkGLError(&ErrorMsg)) {
+				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
+			}
+		}
+
 		void run(void) override{
 			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
-				m_SG.update(60.0f / m_FPS);
-
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-				m_SG.render(&m_RenderDev);
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-				m_SG.render(&m_RenderDev);
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
-
-				m_RenderWin.swapBuffers();
-
-				updateFPS();
-
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
-
+				mainLoop();
 			}//while[main loop]
 		}//run
 

@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include "OpenGLHeader.h"
 #include "GLTexture2D.h"
 
 namespace CForge {

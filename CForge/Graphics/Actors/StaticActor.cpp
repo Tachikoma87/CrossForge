@@ -1,7 +1,9 @@
-#include <glad/glad.h>
+#include "../OpenGLHeader.h"
+
 #include "StaticActor.h"
 #include "../RenderDevice.h"
 #include "../../Core/SLogger.h"
+#include "../../Utility/CForgeUtility.h"
 
 namespace CForge {
 	StaticActor::StaticActor(void): IRenderableActor("StaticActor", ATYPE_STATIC) {
@@ -27,6 +29,9 @@ namespace CForge {
 		// build array buffer of vertex data
 		uint8_t* pBuffer = nullptr;
 		uint32_t BufferSize = 0;
+
+		m_VertexArray.init();
+		m_VertexArray.bind();
 
 		try {
 			m_VertexUtility.init(VertexProperties);
@@ -64,10 +69,14 @@ namespace CForge {
 			return;
 		}
 		
-		m_VertexArray.init();
-		m_VertexArray.bind();
+		
 		setBufferData();
 		m_VertexArray.unbind();
+
+		std::string ErrorMsg;
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred during initialization of a StaticActor: " + ErrorMsg, "StaticActor", SLogger::LOGTYPE_ERROR);
+		}
 		
 		m_BV.init(pMesh, BoundingVolume::TYPE_SPHERE);
 	}//initialize
@@ -88,7 +97,7 @@ namespace CForge {
 	void StaticActor::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
 
-		m_VertexArray.bind();
+		
 
 		for (auto i : m_RenderGroupUtility.renderGroups()) {
 
@@ -112,10 +121,13 @@ namespace CForge {
 				// nothing to do
 			}break;
 			}
-			glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
+
+			m_VertexArray.bind();
+			//glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
+			m_VertexArray.unbind();
 		}//for[all render groups]
 
-		m_VertexArray.unbind();
+		//
 	}//render
 
 }

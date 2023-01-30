@@ -1,4 +1,5 @@
-#include <glad/glad.h>
+#include "../Graphics/OpenGLHeader.h"
+
 #include <iostream>
 #include <fstream>
 

@@ -12,6 +12,15 @@ namespace CForge {
 		m_pShadowPassShader = nullptr;
 		m_pShadowPassFSCode = nullptr;
 		m_pShadowPassVSCode = nullptr;
+
+#ifdef SHADER_GLES
+		m_GLSLVersionTag = "300 es";
+		m_GLSLPrecisionTag = "lowp";
+#else
+		m_GLSLVersionTag = "330 core";
+		m_GLSLPrecisionTag = "lowp";
+#endif
+
 	}//constructor
 
 	SkeletalAnimationController::~SkeletalAnimationController(void) {
@@ -77,8 +86,8 @@ namespace CForge {
 
 		SShaderManager* pSMan = SShaderManager::instance();
 
-		m_pShadowPassFSCode = pSMan->createShaderCode("Shader/ShadowPassShader.frag", "330 core", 0, "lowp");
-		m_pShadowPassVSCode = pSMan->createShaderCode("Shader/ShadowPassShader.vert", "330 core", ShaderCode::CONF_SKELETALANIMATION | ShaderCode::CONF_LIGHTING, "lowp");
+		m_pShadowPassFSCode = pSMan->createShaderCode("Shader/ShadowPassShader.frag", m_GLSLVersionTag, 0, m_GLSLPrecisionTag);
+		m_pShadowPassVSCode = pSMan->createShaderCode("Shader/ShadowPassShader.vert", m_GLSLPrecisionTag, ShaderCode::CONF_SKELETALANIMATION | ShaderCode::CONF_LIGHTING, m_GLSLPrecisionTag);
 
 		ShaderCode::SkeletalAnimationConfig SkelConfig;
 		SkelConfig.BoneCount = m_Joints.size();

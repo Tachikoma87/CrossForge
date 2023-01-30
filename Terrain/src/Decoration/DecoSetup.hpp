@@ -16,7 +16,7 @@
 
 #include "CForge/Graphics/Actors/StaticActor.h"
 
-#include <glad/glad.h>
+#include <CForge/Graphics/OpenGLHeader.h>
 
 #include "DekoMesh.hpp"
 #include "TreeGenerator.hpp"

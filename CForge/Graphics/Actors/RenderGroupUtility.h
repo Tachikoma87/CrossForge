@@ -71,7 +71,8 @@ namespace CForge {
 
 	private:
 		std::vector<RenderGroup*> m_RenderGroups;
-
+		std::string m_GLSLVersionTag;
+		std::string m_GLSLPrecisionTag;
 	};//RenderGroupUtility
 
 }//name space

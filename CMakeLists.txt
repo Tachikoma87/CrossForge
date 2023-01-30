@@ -86,6 +86,8 @@ if(EMSCRIPTEN)
 		crossforge
 		sharpyuv
 	)
+	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} -sALLOW_MEMORY_GROTH=1 -sWASM=1 -sMIN_WEBGL_VERSION=3 -sMAX_WEBGL_VERSION=3 -sFULL_ES3=1 -fwasm-exceptions --preload-file Assets --preload-file Shader")
+
 elseif(WIN32)
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
@@ -96,6 +98,7 @@ elseif(WIN32)
 #	${FREETYPE_LIBRARIES}
 
 	)
+	
 elseif(UNIX)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
@@ -108,16 +111,15 @@ elseif(UNIX)
 		)
 endif()
 
-
 #copy shaders
 add_custom_command(
-	TARGET CForgeSandbox POST_BUILD 
+	TARGET CForgeSandbox PRE_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${CMAKE_SOURCE_DIR}/CForge/Shader
 	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 add_custom_command(
-	TARGET CForgeSandbox POST_BUILD 
+	TARGET CForgeSandbox PRE_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory 
 	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
 	${CMAKE_CURRENT_BINARY_DIR}/Shader
@@ -125,18 +127,31 @@ add_custom_command(
 
 #copy assets
 add_custom_command(
-	TARGET CForgeSandbox POST_BUILD 
+	TARGET CForgeSandbox PRE_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory 
 	${CMAKE_SOURCE_DIR}/Assets
 	${CMAKE_CURRENT_BINARY_DIR}/Assets
 )
 
 add_custom_command(
-	TARGET CForgeSandbox POST_BUILD 
+	TARGET CForgeSandbox PRE_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory 
 	${CMAKE_SOURCE_DIR}/MyAssets
 	${CMAKE_CURRENT_BINARY_DIR}/MyAssets
 )
+
+
+if(EMSCRIPTEN)
+set(APP_FILES CForgeSandbox.html CForgeSandbox.js CForgeSandbox.wasm CForgeSandbox.data)
+foreach(i ${APP_FILES})
+add_custom_command(
+	TARGET CForgeSandbox POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy 
+	${CMAKE_CURRENT_BINARY_DIR}/${i}
+	${CMAKE_CURRENT_BINARY_DIR}/App/${i}
+)
+endforeach(i)
+endif(EMSCRIPTEN)
 
 
 ######## Project - Terrain ##############################

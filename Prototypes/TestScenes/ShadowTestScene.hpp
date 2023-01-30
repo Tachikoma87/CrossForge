@@ -18,7 +18,8 @@
 #ifndef __CFORGE_SHADOWTESTSCENE_HPP__
 #define __CFORGE_SHADOWTESTSCENE_HPP__
 
-#include <glad/glad.h>
+#include <CForge/Graphics/OpenGLHeader.h>
+
 #include <GLFW/glfw3.h>
 
 #include "../../Examples/ExampleSceneBase.hpp"
@@ -48,7 +49,9 @@ namespace CForge {
 
 			m_pShaderMan = SShaderManager::instance();
 
+#ifndef __EMSCRIPTEN__
 			gladLoadGL();
+#endif
 
 			// RenderDevice
 			ShaderCode::LightConfig LC;
@@ -370,8 +373,10 @@ namespace CForge {
 				glEndQuery(GL_TIME_ELAPSED);
 
 				// geometry pass
+#ifndef __EMSCRIPTEN__
 				if (Wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 
 				glBeginQuery(GL_TIME_ELAPSED, m_TimingGeometryPass);
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
@@ -379,7 +384,9 @@ namespace CForge {
 				glEndQuery(GL_TIME_ELAPSED);
 
 				glBeginQuery(GL_TIME_ELAPSED, m_TimingLightingPass);
+#ifndef __EMSCRIPTEN__
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 				// lighting pass
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 				glEndQuery(GL_TIME_ELAPSED);

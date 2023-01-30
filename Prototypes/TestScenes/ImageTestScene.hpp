@@ -75,7 +75,9 @@ namespace CForge {
 		void init(void) override{
 			initWindowAndRenderDevice();
 
+			#ifndef __EMSCRIPTEN__
 			gladLoadGL();
+			#endif
 
 			// initialize camera
 			m_Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());

@@ -1,4 +1,5 @@
-#include <glad/glad.h>
+#include "OpenGLHeader.h"
+
 #include "../Core/SLogger.h"
 #include "Shader/SShaderManager.h"
 #include "../Utility/CForgeUtility.h"
@@ -49,6 +50,11 @@ namespace CForge {
 
 	void RenderDevice::init(RenderDeviceConfig* pConfig) {
 		clear();
+		std::string ErrorMsg;
+
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred before initialization of RenderDevice: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
+		}
 
 		if (nullptr == pConfig) m_Config.init();
 		else m_Config = (*pConfig);
@@ -57,6 +63,10 @@ namespace CForge {
 		m_ModelUBO.init();
 		m_MaterialUBO.init();
 		m_LightsUBO.init(m_Config.DirectionalLightsCount, m_Config.PointLightsCount, m_Config.SpotLightsCount);
+
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred during initialization of UBOs: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
+		}
 
 		if (pConfig->pAttachedWindow != nullptr) {
 
@@ -73,11 +83,16 @@ namespace CForge {
 				m_Config.GBufferHeight = 720;
 				m_Config.GBufferWidth = 1280;
 			}
+			
+
 			m_GBuffer.init(m_Config.GBufferWidth, m_Config.GBufferHeight);
 			m_ScreenQuad.init(0.0f, 0.0f, 1.0f, 1.0f, nullptr);
 
-			if (m_Config.ExecuteLightingPass) {
+			if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+				SLogger::log("Not handled OpenGL error occurred during initialization of ScreenQuad: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
+			}
 
+			if (m_Config.ExecuteLightingPass) {
 				SShaderManager* pSMan = SShaderManager::instance();
 				string ErrorLog;
 
@@ -85,17 +100,25 @@ namespace CForge {
 				std::vector<ShaderCode*> FSSources;
 				ShaderCode* pSC = nullptr;
 
+				std::string GLVersionTag = "330 core";
+				std::string PrecsionTag = "";
+
+				#ifdef SHADER_GLES
+				GLVersionTag = "300 es";
+				PrecsionTag = "mediump";
+				#endif
+
 				if (m_Config.PhysicallyBasedShading) {
-					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.vert", "330 core", 0, "highp");
+					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.vert", GLVersionTag, 0, PrecsionTag);
 					VSSources.push_back(pSC);
-					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp");
+					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.frag", GLVersionTag, ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, PrecsionTag);
 					FSSources.push_back(pSC);
 					m_pDeferredLightingPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
 				}
 				else {
-					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.vert", "330 core", 0, "highp");
+					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.vert", GLVersionTag, 0, PrecsionTag);
 					VSSources.push_back(pSC);
-					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp");
+					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.frag", GLVersionTag, ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, PrecsionTag);
 					FSSources.push_back(pSC);
 					m_pDeferredLightingPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
 				}
@@ -107,9 +130,9 @@ namespace CForge {
 
 				VSSources.clear();
 				FSSources.clear();
-				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.vert", "330 core", ShaderCode::CONF_LIGHTING, "highp");
+				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.vert", GLVersionTag, ShaderCode::CONF_LIGHTING, PrecsionTag);
 				VSSources.push_back(pSC);
-				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.frag", "330 core", 0, "highp");
+				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.frag", GLVersionTag, 0, PrecsionTag);
 				FSSources.push_back(pSC);
 				m_pShadowPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
 				if (nullptr == m_pShadowPassShader || !ErrorLog.empty()) {
@@ -125,15 +148,13 @@ namespace CForge {
 
 		}//if[GBuffer]
 
-		
-		std::string ErrorMsg;
 		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
 			SLogger::log("Not handled OpenGL error occurred during initialization of RenderDevice: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
 		}
 	}//initialize
 
 	void RenderDevice::clear(void) {
-		m_CameraUBO.clear();
+		
 	}//clear
 
 

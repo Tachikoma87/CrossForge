@@ -37,6 +37,10 @@
 #include <CForge/Graphics/Actors/StaticActor.h>
 #include <CForge/Graphics/Actors/SkyboxActor.h>
 
+#ifdef __EMSCRIPTEN__
+#include <CForge/Graphics/OpenGLHeader.h>
+#endif
+
 using namespace Eigen;
 using namespace std;
 
@@ -79,16 +83,19 @@ namespace CForge {
 
 		virtual void run(void) {
 			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
-
-				m_RenderWin.swapBuffers();
-
-				updateFPS();
-
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
-
+				mainLoop();
 			}//while[main loop]
 		}//run
+
+		virtual void mainLoop(void) {
+			m_RenderWin.update();
+
+			m_RenderWin.swapBuffers();
+
+			updateFPS();
+
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
+		}//mainLoop
 
 	protected:
 
@@ -114,7 +121,7 @@ namespace CForge {
 			m_RenderWin.startListening(this);
 
 			auto Traits = CForgeUtility::retrieveGPUTraits();
-			SLogger::log("Created context with GL version: " + Traits.GLVersion, "ProgramFlow");
+			SLogger::log("Created context with GL version: " + Traits.GLVersion, "ProgramFlow");	
 
 			m_pShaderMan = SShaderManager::instance();
 
@@ -210,8 +217,6 @@ namespace CForge {
 				m_LastFPSPrint = CForgeUtility::timestamp();
 
 				m_RenderWin.title(m_WindowTitle + "[" + std::string(Buf) + "]");
-
-				printf("%s\n", std::string(Buf).c_str());
 			}
 		}//updateFPS
 

@@ -6,6 +6,15 @@ namespace CForge {
 
 	RenderGroupUtility::RenderGroupUtility(void): CForgeObject("RenderGroupUtiliy") {
 		m_RenderGroups.clear();
+
+#ifdef SHADER_GLES
+		m_GLSLVersionTag = "300 es";
+		m_GLSLPrecisionTag = "mediump";
+#else
+		m_GLSLVersionTag = "330 core";
+		m_GLSLPrecisionTag = "highp";
+#endif
+
 	}//Constructor
 
 	RenderGroupUtility::~RenderGroupUtility(void) {
@@ -158,7 +167,8 @@ namespace CForge {
 					ConfigOptions |= ShaderCode::CONF_LIGHTING;
 				}
 
-				ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp");
+
+				ShaderCode* pC = pSMan->createShaderCode(k, m_GLSLVersionTag, ConfigOptions, m_GLSLPrecisionTag);
 
 				if (pMesh->boneCount() > 0) {
 					ShaderCode::SkeletalAnimationConfig SKConfig;
@@ -189,7 +199,7 @@ namespace CForge {
 					ConfigOptions |= ShaderCode::CONF_LIGHTING;
 				}
 
-				ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp");
+				ShaderCode* pC = pSMan->createShaderCode(k, m_GLSLVersionTag, ConfigOptions, m_GLSLPrecisionTag);
 				FSCodes.push_back(pC);
 			}
 		}

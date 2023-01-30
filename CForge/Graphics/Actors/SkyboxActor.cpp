@@ -7,7 +7,7 @@
 #include "../../Core/SLogger.h"
 
 #include "SkyboxActor.h"
-#include <glad/glad.h>
+#include "../OpenGLHeader.h"
 
 
 

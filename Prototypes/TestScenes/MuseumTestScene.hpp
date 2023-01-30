@@ -127,7 +127,10 @@ public:
 		// create an OpenGL capable windows
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
+
+		#ifndef __EMSCRIPTEN__
 		gladLoadGL();
+		#endif
 
 		// configure and initialize rendering pipeline
 		RenderDevice RDev;
@@ -435,19 +438,25 @@ public:
 			glEnable(GL_CULL_FACE);
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+#ifndef __EMSCRIPTEN__
 			if (Wireframe) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				glLineWidth(1);
 			}
+#endif
 			RDev.LODSG_render();
+#ifndef __EMSCRIPTEN__
 			if (Wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 			
 			//render debug aabb
 			if (renderLODAABB) {
+#ifndef __EMSCRIPTEN__
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+#endif
 				glDisable(GL_CULL_FACE);
 				glLineWidth(2);
 				for (uint32_t i = 0; i < RDev.getLODSGActors().size(); i++) {
@@ -461,7 +470,9 @@ public:
 				}
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 				glEnable(GL_CULL_FACE);
+#ifndef __EMSCRIPTEN__
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 			}
 			
 			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);

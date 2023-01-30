@@ -1,6 +1,6 @@
 #pragma once
+#include <CForge/Graphics/OpenGLHeader.h>
 
-#include <glad/glad.h>
 #include <iostream>
 #include "../../../CForge/Graphics/Actors/IRenderableActor.h"
 #include "../../../CForge/AssetIO/T3DMesh.hpp"

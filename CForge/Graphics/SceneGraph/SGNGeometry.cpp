@@ -1,5 +1,5 @@
 #include "SGNGeometry.h"
-#include <glad/glad.h>
+#include "../OpenGLHeader.h"
 
 using namespace Eigen;
 
@@ -79,6 +79,7 @@ namespace CForge {
 			const BoundingVolume BV = m_pRenderable->boundingVolume();
 
 			if (BV.type() == BoundingVolume::TYPE_UNKNOWN || pRDev->activeCamera()->viewFrustum()->visible(BV, Rot, Pos, S)) {
+#				ifndef __EMSCRIPTEN__
 				if (m_VisualizationMode != VISUALIZATION_FILL) {
 					switch (m_VisualizationMode) {
 					case VISUALIZATION_WIREFRAME: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
@@ -95,6 +96,9 @@ namespace CForge {
 				else {
 					pRDev->requestRendering(m_pRenderable, Rot, Pos, S);
 				}		
+				#else			
+					pRDev->requestRendering(m_pRenderable, Rot, Pos, S);
+				#endif
 			}
 				
 

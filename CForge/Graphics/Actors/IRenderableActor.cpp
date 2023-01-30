@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include "../OpenGLHeader.h"
 #include "IRenderableActor.h"
 #include "../RenderDevice.h"
 

@@ -1,4 +1,5 @@
-#include <glad/glad.h>
+#include "../OpenGLHeader.h"
+
 #include "../../Math/CForgeMath.h"
 #include "../../Utility/CForgeUtility.h"
 #include "ILight.h"
@@ -112,9 +113,6 @@ namespace CForge {
 	void ILight::initShadowCasting(uint32_t ShadowMapWidth, uint32_t ShadowMapHeight, Eigen::Matrix4f Projection) {
 		m_ShadowMapSize = Eigen::Vector2i(ShadowMapWidth, ShadowMapHeight);
 
-		//m_Projection = Projection;
-		//m_Camera.projectionMatrix(Projection);
-
 		if (m_ShadowTex != GL_INVALID_INDEX) {
 			glBindTexture(GL_TEXTURE_2D, m_ShadowTex);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_ShadowMapSize.x(), m_ShadowMapSize.y(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);	
@@ -130,15 +128,15 @@ namespace CForge {
 			// set border to 1.0f (farthest possible depth value) so that regions outside the shadow map are not in shadow
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+#ifndef __EMSCRIPTEN__
 			float BorderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, BorderColor);
+#endif
 
 			// generate and configure framebuffer object
 			glGenFramebuffers(1, &m_FBO);
 			glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_ShadowTex, 0);
-			glDrawBuffer(GL_NONE);
-			glReadBuffer(GL_NONE);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_ShadowTex, 0);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 

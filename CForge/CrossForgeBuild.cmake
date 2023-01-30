@@ -16,8 +16,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(USE_OPENCV "Include OpenCV in build" OFF)
 
-include(FetchContent)
-
 #[[
 ## download and install pmp
 FetchContent_Declare(
@@ -36,15 +34,6 @@ set(PMP_INSTALL OFF CACHE INTERNAL "Install the PMP library and headers")
 
 if(EMSCRIPTEN)
 	include(FetchContent)
-	
-	## libjpeg-turbo
-#	FetchContent_Declare(
-#		libjpegturbo
-#		URL https://github.com/libjpeg-turbo/libjpeg-turbo/archive/refs/tags/2.1.4.zip
-		#GIT_TAG v2.0.3
-#	)
-#	FetchContent_MakeAvailable(libjpegturbo)
-
 
 	### Eigen3
 	FetchContent_Declare(
@@ -76,9 +65,6 @@ if(EMSCRIPTEN)
 	include_directories(${assimp_BINARY_DIR}/include/)
 	link_directories(${assimp_BINARY_DIR}/lib/)
 
-	## glad
-	include_directories(${CMAKE_SOURCE_DIR}/Thirdparty/)
-
 	## libigl
 	FetchContent_Declare(
 		libigl 
@@ -97,8 +83,8 @@ if(EMSCRIPTEN)
 	include_directories(${freetype_SOURCE_DIR}/include/)
 
 
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -Wno-tautological-pointer-compare -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
 
 else()
 	# required core packages
@@ -171,7 +157,7 @@ add_library(crossforge SHARED
 	CForge/Graphics/STextureManager.cpp 
 	CForge/Graphics/VirtualCamera.cpp
 
-	CForge/Graphics/glad.c # only required with emscripten
+	 # only required with emscripten
 	
 
 	# Camera related
@@ -257,6 +243,7 @@ add_library(crossforge SHARED
 
 
 if(EMSCRIPTEN)
+	add_compile_definitions(SHADER_GLES)
 	target_link_libraries(crossforge 
 		WebP
 		AssImp
@@ -299,10 +286,4 @@ elseif(UNIX)
 	PRIVATE gpiod 
 	PRIVATE stdc++fs
 	)
-endif()
-
-
-if(EMSCRIPTEN)
-# Copy libraries to this directory
-
 endif()

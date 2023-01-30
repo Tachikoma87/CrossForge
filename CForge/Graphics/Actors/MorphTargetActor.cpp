@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include "../OpenGLHeader.h"
 #include "../RenderDevice.h"
 #include "MorphTargetActor.h"
 #include "../../Utility/CForgeUtility.h"

@@ -1,5 +1,6 @@
 #include "SLOD.h"
-#include "glad/glad.h"
+
+#include <CForge/Graphics/OpenGLHeader.h>
 
 namespace CForge {
 	SLOD* SLOD::m_pInstance = nullptr;

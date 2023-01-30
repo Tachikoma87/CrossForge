@@ -1,4 +1,5 @@
-#include <glad/glad.h>
+#include "OpenGLHeader.h"
+#include "../Core/SLogger.h"
 #include "GBuffer.h"
 #include "../Utility/CForgeUtility.h"
 
@@ -22,6 +23,12 @@ namespace CForge {
 	void GBuffer::init(uint32_t Width, uint32_t Height) {
 		if (Width == 0 || Height == 0) throw CForgeExcept("Zero width or height for GBuffer specified!");
 		
+		std::string ErrorMsg;
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred before initialization of GBuffer: " + ErrorMsg, "GBuffer", SLogger::LOGTYPE_ERROR);
+		}
+
+
 		// multisample not finished implementing, not working with deferred shading right now as it requires new shaders using sampler2DMS
 		const int32_t Multisample = 0;
 
@@ -79,10 +86,11 @@ namespace CForge {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_TexNormal, 0);
 
+			
 			glBindTexture(GL_TEXTURE_2D, m_TexAlbedo);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, nullptr);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_TexAlbedo, 0);	
 		}
 
@@ -105,6 +113,11 @@ namespace CForge {
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred during initialization of GBuffer: " + ErrorMsg, "GBuffer", SLogger::LOGTYPE_ERROR);
+		}
+
 	}//initialize
 
 	void GBuffer::clear(void) {
@@ -170,31 +183,36 @@ namespace CForge {
 	}//blitDeptHBuffer
 
 	void GBuffer::retrievePositionBuffer(T2DImage<uint8_t>* pImg){
+#ifndef __EMSCRIPTEN__
 		if (nullptr == pImg) throw NullpointerExcept("pImg");
 		glBindTexture(GL_TEXTURE_2D, m_TexPosition);
 		uint8_t *pBuffer = new uint8_t[m_Width * m_Height * 3];
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 		pImg->init(m_Width, m_Height, T2DImage<uint8_t>::COLORSPACE_RGB, pBuffer);
 		delete[] pBuffer;
+#endif
 	}//readPosition
 
 	void GBuffer::retrieveNormalBuffer(T2DImage<uint8_t>* pImg) {
+#ifndef __EMSCRIPTEN__
 		if (nullptr == pImg) throw NullpointerExcept("pImg");
 		glBindTexture(GL_TEXTURE_2D, m_TexNormal);
 		uint8_t* pBuffer = new uint8_t[m_Width * m_Height * 3];
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 		pImg->init(m_Width, m_Height, T2DImage<uint8_t>::COLORSPACE_RGB, pBuffer);
 		delete[] pBuffer;
+#endif
 	}//retrieveNormalBuffer
 
 	void GBuffer::retrieveAlbedoBuffer(T2DImage<uint8_t>* pImg) {
+#ifndef __EMSCRIPTEN__
 		if (nullptr == pImg) throw NullpointerExcept("pImg");
 		glBindTexture(GL_TEXTURE_2D, m_TexAlbedo);
 		uint8_t* pBuffer = new uint8_t[m_Width * m_Height * 3];
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 		pImg->init(m_Width, m_Height, T2DImage<uint8_t>::COLORSPACE_RGB, pBuffer);
 		delete[] pBuffer;
-
+#endif
 	}//retrieveAlbedoBuffer
 
 	void GBuffer::retrieveDepthBuffer(T2DImage<uint8_t>* pImg, float Near, float Far) {
