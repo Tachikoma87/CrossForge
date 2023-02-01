@@ -195,7 +195,7 @@ namespace CForge {
 					ConfigOptions |= ShaderCode::CONF_NORMALMAPPING;
 				}
 
-				if (k.find("ForwardPassPBS") != std::string::npos) {
+				if (k.find("ForwardPassPBS") != std::string::npos || k.find("CrippledShader") != std::string::npos) {
 					ConfigOptions |= ShaderCode::CONF_LIGHTING;
 				}
 

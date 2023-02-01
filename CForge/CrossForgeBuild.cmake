@@ -245,11 +245,13 @@ add_library(crossforge SHARED
 if(EMSCRIPTEN)
 	add_compile_definitions(SHADER_GLES)
 	target_link_libraries(crossforge 
-		WebP
-		AssImp
+		webp
+		sharpyuv
+		assimp
 		freetype
 		glfw
 	)
+
 
 elseif(WIN32)
 add_compile_definitions(CFORGE_EXPORTS)

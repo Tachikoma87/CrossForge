@@ -8,6 +8,7 @@
 
 #endif
 
+
 #include "ExportLibrary.hpp"
 
 #include "CForge/Core/SCrossForgeDevice.h"
@@ -21,6 +22,7 @@
 #include <Examples/ExampleSkybox.hpp>
 #include <Examples/ExampleSockets.hpp>
 
+
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
@@ -30,6 +32,7 @@
 #include "Prototypes/TestScenes/FrustumCullingTestScene.hpp"
 #include "Prototypes/TestScenes/StickFigureTestScene.hpp"
 #include "Prototypes/TestScenes/PrimitiveFactoryTestScene.hpp"
+#include "Prototypes/TestScenes/EmscriptenGLTestScene.hpp"
 
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 
@@ -37,9 +40,10 @@ using namespace CForge;
 using namespace Eigen;
 
 
-PrimitiveFactoryTestScene *pScene = nullptr;
+ForwardTestScene*pScene = nullptr;
 
-void mainLoop(void) {
+void mainLoop(void *pArg) {
+	//auto* pScene = (ForwardTestScene*)pArg;
 	pScene->mainLoop();
 }
 
@@ -48,6 +52,8 @@ int main(int argc, char* argv[]) {
 	_CrtMemState S1, S2, S3;
 	_CrtMemCheckpoint(&S1);
 #endif
+
+
 
 	SCrossForgeDevice* pDev = nullptr;
 
@@ -71,8 +77,10 @@ int main(int argc, char* argv[]) {
 	}
 
 
+
+
 	try {
-		pScene = new PrimitiveFactoryTestScene();
+		pScene = new ForwardTestScene();
 		//ExampleSceneBase Scene;
 		//ExampleMinimumGraphicsSetup Scene;
 		//ExampleMorphTargetAnimation Scene;
@@ -106,7 +114,7 @@ int main(int argc, char* argv[]) {
 		printf("Scene initialized!\n");
 
 #if defined(__EMSCRIPTEN__)
-		emscripten_set_main_loop(mainLoop, 0, 1);
+		emscripten_set_main_loop_arg(mainLoop, nullptr, 0, true);
 #else
 		//Scene.run();
 		pScene->run();
@@ -123,6 +131,7 @@ int main(int argc, char* argv[]) {
 	catch (...) {
 		printf("A not handled exception occurred!\n");
 	}
+
 
 	if(nullptr != pDev) pDev->release();
 	

@@ -173,6 +173,10 @@ namespace CForge {
 
 	void GLWindow::update(void) {
 		glfwPollEvents();
+		
+#if defined(__EMSCRIPTEN__)
+		glfwMakeContextCurrent((GLFWwindow*)m_pHandle);
+#endif
 	}//update
 
 	void GLWindow::swapBuffers(void) {

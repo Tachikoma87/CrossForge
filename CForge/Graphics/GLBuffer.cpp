@@ -21,11 +21,6 @@ namespace CForge {
 	void GLBuffer::init(BufferType Type, BufferUsage Usage, const void* pBufferData, uint32_t BufferSize ) {
 		clear();
 
-		std::string ErrorMsg;
-		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
-			SLogger::log("Not handled OpenGL error occurred before initialization of a GLBuffer: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
-		}
-
 		glGenBuffers(1, &m_GLID);
 		switch (Type) {
 		case BTYPE_VERTEX: m_GLTarget = GL_ARRAY_BUFFER; break;
@@ -50,11 +45,14 @@ namespace CForge {
 		
 		if (BufferSize != 0) bufferData(pBufferData, BufferSize);
 
-		bind();
-		if (Type == BTYPE_TEXTURE) glGenTextures(1, &m_TextureHandle);
-		unbind();
-
-		//std::string ErrorMsg;
+		
+		if (Type == BTYPE_TEXTURE) {
+			bind();
+			glGenTextures(1, &m_TextureHandle);
+			unbind();
+		}
+		
+		std::string ErrorMsg;
 		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
 			SLogger::log("Not handled OpenGL error occurred during initialization of a GLBuffer: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
 		}
@@ -101,7 +99,8 @@ namespace CForge {
 	}//size
 
 	void GLBuffer::bindBufferBase(uint32_t BindingPoint) {
-		glBindBufferBase(m_GLTarget, BindingPoint, m_GLID);
+		//glBindBufferBase(m_GLTarget, BindingPoint, m_GLID);
+		glBindBufferRange(m_GLTarget, BindingPoint, m_GLID, 0, m_BufferSize);
 	}//bindBufferBase
 
 	void GLBuffer::bindTextureBuffer(uint32_t ActiveTexture, uint32_t Format) {

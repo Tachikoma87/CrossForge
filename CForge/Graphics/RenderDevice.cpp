@@ -246,7 +246,6 @@ namespace CForge {
 	}//activeMaterial
 
 	void RenderDevice::activeCamera(VirtualCamera* pCamera) {
-
 		if (pCamera != m_pActiveCamera) {
 			if (nullptr != m_pActiveCamera) {
 				m_pActiveCamera->stopListening(this);
@@ -474,13 +473,13 @@ namespace CForge {
 		}break;
 		case RENDERPASS_FORWARD: {
 			
+#ifndef __EMSCRIPTEN__
 			if (m_Config.UseGBuffer) {
 				// blit depth buffer
 				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 				m_GBuffer.blitDepthBuffer(m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
-				/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				glViewport(m_Viewport[RENDERPASS_FORWARD].Position.x(), m_Viewport[RENDERPASS_FORWARD].Position.y(), m_Viewport[RENDERPASS_FORWARD].Size.x(), m_Viewport[RENDERPASS_FORWARD].Size.y());*/
 			}
+#endif
 			glCullFace(GL_BACK);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glViewport(m_Viewport[RENDERPASS_FORWARD].Position.x(), m_Viewport[RENDERPASS_FORWARD].Position.y(), m_Viewport[RENDERPASS_FORWARD].Size.x(), m_Viewport[RENDERPASS_FORWARD].Size.y());
@@ -504,6 +503,7 @@ namespace CForge {
 		}
 
 	}//addLight
+
 
 	void RenderDevice::addLight(ILight* pLight, std::vector<ActiveLight*>* pLights) {
 		// do we already know this light?

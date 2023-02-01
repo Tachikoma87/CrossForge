@@ -100,6 +100,6 @@ void main(){
 	Pos = (Model.ModelMatrix * Po).xyz;
 	UV = UVW.xy;
 	
-	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * Model.ModelMatrix * Po;
+	gl_Position = Model.ModelMatrix * Po;
 	
 }//main

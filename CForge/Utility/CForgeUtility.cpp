@@ -26,6 +26,7 @@ namespace CForge {
 		int32_t TexWidth = 0;
 		int32_t TexHeight = 0;
 
+
 		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WIDTH, &TexWidth);
 		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_HEIGHT, &TexHeight);
 

@@ -51,12 +51,12 @@ namespace CForge {
 			// load skydome and a textured cube
 			T3DMesh<float> M;
 
-			/*SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
+			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			M.computeAxisAlignedBoundingBox();
 			m_Skydome.init(&M);
-			M.clear();*/
+			M.clear();
 
 			//SAssetIO::load("Assets/ExampleScenes/StarCoin/StarCoin.gltf", &M);
 			//PrimitiveShapeFactory::plane(&M, Vector2f(5.0f, 5.0f), Vector2i(1, 1));
@@ -82,8 +82,8 @@ namespace CForge {
 			M.getMaterial(0)->TexAlbedo = "MyAssets/Textures/misc11.jpg";
 			M.getMaterial(0)->TexNormal = "MyAssets/Textures/misc11n.jpg";*/
 
-			//M.getMaterial(0)->TexAlbedo = "MyAssets/Textures/ground13.jpg";
-			//M.getMaterial(0)->TexNormal = "MyAssets/Textures/ground13n.jpg";
+			M.getMaterial(0)->TexAlbedo = "MyAssets/Textures/ground13.jpg";
+			M.getMaterial(0)->TexNormal = "MyAssets/Textures/ground13n.jpg";
 
 			//M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/tex/rp_eric_rigged_001_dif.jpg";
 			//M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/StarCoin/MaterialStar_baseColor.jpg";
@@ -146,17 +146,13 @@ namespace CForge {
 
 			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
-			//m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-			//m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_SG.render(&m_RenderDev);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			m_SG.render(&m_RenderDev);
 			
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
-
-			//glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 			m_RenderWin.swapBuffers();
 
 			updateFPS();

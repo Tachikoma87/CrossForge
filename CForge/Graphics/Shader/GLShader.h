@@ -123,6 +123,7 @@ namespace CForge {
 
 		void bindTexture(DefaultTex TexType, GLTexture2D* pTex);
 
+		uint32_t uniformBlockIndex(const std::string BlockName);
 		void uniformBlockBinding(uint32_t BlockIndex, uint32_t BlockBinding);
 
 	protected:

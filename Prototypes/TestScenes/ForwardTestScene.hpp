@@ -20,11 +20,13 @@
 
 
 #include "Examples/ExampleSceneBase.hpp"
+#include <CForge/MeshProcessing/PrimitiveShapeFactory.h>
 
 using namespace Eigen;
 using namespace std;
 
 namespace CForge {
+
 
 	class ForwardTestScene : public ExampleSceneBase {
 	public:
@@ -40,24 +42,49 @@ namespace CForge {
 
 		void init() override{
 
-			initWindowAndRenderDevice();
+			initWindowAndRenderDevice(false);
 			initCameraAndLights();
 
 			// load skydome and a textured cube
 			T3DMesh<float> M;
 
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
+			/*SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			m_Skydome.init(&M);
-			M.clear();
+			M.clear();*/
 
-			SAssetIO::load("Assets/ExampleScenes/StarCoin/StarCoin.gltf", &M);
+
+
+			//SAssetIO::load("Assets/ExampleScenes/StarCoin/StarCoin.gltf", &M);
+			//PrimitiveShapeFactory::uvSphere(&M, Vector3f(1.0f, 1.0f, 1.0f), 20, 20);
+			PrimitiveShapeFactory::cuboid(&M, Vector3f(2, 2, 2), Vector3i(2, 2, 2));
+			//PrimitiveShapeFactory::plane(&M, Vector2f(10, 10), Vector2i(1, 1));
+			changeUVTiling(&M, Vector3f(3.0f, 3.0f, 1.0f));
+			
 			setMeshShader(&M, 0.1f, 0.04f);
+
+			/*M.getMaterial(0)->FragmentShaderForwardPass.clear();
+			M.getMaterial(0)->VertexShaderForwardPass.clear();*/
+			M.getMaterial(0)->VertexShaderGeometryPass.clear();
+			M.getMaterial(0)->VertexShaderShadowPass.clear();
+			M.getMaterial(0)->FragmentShaderGeometryPass.clear();
+			M.getMaterial(0)->FragmentShaderShadowPass.clear();
+
+			/*M.getMaterial(0)->FragmentShaderForwardPass[0] ="Shader/CrippledShader.frag";
+			M.getMaterial(0)->VertexShaderForwardPass[0] = "Shader/CrippledShader.vert";*/
+
+			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::PLASTIC_WHITE);
+
+			M.getMaterial(0)->TexAlbedo = "MyAssets/Textures/ground13.jpg";
+			M.getMaterial(0)->TexNormal = "MyAssets/Textures/ground13n.jpg";
+
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
 			m_Cube.init(&M);
 			M.clear();
+
+
 
 
 
@@ -96,46 +123,54 @@ namespace CForge {
 			m_pShaderMan = nullptr;
 		}//clear
 
-		bool Deferred = false;
+		void mainLoop(void) override {
+			m_RenderWin.update();
+			m_SG.update(60.0f / m_FPS);
 
-		void run(void) override{
-			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
-				m_SG.update(60.0f / m_FPS);
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+			/*m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_SG.render(&m_RenderDev);*/
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			//m_CubeSGN.enable(true, false);
+			
+
+
+			if (m_Deferred) {
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 				m_SG.render(&m_RenderDev);
 
-				if (Deferred) {
-					m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-					m_SG.render(&m_RenderDev);
-
-					m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
-				}
-				else {
-					m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, true);
-					m_SG.render(&m_RenderDev);
-				}
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			}
+			else {
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, true);
+				m_SG.render(&m_RenderDev);
+			}
 
 
-				m_RenderWin.swapBuffers();
+			m_RenderWin.swapBuffers();
 
-				updateFPS();
+			updateFPS();
 
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
 
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_5, true)) {
-					T2DImage<uint8_t> DepthImg;
-					m_Sun.retrieveDepthBuffer(&DepthImg);
-					SAssetIO::store("SunDepth.jpg", &DepthImg);
-				}
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_6, true)) {
-					Deferred = !Deferred;
-				}
-				
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_5, true)) {
+				T2DImage<uint8_t> DepthImg;
+				m_Sun.retrieveDepthBuffer(&DepthImg);
+				SAssetIO::store("SunDepth.jpg", &DepthImg);
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_6, true)) {
+				m_Deferred = !m_Deferred;
+			}
 
+
+
+		}//mainLoop
+
+		void run(void) override{
+			m_Deferred = false;
+			while (!m_RenderWin.shutdown()) {
+				mainLoop();
 			}//while[main loop]
 		}//run
 
@@ -160,6 +195,16 @@ namespace CForge {
 			}//for[materials]
 		}//setMeshShader
 
+		void changeUVTiling(T3DMesh<float> *pMesh, Eigen::Vector3f Factor) {
+
+			std::vector<Vector3f> UVWs;
+			for (uint32_t i = 0; i < pMesh->textureCoordinatesCount(); ++i)
+				UVWs.push_back(pMesh->textureCoordinate(i).cwiseProduct(Factor));
+			pMesh->textureCoordinates(&UVWs);
+			if (pMesh->tangentCount() > 0) pMesh->computePerVertexTangents();
+
+		}//changeUVTiling
+
 
 		// Scene Graph
 		SGNTransformation m_RootSGN;
@@ -170,6 +215,7 @@ namespace CForge {
 		StaticActor m_Skydome;
 		StaticActor m_Cube;
 
+		bool m_Deferred;
 	};//ForwardTestScene
 
 }//name space

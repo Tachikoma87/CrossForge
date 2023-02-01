@@ -191,6 +191,7 @@ namespace CForge {
 			// delete shader
 			glDeleteShader(VertexShader);
 			glDeleteShader(FragmentShader);
+			
 
 			// get default ubo binding points
 			bind();
@@ -217,9 +218,10 @@ namespace CForge {
 
 			// bind shader and uniform blocks together
 			for (uint8_t i = 0; i < DEFAULTUBO_COUNT; ++i) {
-				if (GL_INVALID_INDEX != m_DefaultUBOBindingPoints[i]) glUniformBlockBinding(m_ShaderProgram, m_DefaultUBOBindingPoints[i], m_DefaultUBOBindingPoints[i]);
+				if (GL_INVALID_INDEX != m_DefaultUBOBindingPoints[i]) {
+					glUniformBlockBinding(m_ShaderProgram, m_DefaultUBOBindingPoints[i], m_DefaultUBOBindingPoints[i]);
+				}
 			}
-
 			unbind();
 		}//if[build draw shader]
 
@@ -229,6 +231,10 @@ namespace CForge {
 		}
 
 	}//build
+
+	uint32_t GLShader::uniformBlockIndex(const std::string BlockName) {
+		return glGetUniformBlockIndex(m_ShaderProgram, BlockName.c_str());
+	}//uniformBlockIndex
 
 	void GLShader::compileShader(uint32_t ShaderID, std::vector<std::string>* pShaderSources, std::string* pErrorLog) {
 		if (!glIsShader(ShaderID)) throw CForgeExcept("Specified shader is not valid!");

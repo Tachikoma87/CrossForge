@@ -30,8 +30,20 @@ namespace CForge {
 		uint8_t* pBuffer = nullptr;
 		uint32_t BufferSize = 0;
 
+		std::string ErrorMsg;
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred before initialization of a Static Actor: " + ErrorMsg, "StaticActor", SLogger::LOGTYPE_ERROR);
+		}
+#ifndef __EMSCRIPTEN__
 		m_VertexArray.init();
 		m_VertexArray.bind();
+#endif
+
+		
+
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred after creation of vertex array: " + ErrorMsg, "StaticActor", SLogger::LOGTYPE_ERROR);
+		}
 
 		try {
 			m_VertexUtility.init(VertexProperties);
@@ -49,6 +61,10 @@ namespace CForge {
 		catch (...) {
 			SLogger::log("Unknown exception occurred during vertex buffer creation!");
 			return;
+		}
+
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred after creation of vertex utility: " + ErrorMsg, "StaticActor", SLogger::LOGTYPE_ERROR);
 		}
 	
 		// build render groups and element array
@@ -69,11 +85,12 @@ namespace CForge {
 			return;
 		}
 		
-		
+#ifndef __EMSCRIPTEN_	
 		setBufferData();
 		m_VertexArray.unbind();
+#endif
+		
 
-		std::string ErrorMsg;
 		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
 			SLogger::log("Not handled OpenGL error occurred during initialization of a StaticActor: " + ErrorMsg, "StaticActor", SLogger::LOGTYPE_ERROR);
 		}
@@ -96,8 +113,6 @@ namespace CForge {
 
 	void StaticActor::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
-
-		
 
 		for (auto i : m_RenderGroupUtility.renderGroups()) {
 
@@ -122,9 +137,22 @@ namespace CForge {
 			}break;
 			}
 
+#ifndef __EMSCRIPTEN__
 			m_VertexArray.bind();
-			//glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
-			m_VertexArray.unbind();
+			setBufferData();
+#else
+			m_ElementBuffer.bind();
+			m_VertexBuffer.bind();
+
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, GLsizei(m_VertexUtility.vertexSize()), nullptr);
+
+#endif
+
+			glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
+			//glDrawElements(GL_TRIANGLES, 300, GL_UNSIGNED_INT, nullptr);
+			
+			//m_VertexArray.unbind();
 		}//for[all render groups]
 
 		//

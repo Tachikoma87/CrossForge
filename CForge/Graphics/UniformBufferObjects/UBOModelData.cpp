@@ -14,7 +14,7 @@ namespace CForge {
 	void UBOModelData::init(void) {
 		clear();
 	
-		m_Buffer.init(GLBuffer::BTYPE_UNIFORM, GLBuffer::BUSAGE_DYNAMIC_DRAW, nullptr, size());
+		m_Buffer.init(GLBuffer::BTYPE_UNIFORM, GLBuffer::BUSAGE_STATIC_DRAW, nullptr, size());
 		m_ModelMatrixOffset = 0;
 		m_NormalMatrixOffset = 16 * sizeof(float);
 	}//initialize
@@ -33,7 +33,7 @@ namespace CForge {
 		uint32_t Rval = 0;
 
 		Rval += 16 * sizeof(float); // Model matrix
-		Rval += 12 * sizeof(float); // Normal Matrix
+		Rval += 16 * sizeof(float); // Normal Matrix
 
 		return Rval;
 	}//size

@@ -39,6 +39,8 @@
 
 #ifdef __EMSCRIPTEN__
 #include <CForge/Graphics/OpenGLHeader.h>
+#else
+#include <glad/glad.h>
 #endif
 
 using namespace Eigen;
@@ -90,6 +92,9 @@ namespace CForge {
 		virtual void mainLoop(void) {
 			m_RenderWin.update();
 
+			glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 			m_RenderWin.swapBuffers();
 
 			updateFPS();
@@ -116,7 +121,7 @@ namespace CForge {
 
 		}//listen[GLWindow]
 
-		virtual void initWindowAndRenderDevice(void) {
+		virtual void initWindowAndRenderDevice(bool UseGBuffer = true) {
 			m_RenderWin.init(Vector2i(100, 100), Vector2i(m_WinWidth, m_WinHeight), m_WindowTitle);
 			m_RenderWin.startListening(this);
 
@@ -135,7 +140,7 @@ namespace CForge {
 			Config.GBufferHeight = m_WinHeight/m_RenderBufferScale;	
 			Config.pAttachedWindow = &m_RenderWin;
 			Config.PhysicallyBasedShading = true;
-			Config.UseGBuffer = true;
+			Config.UseGBuffer = UseGBuffer;
 			
 			// configure and initialize shader configuration device
 			ShaderCode::LightConfig LC;
@@ -168,9 +173,9 @@ namespace CForge {
 			Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -30.0f);
 			m_Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
 			// sun will cast shadows
-			//m_Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(50.0f, 50.0f, 0.1f, 1000.0f));
+
 			//m_Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
-			m_Sun.initShadowCasting(1024, 1024, Vector2i(10, 10), 0.1f, 1000.0f);
+			//m_Sun.initShadowCasting(1024, 1024, Vector2i(10, 10), 0.1f, 1000.0f);
 			m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
 
 			// set camera and lights
@@ -217,6 +222,12 @@ namespace CForge {
 				m_LastFPSPrint = CForgeUtility::timestamp();
 
 				m_RenderWin.title(m_WindowTitle + "[" + std::string(Buf) + "]");
+
+
+				std::string ErrorMsg;
+				if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+					SLogger::log("OpenGL error occurred: " + ErrorMsg, "MainLoop", SLogger::LOGTYPE_ERROR);
+				}
 			}
 		}//updateFPS
 

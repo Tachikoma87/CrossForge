@@ -26,7 +26,7 @@ const int PCFFilterSize = 1;
 const float ShadowBias = 0.0002;
 const uint ShadowMapCount = 1U;
 
-layout (std140) uniform CameraData{
+layout(std140) uniform CameraData{
 	mat4 ViewMatrix;
 	mat4 ProjectionMatrix;
 	vec4 Position;
@@ -70,7 +70,7 @@ in vec2 UV;
 uniform sampler2D TexAlbedo;
 uniform sampler2D TexShadow[ShadowMapCount];
 
-layout (std140) uniform MaterialData{
+uniform MaterialData{
 	vec4 Color;
 	float Metallic;
 	float Roughness;

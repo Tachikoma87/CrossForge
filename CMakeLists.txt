@@ -84,9 +84,11 @@ if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox
 		tinyxml2
 		crossforge
-		sharpyuv
 	)
-	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} -sALLOW_MEMORY_GROTH=1 -sWASM=1 -sMIN_WEBGL_VERSION=3 -sMAX_WEBGL_VERSION=3 -sFULL_ES3=1 -fwasm-exceptions --preload-file Assets --preload-file Shader")
+	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} -O0 -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -fwasm-exceptions -sUSE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader --preload-file MyAssets")
+
+	#set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} -sWASM=0 -O0 -sMIN_WEBGL_VERSION=3 -sMAX_WEBGL_VERSION=3 -s USE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader")
+	#set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} -sSINGLE_FILE=1 -sWASM=0 -O0 -sMIN_WEBGL_VERSION=3 -sMAX_WEBGL_VERSION=3 -s USE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader")
 
 elseif(WIN32)
 	target_link_libraries(CForgeSandbox 

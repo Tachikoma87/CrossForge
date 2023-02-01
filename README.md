@@ -14,7 +14,7 @@ How to cite:
 ## Building using emscripten
 
 From top directory call
-emcmake cmake -DWEBP_USE_THREAD=OFF -B out/build-em
+emcmake cmake -DWEBP_USE_THREAD=OFF -B out/build-em -Wno-dev
 cmake --build out/build-em
 
 <!--
