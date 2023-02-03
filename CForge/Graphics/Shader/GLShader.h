@@ -28,10 +28,10 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT GLShader: public CForgeObject {
+	class CFORGE_API GLShader: public CForgeObject {
 	public:
 		enum Attribute: int8_t {
-			ATTRIB_UNKNOWN = 0,
+			ATTRIB_UNKNOWN = -1,
 			ATTRIB_POSITION = 0,
 			ATTRIB_NORMAL,
 			ATTRIB_TANGENT,
@@ -57,6 +57,9 @@ namespace CForge {
 			DEFAULTUBO_MATERIALDATA,
 			DEFAULTUBO_MODELDATA,
 			DEFAULTUBO_BONEDATA,
+			DEFAULTUBO_MORPHTARGETDATA,
+			DEFAULTUBO_COLORADJUSTMENT,
+			DEFAULTUBO_INSTANCE,
 			DEFAULTUBO_COUNT,
 		};
 
@@ -69,6 +72,7 @@ namespace CForge {
 			DEFAULTTEX_SHADOW1,
 			DEFAULTTEX_SHADOW2,
 			DEFAULTTEX_SHADOW3,
+			DEFAULTTEX_MORPHTARGETDATA,
 			DEFAULTTEX_COUNT,
 		};
 
@@ -79,14 +83,18 @@ namespace CForge {
 		const std::string UBOMaterialDataName = "MaterialData";
 		const std::string UBOModelDataName = "ModelData";
 		const std::string UBOBoneDataName = "BoneData";
+		const std::string UBOMorphTargetDataName = "MorphTargetData";
+		const std::string UBOColorAdjustmentDataName = "ColorAdjustmentData";
+		const std::string UBOInstancedDataName = "InstancedData";
 
 		const std::string TextureAlbedoName = "TexAlbedo";
 		const std::string TextureNormalName = "TexNormal";
 		const std::string TextureDepthName = "TexDepth";
 		const std::string TextureShadow0Name = "TexShadow[0]";
-		const std::string TextureShadow1Name = "TexSHadow[1]";
+		const std::string TextureShadow1Name = "TexShadow[1]";
 		const std::string TextureShadow2Name = "TexShadow[2]";
 		const std::string TextureShadow3Name = "TexShadow[3]";
+		const std::string TextureMorphTargetDataName = "MorphTargetDataBuffer";
 
 		static uint32_t attribArrayIndex(Attribute Attrib);
 
@@ -101,6 +109,7 @@ namespace CForge {
 
 		void addVertexShader(const std::string Code);
 		void addFragmentShader(const std::string Code);
+        void addComputeShader(const std::string Code);
 
 		void build(std::string *pErrorLog);
 
@@ -114,6 +123,7 @@ namespace CForge {
 
 		void bindTexture(DefaultTex TexType, GLTexture2D* pTex);
 
+		uint32_t uniformBlockIndex(const std::string BlockName);
 		void uniformBlockBinding(uint32_t BlockIndex, uint32_t BlockBinding);
 
 	protected:

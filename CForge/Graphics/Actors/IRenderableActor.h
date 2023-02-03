@@ -23,6 +23,7 @@
 #include "RenderGroupUtility.h"
 #include "../GLBuffer.h"
 #include "../GLVertexArray.h"
+#include "../../Math/BoundingVolume.h"
 
 namespace CForge {
 
@@ -31,7 +32,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT IRenderableActor: public CForgeObject {
+	class CFORGE_API IRenderableActor: public CForgeObject {
 	public:
 		enum ActorType: int32_t {
 			ATYPE_UNKNOWN = -1,
@@ -41,10 +42,37 @@ namespace CForge {
 		};
 
 		virtual void release(void) = 0;
-		virtual void render(class RenderDevice* pRDev) = 0;
-
+		virtual void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) = 0;
+		
 		int32_t typeID(void)const;
 
+		uint32_t materialCount(void)const;
+		RenderMaterial* material(uint32_t Index);
+		const RenderMaterial* material(uint32_t Index)const;
+
+		virtual BoundingVolume boundingVolume(void)const;
+		virtual void boundingVolume(const BoundingVolume BV);
+		
+		// 
+		virtual void testAABBvis(RenderDevice* pRDev, Eigen::Matrix4f sgMat);
+		virtual T3DMesh<float>::AABB getAABB();
+		virtual void bindLODLevel(uint32_t level);
+		//virtual std::vector<float> getLODStages();
+		virtual void evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount);
+		bool isInstanced();
+		bool isManualInstanced();
+
+		virtual void addInstance(Eigen::Matrix4f matrix);
+		bool isInLODSG();
+		// used set check if actor is already contained in LODSG
+		void setLODSG(bool inside);
+		bool isInQueryContainer();
+		void setQSG(bool inside);
+		virtual void clearMatRef();
+
+		float getAABBradius(const Eigen::Matrix4f& mat);
+		//
+		
 	protected:
 		IRenderableActor(const std::string ClassName, int32_t ActorType);
 		virtual ~IRenderableActor(void);
@@ -61,6 +89,15 @@ namespace CForge {
 		int32_t m_TypeID;
 		std::string m_TypeName;
 
+		BoundingVolume m_BV;
+		
+		//
+		bool m_isInstanced = false;
+		bool m_isManualInstaned = false;
+		bool m_isInLODSG = false;
+		bool m_isInQSG = false;
+		//
+		
 	private:
 		
 	};//IRenderableActor

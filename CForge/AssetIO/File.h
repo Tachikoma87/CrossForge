@@ -26,7 +26,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation
 	*/
-	class CFORGE_IXPORT File: public CForgeObject {
+	class CFORGE_API File: public CForgeObject {
 	public:
 		
 		/**
@@ -35,6 +35,10 @@ namespace CForge {
 		* \return True if the file exists, false otherwise.
 		*/
 		static bool exists(const std::string Path);
+		static void createDirectory(const std::string Path);
+		static void createDirectories(const std::string Path);
+
+		static std::string parentPath(const std::string Path);
 
 		/**
 		* \brief Returns size of the specified file.
@@ -47,6 +51,10 @@ namespace CForge {
 		static std::string absolute(const std::string Path);
 		static std::string relative(const std::string Path, const std::string Basepath);
 		static std::string removeFilename(const std::string Path);
+
+		static bool isDirectory(const std::string Path);
+		static bool createDirecotry(const std::string Path);
+
 		/**
 		* \brief Constructor
 		*/

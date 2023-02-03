@@ -27,12 +27,13 @@ namespace CForge{
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT GBuffer: public CForgeObject {
+	class CFORGE_API GBuffer: public CForgeObject {
 	public:
 		enum Component: int8_t {
 			COMP_POSITION = 0,
 			COMP_NORMAL,
-			COMP_ALBEDO
+			COMP_ALBEDO,
+			COMP_DEPTH_STENCIL
 		};
 
 		GBuffer(void);
@@ -53,6 +54,7 @@ namespace CForge{
 		void retrievePositionBuffer(T2DImage<uint8_t> *pImg);
 		void retrieveNormalBuffer(T2DImage<uint8_t>* pImg);
 		void retrieveAlbedoBuffer(T2DImage<uint8_t>* pImg);
+		void retrieveDepthBuffer(T2DImage<uint8_t>* pImg, float Near = -1.0f, float Far = -1.0f);
 
 	protected:
 		uint32_t m_Framebuffer;
@@ -61,6 +63,7 @@ namespace CForge{
 		uint32_t m_TexPosition;
 		uint32_t m_TexNormal;
 		uint32_t m_TexAlbedo;
+		uint32_t m_TexDepthStencil;
 
 		uint32_t m_Width;
 		uint32_t m_Height;

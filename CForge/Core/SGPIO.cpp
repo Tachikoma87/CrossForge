@@ -1,9 +1,13 @@
-#ifdef __linux__
+
+#if defined(__EMSCRIPTEN__)
+
+#elif defined(__linux__)
 //#include <gpiod.h>
 //#include <pigpio.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #endif
+
 #include "SGPIO.h"
 #include "CrossForgeException.h"
 
@@ -14,7 +18,7 @@ namespace CForge {
 	SGPIO* SGPIO::m_pInstance = nullptr;
 	uint32_t SGPIO::m_InstanceCount = 0;
 
-#ifdef USE_SYSFS_GPIO
+#if defined(USE_SYSFS_GPIO)
 	void SGPIO::pinMode(uint8_t Pin, int8_t Mode, int8_t DefaultOutput) {
 		GPIOLine* pLine = m_pInstance->openLine(Pin);
 		if (nullptr == pLine) throw CForgeExcept("Unable to open GPIO line " + std::to_string(Pin));
@@ -106,7 +110,7 @@ namespace CForge {
 	}//lineInUse
 
 	void SGPIO::clear(void) {
-		printf("Have to clear %d lines\n", m_Lines.size());
+		//printf("Have to clear %d lines\n", m_Lines.size());
 		for (auto i : m_Lines) {
 			if (i != nullptr) closeLine(i->ID);
 		}
@@ -284,7 +288,7 @@ namespace CForge {
 	}//Constructor
 
 	SGPIO::~SGPIO(void) {
-		clear();
+		// not on windows
 	}//Destructor
 	
 	

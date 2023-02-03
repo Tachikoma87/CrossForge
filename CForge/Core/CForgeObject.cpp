@@ -4,17 +4,25 @@
 namespace CForge {
 
 	CForgeObject::CForgeObject(const std::string ClassName) {
-		m_ClassName = ClassName;
-		SCrossForgeDevice *pMainDevice = SCrossForgeDevice::instance();
+		m_ClassName = ClassName;	
+		SCrossForgeDevice* pMainDevice = SCrossForgeDevice::instance();
 		m_ObjectID = pMainDevice->registerObject(this);
 		pMainDevice->release();
 	}//Constructor
+
+	CForgeObject::CForgeObject(const CForgeObject& other) {
+		m_ClassName = other.className();
+		SCrossForgeDevice* pMainDevice = SCrossForgeDevice::instance();
+		m_ObjectID = pMainDevice->registerObject(this);
+		pMainDevice->release();
+	}//Constructor
+
 
 	CForgeObject::~CForgeObject(void) {
 		SCrossForgeDevice* pMainDevice = SCrossForgeDevice::instance();
 		pMainDevice->unregisterObject(this);
 		pMainDevice->release();
-
+		
 		m_ObjectID = INVALID_ID;
 		m_ClassName = "";
 	}//Destructor

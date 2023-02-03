@@ -49,7 +49,7 @@ namespace CForge {
 		}
 		if (hasProperties(VPROP_BONEINDICES)) {
 			m_BoneIndicesOffset = m_VertexSize;
-			m_VertexSize += sizeof(uint32_t) * 4;
+			m_VertexSize += sizeof(int32_t) * 4;
 		}
 		if (hasProperties(VPROP_BONEWEIGHTS)) {
 			m_BoneWeightsOffset = m_VertexSize;
@@ -137,19 +137,6 @@ namespace CForge {
 			}//for[4 values of the vector]
 		}//For[all bone indices]
 
-		/*uint32_t LargeDifferenceVertices = 0;
-
-		for (auto &i : (*pSkinningWeights)) {
-			float Sum = 0.0f;
-			for (uint8_t k = 0; k < 4; ++k) Sum += i[k];
-
-			float S = (1.0f / Sum);
-			i *= S;
-			if (1.0f - Sum > 0.1f) LargeDifferenceVertices++;
-		}
-		printf("Large differences in %d vertices\n", LargeDifferenceVertices);*/
-
-
 	}//buildSkeletonAssignment
 
 	void VertexUtility::buildBuffer(uint32_t VertexCount, void** ppBuffer, uint32_t* pBufferSize, const T3DMesh<float>* pMesh) {
@@ -213,7 +200,7 @@ namespace CForge {
 			}
 
 			if (pMesh->colorCount() == pMesh->vertexCount()) {
-				BufferOffset = i * m_VertexSize + m_UVWOffset;
+				BufferOffset = i * m_VertexSize + m_ColorOffset;
 				pV = (float*)&pBuf[BufferOffset];
 				pV[0] = pMesh->color(i).x();
 				pV[1] = pMesh->color(i).y();

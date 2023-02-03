@@ -26,14 +26,15 @@ namespace CForge {
 	*
 	* \todo Full documentation.
 	*/
-	class CFORGE_IXPORT STextureManager: public CForgeObject {
+	class CFORGE_API STextureManager: public CForgeObject {
 	public:
 		static STextureManager* instance(void);
 		void release(void);
 
 		static GLTexture2D* create(const std::string Filepath);
 		static GLTexture2D* create(uint32_t Width, uint32_t Height, uint8_t R, uint8_t G, uint8_t B, bool GenerateMipmaps = false);
-		static void destroy(GLTexture2D* pTex);
+		static GLTexture2D* fromHandle(uint32_t handle);
+        static void destroy(GLTexture2D* pTex);
 
 	protected:
 		STextureManager(void);

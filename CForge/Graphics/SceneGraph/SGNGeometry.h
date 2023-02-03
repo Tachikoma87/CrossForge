@@ -28,8 +28,14 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT SGNGeometry : public ISceneGraphNode {
+	class CFORGE_API SGNGeometry : public ISceneGraphNode {
 	public:
+		enum Visualization : int8_t {
+			VISUALIZATION_FILL = 0,
+			VISUALIZATION_WIREFRAME,
+			VISUALIZATION_POINTS
+		};
+
 		SGNGeometry(void);
 		~SGNGeometry(void);
 
@@ -46,13 +52,20 @@ namespace CForge {
 		Eigen::Vector3f scale(void)const;
 		IRenderableActor* actor(void)const;
 
-		void update(float FPSScale);
-		void render(RenderDevice* pRDev, Eigen::Vector3f Position, Eigen::Quaternionf Rotation, Eigen::Vector3f Scale);
-	private:
+		virtual void update(float FPSScale);
+		virtual void render(RenderDevice* pRDev, const Eigen::Vector3f Position, const Eigen::Quaternionf Rotation, const Eigen::Vector3f Scale);
+		virtual void buildTansformation(Eigen::Vector3f* pPosition, Eigen::Quaternionf* pRotation, Eigen::Vector3f* pScale);
+
+		virtual void visualization(Visualization Mode);
+		virtual Visualization visualization(void)const;
+
+	protected:
 		Eigen::Vector3f m_Position;
 		Eigen::Quaternionf m_Rotation;
 		Eigen::Vector3f m_Scale;
 		IRenderableActor* m_pRenderable;
+
+		Visualization m_VisualizationMode;
 	};//SGNGeometry
 
 }//name space

@@ -1,9 +1,13 @@
 # Folders
 .vs/
+.idea/
 out/
-Documentation/Doc/
+build/
+cmake-build-debug/**/*
 Libraries/
 MyAssets/
+museumAssets/
+external/
 
 # Prerequisites
 *.d
@@ -12,7 +16,6 @@ MyAssets/
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch
@@ -37,3 +40,13 @@ MyAssets/
 *.exe
 *.out
 *.app
+
+# KDevelop project files
+*.kdev4
+.kdev4/
+
+# Compiled documentation
+Documentation/Doc/
+Documentation/Doxywarnings.txt
+
+CMakeSettings.json

@@ -1,10 +1,9 @@
-#include <opencv2/core.hpp>
-#include <opencv2/imgcodecs.hpp>
-
 #include "OpenCVImageIO.h"
-
 #include "../../CForge/AssetIO/File.h"
 
+#ifdef USE_OPENCV
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
 using namespace cv;
 
 namespace CForge {
@@ -153,6 +152,6 @@ namespace CForge {
 	void OpenCVImageIO::release(void) {
 		delete this;
 	}//release
-
-
 }//name space
+
+#endif

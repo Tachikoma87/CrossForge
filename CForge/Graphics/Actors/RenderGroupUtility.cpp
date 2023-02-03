@@ -6,6 +6,15 @@ namespace CForge {
 
 	RenderGroupUtility::RenderGroupUtility(void): CForgeObject("RenderGroupUtiliy") {
 		m_RenderGroups.clear();
+
+#ifdef SHADER_GLES
+		m_GLSLVersionTag = "300 es";
+		m_GLSLPrecisionTag = "mediump";
+#else
+		m_GLSLVersionTag = "330 core";
+		m_GLSLPrecisionTag = "highp";
+#endif
+
 	}//Constructor
 
 	RenderGroupUtility::~RenderGroupUtility(void) {
@@ -63,62 +72,40 @@ namespace CForge {
 			int32_t UsedMaterial = -1;
 
 			for (auto const k : pSM->Faces) {
-				pBuffer[BufferPointer + 0] = k.Vertices[0];
-				pBuffer[BufferPointer + 1] = k.Vertices[1];
-				pBuffer[BufferPointer + 2] = k.Vertices[2];
+				pBuffer[BufferPointer + 0] = static_cast<uint32_t>(k.Vertices[0]);
+				pBuffer[BufferPointer + 1] = static_cast<uint32_t>(k.Vertices[1]);
+				pBuffer[BufferPointer + 2] = static_cast<uint32_t>(k.Vertices[2]);
 				BufferPointer += 3;
 
-				if (UsedMaterial == -1 && k.Material != -1) {
-					UsedMaterial = k.Material;
-				}
+				if (UsedMaterial == -1 && pSM->Material != -1) UsedMaterial = pSM->Material;
 			}//for[faces]
 
 			pRG->Range.y() = BufferPointer;
 
 			// initialize shader
 			if (UsedMaterial != -1) {	
-				//pRG->pShader = pSMan->buildShader(&pMesh->getMaterial(UsedMaterial)->VertexShaderSources, &pMesh->getMaterial(UsedMaterial)->FragmentShaderSources);	
-
-				std::vector<ShaderCode*> VSSources;
-				std::vector<ShaderCode*> FSSources;
-				std::string ErrorLog;
+				
 				const T3DMesh<float>::Material* pMat = pMesh->getMaterial(UsedMaterial);
 
-				try {
-					for (auto k : pMat->VertexShaderSources) {
-						uint8_t ConfigOptions = 0;
+				std::vector<std::string> VSSources;
+				std::vector<std::string> FSSources;
 
-						// requires skeletal animation?
-						if (pMesh->boneCount() > 0) {
-							ConfigOptions |= ShaderCode::CONF_SKELETALANIMATION;
-						}
+				// geometry pass
+				VSSources = (pMat->VertexShaderGeometryPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_VS_GEOMETRY_PASS) : pMat->VertexShaderGeometryPass;
+				FSSources = (pMat->FragmentShaderGeometryPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_FS_GEOMETRY_PASS) : pMat->FragmentShaderGeometryPass;
+				pRG->pShaderGeometryPass = (VSSources.empty() || FSSources.empty()) ? nullptr : createShader(pMesh, pMat, VSSources, FSSources);
 
-						ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
+				// shadow pass
+				VSSources = (pMat->VertexShaderShadowPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_VS_SHADOW_PASS) : pMat->VertexShaderShadowPass;
+				FSSources = (pMat->FragmentShaderShadowPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_FS_SHADOW_PASS) : pMat->FragmentShaderShadowPass;
+				pRG->pShaderShadowPass = (VSSources.empty() || FSSources.empty()) ? nullptr : createShader(pMesh, pMat, VSSources, FSSources);
 
-						if (pMesh->boneCount() > 0) {
-							ShaderCode::SkeletalAnimationConfig SKConfig;
-							SKConfig.BoneCount = pMesh->boneCount();
-							pC->config(&SKConfig);
-						}
 
-						VSSources.push_back(pC);
-					}
-
-					for (auto k : pMat->FragmentShaderSources) {
-						uint8_t ConfigOptions = 0;
-						ShaderCode* pC = pSMan->createShaderCode(k, "330 core", ConfigOptions, "highp", "highp");
-						FSSources.push_back(pC);
-					}
-
-					pRG->pShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
-
-					if (!ErrorLog.empty()) SLogger::log("Building shader failed:\n" + ErrorLog);
-				}
-				catch (const CrossForgeException& e) {
-					SLogger::log("Building shader failed!\n");
-				}
+				// forward pass
+				VSSources = (pMat->VertexShaderForwardPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_VS_FORWARD_PASS) : pMat->VertexShaderForwardPass;
+				FSSources = (pMat->FragmentShaderForwardPass.empty()) ? pSMan->defaultShaderSources(SShaderManager::DEF_FS_FORWARD_PASS) : pMat->FragmentShaderForwardPass;
+				pRG->pShaderForwardPass = (VSSources.empty() ||FSSources.empty()) ? nullptr : createShader(pMesh, pMat, VSSources, FSSources);
 				
-
 			}
 
 			// initialize material
@@ -130,6 +117,8 @@ namespace CForge {
 					SLogger::logException(e);
 					pRG->Material.clear();
 				}
+
+
 			}//if[initialize material]
 
 		}//for[render groups]
@@ -143,9 +132,101 @@ namespace CForge {
 
 	}//buildIndexArray
 
+	GLShader* RenderGroupUtility::createShader(const T3DMesh<float>* pMesh, const T3DMesh<float>::Material* pMat, std::vector<std::string> VSSources, std::vector<std::string> FSSources) {
+		GLShader* pRval = nullptr;
+
+		SShaderManager* pSMan = SShaderManager::instance();
+		std::vector<ShaderCode*> VSCodes;
+		std::vector<ShaderCode*> FSCodes;
+
+		try {
+
+			for (auto k : VSSources) {
+				uint8_t ConfigOptions = 0;
+
+				// requires skeletal animation?
+				if (pMesh->boneCount() > 0) {
+					ConfigOptions |= ShaderCode::CONF_SKELETALANIMATION;
+				}
+				// requires morph target animation?
+				if (pMesh->morphTargetCount() > 0) {
+					ConfigOptions |= ShaderCode::CONF_MORPHTARGETANIMATION;
+				}
+				// requires per vertex colors
+				if (pMesh->colorCount() > 0) {
+					ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
+				}
+
+				//requires normal mapping
+				if (pMesh->tangentCount() > 0 && !pMat->TexNormal.empty()) {
+					ConfigOptions |= ShaderCode::CONF_NORMALMAPPING;
+				}
+
+				// requires lighting? (currently using name of shader, that is not very clean and clever, change later)
+				if (k.find("ShadowPassShader") != std::string::npos) {
+					ConfigOptions |= ShaderCode::CONF_LIGHTING;
+				}
+
+
+				ShaderCode* pC = pSMan->createShaderCode(k, m_GLSLVersionTag, ConfigOptions, m_GLSLPrecisionTag);
+
+				if (pMesh->boneCount() > 0) {
+					ShaderCode::SkeletalAnimationConfig SKConfig;
+					SKConfig.BoneCount = pMesh->boneCount();
+					pC->config(&SKConfig);
+				}
+
+				if (pMesh->morphTargetCount() > 0) {
+					ShaderCode::MorphTargetAnimationConfig MTConfig;
+
+					pC->config(&MTConfig);
+				}
+
+				VSCodes.push_back(pC);
+			}
+
+			for (auto k : FSSources) {
+				uint8_t ConfigOptions = 0;
+
+				if (pMesh->colorCount() > 0) {
+					ConfigOptions |= ShaderCode::CONF_VERTEXCOLORS;
+				}
+				if (pMesh->tangentCount() > 0 && !pMat->TexNormal.empty()) {
+					ConfigOptions |= ShaderCode::CONF_NORMALMAPPING;
+				}
+
+				if (k.find("ForwardPassPBS") != std::string::npos) {
+					ConfigOptions |= ShaderCode::CONF_LIGHTING;
+				}
+
+				ShaderCode* pC = pSMan->createShaderCode(k, m_GLSLVersionTag, ConfigOptions, m_GLSLPrecisionTag);
+				FSCodes.push_back(pC);
+			}
+		}
+		catch (const CrossForgeException& e) {
+			SLogger::logException(e);
+		}
+		try {
+			std::string ErrorLog;
+			pRval = pSMan->buildShader(&VSCodes, &FSCodes, &ErrorLog);
+			if (!ErrorLog.empty()) SLogger::log("Building shader failed:\n" + ErrorLog);
+		}
+		catch (const CrossForgeException& e) {
+			SLogger::logException(e);
+		}
+		
+		return pRval;
+	}//createShader
+
+
 	std::vector<RenderGroupUtility::RenderGroup*> RenderGroupUtility::renderGroups(void) {
 		return m_RenderGroups;
 	}//renderGroups
+
+	const RenderGroupUtility::RenderGroup* RenderGroupUtility::renderGroup(uint32_t Index)const {
+		if (Index >= m_RenderGroups.size()) throw IndexOutOfBoundsExcept("Index");
+		return m_RenderGroups[Index];
+	}//renderGroup
 
 	uint32_t RenderGroupUtility::renderGroupCount(void)const {
 		return m_RenderGroups.size();

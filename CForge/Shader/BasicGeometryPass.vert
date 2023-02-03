@@ -1,12 +1,26 @@
 #version 330 core
 
-
 #ifdef SKELETAL_ANIMATION
-const uint BoneCount = 40U;
+const uint BoneCount = 19U;
 
 layout (std140) uniform BoneData{
 	mat4 SkinningMatrix[BoneCount];
 }Bones;
+#endif
+
+#ifdef MORPHTARGET_ANIMATION 
+//uniform samplerBuffer MorphTargetDataBuffer;
+uniform sampler2D MorphTargetDataBuffer;
+
+
+layout (std140) uniform MorphTargetData{
+	// 0 is offset in elements (float) to next morph target
+	// 1 is number of active animations 
+	ivec4 Data; 
+	ivec4 ActivationIDs[3];			///< Morph target IDs (capped at 12)
+	vec4 ActivationStrengths[3];	///< Morph target activation strengths (capped at 12)
+}MorphTargets;
+
 #endif
 
 layout (std140) uniform CameraData{
@@ -17,16 +31,28 @@ layout (std140) uniform CameraData{
 
 layout(std140) uniform ModelData{
 	mat4 ModelMatrix;
-};//ModelData
+	mat4x3 NormalMatrix;
+}Model; 
 
 layout (location = 0) in vec3 Position;
 layout (location = 1) in vec3 Normal;
-layout (location = 2) in vec3 Tangent;
 layout (location = 3) in vec3 UVW;
+
+
 
 #ifdef SKELETAL_ANIMATION
 layout (location = 4) in ivec4 BoneIndices;
 layout (location = 5) in vec4 BoneWeights;
+#endif
+
+#ifdef VERTEX_COLORS 
+layout (location = 6) in vec3 VertexColor;
+out vec3 Color;
+#endif
+
+#ifdef NORMAL_MAPPING 
+layout (location = 2) in vec3 Tangent;
+out mat3 TBN;
 #endif
 
 out vec3 Pos;
@@ -44,12 +70,37 @@ void main(){
 		T += BoneWeights[i] * Bones.SkinningMatrix[BoneIndices[i]];	
 	}//for[4 weights]
 	Po = T * vec4(Position, 1.0);
-	No = transpose(inverse(T)) * vec4(Normal, 0.0);
+	No = T * vec4(No);
 #endif 
 
-	N = mat3(transpose(inverse(ModelMatrix))) * No.xyz;
-	Pos = (ModelMatrix * Po).xyz;
+#ifdef MORPHTARGET_ANIMATION
+	vec3 Displ = vec3(0);
+	for(int i = 0; i < MorphTargets.Data[1]; ++i){
+		// compute Offset to fetch from 
+		int ID = MorphTargets.ActivationIDs[i/3][i%3];
+		int Offset = gl_VertexID;
+		Displ += MorphTargets.ActivationStrengths[i/3][i%3] * texelFetch(MorphTargetDataBuffer, ivec2(Offset, ID), 0).rgb;
+	}//for[active morph targets]
+
+	Po += vec4(Displ, 0.0);
+#endif
+
+#ifdef VERTEX_COLORS
+	Color = VertexColor;
+#endif
+
+	N = Model.NormalMatrix * No; // normalization in fragment shader
+
+#ifdef NORMAL_MAPPING 
+	vec3 Tan = normalize((Model.NormalMatrix * vec4(Tangent, 0.0)));
+	// re-orthogonalize
+	Tan = normalize(Tan - dot(Tan, N) * N);
+	vec3 BTan = cross(N, Tan);
+	TBN = mat3(Tan, BTan, N);
+
+#endif
+
+	Pos = (Model.ModelMatrix * Po).xyz;
 	UV = UVW.xy;
-	//gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * ModelMatrix * vec4(Position, 1.0);
-	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * ModelMatrix * Po;
+	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * Model.ModelMatrix * Po;
 }//main

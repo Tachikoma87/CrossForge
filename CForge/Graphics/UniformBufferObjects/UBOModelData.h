@@ -26,7 +26,7 @@ namespace CForge {
 	* 
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT UBOModelData: public CForgeObject {
+	class CFORGE_API UBOModelData: public CForgeObject {
 	public:
 		UBOModelData(void);
 		~UBOModelData(void);
@@ -37,10 +37,12 @@ namespace CForge {
 		uint32_t size(void)const;
 
 		void modelMatrix(Eigen::Matrix4f Mat);
+		void normalMatrix(Eigen::Matrix4f Mat);
 
 	protected:
 		GLBuffer m_Buffer;
 		uint32_t m_ModelMatrixOffset;
+		uint32_t m_NormalMatrixOffset;
 	};//UBOModelData
 
 

@@ -1,6 +1,7 @@
 #include "SLogger.h"
 #include "../AssetIO/File.h"
-#include "CoreUtility.hpp"
+#include "../Math/CForgeMath.h"
+#include "../Utility/CForgeUtility.h"
 
 using namespace std;
 
@@ -16,6 +17,11 @@ namespace CForge {
 
 	void SLogger::log(const std::string Msg, const string Tag, LogType Type) {
 		if (nullptr == m_pInstance) throw NotInitializedExcept("SLogger not initialized");
+
+#if defined(__EMSCRIPTEN__)
+		std::string ErrorMsg = Tag + ":" + Msg;
+		printf("%s\n", ErrorMsg.c_str());
+#endif
 
 		LogEntry Entry;
 		Entry.Msg = Msg;
@@ -102,7 +108,7 @@ namespace CForge {
 		m_InfoLogFile = "CForgeLog.txt";
 		m_WarningLogFile = "CForgeLog.txt";
 
-		CoreUtility::memset(&m_LogImmediately[0], true, LOGTYPE_COUNT);
+		CForgeUtility::memset(&m_LogImmediately[0], true, LOGTYPE_COUNT);
 
 		m_ErrorLog.clear();
 		m_DebugLog.clear();

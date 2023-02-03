@@ -127,6 +127,44 @@ namespace CForge {
 			return m_ColorSpace;
 		}//colorSpace
 
+		void flipRows(void) {
+			T* pNewData = new T[m_Width * m_Height * componentsPerPixel()];
+			uint32_t RowSize = m_Width * componentsPerPixel();
+			for (uint32_t i = 0; i < m_Height; ++i) {
+				uint32_t IndexOrig = i * RowSize;
+				uint32_t IndexNew = (m_Height - i - 1) * RowSize;
+				memcpy(&pNewData[IndexNew], &m_pData[IndexOrig], RowSize * sizeof(T));
+			}
+			delete[] m_pData;
+			m_pData = pNewData;
+		}//flipRows
+
+		void rotate90(void) {
+			T* pNewData = new T[m_Width * m_Height * componentsPerPixel()];
+
+			for (uint32_t r = 0; r < m_Width; ++r) {
+				for (uint32_t c = 0; c < m_Height; ++c) {
+					for (uint8_t p = 0; p < componentsPerPixel(); ++p)pNewData[(c * m_Height + (m_Height - r - 1))*componentsPerPixel() + p] = m_pData[(r * m_Width + c)*componentsPerPixel() + p];
+				}
+			}
+
+			delete[] m_pData;
+			m_pData = pNewData;
+
+			std::swap(m_Width, m_Height);
+		}//rotate90
+
+		void rotate180(void) {
+			rotate90();
+			rotate90();
+		}//rotate180
+
+		void rotate270(void) {
+			rotate90();
+			rotate90();
+			rotate90();
+		}//rotate270
+
 	protected:
 
 		uint32_t index(uint32_t x, uint32_t y) const {

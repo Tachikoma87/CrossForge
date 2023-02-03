@@ -1,8 +1,10 @@
 #version 330 core 
 
+#define MULTIPLE_SHADOWS
 #define DIRECTIONAL_LIGHTS 
 #define POINT_LIGHTS 
 #define SPOT_LIGHTS
+#define PHYSICALLY_BASED_SHADING
 
 // just PI
 const float PI = 3.14159265359;
@@ -107,6 +109,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float Roughness){
 }//GeometrySmith 
 
 #ifdef DIRECTIONAL_LIGHTS
+#ifdef MULTIPLE_SHADOWS
 float shadowCalculationDirectionalLight(vec3 FragPosWorldSpace, vec3 Normal, vec3 LightDir, uint LightIndex){
 	float Rval = 0.0f; // no shadow
 	int ShadowIndex = DirLights.ShadowIDs[LightIndex].x;
@@ -114,29 +117,64 @@ float shadowCalculationDirectionalLight(vec3 FragPosWorldSpace, vec3 Normal, vec
 		float bias = max(10.0*ShadowBias * (1.0 - dot(Normal, LightDir)), ShadowBias);
 
 		vec4 FragPosLightSpace = (DirLights.LightSpaceMatrices[LightIndex] * vec4(FragPosWorldSpace, 1.0));
+		FragPosLightSpace /= FragPosLightSpace.w;
 
-		vec3 ProjCoords = FragPosLightSpace.xyz * vec3(0.5) + vec3(0.5);  // mapping [-1,1] -> [0,1]
-		float ClosestDepth = texture(TexShadow[0], ProjCoords.xy).r;
+		vec3 ProjCoords = FragPosLightSpace.xyz * vec3(0.5) + vec3(0.5);  // mapping [-1,1] -> [0,1]	
 		float CurrentDepth = ProjCoords.z;
 
 		#ifdef PCF_SHADOWS
 		// soft shadows 
-	
-		vec2 TexelSize = 1.0 / vec2(textureSize(TexShadow[0], 0));
+		vec2 TexelSize = 1.0/vec2(textureSize(TexShadow[ShadowIndex], 0));
+		
 		for(int x = -PCFFilterSize; x <= PCFFilterSize; ++x){
 			for(int y = -PCFFilterSize; y <= PCFFilterSize; ++y){
-				float pcfDepth = texture(TexShadow[0], ProjCoords.xy + vec2(x,y) * TexelSize).r;
-				Rval += CurrentDepth - bias > pcfDepth ? 1.0 : 0.0;
+				float pcfDepth = texture(TexShadow[ShadowIndex], ProjCoords.xy + vec2(x,y) * TexelSize).r;
+				Rval += (CurrentDepth - bias > pcfDepth) ? 1.0 : 0.0;
 			}
 		}
 		Rval /= float((PCFFilterSize*2 +1) * (PCFFilterSize*2 + 1));
 		#else
 		// simple computations 
+		float ClosestDepth = texture(TexShadow[ShadowIndex], ProjCoords.xy).r;
 		Rval = (CurrentDepth - bias > ClosestDepth) ? 1.0 : 0.0;
 		#endif
 	}
 	return Rval;
 }//shadowCalculationDirectionalLight
+#else
+// only allow one shadow for older devices
+float shadowCalculationDirectionalLight(vec3 FragPosWorldSpace, vec3 Normal, vec3 LightDir, uint LightIndex){
+	float Rval = 0.0f; // no shadow
+	int ShadowIndex = DirLights.ShadowIDs[LightIndex].x;
+	if(ShadowIndex != -1){
+		float bias = max(10.0*ShadowBias * (1.0 - dot(Normal, LightDir)), ShadowBias);
+
+		vec4 FragPosLightSpace = (DirLights.LightSpaceMatrices[LightIndex] * vec4(FragPosWorldSpace, 1.0));
+		FragPosLightSpace /= FragPosLightSpace.w;
+
+		vec3 ProjCoords = FragPosLightSpace.xyz * vec3(0.5) + vec3(0.5);  // mapping [-1,1] -> [0,1]	
+		float CurrentDepth = ProjCoords.z;
+
+		#ifdef PCF_SHADOWS
+		// soft shadows 
+		vec2 TexelSize = 1.0/vec2(textureSize(TexShadow[0], 0));
+		
+		for(int x = -PCFFilterSize; x <= PCFFilterSize; ++x){
+			for(int y = -PCFFilterSize; y <= PCFFilterSize; ++y){
+				float pcfDepth = texture(TexShadow[0], ProjCoords.xy + vec2(x,y) * TexelSize).r;
+				Rval += (CurrentDepth - bias > pcfDepth) ? 1.0 : 0.0;
+			}
+		}
+		Rval /= float((PCFFilterSize*2 +1) * (PCFFilterSize*2 + 1));
+		#else
+		// simple computations 
+		float ClosestDepth = texture(TexShadow[0], ProjCoords.xy).r;
+		Rval = (CurrentDepth - bias > ClosestDepth) ? 1.0 : 0.0;
+		#endif
+	}
+	return Rval;
+}//shadowCalculationDirectionalLight
+#endif
 #endif
 
 
@@ -177,8 +215,8 @@ vec3 cookTorranceBRDF(vec3 V, vec3 N, vec3 H, vec3 L, vec3 Radiance, vec3 F0, ve
 	kD *= 1.0 - Metallic;
 
 	vec3 Numerator = NDF * G * F;
-	float Denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N,L), 0.0);
-	vec3 Specular = Numerator / max(Denominator, 0.001);
+	float Denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N,L), 0.0) + 0.001;
+	vec3 Specular = Numerator / Denominator;
 
 	// compute outging radiance L0 
 	float NdotL = max(dot(N, L), 0.0);
@@ -207,7 +245,7 @@ void main(){
 	// compute directional lights contribution
 	for(uint i=0U; i < DirLightCount; ++i){
 		// calculate per-light radiance
-		vec3 L = -DirLights.Directions[i].xyz;
+		vec3 L = normalize(-DirLights.Directions[i].xyz);
 		vec3 H = normalize(V + L);
 		float Shadow = shadowCalculationDirectionalLight(WorldPos, N, L, i);
 		vec3 Radiance = DirLights.Colors[i].w * DirLights.Colors[i].xyz; // color * intensity
@@ -260,7 +298,7 @@ void main(){
 	}//for[spot lights]
 	#endif
 
-	vec3 Ambient = vec3(0.03) * Albedo * Ao;
+	vec3 Ambient = vec3(0.1) * Albedo * 1.0;
 	vec3 Col = Ambient + /*(1.0 - Ao)**/ Lo;
 
 	// Tone Mapping (Reinhardt operator)

@@ -1,0 +1,221 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v3.2.40",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                5
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "name" : "CoinStar",
+            "rotation" : [
+                -0.6532814502716064,
+                0.27059808373451233,
+                0.27059805393218994,
+                0.6532815098762512
+            ],
+            "scale" : [
+                100,
+                100,
+                99.99999237060547
+            ],
+            "translation" : [
+                -111.51876831054688,
+                0,
+                0
+            ]
+        },
+        {
+            "mesh" : 0,
+            "name" : "Coin1_MaterialStar_0",
+            "rotation" : [
+                0,
+                0.7071069478988647,
+                0.7071065902709961,
+                9.437131609502103e-08
+            ],
+            "scale" : [
+                100,
+                99.99999237060547,
+                99.99999237060547
+            ],
+            "translation" : [
+                4.245119725965196e-06,
+                0,
+                -4.245118361723144e-06
+            ]
+        },
+        {
+            "children" : [
+                0,
+                1
+            ],
+            "name" : "RootNode"
+        },
+        {
+            "children" : [
+                2
+            ],
+            "name" : "d6e085e50c5e47a5906ddea1c6e771ac.fbx",
+            "rotation" : [
+                0.7071068286895752,
+                0,
+                0,
+                0.7071067094802856
+            ]
+        },
+        {
+            "children" : [
+                3
+            ],
+            "name" : "RootNode (model correction matrix)",
+            "scale" : [
+                0.014040744863450527,
+                0.014040744863450527,
+                0.014040744863450527
+            ]
+        },
+        {
+            "children" : [
+                4
+            ],
+            "name" : "RootNode (gltf orientation matrix)",
+            "rotation" : [
+                -0.7071068286895752,
+                0,
+                0,
+                0.7071067094802856
+            ]
+        }
+    ],
+    "materials" : [
+        {
+            "doubleSided" : true,
+            "name" : "MaterialStar",
+            "normalTexture" : {
+                "index" : 0
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 1
+                },
+                "roughnessFactor" : 0.7429226636886597
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Coin1_MaterialStar_0",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 1
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "MaterialStar_normal",
+            "uri" : "MaterialStar_normal.jpg"
+        },
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "MaterialStar_baseColor",
+            "uri" : "MaterialStar_baseColor.jpg"
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 128,
+            "max" : [
+                0.9999998807907104,
+                0.21848654747009277,
+                1.0000931024551392
+            ],
+            "min" : [
+                -1,
+                -0.21848618984222412,
+                -1.0000938177108765
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 128,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 128,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 756,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 1536,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1536,
+            "byteOffset" : 1536
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1024,
+            "byteOffset" : 3072
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1512,
+            "byteOffset" : 4096
+        }
+    ],
+    "samplers" : [
+        {
+            "magFilter" : 9729,
+            "minFilter" : 9987
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 5608,
+            "uri" : "StarCoin.bin"
+        }
+    ]
+}

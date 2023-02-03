@@ -22,7 +22,7 @@
 
 
 namespace CForge {
-	class CFORGE_IXPORT ShaderCode: public CForgeObject {
+	class CFORGE_API ShaderCode: public CForgeObject {
 	public:
 		
 		struct LightConfig {
@@ -70,27 +70,39 @@ namespace CForge {
 			}
 		};
 
+		struct MorphTargetAnimationConfig {
+			uint32_t Stub; // no configuration yet
+		};
+
 		enum ConfigOptions: uint8_t {
-			CONF_LIGHTING		= 0x01,
-			CONF_POSTPROCESSING = 0x02,
-			CONF_SKELETALANIMATION = 0x04,
+			CONF_LIGHTING				= 0x01,
+			CONF_POSTPROCESSING			= 0x02,
+			CONF_SKELETALANIMATION		= 0x04,
+			CONF_MORPHTARGETANIMATION	= 0x08,
+			CONF_VERTEXCOLORS			= 0x10,
+			CONF_NORMALMAPPING			= 0x20,
 		};
 
 		ShaderCode(void);
 		~ShaderCode(void);
 
-		void init(std::string ShaderCode, std::string VersionTag, uint8_t ConfigOptions, std::string FloatPrecisionTag, std::string IntegerPrecisionTag);
+		void init(std::string ShaderCode, std::string VersionTag, uint8_t ConfigOptions, std::string PrecisionTag);
 		void clear(void);
 
 		void config(LightConfig* pConfig);
 		void config(PostProcessingConfig* pConfig);
 		void config(SkeletalAnimationConfig* pConfig);
+		void config(MorphTargetAnimationConfig* pConfig);
 		void config(uint8_t ConfigOptions);
 
 		std::string code(void)const;
 
 		bool requiresConfig(uint8_t ConfigOptions);
+
 		std::string originalCode(void)const;
+		std::string versionTag(void)const;
+		uint8_t configOptions(void)const;
+		std::string precisionTag(void)const;
 
 	protected:
 		std::string m_Code;
@@ -104,6 +116,7 @@ namespace CForge {
 		LightConfig m_LightConfig;
 		PostProcessingConfig m_PostProcessingConfig;
 		SkeletalAnimationConfig m_SkeletalAnimationConfig;
+		MorphTargetAnimationConfig m_MorphTargetAnimationConfig;
 
 	private:
 
@@ -111,6 +124,7 @@ namespace CForge {
 		void addDefine(std::string Define);
 
 		void changeConst(std::string Const, std::string Value);
+		void changeVersionTag(const std::string VersionTag, const std::string PrecisionTag);
 
 		uint32_t m_InsertPosition;
 	};//ShaderCode

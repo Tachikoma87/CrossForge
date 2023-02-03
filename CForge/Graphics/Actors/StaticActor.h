@@ -33,7 +33,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation
 	*/
-	class CFORGE_IXPORT StaticActor: public IRenderableActor {
+	class CFORGE_API StaticActor: public IRenderableActor {
 	public:
 		StaticActor(void);
 		~StaticActor(void);
@@ -42,22 +42,13 @@ namespace CForge {
 		void clear(void);
 		void release(void);
 
-		void render(RenderDevice* pRDev);
+		void render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 
-		uint32_t materialCount(void)const;
-		RenderMaterial* material(uint32_t Index);
+		
 
 	protected:
 
 	private:
-		//void setBufferData(void);
-		/*
-		GLBuffer m_ArrayBuffer; ///< stores vertex data
-		GLBuffer m_ElementBuffer; ///< stores triangle indexes
-		GLVertexArray m_VertexArray; ///< the vertex array
-
-		VertexUtility m_VertexUtility;
-		RenderGroupUtility m_RenderGroupUtility;*/
 
 	};//StaticActor
 

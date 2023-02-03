@@ -23,9 +23,6 @@
 #include "CForgeObject.h"
 #include "CoreDefinitions.h"
 
-#include "CoreUtility.hpp"
-
-
 
 namespace CForge {
 
@@ -36,7 +33,7 @@ namespace CForge {
 	* \ingroup Core
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT SCrossForgeDevice {
+	class CFORGE_API SCrossForgeDevice {
 		friend class CForgeObject;
 	public:
 
@@ -69,6 +66,9 @@ namespace CForge {
 		uint32_t registerObject(CForgeObject* pObj);
 		void unregisterObject(CForgeObject* pObj);
 
+		uint32_t retrieveUniqueID(void);
+		void returnUniqueID(void);
+
 	private:
 		static SCrossForgeDevice* m_pInstance; ///< Unique instance pointer.
 		static int16_t m_InstanceCount; ///< Number of instantiation calls
@@ -77,7 +77,7 @@ namespace CForge {
 		class SGPIO* m_pGPIO; ///< GPIO instance
 		class SAssetIO* m_pAssIO; ///< Asset importer/exporter instance
 		class STextureManager* m_pTexMan; ///< Texture manager
-		class SShaderManager* m_pSMan;
+		class SShaderManager* m_pSMan;	///< Shader manager
 
 		std::vector<CForgeObject*> m_RegisteredObjects;
 		std::list<uint32_t> m_FreeObjSlots;

@@ -3,6 +3,7 @@
 //#version 300 es
 //precision lowp float;
 
+
 layout(location = 0) in vec2 Position;
 layout(location = 3) in vec2 UVW;
 

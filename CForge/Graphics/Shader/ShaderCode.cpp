@@ -15,8 +15,9 @@ namespace CForge {
 
 	}//Destructor
 
-	void ShaderCode::init(std::string ShaderCode, std::string VersionTag, uint8_t ConfigOptions, std::string PrecisionTag, std::string IntegerPrecisionTag) {
+	void ShaderCode::init(std::string ShaderCode, std::string VersionTag, uint8_t ConfigOptions, std::string PrecisionTag) {
 		if (ShaderCode.empty()) throw CForgeExcept("Empty shader code specified!");
+
 		if (ShaderCode[0] == '#') {
 			// already is shader code
 			m_Code = ShaderCode;		
@@ -32,6 +33,14 @@ namespace CForge {
 		m_VersionTag = VersionTag;
 		m_PrecisionTag = PrecisionTag;
 
+		changeVersionTag(VersionTag, PrecisionTag);
+
+
+		m_ConfigOptions = ConfigOptions;
+
+	}//initialize
+
+	void ShaderCode::changeVersionTag(const std::string VersionTag, const std::string PrecisionTag) {
 		// set version tag
 		uint32_t Pos = m_Code.find("#version");
 		// overwrite whole line with whitespaces
@@ -39,12 +48,15 @@ namespace CForge {
 		while (m_Code[P] != '\n') m_Code[P++] = ' ';
 		string Tag = "#version " + VersionTag + "\n";
 		m_Code.insert(Pos, Tag);
-
 		m_InsertPosition = Pos + Tag.length();
 
-		m_ConfigOptions = ConfigOptions;
+		if (!PrecisionTag.empty()) {
+			Tag = "precision " + PrecisionTag + " float;\n";
+			m_Code.insert(m_InsertPosition, Tag);
+			m_InsertPosition += Tag.length();
+		}
+	}//changeVersionTag
 
-	}//initialize
 
 	void ShaderCode::clear(void) {
 
@@ -81,13 +93,21 @@ namespace CForge {
 		}
 
 		// shadow stuff
-
 		if (pConfig->PCFSize == 0) {
 			removeDefine("PCF_SHADOWS");
 		}
 		else {
-			addDefine("PDF_SHADOWS");	
+			addDefine("PCF_SHADOWS");	
 			changeConst("const int PCFFilterSize", to_string(pConfig->PCFSize));
+		}
+
+		if (pConfig->ShadowMapCount > 1) {
+			// requies at least version 400
+			changeVersionTag("400 core", "highp float");
+			addDefine("MULTIPLE_SHADOWS");
+		}
+		else {
+			removeDefine("MULTIPLE_SHADOWS");
 		}
 
 		changeConst("const uint ShadowMapCount", to_string(pConfig->ShadowMapCount) + "U");
@@ -116,10 +136,21 @@ namespace CForge {
 		changeConst("const uint BoneCount", to_string(pConfig->BoneCount) + "U");
 	}//configure
 
+	void ShaderCode::config(MorphTargetAnimationConfig* pConfig) {
+		if (nullptr == pConfig) throw NullpointerExcept("pConfig");
+
+		m_MorphTargetAnimationConfig = (*pConfig);
+
+		addDefine("MORPHTARGET_ANIMATION");
+	}//config
+
 	void ShaderCode::config(uint8_t ConfigOptions) {
 		if (ConfigOptions & CONF_LIGHTING) config(&m_LightConfig);
 		if (ConfigOptions & CONF_POSTPROCESSING) config(&m_PostProcessingConfig);
 		if (ConfigOptions & CONF_SKELETALANIMATION) config(&m_SkeletalAnimationConfig);
+		if (ConfigOptions & CONF_MORPHTARGETANIMATION) config(&m_MorphTargetAnimationConfig);
+		if (ConfigOptions & CONF_VERTEXCOLORS) addDefine("VERTEX_COLORS");
+		if (ConfigOptions & CONF_NORMALMAPPING) addDefine("NORMAL_MAPPING");
 	}//config
 
 	std::string ShaderCode::code(void)const {
@@ -166,5 +197,19 @@ namespace CForge {
 	string ShaderCode::originalCode(void)const {
 		return m_OrigCode;
 	}//originalCode
+
+	std::string ShaderCode::versionTag(void)const {
+		return m_VersionTag;
+	}//versionTag
+
+	uint8_t ShaderCode::configOptions(void)const {
+		return m_ConfigOptions;
+	}//configOptions
+
+	std::string ShaderCode::precisionTag(void)const {
+		return m_PrecisionTag;;
+	}//floatPrecisionTag
+
+	
 
 }//name-space

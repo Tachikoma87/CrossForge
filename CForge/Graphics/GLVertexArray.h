@@ -26,7 +26,7 @@ namespace CForge {
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT GLVertexArray: public CForgeObject {
+	class CFORGE_API GLVertexArray: public CForgeObject {
 	public:
 		static bool available(void);
 

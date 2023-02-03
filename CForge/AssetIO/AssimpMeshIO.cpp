@@ -2,13 +2,18 @@
 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/Exporter.hpp>
 #include "../../CForge/Core/SLogger.h"
+#include "../Utility/CForgeUtility.h"
+#include "../AssetIO/File.h"
+
+
 
 using namespace Assimp;
 
 namespace CForge {
 	AssimpMeshIO::AssimpMeshIO(void): I3DMeshIO("AssimpMeshIO") {
-
+		m_PluginName = "AssImp Mesh IO";
 	}//Constructor
 
 	AssimpMeshIO::~AssimpMeshIO(void) {
@@ -28,9 +33,13 @@ namespace CForge {
 	}
 
 	void AssimpMeshIO::load(const std::string Filepath, T3DMesh<float> *pMesh){
-		const aiScene *pScene = m_Importer.ReadFile(Filepath, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_LimitBoneWeights | aiProcess_OptimizeGraph);
+		const aiScene *pScene = m_Importer.ReadFile(Filepath, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_LimitBoneWeights | aiProcess_OptimizeGraph | aiProcess_ValidateDataStructure);
+		//const aiScene* pScene = m_Importer.ReadFile(Filepath, aiProcess_Triangulate | aiProcess_ValidateDataStructure);
 
-		if (nullptr == pScene) throw CForgeExcept("Failed to load model from resource " + Filepath);
+		if (nullptr == pScene) {
+			std::string ErrorMsg = m_Importer.GetErrorString();
+			throw CForgeExcept("Failed to load model from resource " + Filepath + "\n\t" + ErrorMsg);		
+		}
 
 		try {
 			aiSceneTo3DMesh(pScene, pMesh, File::removeFilename(Filepath));
@@ -43,19 +52,46 @@ namespace CForge {
 	}//load
 
 	void AssimpMeshIO::store(const std::string Filepath, const T3DMesh<float>* pMesh) {
-		throw CForgeExcept("Storing 3D models not implemented by this plugin!");
+		if (Filepath.empty()) throw CForgeExcept("Empty filepath specified!");
+		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
+
+		std::string Str = CForgeUtility::toLowerCase(Filepath);
+
+		std::string FileType = "";
+		if (Str.find(".fbx") != std::string::npos) FileType = "fbx";
+		else if (Str.find(".obj") != std::string::npos) FileType = "obj";
+		else if (Str.find(".ply") != std::string::npos) FileType = "ply";
+		else if (Str.find(".stl") != std::string::npos) FileType = "stl";
+		else if (Str.find(".x") != std::string::npos) FileType = "x";
+
+		// convert mesh to aiScene
+		aiScene S;
+		T3DMeshToAiScene(pMesh, &S);
+		Exporter Ex;
+		Ex.Export(&S, FileType.c_str(), Filepath.c_str());
 	}//store
 
 	bool AssimpMeshIO::accepted(const std::string Filepath, Operation Op) {
 		bool Rval = false;
+
+		std::string Str = CForgeUtility::toLowerCase(Filepath);
+
 		if (Op == OP_LOAD) {
-			if (Filepath.find(".fbx") != std::string::npos) Rval = true;
-			else if (Filepath.find(".obj") != std::string::npos) Rval = true;
-			else if (Filepath.find(".ply") != std::string::npos) Rval = true;
-			else if (Filepath.find(".stl") != std::string::npos) Rval = true;
+			if (Str.find(".fbx") != std::string::npos) Rval = true;
+			else if (Str.find(".obj") != std::string::npos) Rval = true;
+			else if (Str.find(".ply") != std::string::npos) Rval = true;
+			else if (Str.find(".stl") != std::string::npos) Rval = true;
+			else if (Str.find(".x") != std::string::npos) Rval = true;
+			else if (Str.find(".glb") != std::string::npos) Rval = true;
+			else if (Str.find(".bvh") != std::string::npos) Rval = true;
+			else if (Str.find(".gltf") != std::string::npos) Rval = true;
 		}
 		else {
-			Rval = false;
+			if (Str.find(".fbx") != std::string::npos) Rval = true;
+			else if (Str.find(".obj") != std::string::npos) Rval = true;
+			else if (Str.find(".ply") != std::string::npos) Rval = true;
+			else if (Str.find(".stl") != std::string::npos) Rval = true;
+			else if (Str.find(".x") != std::string::npos) Rval = true;
 		}
 		
 		return Rval;
@@ -84,7 +120,7 @@ namespace CForge {
 
 		for (uint32_t i = 0; i < pScene->mNumMeshes; ++i) {
 			aiMesh* pM = pScene->mMeshes[i];
-		
+
 			for (uint32_t k = 0; k < pM->mNumVertices; ++k) {
 				// collect vertices
 				Positions.push_back(toEigenVec(pM->mVertices[k]));
@@ -98,18 +134,16 @@ namespace CForge {
 
 			// now we retrieve the faces (create submesh)
 			T3DMesh<float>::Submesh* pSubmesh = new T3DMesh<float>::Submesh();
+			pSubmesh->Material = (int32_t)pM->mMaterialIndex;
 			for (uint32_t k = 0; k < pM->mNumFaces; ++k) {
 				aiFace F = pM->mFaces[k];
 				T3DMesh<float>::Face Face;
-				Face.Material = (int32_t)pM->mMaterialIndex;
 				for (uint32_t j = 0; j < F.mNumIndices && j < 4; j++) {
 					Face.Vertices[j] = PositionsOffset + F.mIndices[j];
-					if (nullptr != pM->mNormals) Face.Normals[j] = NormalsOffset + F.mIndices[j];
-					if (nullptr != pM->mTangents) Face.Tangents[j] =  TangentsOffset + F.mIndices[j];
-					if (nullptr != pM->mTextureCoords) Face.UVWs[j] = UVWsOffset + F.mIndices[j];
 				}//for[face indices]
 
-				pSubmesh->Faces.push_back(Face);
+				if(Face.Vertices[0] != -1 && Face.Vertices[1] != -1 && Face.Vertices[2] != -1) 
+					pSubmesh->Faces.push_back(Face);
 			}//for[number of faces]
 			// add submesh to model
 			pMesh->addSubmesh(pSubmesh, false);
@@ -133,10 +167,29 @@ namespace CForge {
 			PositionsOffset += pM->mNumVertices;
 			if (nullptr != pM->mNormals) NormalsOffset += pM->mNumVertices;
 			if (nullptr != pM->mTangents) TangentsOffset += pM->mNumVertices;
-			if (nullptr != pM->mTextureCoords) UVWsOffset += pM->mNumVertices;
+			if (nullptr != pM->mTextureCoords[0]) UVWsOffset += pM->mNumVertices;
 		}//for[all meshes]
 
-	
+
+		// apply global transformation
+		Eigen::Matrix4f GlobalTransform = toEigenMat(pScene->mRootNode->mTransformation);
+		for (auto& i : Positions) {
+			Eigen::Vector4f p = GlobalTransform * Eigen::Vector4f(i.x(), i.y(), i.z(), 1.0f);
+			i = Eigen::Vector3f(p.x(), p.y(), p.z());
+		}
+		if (Normals.size() > 0) {
+			for (auto& i : Normals) {
+				Eigen::Vector4f p = GlobalTransform * Eigen::Vector4f(i.x(), i.y(), i.z(), 0.0f);
+				i = Eigen::Vector3f(p.x(), p.y(), p.y());
+			}
+		}
+		if (Tangents.size() > 0) {
+			for (auto& i : Tangents) {
+				Eigen::Vector4f p = GlobalTransform * Eigen::Vector4f(i.x(), i.y(), i.z(), 0.0f);
+				i = Eigen::Vector3f(p.x(), p.y(), p.z());
+			}
+		}
+
 		// set positions, normals, tangents
 		pMesh->vertices(&Positions);
 		if (Normals.size() > 0) pMesh->normals(&Normals);
@@ -154,20 +207,24 @@ namespace CForge {
 			
 			if (pMat->GetTextureCount(aiTextureType_DIFFUSE) > 0){
 				pMat->GetTexture(aiTextureType_DIFFUSE, 0, &Filepath);
-				Mat.TexAlbedo = File::absolute(Directory + Filepath.C_Str());
+				if (File::exists(Filepath.C_Str())) Mat.TexAlbedo = std::string(Filepath.C_Str());
+				else Mat.TexAlbedo = File::absolute(Directory + Filepath.C_Str());
 			}else if (pMat->GetTextureCount(aiTextureType_AMBIENT) > 0) {
 				pMat->GetTexture(aiTextureType_AMBIENT, 0, &Filepath);
-				Mat.TexAlbedo = File::absolute(Directory + Filepath.C_Str());
+				if (File::exists(Filepath.C_Str())) Mat.TexAlbedo = std::string(Filepath.C_Str());
+				else Mat.TexAlbedo = File::absolute(Directory + Filepath.C_Str());
 			}
 
 			if (pMat->GetTextureCount(aiTextureType_NORMALS) > 0 ){
 				pMat->GetTexture(aiTextureType_NORMALS, 0, &Filepath);
-				Mat.TexNormal = File::absolute(Directory + Filepath.C_Str());
+				if (File::exists(Filepath.C_Str())) Mat.TexNormal = std::string(Filepath.C_Str());
+				else Mat.TexNormal = File::absolute(Directory + Filepath.C_Str());
 			}
 
 			if (pMat->GetTextureCount(aiTextureType_HEIGHT) > 0) {
 				pMat->GetTexture(aiTextureType_HEIGHT, 0, &Filepath);
-				Mat.TexDepth = File::absolute(Directory + Filepath.C_Str());
+				if (File::exists(Filepath.C_Str())) Mat.TexDepth = std::string(Filepath.C_Str());
+				else Mat.TexDepth = File::absolute(Directory + Filepath.C_Str());
 			}
 
 			ai_real Buffer[4];
@@ -178,7 +235,6 @@ namespace CForge {
 		}//for[all materials]
 
 		// join identical bones (if names are identical)
-	
 		for (auto i : Bones) {
 			if (nullptr == i) continue;
 			for (uint32_t k = i->ID + 1; k < Bones.size(); ++k) {
@@ -205,12 +261,12 @@ namespace CForge {
 		aiNode* pRoot = pScene->mRootNode;
 		retrieveBoneHierarchy(pRoot, &Bones);
 
-
 		// find root bone (the one without parent)
 		T3DMesh<float>::Bone* pRootBone = nullptr;
 		for (auto i : Bones) {
 			if (i->pParent == nullptr) pRootBone = i;
 		}//for[all bones]
+
 
 		std::vector<T3DMesh<float>::SkeletalAnimation*> BoneAnimations;
 
@@ -227,9 +283,8 @@ namespace CForge {
 			pSkelAnim->Name = pAnim->mName.C_Str();
 
 			// create keyframe for every bone
-			for (uint32_t k = 0; k < Bones.size(); k++) {
+			for (uint32_t k = 0; k < std::max((uint32_t)Bones.size(), pAnim->mNumChannels); k++) {
 				pSkelAnim->Keyframes.push_back(new T3DMesh<float>::BoneKeyframes());
-				pSkelAnim->Keyframes[k]->BoneID = k;
 				pSkelAnim->Keyframes[k]->ID = k;
 			}//for[all bones]
 
@@ -238,30 +293,30 @@ namespace CForge {
 
 				T3DMesh<float>::Bone* pB = getBoneFromName(pNodeAnim->mNodeName.C_Str(), &Bones);
 
-				if (nullptr != pB) {
-					T3DMesh<float>::BoneKeyframes* pKeys = pSkelAnim->Keyframes[pB->ID];
 
-					for (uint32_t l = 0; l < pNodeAnim->mNumPositionKeys; l++) {
-						pKeys->Positions.push_back( toEigenVec(pNodeAnim->mPositionKeys[l].mValue) );
-						pKeys->Timestamps.push_back(pNodeAnim->mPositionKeys[l].mTime);
-					}//for[positions]
+				int32_t KeyID = (nullptr == pB) ? k : pB->ID;
 
-					for (uint32_t l = 0; l < pNodeAnim->mNumRotationKeys; l++) {
-						pKeys->Rotations.push_back(toEigenQuat(pNodeAnim->mRotationKeys[l].mValue));
-					}//for[rotations]
+				pSkelAnim->Keyframes[KeyID]->BoneID = (nullptr == pB) ? -1 : pB->ID;
+				pSkelAnim->Keyframes[KeyID]->BoneName = pNodeAnim->mNodeName.C_Str();
+
+				T3DMesh<float>::BoneKeyframes* pKeys = (pB == nullptr) ? pSkelAnim->Keyframes[k] : pSkelAnim->Keyframes[pB->ID];
+
+				for (uint32_t l = 0; l < pNodeAnim->mNumPositionKeys; l++) {
+					pKeys->Positions.push_back( toEigenVec(pNodeAnim->mPositionKeys[l].mValue) );
+					pKeys->Timestamps.push_back(pNodeAnim->mPositionKeys[l].mTime);
+				}//for[positions]
+
+				for (uint32_t l = 0; l < pNodeAnim->mNumRotationKeys; l++) {
+					pKeys->Rotations.push_back(toEigenQuat(pNodeAnim->mRotationKeys[l].mValue));
+				}//for[rotations]
 					
-					for (uint32_t l = 0; l < pNodeAnim->mNumScalingKeys; l++) {
-						pKeys->Scalings.push_back(toEigenVec(pNodeAnim->mScalingKeys[l].mValue));
-					}
+				for (uint32_t l = 0; l < pNodeAnim->mNumScalingKeys; l++) {
+					pKeys->Scalings.push_back(toEigenVec(pNodeAnim->mScalingKeys[l].mValue));
 				}
-				else {
-					printf("Got animation data for unhandled node: %s\n", pNodeAnim->mNodeName.C_Str());
-				}
-				
+							
 			}//for[channels]
 
 		}//for[all animations]
-
 
 		if (Bones.size() > 0) {
 			// set skeleton
@@ -269,10 +324,205 @@ namespace CForge {
 			pMesh->bones(&Bones, false);
 			Bones.clear();
 		}
-
+	
 		for (auto i : BoneAnimations) pMesh->addSkeletalAnimation(i, false);
 
 	}//aiMeshTo3DMesh
+
+	void AssimpMeshIO::T3DMeshToAiScene(const T3DMesh<float>* pMesh, aiScene* pScene) {
+		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
+		if (nullptr == pScene) throw NullpointerExcept("pScene");
+	
+		pScene->mRootNode = new aiNode();
+		pScene->mRootNode->mName = "root";
+
+		// add meshes
+		pScene->mNumMeshes = pMesh->submeshCount();
+		pScene->mRootNode->mNumMeshes = pMesh->submeshCount();
+		pScene->mMeshes = new aiMesh*[pMesh->submeshCount()];
+		pScene->mRootNode->mMeshes = new unsigned int[pMesh->submeshCount()];
+		for (uint32_t i = 0; i < pMesh->submeshCount(); ++i) {
+			pScene->mMeshes[i] = new aiMesh();
+			pScene->mRootNode->mMeshes[i] = i;
+		}
+
+		for (uint32_t i = 0; i < pMesh->submeshCount(); ++i) {
+			std::vector<int32_t> VertexIDs;
+
+			aiMesh* pM = pScene->mMeshes[i];
+
+			// set faces
+			const T3DMesh<float>::Submesh* pSub = pMesh->getSubmesh(i);
+
+			pM->mMaterialIndex = pSub->Material;
+
+			pM->mFaces = new aiFace[pSub->Faces.size()];
+			for (uint32_t k = 0; k < pSub->Faces.size(); ++k) {
+				aiFace F;
+				F.mNumIndices = 3;
+				F.mIndices = new unsigned int[3];
+				F.mIndices[0] = pSub->Faces[k].Vertices[0];
+				F.mIndices[1] = pSub->Faces[k].Vertices[1];
+				F.mIndices[2] = pSub->Faces[k].Vertices[2];
+				pM->mFaces[k] = F;
+
+				// collect vertex ids
+				if (VertexIDs.end() == std::find(VertexIDs.begin(), VertexIDs.end(), pSub->Faces[k].Vertices[0])) VertexIDs.push_back(pSub->Faces[k].Vertices[0]);
+				if (VertexIDs.end() == std::find(VertexIDs.begin(), VertexIDs.end(), pSub->Faces[k].Vertices[1])) VertexIDs.push_back(pSub->Faces[k].Vertices[1]);
+				if (VertexIDs.end() == std::find(VertexIDs.begin(), VertexIDs.end(), pSub->Faces[k].Vertices[2])) VertexIDs.push_back(pSub->Faces[k].Vertices[2]);
+
+			}//for[faces]
+			pM->mNumFaces = pSub->Faces.size();
+
+			uint32_t MaxID = 0;
+			for (auto k : VertexIDs) {
+				if (k > MaxID) MaxID = k;
+			}
+
+			std::vector<int32_t> VertexMap;
+			VertexMap.reserve(MaxID);
+			for (uint32_t k = 0; k <= MaxID; ++k) VertexMap.push_back(-1);
+
+			pM->mNumVertices = VertexIDs.size();
+			pM->mVertices = new aiVector3D[VertexIDs.size()];
+
+			for (uint32_t k = 0; k < VertexIDs.size(); ++k) {
+				pM->mVertices[k] = toAiVector(pMesh->vertex(VertexIDs[k]));
+				VertexMap[VertexIDs[k]] = k;
+			}
+
+			if (pMesh->normalCount() > 0) {
+				pM->mNormals = new aiVector3D[VertexIDs.size()];
+				for (uint32_t k = 0; k < VertexIDs.size(); k++) pM->mNormals[k] = toAiVector(pMesh->normal(VertexIDs[k]));
+			}
+			if (pMesh->textureCoordinatesCount() > 0) {
+				pM->mTextureCoords[0] = new aiVector3D[VertexIDs.size()];
+				pM->mNumUVComponents[0] = 2;
+				for (uint32_t k = 0; k < VertexIDs.size(); ++k) pM->mTextureCoords[0][k] = toAiVector(pMesh->textureCoordinate(VertexIDs[k]));
+			}
+
+			// Map vertices
+			for (uint32_t k = 0; k < pSub->Faces.size(); ++k) {
+				pM->mFaces[k].mIndices[0] = VertexMap[pM->mFaces[k].mIndices[0]];
+				pM->mFaces[k].mIndices[1] = VertexMap[pM->mFaces[k].mIndices[1]];
+				pM->mFaces[k].mIndices[2] = VertexMap[pM->mFaces[k].mIndices[2]];
+			}
+
+			std::vector<aiBone*> Bones;
+			// gather influences
+			for (uint32_t k = 0; k < pMesh->boneCount(); ++k) {
+				auto* pBone = pMesh->getBone(k);
+
+				std::vector<int32_t> InfluenceIDs;
+				std::vector<float> Weights;
+
+				for (uint32_t j = 0; j < pBone->VertexInfluences.size(); ++j) {
+					int32_t Index = pBone->VertexInfluences[j];
+					if (Index < VertexMap.size() && VertexMap[Index] != -1) {
+						InfluenceIDs.push_back(VertexMap[Index]);
+						Weights.push_back(pBone->VertexWeights[j]);
+					}
+				}//for[influences]
+				
+				if (InfluenceIDs.size() > 0) {
+					aiBone* pB = new aiBone();
+					pB->mName = pBone->Name.c_str();
+					pB->mOffsetMatrix = toAiMatrix(pBone->OffsetMatrix);
+					pB->mNumWeights = InfluenceIDs.size();
+					pB->mWeights = new aiVertexWeight[pB->mNumWeights];
+					for (uint32_t j = 0; j < InfluenceIDs.size(); ++j) {
+						pB->mWeights[j].mVertexId = InfluenceIDs[j];
+						pB->mWeights[j].mWeight = Weights[j];
+					}
+					Bones.push_back(pB);
+				}//if[valid bone]
+			}//for[all bones]
+
+			if (Bones.size() > 0) {
+				// store bones of this mesh
+				pM->mBones = new aiBone*[Bones.size()];
+				pM->mNumBones = Bones.size();
+				for (uint32_t k = 0; k < Bones.size(); ++k) pM->mBones[k] = Bones[k];
+				Bones.clear();
+			}
+			
+
+		}//for[subMeshes]
+
+		// store materials
+		pScene->mNumMaterials = pMesh->materialCount();
+		pScene->mMaterials = new aiMaterial*[pMesh->materialCount()];
+		for (uint32_t i = 0; i < pScene->mNumMaterials; ++i) {
+			pScene->mMaterials[i] = new aiMaterial();
+
+			const T3DMesh<float>::Material* pMat = pMesh->getMaterial(i);
+
+			aiString MatName = aiString(("Mat-" + std::to_string(i)).c_str());
+			
+			pScene->mMaterials[i]->AddProperty(&MatName, AI_MATKEY_NAME);
+
+			pScene->mMaterials[i]->AddProperty(pMat->Color.data(), 4, AI_MATKEY_COLOR_AMBIENT);
+			pScene->mMaterials[i]->AddProperty(pMat->Color.data(), 4, AI_MATKEY_COLOR_DIFFUSE);
+
+			aiString Filepath;
+			if (!pMat->TexAlbedo.empty()) {
+				Filepath.Set(pMat->TexAlbedo.c_str());
+				pScene->mMaterials[i]->AddProperty(&Filepath, AI_MATKEY_TEXTURE_AMBIENT(0));
+				pScene->mMaterials[i]->AddProperty(&Filepath, AI_MATKEY_TEXTURE_DIFFUSE(0));
+			}
+			if (!pMat->TexNormal.empty()) {
+				Filepath.Set(pMat->TexNormal.c_str());
+				pScene->mMaterials[i]->AddProperty(&Filepath, AI_MATKEY_TEXTURE_NORMALS(0));
+			}
+			if (!pMat->TexDepth.empty()) {
+				Filepath.Set(pMat->TexDepth.c_str());
+				pScene->mMaterials[i]->AddProperty(&Filepath, AI_MATKEY_TEXTURE_DISPLACEMENT(0));
+				pScene->mMaterials[i]->AddProperty(&Filepath, AI_MATKEY_TEXTURE_HEIGHT(0));
+			}
+		}//For[materials]
+
+		// store skeleton
+		if (pMesh->rootBone() != nullptr) {
+			aiNode* pSkeletonRoot = new aiNode();
+			pSkeletonRoot->mParent = pScene->mRootNode;
+			pScene->mRootNode->addChildren(1, &pSkeletonRoot);
+			writeBone(pScene->mRootNode->mChildren[pScene->mRootNode->mNumChildren-1], pMesh->rootBone());
+			
+		}
+		
+		pScene->mMetaData = new aiMetadata();
+		pScene->mMetaData->Add<int32_t>("UpAxis", 1);
+		pScene->mMetaData->Add<int32_t>("UpAxisSign", 1);
+		pScene->mMetaData->Add<int32_t>("FrontAxis", 2);
+		pScene->mMetaData->Add<int32_t>("FrontAxisSign", -1);
+		pScene->mMetaData->Add<int32_t>("CoordAxis", 0);
+		pScene->mMetaData->Add<int32_t>("CoordAxisSign", -1);
+		pScene->mMetaData->Add<int32_t>("OriginalUpAxis", -1);
+		pScene->mMetaData->Add<int32_t>("OriginalUpAxisSign", -1);
+		pScene->mMetaData->Add<double>("UnitScaleFactor", 1.00);
+		pScene->mMetaData->Add<int32_t>("FrameRate", 11);
+
+
+	}//T3DMeshToAiScene
+
+	void AssimpMeshIO::writeBone(aiNode* pNode, const T3DMesh<float>::Bone* pBone) {
+
+		pNode->mName = pBone->Name.c_str();
+		pNode->mTransformation.Translation(toAiVector(pBone->Position), pNode->mTransformation);
+		
+		if (pBone->Children.size() > 0) {
+			pNode->mNumChildren = pBone->Children.size();
+			pNode->mChildren = new aiNode*[pBone->Children.size()];
+			for (uint32_t i = 0; i < pBone->Children.size(); ++i) {
+				pNode->mChildren[i] = new aiNode();
+				pNode->mChildren[i]->mParent = pNode;
+				writeBone(pNode->mChildren[i], pBone->Children[i]);
+			}
+		}
+
+	}//writeSkeleton
+
+
 
 	void AssimpMeshIO::retrieveBoneHierarchy(aiNode* pNode, std::vector<T3DMesh<float>::Bone*>* pBones) {
 		if (nullptr == pNode) return; // end of recursion
@@ -346,5 +596,48 @@ namespace CForge {
 		Rval.w() = Q.w;
 		return Rval;
 	}//toEigenQuat
+
+	aiVector3D AssimpMeshIO::toAiVector(const Eigen::Vector3f Vec)const {
+		aiVector3D Rval;
+		Rval.x = Vec.x();
+		Rval.y = Vec.y();
+		Rval.z = Vec.z();
+		return Rval;
+	}//toAiVector
+
+	aiMatrix4x4 AssimpMeshIO::toAiMatrix(const Eigen::Matrix4f Mat)const {
+		aiMatrix4x4 Rval;
+		Rval.a1 = Mat(0, 0);
+		Rval.a2 = Mat(0, 1);
+		Rval.a3 = Mat(0, 2);
+		Rval.a4 = Mat(0, 3);
+
+		Rval.b1 = Mat(1, 0);
+		Rval.b2 = Mat(1, 1);
+		Rval.b3 = Mat(1, 2);
+		Rval.b4 = Mat(1, 3);
+
+		Rval.c1 = Mat(2, 0);
+		Rval.c2 = Mat(2, 1);
+		Rval.c3 = Mat(2, 2);
+		Rval.c4 = Mat(2, 3);
+
+		Rval.d1 = Mat(3, 0);
+		Rval.d2 = Mat(3, 1);
+		Rval.d3 = Mat(3, 2);
+		Rval.d4 = Mat(3, 3);
+
+		return Rval;
+
+	}//toAiMatrix
+
+	aiQuaternion AssimpMeshIO::toAiQuat(const Eigen::Quaternionf Q)const {
+		aiQuaternion Rval;
+		Rval.x = Q.x();
+		Rval.y = Q.y();
+		Rval.z = Q.z();
+		Rval.w = Q.w();
+		return Rval;
+	}//toAiQuat
 
 }//name space

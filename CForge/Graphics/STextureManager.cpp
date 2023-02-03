@@ -1,6 +1,7 @@
 #include "STextureManager.h"
 #include "../../CForge/AssetIO/SAssetIO.h"
 #include "../../CForge/Core/SLogger.h"
+#include "../AssetIO/File.h"
 
 namespace CForge {
 
@@ -25,15 +26,17 @@ namespace CForge {
 		}
 	}//release
 
+    GLTexture2D* STextureManager::create(const std::string Filepath) {
+		if (!File::exists(Filepath)) throw CForgeExcept("File " + Filepath + " does not exist!");
 
-	GLTexture2D* STextureManager::create(const std::string Filepath) {
-		GLTexture2D* pRval = nullptr;
-		STextureManager* pTexMan = STextureManager::instance();
-		pRval = pTexMan->createTexture2D(Filepath);
-		pTexMan->release();
-		return pRval;
-	}//load
+        GLTexture2D* pRval = nullptr;
+        STextureManager* pTexMan = STextureManager::instance();
+        pRval = pTexMan->createTexture2D(Filepath);
+        pTexMan->release();
+        return pRval;
+    }//load
 
+    // Todo: texture is not added to the internal texture cache m_Textures and thus not cleared up properly
 	GLTexture2D* STextureManager::create(uint32_t Width, uint32_t Height, uint8_t R, uint8_t G, uint8_t B, bool GenerateMipmaps) {
 		GLTexture2D* pRval = nullptr;
 		STextureManager* pTexMan = STextureManager::instance();
@@ -42,11 +45,18 @@ namespace CForge {
 		return pRval;
 	}//create
 
+    // Todo: texture is not added to the internal texture cache m_Textures and thus not cleared up properly
+    GLTexture2D* STextureManager::fromHandle(uint32_t handle) {
+        return new GLTexture2D(handle);
+    }
+
 	void STextureManager::destroy(GLTexture2D* pTex) {
 		if (nullptr == pTex) throw NullpointerExcept("pTex");
+		bool contained = false;
 		for (auto &i : m_pInstance->m_Textures) {
 			if (nullptr == i) continue;
 			if (i->Tex.objectID() == pTex->objectID()) {
+				contained = true;
 				if (i->ReferenceCount == 1) {
 					delete i;
 					i = nullptr;
@@ -56,7 +66,8 @@ namespace CForge {
 				}
 			}
 		}//for[all textures
-
+		if(!contained) //texture is not in scope of texture manager
+			delete pTex;
 	}//destroy
 
 	STextureManager::STextureManager(void): CForgeObject("STextureManager") {

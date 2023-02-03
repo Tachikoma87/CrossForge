@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include "OpenGLHeader.h"
 #include "GLVertexArray.h"
 
 namespace CForge {
@@ -17,6 +17,7 @@ namespace CForge {
 
 	void GLVertexArray::init(void) {
 		if (!available()) throw CForgeExcept("Vertex arrays not available!");
+		clear();
 		glGenVertexArrays(1, &m_GLID);
 	}//initialize
 

@@ -31,7 +31,7 @@ namespace CForge {
 	*
 	*/
 
-	class I2DImageIO: public CForgeObject {
+	class CFORGE_API I2DImageIO: public CForgeObject {
 	public:
 
 		enum Operation : uint8_t {

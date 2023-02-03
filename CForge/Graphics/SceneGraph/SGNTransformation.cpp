@@ -93,24 +93,37 @@ namespace CForge {
 		float Temp = FPSScale;
 		Quaternionf TargetRot = m_Rotation;
 		while (Temp > 1.0f) {
-			TargetRot = m_RotationDelta * TargetRot;
+			TargetRot *= m_RotationDelta;
 			Temp -= 1.0f;
 		}
-		m_Rotation = TargetRot.slerp(Temp, m_RotationDelta * TargetRot);
+		m_Rotation = TargetRot.slerp(Temp, TargetRot * m_RotationDelta);
 		m_Scale += FPSScale * m_ScaleDelta;
 
-		for (auto i : m_Children) i->update(FPSScale);
+		for (auto &i : m_Children) i->update(FPSScale);
 
 	}//update
 
-	void SGNTransformation::render(RenderDevice* pRDev, Eigen::Vector3f Translation, Eigen::Quaternionf Rotation, Eigen::Vector3f Scale) {
+	void SGNTransformation::render(RenderDevice* pRDev, const Eigen::Vector3f Translation, const Eigen::Quaternionf Rotation, const Eigen::Vector3f Scale) {
 		if (m_RenderingEnabled) {
-			Eigen::Vector3f T = Translation + Rotation * m_Translation;
-			Eigen::Quaternionf R = Rotation * m_Rotation;
-			Eigen::Vector3f S = Scale.cwiseProduct(m_Scale);
+			const Eigen::Vector3f T = Translation + Rotation * m_Translation;
+			const Eigen::Quaternionf R = Rotation * m_Rotation;
+			const Eigen::Vector3f S = Scale.cwiseProduct(m_Scale);
 
-			for (auto i : m_Children) i->render(pRDev, T, R, S);
+			for (auto &i : m_Children) i->render(pRDev, T, R, S);
 		}
 	}//render
+
+	void SGNTransformation::buildTansformation(Eigen::Vector3f* pPosition, Eigen::Quaternionf* pRotation, Eigen::Vector3f* pScale) {
+		Vector3f ParentPosition = Vector3f::Zero();
+		Quaternionf ParentRotation = Quaternionf::Identity();
+		Vector3f ParentScale = Vector3f::Ones();
+
+		if (nullptr != m_pParent) m_pParent->buildTansformation(&ParentPosition, &ParentRotation, &ParentScale);
+
+		if (nullptr != pPosition) (*pPosition) = ParentPosition + ParentRotation * m_Translation;
+		if (nullptr != pRotation) (*pRotation) = ParentRotation * m_Rotation;
+		if (nullptr != pScale) (*pScale) = ParentScale.cwiseProduct(m_Scale);
+
+	}//buildTrnasformation
 
 }//name space

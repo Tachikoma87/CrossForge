@@ -29,19 +29,29 @@ namespace CForge {
 	*
 	* \todo Do full documentation
 	*/
-	class CFORGE_IXPORT RenderGroupUtility: public CForgeObject {
+	class CFORGE_API RenderGroupUtility: public CForgeObject {
 	public:
+		/**
+		*
+		* @todo Implement clean cleanup of shaders
+		*/
 		struct RenderGroup {
 			Eigen::Vector2i Range; ///< From index, to index
 			RenderMaterial Material; ///< Material data 
-			GLShader *pShader;
+			GLShader *pShaderGeometryPass;
+			GLShader* pShaderShadowPass;
+			GLShader* pShaderForwardPass;
 
 			RenderGroup(void) {
-				pShader = nullptr;
+				pShaderGeometryPass = nullptr;
+				pShaderShadowPass = nullptr;
+				pShaderForwardPass = nullptr;
 			}
 
 			~RenderGroup(void) {
-				pShader = nullptr;
+				pShaderGeometryPass = nullptr;
+				pShaderShadowPass = nullptr;
+				pShaderForwardPass = nullptr;
 			}
 		};//RenderGroup
 
@@ -53,13 +63,16 @@ namespace CForge {
 		void buildIndexArray(const T3DMesh<float>* pMesh, void** ppBuffer, uint32_t* pBufferSize);
 
 		std::vector<RenderGroup*> renderGroups(void);
+		const RenderGroup* renderGroup(uint32_t Index)const;
 		uint32_t renderGroupCount(void)const;
 
 	protected:
+		GLShader* createShader(const T3DMesh<float>* pMesh, const T3DMesh<float>::Material *pMat, std::vector<std::string> VSSources, std::vector<std::string> FSSources);
 
 	private:
 		std::vector<RenderGroup*> m_RenderGroups;
-
+		std::string m_GLSLVersionTag;
+		std::string m_GLSLPrecisionTag;
 	};//RenderGroupUtility
 
 }//name space

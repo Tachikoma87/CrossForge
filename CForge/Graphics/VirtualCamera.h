@@ -20,6 +20,7 @@
 
 #include "../Core/CForgeObject.h"
 #include "../Core/ITCaller.hpp"
+#include "Camera/ViewFrustum.h"
 
 namespace CForge {
 	/**
@@ -27,7 +28,7 @@ namespace CForge {
 	*
 	* \todo Full documentation
 	*/
-	struct CFORGE_IXPORT VirtualCameraMsg {
+	struct CFORGE_API VirtualCameraMsg {
 		enum MsgCode: int8_t {
 			UNKNOWN = -1,
 			POSITION_CHANGED,
@@ -53,7 +54,7 @@ namespace CForge {
 	*
 	* \todo Full documentation
 	*/
-	class CFORGE_IXPORT VirtualCamera:public CForgeObject, public ITCaller<VirtualCameraMsg> {
+	class CFORGE_API VirtualCamera:public CForgeObject, public ITCaller<VirtualCameraMsg> {
 	public:
 		VirtualCamera(void);
 		~VirtualCamera(void);
@@ -61,10 +62,12 @@ namespace CForge {
 		void init(Eigen::Vector3f Position, Eigen::Vector3f Up);
 		void clear(void);
 		void resetToOrigin(void);
+		void lookAt(const Eigen::Vector3f Position, const Eigen::Vector3f Target, const Eigen::Vector3f Up = Eigen::Vector3f::UnitY());
 
 		Eigen::Matrix4f cameraMatrix(void)const;
 		Eigen::Matrix4f projectionMatrix(void)const;
 		void projectionMatrix(uint32_t ViewportWidth, uint32_t ViewportHeight, float FieldOfView, float Near, float Far);
+		void orthographicProjection(float Left, float Right, float Bottom, float Top, float Near, float Far);
 
 		Eigen::Vector3f dir(void)const;
 		Eigen::Vector3f up(void)const;
@@ -84,12 +87,30 @@ namespace CForge {
 		void rotY(float Theta);
 		void rotZ(float Theta);
 
+		float getFOV();
+		uint32_t viewportWidth(void)const;
+		uint32_t viewportHeight(void)const;
+		float fieldOfView(void)const;
+		float nearPlane(void)const;
+		float farPlane(void)const;
+
+		const ViewFrustum* viewFrustum(void)const;
+
 	protected:
 		void notifyListeners(VirtualCameraMsg::MsgCode Code);
 
 		Eigen::Vector3f m_Position;
 		Eigen::Quaternionf m_Rotation;
 		Eigen::Matrix4f m_Projection;
+		
+
+		uint32_t m_ViewportWidth;
+		uint32_t m_ViewportHeight;
+		float m_FOV;
+		float m_FarPlane;
+		float m_NearPlane;
+
+		ViewFrustum m_ViewFrustum;
 	};//VirtualCamera
 
 }//name space

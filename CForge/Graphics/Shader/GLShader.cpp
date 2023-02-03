@@ -1,5 +1,5 @@
-#include <glad/glad.h>
-#include "../../Core/CoreUtility.hpp"
+#include "../OpenGLHeader.h"
+#include "../../Utility/CForgeUtility.h"
 #include "../../Core/SLogger.h"
 #include "GLShader.h"
 
@@ -36,8 +36,8 @@ namespace CForge {
 
 		m_BindingPoints.clear();
 
-		CoreUtility::memset(&m_DefaultUBOBindingPoints[0], GL_INVALID_INDEX, DEFAULTUBO_COUNT);
-		CoreUtility::memset(&m_DefaultTextureLocations[0], -1, DEFAULTTEX_COUNT);
+		CForgeUtility::memset(&m_DefaultUBOBindingPoints[0], GL_INVALID_INDEX, DEFAULTUBO_COUNT);
+		CForgeUtility::memset(&m_DefaultTextureLocations[0], -1, DEFAULTTEX_COUNT);
 	}//Constructor
 
 	GLShader::~GLShader(void) {
@@ -60,8 +60,8 @@ namespace CForge {
 		m_BindingPoints.clear();
 	
 
-		CoreUtility::memset(&m_DefaultUBOBindingPoints[0], GL_INVALID_INDEX, DEFAULTUBO_COUNT);
-		CoreUtility::memset(&m_DefaultTextureLocations[0], -1, DEFAULTTEX_COUNT);
+		CForgeUtility::memset(&m_DefaultUBOBindingPoints[0], GL_INVALID_INDEX, DEFAULTUBO_COUNT);
+		CForgeUtility::memset(&m_DefaultTextureLocations[0], -1, DEFAULTTEX_COUNT);
 	}//clear
 
 	void GLShader::bind(void) {
@@ -82,6 +82,11 @@ namespace CForge {
 		m_FragmentShaderCodes.push_back(Code);
 	}//addFragmentShader
 
+    void GLShader::addComputeShader(const std::string Code) {
+        if (Code.empty()) throw CForgeExcept("Empty compute shader code specified!");
+        m_ComputeShaderCodes.push_back(Code);
+    }//addFragmentShader
+
 	void GLShader::build(std::string* pErrorLog) {
 		if (nullptr == pErrorLog) throw NullpointerExcept("pErrorLog");
 		(*pErrorLog) = std::string();
@@ -89,7 +94,42 @@ namespace CForge {
 		if (!m_ComputeShaderCodes.empty()) {
 			// this is a compute shader
 			m_ShaderType = SHADERTYPE_COMPUTE;
-			throw CForgeExcept("Compute shader not implemented yet. Sorry, Sorry!");
+
+			uint32_t ComputeShader = glCreateShader(GL_COMPUTE_SHADER);
+			int32_t Status = 0;
+
+			// compile compute shader
+			try {
+				compileShader(ComputeShader, &m_ComputeShaderCodes, pErrorLog);
+			}
+			catch (CrossForgeException& e) {
+				SLogger::logException(e);
+				(*pErrorLog) = "Exception occurred during compute shader compilation!";
+				return;
+			}
+			if (!pErrorLog->empty()) {
+				glDeleteShader(ComputeShader);
+				(*pErrorLog) += "\n" + m_ComputeShaderCodes[0];
+				return;
+			}
+
+			// now link the thing
+			m_ShaderProgram = glCreateProgram();
+			glAttachShader(m_ShaderProgram, ComputeShader);
+			glLinkProgram(m_ShaderProgram);
+
+			glGetProgramiv(m_ShaderProgram, GL_LINK_STATUS, &Status);
+			if (!Status) {
+				(*pErrorLog) = infoLog(m_ShaderProgram, false);
+				glDeleteProgram(m_ShaderProgram);
+				m_ShaderProgram = 0;
+			}
+
+			// delete shader
+			glDeleteShader(ComputeShader);
+
+			return;
+			// throw CForgeExcept("Compute shader not implemented yet. Sorry, Sorry!");
 		}
 		else if (m_VertexShaderCodes.empty() || m_FragmentShaderCodes.empty()) {
 			throw CForgeExcept("Empty fragment shader codes and/or empty vertex shader codes specified! Unable to build shader.");
@@ -100,6 +140,7 @@ namespace CForge {
 			uint32_t FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 			int32_t Status = 0;
 
+			
 			// compile vertex shader
 			try {
 				compileShader(VertexShader, &m_VertexShaderCodes, pErrorLog);
@@ -112,6 +153,8 @@ namespace CForge {
 			if (!pErrorLog->empty()) {
 				glDeleteShader(VertexShader);
 				glDeleteShader(FragmentShader);
+				(*pErrorLog) += "\n";
+				for (auto i : m_VertexShaderCodes) (*pErrorLog) += i;
 				return;
 			}
 
@@ -127,6 +170,8 @@ namespace CForge {
 			if (!pErrorLog->empty()) {
 				glDeleteShader(VertexShader);
 				glDeleteShader(FragmentShader);
+				(*pErrorLog) += "\n";
+				for (auto i : m_VertexShaderCodes) (*pErrorLog) += i;
 				return;
 			}
 
@@ -146,6 +191,7 @@ namespace CForge {
 			// delete shader
 			glDeleteShader(VertexShader);
 			glDeleteShader(FragmentShader);
+			
 
 			// get default ubo binding points
 			bind();
@@ -156,6 +202,9 @@ namespace CForge {
 			m_DefaultUBOBindingPoints[DEFAULTUBO_SPOTLIGHTSDATA] = glGetUniformBlockIndex(m_ShaderProgram, UBOSpotLightsDataName.c_str());
 			m_DefaultUBOBindingPoints[DEFAULTUBO_MATERIALDATA] = glGetUniformBlockIndex(m_ShaderProgram, UBOMaterialDataName.c_str());
 			m_DefaultUBOBindingPoints[DEFAULTUBO_BONEDATA] = glGetUniformBlockIndex(m_ShaderProgram, UBOBoneDataName.c_str());
+			m_DefaultUBOBindingPoints[DEFAULTUBO_MORPHTARGETDATA] = glGetUniformBlockIndex(m_ShaderProgram, UBOMorphTargetDataName.c_str());
+			m_DefaultUBOBindingPoints[DEFAULTUBO_COLORADJUSTMENT] = glGetUniformBlockIndex(m_ShaderProgram, UBOColorAdjustmentDataName.c_str());
+			m_DefaultUBOBindingPoints[DEFAULTUBO_INSTANCE] = glGetUniformBlockIndex(m_ShaderProgram, UBOInstancedDataName.c_str());
 
 			// retrieve default texture bindign points
 			m_DefaultTextureLocations[DEFAULTTEX_ALBEDO] = uniformLocation(TextureAlbedoName);
@@ -165,16 +214,27 @@ namespace CForge {
 			m_DefaultTextureLocations[DEFAULTTEX_SHADOW1] = uniformLocation(TextureShadow1Name);
 			m_DefaultTextureLocations[DEFAULTTEX_SHADOW2] = uniformLocation(TextureShadow2Name);
 			m_DefaultTextureLocations[DEFAULTTEX_SHADOW3] = uniformLocation(TextureShadow3Name);
+			m_DefaultTextureLocations[DEFAULTTEX_MORPHTARGETDATA] = uniformLocation(TextureMorphTargetDataName);
 
 			// bind shader and uniform blocks together
 			for (uint8_t i = 0; i < DEFAULTUBO_COUNT; ++i) {
-				if (GL_INVALID_INDEX != m_DefaultUBOBindingPoints[i]) glUniformBlockBinding(m_ShaderProgram, m_DefaultUBOBindingPoints[i], m_DefaultUBOBindingPoints[i]);
+				if (GL_INVALID_INDEX != m_DefaultUBOBindingPoints[i]) {
+					glUniformBlockBinding(m_ShaderProgram, m_DefaultUBOBindingPoints[i], m_DefaultUBOBindingPoints[i]);
+				}
 			}
-
 			unbind();
 		}//if[build draw shader]
 
+		std::string ErrorMsg;
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred during building shader: " + ErrorMsg, "GLShader", SLogger::LOGTYPE_ERROR);
+		}
+
 	}//build
+
+	uint32_t GLShader::uniformBlockIndex(const std::string BlockName) {
+		return glGetUniformBlockIndex(m_ShaderProgram, BlockName.c_str());
+	}//uniformBlockIndex
 
 	void GLShader::compileShader(uint32_t ShaderID, std::vector<std::string>* pShaderSources, std::string* pErrorLog) {
 		if (!glIsShader(ShaderID)) throw CForgeExcept("Specified shader is not valid!");
@@ -232,6 +292,7 @@ namespace CForge {
 		std::pair<std::string, uint32_t> Entry;
 		Entry.first = Name;
 		Entry.second = glGetUniformBlockIndex(m_ShaderProgram, Name.c_str());
+		uniformBlockBinding(Entry.second, Entry.second);
 		m_BindingPoints.push_back(Entry);
 		return Entry.second;
 	}//uboBindingPoint

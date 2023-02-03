@@ -45,7 +45,7 @@ namespace CForge {
 	* \todo Write appropriate clear() function
 	* \todo Full documentation
 	*/
-	class CFORGE_IXPORT RenderDevice: public CForgeObject, public ITListener<VirtualCameraMsg> {
+	class CFORGE_API RenderDevice: public CForgeObject, public ITListener<VirtualCameraMsg>, public ITListener<LightMsg> {
 	public:
 		enum RenderPass: int8_t {
 			RENDERPASS_UNKNOWN = -1,
@@ -53,9 +53,10 @@ namespace CForge {
 			RENDERPASS_GEOMETRY,	///< deferred shading geometry pass
 			RENDERPASS_LIGHTING,	///< deferred shading lighting pass
 			RENDERPASS_FORWARD,		///< forward rendering draw pass
+			RENDERPASS_COUNT,
 		};
 
-		struct CFORGE_IXPORT RenderDeviceConfig {
+		struct CFORGE_API RenderDeviceConfig {
 			uint32_t DirectionalLightsCount;
 			uint32_t PointLightsCount;
 			uint32_t SpotLightsCount;
@@ -69,9 +70,17 @@ namespace CForge {
 			uint32_t GBufferWidth;
 			uint32_t GBufferHeight;
 
+			int32_t ForwardBufferWidth;
+			int32_t ForwardBufferHeight;
+
 			RenderDeviceConfig(void);
 			~RenderDeviceConfig(void);
 			void init(void);
+		};
+
+		struct Viewport {
+			Eigen::Vector2i Position;
+			Eigen::Vector2i Size;
 		};
 
 		RenderDevice(void);
@@ -85,7 +94,7 @@ namespace CForge {
 		void activeShader(GLShader* pShader);
 		void activeMaterial(RenderMaterial* pMaterial);
 		void activeCamera(VirtualCamera* pCamera);
-		void activePass(RenderPass Pass, ILight *pActiveLight = nullptr);
+		void activePass(RenderPass Pass, ILight* pActiveLight = nullptr, bool ClearBuffer = true);
 		RenderDevice::RenderPass activePass(void)const;
 
 		GLShader* activeShader(void)const;
@@ -101,10 +110,14 @@ namespace CForge {
 		uint32_t activeLightsCount(ILight::LightType Type)const;
 
 		void listen(const VirtualCameraMsg Msg);
+		void listen(const LightMsg Msg);
 
 		GBuffer* gBuffer(void);
 
 		GLShader* shadowPassShader(void);
+
+		void viewport(RenderPass Pass, Viewport VP);
+		Viewport viewport(RenderPass Pass)const;
 
 	protected:
 		struct ActiveLight {
@@ -141,6 +154,10 @@ namespace CForge {
 		ScreenQuad m_ScreenQuad;
 		GLShader* m_pDeferredLightingPassShader;
 		GLShader* m_pShadowPassShader;
+
+		Viewport m_Viewport[RENDERPASS_COUNT];
+
+		ActiveLight* m_pActiveShadowLight;
 	private:
 
 	};//RenderDevice

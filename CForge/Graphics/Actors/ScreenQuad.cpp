@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include "../OpenGLHeader.h"
 #include "../RenderDevice.h"
 #include "ScreenQuad.h"
 
@@ -55,10 +55,10 @@ namespace CForge {
 		m_VertexBuffer.bind();
 		// enable vertex and UVS
 		glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION));
-		glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION), 2, GL_FLOAT, GL_FALSE, VertexSize, (const void*)PositionOffset);
+		glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION), 2, GL_FLOAT, GL_FALSE, VertexSize, (const void*)uint64_t(PositionOffset));
 
 		glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW));
-		glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW), 2, GL_FLOAT, GL_FALSE, VertexSize, (const void*)UVOffset);
+		glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW), 2, GL_FLOAT, GL_FALSE, VertexSize, (const void*)uint64_t(UVOffset));
 	}//setBufferData
 
 	void ScreenQuad::clear(void) {
@@ -72,11 +72,11 @@ namespace CForge {
 		delete this;
 	}//release
 
-	void ScreenQuad::render(RenderDevice* pRDev) {
-		m_VertexArray.bind();
-			
+	void ScreenQuad::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
 		if (nullptr != m_pShader) pRDev->activeShader(m_pShader);
+		m_VertexArray.bind();
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		m_VertexArray.unbind();
 	}//render
 
 }//name space

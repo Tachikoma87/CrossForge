@@ -19,8 +19,7 @@
 #define __CFORGE_T3DMESH_H__
 
 #include "../Core/CForgeObject.h"
-#include "../Core/CoreUtility.hpp"
-
+#include "../Math/Box.hpp"
 
 namespace CForge {
 
@@ -33,27 +32,24 @@ namespace CForge {
 	template<typename T>
 	class T3DMesh: public CForgeObject {
 	public:
+		/**
+		* \brief Face data structure. Only supports triangles.
+		*/
 		struct Face {
-			int32_t Vertices[4];
-			int32_t Normals[4];
-			int32_t Tangents[4];
-			int32_t UVWs[4];
-			int32_t Colors[4];
-			int32_t Material;
+			int32_t Vertices[3];
 
 			Face(void) {
-				CoreUtility::memset(Vertices, -1, 4);
-				CoreUtility::memset(Normals, -1, 4);
-				CoreUtility::memset(Tangents, -1, 4);
-				CoreUtility::memset(UVWs, -1, 4);
-				CoreUtility::memset(Colors, -1, 4);
-				Material = -1;
+				Vertices[0] = -1;
+				Vertices[1] = -1;
+				Vertices[2] = -1;
 			}
 		};//Face
 
 		struct Submesh {
 			std::vector<Face> Faces;
-			std::vector<Eigen::Vector3f> FaceNormals;
+			int32_t Material;
+			std::vector<Eigen::Vector3f> FaceNormals; ///< Stores face normals (if required)
+			std::vector<Eigen::Vector3f> FaceTangents; ///< Stores face tangents (if required)
 			Eigen::Quaternion<float> RotationOffset; // rotation relative to parent
 			Eigen::Matrix<T, 3, 1> TranslationOffset; // translation relative to parent
 			std::vector<Submesh*> Children;
@@ -69,6 +65,9 @@ namespace CForge {
 				TranslationOffset = pRef->TranslationOffset;
 				Children = pRef->Children;
 				pParent = pRef->pParent;
+				Material = pRef->Material;
+				FaceNormals = pRef->FaceNormals;
+				FaceTangents = pRef->FaceTangents;
 			}//initialize
 		};//Submesh
 
@@ -80,8 +79,15 @@ namespace CForge {
 			std::string TexAlbedo;
 			std::string TexNormal;
 			std::string TexDepth;
-			std::vector<std::string> VertexShaderSources;
-			std::vector<std::string> FragmentShaderSources;
+
+			std::vector<std::string> VertexShaderGeometryPass;
+			std::vector<std::string> FragmentShaderGeometryPass;
+
+			std::vector<std::string> VertexShaderShadowPass;
+			std::vector<std::string> FragmentShaderShadowPass;
+
+			std::vector<std::string> VertexShaderForwardPass;
+			std::vector<std::string> FragmentShaderForwardPass;
 
 			Material(void) {
 				ID = -1;
@@ -89,10 +95,15 @@ namespace CForge {
 				TexAlbedo = "";
 				TexNormal = "";
 				TexDepth = "";
-				VertexShaderSources.clear();
-				FragmentShaderSources.clear();
 				Metallic = 0.0f;
 				Roughness = 0.8f;
+
+				VertexShaderGeometryPass.clear();
+				FragmentShaderGeometryPass.clear();
+				VertexShaderShadowPass.clear();
+				FragmentShaderShadowPass.clear();
+				VertexShaderForwardPass.clear();
+				FragmentShaderForwardPass.clear();
 			}//Constructor
 
 			~Material(void) {
@@ -106,9 +117,13 @@ namespace CForge {
 					Color = pMat->Color;
 					TexAlbedo = pMat->TexAlbedo;
 					TexNormal = pMat->TexNormal;
-					TexDepth = pMat->TexDepth;
-					VertexShaderSources = pMat->VertexShaderSources;
-					FragmentShaderSources = pMat->FragmentShaderSources;
+					
+					VertexShaderGeometryPass = pMat->VertexShaderGeometryPass;
+					FragmentShaderGeometryPass = pMat->FragmentShaderGeometryPass;
+					VertexShaderShadowPass = pMat->VertexShaderShadowPass;
+					FragmentShaderShadowPass = pMat->FragmentShaderShadowPass;
+					VertexShaderForwardPass = pMat->VertexShaderForwardPass;
+					FragmentShaderForwardPass = pMat->FragmentShaderForwardPass;
 				}
 			}//initialize
 
@@ -118,8 +133,12 @@ namespace CForge {
 				TexAlbedo = "";
 				TexNormal = "";
 				TexDepth = "";
-				VertexShaderSources.clear();
-				FragmentShaderSources.clear();
+				VertexShaderGeometryPass.clear();
+				FragmentShaderGeometryPass.clear();
+				VertexShaderShadowPass.clear();
+				FragmentShaderShadowPass.clear();
+				VertexShaderForwardPass.clear();
+				FragmentShaderForwardPass.clear();
 			}//clear
 
 		};//Material
@@ -127,6 +146,11 @@ namespace CForge {
 		struct AABB {
 			Eigen::Vector3f Min;
 			Eigen::Vector3f Max;
+
+			AABB(void) {
+				Min = Eigen::Vector3f::Zero();
+				Max = Eigen::Vector3f::Zero();
+			}
 
 			Eigen::Vector3f diagonal(void) {
 				return (Max - Min);
@@ -143,15 +167,77 @@ namespace CForge {
 			Bone* pParent;
 			std::vector<Bone*>		Children;
 
+			Bone(void) {
+				clear();
+			}
+
+			~Bone(void) {
+				clear();
+			}
+
+			void init(const Bone* pRef, std::vector<Bone*> *pAllBones) {
+				clear();
+				ID = pRef->ID;
+				Name = pRef->Name;
+				Position = pRef->Position;
+				OffsetMatrix = pRef->OffsetMatrix;
+				VertexInfluences = pRef->VertexInfluences;
+				VertexWeights = pRef->VertexWeights;
+				pParent = (pRef->pParent == nullptr) ? nullptr : pAllBones->at(pRef->pParent->ID);
+				for (auto i : pRef->Children) {
+					Children.push_back(pAllBones->at(i->ID));
+				}
+			}//initialize
+
+			void clear(void) {
+				ID = -1;
+				Name = "";
+				Position = Eigen::Vector3f::Zero();
+				OffsetMatrix = Eigen::Matrix4f::Identity();
+				VertexInfluences.clear();
+				VertexWeights.clear();
+				pParent = nullptr;
+				Children.clear();
+			}//clear
 		};
 
 		struct BoneKeyframes {
 			int32_t ID;
 			int32_t BoneID;
+			std::string BoneName;
 			std::vector<Eigen::Vector3f> Positions;
 			std::vector<Eigen::Quaternionf> Rotations;
 			std::vector<Eigen::Vector3f> Scalings;
 			std::vector<float> Timestamps;
+
+			BoneKeyframes(void) {
+				clear();
+			}
+
+			~BoneKeyframes(void) {
+				clear();
+			}
+
+			void init(const BoneKeyframes* pRef) {
+				clear();
+				ID = pRef->ID;
+				BoneID = pRef->BoneID;
+				BoneName = pRef->BoneName;
+				Positions = pRef->Positions;
+				Rotations = pRef->Rotations;
+				Scalings = pRef->Scalings;
+				Timestamps = pRef->Timestamps;
+			}//initialize
+
+			void clear(void) {
+				ID = -1;
+				BoneID = -1;
+				BoneName = "";
+				Positions.clear();
+				Rotations.clear();
+				Scalings.clear();
+				Timestamps.clear();
+			}
 		};
 
 		struct SkeletalAnimation {
@@ -159,6 +245,33 @@ namespace CForge {
 			float Duration; // total duration in seconds
 			float Speed; // keyframes per second
 			std::vector<BoneKeyframes*> Keyframes;
+
+			SkeletalAnimation(void) {
+				clear();
+			}
+
+			~SkeletalAnimation(void) {
+				clear();
+			}
+
+			void init(const SkeletalAnimation* pRef) {
+				clear();
+				Name = pRef->Name;
+				Duration = pRef->Duration;
+				Speed = pRef->Speed;
+				for (auto i : pRef->Keyframes) {
+					BoneKeyframes* pKey = new BoneKeyframes();
+					pKey->init(i);
+					Keyframes.push_back(pKey);
+				}
+			}
+
+			void clear(void) {
+				Name = "";
+				Duration = 0.0f;
+				Speed = 0.0f;
+				for (auto& i : Keyframes) delete i;
+			}//clear
 		};
 
 		struct MorphTarget {
@@ -170,8 +283,29 @@ namespace CForge {
 			
 		};
 
+
+		static Box computeAxisAlignedBoundingBox(const T3DMesh<T>* pMesh) {
+			if (pMesh->vertexCount() == 0) throw CForgeExcept("Mesh contains no vertex data. Can not compute axis aligned bounding box");
+			Eigen::Vector3f Min = pMesh->m_Positions[0];
+			Eigen::Vector3f Max = pMesh->m_Positions[0];
+			for (auto i : pMesh->m_Positions) {
+				if (i.x() < Min.x()) Min.x() = i.x();
+				if (i.y() < Min.y()) Min.y() = i.y();
+				if (i.z() < Min.z()) Min.z() = i.z();
+				if (i.x() > Max.x()) Max.x() = i.x();
+				if (i.y() > Max.y()) Max.y() = i.y();
+				if (i.z() > Max.z()) Max.z() = i.z();
+			}//for[all position values]
+
+			Box Rval;
+			Rval.init(Min, Max);
+			return Rval;
+		}//computeAxisAlignedBoundingBox
+
+
 		T3DMesh(void): CForgeObject("TDMesh") {
 			m_pRoot = nullptr;
+			m_pRootBone = nullptr;
 		}//Constructor
 
 		~T3DMesh(void) {
@@ -196,8 +330,28 @@ namespace CForge {
 					pMat->init(i);
 					m_Materials.push_back(pMat);
 				}//for[materials]
-				m_pRoot = pRef->m_pRoot;
 				m_AABB = pRef->m_AABB;
+
+				// create new bones
+				for (auto i : pRef->m_Bones) {
+					Bone* pNewBone = new Bone();
+					m_Bones.push_back(pNewBone);
+				}
+				// initalize bones
+				for (auto i : pRef->m_Bones) {
+					m_Bones[i->ID]->init(i, &m_Bones);
+				}
+
+				// copy skeletal animations
+				for (auto i : pRef->m_SkeletalAnimations) {
+					SkeletalAnimation* pAnim = new SkeletalAnimation();
+					pAnim->init(i);
+					m_SkeletalAnimations.push_back(pAnim);
+				}
+
+				//// morph target related
+				//std::vector<MorphTarget*> m_MorphTargets;
+
 			}
 		}//initialize
 
@@ -212,14 +366,31 @@ namespace CForge {
 			for (auto& i : m_Materials) delete i;
 			m_Materials.clear();
 			m_pRoot = nullptr;
+			m_pRootBone = nullptr;
 
 			for (auto& i : m_Bones) delete i;
 			m_Bones.clear();
 			for (auto& i : m_SkeletalAnimations) delete i;
 			m_SkeletalAnimations.clear();
 			
+			for (auto& i : m_MorphTargets) delete i;
+			m_MorphTargets.clear();
 
 		}//clear
+
+		void clearSkeleton(void) {
+			for (auto i : m_Bones) {
+				if (nullptr != i) delete i;
+			}
+			m_Bones.clear();
+		}//clearSkeleton
+
+		void clearSkeletalAnimations(void) {
+			for (auto i : m_SkeletalAnimations) {
+				if (nullptr != i) delete i;
+			}
+			m_SkeletalAnimations.clear();
+		}//clearSkeletalAnimations
 
 		////// Setter
 		void vertices(std::vector<Eigen::Matrix<T, 3, 1>> *pCoords) {
@@ -243,10 +414,10 @@ namespace CForge {
 		}//colors
 
 		void bones(std::vector<Bone*>* pBones, bool Copy = true) {
-			if (nullptr != pBones && Copy) {
-				for (auto i : m_Bones) delete i;
-				m_Bones.clear();
-
+			for (auto i : m_Bones) delete i;
+			m_Bones.clear();
+			
+			if (nullptr != pBones && Copy) {	
 				// create bones
 				for (size_t i = 0; i < pBones->size(); ++i) m_Bones.push_back(new Bone());
 
@@ -265,9 +436,15 @@ namespace CForge {
 				}//for[bones]
 		
 			}
-			else {
+			else if(nullptr != pBones) {
 				m_Bones = (*pBones);
 			}
+
+			// find root bone
+			for (auto i : m_Bones) {
+				if (i->pParent == nullptr) m_pRootBone = i;
+			}//for[all bones]
+
 		}//bones
 
 		void addSkeletalAnimation(SkeletalAnimation* pAnim, bool Copy = true) {
@@ -277,7 +454,15 @@ namespace CForge {
 			}
 			else {
 				// copy
-				throw CForgeExcept("Copying Skeletal animation not implemented yet!");
+				SkeletalAnimation* pNewAnim = new SkeletalAnimation();
+				pNewAnim->Name = pAnim->Name;
+				pNewAnim->Duration = pAnim->Duration;
+				for (auto i : pAnim->Keyframes) {
+					BoneKeyframes* pBK = new BoneKeyframes();
+					(*pBK) = (*i);
+					pNewAnim->Keyframes.push_back(pBK);
+				}
+				m_SkeletalAnimations.push_back(pNewAnim);
 			}
 
 		}//addSkeletalAnimation
@@ -381,7 +566,9 @@ namespace CForge {
 		}//tangent
 
 		const Eigen::Matrix<T, 3, 1> tangent(int32_t Index) const {
-			if (Index < 0 || Index >= tangentCount()) throw IndexOutOfBoundsExcept("Index");
+			if (Index < 0 || Index >= tangentCount()) {
+				throw IndexOutOfBoundsExcept("Index");
+			}
 			return m_Tangents[Index];
 		}//tangent
 
@@ -455,6 +642,13 @@ namespace CForge {
 			return m_MorphTargets[Index];
 		}//getMorphTarget
 
+		Bone* rootBone(void) {
+			return m_pRootBone;
+		}//rootBone
+
+		const Bone* rootBone(void)const {
+			return m_pRootBone;
+		}//rootBone
 
 		void computePerFaceNormals(void) {
 			for (auto i : m_Submeshes) {
@@ -468,24 +662,45 @@ namespace CForge {
 			}//for[submeshes]
 		}//computePerFaceNormals
 
+		void computePerFaceTangents(void) {
+
+			if (m_UVWs.size() == 0) throw CForgeExcept("No UVW coordinates. Can not compute tangents.");
+
+			for (auto i : m_Submeshes) {
+				i->FaceTangents.clear();
+				for (auto F : i->Faces) {
+					const Eigen::Vector3f Edge1 = m_Positions[F.Vertices[1]] - m_Positions[F.Vertices[0]];
+					const Eigen::Vector3f Edge2 = m_Positions[F.Vertices[2]] - m_Positions[F.Vertices[0]];
+					const Eigen::Vector3f DeltaUV1 = m_UVWs[F.Vertices[1]] - m_UVWs[F.Vertices[0]];
+					const Eigen::Vector3f DeltaUV2 = m_UVWs[F.Vertices[2]] - m_UVWs[F.Vertices[0]];
+
+					float f = DeltaUV1.x() * DeltaUV2.y() - DeltaUV2.x() + DeltaUV1.y();
+					f = (std::abs(f) > 0.0f) ? 1.0f / f : 1.0f;
+
+					Eigen::Vector3f Tangent;
+					Tangent.x() = f * (DeltaUV2.y() * Edge1.x() - DeltaUV1.y() * Edge2.x());
+					Tangent.y() = f * (DeltaUV2.y() * Edge1.y() - DeltaUV1.y() * Edge2.y());
+					Tangent.z() = f * (DeltaUV2.y() * Edge1.z() - DeltaUV1.y() * Edge2.z());
+					i->FaceTangents.push_back(Tangent);
+				}//for[all faces]
+			}//for[all submeshes]
+
+		}//computeTangents
+
 		void computePerVertexNormals(bool ComputePerFaceNormals = true) {
 			if(ComputePerFaceNormals) computePerFaceNormals();
 
 			m_Normals.clear();
 			// create normals
-			Eigen::Vector3f Origin = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Normals.push_back(Origin);
+			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Normals.push_back(Eigen::Vector3f::Zero());
 
 			// sum normals
 			for (auto i : m_Submeshes) {
 				for (uint32_t k = 0; k < i->Faces.size(); ++k) {
 					Face* pF = &(i->Faces[k]);
-					pF->Normals[0] = pF->Vertices[0];
-					pF->Normals[1] = pF->Vertices[1];
-					pF->Normals[2] = pF->Vertices[2];
-					m_Normals[pF->Normals[0]] = m_Normals[pF->Normals[0]] + i->FaceNormals[k];
-					m_Normals[pF->Normals[1]] = m_Normals[pF->Normals[1]] + i->FaceNormals[k];
-					m_Normals[pF->Normals[2]] = m_Normals[pF->Normals[2]] + i->FaceNormals[k];
+					m_Normals[pF->Vertices[0]] = m_Normals[pF->Vertices[0]] + i->FaceNormals[k];
+					m_Normals[pF->Vertices[1]] = m_Normals[pF->Vertices[1]] + i->FaceNormals[k];
+					m_Normals[pF->Vertices[2]] = m_Normals[pF->Vertices[2]] + i->FaceNormals[k];
 				}//for[faces]
 			}//for[sub meshes
 
@@ -493,6 +708,29 @@ namespace CForge {
 			for (auto& i : m_Normals) i.normalize();
 
 		}//computeperVertexNormals
+
+		void computePerVertexTangents(bool ComputePerFaceTangents = true) {
+			if (ComputePerFaceTangents) computePerFaceTangents();
+
+			m_Tangents.clear();
+
+			// create tangents
+			for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Tangents.push_back(Eigen::Vector3f::Zero());
+
+			// sum tangents
+			for (auto i : m_Submeshes) {
+				for (uint32_t k = 0; k < i->Faces.size(); ++k) {
+					Face* pF = &(i->Faces[k]);
+					m_Tangents[pF->Vertices[0]] += i->FaceTangents[k];
+					m_Tangents[pF->Vertices[1]] += i->FaceTangents[k];
+					m_Tangents[pF->Vertices[2]] += i->FaceTangents[k];
+				}//for[all faces]
+			}//for[submeshes]
+
+			// normalize tangents
+			for (auto& i : m_Tangents) i.normalize();
+
+		}//computePerVertexTangents
 
 		AABB aabb(void)const {
 			return m_AABB;
@@ -512,6 +750,32 @@ namespace CForge {
 			}//for[all position values]
 		}//computeAxisAlignedBoundingBox
 
+		void applyTransformation(const Eigen::Matrix4f Mat) {
+			// transform vertices
+			for (auto &i : m_Positions) {
+				Eigen::Vector4f v = Mat * Eigen::Vector4f(i.x(), i.y(), i.z(), (T)1.0);
+				i = Eigen::Matrix<T, 3, 1>(v.x(), v.y(), v.z());
+			}//for[positions]
+
+			for (auto& i : m_Normals) {
+				Eigen::Vector4f v = Mat * Eigen::Vector4f(i.x(), i.y(), i.z(), (T)0.0);
+				i = Eigen::Matrix<T, 3, 1>(v.x(), v.y(), v.z());
+			}//for[normals]
+
+			for (auto& i : m_Tangents) {
+				Eigen::Vector4f v = Mat * Eigen::Vector4f(i.x(), i.y(), i.z(), (T)0.0);
+				i = Eigen::Matrix<T, 3, 1>(v.x(), v.y(), v.z());
+			}//for[tangents]
+
+		}//ApplyTransformation
+
+		void changeUVTiling(const Eigen::Vector3f Factor) {
+			for (auto& i : m_UVWs) i = i.cwiseProduct(Factor);
+			if (tangentCount() > 0) computePerVertexTangents(true);
+		}//changeUVTiling
+		
+
+		
 	protected:
 		std::vector<Eigen::Matrix<T, 3, 1>> m_Positions; ///< Vertex positions
 		std::vector<Eigen::Matrix<T, 3, 1>> m_Normals; ///< per vertex normals
@@ -530,6 +794,7 @@ namespace CForge {
 
 		// morph target related
 		std::vector<MorphTarget*> m_MorphTargets;
+
 	};//T3DMesh
 
 }//name space

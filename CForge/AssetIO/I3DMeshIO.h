@@ -29,7 +29,7 @@ namespace CForge {
 	* \todo Do full documentation
 	*/
 
-	class I3DMeshIO: public CForgeObject {
+	class CFORGE_API I3DMeshIO: public CForgeObject {
 	public:
 		enum Operation: uint8_t {
 			OP_LOAD = 0,
@@ -47,7 +47,6 @@ namespace CForge {
 	protected:
 		I3DMeshIO(const std::string ClassName);
 		virtual ~I3DMeshIO(void);
-	private:
 		std::string m_PluginName;
 	};//I3DMeshIO
 

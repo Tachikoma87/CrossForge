@@ -21,8 +21,20 @@
 #include "../Core/CForgeObject.h"
 #include "../Input/Keyboard.h"
 #include "../Input/Mouse.h"
+#include "../Core/ITCaller.hpp"
 
 namespace CForge {
+
+	struct GLWindowMsg {
+		enum MsgCode {
+			MC_RESIZE = 0,
+		};
+
+		MsgCode Code;
+		void* pHandle;
+		Eigen::Vector4i iParam;
+		Eigen::Vector4f fParam;
+	};
 
 	/**
 	* \brief A system window that also provides an OpenGL context. Powered by the GLFW library.
@@ -31,12 +43,12 @@ namespace CForge {
 	* \todo Think about better names for shutdown and closeWindow
 	* \todo Implement callback system for window changes
 	*/
-	class CFORGE_IXPORT GLWindow: public CForgeObject {
+	class CFORGE_API GLWindow: public CForgeObject, public ITCaller<GLWindowMsg> {
 	public:
 		GLWindow(void);
 		~GLWindow(void);
 
-		void init(Eigen::Vector2i Position, Eigen::Vector2i Size, std::string WindowName, uint32_t GLMajorVersion = 0, uint32_t GLMinorVersion = 0);
+		void init(Eigen::Vector2i Position, Eigen::Vector2i Size, std::string WindowTitle, uint32_t Multisample = 0, uint32_t GLMajorVersion = 0, uint32_t GLMinorVersion = 0);
 		void clear(void);
 
 		void update(void);
@@ -46,19 +58,38 @@ namespace CForge {
 		uint32_t height(void)const;
 		void* handle(void)const;
 
-		bool shutdown(void);	
+		bool shutdown(void)const;	
 		void closeWindow(void);
 
 		Keyboard* keyboard(void);
 		Mouse* mouse(void);
 
-	private:
-		class GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
-		void* m_pHandle;
+		std::string title(void)const;
+		void title(const std::string Title);
 
+		void setCharacterCallback(class GLFWindow* pWin, uint32_t Codepoint);
+
+		void vsync(bool Enable, int8_t ThrottleFactor = 1);
+		bool vsync(int8_t *pThrottleFactor = nullptr)const;
+
+		void makeCurrent(void)const;
+
+	private:
+		struct GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
+
+		void* m_pHandle;
 		Keyboard m_Keyboard;
 		Mouse m_Mouse;
 		class SInputManager* m_pInputMan;
+
+		bool m_VSync;
+		int8_t m_ThrottleFactor;
+
+		std::string m_Title; ///< The windows title
+
+		static void sizeCallback(struct GLFWwindow* pHandle, int32_t Width, int32_t Height);
+		static std::map<GLWindow*, struct GLFWwindow*> m_WindowList;
+
 	};//GLWindow
 
 }//name space

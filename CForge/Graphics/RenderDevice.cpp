@@ -1,8 +1,9 @@
-#include <glad/glad.h>
+#include "OpenGLHeader.h"
+
 #include "../Core/SLogger.h"
-#include "../Core/CoreUtility.hpp"
 #include "Shader/SShaderManager.h"
-#include "GraphicsUtility.h"
+#include "../Utility/CForgeUtility.h"
+#include "../Math/CForgeMath.h"
 #include "RenderDevice.h"
 
 using namespace Eigen;
@@ -32,9 +33,12 @@ namespace CForge {
 
 		UseGBuffer = true;
 		ExecuteLightingPass = true;
+
+		ForwardBufferWidth = 0;
+		ForwardBufferHeight = 0;
 	}
 
-	RenderDevice::RenderDevice(void): CForgeObject("RenderDevice") {
+	RenderDevice::RenderDevice(void) : CForgeObject("RenderDevice") {
 		m_pActiveCamera = nullptr;
 		m_pActiveMaterial = nullptr;
 		m_pActiveShader = nullptr;
@@ -44,8 +48,13 @@ namespace CForge {
 		clear();
 	}//Destructor
 
-	void RenderDevice::init(RenderDeviceConfig *pConfig) {
+	void RenderDevice::init(RenderDeviceConfig* pConfig) {
 		clear();
+		std::string ErrorMsg;
+
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred before initialization of RenderDevice: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
+		}
 
 		if (nullptr == pConfig) m_Config.init();
 		else m_Config = (*pConfig);
@@ -55,6 +64,18 @@ namespace CForge {
 		m_MaterialUBO.init();
 		m_LightsUBO.init(m_Config.DirectionalLightsCount, m_Config.PointLightsCount, m_Config.SpotLightsCount);
 
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred during initialization of UBOs: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
+		}
+
+		if (pConfig->pAttachedWindow != nullptr) {
+
+			m_Viewport[RENDERPASS_LIGHTING].Position = Vector2i(0, 0);
+			m_Viewport[RENDERPASS_LIGHTING].Size = Vector2i(pConfig->pAttachedWindow->width(), pConfig->pAttachedWindow->height());
+			m_Viewport[RENDERPASS_FORWARD].Position = Vector2i(0, 0);
+			m_Viewport[RENDERPASS_FORWARD].Size = Vector2i(pConfig->pAttachedWindow->width(), pConfig->pAttachedWindow->height());
+		}
+
 		// use GBuffer?
 		if (m_Config.UseGBuffer) {
 			if (m_Config.GBufferHeight == 0 || m_Config.GBufferWidth == 0) {
@@ -62,39 +83,46 @@ namespace CForge {
 				m_Config.GBufferHeight = 720;
 				m_Config.GBufferWidth = 1280;
 			}
+			
+
 			m_GBuffer.init(m_Config.GBufferWidth, m_Config.GBufferHeight);
+			m_ScreenQuad.init(0.0f, 0.0f, 1.0f, 1.0f, nullptr);
+
+			if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+				SLogger::log("Not handled OpenGL error occurred during initialization of ScreenQuad: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
+			}
 
 			if (m_Config.ExecuteLightingPass) {
-				m_ScreenQuad.init(0.0f, 0.0f, 1.0f, 1.0f, nullptr);
 				SShaderManager* pSMan = SShaderManager::instance();
-				//vector<string> VSSources;
-				//vector<string> FSSources;
 				string ErrorLog;
 
 				std::vector<ShaderCode*> VSSources;
 				std::vector<ShaderCode*> FSSources;
 				ShaderCode* pSC = nullptr;
 
-				if (m_Config.PhysicallyBasedShading) {
-					//VSSources.push_back("Shader/DRLightingPassPBS.vert");
-					//FSSources.push_back("Shader/DRLightingPassPBS.frag");
+				std::string GLVersionTag = "330 core";
+				std::string PrecsionTag = "";
 
-					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.vert", "330 core", 0, "highp", "highp");
+				#ifdef SHADER_GLES
+				GLVersionTag = "300 es";
+				PrecsionTag = "mediump";
+				#endif
+
+				if (m_Config.PhysicallyBasedShading) {
+					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.vert", GLVersionTag, 0, PrecsionTag);
 					VSSources.push_back(pSC);
-					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp", "highp");
+					pSC = pSMan->createShaderCode("Shader/DRLightingPassPBS.frag", GLVersionTag, ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, PrecsionTag);
 					FSSources.push_back(pSC);
 					m_pDeferredLightingPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
 				}
 				else {
-					//VSSources.push_back("Shader/DRLightingPassBlinnPhong.vert");
-					//FSSources.push_back("Shader/DRLightingPassBlinnPhong.frag");
-					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.vert", "330 core", 0, "highp", "highp");
+					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.vert", GLVersionTag, 0, PrecsionTag);
 					VSSources.push_back(pSC);
-					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.frag", "330 core", ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, "highp", "highp");
+					pSC = pSMan->createShaderCode("Shader/DRLightingPassBlinnPhong.frag", GLVersionTag, ShaderCode::CONF_LIGHTING | ShaderCode::CONF_POSTPROCESSING, PrecsionTag);
 					FSSources.push_back(pSC);
 					m_pDeferredLightingPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
 				}
-				
+
 				if (nullptr == m_pDeferredLightingPassShader || !ErrorLog.empty()) {
 					SLogger::log(ErrorLog);
 					throw CForgeExcept("Building deferred lighting pass shader failed. See log for details.");
@@ -102,11 +130,9 @@ namespace CForge {
 
 				VSSources.clear();
 				FSSources.clear();
-				//VSSources.push_back("Shader/ShadowPassShader.vert");
-				//FSSources.push_back("Shader/ShadowPassShader.frag");
-				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.vert", "330 core", ShaderCode::CONF_LIGHTING, "highp", "highp");
+				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.vert", GLVersionTag, ShaderCode::CONF_LIGHTING, PrecsionTag);
 				VSSources.push_back(pSC);
-				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.frag", "330 core", 0, "highp", "highp");
+				pSC = pSMan->createShaderCode("Shader/ShadowPassShader.frag", GLVersionTag, 0, PrecsionTag);
 				FSSources.push_back(pSC);
 				m_pShadowPassShader = pSMan->buildShader(&VSSources, &FSSources, &ErrorLog);
 				if (nullptr == m_pShadowPassShader || !ErrorLog.empty()) {
@@ -116,36 +142,49 @@ namespace CForge {
 
 				pSMan->release();
 			}//if[lighting pass]
+
+			m_Viewport[RENDERPASS_GEOMETRY].Size = Vector2i(pConfig->GBufferWidth, pConfig->GBufferHeight);
+			m_Viewport[RENDERPASS_GEOMETRY].Position = Vector2i(0, 0);
+
 		}//if[GBuffer]
 
+		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
+			SLogger::log("Not handled OpenGL error occurred during initialization of RenderDevice: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
+		}
 	}//initialize
 
 	void RenderDevice::clear(void) {
-		m_CameraUBO.clear();
+		
 	}//clear
 
 
 	void RenderDevice::requestRendering(IRenderableActor* pActor, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
-		if (nullptr == pActor) throw NullpointerExcept("pActor");	
+		if (nullptr == pActor) throw NullpointerExcept("pActor");
 
 		////// create model matrix and update buffer
-		const Matrix4f R = GraphicsUtility::rotationMatrix(Rotation);
-		const Matrix4f T = GraphicsUtility::translationMatrix(Translation);
-		const Matrix4f S = GraphicsUtility::scaleMatrix(Scale);
+		const Matrix4f R = CForgeMath::rotationMatrix(Rotation);
+		const Matrix4f T = CForgeMath::translationMatrix(Translation);
+		const Matrix4f S = CForgeMath::scaleMatrix(Scale);
 		const Matrix4f ModelMat = T * R * S;
 
+		Matrix4f NormalMat = ModelMat.inverse().transpose();
+
 		m_ModelUBO.modelMatrix(ModelMat);
+		m_ModelUBO.normalMatrix(NormalMat);
 
 		// render the object with current settings
-		pActor->render(this);
+		pActor->render(this, Rotation, Translation, Scale);
 
 	}//requestRendering
 
 	void RenderDevice::activeShader(GLShader* pShader) {
-		if (pShader != m_pActiveShader) {
+		if (pShader == nullptr) {
+			m_pActiveShader = nullptr;
+		}
+		else if (pShader != m_pActiveShader) {
 			m_pActiveShader = pShader;
 			m_pActiveShader->bind();
-			
+
 			uint32_t BindingPoint = m_pActiveShader->uboBindingPoint(GLShader::DEFAULTUBO_CAMERADATA);
 			if (GL_INVALID_INDEX != BindingPoint) {
 				m_CameraUBO.bind(BindingPoint);
@@ -166,6 +205,16 @@ namespace CForge {
 			BindingPoint = m_pActiveShader->uboBindingPoint(GLShader::DEFAULTUBO_SPOTLIGHTSDATA);
 			if (GL_INVALID_INDEX != BindingPoint) m_LightsUBO.bind(BindingPoint, ILight::LIGHT_SPOT);
 
+
+			uint32_t LocShadow1 = m_pActiveShader->uniformLocation(GLShader::DEFAULTTEX_SHADOW0);
+			uint32_t LocShadow2 = m_pActiveShader->uniformLocation(GLShader::DEFAULTTEX_SHADOW1);
+			if (m_ShadowCastingLights.size() > 0 && LocShadow1 != GL_INVALID_INDEX) {
+				m_ShadowCastingLights[0]->pLight->bindShadowTexture(m_pActiveShader, GLShader::DEFAULTTEX_SHADOW0);
+			}
+			if (m_ShadowCastingLights.size() > 1 && LocShadow2 != GL_INVALID_INDEX) {
+				m_ShadowCastingLights[1]->pLight->bindShadowTexture(m_pActiveShader, GLShader::DEFAULTTEX_SHADOW1);
+			}
+
 			// set shadow maps
 			for (auto i : m_ShadowCastingLights) {
 				if (i->pLight != nullptr && i->DefaultTexture != GLShader::DEFAULTTEX_UNKNOWN) {
@@ -173,29 +222,41 @@ namespace CForge {
 				}
 			}//for[shadow casting lights]
 
+
+			// set active light
+			if (m_pActiveShadowLight != nullptr) {
+				uint32_t ActiveLightID = m_pActiveShader->uniformLocation("ActiveLightID");
+				if (GL_INVALID_INDEX != ActiveLightID) glUniform1ui(ActiveLightID, m_pActiveShadowLight->UBOIndex);
+			}
+
 			// update material UBO
 			updateMaterial();
 		}//if[different shader]
-		
+
 	}//activeShader
 
 	void RenderDevice::activeMaterial(RenderMaterial* pMaterial) {
-		if (pMaterial != m_pActiveMaterial) {
+		if (nullptr == pMaterial) {
+			m_pActiveMaterial = nullptr;
+		}
+		else if (pMaterial != m_pActiveMaterial) {
 			m_pActiveMaterial = pMaterial;
 			updateMaterial();
 		}
 	}//activeMaterial
 
 	void RenderDevice::activeCamera(VirtualCamera* pCamera) {
-		if (nullptr != m_pActiveCamera) {
-			m_pActiveCamera->stopListening(this);
-		}
 		if (pCamera != m_pActiveCamera) {
+			if (nullptr != m_pActiveCamera) {
+				m_pActiveCamera->stopListening(this);
+			}
 			m_pActiveCamera = pCamera;
-			m_CameraUBO.viewMatrix(m_pActiveCamera->cameraMatrix());
-			m_CameraUBO.projectionMatrix(m_pActiveCamera->projectionMatrix());
-			m_CameraUBO.position(m_pActiveCamera->position());
-			m_pActiveCamera->startListening(this);
+			if (m_pActiveCamera != nullptr) {
+				m_CameraUBO.viewMatrix(m_pActiveCamera->cameraMatrix());
+				m_CameraUBO.projectionMatrix(m_pActiveCamera->projectionMatrix());
+				m_CameraUBO.position(m_pActiveCamera->position());
+				m_pActiveCamera->startListening(this);
+			}	
 		}
 	}//activeCamera
 
@@ -237,7 +298,84 @@ namespace CForge {
 		case VirtualCameraMsg::PROJECTION_CHANGED: {
 			m_CameraUBO.projectionMatrix(m_pActiveCamera->projectionMatrix());
 		}break;
+		case VirtualCameraMsg::UNKNOWN:
+		default: {
+			break;
 		}
+		}//swith[Msg.Code]
+	}//listen
+
+	void RenderDevice::listen(const LightMsg Msg) {
+		uint32_t ObjectID = ((CForgeObject*)Msg.pHandle)->objectID();
+		ActiveLight *pActiveLight = nullptr;
+		UBOLightData* pUBO = nullptr;
+
+
+		for (auto i : m_ActiveDirLights) {
+			if (nullptr == i) continue;
+			if (i->pLight->objectID() == ObjectID) {
+				pActiveLight = i;
+				break;
+			}
+		}//for[active directional lights]
+
+		for (auto i : m_ActivePointLights) {
+			if (nullptr == i) continue;
+			if (i->pLight->objectID() == ObjectID) {
+				pActiveLight = i;
+				break;
+			}
+		}//for[active point lights]
+
+		for (auto i : m_ActiveSpotLights) {
+			if (nullptr == i) continue;
+			if (i->pLight->objectID() == ObjectID) {
+				pActiveLight = i;
+				break;
+			}
+		}//for[active spot lights]
+
+		if (nullptr == pActiveLight) return;
+
+		bool ChangeLightSpaceMatrix = false;
+
+		switch (Msg.Code) {
+		case LightMsg::MC_COLOR_CHANGED: {
+			m_LightsUBO.color(pActiveLight->pLight->color(), pActiveLight->pLight->type(), pActiveLight->UBOIndex);
+		}break;
+		case LightMsg::MC_POSITION_CHANGED: {
+			m_LightsUBO.position(pActiveLight->pLight->position(), pActiveLight->pLight->type(), pActiveLight->UBOIndex);
+			ChangeLightSpaceMatrix = true;
+		}break;
+		case LightMsg::MC_DIRECTION_CHANGED: {
+			m_LightsUBO.direction(pActiveLight->pLight->direction(), pActiveLight->pLight->type(), pActiveLight->UBOIndex);
+			ChangeLightSpaceMatrix = true;
+		}break;
+		case LightMsg::MC_INTENSITY_CHANGED: {
+			m_LightsUBO.intensity(pActiveLight->pLight->intensity(), pActiveLight->pLight->type(), pActiveLight->UBOIndex);
+		}break;
+		case LightMsg::MC_SHADOW_CHANGED: {
+			ChangeLightSpaceMatrix = true;
+		}break;
+		case LightMsg::MC_DESTROYED: {
+			// \ToDo implement removing lights
+			//removeLight(pActiveLight->pLight);
+		}break;
+		default: break; //ignore others
+		}
+
+		if (ChangeLightSpaceMatrix) {
+			for (auto i : m_ShadowCastingLights) {
+				if (nullptr == i) continue;
+				if (i->pLight->objectID() == ObjectID) {
+					Matrix4f LightSpaceMatrix = i->pLight->projectionMatrix() * i->pLight->viewMatrix();
+					m_LightsUBO.lightSpaceMatrix(LightSpaceMatrix, i->pLight->type(), i->UBOIndex);
+					break;
+				}
+			}
+		}//if[change light space matrix]
+
+		
 	}//listen
 
 	void RenderDevice::updateMaterial(void) {
@@ -250,12 +388,13 @@ namespace CForge {
 			m_MaterialUBO.metallic(m_pActiveMaterial->metallic());
 			m_MaterialUBO.roughness(m_pActiveMaterial->roughness());
 			m_MaterialUBO.ambientOcclusion(m_pActiveMaterial->ambientOcclusion());
-
 		}
 	}//updateMaterial
 
-	void RenderDevice::activePass(RenderPass Pass, ILight *pActiveLight) {
+	void RenderDevice::activePass(RenderPass Pass, ILight* pActiveLight, bool ClearBuffer) {
 		m_ActiveRenderPass = Pass;
+
+		m_pActiveShadowLight = nullptr;
 
 		// change state?
 		switch (m_ActiveRenderPass) {
@@ -275,19 +414,21 @@ namespace CForge {
 			if (nullptr != pAL) {
 				pAL->pLight->bindShadowFBO();
 				glViewport(0, 0, pAL->pLight->shadowMapSize().x(), pAL->pLight->shadowMapSize().y());
-				glClear(GL_DEPTH_BUFFER_BIT);
+				if (ClearBuffer) glClear(GL_DEPTH_BUFFER_BIT);
 
 				uint32_t Loc = m_pActiveShader->uniformLocation("ActiveLightID");
 				glUniform1ui(Loc, pAL->UBOIndex);
 				glCullFace(GL_FRONT); // cull front face to solve peter-panning shadow artifact
+
+				m_pActiveShadowLight = pAL;
 			}
 		}break;
 		case RENDERPASS_GEOMETRY: {
 			// bind geometry buffer
 			if (m_Config.UseGBuffer) {
 				m_GBuffer.bind();
-				glViewport(0, 0, m_GBuffer.width(), m_GBuffer.height());
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glViewport(m_Viewport[RENDERPASS_GEOMETRY].Position.x(), m_Viewport[RENDERPASS_GEOMETRY].Position.y(), m_Viewport[RENDERPASS_GEOMETRY].Size.x(), m_Viewport[RENDERPASS_GEOMETRY].Size.y());
+				if (ClearBuffer) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
 			}
 		}break;
@@ -297,14 +438,17 @@ namespace CForge {
 			}
 
 			if (m_Config.ExecuteLightingPass) {
-				glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glViewport(m_Viewport[RENDERPASS_LIGHTING].Position.x(), m_Viewport[RENDERPASS_LIGHTING].Position.y(), m_Viewport[RENDERPASS_LIGHTING].Size.x(), m_Viewport[RENDERPASS_LIGHTING].Size.y());
+				if (ClearBuffer) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glCullFace(GL_BACK);
 
 				activeShader(m_pDeferredLightingPassShader);
 				uint32_t LocPos = m_pDeferredLightingPassShader->uniformLocation(GLShader::DEFAULTTEX_DEPTH);
 				uint32_t LocNormal = m_pDeferredLightingPassShader->uniformLocation(GLShader::DEFAULTTEX_NORMAL);
 				uint32_t LocAlbedo = m_pDeferredLightingPassShader->uniformLocation(GLShader::DEFAULTTEX_ALBEDO);
+
+				uint32_t LocShadow1 = m_pDeferredLightingPassShader->uniformLocation(GLShader::DEFAULTTEX_SHADOW0);
+				uint32_t LocShadow2 = m_pDeferredLightingPassShader->uniformLocation(GLShader::DEFAULTTEX_SHADOW1);
 
 				if (LocPos != GL_INVALID_INDEX) {
 					m_GBuffer.bindTexture(GBuffer::COMP_POSITION, LocPos);
@@ -318,7 +462,13 @@ namespace CForge {
 					m_GBuffer.bindTexture(GBuffer::COMP_ALBEDO, LocAlbedo);
 					glUniform1i(LocAlbedo, LocAlbedo);
 				}
-				requestRendering(&m_ScreenQuad, Quaternionf::Identity(), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f));
+				if (m_ShadowCastingLights.size() > 0 && LocShadow1 != GL_INVALID_INDEX) {
+					m_ShadowCastingLights[0]->pLight->bindShadowTexture(m_pActiveShader, GLShader::DEFAULTTEX_SHADOW0);
+				}
+				if (m_ShadowCastingLights.size() > 1 && LocShadow2 != GL_INVALID_INDEX) {
+					m_ShadowCastingLights[1]->pLight->bindShadowTexture(m_pActiveShader, GLShader::DEFAULTTEX_SHADOW1);
+				}
+				requestRendering(&m_ScreenQuad, Quaternionf::Identity(), Vector3f::Zero(), Vector3f::Ones());
 			}
 		}break;
 		case RENDERPASS_FORWARD: {
@@ -326,13 +476,18 @@ namespace CForge {
 				// blit depth buffer
 				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 				m_GBuffer.blitDepthBuffer(m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				glViewport(0, 0, m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
 			}
+
+			glCullFace(GL_BACK);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glViewport(m_Viewport[RENDERPASS_FORWARD].Position.x(), m_Viewport[RENDERPASS_FORWARD].Position.y(), m_Viewport[RENDERPASS_FORWARD].Size.x(), m_Viewport[RENDERPASS_FORWARD].Size.y());
+			if (ClearBuffer) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}break;
 		default: break;
 		}
 
+		m_pActiveMaterial = nullptr;
+		m_pActiveShader = nullptr;
 	}//activePass
 
 	void RenderDevice::addLight(ILight* pLight) {
@@ -347,7 +502,8 @@ namespace CForge {
 
 	}//addLight
 
-	void RenderDevice::addLight(ILight *pLight, std::vector<ActiveLight*>* pLights) {
+
+	void RenderDevice::addLight(ILight* pLight, std::vector<ActiveLight*>* pLights) {
 		// do we already know this light?
 		for (auto i : (*pLights)) {
 			if (i->pLight == pLight) return; // we already have this light
@@ -380,24 +536,26 @@ namespace CForge {
 
 			// initialize shadow casting light
 			switch (pAL->ShadowIndex) {
-				case 0: pAL->DefaultTexture = GLShader::DEFAULTTEX_SHADOW0; break;
-				case 1: pAL->DefaultTexture = GLShader::DEFAULTTEX_SHADOW1; break;
-				case 2: pAL->DefaultTexture = GLShader::DEFAULTTEX_SHADOW2; break;
-				case 3: pAL->DefaultTexture = GLShader::DEFAULTTEX_SHADOW3; break;
-				default: pAL->DefaultTexture = GLShader::DEFAULTTEX_UNKNOWN; break;
+			case 0: pAL->DefaultTexture = GLShader::DEFAULTTEX_SHADOW0; break;
+			case 1: pAL->DefaultTexture = GLShader::DEFAULTTEX_SHADOW1; break;
+			case 2: pAL->DefaultTexture = GLShader::DEFAULTTEX_SHADOW2; break;
+			case 3: pAL->DefaultTexture = GLShader::DEFAULTTEX_SHADOW3; break;
+			default: pAL->DefaultTexture = GLShader::DEFAULTTEX_UNKNOWN; break;
 			}//switch[default texture]
 
 			m_LightsUBO.shadowID(pAL->ShadowIndex, pLight->type(), pAL->UBOIndex);
 			Matrix4f LightSpaceMatrix = pAL->pLight->projectionMatrix() * pAL->pLight->viewMatrix();
 			m_LightsUBO.lightSpaceMatrix(LightSpaceMatrix, pAL->pLight->type(), pAL->UBOIndex);
-					
+
 		}//if[cast shadows]
-		
+
+		pAL->pLight->startListening(this);
+
 	}//addLight
 
 	void RenderDevice::removeLight(ILight* pLight) {
 		if (nullptr == pLight) throw NullpointerExcept("pLight");
-		throw CForgeExcept("Not implemented yet!");	
+		throw CForgeExcept("Not implemented yet!");
 	}//removeLight
 
 	uint32_t RenderDevice::activeLightsCount(ILight::LightType Type)const {
@@ -418,9 +576,23 @@ namespace CForge {
 	RenderDevice::RenderPass RenderDevice::activePass(void)const {
 		return m_ActiveRenderPass;
 	}//activePass
-	
+
 	GLShader* RenderDevice::shadowPassShader(void) {
 		return m_pShadowPassShader;
 	}//shadowPassShader
+
+	void RenderDevice::viewport(RenderPass Pass, Viewport VP) {
+		if (Pass <= RENDERPASS_UNKNOWN || Pass >= RENDERPASS_COUNT) {
+			for (uint8_t i = 0; i < RENDERPASS_COUNT; ++i) m_Viewport[i] = VP;
+		}
+		else {
+			m_Viewport[Pass] = VP;
+		}
+	}//viewport
+
+	RenderDevice::Viewport RenderDevice::viewport(RenderPass Pass)const {
+		if (Pass <= RENDERPASS_UNKNOWN || Pass >= RENDERPASS_COUNT) throw IndexOutOfBoundsExcept("Pass");
+		return m_Viewport[Pass];
+	}//viewport
 
 }//name space

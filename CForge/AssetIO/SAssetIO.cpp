@@ -1,11 +1,10 @@
 #include "SAssetIO.h"
-
 #include "AssimpMeshIO.h"
+#include "StbImageIO.h"
+#include "WebPImageIO.h"
 #include "OpenCVImageIO.h"
-
-#include "File.h"
-
 #include "../Core/SLogger.h"
+#include "../AssetIO/File.h"
 
 namespace CForge {
 	SAssetIO* SAssetIO::m_pInstance = nullptr;
@@ -94,13 +93,26 @@ namespace CForge {
 
 		// Image Plugins
 		ImageIOPlugin ImgPlug;
+
+		StbImageIO* pStbImageIO = new StbImageIO();
+		pStbImageIO->init();
+		ImgPlug.pInstance = pStbImageIO;
+		ImgPlug.Name = pStbImageIO->pluginName();
+		m_ImageIOPlugins.push_back(ImgPlug);
+
+		WebPImageIO* pWebPImageIO = new WebPImageIO();
+		pWebPImageIO->init();
+		ImgPlug.pInstance = pWebPImageIO;
+		ImgPlug.Name = pWebPImageIO->pluginName();
+		m_ImageIOPlugins.push_back(ImgPlug);
+
+		#ifdef USE_OPENCV
 		OpenCVImageIO* pOpenCVImageIO = new OpenCVImageIO();
 		pOpenCVImageIO->init();
 		ImgPlug.pInstance = pOpenCVImageIO;
 		ImgPlug.Name = pOpenCVImageIO->pluginName();
-
 		m_ImageIOPlugins.push_back(ImgPlug);
-
+		#endif
 	}//initialize
 
 	void SAssetIO::clear(void) {
@@ -119,6 +131,9 @@ namespace CForge {
 	void SAssetIO::storeModel(const std::string Filepath, const T3DMesh<float>* pMesh) {
 		if (Filepath.empty()) throw CForgeExcept("Empty filepath specified");
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
+
+		std::string Parent = File::parentPath(Filepath);
+		if (!Parent.empty() && !File::isDirectory(Parent)) File::createDirectories(Parent);
 
 		for (auto i : m_ModelIOPlugins) {
 			if (i.pInstance->accepted(Filepath, I3DMeshIO::OP_STORE)) {
@@ -141,10 +156,16 @@ namespace CForge {
 		if (Filepath.empty()) throw CForgeExcept("Empty filepath specified");
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 
-		for (auto i : m_ModelIOPlugins) {
+		for (auto &i : m_ModelIOPlugins) {
 			if (i.pInstance->accepted(Filepath, I3DMeshIO::OP_LOAD)) {
 				try {
 					i.pInstance->load(Filepath, pMesh);
+
+					// Assimp requires restart of the plugin if .bvh is loaded or next loading operation of a bvh will terminate with an unexpected end of file error :-(
+					if (Filepath.find(".bvh") != std::string::npos && i.Name.compare("AssImp Mesh IO") == 0) {
+						i.pInstance->release();
+						i.pInstance = new AssimpMeshIO();
+					}
 				}
 				catch (CrossForgeException& e) {
 					SLogger::logException(e);
@@ -162,6 +183,9 @@ namespace CForge {
 	void SAssetIO::storeImage(const std::string Filepath, const T2DImage<uint8_t>* pImage) {
 		if (Filepath.empty()) throw CForgeExcept("Empty filepath specified!");
 		if (nullptr == pImage) throw NullpointerExcept("pImage");
+
+		std::string Parent = File::parentPath(Filepath);
+		if (!Parent.empty() && !File::isDirectory(Parent)) File::createDirectories(Parent);
 
 		for (auto i : m_ImageIOPlugins) {
 			if (i.pInstance->accepted(Filepath, I2DImageIO::OP_STORE) ) {

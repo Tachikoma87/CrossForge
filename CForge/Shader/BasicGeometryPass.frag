@@ -18,19 +18,43 @@ layout (std140) uniform MaterialData{
 
 uniform sampler2D TexAlbedo;
 
+#ifdef NORMAL_MAPPING 
+uniform sampler2D TexNormal;
+in mat3 TBN;
+#endif 
+
+#ifdef VERTEX_COLORS
+in vec3 Color;
+#endif
 
 in vec3 Pos;
 in vec3 N;
 in vec2 UV;
 
-
 void main(){
+	
+	vec4 TexColor = texture(TexAlbedo, UV);
+
+	// and the diffuse per-fragment color 
+	if(TexColor.a < 0.01) discard;
+	
+	#ifdef VERTEX_COLORS
+	gAlbedoSpec.rgb = TexColor.a * (Color * Material.Color.rgb * TexColor.rgb);
+	#else
+	gAlbedoSpec.rgb = TexColor.a * (Material.Color.rgb * TexColor.rgb);
+	#endif
+
 	// store the framgent position vector in the first gBuffer texture 
 	gPosition = vec4(Pos, Material.AO);
+
 	// also store the per-fragment normals into the gBuffer 
+	#ifdef NORMAL_MAPPING 
+	vec3 normal = normalize(texture(TexNormal, UV).rgb * 2.0 - 1.0);
+	gNormal = vec4(normalize(TBN * normal), Material.Roughness);
+	#else
 	gNormal = vec4(normalize(N), Material.Roughness);
-	// and the diffuse per-fragment color 
-	gAlbedoSpec.rgb = Material.Color.rgb * texture(TexAlbedo, UV).rgb;
+	#endif
+
 	// store the specular intensity in gAlbedoSpec s alpha component 
 	gAlbedoSpec.a = Material.Metallic;
 }//main 

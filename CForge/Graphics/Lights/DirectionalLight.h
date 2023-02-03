@@ -20,13 +20,17 @@
 
 #include "ILight.h"
 
+
 namespace CForge {
+
+	
+
 	/**
 	* \brief A simple directional light. Has only a direction and position for shadow casting.
 	*
 	* \todo Do full documentation.
 	*/
-	class CFORGE_IXPORT DirectionalLight : public ILight {
+	class CFORGE_API DirectionalLight : public ILight {
 	public:
 		DirectionalLight(void);
 		~DirectionalLight(void);

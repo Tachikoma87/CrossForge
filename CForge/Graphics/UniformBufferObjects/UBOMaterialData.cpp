@@ -37,7 +37,7 @@ namespace CForge {
 	uint32_t UBOMaterialData::size(void)const {
 		uint32_t Rval = 0;
 		Rval += sizeof(float) * 4; // color components
-		Rval += sizeof(float) * 4; // Attributes + padding
+		Rval += sizeof(float) * 16; // Attributes + padding
 		return Rval;
 	}//size
 

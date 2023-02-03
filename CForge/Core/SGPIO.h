@@ -17,7 +17,9 @@
 \****************************************************************************/
 #pragma once
 
-#ifdef __unix__
+#if defined(__EMSCRIPTEN__)
+
+#elif defined(__unix__)
 #include <gpiod.h>
 #endif
 
@@ -31,7 +33,7 @@ namespace CForge {
 	* \todo Add interrupt system (polling thread with sleep of 2 milliseconds)
 	* \todo Do full documentation
 	*/
-	class CFORGE_IXPORT  SGPIO: public CForgeObject {
+	class CFORGE_API  SGPIO: public CForgeObject {
 	public:
 		static const int8_t INPUT = 0;
 		static const int8_t OUTPUT = 1;
@@ -75,7 +77,7 @@ namespace CForge {
 
 		std::string m_Chipname;
 
-#ifdef USE_SYSFS_GPIO
+#if defined(USE_SYSFS_GPIO)
 		struct GPIOLine {
 			uint8_t ID;
 			std::string ValueStream;

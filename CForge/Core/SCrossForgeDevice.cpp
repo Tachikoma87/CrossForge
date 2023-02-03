@@ -1,3 +1,6 @@
+#ifdef WIN32
+#include <WinSock2.h>
+#endif
 #include <GLFW/glfw3.h>
 #include "SCrossForgeDevice.h"
 #include "SLogger.h"
@@ -5,6 +8,7 @@
 #include "../AssetIO/SAssetIO.h"
 #include "../Graphics/STextureManager.h"
 #include "../Graphics/Shader/SShaderManager.h"
+
 
 using namespace std;
 
@@ -44,17 +48,27 @@ namespace CForge {
 		m_pGPIO = nullptr;
 		m_pSMan = nullptr;
 		m_pTexMan = nullptr;
-
 	}//Constructor
 
 	SCrossForgeDevice::~SCrossForgeDevice(void) {	
 		// cleanup duty handled in clear
 		glfwTerminate();
-		
+
+		#ifdef WIN32
+		// clean WSA
+		WSACleanup();
+		#endif
 	}//Destructor
 
 	void SCrossForgeDevice::init(void) {
 		glfwInit();
+
+		#if defined(WIN32) && !defined(__EMSCRIPTEN__)
+		WSADATA wsa;
+		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+			SLogger::log("Error initializing wsa" + std::to_string(WSAGetLastError()), "SCrossForgeDevice", SLogger::LOGTYPE_ERROR);
+		}
+		#endif
 
 		m_RegisteredObjects.clear();
 		m_FreeObjSlots.clear();
@@ -64,7 +78,8 @@ namespace CForge {
 		m_pSMan = SShaderManager::instance();
 		m_pTexMan = STextureManager::instance();
 
-#ifdef _WIN32
+
+#if defined(_WIN32) || defined(__EMSCRIPTEN__)
 		m_pGPIO = nullptr;
 #else
 		m_pGPIO = SGPIO::instance();
@@ -142,25 +157,25 @@ namespace CForge {
 
 	void SCrossForgeDevice::unregisterObject(CForgeObject* pObj) {
 		if (nullptr == pObj) throw NullpointerExcept("pObj");
-		m_Mutex.lock();
 
+		m_Mutex.lock();
 
 		uint32_t Index = pObj->objectID();
 		if (Index >= m_RegisteredObjects.size()) {
 			m_Mutex.unlock();
 			throw IndexOutOfBoundsExcept("Index of registered object!");
 		}
-		/*if (m_RegisteredObjects[Index] != pObj) {
-			m_Mutex.unlock();
-			throw CForgeExcept("Registered object ID and stored position do not match. That should not happen!");
-		}*/
 
-		m_RegisteredObjects[Index] = nullptr;
-		m_FreeObjSlots.push_back(Index);
+		if (m_RegisteredObjects[Index] == nullptr || m_RegisteredObjects[Index]->objectID() != pObj->objectID()) {
+			//printf("That should not happen!\n");
+		}
+		else {
+			m_RegisteredObjects[Index] = nullptr;
+			m_FreeObjSlots.push_back(Index);
+		}
 
 		m_Mutex.unlock();
 	}//unregisterObject
 
-	
 
 }//name-space
