@@ -1,7 +1,7 @@
 #version 330 core
 
 #ifdef SKELETAL_ANIMATION
-const uint BoneCount = 40U;
+const uint BoneCount = 19U;
 
 layout (std140) uniform BoneData{
 	mat4 SkinningMatrix[BoneCount];
@@ -9,7 +9,9 @@ layout (std140) uniform BoneData{
 #endif
 
 #ifdef MORPHTARGET_ANIMATION 
-uniform samplerBuffer MorphTargetDataBuffer;
+//uniform samplerBuffer MorphTargetDataBuffer;
+uniform sampler2D MorphTargetDataBuffer;
+
 
 layout (std140) uniform MorphTargetData{
 	// 0 is offset in elements (float) to next morph target
@@ -76,8 +78,8 @@ void main(){
 	for(int i = 0; i < MorphTargets.Data[1]; ++i){
 		// compute Offset to fetch from 
 		int ID = MorphTargets.ActivationIDs[i/3][i%3];
-		int Offset = (ID * MorphTargets.Data[0]) + gl_VertexID;
-		Displ += MorphTargets.ActivationStrengths[i/3][i%3] * texelFetch(MorphTargetDataBuffer, Offset).rgb;
+		int Offset = gl_VertexID;
+		Displ += MorphTargets.ActivationStrengths[i/3][i%3] * texelFetch(MorphTargetDataBuffer, ivec2(Offset, ID), 0).rgb;
 	}//for[active morph targets]
 
 	Po += vec4(Displ, 0.0);
@@ -98,7 +100,6 @@ void main(){
 
 #endif
 
-	
 	Pos = (Model.ModelMatrix * Po).xyz;
 	UV = UVW.xy;
 	gl_Position = Camera.ProjectionMatrix * Camera.ViewMatrix * Model.ModelMatrix * Po;

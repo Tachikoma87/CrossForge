@@ -215,12 +215,12 @@ namespace CForge {
 				m_ShadowCastingLights[1]->pLight->bindShadowTexture(m_pActiveShader, GLShader::DEFAULTTEX_SHADOW1);
 			}
 
-			//// set shadow maps
-			//for (auto i : m_ShadowCastingLights) {
-			//	if (i->pLight != nullptr && i->DefaultTexture != GLShader::DEFAULTTEX_UNKNOWN) {
-			//		i->pLight->bindShadowTexture(m_pActiveShader, i->DefaultTexture);
-			//	}
-			//}//for[shadow casting lights]
+			// set shadow maps
+			for (auto i : m_ShadowCastingLights) {
+				if (i->pLight != nullptr && i->DefaultTexture != GLShader::DEFAULTTEX_UNKNOWN) {
+					i->pLight->bindShadowTexture(m_pActiveShader, i->DefaultTexture);
+				}
+			}//for[shadow casting lights]
 
 
 			// set active light
@@ -472,14 +472,12 @@ namespace CForge {
 			}
 		}break;
 		case RENDERPASS_FORWARD: {
-			
-#ifndef __EMSCRIPTEN__
 			if (m_Config.UseGBuffer) {
 				// blit depth buffer
 				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 				m_GBuffer.blitDepthBuffer(m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
 			}
-#endif
+
 			glCullFace(GL_BACK);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glViewport(m_Viewport[RENDERPASS_FORWARD].Position.x(), m_Viewport[RENDERPASS_FORWARD].Position.y(), m_Viewport[RENDERPASS_FORWARD].Size.x(), m_Viewport[RENDERPASS_FORWARD].Size.y());

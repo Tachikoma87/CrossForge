@@ -211,73 +211,72 @@ namespace CForge {
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) override {
-			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
-				m_SG.update(60.0f / m_FPS);
+		void mainLoop(void) override {
 
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+			m_RenderWin.update();
+			m_SG.update(60.0f / m_FPS);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-				m_SG.render(&m_RenderDev);
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
-				/*m_RenderDev.cameraUBO()->position(m_Sun.position());
-				m_RenderDev.cameraUBO()->projectionMatrix(m_Sun.projectionMatrix());
-				m_RenderDev.cameraUBO()->viewMatrix(m_Sun.viewMatrix());*/
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-				m_SG.render(&m_RenderDev);
+			/*m_RenderDev.cameraUBO()->position(m_Sun.position());
+			m_RenderDev.cameraUBO()->projectionMatrix(m_Sun.projectionMatrix());
+			m_RenderDev.cameraUBO()->viewMatrix(m_Sun.viewMatrix());*/
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
-				m_SkyboxSG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
-				m_GUI.processEvents();
-				m_GUI.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+			m_SkyboxSG.render(&m_RenderDev);
 
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
-					static int32_t ScreenshotCount = 0;
-					T2DImage<uint8_t> Img;
-					T2DImage<uint8_t> DepthBuffer;
-					CForgeUtility::retrieveFrameBuffer(&Img, &DepthBuffer, 0.1f, 200.0f);
-					AssetIO::store("../../Screenshot_" + std::to_string(ScreenshotCount) + ".jpg", &Img);
-					AssetIO::store("../../DepthBuffer_" + std::to_string(ScreenshotCount) + ".jpg", &DepthBuffer);
+			m_GUI.processEvents();
+			m_GUI.render(&m_RenderDev);
 
-					Img.clear();
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
+				static int32_t ScreenshotCount = 0;
+				T2DImage<uint8_t> Img;
+				T2DImage<uint8_t> DepthBuffer;
+				CForgeUtility::retrieveFrameBuffer(&Img, &DepthBuffer, 0.1f, 200.0f);
+				AssetIO::store("../../Screenshot_" + std::to_string(ScreenshotCount) + ".jpg", &Img);
+				AssetIO::store("../../DepthBuffer_" + std::to_string(ScreenshotCount) + ".jpg", &DepthBuffer);
 
-					ScreenshotCount++;
+				Img.clear();
+
+				ScreenshotCount++;
+			}
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F3, true)) {
+				T2DImage<uint8_t> Img;
+				m_Sun.retrieveDepthBuffer(&Img);
+				AssetIO::store("../../SunDepthbuffer.jpg", &Img);
+			}
+
+			static uint64_t LastFPSPrint = CForgeUtility::timestamp();
+
+			if (CForgeUtility::timestamp() - LastFPSPrint > 500) {
+				LastFPSPrint = CForgeUtility::timestamp();
+
+				wchar_t text_wstring[100] = { 0 };
+				int charcount = swprintf(text_wstring, 100, L"FPS: %.2f", m_FPS);
+				std::u32string text;
+				//ugly cast to u32string from wchar[]
+				for (int i = 0; i < charcount; i++) {
+					text.push_back((char32_t)text_wstring[i]);
 				}
-
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F3, true)) {
-					T2DImage<uint8_t> Img;
-					m_Sun.retrieveDepthBuffer(&Img);
-					AssetIO::store("../../SunDepthbuffer.jpg", &Img);
-				}
-
-				static uint64_t LastFPSPrint = CForgeUtility::timestamp();
-
-				if (CForgeUtility::timestamp() - LastFPSPrint > 500) {
-					LastFPSPrint = CForgeUtility::timestamp();
-
-					wchar_t text_wstring[100] = { 0 };
-					int charcount = swprintf(text_wstring, 100, L"FPS: %.2f", m_FPS);
-					std::u32string text;
-					//ugly cast to u32string from wchar[]
-					for (int i = 0; i < charcount; i++) {
-						text.push_back((char32_t)text_wstring[i]);
-					}
-					m_pFPSWidget->setText(text);
-					m_pFPSWidget->setPosition(m_RenderWin.width() - m_pFPSWidget->getWidth(), 0);
-				}
+				m_pFPSWidget->setText(text);
+				m_pFPSWidget->setPosition(m_RenderWin.width() - m_pFPSWidget->getWidth(), 0);
+			}
 				
-				m_RenderWin.swapBuffers();
+			m_RenderWin.swapBuffers();
 
-				updateFPS();
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
+			updateFPS();
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
 
-			}//while[main loop]
-		}//run
+		}//mainLoop
 
 	protected:
 
@@ -330,14 +329,6 @@ namespace CForge {
 		TextWidget *m_pFPSWidget;
 	};//ForestTestScene
 
-	void imageTestScene(void) {
-
-		ImageTestScene Scene;
-		Scene.init();
-		Scene.run();
-		Scene.clear();
-
-	}//exampleMinimumGraphicsSetup
 
 }
 

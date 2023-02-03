@@ -9,7 +9,7 @@ layout(std140) uniform BoneData{
 #endif
 
 #ifdef MORPHTARGET_ANIMATION 
-uniform samplerBuffer MorphTargetDataBuffer;
+uniform sampler2D MorphTargetDataBuffer;
 
 layout(std140) uniform MorphTargetData{
 	// 0 is offset in elements (float) to next morph target
@@ -67,7 +67,7 @@ void main(){
 	mat4 T = mat4(0);
 	for(uint i = 0U; i < 4U; ++i){
 		T += BoneWeights[i] * Bones.SkinningMatrix[BoneIndices[i]];	
-	}for[4 weights]
+	}//for[4 weights]
 	Po = T * vec4(Position, 1.0);
 	No = T * vec4(No);
 #endif 
@@ -75,11 +75,11 @@ void main(){
 #ifdef MORPHTARGET_ANIMATION
 	vec3 Displ = vec3(0);
 	for(int i = 0; i < MorphTargets.Data[1]; ++i){
-		 compute Offset to fetch from 
+		// compute Offset to fetch from 
 		int ID = MorphTargets.ActivationIDs[i/3][i%3];
-		int Offset = (ID * MorphTargets.Data[0]) + gl_VertexID;
-		Displ += MorphTargets.ActivationStrengths[i/3][i%3] * texelFetch(MorphTargetDataBuffer, Offset).rgb;
-	}for[active morph targets]
+		int Offset = gl_VertexID;
+		Displ += MorphTargets.ActivationStrengths[i/3][i%3] * texelFetch(MorphTargetDataBuffer, ivec2(Offset, ID), 0).rgb;
+	}//for[active morph targets]
 
 	Po += vec4(Displ, 0.0);
 #endif

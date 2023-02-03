@@ -42,7 +42,7 @@ namespace CForge {
 		void init() override{
 
 			initWindowAndRenderDevice();
-			initCameraAndLights();
+			initCameraAndLights(true);
 
 #ifndef __EMSCRIPTEN__
 			gladLoadGL();
@@ -51,12 +51,15 @@ namespace CForge {
 			// load skydome and a textured cube
 			T3DMesh<float> M;
 
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
+			//SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.gltf", &M);
+			PrimitiveShapeFactory::plane(&M, Vector2f(50, 50), Vector2i(1, 1));
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			M.computeAxisAlignedBoundingBox();
 			m_Skydome.init(&M);
 			M.clear();
+
+			printf("Loaded model\n");
 
 			//SAssetIO::load("Assets/ExampleScenes/StarCoin/StarCoin.gltf", &M);
 			//PrimitiveShapeFactory::plane(&M, Vector2f(5.0f, 5.0f), Vector2i(1, 1));
@@ -92,7 +95,7 @@ namespace CForge {
 
 			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::METAL_GOLD);
 
-			//M.changeUVTiling(Vector3f(5.0f, 5.0f, 1.0f));
+			M.changeUVTiling(Vector3f(3.0f, 3.0f, 1.0f));
 			std::string ErrorMsg;
 			if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
 				SLogger::log("Not handled OpenGL error occurred during initialization of Ducky: " + ErrorMsg, "Ducky", SLogger::LOGTYPE_ERROR);
@@ -147,14 +150,25 @@ namespace CForge {
 			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
 			m_SG.render(&m_RenderDev);
-
+			
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_RenderDev.activeCamera(&m_Cam);
 			m_SG.render(&m_RenderDev);
 			
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
-			m_RenderWin.swapBuffers();
 
+			/*m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
+			m_RenderDev.activeCamera(&m_Cam);
+			m_SG.render(&m_RenderDev);*/
+
+			static bool a = false;
+
+
+			m_RenderWin.swapBuffers();
+			a = true;
+			
 			updateFPS();
 
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
@@ -193,19 +207,8 @@ namespace CForge {
 			}
 
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
-
-			std::string ErrorMsg;
-			if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
-				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
-			}
 		}//mainLoop
 
-		void run(void) override{
-			while (!m_RenderWin.shutdown()) {
-				mainLoop();
-
-			}//while[main loop]
-		}//run
 
 	protected:
 

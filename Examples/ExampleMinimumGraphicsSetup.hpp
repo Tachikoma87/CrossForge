@@ -93,6 +93,7 @@ namespace CForge {
 			m_pShaderMan = nullptr;
 		}//clear
 
+
 		void mainLoop(void)override {
 			m_RenderWin.update();
 			m_SG.update(60.0f / m_FPS);
@@ -119,11 +120,7 @@ namespace CForge {
 			}
 		}
 
-		void run(void) override{
-			while (!m_RenderWin.shutdown()) {
-				mainLoop();
-			}//while[main loop]
-		}//run
+
 
 	protected:
 

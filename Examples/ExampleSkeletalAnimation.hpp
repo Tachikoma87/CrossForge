@@ -45,7 +45,7 @@ namespace CForge {
 			// load skydome
 			T3DMesh<float> M;
 			
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
+			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			m_Skydome.init(&M);
@@ -93,49 +93,46 @@ namespace CForge {
 			ExampleSceneBase::clear();
 		}
 
-		void run(void) override{
+		void mainLoop(void)override {
+			m_RenderWin.update();
+			m_SG.update(60.0f / m_FPS);
 
-			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
-				m_SG.update(60.0f / m_FPS);
+			// this will progress all active skeletal animations for this controller
+			m_BipedController.update(60.0f / m_FPS);
+			if (m_RepeatAnimation && nullptr != m_CesiumMan.activeAnimation()) {
+				auto* pAnim = m_CesiumMan.activeAnimation();
+				if (pAnim->t >= pAnim->Duration) pAnim->t -= pAnim->Duration;
+			}
 
-				// this will progress all active skeletal animations for this controller
-				m_BipedController.update(60.0f / m_FPS);
-				if (m_RepeatAnimation && nullptr != m_CesiumMan.activeAnimation()) {
-					auto* pAnim = m_CesiumMan.activeAnimation();
-					if (pAnim->t >= pAnim->Duration) pAnim->t -= pAnim->Duration;
-				}
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+			// if user hits key 1, animation will be played
+			// if user also presses shift, animation speed is doubled
+			float AnimationSpeed = 1000 / 60.0f;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
+				SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
+				m_CesiumMan.activeAnimation(pAnim);
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_R, true)) {
+				m_RepeatAnimation = !m_RepeatAnimation;
+			}
 
-				// if user hits key 1, animation will be played
-				// if user also presses shift, animation speed is doubled
-				float AnimationSpeed = 1000 / 60.0f;
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
-					SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
-					m_CesiumMan.activeAnimation(pAnim);
-				}
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_R, true)) {
-					m_RepeatAnimation = !m_RepeatAnimation;
-				}
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-				m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-				m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			m_RenderWin.swapBuffers();
 
-				m_RenderWin.swapBuffers();
+			updateFPS();
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
+		}//mainLoop
 
-				updateFPS();
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
-
-			}//while[main loop]
-		}//run
 	protected:
 		StaticActor m_Skydome;
 		SkeletalActor m_CesiumMan;

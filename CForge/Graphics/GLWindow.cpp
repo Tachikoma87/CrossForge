@@ -105,24 +105,26 @@ namespace CForge {
 		glfwMakeContextCurrent(pWin);
 		// initialize glad
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+		vsync(true);
 #endif
 		
 
-//#ifdef __OPENGLES__
-//		gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress);
-//
-//		// glad does not load these on default with OpenGL es
-//		glGetUniformBlockIndex = (PFNGLGETUNIFORMBLOCKINDEXPROC)glfwGetProcAddress("glGetUniformBlockIndex");
-//		glUniformBlockBinding = (PFNGLUNIFORMBLOCKBINDINGPROC)glfwGetProcAddress("glUniformBlockBinding");
-//		glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)glfwGetProcAddress("glGenVertexArrays");
-//		glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)glfwGetProcAddress("glBindVertexArray");
-//		glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)glfwGetProcAddress("glDrawRangeElements");
-//		glBindBufferBase = (PFNGLBINDBUFFERBASEPROC)glfwGetProcAddress("glBindBufferBase");
-//
-//		glBeginQuery = (PFNGLBEGINQUERYPROC)glfwGetProcAddress("glBeginQuery");
-//		glEndQuery = (PFNGLENDQUERYPROC)glfwGetProcAddress("glEndQuery");
-//		glGetQueryObjectuiv = (PFNGLGETQUERYOBJECTUIVPROC)glfwGetProcAddress("glGetQueryObjectuiv");
-//#endif
+#ifdef __OPENGLES__
+		gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress);
+
+		// glad does not load these on default with OpenGL es
+		glGetUniformBlockIndex = (PFNGLGETUNIFORMBLOCKINDEXPROC)glfwGetProcAddress("glGetUniformBlockIndex");
+		glUniformBlockBinding = (PFNGLUNIFORMBLOCKBINDINGPROC)glfwGetProcAddress("glUniformBlockBinding");
+		glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)glfwGetProcAddress("glGenVertexArrays");
+		glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)glfwGetProcAddress("glBindVertexArray");
+		glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)glfwGetProcAddress("glDrawRangeElements");
+		glBindBufferBase = (PFNGLBINDBUFFERBASEPROC)glfwGetProcAddress("glBindBufferBase");
+
+		glBeginQuery = (PFNGLBEGINQUERYPROC)glfwGetProcAddress("glBeginQuery");
+		glEndQuery = (PFNGLENDQUERYPROC)glfwGetProcAddress("glEndQuery");
+		glGetQueryObjectuiv = (PFNGLGETQUERYOBJECTUIVPROC)glfwGetProcAddress("glGetQueryObjectuiv");
+#endif
 
 		glViewport(0, 0, Size.x(), Size.y());
 		glEnable(GL_DEPTH_TEST);
@@ -141,7 +143,6 @@ namespace CForge {
 		m_pInputMan->registerDevice(pWin, &m_Mouse);
 
 		glfwSetWindowSizeCallback((GLFWwindow*)this->m_pHandle, sizeCallback);
-		vsync(true);
 		m_WindowList.insert(std::pair<GLWindow*, GLFWwindow*>(this, pWin));
 
 		std::string ErrorMsg;
@@ -173,17 +174,13 @@ namespace CForge {
 
 	void GLWindow::update(void) {
 		glfwPollEvents();
-		
-#if defined(__EMSCRIPTEN__)
-		glfwMakeContextCurrent((GLFWwindow*)m_pHandle);
-#endif
 	}//update
 
 	void GLWindow::swapBuffers(void) {
 		glfwSwapBuffers((GLFWwindow*)m_pHandle);
 	}//swapBuffers
 
-	bool GLWindow::shutdown(void) {
+	bool GLWindow::shutdown(void) const {
 		return (nullptr == m_pHandle || glfwWindowShouldClose((GLFWwindow*)m_pHandle));
 	}//shutdown
 
@@ -241,5 +238,9 @@ namespace CForge {
 		if (nullptr != pThrottleFactor) (*pThrottleFactor) = m_ThrottleFactor;
 		return m_VSync;
 	}//vsync
+
+	void GLWindow::makeCurrent(void)const {
+		if(nullptr != m_pHandle)	glfwMakeContextCurrent((GLFWwindow*)m_pHandle);
+	}//makeCurrent
 
 }//name space

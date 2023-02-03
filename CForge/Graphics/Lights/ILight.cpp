@@ -115,19 +115,19 @@ namespace CForge {
 
 		if (m_ShadowTex != GL_INVALID_INDEX) {
 			glBindTexture(GL_TEXTURE_2D, m_ShadowTex);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_ShadowMapSize.x(), m_ShadowMapSize.y(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);	
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, m_ShadowMapSize.x(), m_ShadowMapSize.y(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, nullptr);	
 		}
 		else {
 			//// generate shadow map
 			glGenTextures(1, &m_ShadowTex);
 			glBindTexture(GL_TEXTURE_2D, m_ShadowTex);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_ShadowMapSize.x(), m_ShadowMapSize.y(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, m_ShadowMapSize.x(), m_ShadowMapSize.y(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, nullptr);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 			// set border to 1.0f (farthest possible depth value) so that regions outside the shadow map are not in shadow
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 #ifndef __EMSCRIPTEN__
 			float BorderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, BorderColor);

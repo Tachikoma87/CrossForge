@@ -63,7 +63,7 @@ namespace CForge {
 
 	void MorphTargetActor::clear(void) {
 		m_ElementBuffer.clear();
-		m_MorphTargetBuffer.clear();
+		//m_MorphTargetBuffer.clear();
 		m_MorphTargetUBO.clear();
 		m_RenderGroupUtility.clear();
 		m_VertexArray.clear();
@@ -78,8 +78,7 @@ namespace CForge {
 	void MorphTargetActor::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
 
-		m_VertexArray.bind();
-
+		
 		// create UBO data
 		m_pAnimationController->apply(&m_ActiveAnimations, &m_MorphTargetUBO);
 
@@ -93,11 +92,13 @@ namespace CForge {
 				pRDev->activeMaterial(&i->Material);
 				int32_t MTTex = i->pShaderGeometryPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
 				if (MTTex >= 0) {
-					m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
+					//m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
+					glActiveTexture(GL_TEXTURE0 + MTTex);
+					glBindTexture(GL_TEXTURE_2D, m_MorphTargetTexture);
 					glUniform1i(MTTex, MTTex);
 				}
-				int32_t MTUBO = i->pShaderGeometryPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
-				m_MorphTargetUBO.bind(MTUBO);
+				uint32_t MTUBO = i->pShaderGeometryPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
+				if (MTUBO != GL_INVALID_INDEX)m_MorphTargetUBO.bind(MTUBO);
 			}break;
 			case RenderDevice::RENDERPASS_SHADOW: {
 				if (nullptr == i->pShaderShadowPass) continue;
@@ -106,11 +107,13 @@ namespace CForge {
 				pRDev->activeMaterial(&i->Material);
 				int32_t MTTex = i->pShaderShadowPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
 				if (MTTex >= 0) {
-					m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
+					//m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
+					glActiveTexture(GL_TEXTURE0 + MTTex);
+					glBindTexture(GL_TEXTURE_2D, m_MorphTargetTexture);
 					glUniform1i(MTTex, MTTex);
 				}
-				int32_t MTUBO = i->pShaderShadowPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
-				m_MorphTargetUBO.bind(MTUBO);
+				uint32_t MTUBO = i->pShaderShadowPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
+				if (MTUBO != GL_INVALID_INDEX) m_MorphTargetUBO.bind(MTUBO);
 			}break;
 			case RenderDevice::RENDERPASS_FORWARD: {
 				if (nullptr == i->pShaderForwardPass) continue;
@@ -119,16 +122,22 @@ namespace CForge {
 				pRDev->activeMaterial(&i->Material);
 				int32_t MTTex = i->pShaderForwardPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
 				if (MTTex >= 0) {
-					m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
+					//m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
+					glActiveTexture(GL_TEXTURE0 + MTTex);
+					glBindTexture(GL_TEXTURE_2D, m_MorphTargetTexture);
 					glUniform1i(MTTex, MTTex);
 				}
-				int32_t MTUBO = i->pShaderForwardPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
-				m_MorphTargetUBO.bind(MTUBO);
+				uint32_t MTUBO = i->pShaderForwardPass->uboBindingPoint(GLShader::DEFAULTUBO_MORPHTARGETDATA);
+				if(MTUBO != GL_INVALID_INDEX) m_MorphTargetUBO.bind(MTUBO);
 			}break;
 			default: continue;
 			}//switch[active pass]
 
+			m_VertexArray.bind();
 			glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
+			m_VertexArray.unbind();
+
+			break;
 		}//for[all render groups]
 	}//render
 
@@ -140,8 +149,8 @@ namespace CForge {
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 		if (pMesh->morphTargetCount() == 0) throw CForgeExcept("Mesh contains no morph targets. Can not build morph target buffer.");
 
-		m_MorphTargetBuffer.clear();
-
+		//m_MorphTargetBuffer.clear();
+		
 		float* pBufferData = nullptr;
 		uint32_t ElementCount = 0;
 
@@ -166,7 +175,14 @@ namespace CForge {
 			}//for[vertexIDs]
 		}
 
-		m_MorphTargetBuffer.init(GLBuffer::BTYPE_TEXTURE, GLBuffer::BUSAGE_STATIC_DRAW, pBufferData, ElementCount * sizeof(float));
+		//m_MorphTargetBuffer.init(GLBuffer::BTYPE_TEXTURE, GLBuffer::BUSAGE_STATIC_DRAW, pBufferData, ElementCount * sizeof(float));
+
+		glGenTextures(1, &m_MorphTargetTexture);
+		glBindTexture(GL_TEXTURE_2D, m_MorphTargetTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, pMesh->vertexCount(), pMesh->morphTargetCount(), 0, GL_RGB, GL_FLOAT, pBufferData);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 
 		// clean up
 		delete[] pBufferData;

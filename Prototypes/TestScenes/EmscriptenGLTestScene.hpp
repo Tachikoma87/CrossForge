@@ -214,12 +214,6 @@ namespace CForge {
 			}
 		}//mainLoop
 
-		void run(void) override {
-			while (!m_RenderWin.shutdown()) {
-				mainLoop();
-			}//while[main loop]
-		}//run
-
 	protected:
 
 		void buildRenderStuff(void) {

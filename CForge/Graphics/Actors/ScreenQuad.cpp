@@ -73,10 +73,10 @@ namespace CForge {
 	}//release
 
 	void ScreenQuad::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
-		m_VertexArray.bind();
-			
 		if (nullptr != m_pShader) pRDev->activeShader(m_pShader);
+		m_VertexArray.bind();
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		m_VertexArray.unbind();
 	}//render
 
 }//name space

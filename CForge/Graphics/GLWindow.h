@@ -58,7 +58,7 @@ namespace CForge {
 		uint32_t height(void)const;
 		void* handle(void)const;
 
-		bool shutdown(void);	
+		bool shutdown(void)const;	
 		void closeWindow(void);
 
 		Keyboard* keyboard(void);
@@ -71,6 +71,8 @@ namespace CForge {
 
 		void vsync(bool Enable, int8_t ThrottleFactor = 1);
 		bool vsync(int8_t *pThrottleFactor = nullptr)const;
+
+		void makeCurrent(void)const;
 
 	private:
 		struct GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);

@@ -83,13 +83,11 @@ namespace CForge {
 			m_pShaderMan = nullptr;
 		}//clear
 
-		virtual void run(void) {
-			while (!m_RenderWin.shutdown()) {
-				mainLoop();
-			}//while[main loop]
-		}//run
+		const GLWindow* renderWindow(void)const {
+			return &m_RenderWin;
+		}//renderWindow
 
-		virtual void mainLoop(void) {
+		virtual void mainLoop(void){ 
 			m_RenderWin.update();
 
 			glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -126,7 +124,7 @@ namespace CForge {
 			m_RenderWin.startListening(this);
 
 			auto Traits = CForgeUtility::retrieveGPUTraits();
-			SLogger::log("Created context with GL version: " + Traits.GLVersion, "ProgramFlow");	
+			SLogger::log("Created context with GL version: " + Traits.GLVersion + "\n", "ProgramFlow");
 
 			m_pShaderMan = SShaderManager::instance();
 
@@ -163,7 +161,7 @@ namespace CForge {
 			m_pShaderMan->configShader(PPC);
 		}//initWindowAndRenderDevice
 
-		virtual void initCameraAndLights(void) {
+		virtual void initCameraAndLights(bool CastShadows = true) {
 			// initialize camera
 			m_Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
 			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
@@ -175,7 +173,7 @@ namespace CForge {
 			// sun will cast shadows
 
 			//m_Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
-			//m_Sun.initShadowCasting(1024, 1024, Vector2i(10, 10), 0.1f, 1000.0f);
+			if(CastShadows) m_Sun.initShadowCasting(1024, 1024, Vector2i(10, 10), 0.1f, 1000.0f);
 			m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
 
 			// set camera and lights
@@ -294,7 +292,11 @@ namespace CForge {
 
 
 			if (pKeyboard->keyPressed(Keyboard::KEY_ESCAPE)) {
+#ifdef __EMSCRIPTEN__
+				emscripten_cancel_main_loop();
+#else
 				m_RenderWin.closeWindow();
+#endif
 			}
 		}//defaultKeyboardUpdate
 

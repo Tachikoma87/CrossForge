@@ -42,51 +42,50 @@ namespace CForge {
 
 		void init() override{
 
-			initWindowAndRenderDevice(false);
+			initWindowAndRenderDevice(true);
 			initCameraAndLights();
 
 			// load skydome and a textured cube
 			T3DMesh<float> M;
 
-			/*SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
+			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			m_Skydome.init(&M);
-			M.clear();*/
+			M.clear();
 
 
 
-			//SAssetIO::load("Assets/ExampleScenes/StarCoin/StarCoin.gltf", &M);
+			SAssetIO::load("MyAssets/Technique_Evaluation/OldModel.gltf", &M);
+			M.clearSkeleton();
 			//PrimitiveShapeFactory::uvSphere(&M, Vector3f(1.0f, 1.0f, 1.0f), 20, 20);
-			PrimitiveShapeFactory::cuboid(&M, Vector3f(2, 2, 2), Vector3i(2, 2, 2));
+			//PrimitiveShapeFactory::cuboid(&M, Vector3f(2, 2, 2), Vector3i(2, 2, 2));
 			//PrimitiveShapeFactory::plane(&M, Vector2f(10, 10), Vector2i(1, 1));
-			changeUVTiling(&M, Vector3f(3.0f, 3.0f, 1.0f));
+			//changeUVTiling(&M, Vector3f(3.0f, 3.0f, 1.0f));
 			
 			setMeshShader(&M, 0.1f, 0.04f);
 
+			float ModelScale = 0.05f;
+
 			/*M.getMaterial(0)->FragmentShaderForwardPass.clear();
 			M.getMaterial(0)->VertexShaderForwardPass.clear();*/
-			M.getMaterial(0)->VertexShaderGeometryPass.clear();
+			/*M.getMaterial(0)->VertexShaderGeometryPass.clear();
 			M.getMaterial(0)->VertexShaderShadowPass.clear();
 			M.getMaterial(0)->FragmentShaderGeometryPass.clear();
-			M.getMaterial(0)->FragmentShaderShadowPass.clear();
+			M.getMaterial(0)->FragmentShaderShadowPass.clear();*/
 
 			/*M.getMaterial(0)->FragmentShaderForwardPass[0] ="Shader/CrippledShader.frag";
 			M.getMaterial(0)->VertexShaderForwardPass[0] = "Shader/CrippledShader.vert";*/
 
 			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::PLASTIC_WHITE);
 
-			M.getMaterial(0)->TexAlbedo = "MyAssets/Textures/ground13.jpg";
-			M.getMaterial(0)->TexNormal = "MyAssets/Textures/ground13n.jpg";
+			/*M.getMaterial(0)->TexAlbedo = "MyAssets/Textures/ground13.jpg";
+			M.getMaterial(0)->TexNormal = "MyAssets/Textures/ground13n.jpg";*/
 
 			M.computePerVertexNormals();
-			M.computePerVertexTangents();
+			//M.computePerVertexTangents();
 			m_Cube.init(&M);
 			M.clear();
-
-
-
-
 
 
 			// build scene graph
@@ -100,7 +99,7 @@ namespace CForge {
 			// add cube
 			m_CubeTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
 			m_CubeSGN.init(&m_CubeTransformSGN, &m_Cube);
-			m_CubeSGN.scale(Vector3f(3.0f, 3.0f, 3.0f));
+			m_CubeSGN.scale(Vector3f(ModelScale, ModelScale, ModelScale));
 
 			// rotate about the y-axis at 45 degree every second
 			Quaternionf R;
@@ -129,13 +128,11 @@ namespace CForge {
 
 			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
-			/*m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-			m_SG.render(&m_RenderDev);*/
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_SG.render(&m_RenderDev);
 
 			//m_CubeSGN.enable(true, false);
 			
-
-
 			if (m_Deferred) {
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 				m_SG.render(&m_RenderDev);
@@ -163,16 +160,7 @@ namespace CForge {
 				m_Deferred = !m_Deferred;
 			}
 
-
-
 		}//mainLoop
-
-		void run(void) override{
-			m_Deferred = false;
-			while (!m_RenderWin.shutdown()) {
-				mainLoop();
-			}//while[main loop]
-		}//run
 
 	protected:
 

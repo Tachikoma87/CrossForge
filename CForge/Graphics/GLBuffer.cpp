@@ -99,15 +99,15 @@ namespace CForge {
 	}//size
 
 	void GLBuffer::bindBufferBase(uint32_t BindingPoint) {
-		//glBindBufferBase(m_GLTarget, BindingPoint, m_GLID);
 		glBindBufferRange(m_GLTarget, BindingPoint, m_GLID, 0, m_BufferSize);
 	}//bindBufferBase
 
 	void GLBuffer::bindTextureBuffer(uint32_t ActiveTexture, uint32_t Format) {
-		//bind();
+#ifndef __EMSCRIPTEN__
 		glActiveTexture(GL_TEXTURE0 + ActiveTexture);
 		glBindTexture(GL_TEXTURE_BUFFER, m_TextureHandle);
 		glTexBuffer(GL_TEXTURE_BUFFER, Format, m_GLID);
+#endif
 	}//bindTexBuffer
 
 }//name space

@@ -85,7 +85,7 @@ if(EMSCRIPTEN)
 		tinyxml2
 		crossforge
 	)
-	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} -O0 -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -fwasm-exceptions -sUSE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader --preload-file MyAssets")
+	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} -O0 -sEXIT_RUNTIME=1 -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -fwasm-exceptions -sUSE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader --preload-file MyAssets")
 
 	#set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} -sWASM=0 -O0 -sMIN_WEBGL_VERSION=3 -sMAX_WEBGL_VERSION=3 -s USE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader")
 	#set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} -sSINGLE_FILE=1 -sWASM=0 -O0 -sMIN_WEBGL_VERSION=3 -sMAX_WEBGL_VERSION=3 -s USE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader")

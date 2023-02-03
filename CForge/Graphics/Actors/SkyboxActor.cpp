@@ -180,7 +180,7 @@ namespace CForge {
 	void SkyboxActor::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
         if (pRDev->activePass() != RenderDevice::RENDERPASS_FORWARD) return;
 
-        m_VertexArray.bind();
+       
 
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);
@@ -211,14 +211,14 @@ namespace CForge {
             }break;
             default: continue;
             }    
-
+            m_VertexArray.bind();
             glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
+            m_VertexArray.unbind();
             m_Cubemap.unbind();
         }//for[all render groups]
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
 
-        m_VertexArray.unbind();
 	}//render
 
     void SkyboxActor::saturation(float Saturation) {

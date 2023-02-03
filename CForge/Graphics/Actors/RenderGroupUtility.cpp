@@ -72,9 +72,9 @@ namespace CForge {
 			int32_t UsedMaterial = -1;
 
 			for (auto const k : pSM->Faces) {
-				pBuffer[BufferPointer + 0] = k.Vertices[0];
-				pBuffer[BufferPointer + 1] = k.Vertices[1];
-				pBuffer[BufferPointer + 2] = k.Vertices[2];
+				pBuffer[BufferPointer + 0] = static_cast<uint32_t>(k.Vertices[0]);
+				pBuffer[BufferPointer + 1] = static_cast<uint32_t>(k.Vertices[1]);
+				pBuffer[BufferPointer + 2] = static_cast<uint32_t>(k.Vertices[2]);
 				BufferPointer += 3;
 
 				if (UsedMaterial == -1 && pSM->Material != -1) UsedMaterial = pSM->Material;
@@ -195,7 +195,7 @@ namespace CForge {
 					ConfigOptions |= ShaderCode::CONF_NORMALMAPPING;
 				}
 
-				if (k.find("ForwardPassPBS") != std::string::npos || k.find("CrippledShader") != std::string::npos) {
+				if (k.find("ForwardPassPBS") != std::string::npos) {
 					ConfigOptions |= ShaderCode::CONF_LIGHTING;
 				}
 

@@ -194,80 +194,74 @@ namespace CForge {
 			for (auto& i : m_TreeSGNs) delete i;
 		}//clear
 
-		void run(void) override{
-			bool Fly = false;
-			bool Orthographic = false;
-			uint64_t LastPrint = CForgeUtility::timestamp();
+		void mainLoop(void) override{
+			
+			m_RenderWin.update();
 
-			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse(), 0.1f * 60.0f / m_FPS, 1.0f, 8.0f);
+			// make sure to always walk on the ground if not flying
+			if (!m_Fly) {
+				Vector3f CamPos = m_Cam.position();
+				CamPos.y() = 1.0f;
+				m_Cam.position(CamPos);
+			}
 
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse(), 0.1f * 60.0f / m_FPS, 1.0f, 8.0f);
-				// make sure to always walk on the ground if not flying
-				if (!Fly) {
-					Vector3f CamPos = m_Cam.position();
-					CamPos.y() = 1.0f;
-					m_Cam.position(CamPos);
+			m_SkyboxSG.update(60.0f / m_FPS);
+			m_SG.update(60.0f / m_FPS);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
+			m_SG.render(&m_RenderDev);
+
+			// culled in shadow pass
+			//uint32_t CulledShadowPass = SGNCullingGeom::culled();
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_RenderDev.activeCamera(&m_Cam);
+			m_SG.render(&m_RenderDev);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
+			m_SkyboxSG.render(&m_RenderDev);
+
+			m_RenderWin.swapBuffers();
+
+			/*uint32_t CulledRenderPass = SGNCullingGeom::culled();
+
+			if (CoreUtility::timestamp() - LastPrint > 1000) {
+				printf("Culled - Shadow Pass (%d) | Render Pass (%d)\n", CulledShadowPass, CulledRenderPass);
+				LastPrint = CoreUtility::timestamp();
+			}*/
+
+			updateFPS();
+
+			// change between flying and walking mode
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F, true)) m_Fly = !m_Fly;
+
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F6, true)) {
+				T2DImage<uint8_t> Img;
+				m_Sun.retrieveDepthBuffer(&Img);
+				AssetIO::store("SunDepth.jpg", &Img);
+			}
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F7, true)) {
+				if (!m_Orthographic) {
+					float S = 5.0f;
+					m_Cam.orthographicProjection(-8 * S, 8 * S, -4.5f*S, 4.5f * S, 0.01f, 1500.0f);
+					m_Orthographic = true;
 				}
-
-				m_SkyboxSG.update(60.0f / m_FPS);
-				m_SG.update(60.0f / m_FPS);
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-				m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
-				m_SG.render(&m_RenderDev);
-
-				// culled in shadow pass
-				//uint32_t CulledShadowPass = SGNCullingGeom::culled();
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+				else {
+					m_Cam.projectionMatrix(m_RenderWin.width(), m_RenderWin.height(), CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
+					m_Orthographic = false;
+				}
+				m_RenderDev.activeCamera(nullptr);
 				m_RenderDev.activeCamera(&m_Cam);
-				m_SG.render(&m_RenderDev);
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
-				m_SkyboxSG.render(&m_RenderDev);
-
-				m_RenderWin.swapBuffers();
-
-				/*uint32_t CulledRenderPass = SGNCullingGeom::culled();
-
-				if (CoreUtility::timestamp() - LastPrint > 1000) {
-					printf("Culled - Shadow Pass (%d) | Render Pass (%d)\n", CulledShadowPass, CulledRenderPass);
-					LastPrint = CoreUtility::timestamp();
-				}*/
-
-				updateFPS();
-
-				// change between flying and walking mode
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F, true)) Fly = !Fly;
-
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
-
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F6, true)) {
-					T2DImage<uint8_t> Img;
-					m_Sun.retrieveDepthBuffer(&Img);
-					AssetIO::store("SunDepth.jpg", &Img);
-				}
-
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F7, true)) {
-					if (!Orthographic) {
-						float S = 5.0f;
-						m_Cam.orthographicProjection(-8 * S, 8 * S, -4.5f*S, 4.5f * S, 0.01f, 1500.0f);
-						Orthographic = true;
-					}
-					else {
-						m_Cam.projectionMatrix(m_RenderWin.width(), m_RenderWin.height(), CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
-						Orthographic = false;
-					}
-					m_RenderDev.activeCamera(nullptr);
-					m_RenderDev.activeCamera(&m_Cam);
 					
-				}
-
-			}//while[run]
-		}//run
+			}
+		}//mainLoop
 
 	protected:
 
@@ -298,6 +292,8 @@ namespace CForge {
 		SGNTransformation m_TreeGroupSGN;
 		SGNTransformation m_CoinGroupSGN;
 
+		bool m_Fly = false;
+		bool m_Orthographic = false;
 	};//ExampleSceneGraph
 
 }//name space

@@ -49,9 +49,6 @@ namespace CForge {
 		}
 		
 		M.computeAxisAlignedBoundingBox();
-		/*float Offset = -M.aabb().Min.y();
-		Matrix4f T = CForgeMath::translationMatrix(Vector3f(0.0f, Offset, 0.0f));
-		M.applyTransformation(T);*/
 		M.computePerVertexNormals();
 
 		m_Bone.init(&M);

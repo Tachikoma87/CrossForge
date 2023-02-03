@@ -76,7 +76,7 @@ namespace CForge {
 		// if active animation is nullptr bind pose will be set
 		m_pAnimationController->applyAnimation(m_pActiveAnimation, true);
 
-		m_VertexArray.bind();
+		
 		for (auto i : m_RenderGroupUtility.renderGroups()) {
 
 			switch (pRDev->activePass()) {
@@ -111,8 +111,9 @@ namespace CForge {
 
 			}break;
 			}
-			
+			m_VertexArray.bind();
 			glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
+			m_VertexArray.unbind();
 		}//for[all render groups]
 	}//render
 

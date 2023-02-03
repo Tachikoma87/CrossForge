@@ -122,6 +122,8 @@ namespace CForge {
 			// change sun settings to cover this large area
 			m_Sun.position(Vector3f(100.0f, 1000.0f, 500.0f));
 			m_Sun.initShadowCasting(2048*2, 2048*2, Vector2i(1000, 1000), 1.0f, 5000.0f);
+
+			m_Fly = false;
 		}//initialize
 
 		void clear(void) override{
@@ -131,46 +133,43 @@ namespace CForge {
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) override{
-			bool Fly = false;
+		void mainLoop(void) override{
 
-			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
+			m_RenderWin.update();
 
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse(), 0.1f * 60.0f/m_FPS, 1.0f, 8.0f);
-				// make sure to always walk on the ground if not flying
-				if (!Fly) {
-					Vector3f CamPos = m_Cam.position();
-					CamPos.y() = 1.0f;
-					m_Cam.position(CamPos);
-				}
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse(), 0.1f * 60.0f/m_FPS, 1.0f, 8.0f);
+			// make sure to always walk on the ground if not flying
+			if (!m_Fly) {
+				Vector3f CamPos = m_Cam.position();
+				CamPos.y() = 1.0f;
+				m_Cam.position(CamPos);
+			}
 
-				m_SkyboxSG.update(60.0f/m_FPS);
-				m_SG.update(60.0f / m_FPS);
+			m_SkyboxSG.update(60.0f/m_FPS);
+			m_SG.update(60.0f / m_FPS);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-				m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
-				m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-				m_RenderDev.activeCamera(&m_Cam);
-				m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_RenderDev.activeCamera(&m_Cam);
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
-				m_SkyboxSG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
+			m_SkyboxSG.render(&m_RenderDev);
 
-				m_RenderWin.swapBuffers();
+			m_RenderWin.swapBuffers();
 
-				updateFPS();
+			updateFPS();
 
-				// change between flying and walking mode
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F, true)) Fly = !Fly;
+			// change between flying and walking mode
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F, true)) m_Fly = !m_Fly;
 
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
 				
-			}//while[run]
 		}//run
 
 	protected:
@@ -195,6 +194,7 @@ namespace CForge {
 		
 		SGNTransformation m_TreeGroupSGN;
 
+		bool m_Fly;
 	};//ExampleSceneGraph
 
 }//name space

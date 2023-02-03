@@ -22,7 +22,6 @@
 #include <Examples/ExampleSkybox.hpp>
 #include <Examples/ExampleSockets.hpp>
 
-
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
@@ -36,24 +35,42 @@
 
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 
+
 using namespace CForge;
 using namespace Eigen;
 
+//#define ActiveScene ExampleSceneBase
 
-ForwardTestScene*pScene = nullptr;
+//#define ActiveScene ExampleMinimumGraphicsSetup
+//#define ActiveScene ExampleMorphTargetAnimation
+//#define ActiveScene ExampleMultiViewport
+//#define ActiveScene ExampleSceneGraph
+//#define ActiveScene ExampleSkeletalAnimation
+//#define ActiveScene ExampleSkybox
+//#define ActiveScene ExampleSocket
+
+
+//#define ActiveScene ImuInputDeviceTestScene	 
+#define ActiveScene SkelAnimTestScene
+//#define ActiveScene SurfaceSamplerTestScene
+//#define ActiveScene ForwardTestScene
+//#define ActiveScene PrimitiveFactoryTestScene
+//#define ActiveScene FrustumCullingTestScene
+//#define ActiveScene StickFigureTestScene
+
+
+
+ActiveScene* pScene = nullptr;
 
 void mainLoop(void *pArg) {
-	//auto* pScene = (ForwardTestScene*)pArg;
-	pScene->mainLoop();
-}
+	static_cast<ActiveScene*>(pArg)->mainLoop();
+}//mainLoop
 
 int main(int argc, char* argv[]) {
 #ifdef WIN32
 	_CrtMemState S1, S2, S3;
 	_CrtMemCheckpoint(&S1);
 #endif
-
-
 
 	SCrossForgeDevice* pDev = nullptr;
 
@@ -76,53 +93,19 @@ int main(int argc, char* argv[]) {
 		return -1;	
 	}
 
-
-
-
 	try {
-		pScene = new ForwardTestScene();
-		//ExampleSceneBase Scene;
-		//ExampleMinimumGraphicsSetup Scene;
-		//ExampleMorphTargetAnimation Scene;
-		//ExampleMultiViewport Scene;
-		//ExampleSceneGraph Scene;
-		//ExampleSkeletalAnimation Scene;
-		//ExampleSkybox Scene;
-		//ExampleSocket Scene;
-		
-	
-		//imuInputDeviceTestScene();	 
-		//SkelAnimTestScene Scene;
-		//shadowTest();	
-		//surfaceSamplerTestScene();
-		//vertexColorTestScene();
-		//ForwardTestScene Scene;
-		//PrimitiveFactoryTestScene Scene;
-
-
-		//GUITestScene S;
-		//S.guiTestScene();
-
-		//imageTestScene();
-	
-		//FrustumCullingTestScene Scene;
-		//StickFigureTestScene Scene;
-
-		//Scene.init();
+		pScene = new ActiveScene();
 		pScene->init();
 
-		printf("Scene initialized!\n");
-
 #if defined(__EMSCRIPTEN__)
-		emscripten_set_main_loop_arg(mainLoop, nullptr, 0, true);
+		emscripten_set_main_loop_arg(mainLoop, pScene, 0, true);
 #else
-		//Scene.run();
-		pScene->run();
+		while (!pScene->renderWindow()->shutdown()) pScene->mainLoop();
 #endif
 
-
+		if (nullptr != pScene) delete pScene;
+		pScene = nullptr;
 		//exportLibrary();
-
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

@@ -47,11 +47,12 @@ namespace CForge {
 			// load skydome and a textured cube
 			T3DMesh<float> M;
 			
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
+			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			m_Skydome.init(&M);
 			M.clear();
+
 
 			// load face model
 			SAssetIO::load("Assets/ExampleScenes/FaceGenMale/MaleFace.obj", &M);
@@ -94,56 +95,59 @@ namespace CForge {
 			m_pShaderMan = nullptr;
 		}//clear
 
-		void run(void) override{
-			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
-				m_SG.update(60.0f / m_FPS);
+		void mainLoop(void) override{
 
-				// progres morph target animations
-				m_MTController.update(60.0f/m_FPS);
+			m_RenderWin.update();
+			m_SG.update(60.0f / m_FPS);
 
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
-				Keyboard* pKeyboard = m_RenderWin.keyboard();
+			// progres morph target animations
+			m_MTController.update(60.0f/m_FPS);
 
-				// if one of key 1 through 5 is pressed, animation played
-				// key 0 is wildcard playing a random animation
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+			Keyboard* pKeyboard = m_RenderWin.keyboard();
 
-				int32_t PlayMTAnimation = -1;
-				float MTAnimationSpeed = 1.0f;
-				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) MTAnimationSpeed = 3.0f;
-				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) MTAnimationSpeed = 6.0f;
+			// if one of key 1 through 5 is pressed, animation played
+			// key 0 is wildcard playing a random animation
 
-				if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) PlayMTAnimation = 0;
-				if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) PlayMTAnimation = 1;
-				if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) PlayMTAnimation = 2;
-				if (pKeyboard->keyPressed(Keyboard::KEY_4, true)) PlayMTAnimation = 3;
-				if (pKeyboard->keyPressed(Keyboard::KEY_5, true)) PlayMTAnimation = 4;
-				if (pKeyboard->keyPressed(Keyboard::KEY_6, true)) PlayMTAnimation = 5;
-				if (pKeyboard->keyPressed(Keyboard::KEY_7, true)) PlayMTAnimation = 6;
-				if (pKeyboard->keyPressed(Keyboard::KEY_8, true)) PlayMTAnimation = 7;
-				if (pKeyboard->keyPressed(Keyboard::KEY_0, true)) PlayMTAnimation = CForgeMath::rand() % m_MTController.animationSequenceCount();
+			int32_t PlayMTAnimation = -1;
+			float MTAnimationSpeed = 1.0f;
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) MTAnimationSpeed = 3.0f;
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) MTAnimationSpeed = 6.0f;
+
+			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) PlayMTAnimation = 0;
+			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) PlayMTAnimation = 1;
+			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) PlayMTAnimation = 2;
+			if (pKeyboard->keyPressed(Keyboard::KEY_4, true)) PlayMTAnimation = 3;
+			if (pKeyboard->keyPressed(Keyboard::KEY_5, true)) PlayMTAnimation = 4;
+			if (pKeyboard->keyPressed(Keyboard::KEY_6, true)) PlayMTAnimation = 5;
+			if (pKeyboard->keyPressed(Keyboard::KEY_7, true)) PlayMTAnimation = 6;
+			if (pKeyboard->keyPressed(Keyboard::KEY_8, true)) PlayMTAnimation = 7;
+			if (pKeyboard->keyPressed(Keyboard::KEY_0, true)) PlayMTAnimation = CForgeMath::rand() % m_MTController.animationSequenceCount();
 
 
-				if (-1 != PlayMTAnimation) {
-					MorphTargetAnimationController::ActiveAnimation* pAnim = m_MTController.play(PlayMTAnimation, MTAnimationSpeed);
-					m_Face.addAnimation(pAnim);
-				}
+			if (-1 != PlayMTAnimation) {
+				MorphTargetAnimationController::ActiveAnimation* pAnim = m_MTController.play(PlayMTAnimation, MTAnimationSpeed);
+				m_Face.addAnimation(pAnim);
+			}
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-				m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-				m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_RenderDev.activeCamera(&m_Cam);
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
-				m_RenderWin.swapBuffers();
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
-				updateFPS();
+			m_RenderWin.swapBuffers();
 
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
-			}//while[main loop]
-		}//run
+			updateFPS();
+
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
+		}//mainLoop
+
 	protected:
 
 		void buildMTModel(T3DMesh<float>* pBaseMesh) {

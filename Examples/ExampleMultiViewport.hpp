@@ -44,7 +44,7 @@ namespace CForge {
 			// load skydome and a textured cube
 			T3DMesh<float> M;
 			
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
+			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			M.computeAxisAlignedBoundingBox();
@@ -102,37 +102,36 @@ namespace CForge {
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) override{
-			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+		void mainLoop(void) override{
+			
+			m_RenderWin.update();
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
-				// perform rendering for the 4 viewports
-				for (uint8_t i = 0; i < 4; ++i) {
-					m_SGs[i].update(60.0f / m_FPS);
+			// perform rendering for the 4 viewports
+			for (uint8_t i = 0; i < 4; ++i) {
+				m_SGs[i].update(60.0f / m_FPS);
 
-					// render scene as usual
-					m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-					m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
-					m_SGs[i].render(&m_RenderDev);
+				// render scene as usual
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+				m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
+				m_SGs[i].render(&m_RenderDev);
 
-					m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-					m_RenderDev.activeCamera(&m_Cam);
-					m_SGs[i].render(&m_RenderDev);
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+				m_RenderDev.activeCamera(&m_Cam);
+				m_SGs[i].render(&m_RenderDev);
 
-					// set viewport and perform lighting pass
-					// this will produce the correct tile in the final output window (backbuffer to be specific)
-					m_RenderDev.viewport(RenderDevice::RENDERPASS_LIGHTING, m_VPs[i]);
-					m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING, nullptr, (i == 0) ? true : false);
-				}
+				// set viewport and perform lighting pass
+				// this will produce the correct tile in the final output window (backbuffer to be specific)
+				m_RenderDev.viewport(RenderDevice::RENDERPASS_LIGHTING, m_VPs[i]);
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING, nullptr, (i == 0) ? true : false);
+			}
 
-				m_RenderWin.swapBuffers();
+			m_RenderWin.swapBuffers();
 
-				updateFPS();
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
+			updateFPS();
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
 
-			}//while[main loop]
-		}//run
+		}//mainLoop
 	protected:
 
 		void updateViewportsAndCamera(void) {

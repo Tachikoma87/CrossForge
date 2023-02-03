@@ -172,7 +172,7 @@ namespace CForge {
 			T3DMesh<float> M;
 			T3DMesh<float> AnimData;
 
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
+			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			m_Skydome.init(&M);
@@ -646,221 +646,130 @@ namespace CForge {
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) override{
-			SkeletalAnimationController::Animation* pAnimFront = nullptr;
-			SkeletalAnimationController::Animation* pAnimBack = nullptr;
+		void mainLoop(void) override{
+			static SkeletalAnimationController::Animation* pAnimFront = nullptr;
+			static SkeletalAnimationController::Animation* pAnimBack = nullptr;
 
-			bool RepeatAnim = false;
-			float LastAnimSpeed = 16.666f;
+			static bool RepeatAnim = false;
+			static float LastAnimSpeed = 16.666f;
 
-			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
-				m_SG.update(60.0f / m_FPS);
 
-				// this will progress all active skeletal animations for this controller
-				if (!m_Pause) {
-					m_ControllerCaptured.update(60.0f / m_FPS);
-					m_ControllerSynth.update(60.0f / m_FPS);
-					m_ControllerStyle.update(60.0f / m_FPS);
-					m_ControllerStyle2.update(60.0f / m_FPS);
-				}
+			m_RenderWin.update();
+			m_SG.update(60.0f / m_FPS);
+
+			// this will progress all active skeletal animations for this controller
+			if (!m_Pause) {
+				m_ControllerCaptured.update(60.0f / m_FPS);
+				m_ControllerSynth.update(60.0f / m_FPS);
+				m_ControllerStyle.update(60.0f / m_FPS);
+				m_ControllerStyle2.update(60.0f / m_FPS);
+			}
 				
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
-				// if user hits key 1, animation will be played
-				// if user also presses shift, animation speed is doubled
-				float AnimationSpeed = 1000.0f/60.0f;
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed /= 2.0f;
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
-					if(m_ControllerCaptured.animationCount() > 0) m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, AnimationSpeed, 0.0f));
-					if(m_ControllerSynth.animationCount() > 0) m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, AnimationSpeed, 0.0f));
-					if(m_ControllerStyle.animationCount() > 0) m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed, 0.0f));
-					if (m_ControllerStyle2.animationCount() > 0) m_Style2.activeAnimation(m_ControllerStyle2.createAnimation(0, AnimationSpeed, 0.0f));
-					LastAnimSpeed = AnimationSpeed;
-				}
+			// if user hits key 1, animation will be played
+			// if user also presses shift, animation speed is doubled
+			float AnimationSpeed = 1000.0f/60.0f;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed /= 2.0f;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
+				if(m_ControllerCaptured.animationCount() > 0) m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, AnimationSpeed, 0.0f));
+				if(m_ControllerSynth.animationCount() > 0) m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, AnimationSpeed, 0.0f));
+				if(m_ControllerStyle.animationCount() > 0) m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed, 0.0f));
+				if (m_ControllerStyle2.animationCount() > 0) m_Style2.activeAnimation(m_ControllerStyle2.createAnimation(0, AnimationSpeed, 0.0f));
+				LastAnimSpeed = AnimationSpeed;
+			}
 
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
-					if (m_ControllerCaptured.animationCount() > 1) m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(1, AnimationSpeed, 0.0f));
-					if (m_ControllerSynth.animationCount() > 1) m_Synth.activeAnimation(m_ControllerSynth.createAnimation(1, AnimationSpeed, 0.0f));
-				}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
+				if (m_ControllerCaptured.animationCount() > 1) m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(1, AnimationSpeed, 0.0f));
+				if (m_ControllerSynth.animationCount() > 1) m_Synth.activeAnimation(m_ControllerSynth.createAnimation(1, AnimationSpeed, 0.0f));
+			}
 
 
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
-					RepeatAnim = !RepeatAnim;
-				}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
+				RepeatAnim = !RepeatAnim;
+			}
 
-				if (RepeatAnim && (m_Style.activeAnimation() == nullptr || m_Captured.activeAnimation() == nullptr || m_Synth.activeAnimation() == nullptr)) {
-					m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, LastAnimSpeed, 0.0f));
-					m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, LastAnimSpeed, 0.0f));
-					m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, LastAnimSpeed, 0.0f));
-					m_Style2.activeAnimation(m_ControllerStyle2.createAnimation(0, LastAnimSpeed, 0.0f));
-				}
+			if (RepeatAnim && (m_Style.activeAnimation() == nullptr || m_Captured.activeAnimation() == nullptr || m_Synth.activeAnimation() == nullptr)) {
+				m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, LastAnimSpeed, 0.0f));
+				m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, LastAnimSpeed, 0.0f));
+				m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, LastAnimSpeed, 0.0f));
+				m_Style2.activeAnimation(m_ControllerStyle2.createAnimation(0, LastAnimSpeed, 0.0f));
+			}
 
 #ifdef ART_HUMAN_2_TEST
-				auto* pKeyboard = m_RenderWin.keyboard();
-				if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) {
-					m_Synth.activeAnimation(m_ControllerSynth.createAnimation(2, AnimationSpeed, 0.0f));
-				}
-				if (pKeyboard->keyPressed(Keyboard::KEY_4, true)) {
-					m_Synth.activeAnimation(m_ControllerSynth.createAnimation(3, AnimationSpeed, 0.0f));
-				}
+			auto* pKeyboard = m_RenderWin.keyboard();
+			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) {
+				m_Synth.activeAnimation(m_ControllerSynth.createAnimation(2, AnimationSpeed, 0.0f));
+			}
+			if (pKeyboard->keyPressed(Keyboard::KEY_4, true)) {
+				m_Synth.activeAnimation(m_ControllerSynth.createAnimation(3, AnimationSpeed, 0.0f));
+			}
 
 #endif
 
 #ifdef MAKE_HUMAN_TEST
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
-					bool En;
-					m_SynthSGN.enabled(nullptr, &En);
-					m_SynthSGN.enable(true, !En);
-				}
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) {
-					bool En;
-					m_StyleSGN.enabled(nullptr, &En);
-					m_StyleSGN.enable(true, !En);
-				}
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_5, true)) {
-					bool En;
-					m_CapturedSGN.enabled(nullptr, &En);
-					m_CapturedSGN.enable(true, !En);
-				}
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_6, true)) {
-					m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(1, AnimationSpeed, 0.0f));
-				}
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_7, true)) {
-					m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(2, AnimationSpeed, 0.0f));
-				}
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_8, true)) {
-					m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(3, AnimationSpeed, 0.0f));
-				}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
+				bool En;
+				m_SynthSGN.enabled(nullptr, &En);
+				m_SynthSGN.enable(true, !En);
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) {
+				bool En;
+				m_StyleSGN.enabled(nullptr, &En);
+				m_StyleSGN.enable(true, !En);
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_5, true)) {
+				bool En;
+				m_CapturedSGN.enabled(nullptr, &En);
+				m_CapturedSGN.enable(true, !En);
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_6, true)) {
+				m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(1, AnimationSpeed, 0.0f));
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_7, true)) {
+				m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(2, AnimationSpeed, 0.0f));
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_8, true)) {
+				m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(3, AnimationSpeed, 0.0f));
+			}
 #endif
 
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-				m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-				m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_RenderDev.activeCamera(&m_Cam);
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
-				m_RenderWin.swapBuffers();
+			m_RenderWin.swapBuffers();
 
-				updateFPS();
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
+			updateFPS();
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
 
-				if (m_Recording) {
+			if (m_Recording) {
 
-					if (m_Captured.activeAnimation() == nullptr) {
-						m_RecordingFile.end();
-						m_Recording = false;
+				if (m_Captured.activeAnimation() == nullptr) {
+					m_RecordingFile.end();
+					m_Recording = false;
 
-						m_ErrorsSynth.z() /= float(m_RecordingCounter);
-						m_ErrorsStyle.z() /= float(m_RecordingCounter);
-						m_ErrorsStyle2.z() /= float(m_RecordingCounter);
+					m_ErrorsSynth.z() /= float(m_RecordingCounter);
+					m_ErrorsStyle.z() /= float(m_RecordingCounter);
+					m_ErrorsStyle2.z() /= float(m_RecordingCounter);
 
-						printf("Recording finished\n");
-						printf("\t Errors Synth (Max | Min | Avg): %.5f %.5f %.5f\n", m_ErrorsSynth.x(), m_ErrorsSynth.y(), m_ErrorsSynth.z());
-						printf("\t Errors Style (Max | Min | Avg): %.5f %.5f %.5f\n", m_ErrorsStyle.x(), m_ErrorsStyle.y(), m_ErrorsStyle.z());
-						printf("\t Errors Style2 (Max | Min | Avg): %.5f %.5f %.5f\n", m_ErrorsStyle2.x(), m_ErrorsStyle2.y(), m_ErrorsStyle2.z());
-					}
-					else {
-						std::vector<Eigen::Matrix4f> SkinningMats;
-
-						//// deform capture mesh
-						m_ControllerCaptured.applyAnimation(m_Captured.activeAnimation(), true);
-						m_ControllerCaptured.retrieveSkinningMatrices(&SkinningMats);
-						transformSkinnedMesh(&m_CapturedMeshOrig, &m_CapturedMeshTransformed, &SkinningMats);
-						SkinningMats.clear();
-
-						// deform synth mesh
-						m_ControllerSynth.applyAnimation(m_Synth.activeAnimation(), true);
-						m_ControllerSynth.retrieveSkinningMatrices(&SkinningMats);
-						transformSkinnedMesh(&m_SynthMeshOrig, &m_SynthMeshTransformed, &SkinningMats);
-						SkinningMats.clear();
-
-						//// deform Style2 mesh
-						//m_ControllerStyle2.applyAnimation(m_Style2.activeAnimation(), true);
-						//m_ControllerStyle2.retrieveSkinningMatrices(&SkinningMats);
-						//transformSkinnedMesh(&m_Style2MeshOrig, &m_Style2MeshTransformed, &SkinningMats);
-						//SkinningMats.clear();
-
-						// deform style mesh
-						m_ControllerStyle.applyAnimation(m_Style.activeAnimation(), true);
-						m_ControllerStyle.retrieveSkinningMatrices(&SkinningMats);
-						transformSkinnedMesh(&m_StyleMeshOrig, &m_StyleMeshTransformed, &SkinningMats);
-						SkinningMats.clear();
-
-						// compute mesh deviations
-						float Dev1 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_SynthMeshTransformed);
-						if (Dev1 > m_ErrorsSynth.x()) m_ErrorsSynth.x() = Dev1;
-						if (Dev1 < m_ErrorsSynth.y()) m_ErrorsSynth.y() = Dev1;
-						m_ErrorsSynth.z() += Dev1;
-
-						/*float Dev2 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_Style2MeshTransformed);
-						if (Dev2 > m_ErrorsStyle2.x()) m_ErrorsStyle2.x() = Dev2;
-						if (Dev2 < m_ErrorsStyle2.y()) m_ErrorsStyle2.y() = Dev2;
-						m_ErrorsStyle2.z() += Dev2;*/
-
-						float Dev3 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_StyleMeshTransformed);
-						if (Dev3 > m_ErrorsStyle.x()) m_ErrorsStyle.x() = Dev3;
-						if (Dev3 < m_ErrorsStyle.y()) m_ErrorsStyle.y() = Dev3;
-						m_ErrorsStyle.z() += Dev3;
-
-						string Msg = std::to_string(m_RecordingCounter) + ", " + std::to_string(Dev1) + ", " + std::to_string(Dev3) + "\n";
-						m_RecordingFile.write(Msg.c_str(), Msg.length());
-						m_RecordingCounter++;
-					}
-				}//if[recording]
-
-				// print current deformed mesh
-				if (m_RenderWin.keyboard()->keyState(Keyboard::KEY_LEFT_SHIFT) == Keyboard::KEY_PRESSED && m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_M, true)) {
-
-					
-					if(m_Recording){
-						
-					}
-					else {
-						m_RecordingFile.begin("MyAssets/Technique_Evaluation/Out/Recording.csv", "w"); 
-						string Msg = "Frame Number, Error M1, Error M2\n";
-						m_RecordingFile.write(Msg.c_str(), Msg.length());
-
-						if (m_ControllerCaptured.animationCount() > 0) m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, AnimationSpeed/2.0f, 0.0f));
-						if (m_ControllerSynth.animationCount() > 0) m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, AnimationSpeed/2.0f, 0.0f));
-						if (m_ControllerStyle.animationCount() > 0) m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed/2.0f, 0.0f));
-						//if (m_ControllerStyle2.animationCount() > 0) m_Style2.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed/2.0f, 0.0f));
-
-						float t = 1.0f * 1000.0f / 60.0f;
-
-						m_Captured.activeAnimation()->t = t;
-						m_Synth.activeAnimation()->t = t;
-						m_Style.activeAnimation()->t = t;
-						//m_Style2.activeAnimation()->t = t;
-
-						m_Recording = true;
-						m_RecordingCounter = 0;
-
-						m_ErrorsStyle = Vector3f::Zero();
-						m_ErrorsSynth = Vector3f::Zero();
-						//m_ErrorsStyle2 = Vector3f::Zero();
-
-						m_ErrorsStyle.y() = std::numeric_limits<float>::max();
-						m_ErrorsSynth.y() = std::numeric_limits<float>::max();
-						//m_ErrorsStyle2.y() = std::numeric_limits<float>::max();
-
-						printf("Recording started\n");
-
-					}
-					
-
-					//printf("t: %.4f | %.4f | %.4f\n", m_Captured.activeAnimation()->t, m_Synth.activeAnimation()->t, m_Style.activeAnimation()->t);
-
-				}//if[print deformed mesh]
-				else if( m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_M, true)) {
+					printf("Recording finished\n");
+					printf("\t Errors Synth (Max | Min | Avg): %.5f %.5f %.5f\n", m_ErrorsSynth.x(), m_ErrorsSynth.y(), m_ErrorsSynth.z());
+					printf("\t Errors Style (Max | Min | Avg): %.5f %.5f %.5f\n", m_ErrorsStyle.x(), m_ErrorsStyle.y(), m_ErrorsStyle.z());
+					printf("\t Errors Style2 (Max | Min | Avg): %.5f %.5f %.5f\n", m_ErrorsStyle2.x(), m_ErrorsStyle2.y(), m_ErrorsStyle2.z());
+				}
+				else {
 					std::vector<Eigen::Matrix4f> SkinningMats;
 
-
-					// deform capture mesh
+					//// deform capture mesh
 					m_ControllerCaptured.applyAnimation(m_Captured.activeAnimation(), true);
 					m_ControllerCaptured.retrieveSkinningMatrices(&SkinningMats);
 					transformSkinnedMesh(&m_CapturedMeshOrig, &m_CapturedMeshTransformed, &SkinningMats);
@@ -872,71 +781,159 @@ namespace CForge {
 					transformSkinnedMesh(&m_SynthMeshOrig, &m_SynthMeshTransformed, &SkinningMats);
 					SkinningMats.clear();
 
+					//// deform Style2 mesh
+					//m_ControllerStyle2.applyAnimation(m_Style2.activeAnimation(), true);
+					//m_ControllerStyle2.retrieveSkinningMatrices(&SkinningMats);
+					//transformSkinnedMesh(&m_Style2MeshOrig, &m_Style2MeshTransformed, &SkinningMats);
+					//SkinningMats.clear();
+
 					// deform style mesh
 					m_ControllerStyle.applyAnimation(m_Style.activeAnimation(), true);
 					m_ControllerStyle.retrieveSkinningMatrices(&SkinningMats);
 					transformSkinnedMesh(&m_StyleMeshOrig, &m_StyleMeshTransformed, &SkinningMats);
 					SkinningMats.clear();
 
-
-					AssetIO::store("MyAssets/Technique_Evaluation/Out/Captured.obj", &m_CapturedMeshTransformed);
-					AssetIO::store("MyAssets/Technique_Evaluation/Out/Synth.obj", &m_SynthMeshTransformed);
-					AssetIO::store("MYAssets/Technique_Evaluation/Out/Style.obj", &m_StyleMeshTransformed);
-
 					// compute mesh deviations
 					float Dev1 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_SynthMeshTransformed);
-					float Dev2 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_StyleMeshTransformed);
+					if (Dev1 > m_ErrorsSynth.x()) m_ErrorsSynth.x() = Dev1;
+					if (Dev1 < m_ErrorsSynth.y()) m_ErrorsSynth.y() = Dev1;
+					m_ErrorsSynth.z() += Dev1;
 
-					printf("Deviations: %.4f | %.4f\n", Dev1, Dev2);
+					/*float Dev2 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_Style2MeshTransformed);
+					if (Dev2 > m_ErrorsStyle2.x()) m_ErrorsStyle2.x() = Dev2;
+					if (Dev2 < m_ErrorsStyle2.y()) m_ErrorsStyle2.y() = Dev2;
+					m_ErrorsStyle2.z() += Dev2;*/
 
-					//printf("t: %.4f | %.4f | %.4f\n", m_Captured.activeAnimation()->t, m_Synth.activeAnimation()->t, m_Style.activeAnimation()->t);
+					float Dev3 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_StyleMeshTransformed);
+					if (Dev3 > m_ErrorsStyle.x()) m_ErrorsStyle.x() = Dev3;
+					if (Dev3 < m_ErrorsStyle.y()) m_ErrorsStyle.y() = Dev3;
+					m_ErrorsStyle.z() += Dev3;
 
-				}//if[print deformed mesh]
+					string Msg = std::to_string(m_RecordingCounter) + ", " + std::to_string(Dev1) + ", " + std::to_string(Dev3) + "\n";
+					m_RecordingFile.write(Msg.c_str(), Msg.length());
+					m_RecordingCounter++;
+				}
+			}//if[recording]
 
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F5, true)) {
-					if (m_VisualizeSkeleton) {
-						m_StyleSGN.visualization(SGNGeometry::VISUALIZATION_FILL);
-						m_CapturedSGN.visualization(SGNGeometry::VISUALIZATION_FILL);
-						m_SynthSGN.visualization(SGNGeometry::VISUALIZATION_FILL);
-						m_Style2SGN.visualization(SGNGeometry::VISUALIZATION_FILL);
+			// print current deformed mesh
+			if (m_RenderWin.keyboard()->keyState(Keyboard::KEY_LEFT_SHIFT) == Keyboard::KEY_PRESSED && m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_M, true)) {
 
-						m_StyleStickSGN.enable(true, false);
-						m_CapturedStickSGN.enable(true, false);
-						m_SynthStickSGN.enable(true, false);
-						m_Style2StickSGN.enable(true, false);
+					
+				if(m_Recording){
+						
+				}
+				else {
+					m_RecordingFile.begin("MyAssets/Technique_Evaluation/Out/Recording.csv", "w"); 
+					string Msg = "Frame Number, Error M1, Error M2\n";
+					m_RecordingFile.write(Msg.c_str(), Msg.length());
 
-						m_StyleSGN.enable(true, true);
-					}
-					else {
-						m_StyleSGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
-						m_CapturedSGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
-						m_SynthSGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
-						m_Style2SGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
+					if (m_ControllerCaptured.animationCount() > 0) m_Captured.activeAnimation(m_ControllerCaptured.createAnimation(0, AnimationSpeed/2.0f, 0.0f));
+					if (m_ControllerSynth.animationCount() > 0) m_Synth.activeAnimation(m_ControllerSynth.createAnimation(0, AnimationSpeed/2.0f, 0.0f));
+					if (m_ControllerStyle.animationCount() > 0) m_Style.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed/2.0f, 0.0f));
+					//if (m_ControllerStyle2.animationCount() > 0) m_Style2.activeAnimation(m_ControllerStyle.createAnimation(0, AnimationSpeed/2.0f, 0.0f));
 
-						m_StyleStickSGN.enable(true, true);
-						m_CapturedStickSGN.enable(true, true);
-						m_SynthStickSGN.enable(true, true);
-						m_Style2StickSGN.enable(true, true);
+					float t = 1.0f * 1000.0f / 60.0f;
 
-						m_StyleSGN.enable(true, false);
-					}
-					m_VisualizeSkeleton = !m_VisualizeSkeleton;
+					m_Captured.activeAnimation()->t = t;
+					m_Synth.activeAnimation()->t = t;
+					m_Style.activeAnimation()->t = t;
+					//m_Style2.activeAnimation()->t = t;
+
+					m_Recording = true;
+					m_RecordingCounter = 0;
+
+					m_ErrorsStyle = Vector3f::Zero();
+					m_ErrorsSynth = Vector3f::Zero();
+					//m_ErrorsStyle2 = Vector3f::Zero();
+
+					m_ErrorsStyle.y() = std::numeric_limits<float>::max();
+					m_ErrorsSynth.y() = std::numeric_limits<float>::max();
+					//m_ErrorsStyle2.y() = std::numeric_limits<float>::max();
+
+					printf("Recording started\n");
 
 				}
+					
 
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_P, true)) m_Pause = !m_Pause;
+				//printf("t: %.4f | %.4f | %.4f\n", m_Captured.activeAnimation()->t, m_Synth.activeAnimation()->t, m_Style.activeAnimation()->t);
 
-				//if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F7, true)) {
-				//	// take screenshot
-				//	T2DImage<uint8_t> Img;
-				//	GraphicsUtility::retrieveFrameBuffer(&Img);
-				//	std::string Filepath = "Screenshots/Screenshot" + to_string(m_ScreenshotCounter++) + ".jpg";
-				//	AssetIO::store(Filepath, &Img);
-				//}
+			}//if[print deformed mesh]
+			else if( m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_M, true)) {
+				std::vector<Eigen::Matrix4f> SkinningMats;
 
-			}//while[main loop]
 
-		}//run
+				// deform capture mesh
+				m_ControllerCaptured.applyAnimation(m_Captured.activeAnimation(), true);
+				m_ControllerCaptured.retrieveSkinningMatrices(&SkinningMats);
+				transformSkinnedMesh(&m_CapturedMeshOrig, &m_CapturedMeshTransformed, &SkinningMats);
+				SkinningMats.clear();
+
+				// deform synth mesh
+				m_ControllerSynth.applyAnimation(m_Synth.activeAnimation(), true);
+				m_ControllerSynth.retrieveSkinningMatrices(&SkinningMats);
+				transformSkinnedMesh(&m_SynthMeshOrig, &m_SynthMeshTransformed, &SkinningMats);
+				SkinningMats.clear();
+
+				// deform style mesh
+				m_ControllerStyle.applyAnimation(m_Style.activeAnimation(), true);
+				m_ControllerStyle.retrieveSkinningMatrices(&SkinningMats);
+				transformSkinnedMesh(&m_StyleMeshOrig, &m_StyleMeshTransformed, &SkinningMats);
+				SkinningMats.clear();
+
+
+				AssetIO::store("MyAssets/Technique_Evaluation/Out/Captured.obj", &m_CapturedMeshTransformed);
+				AssetIO::store("MyAssets/Technique_Evaluation/Out/Synth.obj", &m_SynthMeshTransformed);
+				AssetIO::store("MYAssets/Technique_Evaluation/Out/Style.obj", &m_StyleMeshTransformed);
+
+				// compute mesh deviations
+				float Dev1 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_SynthMeshTransformed);
+				float Dev2 = computeMeshToMeshRSME(&m_CapturedMeshTransformed, &m_StyleMeshTransformed);
+
+				printf("Deviations: %.4f | %.4f\n", Dev1, Dev2);
+
+				//printf("t: %.4f | %.4f | %.4f\n", m_Captured.activeAnimation()->t, m_Synth.activeAnimation()->t, m_Style.activeAnimation()->t);
+
+			}//if[print deformed mesh]
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F5, true)) {
+				if (m_VisualizeSkeleton) {
+					m_StyleSGN.visualization(SGNGeometry::VISUALIZATION_FILL);
+					m_CapturedSGN.visualization(SGNGeometry::VISUALIZATION_FILL);
+					m_SynthSGN.visualization(SGNGeometry::VISUALIZATION_FILL);
+					m_Style2SGN.visualization(SGNGeometry::VISUALIZATION_FILL);
+
+
+					m_StyleStickSGN.enable(true, false);
+					m_CapturedStickSGN.enable(true, false);
+					m_SynthStickSGN.enable(true, false);
+					m_Style2StickSGN.enable(true, false);
+				}
+				else {
+					m_StyleSGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
+					m_CapturedSGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
+					m_SynthSGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
+					m_Style2SGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
+
+					m_StyleStickSGN.enable(true, true);
+					m_CapturedStickSGN.enable(true, true);
+					m_SynthStickSGN.enable(true, true);
+					m_Style2StickSGN.enable(true, true);
+				}
+				m_VisualizeSkeleton = !m_VisualizeSkeleton;
+
+			}
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_P, true)) m_Pause = !m_Pause;
+
+			//if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F7, true)) {
+			//	// take screenshot
+			//	T2DImage<uint8_t> Img;
+			//	GraphicsUtility::retrieveFrameBuffer(&Img);
+			//	std::string Filepath = "Screenshots/Screenshot" + to_string(m_ScreenshotCounter++) + ".jpg";
+			//	AssetIO::store(Filepath, &Img);
+			//}
+
+		}//mainLoop
 
 	protected:
 		
@@ -1195,14 +1192,7 @@ namespace CForge {
 
 	};//SkelAnimTestScene
 
-	void skelAnimTestScene(void) {
-
-		SkelAnimTestScene Scene;
-		Scene.init();
-		Scene.run();
-		Scene.clear();
-
-	}//exampleMinimumGraphicsSetup
+	
 
 }
 

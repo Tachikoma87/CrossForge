@@ -98,56 +98,54 @@ namespace CForge {
 			// we use MuscleMan data already stored in M
 			m_SSampler.init(&m_ModelData);
 
+			m_FPS = 60.0f;
+			m_FPSCount = 0;
+			m_LastFPSPrint = CForgeUtility::timestamp();
+
 		}//initialize
 
 		void clear(void) override{
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) override {
+		void mainLoop(void) override {
 
-			m_FPS = 60.0f;
-			m_FPSCount = 0;
-			m_LastFPSPrint = CForgeUtility::timestamp();
-
-			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
-				m_SG.update(60.0f / m_FPS);
+			m_RenderWin.update();
+			m_SG.update(60.0f / m_FPS);
 
 
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_0, true)) {
-					float MaxDist = 0.5f;
-					std::vector<int32_t> Samples;
-					m_SSampler.sampleEquidistant(MaxDist, m_SampleCount, &Samples);
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_0, true)) {
+				float MaxDist = 0.5f;
+				std::vector<int32_t> Samples;
+				m_SSampler.sampleEquidistant(MaxDist, m_SampleCount, &Samples);
 
-					// add marker at position of sample point
-					for (auto i : Samples) {
-						SGNTransformation* pMarkerSGN = new SGNTransformation();
-						SGNTransformation* pMarkerSGN2 = new SGNTransformation();
-						SGNGeometry* pMarkerGeomSGN = new SGNGeometry();
+				// add marker at position of sample point
+				for (auto i : Samples) {
+					SGNTransformation* pMarkerSGN = new SGNTransformation();
+					SGNTransformation* pMarkerSGN2 = new SGNTransformation();
+					SGNGeometry* pMarkerGeomSGN = new SGNGeometry();
 
-						pMarkerSGN->init(&m_MarkerGroupSGN, m_ModelData.vertex(i).cwiseProduct(m_MuscleManTransformSGN.scale()));
-						pMarkerSGN2->init(pMarkerSGN, Vector3f::Zero(), m_MuscleManTransformSGN.rotation(), m_MuscleManTransformSGN.scale(), Vector3f::Zero(), m_MuscleManTransformSGN.rotationDelta());
-						pMarkerGeomSGN->init(pMarkerSGN2, &m_Sphere, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(25.0f, 25.0f, 25.0f));
-					}
+					pMarkerSGN->init(&m_MarkerGroupSGN, m_ModelData.vertex(i).cwiseProduct(m_MuscleManTransformSGN.scale()));
+					pMarkerSGN2->init(pMarkerSGN, Vector3f::Zero(), m_MuscleManTransformSGN.rotation(), m_MuscleManTransformSGN.scale(), Vector3f::Zero(), m_MuscleManTransformSGN.rotationDelta());
+					pMarkerGeomSGN->init(pMarkerSGN2, &m_Sphere, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(25.0f, 25.0f, 25.0f));
 				}
+			}
 
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-				m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-				m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
-				m_RenderWin.swapBuffers();
+			m_RenderWin.swapBuffers();
 
-				updateFPS();
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
-			}//while[main loop]
-		}//run
+			updateFPS();
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
+		}//while[main loop]
 
 	protected:
 		StaticActor m_Skydome;
@@ -171,14 +169,6 @@ namespace CForge {
 	};//SurfaceSamplerTestScene
 
 
-	void surfaceSamplerTestScene(void) {
-
-		SurfaceSamplerTestScene Scene;
-		Scene.init();
-		Scene.run();
-		Scene.clear();
-
-	}//exampleMinimumGraphicsSetup
 
 	
 

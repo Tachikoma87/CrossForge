@@ -182,11 +182,7 @@ namespace CForge {
 			uint16_t Port;
 
 			m_IMUCam.init(25001, 25000, 200);
-
-			bool Flying = false;
-
-			uint32_t PlayerScore = 0;
-
+	
 		}//init
 
 		void clear(void) override {
@@ -210,88 +206,71 @@ namespace CForge {
 		}//clear
 
 
-		void run(void) override{
-			uint64_t LastMessage = CForgeUtility::timestamp();
-
-			uint8_t Buffer[256];
-			uint32_t MsgLength;
-
-			std::string Sender;
-			uint16_t Port;
-
-			m_IMUCam.init(25001, 25000, 200);
-
-			bool Flying = false;
-
-			uint32_t PlayerScore = 0;
-
-			while (!m_RenderWin.shutdown()) {
-
-				m_RenderWin.update();
-				m_SG.update(60.0f / m_FPS);
-				m_SkyboxSG.update(60.0f / m_FPS);
-
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) Flying = !Flying;
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) m_IMUCam.calibrate();
-
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) m_IMUCam.recordData("Assets/IMUData.csv");
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) m_IMUCam.recordData();
-
-				Vector3f Pos = m_Cam.position();
-				Pos.x() = std::max(-m_ForestDimension, Pos.x());
-				Pos.x() = std::min(m_ForestDimension, Pos.x());
-				if (!Flying) Pos.y() = 0.85f;
-				Pos.z() = std::max(-m_ForestDimension, Pos.z());
-				Pos.z() = std::min(m_ForestDimension, Pos.z());
-
-				m_Cam.position(Pos);
-
-				m_IMUCam.update(&m_Cam, 60.0f / m_FPS);
-
-				Pos = m_Cam.position();
-
-				// player collision with tree?
-				for (uint32_t i = 0; i < m_TreeCount; ++i) {
-					if (m_pTreeSpheres[i].pointInside(Pos)) {
-						// set player outside sphere
-						Vector3f V = m_pTreeSpheres[i].Position + std::sqrt(m_pTreeSpheres[i].Radius2) * (Pos - m_pTreeSpheres[i].Position).normalized();
-						Pos.x() = V.x();
-						Pos.z() = V.z();
-						m_Cam.position(Pos);
-					}
-				}
-
-				// player within coin range?
-				for (uint32_t i = 0; i < m_CoinCount; ++i) {
-					bool En;
-					m_pCoinNodes[i].enabled(&En, nullptr);
-					if (En && m_pCoinBS[i].pointInside(Pos)) {
-						m_pCoinNodes[i].enable(false, false);
-						PlayerScore++;
-						printf("Player Score: %d\n", PlayerScore);
-					}
-				}
-
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-				m_SG.render(&m_RenderDev);
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-				m_SG.render(&m_RenderDev);
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
-				m_SkyboxSG.render(&m_RenderDev);
-
-				m_RenderWin.swapBuffers();
-
-				updateFPS();
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
+		void mainLoop(void) override{
 			
+			m_RenderWin.update();
+			m_SG.update(60.0f / m_FPS);
+			m_SkyboxSG.update(60.0f / m_FPS);
 
-			}//while[main loop]
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) Flying = !Flying;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) m_IMUCam.calibrate();
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) m_IMUCam.recordData("Assets/IMUData.csv");
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) m_IMUCam.recordData();
+
+			Vector3f Pos = m_Cam.position();
+			Pos.x() = std::max(-m_ForestDimension, Pos.x());
+			Pos.x() = std::min(m_ForestDimension, Pos.x());
+			if (!Flying) Pos.y() = 0.85f;
+			Pos.z() = std::max(-m_ForestDimension, Pos.z());
+			Pos.z() = std::min(m_ForestDimension, Pos.z());
+
+			m_Cam.position(Pos);
+
+			m_IMUCam.update(&m_Cam, 60.0f / m_FPS);
+
+			Pos = m_Cam.position();
+
+			// player collision with tree?
+			for (uint32_t i = 0; i < m_TreeCount; ++i) {
+				if (m_pTreeSpheres[i].pointInside(Pos)) {
+					// set player outside sphere
+					Vector3f V = m_pTreeSpheres[i].Position + std::sqrt(m_pTreeSpheres[i].Radius2) * (Pos - m_pTreeSpheres[i].Position).normalized();
+					Pos.x() = V.x();
+					Pos.z() = V.z();
+					m_Cam.position(Pos);
+				}
+			}
+
+			// player within coin range?
+			for (uint32_t i = 0; i < m_CoinCount; ++i) {
+				bool En;
+				m_pCoinNodes[i].enabled(&En, nullptr);
+				if (En && m_pCoinBS[i].pointInside(Pos)) {
+					m_pCoinNodes[i].enable(false, false);
+					PlayerScore++;
+					printf("Player Score: %d\n", PlayerScore);
+				}
+			}
+
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_SG.render(&m_RenderDev);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_SG.render(&m_RenderDev);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+			m_SkyboxSG.render(&m_RenderDev);
+
+			m_RenderWin.swapBuffers();
+
+			updateFPS();
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
+			
 		}//run
 	protected:
 
@@ -399,19 +378,22 @@ namespace CForge {
 		uint32_t m_TreeCount;
 		uint32_t m_CoinCount;
 		float m_ForestDimension;
+
+		uint64_t LastMessage = CForgeUtility::timestamp();
+
+		uint8_t Buffer[256];
+		uint32_t MsgLength;
+
+		std::string Sender;
+		uint16_t Port;
+
+		bool Flying = false;
+
+		uint32_t PlayerScore = 0;
+
 	};// IMUInputDeviceTestScene
 
 
-	
-
-	void imuInputDeviceTestScene(void) {
-
-		IMUInputDeviceTestScene Scene;
-		Scene.init();
-		Scene.run();
-		Scene.clear();
-
-	}//exampleMinimumGraphicsSetup
 
 }
 

@@ -27,12 +27,22 @@ namespace CForge {
 	public:
 		
 		template<typename T>
+		static T sign(const T arg) {
+			if (arg > T(0)) return T(1);
+			else if (arg < T(0)) return (T)(-1);
+			return arg;
+		}//sign
+
+		template<typename T>
 		static T randRange(T Lower, T Upper) {
 			long double R = (long double)(rand()) / (long double)(randMax());
-			long double Temp = R * (Upper - Lower);
-			return T(Lower + Temp);
-			//return T(Lower + R * (Upper - Lower));
+			return T(Lower + R * (Upper - Lower));
 		}//randRange
+
+		template<typename T>
+		static T rand(void) {
+			return (rand() % std::numeric_limits<T>::max());
+		}//rand
 
 		static uint64_t rand(void);
 		static void randSeed(uint64_t Seed);

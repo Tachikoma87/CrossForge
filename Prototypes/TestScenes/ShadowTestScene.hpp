@@ -272,19 +272,18 @@ namespace CForge {
 			glGenQueries(1, &m_TimingLightingPass);
 			glGenQueries(1, &m_TimingForwardPass);
 
+			m_FPS = 60.0f;
+			m_LastFPSPrint = CForgeUtility::timestamp();
+			m_FrameCount = 0;
+
 		}//initialize
 
 		void clear(void) override{
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) override {	
-			bool Wireframe = false;
-			Mouse* pMouse = m_RenderWin.mouse();
-			Keyboard* pKeyboard = m_RenderWin.keyboard();
-			m_FPS = 60.0f;
-			m_LastFPSPrint = CForgeUtility::timestamp();
-			m_FrameCount = 0;
+		void mainLoop(void) override {	
+			
 
 			while (!m_RenderWin.shutdown()) {
 
@@ -496,16 +495,14 @@ namespace CForge {
 		uint32_t m_TimingGeometryPass;
 		uint32_t m_TimingLightingPass;
 		uint32_t m_TimingForwardPass;
+
+		bool Wireframe = false;
+		Mouse* pMouse = m_RenderWin.mouse();
+		Keyboard* pKeyboard = m_RenderWin.keyboard();
+		
+
 	};//ShadowTestScene
 
-	void shadowTest(void) {
-
-		ShadowTestScene Scene;
-		Scene.init();
-		Scene.run();
-		Scene.clear();
-
-	}//shadowTest
 
 }
 #endif

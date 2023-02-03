@@ -120,57 +120,53 @@ namespace CForge {
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) override{
-			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
-				m_SG.update(60.0f / m_FPS);
-				m_SkyboxSG.update(60.0f / m_FPS);
+		void mainLoop(void)override {
+			m_RenderWin.update();
+			m_SG.update(60.0f / m_FPS);
+			m_SkyboxSG.update(60.0f / m_FPS);
 
-				// handle input for the skybox
-				Keyboard* pKeyboard = m_RenderWin.keyboard();
-				float Step = (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) ? -0.05f : 0.05f;
-				if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) m_Skybox.brightness(m_Skybox.brightness() + Step);
-				if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) m_Skybox.saturation(m_Skybox.saturation() + Step);
-				if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) m_Skybox.contrast(m_Skybox.contrast() + Step);
-				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) && pKeyboard->keyPressed(Keyboard::KEY_R)) {
-					m_SkyboxTransSGN.rotationDelta(Quaternionf::Identity());
-				}
-				else if (pKeyboard->keyPressed(Keyboard::KEY_R, true)) {
-					Quaternionf RDelta;
-					RDelta = AngleAxisf(CForgeMath::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
-					m_SkyboxTransSGN.rotationDelta(RDelta);
-				}
+			// handle input for the skybox
+			Keyboard* pKeyboard = m_RenderWin.keyboard();
+			float Step = (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) ? -0.05f : 0.05f;
+			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) m_Skybox.brightness(m_Skybox.brightness() + Step);
+			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) m_Skybox.saturation(m_Skybox.saturation() + Step);
+			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) m_Skybox.contrast(m_Skybox.contrast() + Step);
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) && pKeyboard->keyPressed(Keyboard::KEY_R)) {
+				m_SkyboxTransSGN.rotationDelta(Quaternionf::Identity());
+			}
+			else if (pKeyboard->keyPressed(Keyboard::KEY_R, true)) {
+				Quaternionf RDelta;
+				RDelta = AngleAxisf(CForgeMath::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
+				m_SkyboxTransSGN.rotationDelta(RDelta);
+			}
 
-				if (pKeyboard->keyPressed(Keyboard::KEY_F1, true)) m_Skybox.init(m_ClearSky[0], m_ClearSky[1], m_ClearSky[2], m_ClearSky[3], m_ClearSky[4], m_ClearSky[5]);
-				if (pKeyboard->keyPressed(Keyboard::KEY_F2, true)) m_Skybox.init(m_EmptySpace[0], m_EmptySpace[1], m_EmptySpace[2], m_EmptySpace[3], m_EmptySpace[4], m_EmptySpace[5]);
-				if (pKeyboard->keyPressed(Keyboard::KEY_F3, true)) m_Skybox.init(m_Techno[0], m_Techno[1], m_Techno[2], m_Techno[3], m_Techno[4], m_Techno[5]);
-				if (pKeyboard->keyPressed(Keyboard::KEY_F4, true)) m_Skybox.init(m_BlueCloud[0], m_BlueCloud[1], m_BlueCloud[2], m_BlueCloud[3], m_BlueCloud[4], m_BlueCloud[5]);
+			if (pKeyboard->keyPressed(Keyboard::KEY_F1, true)) m_Skybox.init(m_ClearSky[0], m_ClearSky[1], m_ClearSky[2], m_ClearSky[3], m_ClearSky[4], m_ClearSky[5]);
+			if (pKeyboard->keyPressed(Keyboard::KEY_F2, true)) m_Skybox.init(m_EmptySpace[0], m_EmptySpace[1], m_EmptySpace[2], m_EmptySpace[3], m_EmptySpace[4], m_EmptySpace[5]);
+			if (pKeyboard->keyPressed(Keyboard::KEY_F3, true)) m_Skybox.init(m_Techno[0], m_Techno[1], m_Techno[2], m_Techno[3], m_Techno[4], m_Techno[5]);
+			if (pKeyboard->keyPressed(Keyboard::KEY_F4, true)) m_Skybox.init(m_BlueCloud[0], m_BlueCloud[1], m_BlueCloud[2], m_BlueCloud[3], m_BlueCloud[4], m_BlueCloud[5]);
 
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-				m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-				m_SG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_RenderDev.activeCamera(&m_Cam);
+			m_SG.render(&m_RenderDev);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
-				// Skybox should be last thing to render
-				m_SkyboxSG.render(&m_RenderDev);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
+			// Skybox should be last thing to render
+			m_SkyboxSG.render(&m_RenderDev);
 
-				m_RenderWin.swapBuffers();
+			m_RenderWin.swapBuffers();
 
-				updateFPS();
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
+			updateFPS();
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
+		}
 
-
-				std::string GLError = "";
-				CForgeUtility::checkGLError(&GLError);
-				if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
-			}//while[main loop]
-		}//run
 	protected:
 
 		StaticActor m_Duck;

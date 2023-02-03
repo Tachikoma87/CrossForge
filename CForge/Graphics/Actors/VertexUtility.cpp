@@ -49,7 +49,7 @@ namespace CForge {
 		}
 		if (hasProperties(VPROP_BONEINDICES)) {
 			m_BoneIndicesOffset = m_VertexSize;
-			m_VertexSize += sizeof(uint32_t) * 4;
+			m_VertexSize += sizeof(int32_t) * 4;
 		}
 		if (hasProperties(VPROP_BONEWEIGHTS)) {
 			m_BoneWeightsOffset = m_VertexSize;

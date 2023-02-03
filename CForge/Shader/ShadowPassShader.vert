@@ -1,7 +1,7 @@
 #version 330 core 
 
 #ifdef SKELETAL_ANIMATION
-const uint BoneCount = 40U;
+const uint BoneCount = 19U;
 
 layout (std140) uniform BoneData{
 	mat4 SkinningMatrix[BoneCount];
@@ -38,7 +38,7 @@ void main(){
 	for(uint i = 0U; i < 4U; ++i){
 		T += BoneWeights[i] * Bones.SkinningMatrix[BoneIndices[i]];	
 	}//for[4 weights]
-	//Po = T * vec4(Position, 1.0);
+
 	Po = T * Po;
 #endif 
 
