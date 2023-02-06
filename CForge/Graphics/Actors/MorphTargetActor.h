@@ -41,7 +41,6 @@ namespace CForge {
 	protected:
 		void buildMorphTargetBuffer(T3DMesh<float>* pMesh);
 
-		GLBuffer m_MorphTargetBuffer;
 		uint32_t m_MorphTargetTexture;
 
 		UBOMorphTargetData m_MorphTargetUBO;

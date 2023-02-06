@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(USE_OPENCV "Include OpenCV in build" OFF)
+set(Optimization_Flag "-O0")
 
 #[[
 ## download and install pmp
@@ -83,8 +84,8 @@ if(EMSCRIPTEN)
 	include_directories(${freetype_SOURCE_DIR}/include/)
 
 
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -Wno-tautological-pointer-compare -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Optimization_Flag} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Optimization_Flag} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -Wno-tautological-pointer-compare -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
 
 else()
 	# required core packages
@@ -97,7 +98,6 @@ else()
 	FIND_PACKAGE(libigl CONFIG REQUIRED)	# mesh processing library
 	FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp 
 
-	#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-command-line-argument")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W1 -wd4251")
 endif()
 

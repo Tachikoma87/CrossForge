@@ -277,7 +277,7 @@ namespace CForge {
 
 
 	void SkeletalAnimationController::transformSkeleton(Joint* pJoint, Eigen::Matrix4f ParentTransform) {
-		
+		if (nullptr == pJoint) throw NullpointerExcept("pJoint");
 		const Matrix4f R = CForgeMath::rotationMatrix(pJoint->LocalRotation);
 		const Matrix4f T = CForgeMath::translationMatrix(pJoint->LocalPosition);
 		const Matrix4f S = CForgeMath::scaleMatrix(pJoint->LocalScale);

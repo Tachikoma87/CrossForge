@@ -19,7 +19,6 @@
 #define __CFORGE_STICKFIGURETESTSCENE_HPP__
 
 #include <CForge/Graphics/Actors/SkeletalActor.h>
-//#include "../Actor/StickFigureActor.h"
 #include <CForge/Graphics/Actors/StickFigureActor.h>
 
 #include "../../Examples/ExampleSceneBase.hpp"
@@ -60,7 +59,12 @@ namespace CForge {
 			//AssetIO::load("MyAssets/Pearl/Pearl.glb", &M);
 			//SAssetIO::load("MyAssets/WalkingSittingEve.glb", &M);
 			SAssetIO::load("MyAssets/Technique_Evaluation/OldModel.gltf", &M);
-			
+			M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
+			M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
+			M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
+
+			M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.jpg";
+			M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.jpg";
 
 
 			//T3DMesh<float> Anim;
@@ -79,6 +83,10 @@ namespace CForge {
 			m_StickFigure.init(&M, &m_BipedController);
 			M.clear();
 
+			BoundingVolume BV;
+			m_CesiumMan.boundingVolume(BV);
+			m_StickFigure.boundingVolume(BV);
+
 			// build scene graph	
 			m_RootSGN.init(nullptr);
 			m_SG.init(&m_RootSGN);
@@ -87,29 +95,19 @@ namespace CForge {
 			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
 			m_SkydomeSGN.scale(Vector3f(150.0f, 150.0f, 150.0f));
 
-			float Scale = 0.125f;
+			float Scale = 0.035f;
 			//Scale = 5.0f;
 
 			// add skeletal actor to scene graph (Eric)			
 			m_CesiumManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 0.0f, 0.0f));
 			m_CesiumManSGN.init(&m_CesiumManTransformSGN, &m_CesiumMan);
 			m_CesiumManSGN.scale(Vector3f(Scale, Scale, Scale));
-			m_CesiumManSGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
+			//m_CesiumManSGN.visualization(SGNGeometry::VISUALIZATION_WIREFRAME);
 
 			m_StickFigureTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 0.0f, 0.0f));
 			m_StickFigureSGN.init(&m_StickFigureTransformSGN, &m_StickFigure);
 			m_StickFigureSGN.scale(Vector3f(Scale, Scale, Scale));
 		
-
-			//m_StickFigureSGN.enable(false, false);
-
-			/*m_StickFigure.boneSize(1.0f);
-			m_StickFigure.jointSize(2.0f);*/
-			/*m_StickFigure.jointColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-			m_StickFigure.boneColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));*/
-
-			//m_StickFigure.boneSize(0.02f);
-			//m_StickFigure.jointSize(0.04f);
 
 			Quaternionf Rot = Quaternionf::Identity();
 			//Rot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
@@ -125,7 +123,18 @@ namespace CForge {
 			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
+			SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, 1000.0f / 60.0f, 0.0f);
+			m_CesiumMan.activeAnimation(pAnim);
+			m_StickFigure.activeAnimation(pAnim);
+
 			m_RepeatAnimation = true;
+			m_VisualizeSkeleton = false;
+			m_StickFigureSGN.enable(true, false);
+			m_CesiumManSGN.enable(true, true);
+
+			Vector3f Pos = Vector3f(13.0f, 4.0f, 15.0f);
+			m_Cam.position(Pos);
+			m_Cam.lookAt(Pos, Vector3f(0.0f, 2.8f, 10.0f));
 		}//initialize
 
 		void clear(void) override{
@@ -157,6 +166,7 @@ namespace CForge {
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 				SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
 				m_CesiumMan.activeAnimation(pAnim);
+				m_StickFigure.activeAnimation(pAnim);
 			}
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_R, true)) {
 				m_RepeatAnimation = !m_RepeatAnimation;
@@ -181,6 +191,17 @@ namespace CForge {
 				CForgeUtility::defaultMaterial(&M, CForgeUtility::PLASTIC_WHITE);
 				m_StickFigure.boneMaterial(M);
 			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
+				if (m_VisualizeSkeleton) {
+					m_StickFigureSGN.enable(true, false);
+					m_CesiumManSGN.enable(true, true);
+				}
+				else {
+					m_StickFigureSGN.enable(true, true);
+					m_CesiumManSGN.enable(true, false);
+				}
+				m_VisualizeSkeleton = !m_VisualizeSkeleton;
+			}
 
 			updateFPS();
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
@@ -201,6 +222,7 @@ namespace CForge {
 		SGNTransformation m_StickFigureTransformSGN;
 
 		bool m_RepeatAnimation;
+		bool m_VisualizeSkeleton;
 
 	};//StickFigureTestScene
 

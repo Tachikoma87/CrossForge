@@ -61,7 +61,7 @@ namespace CForge {
 			m_GroundSGN.scale(Vector3f(15.0f, 15.0f, 15.0f));
 			
 			// load the tree models
-			SAssetIO::load("Assets/ExampleScenes/Trees/LowPolyTree_01.glb", &M);
+			SAssetIO::load("Assets/ExampleScenes/Trees/LowPolyTree_01.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			scaleAndOffsetModel(&M, 0.5f);
@@ -69,7 +69,7 @@ namespace CForge {
 			m_Trees[0].init(&M);
 			M.clear();
 
-			SAssetIO::load("Assets/ExampleScenes/Trees/LowPolyTree_02.glb", &M);
+			SAssetIO::load("Assets/ExampleScenes/Trees/LowPolyTree_02.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			M.computeAxisAlignedBoundingBox();
@@ -149,7 +149,7 @@ namespace CForge {
 			m_SG.update(60.0f / m_FPS);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-			m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
+			m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
 			m_SG.render(&m_RenderDev);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);

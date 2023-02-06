@@ -63,12 +63,13 @@ namespace CForge {
 
 	void MorphTargetActor::clear(void) {
 		m_ElementBuffer.clear();
-		//m_MorphTargetBuffer.clear();
 		m_MorphTargetUBO.clear();
 		m_RenderGroupUtility.clear();
 		m_VertexArray.clear();
 		m_VertexBuffer.clear();
 		m_VertexUtility.clear();
+		if (glIsTexture(m_MorphTargetTexture)) glDeleteTextures(1, &m_MorphTargetTexture);
+		m_MorphTargetTexture = GL_INVALID_INDEX;
 	}//clear
 
 	void MorphTargetActor::release(void) {
@@ -92,7 +93,6 @@ namespace CForge {
 				pRDev->activeMaterial(&i->Material);
 				int32_t MTTex = i->pShaderGeometryPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
 				if (MTTex >= 0) {
-					//m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
 					glActiveTexture(GL_TEXTURE0 + MTTex);
 					glBindTexture(GL_TEXTURE_2D, m_MorphTargetTexture);
 					glUniform1i(MTTex, MTTex);
@@ -107,7 +107,6 @@ namespace CForge {
 				pRDev->activeMaterial(&i->Material);
 				int32_t MTTex = i->pShaderShadowPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
 				if (MTTex >= 0) {
-					//m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
 					glActiveTexture(GL_TEXTURE0 + MTTex);
 					glBindTexture(GL_TEXTURE_2D, m_MorphTargetTexture);
 					glUniform1i(MTTex, MTTex);
@@ -122,7 +121,6 @@ namespace CForge {
 				pRDev->activeMaterial(&i->Material);
 				int32_t MTTex = i->pShaderForwardPass->uniformLocation(GLShader::DEFAULTTEX_MORPHTARGETDATA);
 				if (MTTex >= 0) {
-					//m_MorphTargetBuffer.bindTextureBuffer(MTTex, GL_RGB32F);
 					glActiveTexture(GL_TEXTURE0 + MTTex);
 					glBindTexture(GL_TEXTURE_2D, m_MorphTargetTexture);
 					glUniform1i(MTTex, MTTex);
@@ -148,8 +146,6 @@ namespace CForge {
 	void MorphTargetActor::buildMorphTargetBuffer(T3DMesh<float>* pMesh) {
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 		if (pMesh->morphTargetCount() == 0) throw CForgeExcept("Mesh contains no morph targets. Can not build morph target buffer.");
-
-		//m_MorphTargetBuffer.clear();
 		
 		float* pBufferData = nullptr;
 		uint32_t ElementCount = 0;
@@ -174,8 +170,6 @@ namespace CForge {
 
 			}//for[vertexIDs]
 		}
-
-		//m_MorphTargetBuffer.init(GLBuffer::BTYPE_TEXTURE, GLBuffer::BUSAGE_STATIC_DRAW, pBufferData, ElementCount * sizeof(float));
 
 		glGenTextures(1, &m_MorphTargetTexture);
 		glBindTexture(GL_TEXTURE_2D, m_MorphTargetTexture);

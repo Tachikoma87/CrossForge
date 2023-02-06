@@ -32,6 +32,7 @@
 #include "Prototypes/TestScenes/StickFigureTestScene.hpp"
 #include "Prototypes/TestScenes/PrimitiveFactoryTestScene.hpp"
 #include "Prototypes/TestScenes/EmscriptenGLTestScene.hpp"
+#include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
 
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 
@@ -51,12 +52,13 @@ using namespace Eigen;
 
 
 //#define ActiveScene ImuInputDeviceTestScene	 
-#define ActiveScene SkelAnimTestScene
+//#define ActiveScene SkelAnimTestScene
 //#define ActiveScene SurfaceSamplerTestScene
 //#define ActiveScene ForwardTestScene
 //#define ActiveScene PrimitiveFactoryTestScene
 //#define ActiveScene FrustumCullingTestScene
 //#define ActiveScene StickFigureTestScene
+#define ActiveScene AssetGLTFTestScene
 
 
 

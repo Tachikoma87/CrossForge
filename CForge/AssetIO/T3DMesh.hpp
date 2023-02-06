@@ -80,6 +80,10 @@ namespace CForge {
 			std::string TexNormal;
 			std::string TexDepth;
 
+			std::string TexMetallicRoughness;
+			std::string TexEmissive;
+			std::string TexOcclusion;
+
 			std::vector<std::string> VertexShaderGeometryPass;
 			std::vector<std::string> FragmentShaderGeometryPass;
 
