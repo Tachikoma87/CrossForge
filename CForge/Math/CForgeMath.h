@@ -34,6 +34,12 @@ namespace CForge {
 		}//sign
 
 		template<typename T>
+		static T nextPowerOfTwo(const T Value) {
+			T a = T(std::log2(Value));
+			return (std::pow(T(2), a) == Value) ? Value : std::pow(T(2), a + T(1));
+		}//nextPowerOfTwo
+
+		template<typename T>
 		static T randRange(T Lower, T Upper) {
 			long double R = (long double)(rand()) / (long double)(randMax());
 			return T(Lower + R * (Upper - Lower));

@@ -55,6 +55,13 @@ namespace CForge {
 			M.clear();
 
 
+			// power of two test
+			for (uint32_t i = 0; i < 50; ++i) {
+				int32_t Number = CForgeMath::randRange(0, 10000);
+				int32_t PowerOfTwo = nextPowerOfTwo(Number);
+				printf("Value: %d - %d\n", Number, PowerOfTwo);
+			}
+
 
 			SAssetIO::load("MyAssets/Technique_Evaluation/OldModel.gltf", &M);
 			M.clearSkeleton();
@@ -192,6 +199,12 @@ namespace CForge {
 			if (pMesh->tangentCount() > 0) pMesh->computePerVertexTangents();
 
 		}//changeUVTiling
+
+		template<typename T>
+		T nextPowerOfTwo(const T Value) {
+			T a = std::log2(Value);
+			return (std::pow(T(2), a) == Value) ? Value : std::pow(T(2), a + 1);
+		}//nextPowerOfTwo
 
 
 		// Scene Graph
