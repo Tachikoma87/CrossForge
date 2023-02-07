@@ -2,15 +2,15 @@
 *                                                                           *
 * File(s): SceneGraph.h and SceneGraph.cpp                                  *
 *                                                                           *
-* Content: Class to interact with an MF52 NTC Thermistor by using a basic   *
-*          voltage divider circuit.                                         *
+* Content: Scene graph.                                                     *
+*                                                                           *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
