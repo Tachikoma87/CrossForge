@@ -10,7 +10,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -90,8 +90,6 @@ namespace CForge {
 		virtual void mainLoop(void){ 
 			m_RenderWin.update();
 
-			glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			m_RenderWin.swapBuffers();
 
@@ -221,6 +219,10 @@ namespace CForge {
 
 				m_RenderWin.title(m_WindowTitle + "[" + std::string(Buf) + "]");
 
+#ifdef __EMSCRIPTEN__
+				if(CForgeMath::rand()%8 == 0)	printf("FPS: %.2f\n", m_FPS);
+#endif
+
 
 				std::string ErrorMsg;
 				if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
@@ -261,7 +263,7 @@ namespace CForge {
 			if (pKeyboard->keyPressed(Keyboard::KEY_A)) pCamera->right(-S * MovementSpeed);
 			if (pKeyboard->keyPressed(Keyboard::KEY_D)) pCamera->right(S * MovementSpeed);
 
-			if (pMouse->buttonState(Mouse::BTN_RIGHT)) {
+			if (pMouse->buttonState(Mouse::BTN_RIGHT) || pMouse->buttonState(Mouse::BTN_LEFT)) {
 				if (m_CameraRotation) {
 					const Eigen::Vector2f MouseDelta = pMouse->movement();
 					pCamera->rotY(CForgeMath::degToRad(-0.1f * RotationSpeed * MouseDelta.x()));

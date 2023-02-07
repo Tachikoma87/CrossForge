@@ -11,7 +11,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -32,6 +32,12 @@ namespace CForge {
 			else if (arg < T(0)) return (T)(-1);
 			return arg;
 		}//sign
+
+		template<typename T>
+		static T nextPowerOfTwo(const T Value) {
+			T a = T(std::log2(Value));
+			return (std::pow(T(2), a) == Value) ? Value : std::pow(T(2), a + T(1));
+		}//nextPowerOfTwo
 
 		template<typename T>
 		static T randRange(T Lower, T Upper) {

@@ -103,11 +103,9 @@ namespace CForge {
 	}//bindBufferBase
 
 	void GLBuffer::bindTextureBuffer(uint32_t ActiveTexture, uint32_t Format) {
-#ifndef __EMSCRIPTEN__
 		glActiveTexture(GL_TEXTURE0 + ActiveTexture);
 		glBindTexture(GL_TEXTURE_BUFFER, m_TextureHandle);
 		glTexBuffer(GL_TEXTURE_BUFFER, Format, m_GLID);
-#endif
 	}//bindTexBuffer
 
 }//name space

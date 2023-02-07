@@ -109,6 +109,7 @@ namespace CForge {
 	void StaticActor::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
 
+		
 		for (auto i : m_RenderGroupUtility.renderGroups()) {
 
 			switch (pRDev->activePass()) {
@@ -133,11 +134,10 @@ namespace CForge {
 			}
 
 			m_VertexArray.bind();
-			glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBuffer.size() / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
+			glDrawElements(GL_TRIANGLES, (i->Range.y() - i->Range.x()), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
 			m_VertexArray.unbind();
 		}//for[all render groups]
-
-		//
+		
 	}//render
 
 }

@@ -177,7 +177,6 @@ namespace CForge {
 		// set current animation data 
 		// if active animation is nullptr bind pose will be set
 		m_pAnimationController->applyAnimation(m_pActiveAnimation, true);
-
 		m_pAnimationController->updateSkeletonValues(&m_JointValues);
 
 		for (auto i : m_JointValues) {

@@ -10,7 +10,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -79,6 +79,10 @@ namespace CForge {
 			std::string TexAlbedo;
 			std::string TexNormal;
 			std::string TexDepth;
+
+			std::string TexMetallicRoughness;
+			std::string TexEmissive;
+			std::string TexOcclusion;
 
 			std::vector<std::string> VertexShaderGeometryPass;
 			std::vector<std::string> FragmentShaderGeometryPass;
