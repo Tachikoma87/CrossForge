@@ -1,12 +1,12 @@
 CrossForge: A Cross-Platform Visualization Library
 ==============================
 
-How to cite:
+Acknowledgment:
 
     @misc{CForge,
         title={CrossForge: A Cross-Platform Visualization Library},
-        author={Tom Uhlmann and others},
-        year = {2020-2022},
+        author={Tom Uhlmann and Contributors},
+        year = {2020-2023},
         howpublished = {Github (not yet publicly available)},
     }
 

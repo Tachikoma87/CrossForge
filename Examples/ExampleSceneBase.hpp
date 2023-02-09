@@ -83,6 +83,10 @@ namespace CForge {
 			m_pShaderMan = nullptr;
 		}//clear
 
+		virtual void release(void) {
+			delete this;
+		}//release
+
 		const GLWindow* renderWindow(void)const {
 			return &m_RenderWin;
 		}//renderWindow

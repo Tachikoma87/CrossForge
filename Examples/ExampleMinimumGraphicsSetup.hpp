@@ -114,11 +114,7 @@ namespace CForge {
 
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
 
-			std::string ErrorMsg;
-			if (0 != CForgeUtility::checkGLError(&ErrorMsg)) {
-				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
-			}
-		}
+		}//mainLoop
 
 
 

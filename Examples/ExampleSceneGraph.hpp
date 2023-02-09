@@ -19,6 +19,7 @@
 #ifndef __CFORGE_EXAMPLESCENEGRAPH_HPP__
 #define __CFORGE_EXAMPLESCENEGRAPH_HPP__
 
+#include <CForge/MeshProcessing/PrimitiveShapeFactory.h>
 #include "ExampleSceneBase.hpp"
 
 namespace CForge {
@@ -45,11 +46,14 @@ namespace CForge {
 			T3DMesh<float> M;
 
 			// load the ground model
-			SAssetIO::load("Assets/ExampleScenes/TexturedGround.gltf", &M);
-			setMeshShader(&M, 0.8f, 0.04f);
-			for (uint8_t i = 0; i < 4; ++i) M.textureCoordinate(i) *= 50.0f;
+			//SAssetIO::load("Assets/ExampleScenes/TexturedGround.gltf", &M);
+			PrimitiveShapeFactory::plane(&M, Vector2f(1250.0f, 1250.0f), Vector2i(10, 10));
+			setMeshShader(&M, 0.6f, 0.2f);
+			M.changeUVTiling(Vector3f(250.0f, 250.0f, 1.0f));
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
+			M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/ground14.jpg";
+			M.getMaterial(0)->TexNormal = "Assets/ExampleScenes/ground14n.jpg";
 			m_Ground.init(&M);
 			BoundingVolume BV;
 			m_Ground.boundingVolume(BV);
@@ -58,7 +62,6 @@ namespace CForge {
 			// initialize ground transformation and geometry scene graph node
 			m_GroundTransformSGN.init(&m_RootSGN);
 			m_GroundSGN.init(&m_GroundTransformSGN, &m_Ground);
-			m_GroundSGN.scale(Vector3f(15.0f, 15.0f, 15.0f));
 			
 			// load the tree models
 			SAssetIO::load("Assets/ExampleScenes/Trees/LowPolyTree_01.gltf", &M);

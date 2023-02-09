@@ -79,9 +79,9 @@ namespace CForge {
 		// generate vertices
 		for (uint32_t i = 0; i < Slices; ++i) {
 			float Ratio = float(i) / float(Slices) * (EIGEN_PI * 2.0f);
-			v.x() = std::cos(Ratio) * Dimensions.x();
+			v.x() = std::cos(Ratio) * Dimensions.x() * 0.5f;
 			v.y() = 0.0f;
-			v.z() = std::sin(Ratio) * Dimensions.y();
+			v.z() = std::sin(Ratio) * Dimensions.y() * 0.5f;
 			Vertices.push_back(v);
 
 			uvw.x() = (std::cos(Ratio) + 1.0f) / 2.0f;
@@ -269,7 +269,7 @@ namespace CForge {
 		Eigen::Vector3f uvw = Vector3f::Zero();
 
 		// add top vertex
-		Vertices.push_back(Vector3f(0.0f, 1.0f, 0.0f).cwiseProduct(Dimensions));
+		Vertices.push_back(Vector3f(0.0f, 1.0f, 0.0f).cwiseProduct(0.5f*Dimensions));
 		uvw = CForgeMath::equalAreaMapping(Vector3f(0.0f, 1.0f, 0.0f));
 		UVWs.push_back(uvw);
 
@@ -282,7 +282,7 @@ namespace CForge {
 				v.x() = std::sin(Phi) * std::cos(Theta);
 				v.y() = std::cos(Phi);
 				v.z() = std::sin(Phi) * std::sin(Theta);
-				Vertices.push_back(v.cwiseProduct(Dimensions));
+				Vertices.push_back(v.cwiseProduct(0.5f*Dimensions));
 
 				v.z() = -v.z();
 				uvw = CForgeMath::equalAreaMapping(v);
@@ -291,7 +291,7 @@ namespace CForge {
 		}//for[stacks]
 
 		// add bottom vertex
-		Vertices.push_back(Vector3f(0.0f, -1.0f, 0.0f).cwiseProduct(Dimensions));
+		Vertices.push_back(Vector3f(0.0f, -1.0f, 0.0f).cwiseProduct(0.5f*Dimensions));
 		uvw = CForgeMath::equalAreaMapping(Vector3f(0.0f, -1.0f, 0.0f));
 		UVWs.push_back(uvw);
 
@@ -365,7 +365,7 @@ namespace CForge {
 			float Ratio = float(i) / float(Slices) * (EIGEN_PI * 2.0f);
 			v.x() = std::cos(Ratio);
 			v.z() = std::sin(Ratio);
-			Vertices.push_back(v.cwiseProduct(Scale));
+			Vertices.push_back(v.cwiseProduct(0.5f*Scale));
 
 			uvw = CForgeMath::equirectangularMapping(v);
 			UVWs.push_back(uvw);
@@ -376,9 +376,6 @@ namespace CForge {
 		Vertices.push_back(Vector3f(0.0f, -Dimensions.w(), 0.0f));
 		UVWs.push_back(Vector3f(0.5f, 1.0f, 0.0f));
 		UVWs.push_back(Vector3f(0.5f, 1.0f, 0.0f));
-
-		//UVWs.push_back(equalAreaMapping(Vector3f(0.0f, 1.0f, 0.0f)));
-		//UVWs.push_back(equalAreaMapping(Vector3f(0.0f, -1.0f, 0.0f)));
 
 		// generate triangular faces
 		for (uint32_t i = 0; i < Slices; ++i) {
@@ -421,14 +418,14 @@ namespace CForge {
 		// generate vertices
 		for (uint32_t i = 0; i < Slices; ++i) {
 			float Ratio = float(i) / float(Slices) * (EIGEN_PI * 2.0f);
-			v.x() = std::cos(Ratio) * BottomDimensions.x();
+			v.x() = std::cos(Ratio) * BottomDimensions.x() * 0.5f;
 			v.y() = 0.0f;
-			v.z() = std::sin(Ratio) * BottomDimensions.y();
+			v.z() = std::sin(Ratio) * BottomDimensions.y() * 0.5f;
 			Vertices.push_back(v);
 
-			v.x() = std::cos(Ratio) * TopDimensions.x();
+			v.x() = std::cos(Ratio) * TopDimensions.x() * 0.5f;
 			v.y() = Height;
-			v.z() = std::sin(Ratio) * TopDimensions.y();
+			v.z() = std::sin(Ratio) * TopDimensions.y() * 0.5f;
 			Vertices.push_back(v);
 
 			uvw.x() = float(i) / float(Slices - 1);
