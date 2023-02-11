@@ -30,7 +30,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API InputCheckboxWidget : public BaseWidget {
+    class InputCheckboxWidget : public BaseWidget {
     public:
         InputCheckboxWidget(GUI* rootGUIObject, BaseWidget* parent);
         ~InputCheckboxWidget();

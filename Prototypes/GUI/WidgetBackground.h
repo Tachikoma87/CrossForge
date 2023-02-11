@@ -19,11 +19,11 @@
 #define __CFORGE_WIDGETBACKGROUND_H__
 
 //copied over from the CForge::ScreenQuad
-#include "../Graphics/Actors/IRenderableActor.h"
-#include "../Graphics/Actors/RenderGroupUtility.h"
-#include "../Graphics/Actors/VertexUtility.h"
-#include "../Graphics/GLVertexArray.h"
-#include "../Graphics/GLBuffer.h"
+#include <CForge/Graphics/Actors/IRenderableActor.h>
+#include <CForge/Graphics/Actors/RenderGroupUtility.h>
+#include <CForge/Graphics/Actors/VertexUtility.h>
+#include <CForge/Graphics/GLVertexArray.h>
+#include <CForge/Graphics/GLBuffer.h>
 
 #include "GUI.h"
 #include "GUIDefaults.h"
@@ -51,7 +51,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API WidgetBackground : public CForge::IRenderableActor/*, public IWidgetBackground*/ {
+    class WidgetBackground : public CForge::IRenderableActor/*, public IWidgetBackground*/ {
     public:
 
         /**
@@ -123,7 +123,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API WidgetBackgroundColored : public WidgetBackground {
+    class WidgetBackgroundColored : public WidgetBackground {
     public:
         WidgetBackgroundColored(BaseWidget* parent, GUI* root);
         ~WidgetBackgroundColored(void);

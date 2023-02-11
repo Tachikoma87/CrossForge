@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): Font.h and Font.cpp                                      *
+* File(s): FontFace.h and FontFace.cpp                                      *
 *                                                                           *
 * Content:    *
 *          .                                         *
@@ -15,40 +15,14 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_FONT_H__
-#define __CFORGE_FONT_H__
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
+#ifndef __CFORGE_FONTFACE_H__
+#define __CFORGE_FONTFACE_H__
 
 #include <unordered_map>
-
-#include "GUIDefaults.h"
-#include "../Graphics/Shader/GLShader.h"
-#include "../Graphics/GLVertexArray.h"
-#include "../Graphics/GLBuffer.h"
-#include "../Graphics/RenderDevice.h"
-
+#include <CForge/Graphics/GLBuffer.h>
+#include <CForge/Graphics/GLVertexArray.h>
 
 namespace CForge {
-
-    /**
-     * \brief Necessary information to use the font's glyphs.
-     *
-     * This struct wraps a glyph's bitmap with all the information required
-     * to actually make use of it.
-     *
-     * \ingroup GUI
-     */
-    typedef struct glyph {
-        FT_UInt index;              ///< The glyph's index within the font face. Not the same as its unicode value.
-        uint8_t* bitmap;            ///< The glyphs rendered, grayscale image.
-        FT_Vector bitmapSize;       ///< The glyph's pixel sizes.
-        FT_Vector bitmapOffset;     ///< Offset of the bitmap relative to the canonical bounding box/size of the glyph.
-        FT_Vector charMapOffset;    ///< The glyph's offset within the font texture. \sa prepareCharMap
-        int advanceWidth;           ///< Canonical width of this character.
-    } glyph_t;
 
     /**
      * \brief Wrapper for a single font.
@@ -60,8 +34,66 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API FontFace {
+    class FontFace {
     public:
+        /** \brief Defines information about a single font style.
+         *
+         * You can add more font styles in a way similar to FontStyle1 or
+         * FontStyle2. Note however, that in order for them to be usable by
+         * widgets, they need to be manually loaded in CForge::GUI::loadFonts
+         * at the current time.
+         *
+         * \ingroup GUI
+         */
+        struct FontStyle {
+            std::string FileName;                               ///< The font file to load
+            int32_t PixelSize;                                      ///< height of text in pixels
+            std::u32string CharacterSet;
+
+            FontStyle(void) {
+                FileName = "";
+                PixelSize = 16;
+                CharacterSet = U" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²";
+            }//constructor
+
+            ~FontStyle(void) {
+                
+            }//Constructor
+
+            bool operator==(const FontStyle& Other) {
+                bool Rval = true;
+                if (FileName.compare(Other.FileName) == std::string::npos) Rval = false;
+                if (CharacterSet.compare(Other.CharacterSet) == std::string::npos) Rval = false;
+                if (PixelSize != Other.PixelSize) Rval = false;
+                return Rval;
+            }//operator==
+        };
+
+        /**
+         * \brief Necessary information to use the font's glyphs.
+         *
+         * This struct wraps a glyph's bitmap with all the information required
+         * to actually make use of it.
+         *
+         * \ingroup GUI
+         */
+            /*struct Glyph {
+                FT_UInt index;              ///< The glyph's index within the font face. Not the same as its unicode value.
+                uint8_t* bitmap;            ///< The glyphs rendered, grayscale image.
+                FT_Vector bitmapSize;       ///< The glyph's pixel sizes.
+                FT_Vector bitmapOffset;     ///< Offset of the bitmap relative to the canonical bounding box/size of the glyph.
+                FT_Vector charMapOffset;    ///< The glyph's offset within the font texture. \sa prepareCharMap
+                int advanceWidth;           ///< Canonical width of this character.
+            };*/
+
+            struct Glyph {
+                uint32_t index;              ///< The glyph's index within the font face. Not the same as its unicode value.
+                uint8_t* bitmap;            ///< The glyphs rendered, grayscale image.
+                Eigen::Vector2i bitmapSize;       ///< The glyph's pixel sizes.
+                Eigen::Vector2i bitmapOffset;     ///< Offset of the bitmap relative to the canonical bounding box/size of the glyph.
+                Eigen::Vector2i charMapOffset;    ///< The glyph's offset within the font texture. \sa prepareCharMap
+                int advanceWidth;           ///< Canonical width of this character.
+            };
 
         /**
          * \brief Initializes the font.
@@ -74,8 +106,13 @@ namespace CForge {
          * \param[in] library   The FreeType library handle to use. One global instance can load multiple font faces.
          * \sa GUIDefaults.h
          */
-        FontFace(FontStyle style, FT_Library library);
-        ~FontFace();
+        FontFace(void);
+        FontFace(const FontStyle Style);
+        ~FontFace(void);
+
+        void init(const FontStyle Style);
+        void clear(void);
+        void release(void);
 
         /**
          * \brief Loads one glyph (character) from the font.
@@ -93,18 +130,9 @@ namespace CForge {
          *
          * \param[in] character The 32-Bit Unicode representation of the character.
          */
-        glyph_t getGlyph(char32_t character);
+        Glyph glyph(char32_t character);
 
-        /**
-         * \brief Creates the OpenGL texture containing all required glyphs.
-         *
-         * Loads all characters specified in CForge::CharactersToLoadIntoTexture
-         * and packs them into a grayscale OpenGL texture that can be sampled
-         * to show text on screen.
-         *
-         * \sa GUIDefaults.h
-         */
-        void prepareCharMap();
+       
 
         /**
          * \brief Creates OpenGL vertex data to display a string of text on screen.
@@ -117,7 +145,6 @@ namespace CForge {
          * \return          The number of vertices that has been created.
          */
         int renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::GLVertexArray* vao);
-        //     void computeBBox(std::u32string text, FT_Vector* positions, FT_BBox* pbbox);
 
         /**
          * \brief Determines the expected pixel width for the input string if it was rendered.
@@ -171,95 +198,31 @@ namespace CForge {
         void bind();
 
         /** \brief Returns the FontStyle this was initialised with. */
-        FontStyle getStyle();
+        FontStyle style();
 
     private:
+        /**
+        * \brief Creates the OpenGL texture containing all required glyphs.
+        *
+        * Loads all characters specified in CForge::CharactersToLoadIntoTexture
+        * and packs them into a grayscale OpenGL texture that can be sampled
+        * to show text on screen.
+        *
+        * \sa GUIDefaults.h
+        */
+        void prepareCharMap();
+
+
         //     FT_Library library;
-        FT_Face face;               ///< FreeType font face handle.
-        std::unordered_map <char32_t, glyph_t> glyphs;  ///< Caches all the glyphs that have been accessed/loaded.
-        unsigned int textureID;     ///< Holds the texture ID of the created OpenGL font texture.
-        int mapWidth, mapHeight;    ///< Size of the created font texture
-        FontStyle m_style;          ///< The FontStyle this has been initialised with.
-        bool glyphMapFinalized;     ///< Whether the font texture has been created yet. \sa getGlyph
-    };
+        void *m_pFaceHandle;               ///< FreeType font face handle.
+        std::unordered_map <char32_t, Glyph> m_Glyphs;  ///< Caches all the glyphs that have been accessed/loaded.
+        uint32_t m_TextureID;     ///< Holds the texture ID of the created OpenGL font texture.
+        int32_t m_MapWidth, m_MapHeight;    ///< Size of the created font texture
+        FontStyle m_Style;          ///< The FontStyle this has been initialised with.
+        bool m_GlyphMapFinalized;     ///< Whether the font texture has been created yet. \sa getGlyph
 
-    /**
-     * \brief A class representing a single line of text for graphical display.
-     *
-     * \ingroup GUI
-     */
-    class CFORGE_API TextLine {
-    public:
-        /** \brief Use \ref init() to initialise the object. */
-        TextLine();
-        ~TextLine();
-
-        /**
-         * \brief Sets up the TextLine object to use the specified font.
-         *
-         * \param[in] pFontFace Pointer to the FontFace object that should be used.
-         * \param[in] pShader   Pointer to the text shader.
-         */
-        void init(FontFace* pFontFace, CForge::GLShader* pShader);
-
-        /**
-         * \brief Like #init(FontFace* pFontFace, CForge::GLShader* pShader)
-         *        but also immediately loads the passed string.
-         *
-         * \param[in] text      32-Bit Unicode string that should be loaded/displayed.
-         * \param[in] pFontFace Pointer to the FontFace object that should be used.
-         * \param[in] pShader   Pointer to the text shader.
-         */
-        void init(std::u32string text, FontFace* pFontFace, CForge::GLShader* pShader);
-
-        /** \brief Replaces the used FontFace with a new different one.
-         *  \param[in] newFont Pointer to the FontFace object that should be used. */
-        void changeFont(FontFace* newFont);
-
-        /** \brief Sets the text that should be displayed.
-         *  \param[in] text 32-Bit Unicode string that should be loaded. */
-        void setText(std::u32string text);
-
-        /** \brief Changes the text color. */
-        void setColor(float r, float g, float b);
-
-        /** \brief Sets the text position in window space.
-         *  \sa CForge::mouseEventInfo */
-        void setPosition(float x, float y);
-
-        /**
-         * \brief Pass the size of the render window.
-         *
-         * Because OpenGL shaders operate in a coordiate space from -1 to 1
-         * but the GUI uses window coordinates from 0 to the window's pixel
-         * size, we need to convert the coordinates. For that to work, the
-         * window dimensions need to be known.
-         */
-        void setRenderSize(uint32_t w, uint32_t h);   //Size of the window/framebuffer it gets rendered to
-
-        /** \brief Draw the text line to the screen using OpenGL.
-         *  \param[in] pRDev Pointer to the CForge::RenderDevice used for drawing the GUI/Scene. */
-        void render(CForge::RenderDevice* pRDev);
-
-        /** \brief Getter for the FontFace's text size in pixels. */
-        float getTextSize();
-
-        /** \brief Getter for the currently loaded strings display width in pixels. */
-        int getTextWidth();
-
-        /** \brief Proxy for FontFace::computeStringWidth. Should be avoided in favour of the former. */
-        int computeStringWidth(std::u32string textString);  //deprecated, better access the font directly if possible
-    private:
-        FontFace* m_pFont;                      ///< Pointer to the currently used FontFace object.
-        CForge::GLShader* m_pShader;            ///< Pointer for the text shader.
-        CForge::GLBuffer m_VertexBuffer;        ///< The vertex buffer to hold the text's vertex data.
-        CForge::GLVertexArray m_VertexArray;    ///< A vertex array wrapping the vertex buffer.
-        int m_numVertices;                      ///< The number of vertices of the current string.
-        int m_width;                            ///< The pixel width of the current string.
-        Eigen::Matrix4f m_projection;           ///< The projection matrix used to correctly scale and position the text on screen.
-        float textSize;                         ///< The fonts text size in pixels.
-        float textColor[3];                     ///< The current text colour.
     };
 
 }//name space
-#endif
+
+#endif 

@@ -29,7 +29,7 @@ namespace CForge {
      * \brief A single entry in a drop down menu.
      * \ingroup GUI
      */
-    class CFORGE_API InputDropDownWidget_PopupEntry : public TextWidget {
+    class InputDropDownWidget_PopupEntry : public TextWidget {
     public:
         /**
          * \param[in] rootGUIObject Reference to the main GUI class.
@@ -65,7 +65,7 @@ namespace CForge {
      * \brief The drop down menu box containing the options.
      * \ingroup GUI
      */
-    class CFORGE_API InputDropDownWidget_PopupBox : public BaseWidget {
+    class InputDropDownWidget_PopupBox : public BaseWidget {
     public:
         /**
          * \param[in] rootGUIObject Reference to the main GUI class.
@@ -108,7 +108,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API InputDropDownWidget_Popup : public BaseWidget {
+    class InputDropDownWidget_Popup : public BaseWidget {
     public:
         /** Despite the parent parameter, the BaseWidget constructor will be
          *  called without it in order to faciliate this widget as top level
@@ -156,7 +156,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API InputDropDownWidget : public BaseWidget {
+    class InputDropDownWidget : public BaseWidget {
     public:
         InputDropDownWidget(GUI* rootGUIObject, BaseWidget* parent);
         ~InputDropDownWidget();

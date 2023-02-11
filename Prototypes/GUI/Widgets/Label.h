@@ -37,7 +37,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API LabelWidget : public BaseWidget {
+    class LabelWidget : public BaseWidget {
     public:
         /**
          * \brief Initialises the widget.

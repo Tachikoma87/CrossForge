@@ -1,8 +1,8 @@
 
-#include "../Graphics/OpenGLHeader.h"
+#include <CForge/Graphics/OpenGLHeader.h>
 #include "WidgetBackground.h"
 #include "Widget.h"
-#include "../Graphics/RenderDevice.h"
+#include <CForge/Graphics/RenderDevice.h>
 
 //adapted from the cforge screenquad
 //TODO: the shader should be expanded to support different colors and perhaps some other

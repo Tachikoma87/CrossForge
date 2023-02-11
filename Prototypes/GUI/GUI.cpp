@@ -8,8 +8,8 @@
 #include <stdio.h>
 #include <iostream>
 
-#include "../Graphics/OpenGLHeader.h"
-#include "../Graphics/Shader/SShaderManager.h"
+#include <CForge/Graphics/OpenGLHeader.h>
+#include <CForge/Graphics/Shader/SShaderManager.h>
 
 using namespace std; 
 

@@ -22,6 +22,11 @@
 #include "Examples/ExampleSceneBase.hpp"
 #include <CForge/MeshProcessing/PrimitiveShapeFactory.h>
 
+#include "../Graphics/FontFace.h"
+#include "../Graphics/LineOfText.h"
+#include "../Graphics/SFontManager.h"
+#include <cuchar>
+
 using namespace Eigen;
 using namespace std;
 
@@ -45,6 +50,8 @@ namespace CForge {
 			initWindowAndRenderDevice(true);
 			initCameraAndLights();
 
+			gladLoadGL();
+
 			// load skydome and a textured cube
 			T3DMesh<float> M;
 
@@ -54,40 +61,11 @@ namespace CForge {
 			m_Skydome.init(&M);
 			M.clear();
 
-
-			// power of two test
-			for (uint32_t i = 0; i < 50; ++i) {
-				int32_t Number = CForgeMath::randRange(0, 10000);
-				int32_t PowerOfTwo = nextPowerOfTwo(Number);
-				printf("Value: %d - %d\n", Number, PowerOfTwo);
-			}
-
-
 			SAssetIO::load("MyAssets/Technique_Evaluation/OldModel.gltf", &M);
 			M.clearSkeleton();
-			//PrimitiveShapeFactory::uvSphere(&M, Vector3f(1.0f, 1.0f, 1.0f), 20, 20);
-			//PrimitiveShapeFactory::cuboid(&M, Vector3f(2, 2, 2), Vector3i(2, 2, 2));
-			//PrimitiveShapeFactory::plane(&M, Vector2f(10, 10), Vector2i(1, 1));
-			//changeUVTiling(&M, Vector3f(3.0f, 3.0f, 1.0f));
-			
 			setMeshShader(&M, 0.1f, 0.04f);
-
 			float ModelScale = 0.05f;
-
-			/*M.getMaterial(0)->FragmentShaderForwardPass.clear();
-			M.getMaterial(0)->VertexShaderForwardPass.clear();*/
-			/*M.getMaterial(0)->VertexShaderGeometryPass.clear();
-			M.getMaterial(0)->VertexShaderShadowPass.clear();
-			M.getMaterial(0)->FragmentShaderGeometryPass.clear();
-			M.getMaterial(0)->FragmentShaderShadowPass.clear();*/
-
-			/*M.getMaterial(0)->FragmentShaderForwardPass[0] ="Shader/CrippledShader.frag";
-			M.getMaterial(0)->VertexShaderForwardPass[0] = "Shader/CrippledShader.vert";*/
-
 			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::PLASTIC_WHITE);
-
-			/*M.getMaterial(0)->TexAlbedo = "MyAssets/Textures/ground13.jpg";
-			M.getMaterial(0)->TexNormal = "MyAssets/Textures/ground13n.jpg";*/
 
 			M.computePerVertexNormals();
 			//M.computePerVertexTangents();
@@ -113,9 +91,17 @@ namespace CForge {
 			R = AngleAxisf(CForgeMath::degToRad(45.0f / 60.0f), Vector3f::UnitY());
 			m_CubeTransformSGN.rotationDelta(R);
 
+
+
+
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
+
+			initText();
+
+			
+
 
 			std::string GLError = "";
 			CForgeUtility::checkGLError(&GLError);
@@ -149,6 +135,33 @@ namespace CForge {
 			else {
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, true);
 				m_SG.render(&m_RenderDev);
+
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				//to allow overlapping widget backgrounds
+				glDisable(GL_DEPTH_TEST);
+				m_Text.render(&m_RenderDev);
+
+
+				/*std::u32string FPSString = U"FPS: ";*/
+				std::string FPSS = "FPS: " + std::to_string(int32_t(std::floor(m_FPS)));
+				/*for (auto i : FPSS) {
+					char32_t UC;
+					std::mbrtoc32(&UC, &i, 1, nullptr);
+					FPSString.push_back(UC);
+				}*/
+				
+				m_Text2.canvasSize(m_RenderWin.width(), m_RenderWin.height());
+				//m_Text2.setPosition(20, 50);
+				m_Text2.text(FPSS);
+
+				uint32_t Val = CForgeUtility::timestamp() % 100000;
+				float Alpha = (std::sinf(0.25f*Val/1000) + 1.0f) / 2.0f;
+				m_Text2.color(Vector4f(1.0f, 0.0f, 0.0f, Alpha));
+
+				m_Text2.render(&m_RenderDev);
+				glDisable(GL_BLEND);
+				glEnable(GL_DEPTH_TEST);
 			}
 
 
@@ -206,6 +219,40 @@ namespace CForge {
 			return (std::pow(T(2), a) == Value) ? Value : std::pow(T(2), a + 1);
 		}//nextPowerOfTwo
 
+		void initText(void) {
+
+			m_pFontManager = FontManager::instance();
+
+			m_pFont = m_pFontManager->createFont("Assets/fonts/DejaVuSans.ttf", 16, Vector4f(0.2f, 0.2f, 1.0f, 1.0f));
+			
+
+
+			// init text
+			m_Text.init(m_pFont, nullptr);
+			m_Text.canvasSize(1280, 720);
+			
+			m_Text.position(0, 0);
+			m_Text.color(0.2f, 0.2f, 1.0f);
+			m_Text.text("Hello World! My old friend.");
+
+			m_Text2.init(m_pFont, m_pTextShader);
+			m_Text2.canvasSize(1280, 720);
+
+			m_Text2.position(0, 50);
+			m_Text2.color(1.0f, 0.4f, 0.4f);
+			m_Text2.text("FPS: 60.0");
+			int32_t XOffset = m_Text2.computeStringWidth("FPS: 60.0");
+			m_Text2.position(1280 - XOffset, 700);
+			
+		}//initText
+
+		
+		LineOfText m_Text;
+		LineOfText m_Text2;
+		GLShader *m_pTextShader;
+		FontFace* m_pFont;
+
+		FontManager* m_pFontManager;
 
 		// Scene Graph
 		SGNTransformation m_RootSGN;
@@ -215,6 +262,7 @@ namespace CForge {
 
 		StaticActor m_Skydome;
 		StaticActor m_Cube;
+
 
 		bool m_Deferred;
 	};//ForwardTestScene

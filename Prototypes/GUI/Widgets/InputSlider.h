@@ -34,7 +34,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API InputSliderWidget_SliderCursor : public BaseWidget {
+    class InputSliderWidget_SliderCursor : public BaseWidget {
     public:
         InputSliderWidget_SliderCursor(GUI* rootGUIObject, BaseWidget* parent);
         ~InputSliderWidget_SliderCursor();
@@ -94,7 +94,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API InputSliderWidget_Text : public InputTextWidget {
+    class InputSliderWidget_Text : public InputTextWidget {
     public:
         InputSliderWidget_Text(GUI* rootGUIObject, InputSliderWidget* parent);
         ~InputSliderWidget_Text();
@@ -157,7 +157,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API InputSliderWidget : public BaseWidget {
+    class InputSliderWidget : public BaseWidget {
     public:
         InputSliderWidget(GUI* rootGUIObject, BaseWidget* parent);
         ~InputSliderWidget();

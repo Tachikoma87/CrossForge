@@ -23,7 +23,7 @@
 #include "GUIDefaults.h"
 #include "WidgetBackground.h"
 #include "Font.h"
-#include "../Input/Mouse.h"
+#include <CForge/Input/Mouse.h>
 
 namespace CForge {
 
@@ -34,7 +34,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API BaseWidget {
+    class BaseWidget {
     public:
 
         /**
@@ -185,7 +185,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API TextWidget : public BaseWidget {
+    class TextWidget : public BaseWidget {
     public:
 
         /**

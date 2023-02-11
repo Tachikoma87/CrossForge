@@ -22,7 +22,7 @@
 #include "../GUI.h"
 
 #include "Label.h"
-#include "../../Core/ITCaller.hpp"
+#include <CForge/Core/ITCaller.hpp>
 
 namespace CForge {
 
@@ -32,7 +32,7 @@ namespace CForge {
      * \brief Button to explicitly trigger the FormWidget's program callback.
      * \ingroup GUI
      */
-    class CFORGE_API FormWidget_ApplyButton : public TextWidget {
+    class FormWidget_ApplyButton : public TextWidget {
     public:
         FormWidget_ApplyButton(GUI* rootGUIObject, FormWidget* parent);
 
@@ -64,7 +64,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API FormWidget : public BaseWidget, public CForge::ITCaller<GUICallbackObject> {
+    class FormWidget : public BaseWidget, public CForge::ITCaller<GUICallbackObject> {
     public:
         /**
          * \brief Initialises the widget.

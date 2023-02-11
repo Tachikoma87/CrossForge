@@ -64,7 +64,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API InputTextWidget : public BaseWidget {
+    class InputTextWidget : public BaseWidget {
     public:
         InputTextWidget(GUI* rootGUIObject, BaseWidget* parent);
         ~InputTextWidget();

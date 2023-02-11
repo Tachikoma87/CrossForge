@@ -115,6 +115,9 @@ namespace CForge {
 		static void defaultMaterial(T3DMesh<float>::Material* pMat, DefaultMaterial M);
 		static void defaultMaterial(class RenderMaterial* pMat, DefaultMaterial M);
 
+		static std::string convertToString(const std::u32string String);
+		static std::u32string convertTou32String(const std::string String);
+
 		CForgeUtility(void);
 		~CForgeUtility(void);
 	protected:

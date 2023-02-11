@@ -38,6 +38,8 @@ namespace CForge {
 			DEF_FS_SHADOW_PASS,
 			DEF_VS_FORWARD_PASS,
 			DEF_FS_FORWARD_PASS,
+			DEF_VS_TEXT,
+			DEF_FS_TEXT,
 			DEF_SS_COUNT,
 		};
 
@@ -112,6 +114,9 @@ namespace CForge {
 		std::vector<std::string> m_DefFSShadow;
 		std::vector<std::string> m_DefVSForward;
 		std::vector<std::string> m_DefFSForward;
+		std::vector<std::string> m_DefVSText;
+		std::vector<std::string> m_DefFSText;
+		
 
 	};//SShaderManager
 }

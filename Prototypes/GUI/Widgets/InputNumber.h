@@ -38,7 +38,7 @@ namespace CForge {
      * \brief Widget to increase the integer number input by one.
      * \ingroup GUI
      */
-    class CFORGE_API InputNumberWidget_DecreaseButton : public TextWidget {
+    class InputNumberWidget_DecreaseButton : public TextWidget {
     public:
         InputNumberWidget_DecreaseButton(GUI* rootGUIObject, InputNumberWidget* parent);
 
@@ -56,7 +56,7 @@ namespace CForge {
      * \brief Widget to decrease the integer number input by one.
      * \ingroup GUI
      */
-    class CFORGE_API InputNumberWidget_IncreaseButton : public TextWidget {
+    class InputNumberWidget_IncreaseButton : public TextWidget {
     public:
         InputNumberWidget_IncreaseButton(GUI* rootGUIObject, InputNumberWidget* parent);
 
@@ -78,7 +78,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API InputNumberWidget : public BaseWidget {
+    class InputNumberWidget : public BaseWidget {
     public:
         InputNumberWidget(GUI* rootGUIObject, BaseWidget* parent);
         ~InputNumberWidget();

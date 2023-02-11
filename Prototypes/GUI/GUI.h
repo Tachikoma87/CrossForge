@@ -28,9 +28,9 @@ namespace CForge {
 #include "WidgetBackground.h"
 #include "Font.h"
 
-#include "../Graphics/RenderDevice.h"
-#include "../Input/Mouse.h"
-#include "../Core/ITListener.hpp"
+#include <CForge/Graphics/RenderDevice.h>
+#include <CForge/Input/Mouse.h>
+#include <CForge/Core/ITListener.hpp>
 
 /*
 To be able to define callbacks of different data types without
@@ -141,7 +141,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API CallbackTestClass : public CForge::ITListener<GUICallbackObject> {
+    class CallbackTestClass : public CForge::ITListener<GUICallbackObject> {
         void listen(const GUICallbackObject Msg) override;
     };
 
@@ -154,7 +154,7 @@ namespace CForge {
 	*
 	* \ingroup GUI
 	*/
-    class CFORGE_API GUI : public CForge::ITListener<char32_t>, public CForge::ITListener<CForge::KeyboardCallback> {
+    class GUI : public CForge::ITListener<char32_t>, public CForge::ITListener<CForge::KeyboardCallback> {
     public:
         /**
          * \brief Please run \ref init after object creation.

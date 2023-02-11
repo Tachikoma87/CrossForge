@@ -1,9 +1,9 @@
-#include "../Graphics/OpenGLHeader.h"
+#include <CForge/Graphics/OpenGLHeader.h>
 
 #include <iostream>
 #include <fstream>
 
-#include "../AssetIO/SAssetIO.h"
+#include <CForge/AssetIO/SAssetIO.h>
 #include "Font.h"
 
 namespace CForge {

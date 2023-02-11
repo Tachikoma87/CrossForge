@@ -222,19 +222,6 @@ add_library(crossforge SHARED
 	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
 	CForge/MeshProcessing/PrimitiveShapeFactory.cpp
 
-	# GUI
-	CForge/GUI/Font.cpp
-	CForge/GUI/GUI.cpp
-	CForge/GUI/Widget.cpp
-	CForge/GUI/WidgetBackground.cpp
-	CForge/GUI/Widgets/Form.cpp
-	CForge/GUI/Widgets/InputCheckbox.cpp
-	CForge/GUI/Widgets/InputDropDown.cpp
-	CForge/GUI/Widgets/InputNumber.cpp
-	CForge/GUI/Widgets/InputSlider.cpp
-	CForge/GUI/Widgets/InputText.cpp
-	CForge/GUI/Widgets/Label.cpp
-	CForge/GUI/Widgets/Window.cpp
 
 	# Utility
 	CForge/Utility/CForgeUtility.cpp

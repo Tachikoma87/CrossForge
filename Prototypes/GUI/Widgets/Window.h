@@ -28,7 +28,7 @@ namespace CForge {
      * \brief Button within the WindowWidget's title bar to minimize the window.
      * \ingroup GUI
      */
-    class CFORGE_API WindowWidget_MinimizeButton : public TextWidget {
+    class WindowWidget_MinimizeButton : public TextWidget {
     public:
         WindowWidget_MinimizeButton(WindowWidget* window, GUI* rootGUIObject, BaseWidget* parent);
         ~WindowWidget_MinimizeButton();
@@ -52,7 +52,7 @@ namespace CForge {
      * \brief The title bar of the WindowWidget.
      * \ingroup GUI
      */
-    class CFORGE_API WindowWidget_Header : public BaseWidget {
+    class WindowWidget_Header : public BaseWidget {
     public:
         /**
          * \brief Initialises the widget.
@@ -105,7 +105,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class CFORGE_API WindowWidget : public BaseWidget {
+    class WindowWidget : public BaseWidget {
     public:
         /**
          * \brief Initialises the widget.

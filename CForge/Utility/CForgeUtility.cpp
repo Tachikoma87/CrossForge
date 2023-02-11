@@ -1,3 +1,5 @@
+#include <cuchar>
+
 #include "../Graphics/OpenGLHeader.h"
 
 #include "CForgeUtility.h"
@@ -355,5 +357,25 @@ namespace CForge {
 		return Rval;
 
 	}//retrieveMaterialDefinition
+
+	std::string CForgeUtility::convertToString(const std::u32string String) {
+		std::string Rval;
+		char C;
+		for (auto i : String) {
+			std::c32rtomb(&C, i, nullptr);
+			Rval.push_back(C);
+		}
+		return Rval;
+	}//convertToString
+
+	std::u32string CForgeUtility::convertTou32String(const std::string String) {
+		std::u32string UString;
+		char32_t C;
+		for (auto i : String) {
+			std::mbrtoc32(&C, &i, 1, nullptr);
+			UString.push_back(C);
+		}
+		return UString;
+	}//convertTou32String
 
 }//name space
