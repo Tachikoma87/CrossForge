@@ -192,6 +192,7 @@ add_library(crossforge SHARED
 	CForge/Graphics/UniformBufferObjects/UBOModelData.cpp
 	CForge/Graphics/UniformBufferObjects/UBOBoneData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOMorphTargetData.cpp
+	CForge/Graphics/UniformBufferObjects/UBOTextData.cpp
 
 	# Lights
 	CForge/Graphics/Lights/ILight.cpp 
@@ -204,6 +205,11 @@ add_library(crossforge SHARED
 	CForge/Graphics/SceneGraph/SceneGraph.cpp 
 	CForge/Graphics/SceneGraph/SGNGeometry.cpp
 	CForge/Graphics/SceneGraph/SGNTransformation.cpp
+
+	# Font
+	CForge/Graphics/Font/Font.cpp
+	CForge/Graphics/Font/LineOfText.cpp
+	CForge/Graphics/Font/SFontManager.cpp
 
 	# Math
 	CForge/Math/BoundingVolume.cpp
@@ -251,10 +257,10 @@ target_link_libraries(crossforge
 	PRIVATE igl::common		
 	PRIVATE WebP::webp 
 	PRIVATE WebP::webpdecoder
-#	pmp
 	ws2_32					#winsock2
 	${FREETYPE_LIBRARIES}	# for Text rendering
 	${OpenCV_LIBS}
+	#	pmp # not used yet
 	)
 
 elseif(UNIX)

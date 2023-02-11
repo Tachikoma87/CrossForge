@@ -15,12 +15,12 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_FONTFACE_H__
-#define __CFORGE_FONTFACE_H__
+#ifndef __CFORGE_FONT_H__
+#define __CFORGE_FONT_H__
 
 #include <unordered_map>
-#include <CForge/Graphics/GLBuffer.h>
-#include <CForge/Graphics/GLVertexArray.h>
+#include "../GLBuffer.h"
+#include "../GLVertexArray.h"
 
 namespace CForge {
 
@@ -34,7 +34,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class FontFace {
+    class CFORGE_API Font: public CForgeObject {
     public:
         /** \brief Defines information about a single font style.
          *
@@ -62,8 +62,8 @@ namespace CForge {
 
             bool operator==(const FontStyle& Other) {
                 bool Rval = true;
-                if (FileName.compare(Other.FileName) == std::string::npos) Rval = false;
-                if (CharacterSet.compare(Other.CharacterSet) == std::string::npos) Rval = false;
+                if (FileName.compare(Other.FileName) == 0) Rval = false;
+                if (CharacterSet.compare(Other.CharacterSet) == 0) Rval = false;
                 if (PixelSize != Other.PixelSize) Rval = false;
                 return Rval;
             }//operator==
@@ -106,9 +106,9 @@ namespace CForge {
          * \param[in] library   The FreeType library handle to use. One global instance can load multiple font faces.
          * \sa GUIDefaults.h
          */
-        FontFace(void);
-        FontFace(const FontStyle Style);
-        ~FontFace(void);
+        Font(void);
+        Font(const FontStyle Style);
+        ~Font(void);
 
         void init(const FontStyle Style);
         void clear(void);
@@ -130,6 +130,8 @@ namespace CForge {
          *
          * \param[in] character The 32-Bit Unicode representation of the character.
          */
+        Glyph glyph(char32_t character)const;
+
         Glyph glyph(char32_t character);
 
        
@@ -153,7 +155,9 @@ namespace CForge {
          * \param[in] maxWidth  Unused. If a maximum string width is of concern, use \ref computeStringWidthMultiline instead.
          * \return              The expected string width in pixels.
          */
-        int computeStringWidth(std::u32string text, int maxWidth = -1);
+        int32_t computeStringWidth(std::u32string text, int maxWidth = -1)const;
+
+        int32_t computeStringWidth(std::string text, int maxWidth = -1)const;
 
         /**
          * \brief Determines the expected pixel width for the multi-line input string if it was rendered.
@@ -191,7 +195,9 @@ namespace CForge {
          * \param[in] maxLines  The maximum number of lines.
          * \return              The expected string width in pixels.
          */
-        int computeStringWidthMultiline(std::u32string text, std::vector<std::u32string>* lines, int maxWidth = -1, int maxLines = -1);
+        int32_t computeStringWidthMultiline(std::u32string text, std::vector<std::u32string>* lines, int maxWidth = -1, int maxLines = -1)const;
+
+        int32_t Font::computeStringWidthMultiline(std::string Text, std::vector<std::string>* Lines, int MaxWidth = -1, int MaxLines = -1)const;
 
         //for render loop
         /** \brief Used by TextLine objects to bind the font texture. */

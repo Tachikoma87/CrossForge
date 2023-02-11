@@ -46,11 +46,11 @@ namespace CForge {
 			// load skydome and a textured cube
 			T3DMesh<float> M;
 
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
+			/*SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			m_Skydome.init(&M);
-			M.clear();
+			M.clear();*/
 
 			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);

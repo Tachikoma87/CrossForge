@@ -24,6 +24,7 @@
 #include "../Core/CoreDefinitions.h"
 #include "../AssetIO/T2DImage.hpp"
 #include "../AssetIO/T3DMesh.hpp"
+#include "../Graphics/Font/Font.h"
 
 namespace CForge {
 	class CFORGE_API CForgeUtility : public CForgeObject {
@@ -79,7 +80,14 @@ namespace CForge {
 			STONE_YELLOW,
 
 			DEFAULT_MATERIAL_COUNT,
-		};
+		};//DefaultMaterial
+
+		enum DefaultFontType : int8_t {
+			FONTTYPE_SANSERIF,
+			FONTTYPE_SERIF,
+			FONTTYPE_MONO,
+			FONTTYPE_HANDWRITING,
+		};//DefaultFont
 
 		static uint64_t timestamp(void) {
 			return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -117,6 +125,8 @@ namespace CForge {
 
 		static std::string convertToString(const std::u32string String);
 		static std::u32string convertTou32String(const std::string String);
+
+		static Font* defaultFont(DefaultFontType FontType, uint32_t FontSize, bool Bold = false, bool Italic = false, std::u32string CharSet = U"");
 
 		CForgeUtility(void);
 		~CForgeUtility(void);

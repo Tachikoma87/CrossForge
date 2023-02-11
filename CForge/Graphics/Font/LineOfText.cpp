@@ -1,29 +1,39 @@
-#include <CForge/Graphics/OpenGLHeader.h>
-#include <CForge/Graphics/Shader/SShaderManager.h>
-#include <CForge/Utility/CForgeUtility.h>
-#include "LineOfText.h"
 #include <cuchar>
-#include <CForge/Math/CForgeMath.h>
+#include "../../Math/CForgeMath.h"
+#include "../../Utility/CForgeUtility.h"
+#include "../Shader/SShaderManager.h"
+#include "../OpenGLHeader.h"
+
+#include "LineOfText.h"
 
 using namespace Eigen;
 
 namespace CForge {
 
-    LineOfText::LineOfText()
+    LineOfText::LineOfText(): CForgeObject("LineOfText")
     {
-        //use init instead
+        m_pFont = nullptr;
+        m_TextSize = 0;
+
+        m_NumVertices = 0;
+        m_Width = 0;
+        m_TextColor = Vector4f::Ones();
+        m_TextPosition = Vector2f(0.0f, 0.0f);
+        m_CanvasSize = Vector2i(0, 0);
+        m_Text = "";
+        m_pShader = nullptr;
+
     }
     LineOfText::~LineOfText()
     {
-        //     printf("cleaned up a TextLine.\n");
-        //     m_VertexArray.~GLVertexArray();
-        //     m_VertexBuffer.~GLBuffer();
+        clear();
     }
 
-    void LineOfText::init(FontFace* pFontFace, CForge::GLShader* pShader)
+    void LineOfText::init(Font* pFont, CForge::GLShader* pShader)
     {
-        m_pFont = pFontFace;
-        m_TextSize = pFontFace->style().PixelSize;
+        clear();
+        m_pFont = pFont;
+        m_TextSize = pFont->style().PixelSize;
 
         if(nullptr != pShader) m_pShader = pShader;
         else {
@@ -54,13 +64,35 @@ namespace CForge {
         color(1, 1, 1);
     }
 
-    void LineOfText::init(std::u32string Text, FontFace* pFontFace, CForge::GLShader* pShader)
+    void LineOfText::init(Font* pFont, std::u32string Text, CForge::GLShader* pShader)
     {
-        init(pFontFace, pShader);
+        init(pFont, pShader);
         text(Text);
     }
 
-    void LineOfText::changeFont(FontFace* newFont)
+    void LineOfText::init(Font* pFont, std::string Text, GLShader* pShader) {
+        init(pFont, pShader);
+        text(Text);
+    }//initialize
+
+    void LineOfText::clear(void) {
+        m_pFont = nullptr;               
+        m_TextSize = 0;                  
+
+        m_NumVertices = 0;
+        m_Width = 0;
+        m_TextColor = Vector4f::Ones();
+        m_TextPosition = Vector2f(0.0f, 0.0f);
+        m_CanvasSize = Vector2i(0, 0);
+        m_Text = "";
+
+        m_TextUBO.clear();
+        m_pShader = nullptr;
+        m_VertexBuffer.clear();
+        m_VertexArray.clear();
+    }//clear
+
+    void LineOfText::changeFont(Font* newFont)
     {
         m_pFont = newFont;
         m_TextSize = newFont->style().PixelSize;
@@ -81,9 +113,18 @@ namespace CForge {
 
     void LineOfText::position(float x, float y)
     {
-        m_TextUBO.textPosition(Vector2f(x, y + m_TextSize));
-        m_TextPosition = Vector2f(x, y);
+        position(Vector2f(x, y));
     }
+
+    void LineOfText::position(const Eigen::Vector2f Pos) {
+        Vector2f P = Pos + Vector2f(0.0f, m_TextSize);
+        P.x() = std::floor(P.x());
+        P.y() = std::floor(P.y());
+
+        m_TextUBO.textPosition(P);
+        m_TextPosition = Pos;
+    }//position
+
     void LineOfText::canvasSize(uint32_t Width, uint32_t Height)
     {
         m_TextUBO.canvasSize(Vector2f(Width, Height));
@@ -112,9 +153,16 @@ namespace CForge {
         uint32_t BindingPoint = m_pShader->uboBindingPoint(GLShader::DEFAULTUBO_TEXTDATA);
         if (BindingPoint != GL_INVALID_INDEX) m_TextUBO.bind(BindingPoint);
 
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         m_VertexArray.bind();
         glDrawArrays(GL_TRIANGLES, 0, m_NumVertices);
         m_VertexArray.unbind();
+
+        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_BLEND);
     }//render
 
     float LineOfText::textSize()
@@ -152,8 +200,8 @@ namespace CForge {
         return m_CanvasSize;
     }//canvasSize
 
-    const FontFace* LineOfText::fontFace(void)const {
+    const Font* LineOfText::font(void)const {
         return m_pFont;
-    }//fontFace
+    }//Font
 
 }//name space

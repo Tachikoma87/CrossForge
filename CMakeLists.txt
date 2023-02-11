@@ -93,10 +93,10 @@ add_executable(CForgeSandbox
 #	Prototypes/GUI/Widgets/Window.cpp
 
 	# new GUI
-	Prototypes/Graphics/FontFace.cpp 
-	"Prototypes/Graphics/LineOfText.cpp"
-	Prototypes/Graphics/SFontManager.cpp
-	Prototypes/Graphics/UBOTextData.cpp
+#	"Prototypes/Graphics/Font.cpp" 
+#	"Prototypes/Graphics/LineOfText.cpp"
+#	Prototypes/Graphics/SFontManager.cpp
+#	Prototypes/Graphics/UBOTextData.cpp
 
 	)
 

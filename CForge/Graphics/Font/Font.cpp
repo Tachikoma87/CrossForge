@@ -2,14 +2,15 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
-#include <CForge/Graphics/OpenGLHeader.h>
-#include <CForge/Core/CrossForgeException.h>
-#include "FontFace.h"
+#include "../OpenGLHeader.h"
+#include "../../Core/CrossForgeException.h"
+#include "Font.h"
 #include "SFontManager.h"
+#include "../../Utility/CForgeUtility.h"
 
 namespace CForge {
 
-    FontFace::FontFace(void)
+    Font::Font(void): CForgeObject("Font")
     {
         m_TextureID = GL_INVALID_INDEX;
         m_pFaceHandle = nullptr;
@@ -17,7 +18,7 @@ namespace CForge {
         m_GlyphMapFinalized = false;
     }//Constructor
 
-    FontFace::FontFace(const FontStyle Style) {
+    Font::Font(const FontStyle Style): CForgeObject("Font") {
         m_TextureID = GL_INVALID_INDEX;
         m_pFaceHandle = nullptr;
         m_MapWidth = m_MapHeight = 0;
@@ -25,11 +26,11 @@ namespace CForge {
         init(Style);
     }//Constructor
 
-    FontFace::~FontFace() {
+    Font::~Font() {
         clear();
     }
 
-    void FontFace::init(FontStyle Style) {
+    void Font::init(FontStyle Style) {
         clear();
 
         m_Style = Style;
@@ -54,7 +55,7 @@ namespace CForge {
         prepareCharMap();
     }//initialize
 
-    void FontFace::clear(void) {
+    void Font::clear(void) {
         for (auto x : m_Glyphs) {
             delete x.second.bitmap;
         }
@@ -66,15 +67,15 @@ namespace CForge {
         }
     }//clear
 
-    void FontFace::release(void) {
+    void Font::release(void) {
         delete this;
     }//release
 
-    int FontFace::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::GLVertexArray* vao)
+    int Font::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::GLVertexArray* vao)
     {
 
         FT_Face FaceHandle = static_cast<FT_Face>(m_pFaceHandle);
-        if (nullptr == FaceHandle) throw CForgeExcept("FontFace class was no properly initialized!");
+        if (nullptr == FaceHandle) throw CForgeExcept("Font class was no properly initialized!");
 
         //Prepare the buffer data
         //Since GL_QUADS is not officially allowed for glDrawArrays
@@ -161,7 +162,7 @@ namespace CForge {
         return numVertices;
     }
 
-    int FontFace::computeStringWidth(std::u32string text, int maxWidth)
+    int32_t Font::computeStringWidth(std::u32string text, int maxWidth) const
     {
         int pen_x = 0;
         bool use_kerning = FT_HAS_KERNING(static_cast<FT_Face>(m_pFaceHandle));
@@ -177,8 +178,13 @@ namespace CForge {
             pen_x += G.advanceWidth >> 6;
         }
         return pen_x;
-    }
-    int FontFace::computeStringWidthMultiline(std::u32string text, std::vector<std::u32string>* lines, int maxWidth, int maxLines)
+    }//computeStringWidth
+
+    int32_t Font::computeStringWidth(const std::string Text, int MaxWidth) const{
+        return computeStringWidth(CForgeUtility::convertTou32String(Text), MaxWidth);
+    }//computeStringWidth
+
+    int32_t Font::computeStringWidthMultiline(std::u32string text, std::vector<std::u32string>* lines, int maxWidth, int maxLines)const
     {
         int ellipsis = 0;
         if (maxWidth > 0) {
@@ -237,10 +243,19 @@ namespace CForge {
         maxLineWidth = std::max(maxLineWidth, pen_x);
 
         return maxLineWidth;
-    }
+    }//computeStringWidthMultiline
 
+    int32_t Font::computeStringWidthMultiline(std::string Text, std::vector<std::string>* Lines, int MaxWidth, int MaxLines) const{
+        std::vector<std::u32string> U32Lines;
+        int32_t Rval = computeStringWidthMultiline(CForgeUtility::convertTou32String(Text), &U32Lines, MaxWidth, MaxLines);
 
-    void FontFace::prepareCharMap()
+        if (nullptr != Lines) {
+            for (auto i : U32Lines) Lines->push_back(CForgeUtility::convertToString(i));
+        }
+        return Rval;
+    }//computeStringWidthMultiline
+
+    void Font::prepareCharMap()
     {
         //CharactersToLoadIntoTexture is defined in GUIDefaults.h
         std::u32string charactersToLoad = m_Style.CharacterSet;
@@ -361,16 +376,30 @@ namespace CForge {
         delete[] mapBuffer;
     }
 
-    FontFace::Glyph FontFace::glyph(char32_t character)
+    Font::Glyph Font::glyph(char32_t character) const{
+        if (m_GlyphMapFinalized) {
+            if (m_Glyphs.count(character) == 0) {
+                return m_Glyphs.at(U'\0');
+            }
+            else {
+                return m_Glyphs.at(character);
+            }
+        }
+        else {
+            return const_cast<Font*>(this)->glyph(character);
+        }
+    }//glyph
+
+    Font::Glyph Font::glyph(char32_t character)
     {
         FT_Face FaceHandle = static_cast<FT_Face>(m_pFaceHandle);
 
         if (m_GlyphMapFinalized) {
             if (m_Glyphs.count(character) == 0) {
-                return m_Glyphs[U'\0'];
+                return m_Glyphs.at(U'\0');
             }
             else {
-                return m_Glyphs[character];
+                return m_Glyphs.at(character);
             }
         }
         else {
@@ -396,11 +425,11 @@ namespace CForge {
         }
     }
 
-    void FontFace::bind()
+    void Font::bind()
     {
         glBindTexture(GL_TEXTURE_2D, m_TextureID);
     }
-    FontFace::FontStyle FontFace::style()
+    Font::FontStyle Font::style()
     {
         return m_Style;
     }

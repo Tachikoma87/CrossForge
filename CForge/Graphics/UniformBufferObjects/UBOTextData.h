@@ -1,9 +1,9 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SFontManager.h and SFontManager.cpp                                            *
+* File(s): UBOTextData.h and UBOTextData.cpp                                    *
 *                                                                           *
-* Content: Font manager singleton.   *
-*                        *
+* Content:    *
+*          .                                         *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,50 +15,42 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SFONTMANAGER_H__
-#define __CFORGE_SFONTMANAGER_H__
+#ifndef __CFORGE_UBOTEXTDATA_H__
+#define __CFORGE_UBOTEXTDATA_H__
 
-#include <CForge/Core/CForgeObject.h>
-#include "FontFace.h"
+#include "../GLBuffer.h"
 
 namespace CForge {
-
-	class SFontManager : public CForgeObject {
+	/**
+	* \brief Uniform buffer object for camera related data.
+	*
+	* \todo Do full documentation.
+	*/
+	class CFORGE_API UBOTextData : public CForgeObject {
 	public:
-		static SFontManager* instance(void);
-		void release(void);
-
-		FontFace* createFont(std::string Filename, uint32_t Size, Eigen::Vector4f Color);
-		FontFace* createFont(FontFace::FontStyle Style);
-		void releaseFont(FontFace* pFont);
-
-		void* freetypeLibraryHandle(void);
-
-	protected:
-		SFontManager(void);
-		~SFontManager(void);
+		UBOTextData(void);
+		~UBOTextData(void);
 
 		void init(void);
 		void clear(void);
 
+		void bind(uint32_t BindingPoint);
+
+		void color(const Eigen::Vector4f Color);
+		void canvasSize(Eigen::Vector2f CanvasSize);
+		void textPosition(Eigen::Vector2f TextPosition);
+		uint32_t size(void)const;
+
+	protected:
+
 	private:
-		static uint32_t m_InstanceCount;
-		static SFontManager* m_pInstance;
-
-		struct FontInstance {
-			FontFace* pInstance;
-			FontFace::FontStyle StyleParams;
-			uint32_t InstanceCount;
-		};
-
-		std::vector<FontInstance*> m_FontInstances;
-
-		void *m_pFTLib;
+		uint32_t m_ColorOffset;
+		uint32_t m_CanvasSizeOffset;
+		uint32_t m_TextPositionOffset;
 		
-	};//SFontManager
+		GLBuffer m_Buffer;
+	};//UBOTextData
 
-	typedef SFontManager FontManager;
+}//name space
 
-}//name-space
-
-#endif 
+#endif

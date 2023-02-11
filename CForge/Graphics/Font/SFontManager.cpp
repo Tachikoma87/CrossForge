@@ -2,8 +2,8 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
+#include "../../Core/CrossForgeException.h"
 #include "SFontManager.h"
-#include <CForge/Core/CrossForgeException.h>
 
 namespace CForge {
 
@@ -54,15 +54,15 @@ namespace CForge {
 		return m_pFTLib;
 	}//freetypeLibraryHandle
 
-	FontFace* SFontManager::createFont(std::string Filename, uint32_t Size, Eigen::Vector4f Color) {
-		FontFace::FontStyle Style;
+	Font* SFontManager::createFont(std::string Filename, uint32_t Size) {
+		Font::FontStyle Style;
 		Style.FileName = Filename;
 		Style.PixelSize = Size;
 		return createFont(Style);
 	}//createFont
 
-	FontFace* SFontManager::createFont(FontFace::FontStyle Style) {
-		FontFace* pRval = nullptr;
+	Font* SFontManager::createFont(Font::FontStyle Style) {
+		Font* pRval = nullptr;
 		//does font already exist?
 		for (auto i : m_FontInstances) {
 			if (nullptr == i) continue;
@@ -76,7 +76,7 @@ namespace CForge {
 		if (nullptr == pRval) {
 			FontInstance* pNewFont = new FontInstance();
 			// create new font face
-			pNewFont->pInstance = new FontFace(Style);
+			pNewFont->pInstance = new Font(Style);
 			pNewFont->InstanceCount = 0;
 			pNewFont->StyleParams = Style;
 			m_FontInstances.push_back(pNewFont);
@@ -85,7 +85,7 @@ namespace CForge {
 		return pRval;
 	}//createFont
 
-	void SFontManager::releaseFont(FontFace* pFont) {
+	void SFontManager::releaseFont(Font* pFont) {
 
 	}//releaseFont
 

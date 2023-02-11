@@ -18,9 +18,9 @@
 #ifndef __CFORGE_LINEOFTEXT_H__
 #define __CFORGE_LINEOFTEXT_H__
 
-#include <CForge/Graphics/RenderDevice.h>
-#include "FontFace.h"
-#include "UBOTextData.h"
+#include "../RenderDevice.h"
+#include "Font.h"
+#include "../UniformBufferObjects/UBOTextData.h"
 
 namespace CForge {
 
@@ -29,7 +29,7 @@ namespace CForge {
      *
      * \ingroup GUI
      */
-    class LineOfText {
+    class CFORGE_API LineOfText: public CForgeObject {
     public:
         /** \brief Use \ref init() to initialise the object. */
         LineOfText();
@@ -38,27 +38,29 @@ namespace CForge {
         /**
          * \brief Sets up the TextLine object to use the specified font.
          *
-         * \param[in] pFontFace Pointer to the FontFace object that should be used.
+         * \param[in] pFont Pointer to the Font object that should be used.
          * \param[in] pShader   Pointer to the text shader.
          */
-        void init(FontFace* pFontFace, CForge::GLShader* pShader);
+        void init(Font* pFont, CForge::GLShader* pShader = nullptr);
+
+        void init(Font* pFont, std::string Text, GLShader* pShader = nullptr);
+
+        void clear(void);
 
         /**
-         * \brief Like #init(FontFace* pFontFace, CForge::GLShader* pShader)
+         * \brief Like #init(Font* pFont, CForge::GLShader* pShader)
          *        but also immediately loads the passed string.
          *
          * \param[in] text      32-Bit Unicode string that should be loaded/displayed.
-         * \param[in] pFontFace Pointer to the FontFace object that should be used.
+         * \param[in] pFont Pointer to the Font object that should be used.
          * \param[in] pShader   Pointer to the text shader.
          */
-        void init(std::u32string text, FontFace* pFontFace, CForge::GLShader* pShader);
-
-        /** \brief Replaces the used FontFace with a new different one.
-         *  \param[in] newFont Pointer to the FontFace object that should be used. */
-        void changeFont(FontFace* newFont);
+        void init(Font* pFont, std::u32string Text, CForge::GLShader* pShader = nullptr);
 
 
-        
+        /** \brief Replaces the used Font with a new different one.
+         *  \param[in] newFont Pointer to the Font object that should be used. */
+        void changeFont(Font* newFont);
 
         void text(std::string Text);
 
@@ -70,6 +72,8 @@ namespace CForge {
         /** \brief Sets the text position in window space.
          *  \sa CForge::mouseEventInfo */
         void position(float x, float y);
+
+        void position(const Eigen::Vector2f Pos);
 
         /**
          * \brief Pass the size of the render window.
@@ -85,9 +89,9 @@ namespace CForge {
         Eigen::Vector4f color(void)const;
         Eigen::Vector2f position(void)const;
         Eigen::Vector2i canvasSize(void)const;
-        const FontFace* fontFace(void)const;
+        const Font* font(void)const;
         
-        /** \brief Getter for the FontFace's text size in pixels. */
+        /** \brief Getter for the Font's text size in pixels. */
         float textSize();
 
         /** \brief Getter for the currently loaded strings display width in pixels. */
@@ -104,11 +108,11 @@ namespace CForge {
          *  \param[in] text 32-Bit Unicode string that should be loaded. */
         void text(std::u32string Text);
 
-        /** \brief Proxy for FontFace::computeStringWidth. Should be avoided in favour of the former. */
+        /** \brief Proxy for Font::computeStringWidth. Should be avoided in favour of the former. */
         int computeStringWidth(std::u32string textString);  //deprecated, better access the font directly if possible
 
 
-        FontFace* m_pFont;                      ///< Pointer to the currently used FontFace object.
+        Font* m_pFont;                      ///< Pointer to the currently used Font object.
         float m_TextSize;                       ///< The fonts text size in pixels.
        
         int m_NumVertices;                      ///< The number of vertices of the current string.

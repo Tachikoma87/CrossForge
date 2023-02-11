@@ -22,9 +22,9 @@
 #include "Examples/ExampleSceneBase.hpp"
 #include <CForge/MeshProcessing/PrimitiveShapeFactory.h>
 
-#include "../Graphics/FontFace.h"
-#include "../Graphics/LineOfText.h"
-#include "../Graphics/SFontManager.h"
+#include <CForge/Graphics/Font/Font.h>
+#include <CForge/Graphics/Font/LineOfText.h>
+#include <CForge/Graphics/Font/SFontManager.h>
 #include <cuchar>
 
 using namespace Eigen;
@@ -223,8 +223,8 @@ namespace CForge {
 
 			m_pFontManager = FontManager::instance();
 
-			m_pFont = m_pFontManager->createFont("Assets/fonts/DejaVuSans.ttf", 16, Vector4f(0.2f, 0.2f, 1.0f, 1.0f));
-			
+			//m_pFont = m_pFontManager->createFont("Assets/fonts/SourceSansPro/SourceSansPro-SemiBold.ttf", 24);
+			m_pFont = CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18, false, false);
 
 
 			// init text
@@ -232,7 +232,7 @@ namespace CForge {
 			m_Text.canvasSize(1280, 720);
 			
 			m_Text.position(0, 0);
-			m_Text.color(0.2f, 0.2f, 1.0f);
+			m_Text.color(0.0f, 0.0f, 0.0f, 1.0f);
 			m_Text.text("Hello World! My old friend.");
 
 			m_Text2.init(m_pFont, m_pTextShader);
@@ -250,7 +250,7 @@ namespace CForge {
 		LineOfText m_Text;
 		LineOfText m_Text2;
 		GLShader *m_pTextShader;
-		FontFace* m_pFont;
+		Font* m_pFont;
 
 		FontManager* m_pFontManager;
 
