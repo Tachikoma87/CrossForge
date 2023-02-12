@@ -34,6 +34,14 @@ if(EMSCRIPTEN)
 	)
 	FetchContent_MakeAvailable(tinyxml2)
 
+	# tinygltf
+	FetchContent_Declare(
+		tinygltf 
+		URL https://github.com/syoyo/tinygltf/archive/refs/tags/v2.8.2.zip
+	)
+	FetchContent_MakeAvailable(tinygltf)
+	include_directories(${tinygltf_SOURCE_DIR}/)
+
 
 	set(CMAKE_EXECUTABLE_SUFFIX .html)
 else()

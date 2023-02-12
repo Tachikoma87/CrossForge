@@ -83,6 +83,14 @@ if(EMSCRIPTEN)
 	FetchContent_MakeAvailable(freetype)
 	include_directories(${freetype_SOURCE_DIR}/include/)
 
+	# tinygltf
+	FetchContent_Declare(
+		tinygltf 
+		URL https://github.com/syoyo/tinygltf/archive/refs/tags/v2.8.2.zip
+	)
+	FetchContent_MakeAvailable(tinygltf)
+	include_directories(${tinygltf_SOURCE_DIR}/)
+
 
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Optimization_Flag} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Optimization_Flag} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -Wno-tautological-pointer-compare -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")

@@ -54,18 +54,12 @@ namespace CForge {
 			initGroundPlane(&m_RootSGN, 100.0f, 20.0f);
 
 			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
-			setMeshShader(&M, 0.1f, 0.04f);
 			for (uint32_t i = 0; i < M.materialCount(); ++i) CForgeUtility::defaultMaterial(M.getMaterial(i), CForgeUtility::PLASTIC_YELLOW);
 			M.computePerVertexNormals();
 			m_Duck.init(&M);
 			M.clear();
 
 			
-
-			// add skydome
-			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
-			m_SkydomeSGN.scale(Vector3f(50.0f, 50.0f, 50.0f));
-
 			// add cube
 			m_DuckTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 1.5f, 0.0f));
 			m_DuckSGN.init(&m_DuckTransformSGN, &m_Duck);
@@ -75,10 +69,6 @@ namespace CForge {
 			Quaternionf R;
 			R = AngleAxisf(CForgeMath::degToRad(45.0f / 60.0f), Vector3f::UnitY());
 			m_DuckTransformSGN.rotationDelta(R);
-
-			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CForgeUtility::timestamp();
-			int32_t FPSCount = 0;
 
 			std::string ErrorMsg;
 			if (0 != CForgeUtility::checkGLError(&ErrorMsg)) {
@@ -119,18 +109,14 @@ namespace CForge {
 
 		}//mainLoop
 
-
-
 	protected:
 
 		// Scene Graph
 		SGNTransformation m_RootSGN;
-		SGNGeometry m_SkydomeSGN;
+
+		StaticActor m_Duck;
 		SGNGeometry m_DuckSGN;
 		SGNTransformation m_DuckTransformSGN;
-
-		StaticActor m_Skydome;
-		StaticActor m_Duck;
 
 	};//ExampleMinimumGraphicsSetup
 

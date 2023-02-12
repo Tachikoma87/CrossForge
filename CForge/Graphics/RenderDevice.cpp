@@ -553,6 +553,7 @@ namespace CForge {
 
 		pAL->pLight->startListening(this);
 
+
 	}//addLight
 
 	void RenderDevice::removeLight(ILight* pLight) {

@@ -8,7 +8,6 @@
 
 #endif
 
-
 #include "ExportLibrary.hpp"
 
 #include "CForge/Core/SCrossForgeDevice.h"
@@ -23,6 +22,7 @@
 #include <Examples/ExampleSockets.hpp>
 #include <Examples/ExampleShapesAndMaterials.hpp>
 #include <Examples/ExampleTextRendering.hpp>
+#include <Examples/ExampleLighting.hpp>
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
@@ -39,22 +39,24 @@
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 
 
+
 using namespace CForge;
 using namespace Eigen;
 
 //#define ActiveScene ExampleSceneBase
 
+//#define ActiveScene ExampleMinimumGraphicsSetup
+//#define ActiveScene ExampleSkybox
 
-#define ActiveScene ExampleMinimumGraphicsSetup
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
 //#define ActiveScene ExampleSceneGraph
 //#define ActiveScene ExampleSkeletalAnimation
-//#define ActiveScene ExampleSkybox
+
 //#define ActiveScene ExampleSocket
 //#define ActiveScene ExampleShapesAndMaterials
 //#define ActiveScene ExampleTextRendering
-
+#define ActiveScene ExampleLighting
 
 
 //#define ActiveScene ImuInputDeviceTestScene	 

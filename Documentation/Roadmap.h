@@ -7,6 +7,7 @@
 	+ [ ] Displacement mapping
 	+ [ ] Post processing (bloom)
 	+ [ ] Integration of the polygon mesh processing library: https://www.pmp-library.org/
+	+ [ ] Global simulation class (holds stats about the current simulation stats such as time)
 + Version v0.2.0
 	+ [ ] Audio support
 	+ Graphics

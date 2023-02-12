@@ -1,8 +1,10 @@
 #include "GLTFIO.h"
 
 #define TINYGLTF_IMPLEMENTATION
+#ifndef __EMSCRIPTEN__
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif
 
 #include <tiny_gltf.h>
 #include <iostream>

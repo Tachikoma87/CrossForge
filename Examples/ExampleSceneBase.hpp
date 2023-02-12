@@ -133,7 +133,7 @@ namespace CForge {
 
 		}//listen[GLWindow]
 
-		virtual void initWindowAndRenderDevice(bool UseGBuffer = true) {
+		virtual void initWindowAndRenderDevice(bool UseGBuffer = true, uint32_t DirLightCount = 1, uint32_t PointLightCount = 1, uint32_t SpotLightCount = 0) {
 			m_RenderWin.init(Vector2i(100, 100), Vector2i(m_WinWidth, m_WinHeight), m_WindowTitle);
 			m_RenderWin.startListening(this);
 
@@ -144,9 +144,9 @@ namespace CForge {
 
 			// configure and initialize rendering pipeline
 			RenderDevice::RenderDeviceConfig Config;
-			Config.DirectionalLightsCount = 1;
-			Config.PointLightsCount = 1;
-			Config.SpotLightsCount = 0;
+			Config.DirectionalLightsCount = DirLightCount;
+			Config.PointLightsCount = PointLightCount;
+			Config.SpotLightsCount = SpotLightCount;
 			Config.ExecuteLightingPass = true;
 			Config.GBufferWidth = m_WinWidth/m_RenderBufferScale;
 			Config.GBufferHeight = m_WinHeight/m_RenderBufferScale;	
@@ -156,9 +156,9 @@ namespace CForge {
 			
 			// configure and initialize shader configuration device
 			ShaderCode::LightConfig LC;
-			LC.DirLightCount = 1;
-			LC.PointLightCount = 1;
-			LC.SpotLightCount = 0;
+			LC.DirLightCount = DirLightCount;
+			LC.PointLightCount = PointLightCount;
+			LC.SpotLightCount = SpotLightCount;
 			LC.PCFSize = 1;
 			LC.ShadowBias = 0.00005f;
 			LC.ShadowMapCount = 1;
@@ -223,13 +223,14 @@ namespace CForge {
 		}//initSkybox
 
 		virtual void updateFPS(void) {	
-			const uint32_t UpdateInterval = 250U; // update of FPS 4 times per second
+			const uint32_t UpdateInterval = 250; // update of FPS 4 times per second
+			m_FPSCount++;
 
 			if (CForgeUtility::timestamp() - m_LastFPSPrint >= UpdateInterval) {
 				char Buf[64];
-				m_FPS = float(m_FPSCount * 1000.0f / UpdateInterval);
+				m_FPS = float(m_FPSCount * 1000.0f / (CForgeUtility::timestamp() - m_LastFPSPrint));
 				m_FPS = std::max(m_FPS, 1.0f);
-				sprintf(Buf, "FPS: %.0f", m_FPS);		
+				sprintf(Buf, "FPS: %.1f", m_FPS);		
 				
 				m_RenderWin.title(m_WindowTitle + "[" + std::string(Buf) + "]");
 				if (m_FPSLabelActive) m_FPSLabel.text(std::string(Buf));
@@ -242,10 +243,6 @@ namespace CForge {
 					SLogger::log("OpenGL error occurred: " + ErrorMsg, "MainLoop", SLogger::LOGTYPE_ERROR);
 				}
 			}
-			else {
-				m_FPSCount++;
-			}
-			
 			
 		}//updateFPS
 
@@ -309,6 +306,7 @@ namespace CForge {
 				std::string ScreenshotURI = "Screenshots/Screenshot_" + std::to_string(m_ScreenshotCount++) + "." + m_ScreenshotExtension;
 				takeScreenshot(ScreenshotURI);
 			}
+
 
 
 			if (pKeyboard->keyPressed(Keyboard::KEY_ESCAPE)) {

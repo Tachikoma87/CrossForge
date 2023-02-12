@@ -2,6 +2,7 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
+#include "../../AssetIO/File.h"
 #include "../OpenGLHeader.h"
 #include "../../Core/CrossForgeException.h"
 #include "Font.h"
@@ -37,8 +38,9 @@ namespace CForge {
         FT_Face pFace = nullptr;
         SFontManager* pFMan = SFontManager::instance();
 
+    
+        if (!File::exists(m_Style.FileName)) throw CForgeExcept("File not found: " + m_Style.FileName);
         int error = FT_New_Face(static_cast<FT_Library>(pFMan->freetypeLibraryHandle()), m_Style.FileName.c_str(), 0, &pFace);
-
 
         if (error == FT_Err_Unknown_File_Format) {
             //File opened but not a supported font format
@@ -357,7 +359,7 @@ namespace CForge {
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
-            GL_RED,
+            GL_R8,
             maxRowWidth,
             totalHeight,
             0,

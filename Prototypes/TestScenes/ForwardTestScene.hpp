@@ -49,8 +49,9 @@ namespace CForge {
 
 			initWindowAndRenderDevice(true);
 			initCameraAndLights();
-
+#ifndef __EMSCRIPTEN__
 			gladLoadGL();
+#endif
 
 			// load skydome and a textured cube
 			T3DMesh<float> M;
@@ -91,17 +92,11 @@ namespace CForge {
 			R = AngleAxisf(CForgeMath::degToRad(45.0f / 60.0f), Vector3f::UnitY());
 			m_CubeTransformSGN.rotationDelta(R);
 
-
-
-
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
 
 			initText();
-
-			
-
 
 			std::string GLError = "";
 			CForgeUtility::checkGLError(&GLError);

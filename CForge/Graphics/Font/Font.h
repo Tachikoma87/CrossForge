@@ -197,7 +197,7 @@ namespace CForge {
          */
         int32_t computeStringWidthMultiline(std::u32string text, std::vector<std::u32string>* lines, int maxWidth = -1, int maxLines = -1)const;
 
-        int32_t Font::computeStringWidthMultiline(std::string Text, std::vector<std::string>* Lines, int MaxWidth = -1, int MaxLines = -1)const;
+        int32_t computeStringWidthMultiline(std::string Text, std::vector<std::string>* Lines, int MaxWidth = -1, int MaxLines = -1)const;
 
         //for render loop
         /** \brief Used by TextLine objects to bind the font texture. */
