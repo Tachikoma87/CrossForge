@@ -37,6 +37,9 @@
 #include <CForge/Graphics/Actors/StaticActor.h>
 #include <CForge/Graphics/Actors/SkyboxActor.h>
 
+#include <CForge/Graphics/Font/LineOfText.h>
+#include <CForge/MeshProcessing/PrimitiveShapeFactory.h>
+
 #ifdef __EMSCRIPTEN__
 #include <CForge/Graphics/OpenGLHeader.h>
 #else
@@ -61,6 +64,7 @@ namespace CForge {
 			m_FPSCount = 0;
 			m_LastFPSPrint = CForgeUtility::timestamp();
 			m_CameraRotation = false;
+			m_FPSLabelActive = false;
 		}//Constructor
 
 		~ExampleSceneBase(void) {
@@ -118,6 +122,14 @@ namespace CForge {
 			// change GBuffer resolution
 			m_RenderDev.gBuffer()->init(Msg.iParam[0]/m_RenderBufferScale, Msg.iParam[1]/m_RenderBufferScale);
 			m_Cam.projectionMatrix(Msg.iParam[0]/m_RenderBufferScale, Msg.iParam[1]/m_RenderBufferScale, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
+
+			// re-position label to bottom right of screen
+			if (GLWindowMsg::MC_RESIZE == Msg.Code && m_FPSLabelActive) {
+				float XPos = VP.Size.x() - m_FPSLabel.font()->computeStringWidth(m_FPSLabel.text()) - 10;
+				float YPos = VP.Size.y() - 30;
+				m_FPSLabel.position(XPos, YPos);
+				m_FPSLabel.canvasSize(VP.Size.x(), VP.Size.y());
+			}
 
 		}//listen[GLWindow]
 
@@ -210,29 +222,31 @@ namespace CForge {
 			m_SkyboxTransSGN.rotationDelta(Rot);
 		}//initSkybox
 
-		virtual void updateFPS(void) {
-			m_FPSCount++;
-			const uint32_t UpdateInterval = 250U;
+		virtual void updateFPS(void) {	
+			const uint32_t UpdateInterval = 250U; // update of FPS 4 times per second
 
-			if (CForgeUtility::timestamp() - m_LastFPSPrint > UpdateInterval) {
+			if (CForgeUtility::timestamp() - m_LastFPSPrint >= UpdateInterval) {
 				char Buf[64];
-				m_FPS = float(m_FPSCount * 1000 / UpdateInterval);
-				sprintf(Buf, "FPS: %d\n", int32_t(m_FPS));		
+				m_FPS = float(m_FPSCount * 1000.0f / UpdateInterval);
+				m_FPS = std::max(m_FPS, 1.0f);
+				sprintf(Buf, "FPS: %.0f", m_FPS);		
+				
+				m_RenderWin.title(m_WindowTitle + "[" + std::string(Buf) + "]");
+				if (m_FPSLabelActive) m_FPSLabel.text(std::string(Buf));
+
 				m_FPSCount = 0;
 				m_LastFPSPrint = CForgeUtility::timestamp();
-
-				m_RenderWin.title(m_WindowTitle + "[" + std::string(Buf) + "]");
-
-#ifdef __EMSCRIPTEN__
-				if(CForgeMath::rand()%8 == 0)	printf("FPS: %.2f\n", m_FPS);
-#endif
-
 
 				std::string ErrorMsg;
 				if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
 					SLogger::log("OpenGL error occurred: " + ErrorMsg, "MainLoop", SLogger::LOGTYPE_ERROR);
 				}
 			}
+			else {
+				m_FPSCount++;
+			}
+			
+			
 		}//updateFPS
 
 
@@ -312,6 +326,32 @@ namespace CForge {
 			SAssetIO::store(Filepath, &ColorBuffer);
 		}//takeScreen
 
+		void initFPSLabel(void) {
+			Font* pFont = CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 20);
+			m_FPSLabel.init(pFont, "FPS: 60.0");
+			m_FPSLabel.position(m_RenderWin.width() - pFont->computeStringWidth("FPS: 60.0") - 10, m_RenderWin.height() - 30);
+			m_FPSLabel.color(0.0f, 0.0f, 0.0f, 1.0f);
+			m_FPSLabelActive = true;
+		}//initFPSLabel
+
+		void initGroundPlane(SGNTransformation *pParent, float Scale, float UVTiling) {
+			T3DMesh<float> M;
+			PrimitiveShapeFactory::plane(&M, Vector2f(Scale, Scale), Vector2i(1, 1));
+			//setMeshShader(&M, 0.4f, 0.04f);
+			M.changeUVTiling(Vector3f(UVTiling, UVTiling, 1.0f));
+			M.computePerVertexNormals();
+			M.computePerVertexTangents();
+			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::PLASTIC_WHITE);
+			M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/Textures/Tiles107/Tiles107_1K_Color.webp";
+			M.getMaterial(0)->TexNormal = "Assets/ExampleScenes/Textures/Tiles107/Tiles107_1K_NormalGL.webp";
+			BoundingVolume BV;
+			m_GroundPlane.init(&M);
+			m_GroundPlane.boundingVolume(BV);
+			m_GroundPlaneSGN.init(pParent, &m_GroundPlane);
+			M.clear();
+		}//initGroundPlane
+
+
 		std::string m_WindowTitle;
 		int32_t m_WinWidth;
 		int32_t m_WinHeight;
@@ -341,6 +381,14 @@ namespace CForge {
 		SceneGraph m_SkyboxSG;
 		SGNTransformation m_SkyboxTransSGN;
 		SGNGeometry m_SkyboxGeomSGN;
+
+		// ground plane
+		StaticActor m_GroundPlane;
+		SGNGeometry m_GroundPlaneSGN;
+
+		// FPS Label
+		LineOfText m_FPSLabel;
+		bool m_FPSLabelActive;
 
 		bool m_CameraRotation;
 	};//ExampleMinimumGraphicsSetup

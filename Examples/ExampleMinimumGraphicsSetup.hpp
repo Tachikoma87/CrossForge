@@ -42,25 +42,25 @@ namespace CForge {
 
 			initWindowAndRenderDevice();
 			initCameraAndLights();
-
-			// load skydome and a textured cube
-			T3DMesh<float> M;
-
-			/*SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
-			setMeshShader(&M, 0.8f, 0.04f);
-			M.computePerVertexNormals();
-			m_Skydome.init(&M);
-			M.clear();*/
-
-			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
-			setMeshShader(&M, 0.1f, 0.04f);
-			M.computePerVertexNormals();
-			m_Duck.init(&M);
-			M.clear();
+			initFPSLabel();
 
 			// build scene graph
 			m_RootSGN.init(nullptr);
 			m_SG.init(&m_RootSGN);
+
+			// load skydome and a textured cube
+			T3DMesh<float> M;
+
+			initGroundPlane(&m_RootSGN, 100.0f, 20.0f);
+
+			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
+			setMeshShader(&M, 0.1f, 0.04f);
+			for (uint32_t i = 0; i < M.materialCount(); ++i) CForgeUtility::defaultMaterial(M.getMaterial(i), CForgeUtility::PLASTIC_YELLOW);
+			M.computePerVertexNormals();
+			m_Duck.init(&M);
+			M.clear();
+
+			
 
 			// add skydome
 			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
@@ -101,12 +101,15 @@ namespace CForge {
 			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
 			m_SG.render(&m_RenderDev);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_RenderDev.activeCamera(&m_Cam);
 			m_SG.render(&m_RenderDev);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			m_FPSLabel.render(&m_RenderDev);
 
 			m_RenderWin.swapBuffers();
 

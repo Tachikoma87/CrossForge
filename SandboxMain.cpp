@@ -45,7 +45,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleSceneBase
 
 
-//#define ActiveScene ExampleMinimumGraphicsSetup
+#define ActiveScene ExampleMinimumGraphicsSetup
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
 //#define ActiveScene ExampleSceneGraph
@@ -53,7 +53,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkybox
 //#define ActiveScene ExampleSocket
 //#define ActiveScene ExampleShapesAndMaterials
-#define ActiveScene ExampleTextRendering
+//#define ActiveScene ExampleTextRendering
 
 
 

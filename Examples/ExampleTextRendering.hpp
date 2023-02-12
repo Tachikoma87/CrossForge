@@ -47,22 +47,10 @@ namespace CForge {
 			// build scene graph
 			m_RootSGN.init(nullptr);
 			m_SG.init(&m_RootSGN);
-			
-			// create ground plane
 			T3DMesh<float> M;
-			PrimitiveShapeFactory::plane(&M, Vector2f(150.0f, 150.0f), Vector2i(1, 1));
-			setMeshShader(&M, 0.4f, 0.04f);
-			M.changeUVTiling(Vector3f(50.0f, 50.0f, 1.0f));
-			M.computePerVertexNormals();
-			M.computePerVertexTangents();
-			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::PLASTIC_WHITE);
-			M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/metal06.jpg";
-			M.getMaterial(0)->TexNormal = "Assets/ExampleScenes/metal06n.jpg";
-			BoundingVolume BV;
-			m_GroundPlane.init(&M);
-			m_GroundPlane.boundingVolume(BV);
-			m_GroundPlaneSGN.init(&m_RootSGN, &m_GroundPlane);
-			M.clear();
+
+			// create ground plane
+			initGroundPlane(&m_RootSGN, 100.0f, 20.0f);
 
 			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);

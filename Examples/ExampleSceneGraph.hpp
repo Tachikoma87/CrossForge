@@ -38,6 +38,7 @@ namespace CForge {
 			initCameraAndLights();
 
 			initSkybox();
+			initFPSLabel();
 
 			m_RootSGN.init(nullptr);
 			m_SG.rootNode(&m_RootSGN);
@@ -52,8 +53,8 @@ namespace CForge {
 			M.changeUVTiling(Vector3f(250.0f, 250.0f, 1.0f));
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
-			M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/ground14.jpg";
-			M.getMaterial(0)->TexNormal = "Assets/ExampleScenes/ground14n.jpg";
+			M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/Textures/Ground003/Ground003_2K_Color.webp";
+			M.getMaterial(0)->TexNormal = "Assets/ExampleScenes/Textures/Ground003/Ground003_2K_NormalGL.webp";
 			m_Ground.init(&M);
 			BoundingVolume BV;
 			m_Ground.boundingVolume(BV);
@@ -163,6 +164,7 @@ namespace CForge {
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 			m_SkyboxSG.render(&m_RenderDev);
+			m_FPSLabel.render(&m_RenderDev);
 
 			m_RenderWin.swapBuffers();
 
