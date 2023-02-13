@@ -70,6 +70,11 @@ namespace CForge {
 			R = AngleAxisf(CForgeMath::degToRad(45.0f / 60.0f), Vector3f::UnitY());
 			m_DuckTransformSGN.rotationDelta(R);
 
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
+			m_HelpTexts.push_back(pKeybindings);
+
 			std::string ErrorMsg;
 			if (0 != CForgeUtility::checkGLError(&ErrorMsg)) {
 				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
@@ -100,6 +105,7 @@ namespace CForge {
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 			m_FPSLabel.render(&m_RenderDev);
+			if (m_DrawHelpTexts) drawHelpTexts();
 
 			m_RenderWin.swapBuffers();
 

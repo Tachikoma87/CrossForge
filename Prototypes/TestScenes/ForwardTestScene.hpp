@@ -137,21 +137,14 @@ namespace CForge {
 				glDisable(GL_DEPTH_TEST);
 				m_Text.render(&m_RenderDev);
 
-
-				/*std::u32string FPSString = U"FPS: ";*/
 				std::string FPSS = "FPS: " + std::to_string(int32_t(std::floor(m_FPS)));
-				/*for (auto i : FPSS) {
-					char32_t UC;
-					std::mbrtoc32(&UC, &i, 1, nullptr);
-					FPSString.push_back(UC);
-				}*/
-				
+					
 				m_Text2.canvasSize(m_RenderWin.width(), m_RenderWin.height());
 				//m_Text2.setPosition(20, 50);
 				m_Text2.text(FPSS);
 
 				uint32_t Val = CForgeUtility::timestamp() % 100000;
-				float Alpha = (std::sinf(0.25f*Val/1000) + 1.0f) / 2.0f;
+				float Alpha = (std::sin(0.25f*Val/1000) + 1.0f) / 2.0f;
 				m_Text2.color(Vector4f(1.0f, 0.0f, 0.0f, Alpha));
 
 				m_Text2.render(&m_RenderDev);

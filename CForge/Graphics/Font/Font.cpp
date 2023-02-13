@@ -431,7 +431,7 @@ namespace CForge {
     {
         glBindTexture(GL_TEXTURE_2D, m_TextureID);
     }
-    Font::FontStyle Font::style()
+    Font::FontStyle Font::style()const
     {
         return m_Style;
     }

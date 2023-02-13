@@ -298,6 +298,11 @@ namespace CForge {
 
 		void defaultKeyboardUpdate(Keyboard* pKeyboard) {
 			if (nullptr == pKeyboard) throw NullpointerExcept("pKeyboard");
+
+			if (pKeyboard->keyPressed(Keyboard::KEY_F1, true)) {
+				m_DrawHelpTexts = !m_DrawHelpTexts;
+			}
+
 			if (pKeyboard->keyPressed(Keyboard::KEY_F9, true)) {
 				m_RenderWin.vsync(!m_RenderWin.vsync());
 			}
@@ -349,6 +354,16 @@ namespace CForge {
 			M.clear();
 		}//initGroundPlane
 
+		void drawHelpTexts(void) {
+			Vector2f Position = Vector2f(5.0f, 5.0f);
+			for (auto i : m_HelpTexts) {
+				if (nullptr == i) continue;
+				i->position(Position);
+				i->render(&m_RenderDev);
+				Position += Vector2f(0.0f, i->font()->style().PixelSize * 1.5f);
+			}
+		}//drawHelpTexts
+
 
 		std::string m_WindowTitle;
 		int32_t m_WinWidth;
@@ -389,6 +404,9 @@ namespace CForge {
 		bool m_FPSLabelActive;
 
 		bool m_CameraRotation;
+
+		std::vector<LineOfText*> m_HelpTexts;
+		bool m_DrawHelpTexts;
 	};//ExampleMinimumGraphicsSetup
 
 }

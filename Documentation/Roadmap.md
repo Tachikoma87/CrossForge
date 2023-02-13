@@ -1,6 +1,4 @@
-/**
-
-\page Roadmap
+# Roadmap
 
 + Version v0.X.0
 	+ [ ] Integration of Bullet physics engine
@@ -9,16 +7,25 @@
 	+ [ ] Integration of the polygon mesh processing library: https://www.pmp-library.org/
 	+ [ ] Global simulation class (holds stats about the current simulation stats such as time)
 + Version v0.2.0
-	+ [ ] Audio support
+	+ Mesh processing
+		+ [ ] integration of polygon mesh processing library (PMP)
+		+ [ ] Mesh reduction
+		+ [ ] Subdivision surfaces
+	+ Miscellaneous
+		+ [ ] Audio support
 	+ Graphics
 		+ [ ] Instanced rendering
 		+ [ ] Cascaded shadow maps https://learnopengl.com/Guest-Articles/2021/CSM
-		+ [ ] Point shadows
+		+ [ ] Point shadows	
+		+ [ ] Render to texture
+		+ [ ] Billboard actor
+		+ [ ] LOD system
 	+ Basic GUI System
-		+ [ ] Standard widgets (Button, Slides, Label, etc.)
-		+ [ ] Menu bar
+		+ [ ] Basic widgets (Button, Sliders, Label, etc.)
+		+ [ ] Basic Menu bar
 	+ Examples
 		+ [ ] Graphical User Interface
+		+ [ ] Audio
 + Version v0.1.0
 	+ General:
 		+ [x] Support for Windows, Linux, and WebAssembly (Emscripten)
@@ -44,7 +51,7 @@
 		+ [x] Factory for simple materials (metals, stones, plastic)
 		+ [x] View frustum culling
 		+ [x] Basic shadows (shadow mapping)
-		+ [ ] Rendering of text
+		+ [x] Rendering of text
 	+ Example scenes
 		+ [x] Basic Scene setup
 		+ [x] Minimum graphics setup
@@ -56,8 +63,8 @@
 		+ [x] Sockets (TPC + UDP)
 		+ [x] Primitive shape factory
 		+ [x] Material factory
-		+ [ ] Text rendering
-		+ [ ] Lights
+		+ [x] Text rendering
+		+ [x] Lights
 	+ Miscellaneous
 		+ [x] TCP and UDP classes
 		+ [x] Support for simple electronic devices (on Raspberry Pi)

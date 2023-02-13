@@ -1,4 +1,0 @@
-/**
-\page ProgrammingGuide Programming Guide
-
-*/

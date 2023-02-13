@@ -204,7 +204,7 @@ namespace CForge {
         void bind();
 
         /** \brief Returns the FontStyle this was initialised with. */
-        FontStyle style();
+        FontStyle style()const;
 
     private:
         /**

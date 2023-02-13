@@ -104,9 +104,8 @@ else()
 	FIND_PACKAGE(assimp CONFIG REQUIRED)# Asset import library (and partially export)
 	FIND_PACKAGE(freetype REQUIRED)		# Library to load and process vector based fonts
 	FIND_PACKAGE(libigl CONFIG REQUIRED)	# mesh processing library
-	FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp 
+	FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W1 -wd4251")
 endif()
 
 if(USE_OPENCV)
@@ -255,6 +254,7 @@ if(EMSCRIPTEN)
 
 
 elseif(WIN32)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W1 -wd4251")
 add_compile_definitions(CFORGE_EXPORTS)
 target_link_libraries(crossforge 
 	PRIVATE Eigen3::Eigen
