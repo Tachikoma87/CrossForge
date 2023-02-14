@@ -40,24 +40,24 @@ namespace CForge {
 		void init(void) override{
 			initWindowAndRenderDevice();
 			initCameraAndLights();
-
-			// load skydome and a textured cube
-			T3DMesh<float> M;
-			
-
-			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
-			setMeshShader(&M, 0.1f, 0.04f);
-			M.computePerVertexNormals();
-			m_Duck.init(&M);
-			M.clear();
+			initFPSLabel();
 
 			// build scene graph	
 			m_RootSGN.init(nullptr);
 			m_SG.init(&m_RootSGN);
 
-			// add cube
+			initGroundPlane(&m_RootSGN, 15.0f, 3.0f);
 			
-			m_DuckTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 2.0f, 0.0f));
+
+			// Add the duck
+			T3DMesh<float> M;
+			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
+			for (uint32_t i = 0; i < M.materialCount(); ++i) CForgeUtility::defaultMaterial(M.getMaterial(i), CForgeUtility::PLASTIC_YELLOW);
+			M.computePerVertexNormals();
+			m_Duck.init(&M);
+			M.clear();
+
+			m_DuckTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 1.0f, 0.0f));
 			m_DuckTransformSGN.scale(Vector3f(0.02f, 0.02f, 0.02f));
 			m_DuckSGN.init(&m_DuckTransformSGN, &m_Duck);
 
@@ -160,6 +160,7 @@ namespace CForge {
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 			// Skybox should be last thing to render
 			m_SkyboxSG.render(&m_RenderDev);
+			m_FPSLabel.render(&m_RenderDev);
 
 			m_RenderWin.swapBuffers();
 
@@ -168,19 +169,17 @@ namespace CForge {
 		}
 
 	protected:
-
-		StaticActor m_Duck;
 		SGNTransformation m_RootSGN;
 
+		StaticActor m_Duck;
+		SGNGeometry m_DuckSGN;
+		SGNTransformation m_DuckTransformSGN;
+		
 		vector<string> m_ClearSky;
 		vector<string> m_EmptySpace;
 		vector<string> m_Techno;
 		vector<string> m_BlueCloud;
-
 		SkyboxActor m_Skybox;
-
-		SGNGeometry m_DuckSGN;
-		SGNTransformation m_DuckTransformSGN;
 
 		SceneGraph m_SkyboxSG;
 		SGNTransformation m_SkyboxTransSGN;

@@ -140,6 +140,14 @@ namespace CForge {
 
 	void SShaderManager::init(void) {
 		// nothing to do
+		m_DefVSShadow.push_back("Shader/ShadowPassShader.vert");
+		m_DefFSShadow.push_back("Shader/ShadowPassShader.frag");
+		m_DefVSGeometry.push_back("Shader/BasicGeometryPass.vert");
+		m_DefFSGeometry.push_back("Shader/BasicGeometryPass.frag");
+		m_DefVSForward.push_back("Shader/ForwardPassPBS.vert");
+		m_DefFSForward.push_back("Shader/ForwardPassPBS.frag");
+		m_DefVSText.push_back("Shader/CFText.vert");
+		m_DefFSText.push_back("Shader/CFText.frag");
 	}//initialize
 
 	void SShaderManager::clear(void) {
@@ -274,6 +282,8 @@ namespace CForge {
 		case DEF_FS_SHADOW_PASS: Rval = m_DefFSShadow; break;
 		case DEF_VS_FORWARD_PASS: Rval = m_DefVSForward; break;
 		case DEF_FS_FORWARD_PASS: Rval = m_DefFSForward; break;
+		case DEF_VS_TEXT: Rval = m_DefVSText; break;
+		case DEF_FS_TEXT: Rval = m_DefFSText; break;
 		default: {
 			throw CForgeExcept("Invalid default shader source type specified!");
 		}break;

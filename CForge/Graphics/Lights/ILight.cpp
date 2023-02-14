@@ -29,10 +29,11 @@ namespace CForge {
 
 	void ILight::init(const Eigen::Vector3f Pos, const Eigen::Vector3f Dir, const Eigen::Vector3f Color, float Intensity) {
 		clear();
+		m_Camera.init(Vector3f::Zero(), Vector3f::UnitY());
 		position(Pos);
 		direction(Dir.normalized());
 		color(Color);
-		intensity(Intensity);
+		intensity(Intensity);	
 	}//initialize
 
 	void ILight::clear(void) {

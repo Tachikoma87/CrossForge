@@ -21,6 +21,7 @@
 #include "../../CForge/AssetIO/I3DMeshIO.h"
 #include <tiny_gltf.h>
 #include <algorithm>
+#include <iostream>
 
 
 namespace CForge {
@@ -143,12 +144,12 @@ namespace CForge {
 
 		template<class T>
 		void getAccessorDataScalar(const int accessor, std::vector<T>* pData) {
-			Accessor acc = model.accessors[accessor];
-			BufferView buffView = model.bufferViews[acc.bufferView];
-			Buffer buff = model.buffers[buffView.buffer];
+			tinygltf::Accessor acc = model.accessors[accessor];
+			tinygltf::BufferView buffView = model.bufferViews[acc.bufferView];
+			tinygltf::Buffer buff = model.buffers[buffView.buffer];
 
 			if (acc.type != TINYGLTF_TYPE_SCALAR) {
-				std::cout << "Called getAccessorDataScalar on a non scalar accessor!" << std::endl;
+				//std::cout << "Called getAccessorDataScalar on a non scalar accessor!" << std::endl;
 				return;
 			}
 
@@ -213,12 +214,12 @@ namespace CForge {
 
 		template<class T>
 		void getAccessorData(const int accessor, std::vector<std::vector<T>>* pData) {
-			Accessor acc = model.accessors[accessor];
-			BufferView buffView = model.bufferViews[acc.bufferView];
-			Buffer buff = model.buffers[buffView.buffer];
+			tinygltf::Accessor acc = model.accessors[accessor];
+			tinygltf::BufferView buffView = model.bufferViews[acc.bufferView];
+			tinygltf::Buffer buff = model.buffers[buffView.buffer];
 
 			if (acc.type == TINYGLTF_TYPE_SCALAR) {
-				std::cout << "Called getAccessorData on a scalar accessor!" << std::endl;
+				//std::cout << "Called getAccessorData on a scalar accessor!" << std::endl;
 				return;
 			}
 
@@ -285,9 +286,9 @@ namespace CForge {
 		void writeAccessorDataScalar(const int bufferIndex, std::vector<T>* pData) {
 			std::cout << "write accessor size: " << pData->size() << ", scalar" << std::endl;
 
-			Buffer* pBuffer = &model.buffers[bufferIndex];
+			tinygltf::Buffer* pBuffer = &model.buffers[bufferIndex];
 
-			Accessor accessor;
+			tinygltf::Accessor accessor;
 
 			T min = std::numeric_limits<T>::max();
 			T max = std::numeric_limits<T>::lowest();
@@ -311,7 +312,7 @@ namespace CForge {
 
 			model.accessors.push_back(accessor);
 
-			BufferView bufferView;
+			tinygltf::BufferView bufferView;
 
 			// The combined byteOffset must be a multiple of the size of the component datatype.
 			int type_size = sizeof(T);
@@ -331,9 +332,9 @@ namespace CForge {
 		void writeAccessorData(const int bufferIndex, const int type, std::vector<std::vector<T>>* pData) {
 			std::cout << "write accessor size: " << pData->size() << ", vec " << (*pData)[0].size() << std::endl;
 
-			Buffer* pBuffer = &model.buffers[bufferIndex];
+			tinygltf::Buffer* pBuffer = &model.buffers[bufferIndex];
 
-			Accessor accessor;
+			tinygltf::Accessor accessor;
 
 			int component_count = componentCount(type);
 
@@ -380,7 +381,7 @@ namespace CForge {
 
 			model.accessors.push_back(accessor);
 
-			BufferView bufferView;
+			tinygltf::BufferView bufferView;
 
 			// The combined byteOffset must be a multiple of the size of the component datatype.
 			int type_size = sizeof(T);

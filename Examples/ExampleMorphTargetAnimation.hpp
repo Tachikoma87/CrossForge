@@ -54,6 +54,7 @@ namespace CForge {
 			M.clear();
 
 
+
 			// load face model
 			SAssetIO::load("Assets/ExampleScenes/FaceGenMale/MaleFace.obj", &M);
 			setMeshShader(&M, 0.5f, 0.04f);
@@ -172,12 +173,14 @@ namespace CForge {
 			MTList.push_back(pair("PuffCheeks", "Assets/ExampleScenes/FaceGenMale/MaleFace_ExpressionPuffCheeks.obj"));
 			MTList.push_back(pair("Surprise", "Assets/ExampleScenes/FaceGenMale/MaleFace_ExpressionSurprise.obj"));
 
+
 			// load models and add to builder as targets
 			T3DMesh<float> M;
 			for (auto i : MTList) {
 				M.clear();
 				try {
 					AssetIO::load(i.second, &M);
+					M.computePerVertexNormals();
 					MTBuilder.addTarget(&M, i.first);
 				}
 				catch (const CrossForgeException& e) {
@@ -189,7 +192,7 @@ namespace CForge {
 			MTBuilder.build();
 			MTBuilder.retrieveMorphTargets(pBaseMesh);
 
-			printf(" finished int %d ms\n", uint32_t(CForgeUtility::timestamp() - Start));
+			printf(" finished in %d ms\n", uint32_t(CForgeUtility::timestamp() - Start));
 		}//buildMTModel
 
 		void buildMTSequences(MorphTargetAnimationController* pController) {
@@ -211,6 +214,7 @@ namespace CForge {
 				Seq.Parameters.push_back(Vector3f(1.0f, 0.0f, 1.25f));
 				pController->addAnimationSequence(&Seq);
 			}//for[all morph targets
+
 
 		}//buildMTSequences
 

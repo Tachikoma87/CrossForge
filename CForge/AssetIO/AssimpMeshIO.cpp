@@ -327,9 +327,6 @@ namespace CForge {
 	
 		for (auto i : BoneAnimations) pMesh->addSkeletalAnimation(i, false);
 
-		Eigen::Matrix4f RootTransform = toEigenMat(pScene->mRootNode->mTransformation);
-		pMesh->applyTransformation(RootTransform);
-
 	}//aiMeshTo3DMesh
 
 	void AssimpMeshIO::T3DMeshToAiScene(const T3DMesh<float>* pMesh, aiScene* pScene) {

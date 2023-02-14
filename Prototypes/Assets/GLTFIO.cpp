@@ -1,12 +1,22 @@
 #include "GLTFIO.h"
 
 #define TINYGLTF_IMPLEMENTATION
+#ifndef __EMSCRIPTEN__
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif
+
+#if (defined(__EMSCRIPTEN__) || defined(_MSC_VER) || (defined(__GNUC__) && (__GNUC__ > 7)) )
+#include <filesystem>
+#define STD_FS std::filesystem
+#else
+#define EXPERIMENTAL_FILESYSTEM 1
+#include <experimental/filesystem>
+#define STD_FS std::experimental::filesystem
+#endif
 
 #include <tiny_gltf.h>
 #include <iostream>
-#include <filesystem>
 #include <algorithm>
 
 using namespace tinygltf;
@@ -467,7 +477,7 @@ namespace CForge {
 
 		Image* pImage = &model.images[sourceIndex];
 
-		std::filesystem::path path = filePath;
+		STD_FS::path path = filePath;
 		path = path.parent_path();
 
 		if (pImage->uri.size()) {
@@ -1045,9 +1055,9 @@ namespace CForge {
 	}
 
 	int GLTFIO::writeTexture(const std::string path) {
-		if (path.empty() || !std::filesystem::exists(path)) return -1;
+		if (path.empty() || !STD_FS::exists(path)) return -1;
 
-		std::filesystem::path texPath(path);
+		STD_FS::path texPath(path);
 
 		std::string extension = texPath.extension().string();
 		if (extension == ".jpg") extension = ".jpeg";
@@ -1064,7 +1074,7 @@ namespace CForge {
 		imageBufferView.buffer = 1;
 		Buffer* pBuffer = &model.buffers[imageBufferView.buffer];
 		imageBufferView.byteOffset = pBuffer->data.size();
-		imageBufferView.byteLength = std::filesystem::file_size(texPath);
+		imageBufferView.byteLength = STD_FS::file_size(texPath);
 
 		std::ifstream infile(texPath, std::ios_base::binary);
 

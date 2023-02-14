@@ -58,8 +58,9 @@ namespace CForge {
 			DEFAULTUBO_MODELDATA,
 			DEFAULTUBO_BONEDATA,
 			DEFAULTUBO_MORPHTARGETDATA,
+			DEFAULTUBO_TEXTDATA,
 			DEFAULTUBO_COLORADJUSTMENT,
-			DEFAULTUBO_INSTANCE,
+			DEFAULTUBO_INSTANCE,	
 			DEFAULTUBO_COUNT,
 		};
 
@@ -84,6 +85,7 @@ namespace CForge {
 		const std::string UBOModelDataName = "ModelData";
 		const std::string UBOBoneDataName = "BoneData";
 		const std::string UBOMorphTargetDataName = "MorphTargetData";
+		const std::string UBOTextDataName = "TextData";
 		const std::string UBOColorAdjustmentDataName = "ColorAdjustmentData";
 		const std::string UBOInstancedDataName = "InstancedData";
 

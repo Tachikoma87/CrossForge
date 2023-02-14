@@ -410,14 +410,14 @@
     ],
     "images" : [
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/webp",
             "name" : "lambert3_baseColor",
-            "uri" : "lambert3_baseColor.png"
+            "uri" : "lambert3_baseColor.webp"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/webp",
             "name" : "lambert2_baseColor",
-            "uri" : "lambert2_baseColor.png"
+            "uri" : "lambert2_baseColor.webp"
         }
     ],
     "accessors" : [

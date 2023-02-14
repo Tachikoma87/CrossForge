@@ -78,6 +78,7 @@ namespace CForge {
 		class SAssetIO* m_pAssIO; ///< Asset importer/exporter instance
 		class STextureManager* m_pTexMan; ///< Texture manager
 		class SShaderManager* m_pSMan;	///< Shader manager
+		class SFontManager* m_pFontMan; ///< Font manager
 
 		std::vector<CForgeObject*> m_RegisteredObjects;
 		std::list<uint32_t> m_FreeObjSlots;

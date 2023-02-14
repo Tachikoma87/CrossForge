@@ -416,10 +416,12 @@ namespace CForge {
 				glViewport(0, 0, pAL->pLight->shadowMapSize().x(), pAL->pLight->shadowMapSize().y());
 				if (ClearBuffer) glClear(GL_DEPTH_BUFFER_BIT);
 
-				uint32_t Loc = m_pActiveShader->uniformLocation("ActiveLightID");
-				glUniform1ui(Loc, pAL->UBOIndex);
+				if (nullptr != m_pActiveShader) {
+					uint32_t Loc = m_pActiveShader->uniformLocation("ActiveLightID");
+					if(Loc != GL_INVALID_INDEX) glUniform1ui(Loc, pAL->UBOIndex);
+				}
+				
 				glCullFace(GL_FRONT); // cull front face to solve peter-panning shadow artifact
-
 				m_pActiveShadowLight = pAL;
 			}
 		}break;
@@ -550,6 +552,7 @@ namespace CForge {
 		}//if[cast shadows]
 
 		pAL->pLight->startListening(this);
+
 
 	}//addLight
 

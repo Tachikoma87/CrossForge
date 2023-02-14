@@ -83,6 +83,14 @@ if(EMSCRIPTEN)
 	FetchContent_MakeAvailable(freetype)
 	include_directories(${freetype_SOURCE_DIR}/include/)
 
+	# tinygltf
+	FetchContent_Declare(
+		tinygltf 
+		URL https://github.com/syoyo/tinygltf/archive/refs/tags/v2.8.2.zip
+	)
+	FetchContent_MakeAvailable(tinygltf)
+	include_directories(${tinygltf_SOURCE_DIR}/)
+
 
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Optimization_Flag} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Optimization_Flag} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -Wno-tautological-pointer-compare -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
@@ -96,9 +104,8 @@ else()
 	FIND_PACKAGE(assimp CONFIG REQUIRED)# Asset import library (and partially export)
 	FIND_PACKAGE(freetype REQUIRED)		# Library to load and process vector based fonts
 	FIND_PACKAGE(libigl CONFIG REQUIRED)	# mesh processing library
-	FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp 
+	FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W1 -wd4251")
 endif()
 
 if(USE_OPENCV)
@@ -192,6 +199,7 @@ add_library(crossforge SHARED
 	CForge/Graphics/UniformBufferObjects/UBOModelData.cpp
 	CForge/Graphics/UniformBufferObjects/UBOBoneData.cpp 
 	CForge/Graphics/UniformBufferObjects/UBOMorphTargetData.cpp
+	CForge/Graphics/UniformBufferObjects/UBOTextData.cpp
 
 	# Lights
 	CForge/Graphics/Lights/ILight.cpp 
@@ -204,6 +212,11 @@ add_library(crossforge SHARED
 	CForge/Graphics/SceneGraph/SceneGraph.cpp 
 	CForge/Graphics/SceneGraph/SGNGeometry.cpp
 	CForge/Graphics/SceneGraph/SGNTransformation.cpp
+
+	# Font
+	CForge/Graphics/Font/Font.cpp
+	CForge/Graphics/Font/LineOfText.cpp
+	CForge/Graphics/Font/SFontManager.cpp
 
 	# Math
 	CForge/Math/BoundingVolume.cpp
@@ -222,19 +235,6 @@ add_library(crossforge SHARED
 	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
 	CForge/MeshProcessing/PrimitiveShapeFactory.cpp
 
-	# GUI
-	CForge/GUI/Font.cpp
-	CForge/GUI/GUI.cpp
-	CForge/GUI/Widget.cpp
-	CForge/GUI/WidgetBackground.cpp
-	CForge/GUI/Widgets/Form.cpp
-	CForge/GUI/Widgets/InputCheckbox.cpp
-	CForge/GUI/Widgets/InputDropDown.cpp
-	CForge/GUI/Widgets/InputNumber.cpp
-	CForge/GUI/Widgets/InputSlider.cpp
-	CForge/GUI/Widgets/InputText.cpp
-	CForge/GUI/Widgets/Label.cpp
-	CForge/GUI/Widgets/Window.cpp
 
 	# Utility
 	CForge/Utility/CForgeUtility.cpp
@@ -254,6 +254,7 @@ if(EMSCRIPTEN)
 
 
 elseif(WIN32)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W1 -wd4251")
 add_compile_definitions(CFORGE_EXPORTS)
 target_link_libraries(crossforge 
 	PRIVATE Eigen3::Eigen
@@ -264,10 +265,10 @@ target_link_libraries(crossforge
 	PRIVATE igl::common		
 	PRIVATE WebP::webp 
 	PRIVATE WebP::webpdecoder
-#	pmp
 	ws2_32					#winsock2
 	${FREETYPE_LIBRARIES}	# for Text rendering
 	${OpenCV_LIBS}
+	#	pmp # not used yet
 	)
 
 elseif(UNIX)

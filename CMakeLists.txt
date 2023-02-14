@@ -34,6 +34,14 @@ if(EMSCRIPTEN)
 	)
 	FetchContent_MakeAvailable(tinyxml2)
 
+	# tinygltf
+	FetchContent_Declare(
+		tinygltf 
+		URL https://github.com/syoyo/tinygltf/archive/refs/tags/v2.8.2.zip
+	)
+	FetchContent_MakeAvailable(tinygltf)
+	include_directories(${tinygltf_SOURCE_DIR}/)
+
 
 	set(CMAKE_EXECUTABLE_SUFFIX .html)
 else()
@@ -78,6 +86,26 @@ add_executable(CForgeSandbox
 
 	Prototypes/Graphics/GLRenderbuffer.cpp
 
+	# GUI
+#	Prototypes/GUI/Font.cpp
+#	Prototypes/GUI/GUI.cpp
+#	Prototypes/GUI/Widget.cpp
+#	Prototypes/GUI/WidgetBackground.cpp
+#	Prototypes/GUI/Widgets/Form.cpp
+#	Prototypes/GUI/Widgets/InputCheckbox.cpp
+#	Prototypes/GUI/Widgets/InputDropDown.cpp
+#	Prototypes/GUI/Widgets/InputNumber.cpp
+#	Prototypes/GUI/Widgets/InputSlider.cpp
+#	Prototypes/GUI/Widgets/InputText.cpp
+#	Prototypes/GUI/Widgets/Label.cpp
+#	Prototypes/GUI/Widgets/Window.cpp
+
+	# new GUI
+#	"Prototypes/Graphics/Font.cpp" 
+#	"Prototypes/Graphics/LineOfText.cpp"
+#	Prototypes/Graphics/SFontManager.cpp
+#	Prototypes/Graphics/UBOTextData.cpp
+
 	)
 
 if(EMSCRIPTEN)
@@ -94,7 +122,7 @@ elseif(WIN32)
 	PRIVATE glad::glad
 	ws2_32
 	PRIVATE tinyxml2::tinyxml2
-#	${FREETYPE_LIBRARIES}
+	${FREETYPE_LIBRARIES}
 
 	)
 	

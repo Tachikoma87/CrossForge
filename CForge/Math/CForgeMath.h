@@ -34,6 +34,11 @@ namespace CForge {
 		}//sign
 
 		template<typename T>
+		static T lerp(T a, T b, T t) {
+			return a + t * (b - a);
+		}//lerp
+
+		template<typename T>
 		static T nextPowerOfTwo(const T Value) {
 			T a = T(std::log2(Value));
 			return (std::pow(T(2), a) == Value) ? Value : std::pow(T(2), a + T(1));

@@ -8,6 +8,7 @@
 #include "../AssetIO/SAssetIO.h"
 #include "../Graphics/STextureManager.h"
 #include "../Graphics/Shader/SShaderManager.h"
+#include "../Graphics/Font/SFontManager.h"
 
 
 using namespace std;
@@ -48,6 +49,7 @@ namespace CForge {
 		m_pGPIO = nullptr;
 		m_pSMan = nullptr;
 		m_pTexMan = nullptr;
+		m_pFontMan = nullptr;
 	}//Constructor
 
 	SCrossForgeDevice::~SCrossForgeDevice(void) {	
@@ -77,6 +79,7 @@ namespace CForge {
 		m_pAssIO = SAssetIO::instance();
 		m_pSMan = SShaderManager::instance();
 		m_pTexMan = STextureManager::instance();
+		m_pFontMan = SFontManager::instance();
 
 
 #if defined(_WIN32) || defined(__EMSCRIPTEN__)
@@ -94,6 +97,7 @@ namespace CForge {
 		if (nullptr != m_pAssIO) m_pAssIO->release();
 		if (nullptr != m_pTexMan) m_pTexMan->release();
 		if (nullptr != m_pSMan) m_pSMan->release();
+		if (nullptr != m_pFontMan) m_pFontMan->release();
 		if (nullptr != m_pLogger) {
 			MemLeakFile = SLogger::logFile(SLogger::LOGTYPE_DEBUG);
 			m_pLogger->release();
