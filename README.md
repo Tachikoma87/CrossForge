@@ -60,7 +60,9 @@ Now we need vcpkg to work with Visual Studio. Open a command prompt and type
 
 Start Visual Studio and select **Open a local folder**. Move to the directory where you executed the first git command and open the **CrossForge** folder. If the CMake configuration process does not start automatically right click on **CMakeLists.txt** and select **configure cache**. Wait for the configuration to complete, then select **Build->Build All (F7)** from the menu bar. After completion select *CForgeSandbox.exe* as starting item and select **Debug->Start Debugging (F5)** from the menu bar or click on the small green right facing arrow.
 
-| <img src="Documentation/Images/VSOpenFolder.webp" alt="Visual Studio Open Folder" height="400"/> | <img height="400" src="Documentation/Images/VSConfigureCache.webp" alt="Visual Studio Configure Cache"/> |
+<p align="center">
+<img src="Documentation/Images/VSOpenFolderAndConfigureCache.webp" alt="Visual Studio Open Folder" height="400"/>
+</p>
 
 ## Linux
 CrossForge uses vcpkg in manifest mode, which means that dependencies should be installed automatically. Run the following commands from the top directory to build the software:
