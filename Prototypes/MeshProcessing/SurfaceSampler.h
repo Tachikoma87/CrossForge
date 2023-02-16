@@ -18,8 +18,8 @@
 #ifndef __CFORGE_SURFACESAMPLER_H__
 #define __CFORGE_SURFACESAMPLER_H__
 
-#include "../../CForge/Core/CForgeObject.h"
-#include "../../CForge/AssetIO/SAssetIO.h"
+#include <crossforge/Core/CForgeObject.h>
+#include <crossforge/AssetIO/SAssetIO.h>
 
 namespace CForge {
 	class SurfaceSampler : public CForgeObject {

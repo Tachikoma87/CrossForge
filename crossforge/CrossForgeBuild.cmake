@@ -15,7 +15,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(USE_OPENCV "Include OpenCV in build" OFF)
-set(Optimization_Flag "-O0")
+set(Optimization_Flag "-O2")
 
 #[[
 ## download and install pmp
@@ -120,7 +120,6 @@ else()
 endif(USE_OPENCV)
 
 include_directories(
-#	"${FREETYPE_INCLUDE_DIRS}"
 	"Thirdparty/stb/"
 	"./"
 )
@@ -135,114 +134,112 @@ include_directories(
 
 add_library(crossforge SHARED
 	# Core related
-	CForge/Core/CForgeObject.cpp
-	CForge/Core/CrossForgeException.cpp
-	CForge/Core/SCrossForgeDevice.cpp
-	CForge/Core/SGPIO.cpp
-	CForge/Core/SLogger.cpp
+	crossforge/Core/CForgeObject.cpp
+	crossforge/Core/CrossForgeException.cpp
+	crossforge/Core/SCrossForgeDevice.cpp
+	crossforge/Core/SGPIO.cpp
+	crossforge/Core/SLogger.cpp
 	
 	
 	# Asset import/exporter stuff
-	CForge/AssetIO/File.cpp
-	CForge/AssetIO/AssimpMeshIO.cpp
-	CForge/AssetIO/I2DImageIO.cpp
-	CForge/AssetIO/I3DMeshIO.cpp
-	CForge/AssetIO/OpenCVImageIO.cpp
-	CForge/AssetIO/StbImageIO.cpp 
-	CForge/AssetIO/WebPImageIO.cpp
-	CForge/AssetIO/SAssetIO.cpp
+	crossforge/AssetIO/File.cpp
+	crossforge/AssetIO/AssimpMeshIO.cpp
+	crossforge/AssetIO/I2DImageIO.cpp
+	crossforge/AssetIO/I3DMeshIO.cpp
+	crossforge/AssetIO/OpenCVImageIO.cpp
+	crossforge/AssetIO/StbImageIO.cpp 
+	crossforge/AssetIO/WebPImageIO.cpp
+	crossforge/AssetIO/SAssetIO.cpp
 
 	# Graphics related
-	CForge/Graphics/GBuffer.cpp 
-	CForge/Graphics/GLBuffer.cpp 
-	CForge/Graphics/GLCubemap.cpp
-	CForge/Graphics/GLTexture2D.cpp 
-	CForge/Graphics/GLVertexArray.cpp 
-	CForge/Graphics/GLWindow.cpp 
-	CForge/Graphics/RenderDevice.cpp 
-	CForge/Graphics/RenderMaterial.cpp 
-	CForge/Graphics/STextureManager.cpp 
-	CForge/Graphics/VirtualCamera.cpp
-
-	 # only required with emscripten
-	
+	crossforge/Graphics/GBuffer.cpp 
+	crossforge/Graphics/GLBuffer.cpp 
+	crossforge/Graphics/GLCubemap.cpp
+	crossforge/Graphics/GLTexture2D.cpp 
+	crossforge/Graphics/GLVertexArray.cpp 
+	crossforge/Graphics/GLWindow.cpp 
+	crossforge/Graphics/RenderDevice.cpp 
+	crossforge/Graphics/RenderMaterial.cpp 
+	crossforge/Graphics/STextureManager.cpp 
+	crossforge/Graphics/VirtualCamera.cpp
 
 	# Camera related
-	CForge/Graphics/Camera/ViewFrustum.cpp
+	crossforge/Graphics/Camera/ViewFrustum.cpp
 
 
 	# Actor related
-	CForge/Graphics/Actors/IRenderableActor.cpp 
-	CForge/Graphics/Actors/RenderGroupUtility.cpp 
-	CForge/Graphics/Actors/SkyboxActor.cpp
-	CForge/Graphics/Actors/VertexUtility.cpp 
-	CForge/Graphics/Actors/ScreenQuad.cpp 
-	CForge/Graphics/Actors/StaticActor.cpp 
-	CForge/Graphics/Actors/SkeletalActor.cpp 
-	CForge/Graphics/Actors/MorphTargetActor.cpp 
-	CForge/Graphics/Actors/StickFigureActor.cpp
+	crossforge/Graphics/Actors/IRenderableActor.cpp 
+	crossforge/Graphics/Actors/RenderGroupUtility.cpp 
+	crossforge/Graphics/Actors/SkyboxActor.cpp
+	crossforge/Graphics/Actors/VertexUtility.cpp 
+	crossforge/Graphics/Actors/ScreenQuad.cpp 
+	crossforge/Graphics/Actors/StaticActor.cpp 
+	crossforge/Graphics/Actors/SkeletalActor.cpp 
+	crossforge/Graphics/Actors/MorphTargetActor.cpp 
+	crossforge/Graphics/Actors/StickFigureActor.cpp
 
 	# Animation Controller 
-	CForge/Graphics/Controller/SkeletalAnimationController.cpp 
-	CForge/Graphics/Controller/MorphTargetAnimationController.cpp
+	crossforge/Graphics/Controller/SkeletalAnimationController.cpp 
+	crossforge/Graphics/Controller/MorphTargetAnimationController.cpp
 
 	# Shader
-	CForge/Graphics/Shader/GLShader.cpp 
-	CForge/Graphics/Shader/ShaderCode.cpp
-	CForge/Graphics/Shader/SShaderManager.cpp
+	crossforge/Graphics/Shader/GLShader.cpp 
+	crossforge/Graphics/Shader/ShaderCode.cpp
+	crossforge/Graphics/Shader/SShaderManager.cpp
 
 	# Uniform Buffer Objects
-	CForge/Graphics/UniformBufferObjects/UBOCameraData.cpp 
-	CForge/Graphics/UniformBufferObjects/UBOColorAdjustment.cpp
-	CForge/Graphics/UniformBufferObjects/UBOLightData.cpp 
-	CForge/Graphics/UniformBufferObjects/UBOMaterialData.cpp 
-	CForge/Graphics/UniformBufferObjects/UBOModelData.cpp
-	CForge/Graphics/UniformBufferObjects/UBOBoneData.cpp 
-	CForge/Graphics/UniformBufferObjects/UBOMorphTargetData.cpp
-	CForge/Graphics/UniformBufferObjects/UBOTextData.cpp
+	crossforge/Graphics/UniformBufferObjects/UBOCameraData.cpp 
+	crossforge/Graphics/UniformBufferObjects/UBOColorAdjustment.cpp
+	crossforge/Graphics/UniformBufferObjects/UBOLightData.cpp 
+	crossforge/Graphics/UniformBufferObjects/UBOMaterialData.cpp 
+	crossforge/Graphics/UniformBufferObjects/UBOModelData.cpp
+	crossforge/Graphics/UniformBufferObjects/UBOBoneData.cpp 
+	crossforge/Graphics/UniformBufferObjects/UBOMorphTargetData.cpp
+	crossforge/Graphics/UniformBufferObjects/UBOTextData.cpp
 
 	# Lights
-	CForge/Graphics/Lights/ILight.cpp 
-	CForge/Graphics/Lights/DirectionalLight.cpp 
-	CForge/Graphics/Lights/PointLight.cpp 
-	CForge/Graphics/Lights/SpotLight.cpp
+	crossforge/Graphics/Lights/ILight.cpp 
+	crossforge/Graphics/Lights/DirectionalLight.cpp 
+	crossforge/Graphics/Lights/PointLight.cpp 
+	crossforge/Graphics/Lights/SpotLight.cpp
 
 	# SceneGraph
-	CForge/Graphics/SceneGraph/ISceneGraphNode.cpp
-	CForge/Graphics/SceneGraph/SceneGraph.cpp 
-	CForge/Graphics/SceneGraph/SGNGeometry.cpp
-	CForge/Graphics/SceneGraph/SGNTransformation.cpp
+	crossforge/Graphics/SceneGraph/ISceneGraphNode.cpp
+	crossforge/Graphics/SceneGraph/SceneGraph.cpp 
+	crossforge/Graphics/SceneGraph/SGNGeometry.cpp
+	crossforge/Graphics/SceneGraph/SGNTransformation.cpp
 
 	# Font
-	CForge/Graphics/Font/Font.cpp
-	CForge/Graphics/Font/LineOfText.cpp
-	CForge/Graphics/Font/SFontManager.cpp
+	crossforge/Graphics/Font/Font.cpp
+	crossforge/Graphics/Font/LineOfText.cpp
+	crossforge/Graphics/Font/SFontManager.cpp
 
 	# Math
-	CForge/Math/BoundingVolume.cpp
-	CForge/Math/CForgeMath.cpp
+	crossforge/Math/BoundingVolume.cpp
+	crossforge/Math/CForgeMath.cpp
 
 	# Input related
-	CForge/Input/Keyboard.cpp
-	CForge/Input/Mouse.cpp	
-	CForge/Input/SInputManager.cpp
+	crossforge/Input/Keyboard.cpp
+	crossforge/Input/Mouse.cpp	
+	crossforge/Input/SInputManager.cpp
 
 	# Internet related
-	CForge/Internet/UDPSocket.cpp
-	CForge/Internet/TCPSocket.cpp
+	crossforge/Internet/UDPSocket.cpp
+	crossforge/Internet/TCPSocket.cpp
 
 	# Mesh Processing
-	CForge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
-	CForge/MeshProcessing/PrimitiveShapeFactory.cpp
+	crossforge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
+	crossforge/MeshProcessing/PrimitiveShapeFactory.cpp
 
 
 	# Utility
-	CForge/Utility/CForgeUtility.cpp
+	crossforge/Utility/CForgeUtility.cpp
 
  )
 
 
 if(EMSCRIPTEN)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Optimization_Flag}")
 	add_compile_definitions(SHADER_GLES)
 	target_link_libraries(crossforge 
 		webp

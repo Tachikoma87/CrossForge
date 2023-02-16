@@ -1,6 +1,6 @@
-#include <CForge/Graphics/OpenGLHeader.h>
+#include <crossforge/Graphics/OpenGLHeader.h>
 #include "GLRenderbuffer.h"
-#include <CForge/Utility/CForgeUtility.h>
+#include <crossforge/Utility/CForgeUtility.h>
 
 namespace CForge {
 

@@ -18,7 +18,7 @@
 #ifndef __CFORGE_GLTFIO_H__
 #define __CFORGE_GLTFIO_H__
 
-#include "../../CForge/AssetIO/I3DMeshIO.h"
+#include <crossforge/AssetIO/I3DMeshIO.h>
 #include <tiny_gltf.h>
 #include <algorithm>
 #include <iostream>

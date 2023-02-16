@@ -1,5 +1,5 @@
 #include "SurfaceSampler.h"
-#include <CForge/Math/CForgeMath.h>
+#include <crossforge/Math/CForgeMath.h>
 #include <igl/exact_geodesic.h>
 
 using namespace Eigen;

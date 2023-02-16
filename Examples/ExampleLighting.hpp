@@ -18,7 +18,7 @@
 #ifndef __CFORGE_EXAMPLELIGHTING_HPP__
 #define __CFORGE_EXAMPLELIGHTING_HPP__
 
-#include <CForge/Graphics/Lights/SpotLight.h>
+#include <crossforge/Graphics/Lights/SpotLight.h>
 #include "ExampleSceneBase.hpp"
 
 using namespace Eigen;
@@ -54,6 +54,7 @@ namespace CForge {
 			initWindowAndRenderDevice(true, 2, static_cast<int>(PL_COUNT+1), 1);
 			initCameraAndLights(true);
 			initFPSLabel();
+			m_FPSLabel.color(1.0f, 1.0f, 1.0f, 1.0f);
 
 			m_Sun.initShadowCasting(2048, 2048, Vector2i(50, 50), 0.5f, 1000.0f);
 
@@ -67,7 +68,6 @@ namespace CForge {
 			// load skydome and a textured cube
 			T3DMesh<float> M;
 
-			//initGroundPlane(&m_RootSGN, 100.0f, 20.0f);
 			initSkybox();
 
 			SAssetIO::load("Assets/ExampleScenes/Sponza/Sponza.gltf", &M);
@@ -108,7 +108,7 @@ namespace CForge {
 			
 			initPointLights();
 
-			float Inner = CForgeMath::degToRad(10.0f);
+			float Inner = CForgeMath::degToRad(2.0f);
 			float Outer = CForgeMath::degToRad(15.f);
 			m_Flashlight.init(m_Cam.position(), m_Cam.dir(), Vector3f(1.0f, 0.35f, 0.35f), 10.0f, Vector3f(0.0f, 0.75f, 0.01f), Vector2f(Inner, Outer));
 
@@ -120,6 +120,16 @@ namespace CForge {
 			m_LastPointLightUpdate = CForgeUtility::timestamp();
 
 			m_IsSunActive = true;
+
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			LineOfText* pLightControls = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
+			pLightControls->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "1: Toggle Alley Lights| 2: Toggle Mana Well | 3: Toggle Main Room Lights| 4: Toggle Sun | 5,F: Toggle Flashlight");
+			m_HelpTexts.push_back(pKeybindings);
+			m_HelpTexts.push_back(pLightControls);
+			m_DrawHelpTexts = true;
+
 
 			std::string ErrorMsg;
 			if (0 != CForgeUtility::checkGLError(&ErrorMsg)) {
@@ -171,7 +181,8 @@ namespace CForge {
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 			m_SkyboxSG.render(&m_RenderDev);
-			m_FPSLabel.render(&m_RenderDev);
+			if(m_FPSLabelActive) m_FPSLabel.render(&m_RenderDev);
+			if (m_DrawHelpTexts) drawHelpTexts();
 
 			m_RenderWin.swapBuffers();
 

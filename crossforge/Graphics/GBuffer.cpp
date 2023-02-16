@@ -182,6 +182,13 @@ namespace CForge {
 		glBlitFramebuffer(0, 0, m_Width, m_Height, 0, 0, Width, Height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 	}//blitDeptHBuffer
 
+	void GBuffer::blitDepthBuffer(Eigen::Vector2i SourcePos, Eigen::Vector2i SourceSize, Eigen::Vector2i TargetPos, Eigen::Vector2i TargetSize) {
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_Framebuffer);
+		glBlitFramebuffer(
+			SourcePos.x(), SourcePos.y(), SourcePos.x() + SourceSize.x(), SourcePos.y() + SourceSize.y(),
+			TargetPos.x(), TargetPos.y(), TargetPos.x() + TargetSize.x(), TargetPos.y() + TargetSize.y(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	}
+
 	void GBuffer::retrievePositionBuffer(T2DImage<uint8_t>* pImg){
 #ifndef __EMSCRIPTEN__
 		if (nullptr == pImg) throw NullpointerExcept("pImg");

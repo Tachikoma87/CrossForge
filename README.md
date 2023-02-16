@@ -1,5 +1,5 @@
 
-CrossForge: Your tool for cross-platform 3D-Apps <!-- {#mainpage} --> 
+CrossForge: Your tool for cross-platform 3D-Apps {#mainpage} <!-- {#mainpage} Add this after the first section label to make Doxygen recognize this page as mainpage--> 
 ========================
 
 <p align="center">
@@ -19,17 +19,13 @@ CrossForge: Your tool for cross-platform 3D-Apps <!-- {#mainpage} -->
 </P>
 
 # Why CrossForge?
-<img align="right" height="200" style="margin:0px 12px" src="Documentation/Images/SponzaScreen.webp"/>
-- lot of very impressive open source graphic engines out there
-- many of them support various graphics APIs (Vulcan/DirectX/OpenGL) and abstract away the underlying API
-- CrossForge purely focuses on OpenGL with strong focus on compatibility with WebGL, so publication for web pages is a build-in feature
-- this enables you to focus solely on a single graphics API and write your own code and shaders for it using popular and most widespread graphics API
-- use the available modules, extend them, or replace them completely - the choice is yours!
-- CrossForge is perfect for academic education and research in computer graphic
+<img align="right" height="200" style="margin:0px 12px" src="Documentation/Images/Examples/Lighting.webp"/>
+There are a lot of very impressive open source graphics engines out there and most of them support various graphics APIs like Vulcan, DirectX and OpenGL. This is only possible if the underlying API is abstracted away and you are forced to use the interface of the respective engine. CrossForge solely uses OpenGL with a strong focus on compatibility with WebGL in order to be compatible with WebAssembly. Hence, the publication of your CrossForge projects on a website is a built-in feature and not just an option. This design allows you to use the available CrossForge modules, modify them, or completely replace them with you own OpenGL based implementation and GLSL Shaders. This flat design and reduced complexity makes the CrossForge framework perfect for education and research in computer graphics as well as for hobbyists. 
 
 # Feature List
 + Supported systems: Windows, Linux, and WebAssembly
-+ Physically based shading and material system
++ OpenGL only
++ Physically based shading (PBS) and material system
 + Deferred and forward rendering pipelines
 + Holistic self-configuring Shader system
 + Shadow mapping
@@ -37,16 +33,16 @@ CrossForge: Your tool for cross-platform 3D-Apps <!-- {#mainpage} -->
 + Skeletal and morph-target animations
 + Text rendering
 
-See the examples to get a better impression of what CrossForge is capable of.
+See the <a href="Examples/">examples</a> to get a better impression of what CrossForge is capable of.
 
 # Building CrossForge
-## Setup
+## Basic Setup
 The following steps have to be performed, no matter what OS you are running.
 
 1. If you haven't done already, install git <a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">https://git-scm.com/book/en/v2/Getting-Started-Installing-Git</a> and clone this repository with
->
->   git clone https://github.com/Tachikoma87/CrossForge.git
->
+
+        > git clone https://github.com/Tachikoma87/CrossForge.git
+
 2. CrossForge relies on vcpkg as package manager on Windows and Linux <a href="https://github.com/microsoft/vcpkg">https://github.com/microsoft/vcpkg</a>. Follow the installation instructions for your system: <a href="https://github.com/microsoft/vcpkg#getting-started">https://github.com/microsoft/vcpkg#getting-started</a>
 
 ## Windows
@@ -86,22 +82,22 @@ From top directory run
 
 To test the created website you will need a local webserver. You can create one on WSL or Linux following this tutorial: <a href="https://ubuntu.com/tutorials/install-and-configure-apache#1-overview">https://ubuntu.com/tutorials/install-and-configure-apache#1-overview</a>
 
- ## WSL
+ ## Windows Subsystem for Linux (WSL)
 1. Prepare WSL and Visual Studio for a remote connection: <a href="https://learn.microsoft.com/en-us/cpp/linux/connect-to-your-remote-linux-computer?view=msvc-170">https://learn.microsoft.com/en-us/cpp/linux/connect-to-your-remote-linux-computer?view=msvc-170</a>
 
-2. By default WSL does not come with graphics. You can configure your WLS with graphics and audio using this guide: <a href="https://research.wmz.ninja/articles/2017/11/setting-up-wsl-with-graphics-and-audio.html">https://research.wmz.ninja/articles/2017/11/setting-up-wsl-with-graphics-and-audio.html</a>. 
+1. By default WSL does not come with graphics. You can configure your WLS with graphics and audio using this guide: <a href="https://research.wmz.ninja/articles/2017/11/setting-up-wsl-with-graphics-and-audio.html">https://research.wmz.ninja/articles/2017/11/setting-up-wsl-with-graphics-and-audio.html</a>. 
 
-3. Then install and start xfce4 (or any other graphical desktop you like)
+1. Then install and start xfce4 (or any other graphical desktop you like) in your WSL
 
         > sudo apt-get install xfce4
         > startxfce4
 
 1. Open Visual Studio and the CrossForge project. 
-2. In the CMake Settings **(Project->CMake Settings for ...)** add the Linux-GCC-Debug and/or Linux-GCC-Release as target. 
-3. Choose the WSL connection as Remote machine name.
-4. Switch to a Linux-GCC target and wait for the CMake configuration to finish
-5. Build the project **(F7)**
-6. Run the project **(F5)**. The window will open in the xfce4 desktop.
+1. In the CMake Settings **(Project->CMake Settings for ...)** add the Linux-GCC-Debug and/or Linux-GCC-Release as target. 
+1. Choose the WSL connection as Remote machine name.
+1. Switch to a Linux-GCC target and wait for the CMake configuration to finish
+1. Build the project **(F7)**
+1. Run the project **(F5)**. The window will open in the xfce4 desktop.
 
 
 # How to cite:

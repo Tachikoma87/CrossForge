@@ -18,30 +18,30 @@
 #ifndef __CFORGE_EXAMPLESCENEBASE_HPP__
 #define __CFORGE_EXAMPLESCENEBASE_HPP__
 
-#include <CForge/Math/CForgeMath.h>
-#include <CForge/Utility/CForgeUtility.h>
-#include <CForge/AssetIO/SAssetIO.h>
-#include <CForge/Graphics/Shader/SShaderManager.h>
-#include <CForge/Graphics/STextureManager.h>
+#include <crossforge/Math/CForgeMath.h>
+#include <crossforge/Utility/CForgeUtility.h>
+#include <crossforge/AssetIO/SAssetIO.h>
+#include <crossforge/Graphics/Shader/SShaderManager.h>
+#include <crossforge/Graphics/STextureManager.h>
 
-#include <CForge/Graphics/GLWindow.h>
-#include <CForge/Graphics/RenderDevice.h>
+#include <crossforge/Graphics/GLWindow.h>
+#include <crossforge/Graphics/RenderDevice.h>
 
-#include <CForge/Graphics/Lights/DirectionalLight.h>
-#include <CForge/Graphics/Lights/PointLight.h>
+#include <crossforge/Graphics/Lights/DirectionalLight.h>
+#include <crossforge/Graphics/Lights/PointLight.h>
 
-#include <CForge/Graphics/SceneGraph/SceneGraph.h>
-#include <CForge/Graphics/SceneGraph/SGNGeometry.h>
-#include <CForge/Graphics/SceneGraph/SGNTransformation.h>
+#include <crossforge/Graphics/SceneGraph/SceneGraph.h>
+#include <crossforge/Graphics/SceneGraph/SGNGeometry.h>
+#include <crossforge/Graphics/SceneGraph/SGNTransformation.h>
 
-#include <CForge/Graphics/Actors/StaticActor.h>
-#include <CForge/Graphics/Actors/SkyboxActor.h>
+#include <crossforge/Graphics/Actors/StaticActor.h>
+#include <crossforge/Graphics/Actors/SkyboxActor.h>
 
-#include <CForge/Graphics/Font/LineOfText.h>
-#include <CForge/MeshProcessing/PrimitiveShapeFactory.h>
+#include <crossforge/Graphics/Font/LineOfText.h>
+#include <crossforge/MeshProcessing/PrimitiveShapeFactory.h>
 
 #ifdef __EMSCRIPTEN__
-#include <CForge/Graphics/OpenGLHeader.h>
+#include <crossforge/Graphics/OpenGLHeader.h>
 #else
 #include <glad/glad.h>
 #endif
@@ -130,6 +130,10 @@ namespace CForge {
 				m_FPSLabel.position(XPos, YPos);
 				m_FPSLabel.canvasSize(VP.Size.x(), VP.Size.y());
 			}
+			
+			if (GLWindowMsg::MC_RESIZE == Msg.Code) {
+				for (auto i : m_HelpTexts) if (nullptr != i) i->canvasSize(VP.Size.x(), VP.Size.y());
+			}
 
 		}//listen[GLWindow]
 
@@ -160,7 +164,7 @@ namespace CForge {
 			LC.PointLightCount = PointLightCount;
 			LC.SpotLightCount = SpotLightCount;
 			LC.PCFSize = 1;
-			LC.ShadowBias = 0.00005f;
+			LC.ShadowBias = 0.00001f;
 			LC.ShadowMapCount = 1;
 			m_pShaderMan->configShader(LC);
 
@@ -354,8 +358,8 @@ namespace CForge {
 			M.clear();
 		}//initGroundPlane
 
-		void drawHelpTexts(void) {
-			Vector2f Position = Vector2f(5.0f, 5.0f);
+		void drawHelpTexts(Eigen::Vector2f Offset = Vector2f::Zero()) {
+			Vector2f Position = Vector2f(5.0f, 5.0f) + Offset;
 			for (auto i : m_HelpTexts) {
 				if (nullptr == i) continue;
 				i->position(Position);

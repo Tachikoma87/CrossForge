@@ -3,7 +3,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/Exporter.hpp>
-#include "../../CForge/Core/SLogger.h"
+#include "../Core/SLogger.h"
 #include "../Utility/CForgeUtility.h"
 #include "../AssetIO/File.h"
 

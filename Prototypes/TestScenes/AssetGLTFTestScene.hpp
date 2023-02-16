@@ -21,7 +21,7 @@
 #ifndef __unix__
 
 #include <Examples/ExampleSceneBase.hpp>
-#include <CForge/MeshProcessing/PrimitiveShapeFactory.h>
+#include <crossforge/MeshProcessing/PrimitiveShapeFactory.h>
 #include "../Assets/GLTFIO.h"
 
 

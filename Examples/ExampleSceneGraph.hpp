@@ -19,7 +19,7 @@
 #ifndef __CFORGE_EXAMPLESCENEGRAPH_HPP__
 #define __CFORGE_EXAMPLESCENEGRAPH_HPP__
 
-#include <CForge/MeshProcessing/PrimitiveShapeFactory.h>
+#include <crossforge/MeshProcessing/PrimitiveShapeFactory.h>
 #include "ExampleSceneBase.hpp"
 
 namespace CForge {
@@ -39,6 +39,7 @@ namespace CForge {
 
 			initSkybox();
 			initFPSLabel();
+			m_FPSLabel.color(1.0f, 1.0f, 1.0f, 1.0f);
 
 			m_RootSGN.init(nullptr);
 			m_SG.rootNode(&m_RootSGN);
@@ -128,6 +129,14 @@ namespace CForge {
 			m_Sun.initShadowCasting(2048*2, 2048*2, Vector2i(1000, 1000), 1.0f, 5000.0f);
 
 			m_Fly = false;
+
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement:(Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
+			m_HelpTexts.push_back(pKeybindings);
+			pKeybindings->color(0.0f, 0.0f, 0.0f, 1.0f);
+			m_DrawHelpTexts = true;
+
 		}//initialize
 
 		void clear(void) override{
@@ -164,7 +173,8 @@ namespace CForge {
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 			m_SkyboxSG.render(&m_RenderDev);
-			m_FPSLabel.render(&m_RenderDev);
+			if(m_FPSLabelActive) m_FPSLabel.render(&m_RenderDev);
+			if (m_DrawHelpTexts) drawHelpTexts();
 
 			m_RenderWin.swapBuffers();
 

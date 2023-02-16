@@ -1,6 +1,6 @@
 #include "SLOD.h"
 
-#include <CForge/Graphics/OpenGLHeader.h>
+#include <crossforge/Graphics/OpenGLHeader.h>
 
 namespace CForge {
 	SLOD* SLOD::m_pInstance = nullptr;

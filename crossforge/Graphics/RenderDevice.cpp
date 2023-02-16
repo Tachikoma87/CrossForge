@@ -42,6 +42,7 @@ namespace CForge {
 		m_pActiveCamera = nullptr;
 		m_pActiveMaterial = nullptr;
 		m_pActiveShader = nullptr;
+		m_pShadowPassShader = nullptr;
 	}//Constructor
 
 	RenderDevice::~RenderDevice(void) {
@@ -477,7 +478,11 @@ namespace CForge {
 			if (m_Config.UseGBuffer) {
 				// blit depth buffer
 				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-				m_GBuffer.blitDepthBuffer(m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
+				//m_GBuffer.blitDepthBuffer(m_Config.pAttachedWindow->width(), m_Config.pAttachedWindow->height());
+				m_GBuffer.blitDepthBuffer(
+					Vector2i::Zero(), Vector2i(m_GBuffer.width(), m_GBuffer.height()),
+					m_Viewport[RENDERPASS_FORWARD].Position, m_Viewport[RENDERPASS_FORWARD].Size);
+				
 			}
 
 			glCullFace(GL_BACK);

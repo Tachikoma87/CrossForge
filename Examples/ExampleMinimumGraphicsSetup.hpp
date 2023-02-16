@@ -72,8 +72,9 @@ namespace CForge {
 
 			// create help text
 			LineOfText* pKeybindings = new LineOfText();
-			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: (Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
 			m_HelpTexts.push_back(pKeybindings);
+			m_DrawHelpTexts = true;
 
 			std::string ErrorMsg;
 			if (0 != CForgeUtility::checkGLError(&ErrorMsg)) {

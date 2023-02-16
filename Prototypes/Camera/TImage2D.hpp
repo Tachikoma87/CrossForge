@@ -19,7 +19,7 @@
 #ifndef __CFORGE_TIMAGE2D_HPP__
 #define __CFORGE_TIMAGE2D_HPP__
 
-#include "../../CForge/Core/CrossForgeException.h"
+#include <crossforge/Core/CrossForgeException.h>
 #include <string>
 
 namespace CForge {

@@ -10,8 +10,8 @@
 
 #include "ExportLibrary.hpp"
 
-#include "CForge/Core/SCrossForgeDevice.h"
-#include "CForge/Core/SLogger.h"
+#include "crossforge/Core/SCrossForgeDevice.h"
+#include "crossforge/Core/SLogger.h"
 
 #include <Examples/ExampleMinimumGraphicsSetup.hpp>
 #include <Examples/ExampleMorphTargetAnimation.hpp>
@@ -29,13 +29,9 @@
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
 #include "Prototypes/TestScenes/ImageTestScene.hpp"
-#include "Prototypes/TestScenes/ForwardTestScene.hpp"
 #include "Prototypes/TestScenes/FrustumCullingTestScene.hpp"
 #include "Prototypes/TestScenes/StickFigureTestScene.hpp"
-#include "Prototypes/TestScenes/PrimitiveFactoryTestScene.hpp"
-#include "Prototypes/TestScenes/EmscriptenGLTestScene.hpp"
 #include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
-
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 
 
@@ -47,17 +43,15 @@ using namespace Eigen;
 
 //#define ActiveScene ExampleMinimumGraphicsSetup
 //#define ActiveScene ExampleSkybox
-
-//#define ActiveScene ExampleMorphTargetAnimation
-//#define ActiveScene ExampleMultiViewport
+//#define ActiveScene ExampleTextRendering
+//#define ActiveScene ExampleShapesAndMaterials
+#define ActiveScene ExampleLighting
 //#define ActiveScene ExampleSceneGraph
 //#define ActiveScene ExampleSkeletalAnimation
+//#define ActiveScene ExampleMorphTargetAnimation
+//#define ActiveScene ExampleMultiViewport
 
 //#define ActiveScene ExampleSocket
-//#define ActiveScene ExampleShapesAndMaterials
-//#define ActiveScene ExampleTextRendering
-#define ActiveScene ExampleLighting
-
 
 //#define ActiveScene ImuInputDeviceTestScene	 
 //#define ActiveScene SkelAnimTestScene
@@ -67,7 +61,6 @@ using namespace Eigen;
 //#define ActiveScene FrustumCullingTestScene
 //#define ActiveScene StickFigureTestScene
 //#define ActiveScene AssetGLTFTestScene
-
 
 
 ActiveScene* pScene = nullptr;

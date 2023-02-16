@@ -47,6 +47,7 @@ namespace CForge{
 
 		void bindTexture(Component Comp, uint32_t Level);
 		void blitDepthBuffer(uint32_t Width, uint32_t Height);
+		void blitDepthBuffer(Eigen::Vector2i SourcePos, Eigen::Vector2i SourceSize, Eigen::Vector2i TargetPos, Eigen::Vector2i TargetSize);
 
 		uint32_t width(void)const;
 		uint32_t height(void)const;

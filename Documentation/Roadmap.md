@@ -13,6 +13,7 @@
 		+ [ ] Subdivision surfaces
 	+ Miscellaneous
 		+ [ ] Audio support
+        + [ ] Programming Guide (Documentation)
 	+ Graphics
 		+ [ ] Instanced rendering
 		+ [ ] Cascaded shadow maps https://learnopengl.com/Guest-Articles/2021/CSM
@@ -30,7 +31,7 @@
 	+ General:
 		+ [x] Support for Windows, Linux, and WebAssembly (Emscripten)
 		+ [ ] Full in-code documentation
-		+ [ ] General Documentation and tutorials
+		+ [x] General Documentation
 		+ [x] Math support class
 	+ Graphics:
 		+ [x] Basic framework to visualize 3D models (vertex buffer, index buffer, uniform buffer, etc.)
