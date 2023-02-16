@@ -18,13 +18,13 @@
 #ifndef __CFORGE_SHADOWTESTSCENE_HPP__
 #define __CFORGE_SHADOWTESTSCENE_HPP__
 
-#include <CForge/Graphics/OpenGLHeader.h>
+#include <crossforge/Graphics/OpenGLHeader.h>
 
 #include <GLFW/glfw3.h>
 
 #include "../../Examples/ExampleSceneBase.hpp"
-#include "../../CForge/Graphics/Actors/SkeletalActor.h"
-#include "../../CForge/Graphics/Lights/SpotLight.h"
+#include <crossforge/Graphics/Actors/SkeletalActor.h>
+#include <crossforge/Graphics/Lights/SpotLight.h>
 
 namespace CForge {
 

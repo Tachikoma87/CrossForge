@@ -18,8 +18,8 @@
 #ifndef __CFORGE_EXAMPLEMORPHTARGETANIMATION_HPP__
 #define __CFORGE_EXAMPLEMORPHTARGETANIMATION_HPP__
 
-#include "../CForge/Graphics/Actors/MorphTargetActor.h"
-#include "../CForge/MeshProcessing/Builder/MorphTargetModelBuilder.h"
+#include <crossforge/Graphics/Actors/MorphTargetActor.h>
+#include <crossforge/MeshProcessing/Builder/MorphTargetModelBuilder.h>
 #include "ExampleSceneBase.hpp"
 
 using namespace Eigen;

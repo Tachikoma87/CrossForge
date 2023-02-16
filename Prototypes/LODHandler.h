@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SLOD.h"
-#include "../CForge/AssetIO/T3DMesh.hpp"
+#include <crossforge/AssetIO/T3DMesh.hpp>
 #include "Actor/LODActor.h"
 
 namespace CForge {

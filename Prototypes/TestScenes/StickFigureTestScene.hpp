@@ -18,8 +18,8 @@
 #ifndef __CFORGE_STICKFIGURETESTSCENE_HPP__
 #define __CFORGE_STICKFIGURETESTSCENE_HPP__
 
-#include <CForge/Graphics/Actors/SkeletalActor.h>
-#include <CForge/Graphics/Actors/StickFigureActor.h>
+#include <crossforge/Graphics/Actors/SkeletalActor.h>
+#include <crossforge/Graphics/Actors/StickFigureActor.h>
 
 #include "../../Examples/ExampleSceneBase.hpp"
 

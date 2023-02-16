@@ -20,7 +20,7 @@
 
 #include "../../Examples/ExampleSceneBase.hpp"
 #include "../Misc/IMUCameraController.h"
-#include "../../CForge/Graphics/Actors/SkyboxActor.h"
+#include <crossforge/Graphics/Actors/SkyboxActor.h>
 
 
 using namespace Eigen;

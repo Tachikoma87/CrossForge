@@ -19,7 +19,7 @@
 #define __CFORGE_EXAMPLESKYBOX_HPP__
 
 #include "ExampleSceneBase.hpp"
-#include "../CForge/Graphics/Actors/SkyboxActor.h"
+#include <crossforge/Graphics/Actors/SkyboxActor.h>
 
 
 using namespace Eigen;

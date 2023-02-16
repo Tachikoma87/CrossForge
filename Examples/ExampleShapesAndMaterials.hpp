@@ -19,7 +19,7 @@
 #define __CFORGE_EXAMPLESHAPESANDMATERIALS_HPP__
 
 #include "ExampleSceneBase.hpp"
-#include <CForge/MeshProcessing/PrimitiveShapeFactory.h>
+#include <crossforge/MeshProcessing/PrimitiveShapeFactory.h>
 
 namespace CForge {
 	class ExampleShapesAndMaterials : public ExampleSceneBase {

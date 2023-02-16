@@ -18,7 +18,7 @@
 #ifndef __CFORGE_EXAMPLETEXTRENDERING_HPP__
 #define __CFORGE_EXAMPLETEXTRENDERING_HPP__
 
-#include <CForge/Graphics/Font/LineOfText.h>
+#include <crossforge/Graphics/Font/LineOfText.h>
 #include "ExampleSceneBase.hpp"
 
 using namespace Eigen;

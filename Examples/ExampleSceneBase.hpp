@@ -18,30 +18,30 @@
 #ifndef __CFORGE_EXAMPLESCENEBASE_HPP__
 #define __CFORGE_EXAMPLESCENEBASE_HPP__
 
-#include <CForge/Math/CForgeMath.h>
-#include <CForge/Utility/CForgeUtility.h>
-#include <CForge/AssetIO/SAssetIO.h>
-#include <CForge/Graphics/Shader/SShaderManager.h>
-#include <CForge/Graphics/STextureManager.h>
+#include <crossforge/Math/CForgeMath.h>
+#include <crossforge/Utility/CForgeUtility.h>
+#include <crossforge/AssetIO/SAssetIO.h>
+#include <crossforge/Graphics/Shader/SShaderManager.h>
+#include <crossforge/Graphics/STextureManager.h>
 
-#include <CForge/Graphics/GLWindow.h>
-#include <CForge/Graphics/RenderDevice.h>
+#include <crossforge/Graphics/GLWindow.h>
+#include <crossforge/Graphics/RenderDevice.h>
 
-#include <CForge/Graphics/Lights/DirectionalLight.h>
-#include <CForge/Graphics/Lights/PointLight.h>
+#include <crossforge/Graphics/Lights/DirectionalLight.h>
+#include <crossforge/Graphics/Lights/PointLight.h>
 
-#include <CForge/Graphics/SceneGraph/SceneGraph.h>
-#include <CForge/Graphics/SceneGraph/SGNGeometry.h>
-#include <CForge/Graphics/SceneGraph/SGNTransformation.h>
+#include <crossforge/Graphics/SceneGraph/SceneGraph.h>
+#include <crossforge/Graphics/SceneGraph/SGNGeometry.h>
+#include <crossforge/Graphics/SceneGraph/SGNTransformation.h>
 
-#include <CForge/Graphics/Actors/StaticActor.h>
-#include <CForge/Graphics/Actors/SkyboxActor.h>
+#include <crossforge/Graphics/Actors/StaticActor.h>
+#include <crossforge/Graphics/Actors/SkyboxActor.h>
 
-#include <CForge/Graphics/Font/LineOfText.h>
-#include <CForge/MeshProcessing/PrimitiveShapeFactory.h>
+#include <crossforge/Graphics/Font/LineOfText.h>
+#include <crossforge/MeshProcessing/PrimitiveShapeFactory.h>
 
 #ifdef __EMSCRIPTEN__
-#include <CForge/Graphics/OpenGLHeader.h>
+#include <crossforge/Graphics/OpenGLHeader.h>
 #else
 #include <glad/glad.h>
 #endif

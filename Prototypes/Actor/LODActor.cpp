@@ -1,9 +1,9 @@
-#include <CForge/Graphics/OpenGLHeader.h>
+#include <crossforge/Graphics/OpenGLHeader.h>
 #include "LODActor.h"
-#include "../../CForge/Graphics/RenderDevice.h"
-#include "../../CForge/Core/SLogger.h"
+#include <crossforge/Graphics/RenderDevice.h>
+#include <crossforge/Core/SLogger.h>
 #include "../MeshDecimate.h"
-#include "../../CForge/Graphics/Shader/SShaderManager.h"
+#include <crossforge/Graphics/Shader/SShaderManager.h>
 #include "../LODHandler.h"
 #include <iostream>
 

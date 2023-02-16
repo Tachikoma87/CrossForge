@@ -19,7 +19,7 @@
 #ifndef __CFORGE_EXAMPLESCENEGRAPH_HPP__
 #define __CFORGE_EXAMPLESCENEGRAPH_HPP__
 
-#include <CForge/MeshProcessing/PrimitiveShapeFactory.h>
+#include <crossforge/MeshProcessing/PrimitiveShapeFactory.h>
 #include "ExampleSceneBase.hpp"
 
 namespace CForge {

@@ -21,7 +21,7 @@
 
 #include "Examples/ExampleSceneBase.hpp"
 
-#include <CForge/Graphics/Camera/ViewFrustum.h>
+#include <crossforge/Graphics/Camera/ViewFrustum.h>
 
 namespace CForge {
 	class FrustumCullingTestScene : public ExampleSceneBase {

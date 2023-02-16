@@ -19,8 +19,8 @@
 #ifndef __CFORGE_EXAMPLESOCKETS_HPP__
 #define __CFORGE_EXAMPLESOCKETS_HPP__
 
-#include "../CForge/Internet/TCPSocket.h"
-#include "../CForge/Internet/UDPSocket.h"
+#include <crossforge/Internet/TCPSocket.h>
+#include <crossforge/Internet/UDPSocket.h>
 
 #include "ExampleSceneBase.hpp"
 

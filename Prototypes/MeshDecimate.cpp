@@ -1,5 +1,5 @@
 #include "MeshDecimate.h"
-#include "../CForge/AssetIO/SAssetIO.h"
+#include "../crossforge/AssetIO/SAssetIO.h"
 #include <chrono>
 #include <iostream>
 #include <unordered_map>

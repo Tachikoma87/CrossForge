@@ -1,5 +1,5 @@
 #include "OpenCVImageIO.h"
-#include "../../CForge/AssetIO/File.h"
+#include "../AssetIO/File.h"
 
 #ifdef USE_OPENCV
 #include <opencv2/core.hpp>

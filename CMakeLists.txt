@@ -9,13 +9,14 @@ IF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 ENDIF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
 # builds the crossforge library
-include("CForge/CrossForgeBuild.cmake")
+include("crossforge/CrossForgeBuild.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # create required directories if non existent 
 file(MAKE_DIRECTORY "MyAssets")
+file(MAKE_DIRECTORY "Prototypes")
 file(MAKE_DIRECTORY "Prototypes/Shader")
 
 #################################################################
@@ -62,7 +63,7 @@ endif(USE_OPENCV)
 add_executable(CForgeSandbox 
 	SandboxMain.cpp
 
-	CForge/Core/SGPIO.cpp
+	crossforge/Core/SGPIO.cpp
 	Prototypes/Hardware/I2C.cpp 
 	Prototypes/Hardware/MPU6050.cpp
 	Prototypes/Hardware/RotaryEncoder.cpp
@@ -142,7 +143,7 @@ endif()
 add_custom_command(
 	TARGET CForgeSandbox PRE_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_SOURCE_DIR}/CForge/Shader
+	${CMAKE_SOURCE_DIR}/crossforge/Shader
 	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 add_custom_command(
@@ -179,77 +180,3 @@ add_custom_command(
 )
 endforeach(i)
 endif(EMSCRIPTEN)
-
-
-######## Project - Terrain ##############################
-
-set(BUILD_TERRAIN false)
-
-if(BUILD_TERRAIN)
-
-project (Terrain)
-add_executable(Terrain
-	Main.cpp
-
-	# Decoration
-	Terrain/src/Decoration/InstanceActor.cpp
-	Terrain/src/Decoration/InstanceSGN.cpp
-	Terrain/src/Decoration/InstanceVertexUtility.cpp
-	
-	Prototypes/UBOInstancedData.cpp
-
-	Terrain/src/Map/ClipMap.cpp
-	Terrain/src/Map/TileNode.cpp
-	Terrain/src/Map/HeightMap.cpp
-	Terrain/src/Map/TerrainMap.cpp
-	Terrain/src/Map/TileActor.cpp
-	Terrain/src/ArrayTexture.cpp
-
-	Terrain/src/Decoration/TreeGenerator.cpp
-	Terrain/src/Decoration/RockGenerator.cpp
-	Terrain/src/Decoration/DecoSetup.cpp
-	Terrain/src/PPScreenQuad.cpp
-	
-	Prototypes/SLOD.cpp
-	"Prototypes/Actor/LODActor.cpp"
-	"Prototypes/MeshDecimate.cpp"
-	"Prototypes/LODHandler.cpp"
-)
-
-if(WIN32)
-target_link_libraries(Terrain
-	PRIVATE crossforge
-	PRIVATE glfw 
-	PRIVATE glad::glad
-	${FREETYPE_LIBRARIES}
-	PRIVATE tinyxml2::tinyxml2
-)
-endif(WIN32)
-
-if(UNIX)
-target_link_libraries(Terrain
-	PRIVATE crossforge
-	PRIVATE glfw
-	${FREETYPE_LIBRARIES}
-	PRIVATE tinyxml2::tinyxml2
-)
-endif(UNIX)
-
-
-#Todo: copy on run
-# copy terrain shaders
-add_custom_command(
-	TARGET Terrain PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_SOURCE_DIR}/Terrain/Shader
-	${CMAKE_CURRENT_BINARY_DIR}/Shader
-)
-
-add_custom_command(
-	TARGET Terrain PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_SOURCE_DIR}/Terrain/Assets
-	${CMAKE_CURRENT_BINARY_DIR}/Assets
-)
-
-endif(BUILD_TERRAIN)

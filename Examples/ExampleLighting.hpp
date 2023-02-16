@@ -18,7 +18,7 @@
 #ifndef __CFORGE_EXAMPLELIGHTING_HPP__
 #define __CFORGE_EXAMPLELIGHTING_HPP__
 
-#include <CForge/Graphics/Lights/SpotLight.h>
+#include <crossforge/Graphics/Lights/SpotLight.h>
 #include "ExampleSceneBase.hpp"
 
 using namespace Eigen;
