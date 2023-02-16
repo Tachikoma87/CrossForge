@@ -24,17 +24,6 @@
 #include <Examples/ExampleTextRendering.hpp>
 #include <Examples/ExampleLighting.hpp>
 
-#include "Prototypes/TestScenes/ShadowTestScene.hpp"
-#include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
-#include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
-#include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
-#include "Prototypes/TestScenes/ImageTestScene.hpp"
-#include "Prototypes/TestScenes/FrustumCullingTestScene.hpp"
-#include "Prototypes/TestScenes/StickFigureTestScene.hpp"
-#include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
-#include "Prototypes/TestScenes/GUITestScene.hpp"
-
-
 
 using namespace CForge;
 using namespace Eigen;
@@ -50,17 +39,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
-
 //#define ActiveScene ExampleSocket
-
-//#define ActiveScene ImuInputDeviceTestScene	 
-//#define ActiveScene SkelAnimTestScene
-//#define ActiveScene SurfaceSamplerTestScene
-//#define ActiveScene ForwardTestScene
-//#define ActiveScene PrimitiveFactoryTestScene
-//#define ActiveScene FrustumCullingTestScene
-//#define ActiveScene StickFigureTestScene
-//#define ActiveScene AssetGLTFTestScene
 
 
 ActiveScene* pScene = nullptr;

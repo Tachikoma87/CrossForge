@@ -63,50 +63,6 @@ endif(USE_OPENCV)
 add_executable(CForgeSandbox 
 	SandboxMain.cpp
 
-	crossforge/Core/SGPIO.cpp
-	Prototypes/Hardware/I2C.cpp 
-	Prototypes/Hardware/MPU6050.cpp
-	Prototypes/Hardware/RotaryEncoder.cpp
-
-	Prototypes/Camera/PhotoFinish.cpp
-	Prototypes/Camera/StripPhoto.cpp 
-	Prototypes/Camera/StripPhotoCamera.cpp
-
-	Prototypes/Misc/IMUCameraController.cpp
-
-	Prototypes/Assets/GLTFIO.cpp
-
-	Prototypes/MeshProcessing/SurfaceSampler.cpp
-	
-
-	Prototypes/Actor/LODActor.cpp
-	Prototypes/SLOD.cpp
-	Prototypes/LODHandler.cpp
-	Prototypes/UBOInstancedData.cpp
-	Prototypes/MeshDecimate.cpp
-
-	Prototypes/Graphics/GLRenderbuffer.cpp
-
-	# GUI
-#	Prototypes/GUI/Font.cpp
-#	Prototypes/GUI/GUI.cpp
-#	Prototypes/GUI/Widget.cpp
-#	Prototypes/GUI/WidgetBackground.cpp
-#	Prototypes/GUI/Widgets/Form.cpp
-#	Prototypes/GUI/Widgets/InputCheckbox.cpp
-#	Prototypes/GUI/Widgets/InputDropDown.cpp
-#	Prototypes/GUI/Widgets/InputNumber.cpp
-#	Prototypes/GUI/Widgets/InputSlider.cpp
-#	Prototypes/GUI/Widgets/InputText.cpp
-#	Prototypes/GUI/Widgets/Label.cpp
-#	Prototypes/GUI/Widgets/Window.cpp
-
-	# new GUI
-#	"Prototypes/Graphics/Font.cpp" 
-#	"Prototypes/Graphics/LineOfText.cpp"
-#	Prototypes/Graphics/SFontManager.cpp
-#	Prototypes/Graphics/UBOTextData.cpp
-
 	)
 
 if(EMSCRIPTEN)
