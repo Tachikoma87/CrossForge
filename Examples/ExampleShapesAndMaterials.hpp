@@ -36,6 +36,7 @@ namespace CForge {
 			initWindowAndRenderDevice();
 			initCameraAndLights();
 			initSkybox();
+			initFPSLabel();
 
 			m_RootSGN.init(nullptr);
 			m_SG.init(&m_RootSGN);
@@ -45,12 +46,12 @@ namespace CForge {
 			T3DMesh<float> M;
 			PrimitiveShapeFactory::plane(&M, Vector2f(150.0f, 150.0f), Vector2i(1, 1));
 			setMeshShader(&M, 0.4f, 0.04f);
-			M.changeUVTiling(Vector3f(50.0f, 50.0f, 1.0f));
+			M.changeUVTiling(Vector3f(20.0f, 20.0f, 1.0f));
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
 			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::PLASTIC_WHITE);
-			M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/metal06.jpg";
-			M.getMaterial(0)->TexNormal = "Assets/ExampleScenes/metal06n.jpg";
+			M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/Textures/Tiles107/Tiles107_1K_Color.webp";
+			M.getMaterial(0)->TexNormal = "Assets/ExampleScenes/Textures/Tiles107/Tiles107_1K_NormalGL.webp";
 			BoundingVolume BV;
 			m_GroundPlane.init(&M);
 			m_GroundPlane.boundingVolume(BV);
@@ -71,6 +72,21 @@ namespace CForge {
 			m_Sun.position(Vector3f(-50.0f, 100.0f, 200.0f));
 			m_Sun.direction(-m_Sun.position().normalized());
 			m_Sun.initShadowCasting(4096, 4096, Vector2i(50, 50), 0.5f, 1000.0f);
+
+			m_Cam.position(Vector3f(-9.0f, 7.0f, -9.0f));
+			m_Cam.lookAt(m_Cam.position(), Vector3f(0.0f, 3.0f, 0.0f));
+
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			LineOfText* pKeybindings2 = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: (Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
+			pKeybindings2->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "1: Cycle through shapes | M: Cycle through materials | V: Wireframe shapes");
+			pKeybindings->color(0.0f, 0.0f, 0.0f, 1.0f);
+			pKeybindings2->color(0.0f, 0.0f, 0.0f, 1.0f);
+			m_HelpTexts.push_back(pKeybindings);
+			m_HelpTexts.push_back(pKeybindings2);
+			m_DrawHelpTexts = true;
+
 
 		}//initialize
 
@@ -98,6 +114,8 @@ namespace CForge {
 			m_RenderDev.activeCamera(&m_Cam);
 			m_SG.render(&m_RenderDev);
 			m_SkyboxSG.render(&m_RenderDev);
+			if (m_FPSLabelActive) m_FPSLabel.render(&m_RenderDev);
+			if (m_DrawHelpTexts) drawHelpTexts();
 
 			m_RenderWin.swapBuffers();
 
@@ -105,7 +123,7 @@ namespace CForge {
 
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
 
-			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_O, true)) {
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 				m_ModelType = (m_ModelType + 1) % 7;
 				createObjects(m_ModelType, CForgeUtility::DefaultMaterial(m_MaterialType));
 				letObjectRotate(m_ObjectRotation);
@@ -211,7 +229,8 @@ namespace CForge {
 			SGNTransformation* pTransSGN = new SGNTransformation();
 
 			pActor->init(&M);
-			pTransSGN->init(&m_RootSGN, Vector3f(-3.5f, 2.0f, -3.5f));
+			pTransSGN->init(&m_RootSGN, Vector3f(-4.5f, 4.0f, -4.5f));
+			pTransSGN->scale(Vector3f(2.0f, 2.0f, 2.0f));
 			pGeomSGN->init(pTransSGN, pActor);
 
 			m_Objects.push_back(pActor);

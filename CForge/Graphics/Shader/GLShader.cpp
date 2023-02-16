@@ -32,7 +32,7 @@ namespace CForge {
 
 		m_ShaderType = SHADERTYPE_UNKNOWN;
 
-		m_ShaderProgram = 0;
+		m_ShaderProgram = GL_INVALID_INDEX;
 
 		m_BindingPoints.clear();
 
@@ -65,7 +65,7 @@ namespace CForge {
 	}//clear
 
 	void GLShader::bind(void) {
-		glUseProgram(m_ShaderProgram);
+		if(m_ShaderProgram != GL_INVALID_INDEX) glUseProgram(m_ShaderProgram);
 	}//bind
 
 	void GLShader::unbind(void) {

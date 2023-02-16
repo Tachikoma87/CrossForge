@@ -19,7 +19,7 @@ CrossForge: Your tool for cross-platform 3D-Apps <!-- {#mainpage} -->
 </P>
 
 # Why CrossForge?
-<img align="right" height="200" style="margin:0px 12px" src="Documentation/Images/SponzaScreen.webp"/>
+<img align="right" height="200" style="margin:0px 12px" src="Documentation/Images/Examples/Lighting.webp"/>
 - lot of very impressive open source graphic engines out there
 - many of them support various graphics APIs (Vulcan/DirectX/OpenGL) and abstract away the underlying API
 - CrossForge purely focuses on OpenGL with strong focus on compatibility with WebGL, so publication for web pages is a build-in feature
@@ -40,13 +40,13 @@ CrossForge: Your tool for cross-platform 3D-Apps <!-- {#mainpage} -->
 See the examples to get a better impression of what CrossForge is capable of.
 
 # Building CrossForge
-## Setup
+## Basic Setup
 The following steps have to be performed, no matter what OS you are running.
 
 1. If you haven't done already, install git <a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">https://git-scm.com/book/en/v2/Getting-Started-Installing-Git</a> and clone this repository with
->
->   git clone https://github.com/Tachikoma87/CrossForge.git
->
+
+        > git clone https://github.com/Tachikoma87/CrossForge.git
+
 2. CrossForge relies on vcpkg as package manager on Windows and Linux <a href="https://github.com/microsoft/vcpkg">https://github.com/microsoft/vcpkg</a>. Follow the installation instructions for your system: <a href="https://github.com/microsoft/vcpkg#getting-started">https://github.com/microsoft/vcpkg#getting-started</a>
 
 ## Windows
@@ -89,19 +89,19 @@ To test the created website you will need a local webserver. You can create one 
  ## WSL
 1. Prepare WSL and Visual Studio for a remote connection: <a href="https://learn.microsoft.com/en-us/cpp/linux/connect-to-your-remote-linux-computer?view=msvc-170">https://learn.microsoft.com/en-us/cpp/linux/connect-to-your-remote-linux-computer?view=msvc-170</a>
 
-2. By default WSL does not come with graphics. You can configure your WLS with graphics and audio using this guide: <a href="https://research.wmz.ninja/articles/2017/11/setting-up-wsl-with-graphics-and-audio.html">https://research.wmz.ninja/articles/2017/11/setting-up-wsl-with-graphics-and-audio.html</a>. 
+1. By default WSL does not come with graphics. You can configure your WLS with graphics and audio using this guide: <a href="https://research.wmz.ninja/articles/2017/11/setting-up-wsl-with-graphics-and-audio.html">https://research.wmz.ninja/articles/2017/11/setting-up-wsl-with-graphics-and-audio.html</a>. 
 
-3. Then install and start xfce4 (or any other graphical desktop you like)
+1. Then install and start xfce4 (or any other graphical desktop you like)
 
         > sudo apt-get install xfce4
         > startxfce4
 
 1. Open Visual Studio and the CrossForge project. 
-2. In the CMake Settings **(Project->CMake Settings for ...)** add the Linux-GCC-Debug and/or Linux-GCC-Release as target. 
-3. Choose the WSL connection as Remote machine name.
-4. Switch to a Linux-GCC target and wait for the CMake configuration to finish
-5. Build the project **(F7)**
-6. Run the project **(F5)**. The window will open in the xfce4 desktop.
+1. In the CMake Settings **(Project->CMake Settings for ...)** add the Linux-GCC-Debug and/or Linux-GCC-Release as target. 
+1. Choose the WSL connection as Remote machine name.
+1. Switch to a Linux-GCC target and wait for the CMake configuration to finish
+1. Build the project **(F7)**
+1. Run the project **(F5)**. The window will open in the xfce4 desktop.
 
 
 # How to cite:

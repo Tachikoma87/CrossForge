@@ -43,6 +43,12 @@ namespace CForge {
 			initWindowAndRenderDevice(false);
 			initCameraAndLights();
 			initSkybox();
+			initFPSLabel();
+
+#ifndef __EMSCRIPTEN__
+			gladLoadGL();
+#endif
+
 
 			// build scene graph
 			m_RootSGN.init(nullptr);
@@ -69,6 +75,14 @@ namespace CForge {
 			m_DuckTransformSGN.rotationDelta(R);
 
 			initText();
+
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: (Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
+			pKeybindings->color(0.0f, 0.0f, 0.0f, 1.0f);
+			m_HelpTexts.push_back(pKeybindings);
+			m_DrawHelpTexts = true;
+			m_FPSLabelActive = true;
 
 			std::string ErrorMsg;
 			if (0 != CForgeUtility::checkGLError(&ErrorMsg)) {
@@ -100,11 +114,14 @@ namespace CForge {
 			m_SkyboxSG.render(&m_RenderDev);
 			renderText();
 
-			// update and draw FPS label
-			std::string LabelText = "FPS: " + std::to_string(int32_t(m_FPS));
-			m_FPSLabel.text(LabelText);
-			m_FPSLabel.render(&m_RenderDev);
-
+			if (m_FPSLabelActive) {
+				// update and draw FPS label
+				std::string LabelText = "FPS: " + std::to_string(int32_t(m_FPS));
+				m_FPSLabel.text(LabelText);
+				m_FPSLabel.render(&m_RenderDev);
+			}
+			if (m_DrawHelpTexts) drawHelpTexts();
+	
 			m_RenderWin.swapBuffers();
 
 			updateFPS();
@@ -123,7 +140,7 @@ namespace CForge {
 			std::string SampleSentence = "The quick brown fox jumps over the lazy dog.";
 
 			// starting position
-			Vector2f Position = Vector2f(10, 10);
+			Vector2f Position = Vector2f(10, 40);
 
 			// Monotype
 			Font* pFont = CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_MONO, FontSize, false, false);
@@ -167,7 +184,7 @@ namespace CForge {
 
 
 			Position.x() += pFont->computeStringWidth(SampleSentence) + 40;
-			Position.y() = 10.0f;
+			Position.y() = 40.0f;
 
 			// Sanserif 
 			pFont = CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, FontSize, false, false);
@@ -229,7 +246,7 @@ namespace CForge {
 
 
 			Position.x() += pFont->computeStringWidth(SampleSentence) + 40;
-			Position.y() = 10.0f;
+			Position.y() = 40.0f;
 
 			// serif 
 			pFont = CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SERIF, FontSize, false, false);

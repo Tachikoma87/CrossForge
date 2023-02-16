@@ -15,7 +15,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(USE_OPENCV "Include OpenCV in build" OFF)
-set(Optimization_Flag "-O0")
+set(Optimization_Flag "-O2")
 
 #[[
 ## download and install pmp
@@ -243,6 +243,7 @@ add_library(crossforge SHARED
 
 
 if(EMSCRIPTEN)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Optimization_Flag}")
 	add_compile_definitions(SHADER_GLES)
 	target_link_libraries(crossforge 
 		webp

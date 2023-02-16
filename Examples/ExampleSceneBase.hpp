@@ -130,6 +130,10 @@ namespace CForge {
 				m_FPSLabel.position(XPos, YPos);
 				m_FPSLabel.canvasSize(VP.Size.x(), VP.Size.y());
 			}
+			
+			if (GLWindowMsg::MC_RESIZE == Msg.Code) {
+				for (auto i : m_HelpTexts) if (nullptr != i) i->canvasSize(VP.Size.x(), VP.Size.y());
+			}
 
 		}//listen[GLWindow]
 
@@ -160,7 +164,7 @@ namespace CForge {
 			LC.PointLightCount = PointLightCount;
 			LC.SpotLightCount = SpotLightCount;
 			LC.PCFSize = 1;
-			LC.ShadowBias = 0.00005f;
+			LC.ShadowBias = 0.00001f;
 			LC.ShadowMapCount = 1;
 			m_pShaderMan->configShader(LC);
 
@@ -354,8 +358,8 @@ namespace CForge {
 			M.clear();
 		}//initGroundPlane
 
-		void drawHelpTexts(void) {
-			Vector2f Position = Vector2f(5.0f, 5.0f);
+		void drawHelpTexts(Eigen::Vector2f Offset = Vector2f::Zero()) {
+			Vector2f Position = Vector2f(5.0f, 5.0f) + Offset;
 			for (auto i : m_HelpTexts) {
 				if (nullptr == i) continue;
 				i->position(Position);

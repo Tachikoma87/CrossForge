@@ -43,18 +43,19 @@ namespace CForge {
 
 			initWindowAndRenderDevice();
 			initCameraAndLights();
+			initSkybox();
+			initFPSLabel();
+
+			// build scene graph			
+			m_RootSGN.init(nullptr);
+			m_SG.init(&m_RootSGN);
+
+			initGroundPlane(&m_RootSGN, 100.0f, 20.0f);
 
 			// load skydome and a textured cube
 			T3DMesh<float> M;
 			
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.gltf", &M);
-			setMeshShader(&M, 0.8f, 0.04f);
-			M.computePerVertexNormals();
-			m_Skydome.init(&M);
-			M.clear();
-
-
-
+			
 			// load face model
 			SAssetIO::load("Assets/ExampleScenes/FaceGenMale/MaleFace.obj", &M);
 			setMeshShader(&M, 0.5f, 0.04f);
@@ -68,22 +69,23 @@ namespace CForge {
 			m_Face.init(&M, &m_MTController);
 			M.clear();
 
-			// build scene graph			
-			m_RootSGN.init(nullptr);
-			m_SG.init(&m_RootSGN);
-
-			// add skydome		
-			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
-			m_SkydomeSGN.scale(Vector3f(50.0f, 50.0f, 50.0f));
-
 			// add cube		
 			m_FaceTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
 			m_FaceSGN.init(&m_FaceTransformSGN, &m_Face);
 			m_FaceSGN.scale(Vector3f(0.01f, 0.01f, 0.01f));
 
-			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CForgeUtility::timestamp();
-			int32_t FPSCount = 0;
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			LineOfText* pAnimationControl = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement:(Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
+			pAnimationControl->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "0: Play random morph target animation | 1 - 8: Play specific morph target animation | Shift + Number: Fast animation | Ctrl + Number: Slow animation");
+			m_HelpTexts.push_back(pKeybindings);
+			m_HelpTexts.push_back(pAnimationControl);
+			pKeybindings->color(0.0f, 0.0f, 0.0f, 1.0f);
+			pAnimationControl->color(0.0f, 0.0f, 0.0f, 1.0f);
+			m_DrawHelpTexts = true;
+
+			m_Cam.position(Vector3f(0.0f, 2.8f, 4.5f));
 
 			std::string GLError = "";
 			CForgeUtility::checkGLError(&GLError);
@@ -100,20 +102,21 @@ namespace CForge {
 
 			m_RenderWin.update();
 			m_SG.update(60.0f / m_FPS);
+			m_SkyboxSG.update(60.0f / m_FPS);
 
-			// progres morph target animations
+			// progress morph target animations
 			m_MTController.update(60.0f/m_FPS);
 
 			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 			Keyboard* pKeyboard = m_RenderWin.keyboard();
 
-			// if one of key 1 through 5 is pressed, animation played
+			// if one of key 1 through 8 is pressed, animation played
 			// key 0 is wildcard playing a random animation
 
 			int32_t PlayMTAnimation = -1;
-			float MTAnimationSpeed = 1.0f;
-			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) MTAnimationSpeed = 3.0f;
-			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) MTAnimationSpeed = 6.0f;
+			float MTAnimationSpeed = 2.0f;
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) MTAnimationSpeed *= 2.0f;
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) MTAnimationSpeed /= 2.0f;
 
 			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) PlayMTAnimation = 0;
 			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) PlayMTAnimation = 1;
@@ -139,8 +142,11 @@ namespace CForge {
 			m_RenderDev.activeCamera(&m_Cam);
 			m_SG.render(&m_RenderDev);
 
-
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
+			m_SkyboxSG.render(&m_RenderDev);
+			if (m_FPSLabelActive) m_FPSLabel.render(&m_RenderDev);
+			if (m_DrawHelpTexts) drawHelpTexts();
 
 			m_RenderWin.swapBuffers();
 
