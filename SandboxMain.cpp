@@ -46,12 +46,12 @@ using namespace Eigen;
 //#define ActiveScene ExampleMultiViewport
 //#define ActiveScene ExampleSceneGraph
 //#define ActiveScene ExampleSkeletalAnimation
-//#define ActiveScene ExampleSkybox
+#define ActiveScene ExampleSkybox
 //#define ActiveScene ExampleSocket
 
 
 //#define ActiveScene ImuInputDeviceTestScene	 
-#define ActiveScene SkelAnimTestScene
+//#define ActiveScene SkelAnimTestScene
 //#define ActiveScene SurfaceSamplerTestScene
 //#define ActiveScene ForwardTestScene
 //#define ActiveScene PrimitiveFactoryTestScene
