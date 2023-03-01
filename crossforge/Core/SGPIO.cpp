@@ -1,7 +1,7 @@
 
 #if defined(__EMSCRIPTEN__)
 
-#elif defined(__linux__)
+#elif defined(__linux__) && defined(__arm__)
 //#include <gpiod.h>
 //#include <pigpio.h>
 #include <fcntl.h>
@@ -117,7 +117,7 @@ namespace CForge {
 		m_Lines.clear();
 	}//clear
 
-#elif defined(__linux__)
+#elif defined(__linux__) && defined(__arm__)
 
 	void SGPIO::pinMode(uint8_t Pin, int8_t Mode, int8_t DefaultOutput) {
 		if (nullptr == m_pInstance) throw NotInitializedExcept("GPIO not properly initialized!");

@@ -33,6 +33,7 @@
 #include "Prototypes/TestScenes/StickFigureTestScene.hpp"
 #include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
 #include "Prototypes/TestScenes/GUITestScene.hpp"
+#include "Prototypes/TestScenes/ImGUITestScene.hpp"
 
 
 
@@ -45,9 +46,9 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkybox
 //#define ActiveScene ExampleTextRendering
 //#define ActiveScene ExampleShapesAndMaterials
-#define ActiveScene ExampleLighting
+//#define ActiveScene ExampleLighting
 //#define ActiveScene ExampleSceneGraph
-//#define ActiveScene ExampleSkeletalAnimation
+#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
 
@@ -61,6 +62,7 @@ using namespace Eigen;
 //#define ActiveScene FrustumCullingTestScene
 //#define ActiveScene StickFigureTestScene
 //#define ActiveScene AssetGLTFTestScene
+//#define ActiveScene ImGUITestScene
 
 
 ActiveScene* pScene = nullptr;
@@ -87,7 +89,7 @@ int main(int argc, char* argv[]) {
 #endif
 	}
 	catch (const CrossForgeException & e) {
-		printf("Exception occurred during initialization. See Log.");
+		printf("Exception occurred during initialization. See Log. %s\n", e.msg().c_str());
 		SLogger::logException(e);
 		if (nullptr != pDev) pDev->release();
 		pDev = nullptr;
@@ -112,7 +114,7 @@ int main(int argc, char* argv[]) {
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
-		printf("Exception occurred. See Log.");
+		printf("Exception occurred. See Log. \n %s\n", e.msg().c_str());
 	}
 	catch (...) {
 		printf("A not handled exception occurred!\n");

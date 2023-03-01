@@ -82,10 +82,10 @@ namespace CForge {
 		m_pFontMan = SFontManager::instance();
 
 
-#if defined(_WIN32) || defined(__EMSCRIPTEN__)
-		m_pGPIO = nullptr;
+#if defined(__linux_) && defined(__arm__)
+		m_pGPIO = SGPIO::instance();;
 #else
-		m_pGPIO = SGPIO::instance();
+		m_pGPIO = nullptr;
 #endif
 
 		

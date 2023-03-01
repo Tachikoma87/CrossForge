@@ -48,6 +48,7 @@ if(EMSCRIPTEN)
 else()
 # Additional packages not alreday included in the core library
 FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
+FIND_PACKAGE(imgui CONFIG REQUIRED) # dear-imgui
 endif()
 
 
@@ -87,6 +88,8 @@ add_executable(CForgeSandbox
 
 	Prototypes/Graphics/GLRenderbuffer.cpp
 
+	Prototypes/ImGuiUtility.cpp
+
 	# GUI
 #	Prototypes/GUI/Font.cpp
 #	Prototypes/GUI/GUI.cpp
@@ -123,18 +126,30 @@ elseif(WIN32)
 	PRIVATE glad::glad
 	ws2_32
 	PRIVATE tinyxml2::tinyxml2
+	PRIVATE imgui::imgui
 	${FREETYPE_LIBRARIES}
 
 	)
 	
+elseif(__arm__)
+	target_link_libraries(CForgeSandbox 
+		PRIVATE crossforge
+		PRIVATE glfw
+		PRIVATE glad::glad
+		PRIVATE tinyxml2::tinyxml2
+		PRIVATE imgui::imgui
+#		PRIVATE assimp
+		PRIVATE gpiod
+		PRIVATE dl	
+		)
 elseif(UNIX)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
 		PRIVATE glfw
 		PRIVATE glad::glad
 		PRIVATE tinyxml2::tinyxml2
+		PRIVATE imgui::imgui
 #		PRIVATE assimp
-		PRIVATE gpiod
 		PRIVATE dl	
 		)
 endif()
