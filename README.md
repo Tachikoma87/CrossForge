@@ -1,5 +1,5 @@
 
-CrossForge: Your tool for cross-platform 3D-Apps
+CrossForge: Your research and education tool for cross-platform 3D-Apps
 ========================
 
 <!-- {#mainpage} Add this after the first section label to make Doxygen recognize this page as mainpage-->
