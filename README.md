@@ -105,14 +105,22 @@ To test the created website you will need a local webserver. You can create one 
 # How to cite:
 
     @misc{CForge,
-        title={CrossForge: A Framework for Building Cross-Platform 3D Applications},
+        title={CrossForge: A Cross-Platform 3D Visualization and Animation Framework for Research and Education in Computer Graphics},
         author={Tom Uhlmann and Contributors},
         year = {2020-2023},
         howpublished = {https://github.com/Tachikoma87/CrossForge},
     }
 
-# Credits
+# Acknowledgment
+<table style="margin-left:auto;margin-right:auto">
+    <tr>
+        <td><img href="https://hybrid-societies.org/" src="Documentation/Images/Logo_HybridSocieties.webp" height="150p"/></td>
+        <td><img href="https://www.tu-chemnitz.de/" src="Documentation/Images/LogoTUChemnitz.webp" height="150p" /></td>
+    </tr>
+</table>
+This project was originally developed at Chemnitz University of Technology and funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) – Project-ID 416228727 – CRC 1410.
 
+# Credits
 + Logo-Background: <a href="https://www.freepik.com/free-vector/burst-effect-with-falling-fire-sparks_30800556.htm#query=blacksmith&position=39&from_view=search&track=sph">Image by upklyak</a> on Freepik
 + Default Fonts by Google Fonts <a href="https://fonts.google.com/">https://fonts.google.com/</a>
 + PRR materials from ambientCG: <a href="https://ambientcg.com/">https://ambientcg.com/</a>
