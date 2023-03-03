@@ -10,7 +10,7 @@ using namespace std::experimental;
 #endif
 #include <vector>
 
-const std::string RootSrcDir = "../../../CForge/";
+const std::string RootSrcDir = "../../../crossforge/";
 const std::string RootBinDir = "../";
 const std::string RootExportDir = "../../";
 
@@ -76,7 +76,6 @@ void exportLibrary(void) {
 	Directories.push_back("crossforge/include/crossforge/Core");
 	IncludeFiles.push_back("Core/CForgeObject.h");
 	IncludeFiles.push_back("Core/CoreDefinitions.h");
-	IncludeFiles.push_back("Core/CoreUtility.hpp");
 	IncludeFiles.push_back("Core/CrossForgeException.h");
 	IncludeFiles.push_back("Core/ITCaller.hpp");
 	IncludeFiles.push_back("Core/ITListener.hpp");
@@ -101,7 +100,7 @@ void exportLibrary(void) {
 	IncludeFiles.push_back("Graphics/GLTexture2D.h");
 	IncludeFiles.push_back("Graphics/GLVertexArray.h");
 	IncludeFiles.push_back("Graphics/GLWindow.h");
-	IncludeFiles.push_back("Graphics/GraphicsUtility.h");
+	IncludeFiles.push_back("Graphics/OpenGLHeader.h");
 	IncludeFiles.push_back("Graphics/RenderDevice.h");
 	IncludeFiles.push_back("Graphics/RenderMaterial.h");
 	IncludeFiles.push_back("Graphics/STextureManager.h");
@@ -127,6 +126,12 @@ void exportLibrary(void) {
 	Directories.push_back("crossforge/include/crossforge/Graphics/Controller/");
 	IncludeFiles.push_back("Graphics/Controller/MorphTargetAnimationController.h");
 	IncludeFiles.push_back("Graphics/Controller/SkeletalAnimationController.h");
+
+	// Graphics/Font
+	Directories.push_back("crossforge/include/crossforge/Graphics/Font/");
+	IncludeFiles.push_back("Graphics/Font/Font.h");
+	IncludeFiles.push_back("Graphics/Font/LineOfText.h");
+	IncludeFiles.push_back("Graphics/Font/SFontManager.h");
 
 	// Graphics/Lights
 	Directories.push_back("crossforge/include/crossforge/Graphics/Lights/");
@@ -157,25 +162,7 @@ void exportLibrary(void) {
 	IncludeFiles.push_back("Graphics/UniformBUfferObjects/UBOMaterialData.h");
 	IncludeFiles.push_back("Graphics/UniformBufferObjects/UBOModelData.h");
 	IncludeFiles.push_back("Graphics/UniformBufferObjects/UBOMorphTargetData.h");
-
-	// GUI
-	Directories.push_back("crossforge/include/crossforge/GUI/");
-	IncludeFiles.push_back("GUI/Font.h");
-	IncludeFiles.push_back("GUI/GUI.h");
-	IncludeFiles.push_back("GUI/GUIDefaults.h");
-	IncludeFiles.push_back("GUI/Widget.h");
-	IncludeFiles.push_back("GUI/WidgetBackground.h");
-
-	// GUI/Widgets
-	Directories.push_back("crossforge/include/crossforge/GUI/Widgets/");
-	IncludeFiles.push_back("GUI/Widgets/Form.h");
-	IncludeFiles.push_back("GUI/Widgets/InputCheckbox.h");
-	IncludeFiles.push_back("GUI/Widgets/InputDropDown.h");
-	IncludeFiles.push_back("GUI/Widgets/InputNumber.h");
-	IncludeFiles.push_back("GUI/Widgets/InputSlider.h");
-	IncludeFiles.push_back("GUI/Widgets/InputText.h");
-	IncludeFiles.push_back("GUI/Widgets/Label.h");
-	IncludeFiles.push_back("GUI/Widgets/Window.h");
+	IncludeFiles.push_back("Graphics/UniformBufferObjects/UBOTextData.h");
 
 	// Input
 	Directories.push_back("crossforge/include/crossforge/Input/");
@@ -192,16 +179,21 @@ void exportLibrary(void) {
 	Directories.push_back("crossforge/include/crossforge/Math/");
 	IncludeFiles.push_back("Math/BoundingVolume.h");
 	IncludeFiles.push_back("Math/Box.hpp");
+	IncludeFiles.push_back("Math/CForgeMath.h");
 	IncludeFiles.push_back("Math/Plane.hpp");
 	IncludeFiles.push_back("Math/Sphere.hpp");
 	
 	// Mesh Processing
 	Directories.push_back("crossforge/include/crossforge/MeshProcessing/");
+	IncludeFiles.push_back("MeshProcessing/PrimitiveShapeFactory.h");
 
 	// Mesh Processing/Builder
 	Directories.push_back("crossforge/include/crossforge/MeshProcessing/Builder/");
 	IncludeFiles.push_back("MeshProcessing/Builder/MorphTargetModelBuilder.h");
 
+	// GUI
+	Directories.push_back("crossforge/include/crossforge/Utility/");
+	IncludeFiles.push_back("Utility/CForgeUtility.h");
 
 
 	// binary files

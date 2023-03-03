@@ -33,9 +33,16 @@ set(PMP_BUILD_VIS OFF CACHE INTERNAL "Build the PMP visualization tools")
 set(PMP_INSTALL OFF CACHE INTERNAL "Install the PMP library and headers")
 ]]
 
-if(EMSCRIPTEN)
-	include(FetchContent)
+include(FetchContent)
+FetchContent_Declare(
+	stb 
+	GIT_REPOSITORY https://github.com/nothings/stb.git
+)
+FetchContent_MakeAvailable(stb)
+include_directories(${stb_SOURCE_DIR})
 
+
+if(EMSCRIPTEN)
 	### Eigen3
 	FetchContent_Declare(
 		eigen3 
@@ -108,6 +115,7 @@ else()
 
 endif()
 
+
 if(USE_OPENCV)
 	FIND_PACKAGE(OpenCV CONFIG REQUIRED)	# Open computer vision library
 	include_directories(
@@ -120,7 +128,6 @@ else()
 endif(USE_OPENCV)
 
 include_directories(
-	"Thirdparty/stb/"
 	"./"
 )
 
@@ -267,8 +274,7 @@ target_link_libraries(crossforge
 	${OpenCV_LIBS}
 	#	pmp # not used yet
 	)
-
-elseif(UNIX)
+elseif(__arm__)
 	add_compile_definitions(USE_SYSFS_GPIO)
 	target_link_libraries(crossforge 
 	PRIVATE Eigen3::Eigen
@@ -284,6 +290,22 @@ elseif(UNIX)
 #	${OpenCV_LIBS}
 
 	PRIVATE gpiod 
+	PRIVATE stdc++fs
+	)
+elseif(UNIX)
+
+	target_link_libraries(crossforge 
+	PRIVATE Eigen3::Eigen
+	PRIVATE glfw
+	PRIVATE glad::glad
+	PRIVATE assimp::assimp
+	PRIVATE igl::core 
+	PRIVATE igl::common
+	PRIVATE WebP::webp 
+	PRIVATE WebP::webpdecoder
+	${FREETYPE_LIBRARIES}	# for Text rendering
+	freetype
+#	${OpenCV_LIBS}
 	PRIVATE stdc++fs
 	)
 endif()

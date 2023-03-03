@@ -19,7 +19,7 @@
 
 #if defined(__EMSCRIPTEN__)
 
-#elif defined(__unix__)
+#elif defined(__unix__) && defined(__arm__)
 #include <gpiod.h>
 #endif
 

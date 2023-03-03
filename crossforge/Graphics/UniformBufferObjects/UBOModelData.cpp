@@ -44,7 +44,7 @@ namespace CForge {
 	}//modelMatrix
 
 	void UBOModelData::normalMatrix(Eigen::Matrix4f Mat) {
-		m_Buffer.bufferSubData(m_NormalMatrixOffset, 12 * sizeof(float), Mat.block<4,3>(0,0).data());
+		m_Buffer.bufferSubData(m_NormalMatrixOffset, 12 * sizeof(float), Mat.block<3,4>(0,0).data());
 	}//normalMatrix
 
 }//name space
