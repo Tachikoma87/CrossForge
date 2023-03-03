@@ -1,7 +1,7 @@
 #include "LODHandler.h"
-#include "../../crossforge/Core/SLogger.h"
+#include <crossforge/Core/SLogger.h>
 #include <tinyxml2.h>
-#include "../crossforge/AssetIO/SAssetIO.h"
+#include <crossforge/AssetIO/SAssetIO.h>
 #include "MeshDecimate.h"
 //#include "Examples/SceneUtilities.hpp"
 

@@ -33,9 +33,16 @@ set(PMP_BUILD_VIS OFF CACHE INTERNAL "Build the PMP visualization tools")
 set(PMP_INSTALL OFF CACHE INTERNAL "Install the PMP library and headers")
 ]]
 
-if(EMSCRIPTEN)
-	include(FetchContent)
+include(FetchContent)
+FetchContent_Declare(
+	stb 
+	GIT_REPOSITORY https://github.com/nothings/stb.git
+)
+FetchContent_MakeAvailable(stb)
+include_directories(${stb_SOURCE_DIR})
 
+
+if(EMSCRIPTEN)
 	### Eigen3
 	FetchContent_Declare(
 		eigen3 
@@ -121,7 +128,6 @@ else()
 endif(USE_OPENCV)
 
 include_directories(
-	"Thirdparty/stb/"
 	"./"
 )
 
