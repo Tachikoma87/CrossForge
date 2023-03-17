@@ -134,8 +134,7 @@ namespace CForge {
 			
 			// add planets
 			m_SolarsystemSGN.init(&m_RootSGN, Vector3f(0.0f, 2.0f, 0.0f));
-			m_SunTransformSGN.init(&m_SolarsystemSGN);
-			m_SunSGN.init(&m_SunTransformSGN, &m_SunBody, Vector3f(-0.7f, -0.7f, -0.7f));
+			m_SunSGN.init(&m_SolarsystemSGN, &m_SunBody);
 			m_SunSGN.scale(Vector3f(0.7f, 0.7f, 0.7f));
 
 
@@ -185,7 +184,7 @@ namespace CForge {
 
 			// Moon
 			m_MoonOrbitSGN.init(&m_EarthTranslateSGN);
-			m_MoonTransformSGN.init(&m_MoonOrbitSGN, Vector3f(0.2f, 0.2f, 0.0f));
+			m_MoonTransformSGN.init(&m_MoonOrbitSGN, Vector3f(0.3f, 0.0f, 0.0f));
 			m_MoonSGN.init(&m_MoonTransformSGN, &m_Moon);
 			m_MoonSGN.scale(Vector3f(0.04f, 0.04f, 0.04f));
 
@@ -317,7 +316,6 @@ namespace CForge {
 		SGNTransformation m_SolarsystemSGN;
 
 		SGNGeometry m_SunSGN;
-		SGNTransformation m_SunTransformSGN;
 		SGNGeometry m_MerkurSGN;
 		SGNTransformation m_MerkurOrbitSGN;
 		SGNTransformation m_MerkurTransformSGN;
