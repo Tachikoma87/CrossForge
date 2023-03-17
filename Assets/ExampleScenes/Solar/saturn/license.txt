@@ -1,11 +1,11 @@
 Model Information:
-* title:	Saturno v1.1
-* source:	https://sketchfab.com/3d-models/saturno-v11-5d546029721640a9ac332fb68b959e49
-* author:	uperesito (https://sketchfab.com/uperesito)
+* title:	Saturn
+* source:	https://sketchfab.com/3d-models/saturn-17b34b975dc3449da83f2ee7802004f3
+* author:	Freemodels (https://sketchfab.com/vivaanarora9)
 
 Model License:
 * license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 * requirements:	Author must be credited. Commercial use is allowed.
 
 If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
-This work is based on "Saturno v1.1" (https://sketchfab.com/3d-models/saturno-v11-5d546029721640a9ac332fb68b959e49) by uperesito (https://sketchfab.com/uperesito) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+This work is based on "Saturn" (https://sketchfab.com/3d-models/saturn-17b34b975dc3449da83f2ee7802004f3) by Freemodels (https://sketchfab.com/vivaanarora9) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
