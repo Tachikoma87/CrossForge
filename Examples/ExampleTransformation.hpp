@@ -82,6 +82,12 @@ namespace CForge {
 			m_Earth.init(&M);
 			M.clear();
 
+			SAssetIO::load("Assets/ExampleScenes/Solar/moon/scene.gltf", &M);
+			setMeshShader(&M, 0.4f, 0.02f);
+			M.computePerVertexNormals();
+			m_Moon.init(&M);
+			M.clear();
+
 			SAssetIO::load("Assets/ExampleScenes/Solar/mars/scene.gltf", &M);
 			setMeshShader(&M, 0.4f, 0.02f);
 			M.computePerVertexNormals();
@@ -112,6 +118,7 @@ namespace CForge {
 			m_Neptune.init(&M);
 			M.clear();
 
+
 			// build scene graph
 			m_RootSGN.init(nullptr);
 			m_SG.init(&m_RootSGN);
@@ -127,14 +134,14 @@ namespace CForge {
 			
 			// add planets
 			m_SolarsystemSGN.init(&m_RootSGN, Vector3f(0.0f, 2.0f, 0.0f));
-
-			m_SunSGN.init(&m_SolarsystemSGN, &m_SunBody);
+			m_SunTransformSGN.init(&m_SolarsystemSGN);
+			m_SunSGN.init(&m_SunTransformSGN, &m_SunBody, Vector3f(-0.7f, -0.7f, -0.7f));
 			m_SunSGN.scale(Vector3f(0.7f, 0.7f, 0.7f));
 
 
 			// Merkur
 			m_MerkurOrbitSGN.init(&m_SolarsystemSGN);
-			m_MerkurTransformSGN.init(&m_MerkurOrbitSGN, Vector3f(1.5f, 0.0f, 0.0f));
+			m_MerkurTransformSGN.init(&m_MerkurOrbitSGN, Vector3f(2.0f, 0.0f, 0.0f));
 			m_MerkurSGN.init(&m_MerkurTransformSGN, &m_Merkur);
 			m_MerkurSGN.scale(Vector3f(0.1f, 0.1f, 0.1f));
 
@@ -149,7 +156,7 @@ namespace CForge {
 
 			// Venus
 			m_VenusOrbitSGN.init(&m_SolarsystemSGN);
-			m_VenusTransformSGN.init(&m_VenusOrbitSGN, Vector3f(2.0f, 0.0f, 0.0f));
+			m_VenusTransformSGN.init(&m_VenusOrbitSGN, Vector3f(2.8f, 0.0f, 0.0f));
 			m_VenusSGN.init(&m_VenusTransformSGN, &m_Venus);
 			m_VenusSGN.scale(Vector3f(0.2f, 0.2f, 0.2f));
 
@@ -163,8 +170,9 @@ namespace CForge {
 
 			// Earth
 			m_EarthOrbitSGN.init(&m_SolarsystemSGN);
-			m_EarthTransformSGN.init(&m_EarthOrbitSGN, Vector3f(2.5f, 0.0f, 0.0f));
-			m_EarthSGN.init(&m_EarthTransformSGN, &m_Earth);
+			m_EarthTranslateSGN.init(&m_EarthOrbitSGN, Vector3f(3.6f, 0.0f, 0.0f));
+			m_EarthRotationSGN.init(&m_EarthTranslateSGN);
+			m_EarthSGN.init(&m_EarthRotationSGN, &m_Earth);
 			m_EarthSGN.scale(Vector3f(0.2f, 0.2f, 0.2f));
 
 			// orbiting
@@ -173,11 +181,22 @@ namespace CForge {
 
 			// rotation
 			R = AngleAxisf(CForgeMath::degToRad(45.0f / 120.0f), Vector3f::UnitY());
-			m_EarthTransformSGN.rotationDelta(R);
+			m_EarthRotationSGN.rotationDelta(R);
+
+			// Moon
+			m_MoonOrbitSGN.init(&m_EarthTranslateSGN);
+			m_MoonTransformSGN.init(&m_MoonOrbitSGN, Vector3f(0.2f, 0.2f, 0.0f));
+			m_MoonSGN.init(&m_MoonTransformSGN, &m_Moon);
+			m_MoonSGN.scale(Vector3f(0.04f, 0.04f, 0.04f));
+
+			// orbiting
+			R = AngleAxisf(CForgeMath::degToRad(120.0f / 120.0f), Vector3f::UnitY());
+			m_MoonOrbitSGN.rotationDelta(R);
+
 
 			// Mars
 			m_MarsOrbitSGN.init(&m_SolarsystemSGN);
-			m_MarsTransformSGN.init(&m_MarsOrbitSGN, Vector3f(3.2f, 0.0f, 0.0f));
+			m_MarsTransformSGN.init(&m_MarsOrbitSGN, Vector3f(4.6f, 0.0f, 0.0f));
 			m_MarsSGN.init(&m_MarsTransformSGN, &m_Mars);
 			m_MarsSGN.scale(Vector3f(0.1f, 0.1f, 0.1f));
 
@@ -191,7 +210,7 @@ namespace CForge {
 
 			// Jupiter
 			m_JupiterOrbitSGN.init(&m_SolarsystemSGN);
-			m_JupiterTransformSGN.init(&m_JupiterOrbitSGN, Vector3f(4.2f, 0.0f, 0.0f));
+			m_JupiterTransformSGN.init(&m_JupiterOrbitSGN, Vector3f(5.6f, 0.0f, 0.0f));
 			m_JupiterSGN.init(&m_JupiterTransformSGN, &m_Jupiter);
 			m_JupiterSGN.scale(Vector3f(0.4f, 0.4f, 0.4f));
 
@@ -205,7 +224,7 @@ namespace CForge {
 
 			// Saturn
 			m_SaturnOrbitSGN.init(&m_SolarsystemSGN);
-			m_SaturnTransformSGN.init(&m_SaturnOrbitSGN, Vector3f(5.2f, 0.0f, 0.0f));
+			m_SaturnTransformSGN.init(&m_SaturnOrbitSGN, Vector3f(6.6f, 0.0f, 0.0f));
 			m_SaturnSGN.init(&m_SaturnTransformSGN, &m_Saturn);
 			m_SaturnSGN.scale(Vector3f(0.4f, 0.4f, 0.4f));
 
@@ -219,7 +238,7 @@ namespace CForge {
 
 			// Uranus
 			m_UranusOrbitSGN.init(&m_SolarsystemSGN);
-			m_UranusTransformSGN.init(&m_UranusOrbitSGN, Vector3f(6.4f, 0.0f, 0.0f));
+			m_UranusTransformSGN.init(&m_UranusOrbitSGN, Vector3f(7.6f, 0.0f, 0.0f));
 			m_UranusSGN.init(&m_UranusTransformSGN, &m_Uranus);
 			m_UranusSGN.scale(Vector3f(0.3f, 0.3f, 0.3f));
 
@@ -233,7 +252,7 @@ namespace CForge {
 
 			// Neptune
 			m_NeptuneOrbitSGN.init(&m_SolarsystemSGN);
-			m_NeptuneTransformSGN.init(&m_NeptuneOrbitSGN, Vector3f(7.8f, 0.0f, 0.0f));
+			m_NeptuneTransformSGN.init(&m_NeptuneOrbitSGN, Vector3f(8.8f, 0.0f, 0.0f));
 			m_NeptuneSGN.init(&m_NeptuneTransformSGN, &m_Neptune);
 			m_NeptuneSGN.scale(Vector3f(0.2f, 0.2f, 0.2f));
 
@@ -298,6 +317,7 @@ namespace CForge {
 		SGNTransformation m_SolarsystemSGN;
 
 		SGNGeometry m_SunSGN;
+		SGNTransformation m_SunTransformSGN;
 		SGNGeometry m_MerkurSGN;
 		SGNTransformation m_MerkurOrbitSGN;
 		SGNTransformation m_MerkurTransformSGN;
@@ -306,7 +326,11 @@ namespace CForge {
 		SGNTransformation m_VenusTransformSGN;
 		SGNGeometry m_EarthSGN;
 		SGNTransformation m_EarthOrbitSGN;
-		SGNTransformation m_EarthTransformSGN;
+		SGNTransformation m_EarthRotationSGN;
+		SGNTransformation m_EarthTranslateSGN;
+		SGNGeometry m_MoonSGN;
+		SGNTransformation m_MoonTransformSGN;
+		SGNTransformation m_MoonOrbitSGN;
 		SGNGeometry m_MarsSGN;
 		SGNTransformation m_MarsOrbitSGN;
 		SGNTransformation m_MarsTransformSGN;
@@ -329,6 +353,7 @@ namespace CForge {
 		StaticActor m_Merkur;
 		StaticActor m_Venus;
 		StaticActor m_Earth;
+		StaticActor m_Moon;
 		StaticActor m_Mars;
 		StaticActor m_Jupiter;
 		StaticActor m_Saturn;
