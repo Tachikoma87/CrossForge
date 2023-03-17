@@ -1,0 +1,11 @@
+Model Information:
+* title:	Neptune
+* source:	https://sketchfab.com/3d-models/neptune-8c6dc96f47ab4d798a1cb2d827da3fbe
+* author:	kongle (https://sketchfab.com/minecraftnorge)
+
+Model License:
+* license type:	CC-BY-SA-4.0 (http://creativecommons.org/licenses/by-sa/4.0/)
+* requirements:	Author must be credited. Modified versions must have the same license. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Neptune" (https://sketchfab.com/3d-models/neptune-8c6dc96f47ab4d798a1cb2d827da3fbe) by kongle (https://sketchfab.com/minecraftnorge) licensed under CC-BY-SA-4.0 (http://creativecommons.org/licenses/by-sa/4.0/)

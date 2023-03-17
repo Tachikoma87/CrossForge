@@ -1,0 +1,11 @@
+Model Information:
+* title:	Venus
+* source:	https://sketchfab.com/3d-models/venus-b306aaadbf2b4fcea1afa2db5ed75b4f
+* author:	kongle (https://sketchfab.com/minecraftnorge)
+
+Model License:
+* license type:	CC-BY-SA-4.0 (http://creativecommons.org/licenses/by-sa/4.0/)
+* requirements:	Author must be credited. Modified versions must have the same license. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Venus" (https://sketchfab.com/3d-models/venus-b306aaadbf2b4fcea1afa2db5ed75b4f) by kongle (https://sketchfab.com/minecraftnorge) licensed under CC-BY-SA-4.0 (http://creativecommons.org/licenses/by-sa/4.0/)

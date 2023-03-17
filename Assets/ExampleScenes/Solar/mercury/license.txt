@@ -1,0 +1,11 @@
+Model Information:
+* title:	Mercury
+* source:	https://sketchfab.com/3d-models/mercury-0930a4f0405243f6a9f93a4da79c66b6
+* author:	Mieke Roth (https://sketchfab.com/miekeroth)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Mercury" (https://sketchfab.com/3d-models/mercury-0930a4f0405243f6a9f93a4da79c66b6) by Mieke Roth (https://sketchfab.com/miekeroth) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
