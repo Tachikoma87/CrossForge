@@ -31,15 +31,13 @@ namespace CForge {
 	public:
 		ExampleTransformation(void) {
 			m_WindowTitle = "CrossForge Example - Transformation";
-			m_WinWidth = 1280;
-			m_WinHeight = 720;
 		}//Constructor
 
 		~ExampleTransformation(void) {
 			clear();
 		}//Destructor
 
-		void init() {
+		void init() override {
 
 			initWindowAndRenderDevice();
 			initCameraAndLights();
@@ -131,14 +129,14 @@ namespace CForge {
 			m_SolarsystemSGN.init(&m_RootSGN, Vector3f(0.0f, 2.0f, 0.0f));
 
 			m_SunSGN.init(&m_SolarsystemSGN, &m_SunBody);
-			m_SunSGN.scale(Vector3f(0.001f, 0.001f, 0.001f));
+			m_SunSGN.scale(Vector3f(0.7f, 0.7f, 0.7f));
 
 
 			// Merkur
 			m_MerkurOrbitSGN.init(&m_SolarsystemSGN);
 			m_MerkurTransformSGN.init(&m_MerkurOrbitSGN, Vector3f(1.5f, 0.0f, 0.0f));
 			m_MerkurSGN.init(&m_MerkurTransformSGN, &m_Merkur);
-			m_MerkurSGN.scale(Vector3f(0.003f, 0.003f, 0.003f));
+			m_MerkurSGN.scale(Vector3f(0.1f, 0.1f, 0.1f));
 
 			// orbiting
 			Quaternionf R;
@@ -153,7 +151,7 @@ namespace CForge {
 			m_VenusOrbitSGN.init(&m_SolarsystemSGN);
 			m_VenusTransformSGN.init(&m_VenusOrbitSGN, Vector3f(2.0f, 0.0f, 0.0f));
 			m_VenusSGN.init(&m_VenusTransformSGN, &m_Venus);
-			m_VenusSGN.scale(Vector3f(0.003f, 0.003f, 0.003f));
+			m_VenusSGN.scale(Vector3f(0.2f, 0.2f, 0.2f));
 
 			// orbiting
 			R = AngleAxisf(CForgeMath::degToRad(42.0f / 120.0f), Vector3f::UnitY());
@@ -167,7 +165,7 @@ namespace CForge {
 			m_EarthOrbitSGN.init(&m_SolarsystemSGN);
 			m_EarthTransformSGN.init(&m_EarthOrbitSGN, Vector3f(2.5f, 0.0f, 0.0f));
 			m_EarthSGN.init(&m_EarthTransformSGN, &m_Earth);
-			m_EarthSGN.scale(Vector3f(0.3f, 0.3f, 0.3f));
+			m_EarthSGN.scale(Vector3f(0.2f, 0.2f, 0.2f));
 
 			// orbiting
 			R = AngleAxisf(CForgeMath::degToRad(40.0f / 120.0f), Vector3f::UnitY());
@@ -181,7 +179,7 @@ namespace CForge {
 			m_MarsOrbitSGN.init(&m_SolarsystemSGN);
 			m_MarsTransformSGN.init(&m_MarsOrbitSGN, Vector3f(3.2f, 0.0f, 0.0f));
 			m_MarsSGN.init(&m_MarsTransformSGN, &m_Mars);
-			m_MarsSGN.scale(Vector3f(0.003f, 0.003f, 0.003f));
+			m_MarsSGN.scale(Vector3f(0.1f, 0.1f, 0.1f));
 
 			// orbiting
 			R = AngleAxisf(CForgeMath::degToRad(36.0f / 120.0f), Vector3f::UnitY());
@@ -195,7 +193,7 @@ namespace CForge {
 			m_JupiterOrbitSGN.init(&m_SolarsystemSGN);
 			m_JupiterTransformSGN.init(&m_JupiterOrbitSGN, Vector3f(4.2f, 0.0f, 0.0f));
 			m_JupiterSGN.init(&m_JupiterTransformSGN, &m_Jupiter);
-			m_JupiterSGN.scale(Vector3f(0.003f, 0.003f, 0.003f));
+			m_JupiterSGN.scale(Vector3f(0.4f, 0.4f, 0.4f));
 
 			// orbiting
 			R = AngleAxisf(CForgeMath::degToRad(30.0f / 120.0f), Vector3f::UnitY());
@@ -209,7 +207,7 @@ namespace CForge {
 			m_SaturnOrbitSGN.init(&m_SolarsystemSGN);
 			m_SaturnTransformSGN.init(&m_SaturnOrbitSGN, Vector3f(5.2f, 0.0f, 0.0f));
 			m_SaturnSGN.init(&m_SaturnTransformSGN, &m_Saturn);
-			m_SaturnSGN.scale(Vector3f(0.003f, 0.003f, 0.003f));
+			m_SaturnSGN.scale(Vector3f(0.4f, 0.4f, 0.4f));
 
 			// orbiting
 			R = AngleAxisf(CForgeMath::degToRad(27.0f / 120.0f), Vector3f::UnitY());
@@ -223,7 +221,7 @@ namespace CForge {
 			m_UranusOrbitSGN.init(&m_SolarsystemSGN);
 			m_UranusTransformSGN.init(&m_UranusOrbitSGN, Vector3f(6.4f, 0.0f, 0.0f));
 			m_UranusSGN.init(&m_UranusTransformSGN, &m_Uranus);
-			m_UranusSGN.scale(Vector3f(0.003f, 0.003f, 0.003f));
+			m_UranusSGN.scale(Vector3f(0.3f, 0.3f, 0.3f));
 
 			// orbiting
 			R = AngleAxisf(CForgeMath::degToRad(22.0f / 120.0f), Vector3f::UnitY());
@@ -237,7 +235,7 @@ namespace CForge {
 			m_NeptuneOrbitSGN.init(&m_SolarsystemSGN);
 			m_NeptuneTransformSGN.init(&m_NeptuneOrbitSGN, Vector3f(7.8f, 0.0f, 0.0f));
 			m_NeptuneSGN.init(&m_NeptuneTransformSGN, &m_Neptune);
-			m_NeptuneSGN.scale(Vector3f(0.003f, 0.003f, 0.003f));
+			m_NeptuneSGN.scale(Vector3f(0.2f, 0.2f, 0.2f));
 
 			// orbiting
 			R = AngleAxisf(CForgeMath::degToRad(19.0f / 120.0f), Vector3f::UnitY());
@@ -257,13 +255,11 @@ namespace CForge {
 
 		}//initialize
 
-		void clear(void) {
-			m_RenderWin.stopListening(this);
-			if (nullptr != m_pShaderMan) m_pShaderMan->release();
-			m_pShaderMan = nullptr;
+		void clear(void) override {
+			ExampleSceneBase::clear();
 		}//clear
 
-		void mainloop(void) {
+		void mainLoop(void) override {
 			while (!m_RenderWin.shutdown()) {
 				m_RenderWin.update();
 				m_SG.update(60.0f / m_FPS);
