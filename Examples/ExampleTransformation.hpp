@@ -54,7 +54,7 @@ namespace CForge {
 			m_EmptySpace.push_back("Assets/ExampleScenes/skybox/vz_empty_space_front.png");
 
 
-			m_SpaceSkybox.init(m_EmptySpace[0], m_EmptySpace[1], m_EmptySpace[2], m_EmptySpace[3], m_EmptySpace[4], m_EmptySpace[5]);
+			m_Skybox.init(m_EmptySpace[0], m_EmptySpace[1], m_EmptySpace[2], m_EmptySpace[3], m_EmptySpace[4], m_EmptySpace[5]);
 
 			T3DMesh<float> M;
 
@@ -124,13 +124,13 @@ namespace CForge {
 			m_SG.init(&m_RootSGN);
 			
 			// add skydome
-			m_SpaceSkybox.brightness(1.15f);
-			m_SpaceSkybox.contrast(1.1f);
-			m_SpaceSkybox.saturation(1.2f);
+			m_Skybox.brightness(1.15f);
+			m_Skybox.contrast(1.1f);
+			m_Skybox.saturation(1.2f);
 
-			m_SpaceSkyboxTransSGN.init(nullptr);
-			m_SpaceSkyboxSGN.init(&m_SpaceSkyboxTransSGN, &m_SpaceSkybox);
-			m_SpaceSkyboxSG.init(&m_SpaceSkyboxTransSGN);
+			m_SkyboxTransSGN.init(nullptr);
+			m_SkyboxSGN.init(&m_SkyboxTransSGN, &m_Skybox);
+			m_SkyboxSG.init(&m_SkyboxTransSGN);
 			
 			// add planets
 			m_SolarsystemSGN.init(&m_RootSGN, Vector3f(0.0f, 2.0f, 0.0f));
@@ -282,19 +282,23 @@ namespace CForge {
 				m_RenderWin.update();
 				m_SG.update(60.0f / m_FPS);
 
-				//m_SpaceSkyboxSG.update(60.0f / m_FPS);
+				//m_SkyboxSG.update(60.0f / m_FPS);
 
 				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+				m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
 				m_SG.render(&m_RenderDev);
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+				m_RenderDev.activeCamera(&m_Cam);
 				m_SG.render(&m_RenderDev);
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
-				
-				m_SpaceSkyboxSG.render(&m_RenderDev);
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
+
+				m_SkyboxSG.render(&m_RenderDev);
 
 				m_RenderWin.swapBuffers();
 
@@ -308,10 +312,10 @@ namespace CForge {
 	protected:
 
 		// Scene Graph
-		SceneGraph m_SpaceSkyboxSG;
-		SGNTransformation m_SpaceSkyboxTransSGN;
+		SceneGraph m_SkyboxSG;
+		SGNTransformation m_SkyboxTransSGN;
 		SGNTransformation m_RootSGN;
-		SGNGeometry m_SpaceSkyboxSGN;
+		SGNGeometry m_SkyboxSGN;
 
 		SGNTransformation m_SolarsystemSGN;
 
@@ -345,7 +349,7 @@ namespace CForge {
 		SGNTransformation m_NeptuneOrbitSGN;
 		SGNTransformation m_NeptuneTransformSGN;
 
-		SkyboxActor m_SpaceSkybox;
+		SkyboxActor m_Skybox;
 
 		StaticActor m_SunBody;
 		StaticActor m_Merkur;
