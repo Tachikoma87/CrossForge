@@ -46,6 +46,7 @@ namespace CForge {
 		color.clear();
 		joint.clear();
 		weight.clear();
+		primitiveIndexRanges.clear();
 
 		offsets.clear();
 

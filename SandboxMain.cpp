@@ -48,7 +48,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleShapesAndMaterials
 //#define ActiveScene ExampleLighting
 //#define ActiveScene ExampleSceneGraph
-#define ActiveScene ExampleSkeletalAnimation
+//#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
 
@@ -60,7 +60,7 @@ using namespace Eigen;
 //#define ActiveScene ForwardTestScene
 //#define ActiveScene PrimitiveFactoryTestScene
 //#define ActiveScene FrustumCullingTestScene
-//#define ActiveScene StickFigureTestScene
+#define ActiveScene StickFigureTestScene
 //#define ActiveScene AssetGLTFTestScene
 //#define ActiveScene ImGUITestScene
 
@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
 
 		if (nullptr != pScene) delete pScene;
 		pScene = nullptr;
-		//exportLibrary();
+		exportLibrary();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
