@@ -57,7 +57,8 @@ using namespace Eigen;
 using namespace std;
 
 using namespace CForge;
-#define THREADS 2
+#define THREADS 6
+#define LOD_RENDERING true // make sure to change the corresponding macro in LODActor.cpp
 
 class MuseumTestScene : public ITListener<GUICallbackObject> {
 public:
@@ -114,7 +115,7 @@ public:
 		std::string WindowTitle = "CForge - Minimum Graphics Setup";
 		float FPS = 60.0f;
 
-		bool const LowRes = false;
+		bool const LowRes = true;
 
 		uint32_t WinWidth = 1920;
 		uint32_t WinHeight = 1080;
@@ -158,6 +159,7 @@ public:
 		VirtualCamera Cam;
 		Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
 		Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+		pSLOD->setCFOV(45.0f);
 
 		// initialize sun (key lights) and back ground light (fill light)
 		Vector3f SunPos = Vector3f(-5.0f, 15.0f, 35.0f);
@@ -288,8 +290,10 @@ public:
 							LODActor** pActor = &(generationThreadActors[i]);
 							*pActor = newAct;
 							generationThreads[i] = std::thread([=] {
+#if LOD_RENDERING
 								LODHandler().loadLODmeshes(newAct, entry.path().string(), *pSLOD->getLevels(), std::vector<float>());
 								newAct->calculateLODPercentages();
+#endif
 								*done = true;
 							});
 							
@@ -305,8 +309,12 @@ public:
 		for (uint32_t i = 0; i < THREADS; i++) {
 			if (generationThreads[i].joinable()) {
 				generationThreads[i].join();
+#if LOD_RENDERING
 				generationThreadActors[i]->initiateLODBuffers();
+#endif
 				generationThreadActors[i]->freeLODMeshes();
+				delete meshes[i];
+				meshes[i] = nullptr;
 				generationThreadActors[i] = nullptr;
 			}
 		}
@@ -316,13 +324,12 @@ public:
 		//	newAct->initiateLODBuffers();
 		//	newAct->freeLODMeshes();
 		//}
-		for (uint32_t i = 0; i < meshes.size(); i++) {
-			delete meshes[i];
-			meshes[i] = nullptr;
-		}
 		
 		// stuff for performance monitoring
 		uint64_t LastFPSPrint = CoreUtility::timestamp();
+		uint64_t FPSTCount = 0;
+		double FPSTmean = 0.0;
+
 		int32_t FPSCount = 0;
 		float FPSmean = 0.0;
 
@@ -423,28 +430,36 @@ public:
 			//Sun.retrieveDepthBuffer(&shadowBufTex);
 			//AssetIO::store("testMeshOut.jpg",&shadowBufTex);
 			//return;
-
+#if LOD_RENDERING
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			RDev.activePass(RenderDevice::RENDERPASS_LOD);
 			SG.render(&RDev);
 
 			RDev.LODSG_assemble();
+#endif
 			RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-			glDisable(GL_CULL_FACE);
+#if LOD_RENDERING
 			RDev.LODSG_render();
-			glEnable(GL_CULL_FACE);
+#else
+			SG.render(&RDev);
+#endif
 
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			if (Wireframe) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				glLineWidth(1);
 			}
+#if LOD_RENDERING
 			RDev.LODSG_render();
+#else
+			SG.render(&RDev);
+#endif
 			if (Wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			RDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 			
+#if LOD_RENDERING
 			//render debug aabb
 			if (renderLODAABB) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -463,6 +478,7 @@ public:
 				glEnable(GL_CULL_FACE);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
+#endif
 			
 			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
 			ppquad.render(&RDev);
@@ -474,23 +490,21 @@ public:
 			RDev.PPBufferFinalize();
 			RenderWin.swapBuffers();
 			
-			//RDev.LODSG_clear();
-
+#if LOD_RENDERING
+			RDev.LODSG_clear();
+#endif
+			FPSCount++;
+			FPSmean += pSLOD->getDeltaTime();
+			
 			FPSTCount++;
 			FPSTmean += pSLOD->getDeltaTime();
 			
-			FPSCount++;
-			FPSmean += pSLOD->getDeltaTime();
 			if (CoreUtility::timestamp() - LastFPSPrint > 100U) {
 				
 				wchar_t text_wstring[100] = {0};
 				FPSmean /= FPSCount;
 				int charcount = swprintf(text_wstring, 100, L"FPS: %f\n Frametime: %f", 1.0/FPSmean, FPSmean);
-				std::u32string text;
-				//ugly cast to u32string from wchar[]
-				for (int i = 0; i < charcount; i++) {
-					text.push_back((char32_t)text_wstring[i]);
-				}
+				std::u32string text = wstringToU32String(std::wstring(text_wstring, charcount));
 				fpsWidget->setText(text);
 				fpsWidget->setPosition(RenderWin.width()-fpsWidget->getWidth(), 0);
 				
@@ -503,7 +517,10 @@ public:
 				RenderWin.closeWindow();
 			}
 		}//while[main loop]
-
+		
+		FPSTmean /= FPSTCount;
+		std::cout << "FPSTmean: " << FPSTmean << "\n";
+		
 		pSMan->release();
 		
 		//release museum actors
@@ -512,9 +529,6 @@ public:
 			delete museumSGNG[i];
 			delete museumSGNT[i];
 		}
-		
-		FPSTmean /= FPSTCount;
-		std::cout << "FPSTmean: " << FPSTmean << "\n";
 	}//exampleMinimumGraphicsSetup
 
 	void listen ( const GUICallbackObject Msg ) override {
@@ -548,7 +562,7 @@ private:
 		GUI_FOV
 	};
 	bool Wireframe = false;
-	bool renderLODAABB = true;
+	bool renderLODAABB = false;
 	float cameraPanningAcceleration = 1;
 	SLOD* pSLOD;
 };

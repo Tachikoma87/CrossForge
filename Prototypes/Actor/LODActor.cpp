@@ -8,7 +8,10 @@
 #include "../LODHandler.h"
 #include <iostream>
 
-//#define SKIP_INSTANCED_QUERIES // TODO make changeable using SLOD
+#define LOD_RENDERING true
+#define SKIP_INSTANCED_QUERIES false
+#define CPU_QUERY true
+
 #define M_PI 3.1415926535
 
 namespace CForge {
@@ -107,11 +110,18 @@ namespace CForge {
 	
 	void LODActor::calculateLODPercentages() {
 		
+
+#if CPU_QUERY
+		// area of Bounding Sphere
+		float r = getAABBradius(Eigen::Matrix4f::Identity());
+		float side = M_PI*r*r;
+#else
 		// get surface area of biggest AABB side
 		Eigen::Vector3f diag = m_LODMeshes[0]->aabb().diagonal();
 		float a = std::max(diag.x(),std::max(diag.y(),diag.z()));
 		float b = diag.x()+diag.y()+diag.z()-a-std::min(diag.x(),std::min(diag.y(),diag.z()));
 		float side = (a*b);
+#endif
 
 		for (uint32_t i = 0; i < m_LODMeshes.size(); i++) {
 			
@@ -196,7 +206,7 @@ namespace CForge {
 				uint32_t BufferSize = 0;
 			
 				m_VertexUtility.buildBuffer(pMesh->vertexCount(), (void**)&pBuffer, &BufferSize, pMesh);
-				
+			
 				m_VertexBuffers.push_back(pBuffer);
 				m_VertexBufferSizes.push_back(BufferSize);
 				}
@@ -235,7 +245,7 @@ namespace CForge {
 		if (level == m_LODLevel)
 			return;
 		m_LODLevel = level;
-		
+
 		if (storeOnVRAM) {
 			m_pVertexArray = m_pVertexArrays[level];
 			m_pVertexArray->bind();
@@ -267,7 +277,7 @@ namespace CForge {
 				SLogger::log("Unknown exception occurred during building of index buffer!");
 				return;
 			}
-		
+
 			m_pVertexArray->bind();
 			setBufferData();
 			m_pVertexArray->unbind();
@@ -277,7 +287,7 @@ namespace CForge {
 	uint32_t LODActor::getLODLevel() {
 		return m_LODLevel;
 	}
-	
+
 	void LODActor::clear(void) {
 		m_VertexBuffer.clear();
 		m_ElementBuffer.clear();
@@ -305,7 +315,7 @@ namespace CForge {
 				m_ElementBuffers[i] = nullptr;
 			}
 		}
-		
+
 		if (storeOnVRAM) {
 			for (uint32_t i = 0; i < m_pVertexArrays.size(); i++) {
 				if (nullptr != m_pVertexArrays[i]) {
@@ -351,45 +361,68 @@ namespace CForge {
 		if (!m_faceCulling)
 			glDisable(GL_CULL_FACE);
 		if (m_isInstanced) {
-			for (uint32_t j = 0; j < m_instancedMatRef.size(); j++) {
-				//if (m_instancedMatRef[j]->size() > 0) {
-				//	
-				//	bindLODLevel(j);
-				//	m_pVertexArray->bind();
-				//	uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
-				//	
-				//	for (uint32_t k = 0; k < m_instancedMatRef[j]->size(); k += maxInstances) {
-				//		
-				//		uint32_t range = std::min((k + maxInstances), (uint32_t) m_instancedMatRef[j]->size());
-				//		pRDev->getInstancedUBO()->setInstances(m_instancedMatRef[j], Eigen::Vector2i(k, range));
-				//		
-				//		for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
-				//			if (i->pShader == nullptr) continue;
-				//			if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-				//				pRDev->activeShader(pRDev->shadowPassShaderInstanced());
-				//			}
-				//			else {
-				//				pRDev->activeShader(i->pShader);
-				//				pRDev->activeMaterial(&i->Material);
-				//			}
-				//			glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), range-k);
-				//		} //for [render groups]
-				//	} //for [maxInstances]
-				//} //if [instances exist]
-			}
-		} else {
+#if LOD_RENDERING
+		//	for (uint32_t j = 0; j < m_instancedMatRef.size(); j++) {
+		//		if (m_instancedMatRef[j]->size() > 0) {
+		//			
+		//			bindLODLevel(j);
+		//			m_pVertexArray->bind();
+		//			uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
+		//			
+		//			for (uint32_t k = 0; k < m_instancedMatRef[j]->size(); k += maxInstances) {
+		//				
+		//				uint32_t range = std::min((k + maxInstances), (uint32_t) m_instancedMatRef[j]->size());
+		//				pRDev->getInstancedUBO()->setInstances(m_instancedMatRef[j], Eigen::Vector2i(k, range));
+		//				
+		//				for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
+		//					if (i->pShader == nullptr) continue;
+		//					if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+		//						pRDev->activeShader(pRDev->shadowPassShaderInstanced());
+		//					}
+		//					else {
+		//						pRDev->activeShader(i->pShader);
+		//						pRDev->activeMaterial(&i->Material);
+		//					}
+		//					glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), range-k);
+		//				} //for [render groups]
+		//			} //for [maxInstances]
+		//		} //if [instances exist]
+		//	}
+#else
 			m_pVertexArray->bind();
-			for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
-				/*if (i->pShader == nullptr) continue;
-				if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-					pRDev->activeShader(pRDev->shadowPassShader());
-				}
-				else {
-					pRDev->activeShader(i->pShader);
-					pRDev->activeMaterial(&i->Material);
-				}*/
-				glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBufferSizes[m_LODLevel] / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
-			}//for[all render groups]
+			uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
+
+			for (uint32_t k = 0; k < m_instancedMatrices.size(); k += maxInstances) {
+
+				uint32_t range = std::min((k + maxInstances), (uint32_t) m_instancedMatrices.size());
+				pRDev->getInstancedUBO()->setInstances(&m_instancedMatrices, Eigen::Vector2i(k, range));
+
+				for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
+					if (i->pShader == nullptr) continue;
+					if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+						pRDev->activeShader(pRDev->shadowPassShaderInstanced());
+					}
+					else {
+						pRDev->activeShader(i->pShader);
+						pRDev->activeMaterial(&i->Material);
+					}
+					glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), range-k);
+				} //for [render groups]
+			} //for [maxInstances]
+#endif
+		} else {
+		//	m_pVertexArray->bind();
+		//	for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
+		//		if (i->pShader == nullptr) continue;
+		//		if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+		//			pRDev->activeShader(pRDev->shadowPassShader());
+		//		}
+		//		else {
+		//			pRDev->activeShader(i->pShader);
+		//			pRDev->activeMaterial(&i->Material);
+		//		}
+		//		glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBufferSizes[m_LODLevel] / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
+		//	}//for[all render groups]
 		}
 		if (!m_faceCulling)
 			glEnable(GL_CULL_FACE);
@@ -442,57 +475,87 @@ namespace CForge {
 	
 	void LODActor::testAABBvis(class RenderDevice* pRDev, Eigen::Matrix4f sgMat) {
 		
+// 		double t_mean = 0.0;
+// 		uint32_t c = 0;
 		if (m_isManualInstaned) { // all instanced at once
 			for (uint32_t i = 0; i < m_instancedMatrices.size(); i++) {
-				if (!fovCulling(pRDev, &m_instancedMatrices[i]))
-					continue;
-#ifndef SKIP_INSTANCED_QUERIES
-				/*if (pRDev->queriesReady()) {
-					pRDev->modelUBO()->modelMatrix(m_instancedMatrices[i]);
-					queryAABB(pRDev, m_instancedMatrices[i]);
-				}*/
+
+// 				auto start = std::chrono::steady_clock::now();
+				
+#if CMIX
+				bool res2 = !fovCulling(pRDev, &m_instancedMatrices[i]);
+				bool res;
+				if (res2)
+					res = true;
+				else
+					res = !frustumCulling(pRDev, &m_instancedMatrices[i]);
+#elif CFOV
+				bool res2 = !fovCulling(pRDev, &m_instancedMatrices[i]);
+				bool res = res2;
 #else
-				if (pRDev->queriesReady()) {
-					m_instancedMatRef[0]->push_back(m_instancedMatrices[i]);
-					if (!this->isInQueryContainer()) {
-						RenderDevice::LODQueryContainer container;
-						container.pixelCount = UINT32_MAX;
-						container.queryID = 0;
-						container.pActor = this;
-						container.transform = Eigen::Matrix4f::Identity();
-						pRDev->LODQueryContainerPushBack(container);
-						//pRDev->LODSGPushBack(this, Eigen::Matrix4f::Identity());
-						this->setQSG(true);
-					}
-				}
+				//TODO
+				//bool res2 = !frustumCulling(pRDev, &m_instancedMatrices[i]);
+				bool res = true;//res2;
 #endif
+	
+// 				auto end = std::chrono::steady_clock::now();
+
+// 				long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
+// 				double time = 0.000001 * microseconds;
+// 				t_mean += microseconds;
+				if (res)
+					continue;
+#if SKIP_INSTANCED_QUERIES
+				m_instancedMatRef[0]->push_back(m_instancedMatrices[i]);
+				if (!this->isInLODSG()) {
+					pRDev->LODSGPushBack(this, Eigen::Matrix4f::Identity());
+					this->setLODSG(true);
+				}
+#else
+				pRDev->modelUBO()->modelMatrix(m_instancedMatrices[i]);
+				queryAABB(pRDev, m_instancedMatrices[i]);
+#endif
+				//c++;
+				//if (c > 1000) {
+				//	std::cout << "t_mean " << t_mean << "\n";
+				//	exit(1);
+				//}
 			}
+			//std::cout << m_instancedMatrices.size() << "\n";
+			//std::cout << t_mean << "\n";
+			
+// 			m_pSLOD->CT += t_mean;
+// 			m_pSLOD->CTC += m_instancedMatrices.size();
 		}
 		else if (m_isInstanced) { // single instance, other instances get added over SG
-			if (!fovCulling(pRDev, &sgMat))
-				return;
-#ifndef SKIP_INSTANCED_QUERIES
-			/*if (pRDev->queriesReady())
-				queryAABB(pRDev, sgMat);*/
-#else
-			if (pRDev->queriesReady()) {
-				m_instancedMatrices.push_back(sgMat);
-				m_instancedMatRef[0]->push_back(m_instancedMatrices.at(m_instancedMatrices.size()-1));
-				if (!this->isInQueryContainer()) {
-					RenderDevice::LODQueryContainer container;
-					container.pixelCount = UINT32_MAX;
-					container.queryID = 0;
-					container.pActor = this;
-					container.transform = Eigen::Matrix4f::Identity();
-					pRDev->LODQueryContainerPushBack(container);
-					//pRDev->LODSGPushBack(this, Eigen::Matrix4f::Identity());
-					this->setQSG(true);
-				}
+			//TODO
+			//if (!frustumCulling(pRDev, &sgMat))
+			//	return;
+#if SKIP_INSTANCED_QUERIES
+			m_instancedMatrices.push_back(sgMat);
+			m_instancedMatRef[0]->push_back(m_instancedMatrices.at(m_instancedMatrices.size()-1));
+			if (!this->isInLODSG()) {
+				pRDev->LODSGPushBack(this, Eigen::Matrix4f::Identity());
+				this->setLODSG(true);
 			}
+#else
+			queryAABB(pRDev, sgMat);
 #endif
 		}
 		else {
-			if (!fovCulling(pRDev, &sgMat))
+// 			auto start = std::chrono::steady_clock::now();
+			//TODO
+			//bool res2 = !frustumCulling(pRDev, &sgMat);
+			bool res = true;//res2;
+
+// 			auto end = std::chrono::steady_clock::now();
+
+// 			long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
+// 			double time = 0.000001 * microseconds;
+// 			t_mean += time;
+// 			m_pSLOD->CT += t_mean;
+// 			m_pSLOD->CTC += m_instancedMatrices.size();
+			if (res)
 				return;
 			/*if (pRDev->queriesReady())
 				queryAABB(pRDev, sgMat);*/
@@ -500,22 +563,39 @@ namespace CForge {
 	}
 	
 	void LODActor::queryAABB(RenderDevice* pRDev, Eigen::Matrix4f transform) {
+
+#if CPU_QUERY
+	//	Eigen::Vector3f Translation = Eigen::Vector3f(transform.data()[12], transform.data()[13], transform.data()[14]);
+	//	float aabbRadius = getAABBradius(transform);
+	//	Eigen::Vector3f camPosToObj = Translation+getAABBcenter(transform)-pRDev->activeCamera()->position();
+	//	float BSborderAngle = 2.0*std::asin(aabbRadius/(2.0*camPosToObj.norm()));
+	//	float fov = pRDev->activeCamera()->getFOV();
+	//	float screenCov = BSborderAngle*BSborderAngle/(fov*fov);
+	//	
+	//	RenderDevice::LODQueryContainer container;
+	//	container.pActor = this;
+	//	container.pixelCount = screenCov*m_pSLOD->getResPixAmount();
+	//	container.queryID = 0;
+	//	container.transform = transform;
+	//	pRDev->LODQueryContainerPushBack(container);
+#else
 		GLuint queryID;
 		glGenQueries(1, &queryID);
 		glBeginQuery(GL_SAMPLES_PASSED, queryID);
-
-		//if (!glIsQuery(queryID)) {
-		//	CForgeExcept("query generation failed");
-		//	// fetch current queries if no more are available
-		//	pRDev->fetchQueryResults();
-		//	glGenQueries(1, &queryID);
-		//	glBeginQuery(GL_SAMPLES_PASSED, queryID);
-		//}
-		//
-		//pRDev->LODQueryContainerPushBack(queryID, this, transform);
-	
+		
+		if (!glIsQuery(queryID)) {
+			CForgeExcept("query generation failed");
+			// fetch current queries if no more are available
+			pRDev->fetchQueryResults();
+			glGenQueries(1, &queryID);
+			glBeginQuery(GL_SAMPLES_PASSED, queryID);
+		}
+		
+		pRDev->LODQueryContainerPushBack(queryID, this, transform);
+		
 		renderAABB(pRDev);
 		glEndQuery(GL_SAMPLES_PASSED);
+#endif
 	}
 	
 	void LODActor::evaluateQueryResult(Eigen::Matrix4f mat, uint32_t pixelCount) {
@@ -671,32 +751,64 @@ namespace CForge {
 		return m_LODPercentages;
 	}
 
-	bool LODActor::fovCulling(RenderDevice* pRDev, Eigen::Matrix4f* mat) {
-		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
-
-		float aabbRadius = getAABBradius(*mat);
-		
-		// TODO function?
-		Eigen::Affine3f affine(*mat);
-		affine.data()[12] = 0.0;
-		affine.data()[13] = 0.0;
-		affine.data()[14] = 0.0;
-		Eigen::Vector3f scaledAABBMax = affine * getAABB().Max;
-		Eigen::Vector3f scaledAABBMin = affine * getAABB().Min;
-		
-		Eigen::Vector3f center = scaledAABBMin*0.5+scaledAABBMax*0.5;
-		Eigen::Vector3f camPosToObj = Translation+center-pRDev->activeCamera()->position();
-		
-		if (camPosToObj.norm()-aabbRadius < 0.0)
-			return true;
-		
-		float BSborderAngle = 2.0*std::asin(aabbRadius/(2.0*camPosToObj.norm()));
-		
-		float fov = pRDev->activeCamera()->getFOV();
-		if (std::acos(camPosToObj.normalized().dot(pRDev->activeCamera()->dir())) - (BSborderAngle) > (fov))
-			return false;
-		return true;
-	}
+	// frustum culling reference: https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
+//	bool LODActor::frustumCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat) {
+//		Eigen::Vector3f Translation = Eigen::Vector3f(mat->data()[12], mat->data()[13], mat->data()[14]);
+//		
+//		// frustum in world space
+//		const VirtualCamera::Frustum* pFrust = pRDev->activeCamera()->getFrustum();
+//		
+//		Eigen::Affine3f aff(*mat);
+//		
+//		// bounding box in world space
+//		Eigen::Vector3f min = aff * m_aabb.Min;
+//		Eigen::Vector3f max = aff * m_aabb.Max;
+//		Eigen::Vector3f c = 0.5*min+0.5*max;
+//		Eigen::Vector3f e = max-c;
+//		
+//		Eigen::Vector3f ri = mat->col(0).head<3>().normalized()*e[0];
+//		Eigen::Vector3f up = mat->col(1).head<3>().normalized()*e[1];
+//		Eigen::Vector3f fd = mat->col(2).head<3>().normalized()*e[2];
+//		
+//		// restore AABB due to Object Space AABB -> World Space BB
+//		float Ii = abs(Eigen::Vector3f(1.0f,0.0f,0.0f).dot(ri))
+//		         + abs(Eigen::Vector3f(1.0f,0.0f,0.0f).dot(up))
+//		         + abs(Eigen::Vector3f(1.0f,0.0f,0.0f).dot(fd));
+//		
+//		float Ij = abs(Eigen::Vector3f(0.0f,1.0f,0.0f).dot(ri))
+//		         + abs(Eigen::Vector3f(0.0f,1.0f,0.0f).dot(up))
+//		         + abs(Eigen::Vector3f(0.0f,1.0f,0.0f).dot(fd));
+//		
+//		float Ik = abs(Eigen::Vector3f(0.0f,0.0f,1.0f).dot(ri))
+//		         + abs(Eigen::Vector3f(0.0f,0.0f,1.0f).dot(up))
+//		         + abs(Eigen::Vector3f(0.0f,0.0f,1.0f).dot(fd));
+//		
+//		max = c+Eigen::Vector3f(Ii,Ij,Ik);
+//		min = c-Eigen::Vector3f(Ii,Ij,Ik);
+//		T3DMesh<float>::AABB sclAABB = {min,max};
+//		
+//		return AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_NEAR])
+//		    && AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_LEFT])
+//		    && AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_RIGHT])
+//		    && AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_BOTTOM])
+//		    && AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_TOP])
+//		    && AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_FAR]);
+//	}
+	
+	// algorithm from https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html
+//	inline bool LODActor::AABBonPlan(const T3DMesh<float>::AABB* aabb, const VirtualCamera::FrustumPlane* plan) {
+//		Eigen::Vector3f c = 0.5*(aabb->Min+aabb->Max);
+//		Eigen::Vector3f e = aabb->Max-c;
+//		
+//		// bounding box span in normal direction of plane
+//		float r = e[0]*abs(plan->n[0])
+//		        + e[1]*abs(plan->n[1])
+//		        + e[2]*abs(plan->n[2]);
+//		
+//		// distance center to plane
+//		float s = (plan->n.dot(c) - plan->dist);
+//		return s > -r;
+//	}
 
 	void LODActor::setFaceCulling(bool state) {
 		m_faceCulling = state;

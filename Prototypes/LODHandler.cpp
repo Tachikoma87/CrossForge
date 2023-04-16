@@ -166,6 +166,7 @@ namespace CForge {
 				File::exists(metaFilePath);
 			}
 		}
+		return true;
 	}
 
 	void LODHandler::writeMetaFile(const std::string metaFilePath, const std::vector<float>& decimateAmount, const std::vector<float>& triBBratios) {
@@ -236,7 +237,7 @@ namespace CForge {
 		return true;
 	}
 
-	float LODHandler::getTriSizeInfo(CForge::T3DMesh<float>& pMesh, TriSizeInfo type) {
+	float LODHandler::getTriSizeInfo(CForge::T3DMesh<float>& pMesh, uint32_t type) {
 		
 		float ret = 0.0;
 		uint32_t triangleAmount = 0;

@@ -44,6 +44,8 @@
 #include "../../thirdparty/PinocchioTools/PinocchioTools.hpp"
 
 #include <filesystem>
+#include <stdio.h>
+#include <iostream>
 
 namespace nsPiT = nsPinocchioTools;
 
@@ -128,13 +130,13 @@ namespace CForge {
 			RDev.addLight(&BGLight);
 
 			// load skydome and a textured cube
-			T3DMesh<float> M;	
+			T3DMesh<float> M;
 			StaticActor Skydome;
 			SkeletalActor Eric;
 			StaticActor Spock;
 			SkeletalAnimationController Controller;
-
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.fbx", &M);
+			
+			SAssetIO::load("MyAssets/ExampleScenes/SimpleSkydome.fbx", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			Skydome.init(&M);
@@ -142,21 +144,21 @@ namespace CForge {
 
 			/////////////////////////////////////////////////////////////////
 
-			// initialize skeletal actor (Eric) and its animation controller
-			SAssetIO::load("Assets/ExampleScenes/Eric_Anim.fbx", &M);
+			SAssetIO::load("MyAssets/ExampleScenes/Eric_Anim.fbx", &M);
+			//SAssetIO::load("AssetOut/outModel1.fbx", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
 			
 			T3DMesh<float> MT;
 			std::filesystem::path modelPath;
-			modelPath = std::filesystem::path("Assets/muppetshow/Model1.obj");
-			//modelPath = std::filesystem::path("Assets/muppetshow/Model2.obj");
-			//modelPath = std::filesystem::path("Assets/muppetshow/Model3.obj");
-			//modelPath = std::filesystem::path("Assets/muppetshow/Model6.obj");
-			//modelPath = std::filesystem::path("Assets/muppetshow/female_body.obj");
-			//modelPath = std::filesystem::path("Assets/autorig/spock/spockR2.fbx");
-			//modelPath = std::filesystem::path("Assets/autorig/spock/spockR3.fbx");
-			//modelPath = std::filesystem::path("Assets/autorig/Armadillo.fbx");
+			modelPath = std::filesystem::path("MyAssets/muppetshow/Model1.obj");
+			//modelPath = std::filesystem::path("MyAssets/muppetshow/Model2.obj");
+			//modelPath = std::filesystem::path("MyAssets/muppetshow/Model3.obj");
+			//modelPath = std::filesystem::path("MyAssets/muppetshow/Model6.obj");
+			//modelPath = std::filesystem::path("MyAssets/muppetshow/female_body.obj");
+			//modelPath = std::filesystem::path("MyAssets/autorig/spock/spockR2.fbx");
+			//modelPath = std::filesystem::path("MyAssets/autorig/spock/spockR3.fbx");
+			//modelPath = std::filesystem::path("MyAssets/autorig/Armadillo.fbx");
 			std::string modelName = modelPath.stem().string();
 			
 			SAssetIO::load(modelPath.string(), &MT);
@@ -164,13 +166,16 @@ namespace CForge {
 			mergeRedundantVertices(&MT);
 			MT.computePerVertexNormals();
 			Spock.init(&MT);
-
+			
+			//*
 			nsPinocchio::Skeleton sklEric;
 			nsPiT::CVScalingInfo cvsInfo;
 			std::vector<nsPiT::BonePair> sym;
 			std::vector<T3DMesh<float>::Bone*> foot;
 			std::vector<T3DMesh<float>::Bone*> fat;
 			std::vector<T3DMesh<float>::Bone*> bones;
+			
+			// assign foot and symmetry for pinoccio
 			for (uint32_t i = 0; i < M.boneCount(); i++) {
 				T3DMesh<float>::Bone* cur = M.getBone(i);
 				if (cur->Name.compare("RightToe")==0 || cur->Name.compare("LeftToe")==0)
@@ -199,10 +204,11 @@ namespace CForge {
 			
 			std::vector<Eigen::Vector3f> joints;
 			nsPiT::convertSkeleton(M.rootBone(), &sklEric, &cvsInfo, sym, fat, foot,
-			GraphicsUtility::rotationMatrix((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f),Vector3f::UnitX())).block<3,3>(0,0), &joints);
+			       GraphicsUtility::rotationMatrix((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f),Vector3f::UnitX())).block<3,3>(0,0),
+			       &joints);
 			
-			nsPinocchio::Mesh piM;// = new nsPinocchio::Mesh(); //("Assets/muppetshow/Model1.obj");
-			nsPiT::convertMesh(&MT, &piM);
+			nsPinocchio::Mesh piM;// = new nsPinocchio::Mesh(); //("MyAssets/muppetshow/Model1.obj");
+			nsPiT::convertMesh(MT, &piM);
 			
 			vector<Vector3f> poss;
 			vector<float> rads;
@@ -213,7 +219,7 @@ namespace CForge {
 			MT.bones(&bones);
 			MT.clearSkeletalAnimations();
 			//MT.addSkeletalAnimation(M.getSkeletalAnimation(0));
-			nsPiT::copyAnimation(&M,&MT,0);
+			nsPiT::copyAnimation(M,&MT,0);
 			for (uint32_t i = 0; i < MT.boneCount(); i++) {
 				MT.getBone(i)->VertexInfluences = std::vector<int32_t>();
 				MT.getBone(i)->VertexWeights = std::vector<float>();
@@ -224,6 +230,9 @@ namespace CForge {
 			
 			/////////////////////////////////////////////////////////////////////////////
 			
+			std::string outName = "MyAssets/AssetOut/out" + modelName + ".gltf";
+			AssetIO::store(outName, &M);
+			//*/
 			AutoRigger autoRigger; // for sphere visualisation
 			//autoRigger.init(&MT,M.getBone(0));
 			//autoRigger.process();
@@ -242,22 +251,17 @@ namespace CForge {
 			//EricSGN.init(&EricTransformSGN, &Spock);
 			EricTransformSGN.scale(Eigen::Vector3f(10.0f,10.0f,10.0f));
 			
-			/**/
+			/*/
 			Controller.init(&MT);
 			Eric.init(&MT, &Controller);
 			/**/
-			
-			/*/
+			/**/
 			Controller.init(&M);
 			Eric.init(&M, &Controller);
 			EricSGN.scale(Vector3f(0.005f, 0.005f, 0.005f));
 			//EricTransformSGN.rotation((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()));
 			/**/
-			
-			std::string outName = "AssetOut/out" + modelName + ".fbx";
-			AssetIO::store(outName, &MT);
 			M.clear();
-
 
 			// add skydome
 			SGNGeometry SkydomeSGN;
@@ -317,14 +321,14 @@ namespace CForge {
 				/**/
 				
 				/**/ // render sphere packing
-				for (uint32_t i = 0; i < (uint32_t) poss.size(); i++) {
-					Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(poss[i]);
-					float r = rads[i];
-					Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
-					Eigen::Matrix4f scale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(10.0f,10.0f,10.0f));
-					RDev.modelUBO()->modelMatrix(scale*cubeTransform*cubeScale);
-					autoRigger.sphere.render(&RDev);
-				}
+				//for (uint32_t i = 0; i < (uint32_t) poss.size(); i++) {
+				//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(poss[i]);
+				//	float r = rads[i];
+				//	Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+				//	Eigen::Matrix4f scale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(10.0f,10.0f,10.0f));
+				//	RDev.modelUBO()->modelMatrix(scale*cubeTransform*cubeScale);
+				//	autoRigger.sphere.render(&RDev);
+				//}
 				/**/
 				
 				
@@ -374,7 +378,7 @@ namespace CForge {
 			for (uint32_t i = 0; i < pMesh->vertexCount(); ++i) {
 				if (IsRedundant[i]) continue;
 				auto v1 = pMesh->vertex(i);
-				printf("Checking vertex %d/%d\r", i, pMesh->vertexCount());
+				//printf("Checking vertex %d/%d\r", i, pMesh->vertexCount());
 
 				for (uint32_t k = i+1; k < pMesh->vertexCount(); ++k) {
 					auto v2 = pMesh->vertex(k);

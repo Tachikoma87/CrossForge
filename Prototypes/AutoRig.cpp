@@ -10,12 +10,12 @@ namespace CForge {
 		m_targetMesh = nullptr;
 		m_targetSkeleton = nullptr;
 		T3DMesh<float> cubeMesh;
-		AssetIO::load("Assets/cube.obj", &cubeMesh);
+		AssetIO::load("MyAssets/cube.obj", &cubeMesh);
 		setMeshShader(&cubeMesh, 0.8f, 0.04f);
 		cubeMesh.computePerVertexNormals();
 		cube.init(&cubeMesh);
 		T3DMesh<float> sphereMesh;
-		AssetIO::load("Assets/sphere.obj", &sphereMesh);
+		AssetIO::load("MyAssets/sphere.obj", &sphereMesh);
 		setMeshShader(&sphereMesh, 0.8f, 0.04f);
 		sphereMesh.computePerVertexNormals();
 		sphere.init(&sphereMesh);

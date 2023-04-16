@@ -163,9 +163,7 @@ target_link_libraries(crossforge
 	PRIVATE glfw 
 	PRIVATE glad::glad
 	PRIVATE assimp::assimp
-	PRIVATE igl::core 
-	PRIVATE igl::common		
-	PRIVATE WebP::webp 
+	PRIVATE WebP::webp
 	PRIVATE WebP::webpdecoder
 	ws2_32					#winsock2
 	${FREETYPE_LIBRARIES}	# for Text rendering
@@ -174,12 +172,10 @@ target_link_libraries(crossforge
 
 elseif(UNIX)
 	target_link_libraries(crossforge 
-	PRIVATE glfw 
+	PRIVATE glfw
 	PRIVATE glad::glad
 	PRIVATE assimp::assimp
-	PRIVATE igl::core 
-	PRIVATE igl::common
-	PRIVATE WebP::webp 
+	PRIVATE WebP::webp
 	PRIVATE WebP::webpdecoder
 	${FREETYPE_LIBRARIES}	# for Text rendering
 #	${OpenCV_LIBS}
@@ -187,4 +183,4 @@ elseif(UNIX)
 	PRIVATE gpiod 
 	PRIVATE stdc++fs
 	)
-endif(UNIX)
+endif(WIN32)

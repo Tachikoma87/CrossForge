@@ -29,6 +29,7 @@
 #include "../SLOD.h"
 
 #include "../UBOInstancedData.h"
+#include "../../CForge/Graphics/VirtualCamera.h"
 
 namespace CForge {
 	/**
@@ -91,6 +92,7 @@ namespace CForge {
 		void calculateLODPercentages();
 		void initiateLODBuffers();
 		
+		//bool frustumCulling(RenderDevice* pRDev, const Eigen::Matrix4f* mat);
 	protected:
 
 	private:
@@ -103,7 +105,6 @@ namespace CForge {
 		void setBufferData(void);
 		
 		void initiateBuffers(uint32_t level);
-		bool fovCulling(RenderDevice* pRDev, Eigen::Matrix4f* mat);
 		
 		SLOD* m_pSLOD;
 		bool m_initialized = false;
@@ -138,6 +139,8 @@ namespace CForge {
 		std::vector<Eigen::Matrix4f> m_instancedMatrices;
 		std::vector<std::vector<Eigen::Matrix4f>*> m_instancedMatRef;
 		
+		// frustum culling
+		//inline bool AABBonPlan(const T3DMesh<float>::AABB* aabb, const VirtualCamera::FrustumPlane* plan);
 	};//LODActor
 
 }//name space

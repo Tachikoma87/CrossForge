@@ -95,19 +95,19 @@ namespace CForge {
 		SAssetIO* pAssIO = SAssetIO::instance();
 		STextureManager* pTexMan = STextureManager::instance();
 		SShaderManager* pSMan = SShaderManager::instance();
-		SLOD* pLOD = SLOD::instance();
+		SLOD* pSLOD = SLOD::instance();
 
 		bool const LowRes = true;
 
 		uint32_t WinWidth = 1280;
 		uint32_t WinHeight = 720;
-		
+
 		if (LowRes) {
 			WinWidth = 1440;//720;
 			WinHeight = 1080-80;//576;
 		}
 
-		pLOD->setResolution(Vector2i(WinWidth, WinHeight));
+		pSLOD->setResolution(Vector2i(WinWidth, WinHeight));
 
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), "Absolute Minimum Setup");
@@ -156,8 +156,10 @@ namespace CForge {
 		RDev.addLight(&Sun);
 
 		SceneGraph SGTest;
+		SGNTransformation SGSGN;
 		SGNGeometry CubeSGN;
 		SGNTransformation CubeTransformSGN;
+		SGNTransformation CubeTransformSGN2;
 		LODActor Cube;
 
 		T3DMesh<float> M;
@@ -165,16 +167,18 @@ namespace CForge {
 
 		//SAssetIO::load("Assets/tree0.obj", &M);
 		//lodHandler.generateLODmodels("Assets/tree0.obj");
-		
-		SAssetIO::load("Assets/mirror/mirror.obj", &M);
+
+		pSLOD->useLibigl = true;
+		SAssetIO::load("Assets/blub/blub.obj", &M);
 		SceneUtilities::setMeshShader(&M, 0.1f, 0.04f);
 		Cube.init(&M);
 		Cube.generateLODModells();
 
+		pSLOD->useLibigl = false;
 		T3DMesh<float> M2;
 		SGNGeometry MirrorSGN;
 		LODActor Mirror2;
-		SAssetIO::load("Assets/mirror/mirror.001.obj", &M2);
+		SAssetIO::load("Assets/blub/blub2.obj", &M2);
 		SceneUtilities::setMeshShader(&M2, 0.1f, 0.04f);
 		Mirror2.init(&M2);
 		Mirror2.generateLODModells();
@@ -182,13 +186,15 @@ namespace CForge {
 		LODActor MirrorJoined;
 		T3DMesh<float> M3;
 		SGNGeometry MirrorJoinedSGN;
-		//SAssetIO::load("Assets/mirror/mirrorJoined.obj", &M3);
-		SAssetIO::load("museumAssets/Dragon_0.1.obj", &M3);
+		SAssetIO::load("Assets/mirror/mirrorJoined.obj", &M3);
+		//SAssetIO::load("texTest/Textured Vase.obj", &M3);
 		//SAssetIO::load("Assets/blub/blub.obj", &M3);
 		SceneUtilities::setMeshShader(&M3, 0.1f, 0.04f);
+		MirrorJoinedSGN.scale(Eigen::Vector3f(0.05f,0.05f,0.05f));
+		M3.computePerVertexNormals();
 		MirrorJoined.init(&M3);
-		MirrorJoined.generateLODModells();
-		
+		//MirrorJoined.generateLODModells();
+
 		//SAssetIO::load("Assets/blub/blub.obj", &M); // complexMan, blub/blub
 		//SAssetIO::load("museumAssets/Dragon_0.1.obj", &M);
 		//lodHandler.generateLODmodels("Assets/testMeshOut.obj");
@@ -205,98 +211,107 @@ namespace CForge {
 		//testMesh.computePerVertexNormals();
 		//Cube.init(&testMesh);
 
+		SGSGN.init(nullptr);
 		CubeTransformSGN.init(nullptr);
-		
+		CubeTransformSGN2.init(nullptr);
+
 		bool joined = false;
 		CubeSGN.init(&CubeTransformSGN, &Cube);
-		MirrorSGN.init(&CubeTransformSGN, &Mirror2);
-		//MirrorJoinedSGN.init(&CubeTransformSGN, &MirrorJoined);
-		SGTest.init(&CubeTransformSGN);
-		
+		MirrorSGN.init(&CubeTransformSGN2, &Mirror2);
+		SGTest.init(&SGSGN);
+		SGSGN.addChild(&CubeTransformSGN);
+		SGSGN.addChild(&CubeTransformSGN2);
+
 		//SAssetIO::store("Assets/testMeshOut.obj", &testMesh);
-		
+
 		// rotate about the y-axis at 45 degree every second
 		Quaternionf R;
 		R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());
 		//CubeTransformSGN.rotationDelta(R);
 		//CubeTransformSGN.translation(Vector3f(0.0, -5.0, 2.0));
 		//CubeTransformSGN.translation(Vector3f(0.0, -0.0, 3.0));
-		CubeTransformSGN.translation(Vector3f(0.0,0.0,4.0));
-		
+		//CubeTransformSGN.translation(Vector3f(0.0,-3.0,3.0));
+		CubeTransformSGN.translation(Vector3f(1.0,0.0,4.0));
+		CubeTransformSGN2.translation(Vector3f(-1.0,0.0,4.0));
+
 		bool Wireframe = true;
-		
+
 		glLineWidth(GLfloat(1.0f));
-		
+
 		uint32_t cubeLODlevel = 0;
 		ScreenQuad ppquad;
 		initPPQuad2(&ppquad);
-		
+
+		glLineWidth(2);
+
 		while (!RenderWin.shutdown()) {
 			RenderWin.update();
-			pLOD->update();
-			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(), 2.5f * pLOD->getDeltaTime(), 200.0f * pLOD->getDeltaTime());
-			
+			pSLOD->update();
+			SceneUtilities::defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(), 2.5f * pSLOD->getDeltaTime(), 200.0f * pSLOD->getDeltaTime());
+
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
 				cubeLODlevel++;
 				cubeLODlevel %= /*2;//*/6;
 				Cube.bindLODLevel(cubeLODlevel);
 				Mirror2.bindLODLevel(cubeLODlevel);
-				MirrorJoined.bindLODLevel(cubeLODlevel);
+				//MirrorJoined.bindLODLevel(cubeLODlevel);
 			}
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
 				cubeLODlevel = std::max(0, int32_t(cubeLODlevel)-1);
 				Cube.bindLODLevel(cubeLODlevel);
 				Mirror2.bindLODLevel(cubeLODlevel);
-				MirrorJoined.bindLODLevel(cubeLODlevel);
+				//MirrorJoined.bindLODLevel(cubeLODlevel);
 			}
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) {
 				CubeTransformSGN.removeAllChildren();
 				if (joined) {
 					CubeSGN.init(&CubeTransformSGN, &Cube);
 					MirrorSGN.init(&CubeTransformSGN, &Mirror2);
-				} else
+				} else {
 					MirrorJoinedSGN.init(&CubeTransformSGN, &MirrorJoined);
+					MirrorJoinedSGN.scale(Eigen::Vector3f(0.05f,0.05f,0.05f));
+				}
 				joined = !joined;
 			}
 
 			//R = AngleAxisf(GraphicsUtility::degToRad(45.0f*100.0f / 60.0f), Vector3f::UnitY());
 			//CubeTransformSGN.rotationDelta(R);
 			static float animation = 0.0;
-			animation += pLOD->getDeltaTime()*0.5;
+			animation += pSLOD->getDeltaTime()*0.5;
 			if (animation > 3.14)
 				animation = 0.0;
 			//CubeTransformSGN.translation(Vector3f(0.0, 0.0, 0.0+3*sin(animation)));
-			
-			
-			SGTest.update(1.0f*pLOD->getDeltaTime());
-			
+
+
+			SGTest.update(1.0f*pSLOD->getDeltaTime());
+
 			RDev.clearBuffer();
 			//RDev.activePass(RenderDevice::RENDERPASS_LOD);
 			//SGTest.render(&RDev);
-			
+
 			// sorted Geometry front to back
 			// std::vector<SGNGeometry> RDev.getLODGeometry();
 			// std::vector<Eigen::Matrix4d> RDev.getLODTransforms();
-			
+
 			// activate Occlusion Culling in RENDERPASS_GEOMETRY
 			// RDev.enableOcclusionCulling();
-			
+
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 				Wireframe = !Wireframe;
 			}
-			
+
 			if (Wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			
+
 			// Terrain vor objekte Rendern um als occluder zu dienen
-			
+
 			RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			//RDev.renderLODSG();
-			
+
 			SGTest.render(&RDev);
-			
+
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			
+
 			RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			RDev.activePass(RenderDevice::RENDERPASS_POSTPROCESSING);
@@ -308,9 +323,9 @@ namespace CForge {
 			if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
 				RenderWin.closeWindow();
 			}
-			//printf("deltaTime: %f\tFPS:%f", pLOD->getDeltaTime(), 1.0/pLOD->getDeltaTime());
+			//printf("deltaTime: %f\tFPS:%f", pSLOD->getDeltaTime(), 1.0/pSLOD->getDeltaTime());
 			std::stringstream newTitle;
-			newTitle << "deltaTime: " << pLOD->getDeltaTime() << "	FPS: " << 1.0/pLOD->getDeltaTime();
+			newTitle << "deltaTime: " << pSLOD->getDeltaTime() << "	FPS: " << 1.0/pSLOD->getDeltaTime();
 			RenderWin.title(newTitle.str());
 		}//while[main loop]
 
@@ -318,7 +333,7 @@ namespace CForge {
 		pAssIO->release();
 		pTexMan->release();
 		pSMan->release();
-		pLOD->release();
+		pSLOD->release();
 	}//PITestScene
 
 }

@@ -103,7 +103,7 @@ namespace nsPinocchioTools {
 			skl->PsetFat(fat[i]->Name);
 	}
 
-	void adaptSkeleton( nsPiR::PinocchioOutput* in, nsPiR::Skeleton* inSkl, CForge::T3DMesh<float>::Bone * out) {
+	void adaptSkeleton( nsPiR::PinocchioOutput* in, nsPiR::Skeleton* inSkl, CForge::T3DMesh<float>::Bone* out) {
 		
 		std::vector<CForge::T3DMesh<float>::Bone*> inList = gatherBones(out);
 		
@@ -251,16 +251,16 @@ namespace nsPinocchioTools {
 		return out;
 	}
 
-	void copyAnimation(CForge::T3DMesh<float>* source, CForge::T3DMesh<float>* target, uint32_t animationIndex) {
+	void copyAnimation(CForge::T3DMesh<float>& source, CForge::T3DMesh<float>* target, uint32_t animationIndex) {
 		
 		Eigen::Vector3f min,max,d;
 		{
-			Eigen::Matrix4f mat = source->getBone(0)->OffsetMatrix.inverse();
+			Eigen::Matrix4f mat = source.getBone(0)->OffsetMatrix.inverse();
 			min = Eigen::Vector3f(mat.data()[12],mat.data()[13],mat.data()[14]);
 			max = min;
 		}
-		for (uint32_t i = 1; i < source->boneCount(); i++) {
-			Eigen::Matrix4f mat = source->getBone(i)->OffsetMatrix.inverse();
+		for (uint32_t i = 1; i < source.boneCount(); i++) {
+			Eigen::Matrix4f mat = source.getBone(i)->OffsetMatrix.inverse();
 			for (uint32_t j = 0; j < 3; j++) {
 				min[j] = std::fmin(min[j],mat.data()[12+j]);
 				max[j] = std::fmax(max[j],mat.data()[12+j]);
@@ -269,7 +269,7 @@ namespace nsPinocchioTools {
 		d = max-min;
 		float scale = 1.0/std::fmax(d[0],std::fmax(d[1],d[2]));
 		
-		target->addSkeletalAnimation(source->getSkeletalAnimation(animationIndex));
+		target->addSkeletalAnimation(source.getSkeletalAnimation(animationIndex));
 		T3DMesh<float>::SkeletalAnimation* anim = target->getSkeletalAnimation(target->skeletalAnimationCount()-1);
 		for (uint32_t i = 0; i < anim->Keyframes.size(); i++) {
 			for (uint32_t j = 0; j < anim->Keyframes[i]->Positions.size(); j++) {
@@ -282,21 +282,21 @@ namespace nsPinocchioTools {
 		
 	}
 	
-	void convertMesh(CForge::T3DMesh<float>* in, nsPiR::Mesh* out) {
+	void convertMesh(const CForge::T3DMesh<float>& in, nsPiR::Mesh* out) {
 		nsPiR::Mesh* ret = out;
 		
 		// add vertices
-		for (uint32_t i = 0; i < in->vertexCount(); i++) {
+		for (uint32_t i = 0; i < in.vertexCount(); i++) {
 			double x, y, z;
-			x = in->vertex(i)[0];
-			y = in->vertex(i)[1];
-			z = in->vertex(i)[2];
+			x = in.vertex(i)[0];
+			y = in.vertex(i)[1];
+			z = in.vertex(i)[2];
 			ret->vertices.resize(ret->vertices.size() + 1);
 			ret->vertices.back().pos = Vector3(x, y, z);
 		}
 		// add faces
-		for (uint32_t i = 0; i < in->submeshCount(); i++) {
-			auto curSubM = in->getSubmesh(i);
+		for (uint32_t i = 0; i < in.submeshCount(); i++) {
+			auto curSubM = in.getSubmesh(i);
 			for (uint32_t j = 0; j < curSubM->Faces.size(); j++) {
 				T3DMesh<float>::Face face = curSubM->Faces[j];
 

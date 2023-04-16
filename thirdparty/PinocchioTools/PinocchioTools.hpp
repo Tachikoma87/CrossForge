@@ -13,7 +13,9 @@
 #include "../../CForge/Graphics/GraphicsUtility.h"
 #include "../Pinocchio/vector.h"
 
-// tools for converting engine format to pinocchio and vice versa
+/*
+* \brief tools for converting engine format to pinocchio and vice versa
+*/
 namespace nsPinocchioTools {
 	
 	using namespace CForge;
@@ -23,6 +25,7 @@ namespace nsPinocchioTools {
 	
 	nsPinocchio::PinocchioOutput PINOCCHIOTOOLS_API autorig(const nsPiR::Skeleton &given, nsPiR::Mesh* m);
 	
+	//TODO necessary?
 	// wrapper class for converting
 	class pnSkeleton : nsPiR::Skeleton {
 	public:
@@ -36,6 +39,9 @@ namespace nsPinocchioTools {
 		void PsetFat(const string &name);
 	};
 	
+	/*
+	* \brief scaling information during conversion
+	*/
 	struct CVScalingInfo {
 		float scaling = 1.0f;
 		Eigen::Vector3f offset = Eigen::Vector3f(0.0f,0.0f,0.0f);
@@ -45,12 +51,16 @@ namespace nsPinocchioTools {
 		CForge::T3DMesh<float>::Bone* pair[2];
 	};
 	
+	/*
+	* \brief builds list of bones from skeleton tree
+	* \param in root rootBone of Skeleton
+	*/
 	std::vector<CForge::T3DMesh<float>::Bone*> gatherBones(CForge::T3DMesh<float>::Bone* root);
 	
 	/*
-	* @param in T3DMesh root Bone
-	* @param out Pinocchio Skeleton
-	* @param CVSInfo scaling of skeleton
+	* \param in T3DMesh root Bone
+	* \param out Pinocchio Skeleton
+	* \param CVSInfo scaling of skeleton
 	*/
 	void PINOCCHIOTOOLS_API convertSkeleton(CForge::T3DMesh<float>::Bone* in, nsPiR::Skeleton* out, CVScalingInfo* CVSInfo,
 	                     std::vector<BonePair> symmetry,
@@ -60,24 +70,32 @@ namespace nsPinocchioTools {
 		std::vector<Eigen::Vector3f>* joints);
 
 	/*
-	* @param in Pinocchio Output
-	* @param out T3DMesh root Bone
+	* \param in Pinocchio Output
+	* \param out T3DMesh root Bone
 	*/
 	void PINOCCHIOTOOLS_API adaptSkeleton( nsPiR::PinocchioOutput* in, nsPiR::Skeleton* inSkl, CForge::T3DMesh<float>::Bone* out);
 	
 	/*
-	* @param out 
-	* @param CVSInfo scaling of skeleton
+	* \param out 
+	* \param CVSInfo scaling of skeleton
 	*/
 	void PINOCCHIOTOOLS_API applyWeights(nsPiR::Skeleton* in, nsPiR::Mesh* inMesh, CForge::T3DMesh<float>* out, const CVScalingInfo& CVSInfo,
 		nsPiR::PinocchioOutput& piO, uint32_t vertexCount);
 	
-	/* morphs and scales mesh to targetSkl
-	* @param in T3DMesh
-	* @param pinSkl Pinocchio Skeleton
+	/*
+	* \morphs and scales mesh to targetSkl
+	* \param in T3DMesh
+	* \param pinSkl Pinocchio Skeleton
 	*/
 	void PINOCCHIOTOOLS_API MeshToTPose(T3DMesh<float>* in, nsPiR::Skeleton pinSkl);
 	
+	/*
+	* \brief TODO currently: calculation until sphere packing, results in poss and rads
+	* \param in given input skeleton to embed into mesh
+	* \param in m input mesh
+	* \param out poss position of sphere centers during sphere packing
+	* \param out rads radii of spheres during sphere packing
+	*/
 	void PINOCCHIOTOOLS_API autorigCust(const nsPiR::Skeleton &given, const nsPiR::Mesh &m,
 		std::vector<Eigen::Vector3f>* poss, std::vector<float>* rads) {
 		nsPiR::Mesh newMesh = prepareMesh(m);
@@ -97,12 +115,24 @@ namespace nsPinocchioTools {
 		}
 	};
 	
-	void PINOCCHIOTOOLS_API convertMesh(CForge::T3DMesh<float>* in, nsPinocchio::Mesh* out);
+	/*
+	* \brief converts T3DMesh to Pinocchio Mesh
+	* \brief in input T3DMesh which gets converted
+	* \brief out output Pinocchio Mesh
+	*/
+	void PINOCCHIOTOOLS_API convertMesh(const CForge::T3DMesh<float>& in, nsPinocchio::Mesh* out);
 	
 	
-	// copies and scales animation
-	void PINOCCHIOTOOLS_API copyAnimation(CForge::T3DMesh<float>* source, CForge::T3DMesh<float>* target, uint32_t animationIndex);
+	//TODO make motion retargeting here
+	/*
+	* \brief copies and scales animation
+	* \param in source source Mesh where the animation is taken form
+	* \param out target target Mesh where the animation will be copied to
+	* \param in animationIndex index of the animation in source which will be copied
+	*/
+	void PINOCCHIOTOOLS_API copyAnimation(CForge::T3DMesh<float>& source, CForge::T3DMesh<float>* target, uint32_t animationIndex);
 	
+	//TODO 2 functions from pinocchio revert
 	void computeTopology(nsPiR::Mesh* mesh);
 	void fixDupFaces(nsPiR::Mesh* mesh);
 }

@@ -7,7 +7,7 @@
 #include "../CForge/Graphics/VirtualCamera.h"
 
 namespace CForge {
-
+	
 	class SLOD{
 	public:
 		static SLOD* instance(void);
@@ -29,6 +29,7 @@ namespace CForge {
 		bool storeLOD = true;
 		bool skipMeshLoader = false;
 		bool forceLODregeneration = false;
+		bool useLibigl = false;
 		
 	protected:
 		SLOD(void);

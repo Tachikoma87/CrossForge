@@ -62,7 +62,7 @@ namespace CForge {
 		static void randSeed(uint64_t Seed); 
 
 		static uint64_t randMax(void) {
-			return std::numeric_limits<uint64_t>::max()/2ull;
+			return (std::numeric_limits<uint64_t>::max)()/2ull;
 		}//randMax
 
 		static uint64_t timestamp(void) {

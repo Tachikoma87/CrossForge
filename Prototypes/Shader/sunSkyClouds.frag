@@ -136,7 +136,7 @@ vec3 getSeaColor(vec3 p, vec3 n, vec3 l, vec3 eye, vec3 dist) {
 	fresnel = pow(fresnel,3.0) * 0.5;
 		
 	vec3 reflected = (SEA_BASE.y/0.18+SEA_BASE.z/0.36)*vec3(0.37, 0.55, 1.0); //getSkyColor(reflect(eye,n));
-	vec3 refracted = SEA_BASE + diffuse(n,l,80.0) * SEA_WATER_COLOR * 0.12;
+	vec3 refracted = SEA_BASE + diffuse(n,l,80.0) * SEA_WATER_COLOR * 0.12; 
 	
 	vec3 color = mix(refracted,reflected,fresnel);
 	
@@ -656,6 +656,8 @@ void main(){
 	float focus = Camera.ProjectionMatrix[1][1];
 
 	vec3 rayDir = normalize(camSide*ndc.x + camUp*ndc.y + camDir*focus);
+	float sDot = abs(dot(sunDir,vec3(0.0,1.0,0.0)));
+	SEA_BASE *= sDot;
 	
 	float sDot = abs(dot(sunDir,vec3(0.0,1.0,0.0)));
 	SEA_BASE *= sDot;
@@ -805,5 +807,5 @@ void main(){
 		           : scnCol*(1.0-distDiff)+(distDiff)*(SEA_BASE);
 	}
 
-	FragColor = vec4(oceanCol,0.0);
+	FragColor = vec4(clamp(oceanCol,0.0,1.0),0.0);
 }
