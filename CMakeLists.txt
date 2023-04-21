@@ -118,6 +118,11 @@ add_executable(CForgeSandbox
 #	Prototypes/Graphics/SFontManager.cpp
 #	Prototypes/Graphics/UBOTextData.cpp
 
+	#Inverse Kinematics Prototype
+	Prototypes/InverseKinematics/InverseKinematicsController.cpp
+	Prototypes/InverseKinematics/IKSkeletalActor.cpp
+	Prototypes/InverseKinematics/IKStickFigureActor.cpp
+
 	)
 
 if(EMSCRIPTEN)

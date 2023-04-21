@@ -34,7 +34,7 @@
 #include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 #include "Prototypes/TestScenes/ImGUITestScene.hpp"
-
+#include "Prototypes/TestScenes/InverseKinematicsTestScene.hpp"
 
 
 using namespace CForge;
@@ -60,10 +60,10 @@ using namespace Eigen;
 //#define ActiveScene ForwardTestScene
 //#define ActiveScene PrimitiveFactoryTestScene
 //#define ActiveScene FrustumCullingTestScene
-#define ActiveScene StickFigureTestScene
+//#define ActiveScene StickFigureTestScene
 //#define ActiveScene AssetGLTFTestScene
 //#define ActiveScene ImGUITestScene
-
+#define ActiveScene InverseKinematicsTestScene
 
 ActiveScene* pScene = nullptr;
 
