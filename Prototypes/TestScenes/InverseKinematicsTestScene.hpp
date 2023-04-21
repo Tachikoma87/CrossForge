@@ -214,8 +214,9 @@ namespace CForge {
 			for (int32_t i = 0; i < m_EndEffectors.size(); ++i) {
 				auto* pEndEffector = m_EndEffectors[i];
 
-				const AlignedBox3f TranslatedAABB = m_TargetMarkerAABB.translated(pEndEffector->Target);
-
+				//const AlignedBox3f TranslatedAABB = m_TargetMarkerAABB.translated(pEndEffector->Target); // according to emscripten 3.1.31 "translated" is not a member of AlignedBox<float, 3>
+				const AlignedBox3f TranslatedAABB = AlignedBox3f(m_TargetMarkerAABB.min() + pEndEffector->Target, m_TargetMarkerAABB.max() + pEndEffector->Target);
+				
 				const float T0 = 0.0f;
 				const float T1 = m_Cam.farPlane();
 				float TMin, TMax; // minimum and maximum of interval of overlap within [T0, T1] -> not actually used here, but required by function
