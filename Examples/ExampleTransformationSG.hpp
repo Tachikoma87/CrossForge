@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): ExampleTransformation_SG.hpp                                     *
+* File(s): ExampleTransformationSG.hpp                                     *
 *                                                                           *
 * Content:	Example scene that shows how transformations are applied with	*
 *			and without scenegraph.											*

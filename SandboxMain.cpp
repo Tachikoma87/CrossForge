@@ -21,6 +21,7 @@
 #include <Examples/ExampleSkeletalAnimation.hpp>
 #include <Examples/ExampleSkybox.hpp>
 #include <Examples/ExampleTransformation.hpp>
+#include <Examples/ExampleTransformationSG.hpp>
 #include <Examples/ExampleSockets.hpp>
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
@@ -49,6 +50,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleSkybox
 #define ActiveScene ExampleTransformation
+//#defince ActiveScene ExampleTransformationSG
 //#define ActiveScene ExampleSocket
 
 
