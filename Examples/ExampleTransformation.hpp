@@ -43,8 +43,6 @@ namespace CForge {
 			initCameraAndLights();
 
 			// load skybox and planetsystem
-			
-			Ri = AngleAxisf(CForgeMath::degToRad(45.0f / 120.0f), Vector3f::UnitY());
 
 			vector<string> m_EmptySpace;
 
@@ -195,47 +193,45 @@ namespace CForge {
 
 				Vector3f pos3;
 				Vector4f pos;
-				Matrix4f rMatrix;
-				rMatrix = CForgeMath::rotationMatrix(Ri);
 
 				pos3 = m_MercurySGN.position();
 				pos = Vector4f(pos3.x(), pos3.y(), pos3.z(), 1.0f);
-				pos = rMatrix * pos;
+				pos = CForgeMath::rotationMatrix((Quaternionf)AngleAxisf(CForgeMath::degToRad(45.0f / 120.0f), Vector3f::UnitY())) * pos;
 				m_MercurySGN.position(Vector3f(pos.x(), pos.y(), pos.z()));
 
 				pos3 = m_VenusSGN.position();
 				pos = Vector4f(pos3.x(), pos3.y(), pos3.z(), 1.0f);
-				pos = rMatrix * pos;
+				pos = CForgeMath::rotationMatrix((Quaternionf)AngleAxisf(CForgeMath::degToRad(42.0f / 120.0f), Vector3f::UnitY())) * pos;
 				m_VenusSGN.position(Vector3f(pos.x(), pos.y(), pos.z()));
 
 				pos3 = m_EarthSGN.position();
 				pos = Vector4f(pos3.x(), pos3.y(), pos3.z(), 1.0f);
-				pos = rMatrix * pos;
+				pos = CForgeMath::rotationMatrix((Quaternionf)AngleAxisf(CForgeMath::degToRad(40.0f / 120.0f), Vector3f::UnitY())) * pos;
 				m_EarthSGN.position(Vector3f(pos.x(), pos.y(), pos.z()));
 
 				pos3 = m_MarsSGN.position();
 				pos = Vector4f(pos3.x(), pos3.y(), pos3.z(), 1.0f);
-				pos = rMatrix * pos;
+				pos = CForgeMath::rotationMatrix((Quaternionf)AngleAxisf(CForgeMath::degToRad(36.0f / 120.0f), Vector3f::UnitY())) * pos;
 				m_MarsSGN.position(Vector3f(pos.x(), pos.y(), pos.z()));
 
 				pos3 = m_JupiterSGN.position();
 				pos = Vector4f(pos3.x(), pos3.y(), pos3.z(), 1.0f);
-				pos = rMatrix * pos;
+				pos = CForgeMath::rotationMatrix((Quaternionf)AngleAxisf(CForgeMath::degToRad(30.0f / 120.0f), Vector3f::UnitY())) * pos;
 				m_JupiterSGN.position(Vector3f(pos.x(), pos.y(), pos.z()));
 
 				pos3 = m_SaturnSGN.position();
 				pos = Vector4f(pos3.x(), pos3.y(), pos3.z(), 1.0f);
-				pos = rMatrix * pos;
+				pos = CForgeMath::rotationMatrix((Quaternionf)AngleAxisf(CForgeMath::degToRad(27.0f / 120.0f), Vector3f::UnitY())) * pos;
 				m_SaturnSGN.position(Vector3f(pos.x(), pos.y(), pos.z()));
 
 				pos3 = m_UranusSGN.position();
 				pos = Vector4f(pos3.x(), pos3.y(), pos3.z(), 1.0f);
-				pos = rMatrix * pos;
+				pos = CForgeMath::rotationMatrix((Quaternionf)AngleAxisf(CForgeMath::degToRad(22.0f / 120.0f), Vector3f::UnitY())) * pos;
 				m_UranusSGN.position(Vector3f(pos.x(), pos.y(), pos.z()));
 
 				pos3 = m_NeptuneSGN.position();
 				pos = Vector4f(pos3.x(), pos3.y(), pos3.z(), 1.0f);
-				pos = rMatrix * pos;
+				pos = CForgeMath::rotationMatrix((Quaternionf)AngleAxisf(CForgeMath::degToRad(19.0f / 120.0f), Vector3f::UnitY())) * pos;
 				m_NeptuneSGN.position(Vector3f(pos.x(), pos.y(), pos.z()));
 
 				m_RenderWin.update();
@@ -299,8 +295,6 @@ namespace CForge {
 		StaticActor m_Saturn;
 		StaticActor m_Uranus;
 		StaticActor m_Neptune;
-
-		Quaternionf Ri;
 
 	};//ExampleTransformation
 
