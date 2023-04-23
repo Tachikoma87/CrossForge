@@ -136,9 +136,13 @@ namespace CForge {
 			m_SolarsystemSGN.init(&m_RootSGN, Vector3f(0.0f, 2.0f, 0.0f));
 
 			//Sun
-			m_SunSGN.init(&m_SolarsystemSGN, &m_SunBody);
+			m_SunTransformSGN.init(&m_SolarsystemSGN);
+			m_SunSGN.init(&m_SunTransformSGN, &m_SunBody);
 			m_SunSGN.scale(Vector3f(0.7f, 0.7f, 0.7f));
 
+			// rotation
+			R = AngleAxisf(CForgeMath::degToRad(20.0f / 120.0f), Vector3f::UnitY());
+			m_SunTransformSGN.rotationDelta(R);
 
 			// Mercury
 			m_MercuryOrbitSGN.init(&m_SolarsystemSGN);
@@ -322,6 +326,7 @@ namespace CForge {
 		SGNTransformation m_SolarsystemSGN;
 
 		SGNGeometry m_SunSGN;
+		SGNTransformation m_SunTransformSGN;
 		SGNGeometry m_MercurySGN;
 		SGNTransformation m_MercuryOrbitSGN;
 		SGNTransformation m_MercuryTransformSGN;
