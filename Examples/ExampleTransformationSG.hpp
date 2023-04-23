@@ -141,6 +141,7 @@ namespace CForge {
 			m_SunSGN.scale(Vector3f(0.7f, 0.7f, 0.7f));
 
 			// rotation
+			Quaternionf R;
 			R = AngleAxisf(CForgeMath::degToRad(20.0f / 120.0f), Vector3f::UnitY());
 			m_SunTransformSGN.rotationDelta(R);
 
@@ -151,7 +152,6 @@ namespace CForge {
 			m_MercurySGN.scale(Vector3f(0.1f, 0.1f, 0.1f));
 
 				// orbiting
-			Quaternionf R;
 			R = AngleAxisf(CForgeMath::degToRad(45.0f / 120.0f), Vector3f::UnitY());
 			m_MercuryOrbitSGN.rotationDelta(R);
 
