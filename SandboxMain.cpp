@@ -49,8 +49,8 @@ using namespace Eigen;
 //#define ActiveScene ExampleSceneGraph
 //#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleSkybox
-#define ActiveScene ExampleTransformation
-//#defince ActiveScene ExampleTransformationSG
+//#define ActiveScene ExampleTransformation
+#define ActiveScene ExampleTransformationSG
 //#define ActiveScene ExampleSocket
 
 
