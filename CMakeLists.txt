@@ -43,6 +43,14 @@ if(EMSCRIPTEN)
 	FetchContent_MakeAvailable(tinygltf)
 	include_directories(${tinygltf_SOURCE_DIR}/)
 
+	FetchContent_Declare(
+		imgui
+		URL https://github.com/ocornut/imgui/archive/refs/tags/v1.89.4.zip
+	)
+	FetchContent_MakeAvailable(imgui)
+	include_directories(${imgui_SOURCE_DIR}/)
+	include_directories(${imgui_SOURCE_DIR}/backends)
+
 
 	set(CMAKE_EXECUTABLE_SUFFIX .html)
 else()

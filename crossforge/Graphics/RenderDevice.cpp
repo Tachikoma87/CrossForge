@@ -288,6 +288,8 @@ namespace CForge {
 
 
 	void RenderDevice::listen(const VirtualCameraMsg Msg) {
+		if (Msg.pCaller != m_pActiveCamera) return; // ignore messages of not active cameras
+
 		switch (Msg.Code) {
 		case VirtualCameraMsg::POSITION_CHANGED: {
 			m_CameraUBO.position(m_pActiveCamera->position());
