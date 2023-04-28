@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include <CForge/Graphics/OpenGLHeader.h>
 #include "../../CForge/Graphics/RenderDevice.h"
 #include "PPScreenQuad.h"
 

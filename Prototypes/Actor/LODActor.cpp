@@ -1,10 +1,9 @@
-#include <glad/glad.h>
+#include <crossforge/Graphics/OpenGLHeader.h>
 #include "LODActor.h"
-#include "../../CForge/Graphics/RenderDevice.h"
-#include "../../CForge/Graphics/GraphicsUtility.h"
-#include "../../CForge/Core/SLogger.h"
+#include <crossforge/Graphics/RenderDevice.h>
+#include <crossforge/Core/SLogger.h>
 #include "../MeshDecimate.h"
-#include "../../CForge/Graphics/Shader/SShaderManager.h"
+#include <crossforge/Graphics/Shader/SShaderManager.h>
 #include "../LODHandler.h"
 #include <iostream>
 
@@ -12,7 +11,9 @@
 #define SKIP_INSTANCED_QUERIES false
 #define CPU_QUERY true
 
+#ifndef M_PI
 #define M_PI 3.1415926535
+#endif
 
 namespace CForge {
 	LODActor::LODActor(void) : IRenderableActor("LODActor", ATYPE_STATIC) {
@@ -206,7 +207,7 @@ namespace CForge {
 				uint32_t BufferSize = 0;
 			
 				m_VertexUtility.buildBuffer(pMesh->vertexCount(), (void**)&pBuffer, &BufferSize, pMesh);
-			
+				
 				m_VertexBuffers.push_back(pBuffer);
 				m_VertexBufferSizes.push_back(BufferSize);
 				}
@@ -245,7 +246,7 @@ namespace CForge {
 		if (level == m_LODLevel)
 			return;
 		m_LODLevel = level;
-
+		
 		if (storeOnVRAM) {
 			m_pVertexArray = m_pVertexArrays[level];
 			m_pVertexArray->bind();
@@ -277,7 +278,7 @@ namespace CForge {
 				SLogger::log("Unknown exception occurred during building of index buffer!");
 				return;
 			}
-
+		
 			m_pVertexArray->bind();
 			setBufferData();
 			m_pVertexArray->unbind();
@@ -287,7 +288,7 @@ namespace CForge {
 	uint32_t LODActor::getLODLevel() {
 		return m_LODLevel;
 	}
-
+	
 	void LODActor::clear(void) {
 		m_VertexBuffer.clear();
 		m_ElementBuffer.clear();
@@ -315,7 +316,7 @@ namespace CForge {
 				m_ElementBuffers[i] = nullptr;
 			}
 		}
-
+		
 		if (storeOnVRAM) {
 			for (uint32_t i = 0; i < m_pVertexArrays.size(); i++) {
 				if (nullptr != m_pVertexArrays[i]) {
@@ -361,51 +362,53 @@ namespace CForge {
 		if (!m_faceCulling)
 			glDisable(GL_CULL_FACE);
 		if (m_isInstanced) {
-#if LOD_RENDERING
-		//	for (uint32_t j = 0; j < m_instancedMatRef.size(); j++) {
-		//		if (m_instancedMatRef[j]->size() > 0) {
-		//			
-		//			bindLODLevel(j);
-		//			m_pVertexArray->bind();
-		//			uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
-		//			
-		//			for (uint32_t k = 0; k < m_instancedMatRef[j]->size(); k += maxInstances) {
-		//				
-		//				uint32_t range = std::min((k + maxInstances), (uint32_t) m_instancedMatRef[j]->size());
-		//				pRDev->getInstancedUBO()->setInstances(m_instancedMatRef[j], Eigen::Vector2i(k, range));
-		//				
-		//				for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
-		//					if (i->pShader == nullptr) continue;
-		//					if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-		//						pRDev->activeShader(pRDev->shadowPassShaderInstanced());
-		//					}
-		//					else {
-		//						pRDev->activeShader(i->pShader);
-		//						pRDev->activeMaterial(&i->Material);
-		//					}
-		//					glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), range-k);
-		//				} //for [render groups]
-		//			} //for [maxInstances]
-		//		} //if [instances exist]
-		//	}
-#else
+			for (uint32_t j = 0; j < m_instancedMatRef.size(); j++) {
+				//if (m_instancedMatRef[j]->size() > 0) {
+				//	
+				//	bindLODLevel(j);
+				//	m_pVertexArray->bind();
+				//	uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
+				//	
+				//	for (uint32_t k = 0; k < m_instancedMatRef[j]->size(); k += maxInstances) {
+				//		
+				//		uint32_t range = std::min((k + maxInstances), (uint32_t) m_instancedMatRef[j]->size());
+				//		pRDev->getInstancedUBO()->setInstances(m_instancedMatRef[j], Eigen::Vector2i(k, range));
+				//		
+				//		for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
+				//			if (i->pShader == nullptr) continue;
+				//			if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+				//				pRDev->activeShader(pRDev->shadowPassShaderInstanced());
+				//			}
+				//			else {
+				//				pRDev->activeShader(i->pShader);
+				//				pRDev->activeMaterial(&i->Material);
+				//			}
+				//			glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), range-k);
+				//		} //for [render groups]
+				//	} //for [maxInstances]
+				//} //if [instances exist]
+			}
+		} else {
 			m_pVertexArray->bind();
-			uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
-
-			for (uint32_t k = 0; k < m_instancedMatrices.size(); k += maxInstances) {
-
-				uint32_t range = std::min((k + maxInstances), (uint32_t) m_instancedMatrices.size());
-				pRDev->getInstancedUBO()->setInstances(&m_instancedMatrices, Eigen::Vector2i(k, range));
-
-				for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
-					if (i->pShader == nullptr) continue;
-					if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-						pRDev->activeShader(pRDev->shadowPassShaderInstanced());
-					}
-					else {
-						pRDev->activeShader(i->pShader);
-						pRDev->activeMaterial(&i->Material);
-					}
+		//	uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
+//
+//			for (uint32_t k = 0; k < m_instancedMatrices.size(); k += maxInstances) {
+//
+//				uint32_t range = std::min((k + maxInstances), (uint32_t) m_instancedMatrices.size());
+//				pRDev->getInstancedUBO()->setInstances(&m_instancedMatrices, Eigen::Vector2i(k, range));
+//
+			for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
+				/*if (i->pShader == nullptr) continue;
+				if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+					pRDev->activeShader(pRDev->shadowPassShader());
+				}
+				else {
+					pRDev->activeShader(i->pShader);
+					pRDev->activeMaterial(&i->Material);
+				}*/
+				glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBufferSizes[m_LODLevel] / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
+			}//for[all render groups]
+		}
 					glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), range-k);
 				} //for [render groups]
 			} //for [maxInstances]
@@ -479,19 +482,6 @@ namespace CForge {
 // 		uint32_t c = 0;
 		if (m_isManualInstaned) { // all instanced at once
 			for (uint32_t i = 0; i < m_instancedMatrices.size(); i++) {
-
-// 				auto start = std::chrono::steady_clock::now();
-				
-#if CMIX
-				bool res2 = !fovCulling(pRDev, &m_instancedMatrices[i]);
-				bool res;
-				if (res2)
-					res = true;
-				else
-					res = !frustumCulling(pRDev, &m_instancedMatrices[i]);
-#elif CFOV
-				bool res2 = !fovCulling(pRDev, &m_instancedMatrices[i]);
-				bool res = res2;
 #else
 				//TODO
 				//bool res2 = !frustumCulling(pRDev, &m_instancedMatrices[i]);
@@ -506,11 +496,11 @@ namespace CForge {
 				if (res)
 					continue;
 #if SKIP_INSTANCED_QUERIES
-				m_instancedMatRef[0]->push_back(m_instancedMatrices[i]);
+					m_instancedMatRef[0]->push_back(m_instancedMatrices[i]);
 				if (!this->isInLODSG()) {
 					pRDev->LODSGPushBack(this, Eigen::Matrix4f::Identity());
 					this->setLODSG(true);
-				}
+					}
 #else
 				pRDev->modelUBO()->modelMatrix(m_instancedMatrices[i]);
 				queryAABB(pRDev, m_instancedMatrices[i]);
@@ -532,8 +522,8 @@ namespace CForge {
 			//if (!frustumCulling(pRDev, &sgMat))
 			//	return;
 #if SKIP_INSTANCED_QUERIES
-			m_instancedMatrices.push_back(sgMat);
-			m_instancedMatRef[0]->push_back(m_instancedMatrices.at(m_instancedMatrices.size()-1));
+				m_instancedMatrices.push_back(sgMat);
+				m_instancedMatRef[0]->push_back(m_instancedMatrices.at(m_instancedMatrices.size()-1));
 			if (!this->isInLODSG()) {
 				pRDev->LODSGPushBack(this, Eigen::Matrix4f::Identity());
 				this->setLODSG(true);
@@ -582,17 +572,8 @@ namespace CForge {
 		GLuint queryID;
 		glGenQueries(1, &queryID);
 		glBeginQuery(GL_SAMPLES_PASSED, queryID);
-		
-		if (!glIsQuery(queryID)) {
-			CForgeExcept("query generation failed");
-			// fetch current queries if no more are available
-			pRDev->fetchQueryResults();
-			glGenQueries(1, &queryID);
-			glBeginQuery(GL_SAMPLES_PASSED, queryID);
-		}
-		
-		pRDev->LODQueryContainerPushBack(queryID, this, transform);
-		
+
+	
 		renderAABB(pRDev);
 		glEndQuery(GL_SAMPLES_PASSED);
 #endif
@@ -794,7 +775,7 @@ namespace CForge {
 //		    && AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_TOP])
 //		    && AABBonPlan(&sclAABB, &pFrust->plan[VirtualCamera::FRUSTUMPLANE_FAR]);
 //	}
-	
+		
 	// algorithm from https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html
 //	inline bool LODActor::AABBonPlan(const T3DMesh<float>::AABB* aabb, const VirtualCamera::FrustumPlane* plan) {
 //		Eigen::Vector3f c = 0.5*(aabb->Min+aabb->Max);
@@ -838,41 +819,41 @@ namespace CForge {
 		// position array
 		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_POSITION)) {
 			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION));
-			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)(m_VertexUtility.offset(VertexUtility::VPROP_POSITION)));
+			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_POSITION), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)(uint64_t(m_VertexUtility.offset(VertexUtility::VPROP_POSITION))));
 		}
 
 		// normal array
 		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_NORMAL)) {
 			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_NORMAL));
-			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_NORMAL), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)m_VertexUtility.offset(VertexUtility::VPROP_NORMAL));
+			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_NORMAL), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)uint64_t(m_VertexUtility.offset(VertexUtility::VPROP_NORMAL)));
 		}
 
 		// tangent array
 		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_TANGENT)) {
 			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_TANGENT));
-			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_TANGENT), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)m_VertexUtility.offset(VertexUtility::VPROP_TANGENT));
+			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_TANGENT), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)uint64_t(m_VertexUtility.offset(VertexUtility::VPROP_TANGENT)));
 		}
 
 		// texture coordinates
 		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_UVW)) {
 			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW));
-			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)m_VertexUtility.offset(VertexUtility::VPROP_UVW));
+			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_UVW), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)uint64_t(m_VertexUtility.offset(VertexUtility::VPROP_UVW)));
 		}
 
 		// vertex colors
 		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_COLOR)) {
 			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_COLOR));
-			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_COLOR), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)m_VertexUtility.offset(VertexUtility::VPROP_COLOR));
+			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_COLOR), 3, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (void*)uint64_t(m_VertexUtility.offset(VertexUtility::VPROP_COLOR)));
 		}
 
 		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_BONEINDICES)) {
 			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_INDICES));
-			glVertexAttribIPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_INDICES), 4, GL_INT, m_VertexUtility.vertexSize(), (const void*)m_VertexUtility.offset(VertexUtility::VPROP_BONEINDICES));
+			glVertexAttribIPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_INDICES), 4, GL_INT, m_VertexUtility.vertexSize(), (const void*)uint64_t(m_VertexUtility.offset(VertexUtility::VPROP_BONEINDICES)));
 		}
 
 		if (m_VertexUtility.hasProperties(VertexUtility::VPROP_BONEWEIGHTS)) {
 			glEnableVertexAttribArray(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_WEIGHTS));
-			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_WEIGHTS), 4, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (const void*)m_VertexUtility.offset(VertexUtility::VPROP_BONEWEIGHTS));
+			glVertexAttribPointer(GLShader::attribArrayIndex(GLShader::ATTRIB_BONE_WEIGHTS), 4, GL_FLOAT, GL_FALSE, m_VertexUtility.vertexSize(), (const void*)uint64_t(m_VertexUtility.offset(VertexUtility::VPROP_BONEWEIGHTS)));
 		}
 	}//setBufferData
 }

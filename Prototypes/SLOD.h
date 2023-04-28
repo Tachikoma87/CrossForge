@@ -1,13 +1,13 @@
 #pragma once
 //#include "../thirdparty/tinyxml2/tinyxml2.h"
 #include <tinyxml2.h>
-#include "../CForge/AssetIO/File.h"
+#include <crossforge/AssetIO/File.h>
 #include <chrono>
-#include "../CForge/Core/ITListener.hpp"
-#include "../CForge/Graphics/VirtualCamera.h"
+#include <crossforge/Core/ITListener.hpp>
+#include <crossforge/Graphics/VirtualCamera.h>
 
 namespace CForge {
-	
+
 	class SLOD{
 	public:
 		static SLOD* instance(void);

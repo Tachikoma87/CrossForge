@@ -136,7 +136,7 @@ vec3 getSeaColor(vec3 p, vec3 n, vec3 l, vec3 eye, vec3 dist) {
 	fresnel = pow(fresnel,3.0) * 0.5;
 		
 	vec3 reflected = (SEA_BASE.y/0.18+SEA_BASE.z/0.36)*vec3(0.37, 0.55, 1.0); //getSkyColor(reflect(eye,n));
-	vec3 refracted = SEA_BASE + diffuse(n,l,80.0) * SEA_WATER_COLOR * 0.12; 
+	vec3 refracted = SEA_BASE + diffuse(n,l,80.0) * SEA_WATER_COLOR * 0.12;
 	
 	vec3 color = mix(refracted,reflected,fresnel);
 	

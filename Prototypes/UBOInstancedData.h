@@ -10,7 +10,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -18,7 +18,7 @@
 #ifndef __CFORGE_UBOINSTANCEDDATA_H__
 #define __CFORGE_UBOINSTANCEDDATA_H__
 
-#include "../CForge/Graphics/GLBuffer.h"
+#include "../crossforge/Graphics/GLBuffer.h"
 
 namespace CForge {
 	/**

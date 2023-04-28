@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SLOD.h"
-#include "../CForge/AssetIO/T3DMesh.hpp"
+#include <crossforge/AssetIO/T3DMesh.hpp>
 #include "Actor/LODActor.h"
 
 namespace CForge {
@@ -19,21 +19,21 @@ namespace CForge {
 				TRI_S_AVG
 			};
 			
-			static float getTriSizeInfo(CForge::T3DMesh<float>& pMesh, uint32_t type);
+			static float getTriSizeInfo(CForge::T3DMesh<float>& pMesh, TriSizeInfo type);
 
 			LODHandler(void);
 			~LODHandler(void);
 			
 			/**
 			* loads lod modells from hdd, or generates them if not available or invalid
-			* \param pActor - LODActor containing mesh
+			* @param pActor - LODActor containing mesh
 			*/
 			void loadLODmeshes(LODActor* pActor, const std::string Filepath, const std::vector<float>& decimateAmount, const std::vector<float>& triBBratios);
 			void loadLODmeshes(LODActor* pActor, const std::string Filepath);
 			
 			/**
-			* \param in/out LODmeshes original mesh on index 0
-			* \param in/out stages - input degree of decimation, stages where decimation failed get removed
+			* @param in/out LODmeshes original mesh on index 0
+			* @param in/out stages - input degree of decimation, stages where decimation failed get removed
 			*/
 			void generateLODMeshes(std::vector<T3DMesh<float>*>* LODmeshes, std::vector<float>* stages);
 

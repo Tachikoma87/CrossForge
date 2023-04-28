@@ -1,5 +1,5 @@
 #include "MeshDecimate.h"
-#include "../CForge/AssetIO/SAssetIO.h"
+#include "../crossforge/AssetIO/SAssetIO.h"
 #include <chrono>
 #include <iostream>
 #include <unordered_map>
@@ -376,7 +376,7 @@ namespace CForge {
 		createOctree(Root, &DV, &depthNodes);
 
 		// decimate, find targets
-		float progressDiff = DF.rows() - faceAmount;
+		float progressDiff = float(DF.rows()) - float(faceAmount);
 		printf("progress:\n");
 		while (DF.rows() - removeFaceCount > faceAmount) {
 			printf("\r");

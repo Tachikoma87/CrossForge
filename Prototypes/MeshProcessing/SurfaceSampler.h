@@ -10,7 +10,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -18,8 +18,8 @@
 #ifndef __CFORGE_SURFACESAMPLER_H__
 #define __CFORGE_SURFACESAMPLER_H__
 
-#include "../../CForge/Core/CForgeObject.h"
-#include "../../CForge/AssetIO/SAssetIO.h"
+#include <crossforge/Core/CForgeObject.h>
+#include <crossforge/AssetIO/SAssetIO.h>
 
 namespace CForge {
 	class SurfaceSampler : public CForgeObject {

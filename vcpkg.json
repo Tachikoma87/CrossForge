@@ -2,13 +2,13 @@
 	"name": "crossforge",
 	"version":  "0.1",
 	"dependencies": [
+		"eigen3",
 		"glad",
 		"glfw3",
 		"assimp",
 		"freetype",
 		"libigl",
 		"libwebp",
-		"tinyxml2"
 	]
 }
 

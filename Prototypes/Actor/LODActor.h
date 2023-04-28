@@ -10,7 +10,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -18,18 +18,18 @@
 #ifndef __CFORGE_LODACTOR_H__
 #define __CFORGE_LODACTOR_H__
 
-#include "../../CForge/Graphics/Actors/IRenderableActor.h"
-#include "../../CForge/AssetIO/T3DMesh.hpp"
-#include "../../CForge/Graphics/GLBuffer.h"
-#include "../../CForge/Graphics/GLVertexArray.h"
-#include "../../CForge/Graphics/Shader/GLShader.h"
-#include "../../CForge/Graphics/RenderMaterial.h"
-#include "../../CForge/Graphics/Actors/VertexUtility.h"
-#include "../../CForge/Graphics/Actors/RenderGroupUtility.h"
+#include "../../crossforge/Graphics/Actors/IRenderableActor.h"
+#include "../../crossforge/AssetIO/T3DMesh.hpp"
+#include "../../crossforge/Graphics/GLBuffer.h"
+#include "../../crossforge/Graphics/GLVertexArray.h"
+#include "../../crossforge/Graphics/Shader/GLShader.h"
+#include "../../crossforge/Graphics/RenderMaterial.h"
+#include "../../crossforge/Graphics/Actors/VertexUtility.h"
+#include "../../crossforge/Graphics/Actors/RenderGroupUtility.h"
 #include "../SLOD.h"
 
 #include "../UBOInstancedData.h"
-#include "../../CForge/Graphics/VirtualCamera.h"
+#include "../../CForge/Graphics/VirtualCamera.h" //TODO
 
 namespace CForge {
 	/**

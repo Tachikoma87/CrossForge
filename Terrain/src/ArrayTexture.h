@@ -1,7 +1,6 @@
 #pragma once
 
-#include "CForge/Graphics/GLTexture2D.h"
-#include <glad/glad.h>
+#include <CForge/Graphics/OpenGLHeader.h>
 
 using namespace CForge;
 using namespace std;

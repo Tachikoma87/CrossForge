@@ -10,7 +10,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -18,9 +18,9 @@
 #ifndef __CFORGE_IMUINPUTDEVICETESTSCENE_HPP__
 #define __CFORGE_IMUINPUTDEVICETESTSCENE_HPP__
 
-#include "../../Examples/exampleSceneBase.hpp"
+#include "../../Examples/ExampleSceneBase.hpp"
 #include "../Misc/IMUCameraController.h"
-#include "../../CForge/Graphics/Actors/SkyboxActor.h"
+#include <crossforge/Graphics/Actors/SkyboxActor.h>
 
 
 using namespace Eigen;
@@ -76,12 +76,12 @@ namespace CForge {
 			clear();
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 			initWindowAndRenderDevice();
 			
 			// initialize camera
 			m_Cam.init(Vector3f(0.0f, 0.25f, 8.0f), Vector3f::UnitY());
-			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
 			// initialize sun (key lights) and back ground light (fill light)
 			Vector3f SunPos = Vector3f(-15.0f, 625.0f, 500.0f);
@@ -89,7 +89,8 @@ namespace CForge {
 			m_Sun.init(SunPos, (Vector3f(0.0f, 0.0f, 0.0f) - SunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 15.0f);
 			// sun will cast shadows
 			uint32_t ShadowMapSize = 4 * 1024;
-			m_Sun.initShadowCasting(ShadowMapSize, ShadowMapSize, GraphicsUtility::orthographicProjection(275.0f, 275.0f, 5.0f, 1500.0f));
+			//m_Sun.initShadowCasting(ShadowMapSize, ShadowMapSize, GraphicsUtility::orthographicProjection(275.0f, 275.0f, 5.0f, 1500.0f));
+			m_Sun.initShadowCasting(ShadowMapSize, ShadowMapSize, Vector2i(275, 275), 5.0f, 1500.0f);
 			m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f, Vector3f(0.0f, 0.0f, 0.0f));
 
 			// set camera and lights
@@ -147,13 +148,13 @@ namespace CForge {
 			m_GroundSGN.init(&m_GroundTransformSGN, &m_Ground);
 			m_GroundSGN.scale(Vector3f(600.0f, 600.0f, 1.0f));
 			Quaternionf R = Quaternionf::Identity();
-			R = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
+			R = AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX());
 			m_GroundSGN.rotation(R);
 
 
 
 			// set random seed
-			CoreUtility::randSeed(CoreUtility::timestamp());
+			CForgeMath::randSeed(CForgeUtility::timestamp());
 
 			// generat forest
 			generateForest(m_TreeCount, m_ForestDimension);
@@ -165,14 +166,14 @@ namespace CForge {
 
 
 			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CoreUtility::timestamp();
+			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
 
 			std::string GLError = "";
-			GraphicsUtility::checkGLError(&GLError);
+			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
-			uint64_t LastMessage = CoreUtility::timestamp();
+			uint64_t LastMessage = CForgeUtility::timestamp();
 
 			uint8_t Buffer[256];
 			uint32_t MsgLength;
@@ -181,14 +182,10 @@ namespace CForge {
 			uint16_t Port;
 
 			m_IMUCam.init(25001, 25000, 200);
-
-			bool Flying = false;
-
-			uint32_t PlayerScore = 0;
-
+	
 		}//init
 
-		void clear(void) {
+		void clear(void) override {
 			ExampleSceneBase::clear();
 			m_IMUCam.clear();
 
@@ -209,88 +206,71 @@ namespace CForge {
 		}//clear
 
 
-		void run(void) {
-			uint64_t LastMessage = CoreUtility::timestamp();
-
-			uint8_t Buffer[256];
-			uint32_t MsgLength;
-
-			std::string Sender;
-			uint16_t Port;
-
-			m_IMUCam.init(25001, 25000, 200);
-
-			bool Flying = false;
-
-			uint32_t PlayerScore = 0;
-
-			while (!m_RenderWin.shutdown()) {
-
-				m_RenderWin.update();
-				m_SG.update(60.0f / m_FPS);
-				m_SkyboxSG.update(60.0f / m_FPS);
-
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) Flying = !Flying;
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) m_IMUCam.calibrate();
-
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) m_IMUCam.recordData("Assets/IMUData.csv");
-				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) m_IMUCam.recordData();
-
-				Vector3f Pos = m_Cam.position();
-				Pos.x() = std::max(-m_ForestDimension, Pos.x());
-				Pos.x() = std::min(m_ForestDimension, Pos.x());
-				if (!Flying) Pos.y() = 0.85f;
-				Pos.z() = std::max(-m_ForestDimension, Pos.z());
-				Pos.z() = std::min(m_ForestDimension, Pos.z());
-
-				m_Cam.position(Pos);
-
-				m_IMUCam.update(&m_Cam, 60.0f / m_FPS);
-
-				Pos = m_Cam.position();
-
-				// player collision with tree?
-				for (uint32_t i = 0; i < m_TreeCount; ++i) {
-					if (m_pTreeSpheres[i].pointInside(Pos)) {
-						// set player outside sphere
-						Vector3f V = m_pTreeSpheres[i].Position + std::sqrt(m_pTreeSpheres[i].Radius2) * (Pos - m_pTreeSpheres[i].Position).normalized();
-						Pos.x() = V.x();
-						Pos.z() = V.z();
-						m_Cam.position(Pos);
-					}
-				}
-
-				// player within coin range?
-				for (uint32_t i = 0; i < m_CoinCount; ++i) {
-					bool En;
-					m_pCoinNodes[i].enabled(&En, nullptr);
-					if (En && m_pCoinBS[i].pointInside(Pos)) {
-						m_pCoinNodes[i].enable(false, false);
-						PlayerScore++;
-						printf("Player Score: %d\n", PlayerScore);
-					}
-				}
-
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-				m_SG.render(&m_RenderDev);
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-				m_SG.render(&m_RenderDev);
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
-
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
-				m_SkyboxSG.render(&m_RenderDev);
-
-				m_RenderWin.swapBuffers();
-
-				updateFPS();
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
+		void mainLoop(void) override{
 			
+			m_RenderWin.update();
+			m_SG.update(60.0f / m_FPS);
+			m_SkyboxSG.update(60.0f / m_FPS);
 
-			}//while[main loop]
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) Flying = !Flying;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) m_IMUCam.calibrate();
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) m_IMUCam.recordData("Assets/IMUData.csv");
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_4, true)) m_IMUCam.recordData();
+
+			Vector3f Pos = m_Cam.position();
+			Pos.x() = std::max(-m_ForestDimension, Pos.x());
+			Pos.x() = std::min(m_ForestDimension, Pos.x());
+			if (!Flying) Pos.y() = 0.85f;
+			Pos.z() = std::max(-m_ForestDimension, Pos.z());
+			Pos.z() = std::min(m_ForestDimension, Pos.z());
+
+			m_Cam.position(Pos);
+
+			m_IMUCam.update(&m_Cam, 60.0f / m_FPS);
+
+			Pos = m_Cam.position();
+
+			// player collision with tree?
+			for (uint32_t i = 0; i < m_TreeCount; ++i) {
+				if (m_pTreeSpheres[i].pointInside(Pos)) {
+					// set player outside sphere
+					Vector3f V = m_pTreeSpheres[i].Position + std::sqrt(m_pTreeSpheres[i].Radius2) * (Pos - m_pTreeSpheres[i].Position).normalized();
+					Pos.x() = V.x();
+					Pos.z() = V.z();
+					m_Cam.position(Pos);
+				}
+			}
+
+			// player within coin range?
+			for (uint32_t i = 0; i < m_CoinCount; ++i) {
+				bool En;
+				m_pCoinNodes[i].enabled(&En, nullptr);
+				if (En && m_pCoinBS[i].pointInside(Pos)) {
+					m_pCoinNodes[i].enable(false, false);
+					PlayerScore++;
+					printf("Player Score: %d\n", PlayerScore);
+				}
+			}
+
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			m_SG.render(&m_RenderDev);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			m_SG.render(&m_RenderDev);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+			m_SkyboxSG.render(&m_RenderDev);
+
+			m_RenderWin.swapBuffers();
+
+			updateFPS();
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
+			
 		}//run
 	protected:
 
@@ -306,21 +286,21 @@ namespace CForge {
 			for (uint32_t i = 0; i < TreeCount; ++i) {
 				// placement in world
 				Vector3f Pos;
-				Pos.x() = CoreUtility::randRange(MinPlane, MaxPlane);
+				Pos.x() = CForgeMath::randRange(MinPlane, MaxPlane);
 				Pos.y() = 0.0f;
-				Pos.z() = CoreUtility::randRange(MinPlane, MaxPlane);
+				Pos.z() = CForgeMath::randRange(MinPlane, MaxPlane);
 
-				float Scaling = CoreUtility::randRange(3.8f, 8.4f);
+				float Scaling = CForgeMath::randRange(3.8f, 8.4f);
 
 				Quaternionf RotationY;
-				RotationY = AngleAxisf(GraphicsUtility::degToRad(CoreUtility::randRange(0.0f, 360.0f)), Vector3f::UnitY());
+				RotationY = AngleAxisf(CForgeMath::degToRad(CForgeMath::randRange(0.0f, 360.0f)), Vector3f::UnitY());
 
 				m_pTreeTransNodes[i].init(&m_RootSGN);
 				m_pTreeTransNodes[i].translation(Pos);
 				m_pTreeTransNodes[i].scale(Vector3f(Scaling, Scaling, Scaling));
 				m_pTreeTransNodes[i].rotation(RotationY);
 
-				if (CoreUtility::rand() % 5 != 0) {
+				if (CForgeMath::rand() % 5 != 0) {
 					Vector3f StaticOffset = Vector3f(0.0f, 1.8f * Scaling, 0.0f);
 					m_pTreeNodes[i].init(&m_pTreeTransNodes[i], &m_Tree1, StaticOffset);
 					m_pTreeSpheres[i].Position = Pos + Vector3f(0.0f, 1.0f, 0.0f);;
@@ -350,17 +330,17 @@ namespace CForge {
 
 			float CoinScale = 1.25f;
 			Quaternionf CoinRotDelta;
-			CoinRotDelta = AngleAxisf(GraphicsUtility::degToRad(180.0f / 60.0f), Vector3f::UnitY());
+			CoinRotDelta = AngleAxisf(CForgeMath::degToRad(180.0f / 60.0f), Vector3f::UnitY());
 
 			for (uint32_t i = 0; i < CoinCount; ++i) {
 				// placement in world
 				Vector3f Pos;
-				Pos.x() = CoreUtility::randRange(MinPlane, MaxPlane);
+				Pos.x() = CForgeMath::randRange(MinPlane, MaxPlane);
 				Pos.y() = 1.5f;
-				Pos.z() = CoreUtility::randRange(MinPlane, MaxPlane);
+				Pos.z() = CForgeMath::randRange(MinPlane, MaxPlane);
 
 				Quaternionf RotationY;
-				RotationY = AngleAxisf(GraphicsUtility::degToRad(CoreUtility::randRange(0.0f, 360.0f)), Vector3f::UnitY());
+				RotationY = AngleAxisf(CForgeMath::degToRad(CForgeMath::randRange(0.0f, 360.0f)), Vector3f::UnitY());
 
 				m_pCoinTransNodes[i].init(&m_RootSGN);
 				m_pCoinTransNodes[i].translation(Pos);
@@ -398,19 +378,22 @@ namespace CForge {
 		uint32_t m_TreeCount;
 		uint32_t m_CoinCount;
 		float m_ForestDimension;
+
+		uint64_t LastMessage = CForgeUtility::timestamp();
+
+		uint8_t Buffer[256];
+		uint32_t MsgLength;
+
+		std::string Sender;
+		uint16_t Port;
+
+		bool Flying = false;
+
+		uint32_t PlayerScore = 0;
+
 	};// IMUInputDeviceTestScene
 
 
-	
-
-	void imuInputDeviceTestScene(void) {
-
-		IMUInputDeviceTestScene Scene;
-		Scene.init();
-		Scene.run();
-		Scene.clear();
-
-	}//exampleMinimumGraphicsSetup
 
 }
 

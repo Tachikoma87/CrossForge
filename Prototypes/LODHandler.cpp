@@ -1,7 +1,7 @@
 #include "LODHandler.h"
-#include <CForge/Core/SLogger.h>
+#include <crossforge/Core/SLogger.h>
 #include <tinyxml2.h>
-#include "../CForge/AssetIO/SAssetIO.h"
+#include <crossforge/AssetIO/SAssetIO.h>
 #include "MeshDecimate.h"
 //#include "Examples/SceneUtilities.hpp"
 
@@ -152,6 +152,7 @@ namespace CForge {
 	
 	bool LODHandler::checkLODmodel(const std::string metaFilePath)
 	{
+		bool Rval = true;
 		// TODO open  Metafile and check valid object
 		if (!File::exists(metaFilePath)) {
 			return false;
@@ -162,11 +163,11 @@ namespace CForge {
 			
 			// check if model files for lod exist
 			for (uint32_t i = 0; i < values.size(); i++) {
-				
-				File::exists(metaFilePath);
+				//TODO
+				//Rval = Rval && File::exists(metaFilePath+std::to_string(i));
 			}
 		}
-		return true;
+		return Rval;
 	}
 
 	void LODHandler::writeMetaFile(const std::string metaFilePath, const std::vector<float>& decimateAmount, const std::vector<float>& triBBratios) {
@@ -177,7 +178,7 @@ namespace CForge {
 		doc.InsertEndChild(head);
 		
 		tinyxml2::XMLElement* levels = doc.NewElement("levels");
-		levels->SetText(decimateAmount.size());
+		levels->SetText(uint64_t(decimateAmount.size()));
 		head->InsertEndChild(levels);
 		
 		tinyxml2::XMLElement* reductionAmounts = doc.NewElement("reduction");
@@ -237,7 +238,7 @@ namespace CForge {
 		return true;
 	}
 
-	float LODHandler::getTriSizeInfo(CForge::T3DMesh<float>& pMesh, uint32_t type) {
+	float LODHandler::getTriSizeInfo(CForge::T3DMesh<float>& pMesh, TriSizeInfo type) {
 		
 		float ret = 0.0;
 		uint32_t triangleAmount = 0;

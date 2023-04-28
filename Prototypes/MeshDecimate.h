@@ -1,5 +1,6 @@
 #pragma once
-#include "../CForge/AssetIO/T3DMesh.hpp"
+
+#include <crossforge/AssetIO/T3DMesh.hpp>
 
 namespace CForge {
 	class MeshDecimator {

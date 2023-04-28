@@ -1,6 +1,6 @@
 #include "RotaryEncoder.h"
-#include "../../CForge/Core/CrossForgeException.h"
-#include "../../CForge/Core/SGPIO.h"
+#include <crossforge/Core/CrossForgeException.h>
+#include <crossforge/Core/SGPIO.h>
 
 namespace CForge {
 

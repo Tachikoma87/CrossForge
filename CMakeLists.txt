@@ -9,13 +9,14 @@ IF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 ENDIF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
 # builds the crossforge library
-include("CForge/CrossForgeBuild.cmake")
+include("crossforge/CrossForgeBuild.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # create required directories if non existent 
 file(MAKE_DIRECTORY "MyAssets")
+file(MAKE_DIRECTORY "Prototypes")
 file(MAKE_DIRECTORY "Prototypes/Shader")
 
 #################################################################
@@ -23,8 +24,41 @@ file(MAKE_DIRECTORY "Prototypes/Shader")
 #################################################################
 project (CForgeSandbox)
 
+if(EMSCRIPTEN)
+	include(FetchContent)
+	
+	### Eigen3
+	FetchContent_Declare(
+		tinyxml2 
+		GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
+		GIT_TAG 9.0.0
+	)
+	FetchContent_MakeAvailable(tinyxml2)
+
+	# tinygltf
+	FetchContent_Declare(
+		tinygltf 
+		URL https://github.com/syoyo/tinygltf/archive/refs/tags/v2.8.2.zip
+	)
+	FetchContent_MakeAvailable(tinygltf)
+	include_directories(${tinygltf_SOURCE_DIR}/)
+
+	FetchContent_Declare(
+		imgui
+		URL https://github.com/ocornut/imgui/archive/refs/tags/v1.89.4.zip
+	)
+	FetchContent_MakeAvailable(imgui)
+	include_directories(${imgui_SOURCE_DIR}/)
+	include_directories(${imgui_SOURCE_DIR}/backends)
+
+
+	set(CMAKE_EXECUTABLE_SUFFIX .html)
+else()
 # Additional packages not alreday included in the core library
 FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
+FIND_PACKAGE(imgui CONFIG REQUIRED) # dear-imgui
+endif()
+
 
 # enable OpenCV support
 if(USE_OPENCV)
@@ -36,9 +70,9 @@ if(USE_OPENCV)
 endif(USE_OPENCV)
 
 add_executable(CForgeSandbox 
-	SandboxMain.cpp 
+	SandboxMain.cpp
 
-	CForge/Core/SGPIO.cpp
+	crossforge/Core/SGPIO.cpp
 	Prototypes/Hardware/I2C.cpp 
 	Prototypes/Hardware/MPU6050.cpp
 	Prototypes/Hardware/RotaryEncoder.cpp
@@ -52,17 +86,48 @@ add_executable(CForgeSandbox
 	Prototypes/Assets/GLTFIO.cpp
 
 	Prototypes/MeshProcessing/SurfaceSampler.cpp
+	
 
 	Prototypes/Actor/LODActor.cpp
 	Prototypes/SLOD.cpp
 	Prototypes/LODHandler.cpp
 	Prototypes/UBOInstancedData.cpp
 	Prototypes/MeshDecimate.cpp
-	Prototypes/AutoRig.cpp;
+
+	Prototypes/Graphics/GLRenderbuffer.cpp
+
+	Prototypes/ImGuiUtility.cpp
+
+	# GUI
+#	Prototypes/GUI/Font.cpp
+#	Prototypes/GUI/GUI.cpp
+#	Prototypes/GUI/Widget.cpp
+#	Prototypes/GUI/WidgetBackground.cpp
+#	Prototypes/GUI/Widgets/Form.cpp
+#	Prototypes/GUI/Widgets/InputCheckbox.cpp
+#	Prototypes/GUI/Widgets/InputDropDown.cpp
+#	Prototypes/GUI/Widgets/InputNumber.cpp
+#	Prototypes/GUI/Widgets/InputSlider.cpp
+#	Prototypes/GUI/Widgets/InputText.cpp
+#	Prototypes/GUI/Widgets/Label.cpp
+#	Prototypes/GUI/Widgets/Window.cpp
+
+	# new GUI
+#	"Prototypes/Graphics/Font.cpp" 
+#	"Prototypes/Graphics/LineOfText.cpp"
+#	Prototypes/Graphics/SFontManager.cpp
+#	Prototypes/Graphics/UBOTextData.cpp
+
 	)
 
+if(EMSCRIPTEN)
+	target_link_Libraries(CForgeSandbox
+		tinyxml2
+		crossforge
+	)
+	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} ${Optimization_Flag} -sEXIT_RUNTIME=1 -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -fwasm-exceptions -sUSE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader --preload-file MyAssets")
 
-if(WIN32)
+elseif(WIN32)
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
 	PRIVATE Pinocchio
@@ -71,30 +136,40 @@ if(WIN32)
 	PRIVATE glad::glad
 	ws2_32
 	PRIVATE tinyxml2::tinyxml2
-#	${FREETYPE_LIBRARIES}
+	PRIVATE imgui::imgui
+	${FREETYPE_LIBRARIES}
 
 	)
 endif (WIN32)
-
-if(UNIX)
+	
+elseif(__arm__)
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
-		PRIVATE Pinocchio
-		PRIVATE PinocchioTools
-		PRIVATE glfw 
+		PRIVATE glfw
 		PRIVATE glad::glad
 		PRIVATE tinyxml2::tinyxml2
+		PRIVATE imgui::imgui
 #		PRIVATE assimp
 		PRIVATE gpiod
 		PRIVATE dl	
 		)
-endif(UNIX)
+elseif(UNIX)
+	target_link_libraries(CForgeSandbox 
+		PRIVATE crossforge
+		PRIVATE glfw
+		PRIVATE glad::glad
+		PRIVATE tinyxml2::tinyxml2
+		PRIVATE imgui::imgui
+#		PRIVATE assimp
+		PRIVATE dl	
+		)
+endif()
 
 #copy shaders
 add_custom_command(
 	TARGET CForgeSandbox PRE_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_SOURCE_DIR}/CForge/Shader
+	${CMAKE_SOURCE_DIR}/crossforge/Shader
 	${CMAKE_CURRENT_BINARY_DIR}/Shader
 )
 add_custom_command(
@@ -119,126 +194,15 @@ add_custom_command(
 	${CMAKE_CURRENT_BINARY_DIR}/MyAssets
 )
 
-######## Project - Export library ######################
-project(ExportLibrary)
-add_executable(ExportLibrary ExportLibrary.cpp)
 
-target_link_libraries(ExportLibrary PRIVATE crossforge)
-
-include_directories(
-	"./"
-)
-
-######## Project - Terrain ##############################
-
-project (Terrain)
-add_executable(Terrain
-	Main.cpp
-
-	# Decoration
-	Terrain/src/Decoration/InstanceActor.cpp
-	Terrain/src/Decoration/InstanceSGN.cpp
-	Terrain/src/Decoration/InstanceVertexUtility.cpp
-	
-	Prototypes/UBOInstancedData.cpp
-
-	Terrain/src/Map/ClipMap.cpp
-	Terrain/src/Map/TileNode.cpp
-	Terrain/src/Map/HeightMap.cpp
-	Terrain/src/Map/TerrainMap.cpp
-	Terrain/src/Map/TileActor.cpp
-	Terrain/src/ArrayTexture.cpp
-
-	Terrain/src/Decoration/TreeGenerator.cpp
-	Terrain/src/Decoration/RockGenerator.cpp
-	Terrain/src/Decoration/DecoSetup.cpp
-	Terrain/src/PPScreenQuad.cpp
-	
-	Prototypes/SLOD.cpp
-	"Prototypes/Actor/LODActor.cpp"
-	"Prototypes/MeshDecimate.cpp"
-	"Prototypes/LODHandler.cpp"
-)
-
-if(WIN32)
-target_link_libraries(Terrain
-	PRIVATE crossforge
-	PRIVATE glfw 
-	PRIVATE glad::glad
-	${FREETYPE_LIBRARIES}
-	PRIVATE tinyxml2::tinyxml2
-)
-endif(WIN32)
-
-if(UNIX)
-target_link_libraries(Terrain
-	PRIVATE crossforge
-	PRIVATE glfw 
-	${FREETYPE_LIBRARIES}
-	PRIVATE tinyxml2::tinyxml2
-)
-endif(UNIX)
-
-# copy engine shaders
+if(EMSCRIPTEN)
+set(APP_FILES CForgeSandbox.html CForgeSandbox.js CForgeSandbox.wasm CForgeSandbox.data)
+foreach(i ${APP_FILES})
 add_custom_command(
-	TARGET Terrain PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_SOURCE_DIR}/CForge/Shader
-	${CMAKE_CURRENT_BINARY_DIR}/Shader
+	TARGET CForgeSandbox POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy 
+	${CMAKE_CURRENT_BINARY_DIR}/${i}
+	${CMAKE_CURRENT_BINARY_DIR}/App/${i}
 )
-
-#copy prototype shaders
-add_custom_command(
-	TARGET Terrain PRE_BUILD 
-	COMMAND ${CMAKE_COMMAND} -E copy_directory 
-	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
-	${CMAKE_CURRENT_BINARY_DIR}/Shader
-)
-
-#Todo: copy on run
-# copy terrain shaders
-add_custom_command(
-	TARGET Terrain PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_SOURCE_DIR}/Terrain/Shader
-	${CMAKE_CURRENT_BINARY_DIR}/Shader
-)
-
-add_custom_command(
-	TARGET Terrain PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_SOURCE_DIR}/Terrain/Assets
-	${CMAKE_CURRENT_BINARY_DIR}/Assets
-)
-
-add_library(Pinocchio SHARED
-	Thirdparty/Pinocchio/refinement.cpp
-	Thirdparty/Pinocchio/attachment.cpp
-	Thirdparty/Pinocchio/pinocchioApi.cpp
-	Thirdparty/Pinocchio/Pinocchio.cpp
-	Thirdparty/Pinocchio/discretization.cpp
-	Thirdparty/Pinocchio/mesh.cpp
-	Thirdparty/Pinocchio/embedding.cpp
-	Thirdparty/Pinocchio/graphutils.cpp
-	Thirdparty/Pinocchio/matrix.cpp
-	Thirdparty/Pinocchio/lsqSolver.cpp
-	Thirdparty/Pinocchio/indexer.cpp
-	Thirdparty/Pinocchio/intersector.cpp
-	Thirdparty/Pinocchio/skeleton.cpp
-)
-target_include_directories(Pinocchio PUBLIC "${CMAKE_SOURCE_DIR}/Thirdparty/Pinocchio")
-set_property(TARGET Pinocchio PROPERTY CXX_STANDARD 98)
-target_compile_options(Pinocchio PRIVATE -fPIC)
-add_compile_definitions(PINOCCHIO_EXPORTS)
-
-# bridge lib for convertig crossforge <-> pinocchio
-add_library(PinocchioTools SHARED
-	Thirdparty/PinocchioTools/PinocchioTools.cpp
-	Thirdparty/Pinocchio/indexer.cpp
-)
-target_include_directories(PinocchioTools PUBLIC "${CMAKE_SOURCE_DIR}/Thirdparty/PinocchioTools")
-set_property(TARGET PinocchioTools PROPERTY CXX_STANDARD 98)
-target_link_libraries(PinocchioTools
-	PRIVATE crossforge
-	PRIVATE Pinocchio
-)
+endforeach(i)
+endif(EMSCRIPTEN)

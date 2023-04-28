@@ -10,7 +10,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -18,12 +18,13 @@
 #ifndef __CFORGE_SHADOWTESTSCENE_HPP__
 #define __CFORGE_SHADOWTESTSCENE_HPP__
 
-#include <glad/glad.h>
+#include <crossforge/Graphics/OpenGLHeader.h>
+
 #include <GLFW/glfw3.h>
 
-#include "../../Examples/exampleSceneBase.hpp"
-#include "../../CForge/Graphics/Actors/SkeletalActor.h"
-#include "../../CForge/Graphics/Lights/SpotLight.h"
+#include "../../Examples/ExampleSceneBase.hpp"
+#include <crossforge/Graphics/Actors/SkeletalActor.h>
+#include <crossforge/Graphics/Lights/SpotLight.h>
 
 namespace CForge {
 
@@ -40,7 +41,7 @@ namespace CForge {
 			clear();
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 			
 			//GLWindow RenderWin;
 			m_RenderWin.init(Eigen::Vector2i(0, 0), Eigen::Vector2i(m_WinWidth, m_WinHeight), m_WindowTitle);
@@ -48,7 +49,9 @@ namespace CForge {
 
 			m_pShaderMan = SShaderManager::instance();
 
+#ifndef __EMSCRIPTEN__
 			gladLoadGL();
+#endif
 
 			// RenderDevice
 			ShaderCode::LightConfig LC;
@@ -87,11 +90,11 @@ namespace CForge {
 			m_RenderDev.activeCamera(&m_Cam);
 
 			// initialize  lights
-			m_PointLights[0].init(Eigen::Vector3f(0.0f, 20.0f, 0.0f), -Eigen::Vector3f(0.0f, 10.0f, 0.0f).normalized(), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 1.2f, Eigen::Vector3f(0.5, 0.01, 0.0));
-			m_PointLights[1].init(Eigen::Vector3f(100.0f, 20.0f, -100.0f), -Eigen::Vector3f(0.0f, 20.0f, 20.0f).normalized(), Eigen::Vector3f(1.0f, 1.0, 1.0f), 1.5f, Eigen::Vector3f(0.0, 0.2, 0.02));
+			m_PointLights[0].init(Eigen::Vector3f(0.0f, 20.0f, 0.0f), -Eigen::Vector3f(0.0f, 10.0f, 0.0f).normalized(), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 0.5f, Eigen::Vector3f(0.5, 0.01, 0.0));
+			m_PointLights[1].init(Eigen::Vector3f(100.0f, 20.0f, -100.0f), -Eigen::Vector3f(0.0f, 20.0f, 20.0f).normalized(), Eigen::Vector3f(1.0f, 1.0, 1.0f), 0.2f, Eigen::Vector3f(0.0, 0.2, 0.02));
 	
-			float InnerCutOff = GraphicsUtility::degToRad(15.0f);
-			float OuterCutOff = GraphicsUtility::degToRad(25.0f);
+			float InnerCutOff = CForgeMath::degToRad(15.0f);
+			float OuterCutOff = CForgeMath::degToRad(25.0f);
 			Eigen::Vector3f SpotPosition = Eigen::Vector3f(10.0f, 200.0f, 50.0f);
 			m_Spot.init(SpotPosition, -SpotPosition.normalized(), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 5.0f, Eigen::Vector3f(0.5f, 0.0f, 0.0f), Eigen::Vector2f(InnerCutOff, OuterCutOff));
 
@@ -99,10 +102,10 @@ namespace CForge {
 			Eigen::Vector3f Sun2Pos(-120.0f, 100.0f, 50.0f);
 
 			const uint32_t ShadowMapDim = 1024;
-			m_Sun1.init(Sun1Pos, -Sun1Pos.normalized(), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 3.5f);
+			m_Sun1.init(Sun1Pos, -Sun1Pos.normalized(), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 2.5f);
 			m_Sun1.initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(125, 125), 0.5f, 1000.0f);
 
-			m_Sun2.init(Sun2Pos, -Sun2Pos.normalized(), Eigen::Vector3f(1.0f, 0.9f, 0.9f), 4.1f);
+			m_Sun2.init(Sun2Pos, -Sun2Pos.normalized(), Eigen::Vector3f(1.0f, 0.9f, 0.9f), 3.1f);
 			m_Sun2.initShadowCasting(ShadowMapDim, ShadowMapDim, Eigen::Vector2i(150, 150), 0.5f, 1000.0f);
 
 			m_RenderDev.addLight(&m_Sun1);
@@ -114,20 +117,20 @@ namespace CForge {
 
 			// load assets
 			T3DMesh<float> M;
-			SAssetIO::load("MyAssets/TexturedGround.fbx", &M);
+			SAssetIO::load("Assets/ExampleScenes/TexturedGround.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
 			m_Ground.init(&M);
 			M.clear();
 
-			SAssetIO::load("Assets/ExampleScenes/TexturedUnitCube.gltf", &M);
+			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
 			setMeshShader(&M, 0.6f, 0.04f);
 			M.computePerVertexNormals();
 			m_Cube.init(&M);
 			M.clear();
 
-			SAssetIO::load("Assets/ExampleScenes/TexturedUnitCube.gltf", &M);
+			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
 			setMeshShader(&M, 0.6f, 0.04f);
 			M.computePerVertexNormals();
 			m_Sphere.init(&M);
@@ -139,14 +142,14 @@ namespace CForge {
 			m_Armchair.init(&M);
 			M.clear();
 
-			SAssetIO::load("MyAssets/Helmet/DamagedHelmet.gltf", &M);
+			SAssetIO::load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &M);
 			setMeshShader(&M, 0.15f, 0.25f);
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
 			m_Helmet.init(&M);
 			M.clear();
 
-			SAssetIO::load("MyAssets/ManMulti.fbx", &M);
+			SAssetIO::load("MyAssets/Gehen_3-005.glb", &M);
 
 			setMeshShader(&M, 0.6f, 0.04f);
 
@@ -166,15 +169,15 @@ namespace CForge {
 			m_Eric.activeAnimation(m_pEricAnim);
 
 			std::string GLError;
-			if (GraphicsUtility::checkGLError(&GLError)) {
+			if (CForgeUtility::checkGLError(&GLError)) {
 				printf("GL ErrorOccured: %s\n", GLError.c_str());
 			}
 
 			
 			Eigen::Vector3f GroundPos(0.0f, 0.0f, 0.0f);
-			Eigen::Vector3f GroundScale(300.0f, 300.0f, 300.0f);
-			Eigen::Quaternionf GroundRot;
-			GroundRot = Eigen::AngleAxis(GraphicsUtility::degToRad(-90.0f), Eigen::Vector3f::UnitX());
+			Eigen::Vector3f GroundScale(30.0f, 30.0f, 30.0f);
+			Eigen::Quaternionf GroundRot = Quaternionf::Identity();
+			//GroundRot = Eigen::AngleAxis(GraphicsUtility::degToRad(-90.0f), Eigen::Vector3f::UnitX());
 
 			// initialize scene graph
 			m_SGNRoot.init(nullptr);
@@ -185,7 +188,7 @@ namespace CForge {
 
 			m_HelmetTransform.init(&m_SGNRoot);
 			Quaternionf ACRotDelta;
-			ACRotDelta = AngleAxisf(GraphicsUtility::degToRad(-45.0f / 60.0f), Vector3f::UnitY());
+			ACRotDelta = AngleAxisf(CForgeMath::degToRad(-45.0f / 60.0f), Vector3f::UnitY());
 			m_HelmetTransform.rotationDelta(ACRotDelta);
 
 			m_HelmetGeom.init(&m_HelmetTransform, &m_Helmet);
@@ -198,7 +201,7 @@ namespace CForge {
 				Vector3f Pos = Vector3f(-35.0f + i * 35.0f, 0.0f, 0.0f);
 				float Scale = 0.2f;
 				Quaternionf Rot;
-				Rot = AngleAxisf(GraphicsUtility::degToRad(0.0f), Vector3f::UnitX());
+				Rot = AngleAxisf(CForgeMath::degToRad(0.0f), Vector3f::UnitX());
 
 				m_ArmchairsTransform[i].init(&m_SGNRoot, Pos);
 				m_ArchmairsGeom[i].init(&m_ArmchairsTransform[i], &m_Armchair, Vector3f::Zero(), Rot, Vector3f(Scale, Scale, Scale));
@@ -210,10 +213,10 @@ namespace CForge {
 			float EricScale = 0.25f;
 			Quaternionf EricRot;
 			EricRot = Quaternionf::Identity();
-			EricRot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
+			//EricRot = AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX());
 			m_EricTransform.init(&m_SGNRoot);
 			Quaternionf R;
-			R = AngleAxisf(GraphicsUtility::degToRad(60.0f), Vector3f::UnitY());
+			R = AngleAxisf(CForgeMath::degToRad(60.0f), Vector3f::UnitY());
 			m_EricTransform.rotation(R);
 			m_EricTransform.translation(Vector3f(-100.0f, -17.0f, -120.0f));
 			m_EricSGN.init(&m_EricTransform, &m_Eric, Vector3f(0.0f, 15.0f, 15.0f), EricRot, Vector3f(EricScale, EricScale, EricScale));
@@ -224,17 +227,17 @@ namespace CForge {
 				// object type
 				// positions
 				Eigen::Vector3f Pos;
-				Pos.x() = CoreUtility::randRange<float>(-1.0f, 1.0f) * 100.0f;
-				Pos.y() = CoreUtility::randRange<float>(0.0f, 1.0f) * 50.0f;
-				Pos.z() = CoreUtility::randRange<float>(-1.0f, 1.0f) * 100.0f;
+				Pos.x() = CForgeMath::randRange<float>(-1.0f, 1.0f) * 100.0f;
+				Pos.y() = CForgeMath::randRange<float>(0.0f, 1.0f) * 50.0f;
+				Pos.z() = CForgeMath::randRange<float>(-1.0f, 1.0f) * 100.0f;
 
 				Eigen::Vector3f Move;
-				Move.x() = CoreUtility::randRange<float>(-1.0f, 1.0f);
-				Move.y() = CoreUtility::randRange<float>(-1.0f, 1.0f);
-				Move.z() = CoreUtility::randRange<float>(-1.0f, 1.0f);
+				Move.x() = CForgeMath::randRange<float>(-1.0f, 1.0f);
+				Move.y() = CForgeMath::randRange<float>(-1.0f, 1.0f);
+				Move.z() = CForgeMath::randRange<float>(-1.0f, 1.0f);
 				Move *= 0.5f;
 				if (Move.y() > -0.1f && Move.y() < 0.1f) Move.y() = 0.2f;	
-				float Scale = 0.5f + CoreUtility::randRange<float>(0.0f, 1.0f) * 2.0f;
+				float Scale = 0.5f + CForgeMath::randRange<float>(0.0f, 1.0f) * 2.0f;
 
 				SGNTransformation* pTransform = new SGNTransformation();
 				SGNGeometry* pGeom = new SGNGeometry();
@@ -243,15 +246,15 @@ namespace CForge {
 				pTransform->translation(Pos);
 				pTransform->translationDelta(Move);
 
-				float RotY = CoreUtility::randRange<float>(-1.0f, 1.0f) * 90.0f;
+				float RotY = CForgeMath::randRange<float>(-1.0f, 1.0f) * 90.0f;
 				Eigen::Quaternionf R;
-				R = Eigen::AngleAxisf(GraphicsUtility::degToRad(RotY), Eigen::Vector3f::UnitY());
+				R = Eigen::AngleAxisf(CForgeMath::degToRad(RotY), Eigen::Vector3f::UnitY());
 				pTransform->rotation(R);
 
-				R = Eigen::AngleAxisf(CoreUtility::randRange<float>(-1.0f, 1.0f) / 30.0f, Eigen::Vector3f::UnitY()) * Eigen::AngleAxisf(CoreUtility::randRange<float>(-1.0f, 1.0f) / 60.0f, Eigen::Vector3f::UnitX());
+				R = Eigen::AngleAxisf(CForgeMath::randRange<float>(-1.0f, 1.0f) / 30.0f, Eigen::Vector3f::UnitY()) * Eigen::AngleAxisf(CForgeMath::randRange<float>(-1.0f, 1.0f) / 60.0f, Eigen::Vector3f::UnitX());
 				pTransform->rotationDelta(R);
 
-				pGeom->init(pTransform, (CoreUtility::rand() % 2) ? &m_Cube : &m_Sphere);
+				pGeom->init(pTransform, (CForgeMath::rand() % 2) ? &m_Cube : &m_Sphere);
 				pGeom->scale(Vector3f(Scale, Scale, Scale));
 
 				m_ObjTransforms.push_back(pTransform);
@@ -269,28 +272,27 @@ namespace CForge {
 			glGenQueries(1, &m_TimingLightingPass);
 			glGenQueries(1, &m_TimingForwardPass);
 
+			m_FPS = 60.0f;
+			m_LastFPSPrint = CForgeUtility::timestamp();
+			m_FrameCount = 0;
+
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override{
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) {	
-			bool Wireframe = false;
-			Mouse* pMouse = m_RenderWin.mouse();
-			Keyboard* pKeyboard = m_RenderWin.keyboard();
-			m_FPS = 60.0f;
-			m_LastFPSPrint = CoreUtility::timestamp();
-			m_FrameCount = 0;
+		void mainLoop(void) override {	
+			
 
 			while (!m_RenderWin.shutdown()) {
 
 				m_FrameCount++;
-				if (CoreUtility::timestamp() - m_LastFPSPrint > 2000) {
+				if (CForgeUtility::timestamp() - m_LastFPSPrint > 2000) {
 
-					m_LastFPSPrint = CoreUtility::timestamp();
-					float AvailableMemory = GraphicsUtility::gpuMemoryAvailable() / 1000.0f;
-					float MemoryInUse = AvailableMemory - GraphicsUtility::gpuFreeMemory() / 1000.0f;
+					m_LastFPSPrint = CForgeUtility::timestamp();
+					float AvailableMemory = CForgeUtility::gpuMemoryAvailable() / 1000.0f;
+					float MemoryInUse = AvailableMemory - CForgeUtility::gpuFreeMemory() / 1000.0f;
 
 					uint32_t ShadowPassTime;
 					uint32_t GeometryPassTime;
@@ -370,8 +372,10 @@ namespace CForge {
 				glEndQuery(GL_TIME_ELAPSED);
 
 				// geometry pass
+#ifndef __EMSCRIPTEN__
 				if (Wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 
 				glBeginQuery(GL_TIME_ELAPSED, m_TimingGeometryPass);
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
@@ -379,13 +383,15 @@ namespace CForge {
 				glEndQuery(GL_TIME_ELAPSED);
 
 				glBeginQuery(GL_TIME_ELAPSED, m_TimingLightingPass);
+#ifndef __EMSCRIPTEN__
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 				// lighting pass
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 				glEndQuery(GL_TIME_ELAPSED);
 
 				glBeginQuery(GL_TIME_ELAPSED, m_TimingForwardPass);
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 				m_SkyboxSG.update(m_FPS/60.0f);
 				m_SkyboxSG.render(&m_RenderDev);
 				glEndQuery(GL_TIME_ELAPSED);
@@ -415,7 +421,7 @@ namespace CForge {
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_9, true)) {
 					T2DImage<uint8_t> ColorBuffer;
 					T2DImage<uint8_t> DepthBuffer;
-					GraphicsUtility::retrieveFrameBuffer(&ColorBuffer, &DepthBuffer, 0.1f, 1000.0f);
+					CForgeUtility::retrieveFrameBuffer(&ColorBuffer, &DepthBuffer, 0.1f, 1000.0f);
 					SAssetIO::store("Screenshots/ScreenshotColor.jpg", &ColorBuffer);
 					SAssetIO::store("Screenshots/ScreenshotDepth.jpg", &DepthBuffer);
 				}
@@ -423,6 +429,29 @@ namespace CForge {
 				m_RenderWin.swapBuffers();
 
 				defaultKeyboardUpdate(pKeyboard);
+
+				// change light settings
+
+				// point lights get darker and brighter [0, 2.0f]
+				//uint32_t Stamp = (uint32_t)CoreUtility::timestamp();
+				//float PLIntensity =  (std::sin(Stamp/1000.0f) + 1.0f);
+				//m_PointLights[0].intensity(0.0f);
+				//m_PointLights[1].intensity(0.0f);
+
+				////printf("Intensity: %.2f\n", PLIntensity);
+
+				//float ColorTeint = (std::sin(Stamp / 1000.0f) + 1.0f) / 2.0f;
+				////m_Sun1.color(Vector3f(ColorTeint, 0.1f, 0.1f));
+
+				//// change Position of second sun
+				//float OffsetX = std::sin(Stamp / 5000.0f) * 100.0f;
+				//float OffsetZ = std::cos(Stamp / 5000.0f) * 100.0f;
+				//Vector3f Pos = m_Sun2.position();
+				//Pos.x() = OffsetX;
+				//Pos.z() = OffsetZ;
+				//Vector3f Dir = -Pos.normalized();
+				//m_Sun2.direction(Dir);
+				//m_Sun2.position(Pos);
 
 			}//while[run]
 		}//run
@@ -466,16 +495,14 @@ namespace CForge {
 		uint32_t m_TimingGeometryPass;
 		uint32_t m_TimingLightingPass;
 		uint32_t m_TimingForwardPass;
+
+		bool Wireframe = false;
+		Mouse* pMouse = m_RenderWin.mouse();
+		Keyboard* pKeyboard = m_RenderWin.keyboard();
+		
+
 	};//ShadowTestScene
 
-	void shadowTest(void) {
-
-		ShadowTestScene Scene;
-		Scene.init();
-		Scene.run();
-		Scene.clear();
-
-	}//shadowTest
 
 }
 #endif

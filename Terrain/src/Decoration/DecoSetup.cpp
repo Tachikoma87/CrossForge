@@ -49,7 +49,9 @@ namespace CForge {
 		GLWindow RenderWin;
 		RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), "Absolute Minimum Setup");
 
+		#ifndef __EMSCRIPTEN__
 		gladLoadGL();
+		#endif
 
 		std::string GLError;
 		GraphicsUtility::checkGLError(&GLError);

@@ -10,7 +10,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -20,9 +20,9 @@
 
 #include <list>
 #include "IMUPackage.hpp"
-#include "../../CForge/Graphics/VirtualCamera.h"
-#include "../../CForge/Internet/UDPSocket.h"
-#include "../../CForge/AssetIO/File.h"
+#include <crossforge/Graphics/VirtualCamera.h>
+#include <crossforge/Internet/UDPSocket.h>
+#include <crossforge/AssetIO/File.h>
 
 namespace CForge {
 	class IMUCameraController {

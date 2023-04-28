@@ -1,6 +1,5 @@
 #include "UBOInstancedData.h"
-#include <glad/glad.h>
-
+#include <crossforge/Graphics/OpenGLHeader.h>
 
 namespace CForge {
 

@@ -1,5 +1,5 @@
 #include "SurfaceSampler.h"
-
+#include <crossforge/Math/CForgeMath.h>
 #include <igl/exact_geodesic.h>
 
 using namespace Eigen;
@@ -35,7 +35,7 @@ namespace CForge {
 		Eigen::VectorXi VS, FS, VT, FT;
 		Eigen::VectorXf d;
 
-		if(pSamplePoints->size() == 0) pSamplePoints->push_back(CoreUtility::rand() % m_Vertices.rows());
+		if(pSamplePoints->size() == 0) pSamplePoints->push_back(CForgeMath::rand() % m_Vertices.rows());
 
 		// set targets (all vertices)
 		VT.setLinSpaced(m_Vertices.rows(), 0, m_Vertices.rows() - 1);
