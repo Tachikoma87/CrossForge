@@ -362,53 +362,51 @@ namespace CForge {
 		if (!m_faceCulling)
 			glDisable(GL_CULL_FACE);
 		if (m_isInstanced) {
-			for (uint32_t j = 0; j < m_instancedMatRef.size(); j++) {
-				//if (m_instancedMatRef[j]->size() > 0) {
-				//	
-				//	bindLODLevel(j);
-				//	m_pVertexArray->bind();
-				//	uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
-				//	
-				//	for (uint32_t k = 0; k < m_instancedMatRef[j]->size(); k += maxInstances) {
-				//		
-				//		uint32_t range = std::min((k + maxInstances), (uint32_t) m_instancedMatRef[j]->size());
-				//		pRDev->getInstancedUBO()->setInstances(m_instancedMatRef[j], Eigen::Vector2i(k, range));
-				//		
-				//		for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
-				//			if (i->pShader == nullptr) continue;
-				//			if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-				//				pRDev->activeShader(pRDev->shadowPassShaderInstanced());
-				//			}
-				//			else {
-				//				pRDev->activeShader(i->pShader);
-				//				pRDev->activeMaterial(&i->Material);
-				//			}
-				//			glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), range-k);
-				//		} //for [render groups]
-				//	} //for [maxInstances]
-				//} //if [instances exist]
-			}
-		} else {
+#if LOD_RENDERING
+		//	for (uint32_t j = 0; j < m_instancedMatRef.size(); j++) {
+		//		if (m_instancedMatRef[j]->size() > 0) {
+		//			
+		//			bindLODLevel(j);
+		//			m_pVertexArray->bind();
+		//			uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
+		//			
+		//			for (uint32_t k = 0; k < m_instancedMatRef[j]->size(); k += maxInstances) {
+		//				
+		//				uint32_t range = std::min((k + maxInstances), (uint32_t) m_instancedMatRef[j]->size());
+		//				pRDev->getInstancedUBO()->setInstances(m_instancedMatRef[j], Eigen::Vector2i(k, range));
+		//				
+		//				for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
+		//					if (i->pShader == nullptr) continue;
+		//					if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+		//						pRDev->activeShader(pRDev->shadowPassShaderInstanced());
+		//					}
+		//					else {
+		//						pRDev->activeShader(i->pShader);
+		//						pRDev->activeMaterial(&i->Material);
+		//					}
+		//					glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), range-k);
+		//				} //for [render groups]
+		//			} //for [maxInstances]
+		//		} //if [instances exist]
+		//	}
+#else
 			m_pVertexArray->bind();
-		//	uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
-//
-//			for (uint32_t k = 0; k < m_instancedMatrices.size(); k += maxInstances) {
-//
-//				uint32_t range = std::min((k + maxInstances), (uint32_t) m_instancedMatrices.size());
-//				pRDev->getInstancedUBO()->setInstances(&m_instancedMatrices, Eigen::Vector2i(k, range));
-//
-			for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
-				/*if (i->pShader == nullptr) continue;
-				if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
-					pRDev->activeShader(pRDev->shadowPassShader());
-				}
-				else {
-					pRDev->activeShader(i->pShader);
-					pRDev->activeMaterial(&i->Material);
-				}*/
-				glDrawRangeElements(GL_TRIANGLES, 0, m_ElementBufferSizes[m_LODLevel] / sizeof(unsigned int), i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)));
-			}//for[all render groups]
-		}
+			uint32_t maxInstances = pRDev->getInstancedUBO()->getMaxInstanceCount();
+
+			for (uint32_t k = 0; k < m_instancedMatrices.size(); k += maxInstances) {
+
+				uint32_t range = std::min((k + maxInstances), (uint32_t) m_instancedMatrices.size());
+				pRDev->getInstancedUBO()->setInstances(&m_instancedMatrices, Eigen::Vector2i(k, range));
+
+				for (auto i : m_RenderGroupUtilities[m_LODLevel]->renderGroups()) {
+					if (i->pShader == nullptr) continue;
+					if (pRDev->activePass() == RenderDevice::RENDERPASS_SHADOW) {
+						pRDev->activeShader(pRDev->shadowPassShaderInstanced());
+					}
+					else {
+						pRDev->activeShader(i->pShader);
+						pRDev->activeMaterial(&i->Material);
+					}
 					glDrawElementsInstanced(GL_TRIANGLES, i->Range.y() - i->Range.x(), GL_UNSIGNED_INT, (const void*)(i->Range.x() * sizeof(unsigned int)), range-k);
 				} //for [render groups]
 			} //for [maxInstances]
@@ -482,11 +480,9 @@ namespace CForge {
 // 		uint32_t c = 0;
 		if (m_isManualInstaned) { // all instanced at once
 			for (uint32_t i = 0; i < m_instancedMatrices.size(); i++) {
-#else
 				//TODO
 				//bool res2 = !frustumCulling(pRDev, &m_instancedMatrices[i]);
 				bool res = true;//res2;
-#endif
 	
 // 				auto end = std::chrono::steady_clock::now();
 

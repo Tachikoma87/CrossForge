@@ -35,6 +35,7 @@
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 #include "Prototypes/TestScenes/ImGUITestScene.hpp"
 
+#include "Prototypes/TestScenes/AutoRiggingTestScene.hpp"
 
 
 using namespace CForge;
@@ -46,7 +47,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkybox
 //#define ActiveScene ExampleTextRendering
 //#define ActiveScene ExampleShapesAndMaterials
-#define ActiveScene ExampleLighting
+//#define ActiveScene ExampleLighting
 //#define ActiveScene ExampleSceneGraph
 //#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
@@ -63,6 +64,8 @@ using namespace Eigen;
 //#define ActiveScene StickFigureTestScene
 //#define ActiveScene AssetGLTFTestScene
 //#define ActiveScene ImGUITestScene
+
+#define ActiveScene AutoRiggingTestScene
 
 
 ActiveScene* pScene = nullptr;
@@ -138,6 +141,6 @@ int main(int argc, char* argv[]) {
 	_CrtSetDbgFlag(Tmp);
 #endif
 
-	printf("QUtting now!");
+	printf("Qutting now!");
 	return 0;
 }//main

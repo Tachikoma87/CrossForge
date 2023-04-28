@@ -20,7 +20,7 @@
 #define MATHUTILS_H_INCLUDED
 
 #include <math.h>
-#include <functional>
+//#include <functional>
 #include <string>
 #include "Pinocchio.h"
 
@@ -42,6 +42,51 @@ inline int SIGN(double x) { return (x > 0.) ? 1 : -1; }
 template<class T> T SQR(const T & x) { return x * x; }
 template<class T> T CUBE(const T & x) { return x * x * x; }
 template<class T> T QUAD(const T & x) { return SQR(SQR(x)); }
+
+//TODO Needs a proper rewrite to replace unary/binary.
+// Ripped from functional.
+template <class _Arg, class _Result>
+struct unary_function { // base class for unary functions
+    using argument_type = _Arg;
+    using result_type   = _Result;
+};
+
+template <class _Arg1, class _Arg2, class _Result>
+struct binary_function { // base class for binary functions
+    using first_argument_type  = _Arg1;
+    using second_argument_type = _Arg2;
+    using result_type          = _Result;
+};
+
+template <class _Fn>
+class binder2nd : public unary_function<typename _Fn::first_argument_type,
+                      typename _Fn::result_type> { // functor adapter _Func(left, stored)
+public:
+    using _Base         = unary_function<typename _Fn::first_argument_type, typename _Fn::result_type>;
+    using argument_type = typename _Base::argument_type;
+    using result_type   = typename _Base::result_type;
+
+    binder2nd(const _Fn& _Func, const typename _Fn::second_argument_type& _Right) : op(_Func), value(_Right) {}
+
+    result_type operator()(const argument_type& _Left) const {
+        return op(_Left, value);
+    }
+
+    result_type operator()(argument_type& _Left) const {
+        return op(_Left, value);
+    }
+
+protected:
+    _Fn op;
+    typename _Fn::second_argument_type value; // the right operand
+};
+
+template <class _Fn, class _Ty>
+_NODISCARD binder2nd<_Fn> bind2nd(const _Fn& _Func, const _Ty& _Right) {
+    typename _Fn::second_argument_type _Val(_Right);
+    return binder2nd<_Fn>(_Func, _Val);
+}
+// End Ripped from functional.
 
 template <class T> class maximum : public binary_function<T, T, T>
 {

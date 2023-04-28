@@ -18,30 +18,31 @@
 #ifndef __CFORGE_AUTORIGGINGTESTSCENE_HPP__
 #define __CFORGE_AUTORIGGINGTESTSCENE_HPP__
 
-#include "../../CForge/AssetIO/SAssetIO.h"
-#include "../../CForge/Graphics/Shader/SShaderManager.h"
-#include "../../CForge/Graphics/STextureManager.h"
+#include "../../crossforge/AssetIO/SAssetIO.h"
+#include "../../crossforge/Graphics/Shader/SShaderManager.h"
+#include "../../crossforge/Graphics/STextureManager.h"
 
-#include "../../CForge/Graphics/GLWindow.h"
-#include "../../CForge/Graphics/GraphicsUtility.h"
-#include "../../CForge/Graphics/RenderDevice.h"
+#include "../../crossforge/Graphics/GLWindow.h"
+#include "../../crossforge/Math/CForgeMath.h"
+#include "../../crossforge/Graphics/RenderDevice.h"
 
-#include "../../CForge/Graphics/Lights/DirectionalLight.h"
-#include "../../CForge/Graphics/Lights/PointLight.h"
+#include "../../crossforge/Graphics/Lights/DirectionalLight.h"
+#include "../../crossforge/Graphics/Lights/PointLight.h"
 
-#include "../../CForge/Graphics/SceneGraph/SceneGraph.h"
-#include "../../CForge/Graphics/SceneGraph/SGNGeometry.h"
-#include "../../CForge/Graphics/SceneGraph/SGNTransformation.h"
+#include "../../crossforge/Graphics/SceneGraph/SceneGraph.h"
+#include "../../crossforge/Graphics/SceneGraph/SGNGeometry.h"
+#include "../../crossforge/Graphics/SceneGraph/SGNTransformation.h"
 
-#include "../../CForge/Graphics/Actors/StaticActor.h"
-#include "../../CForge/Graphics/Actors/SkeletalActor.h"
+#include "../../crossforge/Graphics/Actors/StaticActor.h"
+#include "../../crossforge/Graphics/Actors/SkeletalActor.h"
 
 #include "../../Examples/exampleSceneBase.hpp"
 
-#include "../AutoRig.hpp"
+//#include "../AutoRig.hpp"
 
-#include "../../thirdparty/Pinocchio/pinocchioApi.h"
-#include "../../thirdparty/PinocchioTools/PinocchioTools.hpp"
+//#include "../../thirdparty/Pinocchio/pinocchioApi.h"
+#include "../../thirdparty/Pinocchio/PinocchioTools.hpp"
+#include "../Assets/GLTFIO.h"
 
 #include <filesystem>
 #include <stdio.h>
@@ -62,73 +63,34 @@ namespace CForge {
 		~AutoRiggingTestScene() {
 			
 		}
-		void run(void) {
-			SShaderManager* pSMan = SShaderManager::instance();
-
-			std::string WindowTitle = "CForge - Skeletal Animation Example";
-			float FPS = 60.0f;
-
-			bool const LowRes = false;
-
-			uint32_t WinWidth = 1280;
-			uint32_t WinHeight = 720;
-
-			if (LowRes) {
-				WinWidth = 720;
-				WinHeight = 576;
-			}
-
-			// create an OpenGL capable windows
-			GLWindow RenderWin;
-			RenderWin.init(Vector2i(100, 100), Vector2i(WinWidth, WinHeight), WindowTitle);
-			gladLoadGL();
-
-			// configure and initialize rendering pipeline
-			RenderDevice RDev;
-			RenderDevice::RenderDeviceConfig Config;
-			Config.DirectionalLightsCount = 1;
-			Config.PointLightsCount = 1;
-			Config.SpotLightsCount = 0;
-			Config.ExecuteLightingPass = true;
-			Config.GBufferHeight = WinHeight;
-			Config.GBufferWidth = WinWidth;
-			Config.pAttachedWindow = &RenderWin;
-			Config.PhysicallyBasedShading = true;
-			Config.UseGBuffer = true;
-			RDev.init(&Config);
-
-			// configure and initialize shader configuration device
-			ShaderCode::LightConfig LC;
-			LC.DirLightCount = 1;
-			LC.PointLightCount = 1;
-			LC.SpotLightCount = 0;
-			LC.PCFSize = 0;
-			LC.ShadowBias = 0.00001f;
-			LC.ShadowMapCount = 1;
-			pSMan->configShader(LC);
-
+		virtual void initCameraAndLights(bool CastShadows = true) {
 			// initialize camera
-			VirtualCamera Cam;
-			Cam.init(Vector3f(20.0f, 5.0f, 45.0f), Vector3f::UnitY());
-			Cam.lookAt(Vector3f(10.0f, 5.0f, 35.0f), Vector3f(0.0f, 4.0f, 25.0f), Vector3f::UnitY());
-			Cam.projectionMatrix(WinWidth, WinHeight, GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+			m_Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
+			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
-			// initialize sun (key lights) and back ground light (fill light)
 			Vector3f SunPos = Vector3f(-25.0f, 50.0f, -20.0f);
 			Vector3f SunLookAt = Vector3f(0.0f, 0.0f, 30.0f);
 			Vector3f BGLightPos = Vector3f(0.0f, 5.0f, 60.0f);
 			DirectionalLight Sun;
 			PointLight BGLight;
-			Sun.init(SunPos, (SunLookAt - SunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
+			m_Sun.init(SunPos, (SunLookAt - SunPos).normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
 			// sun will cast shadows
-			Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(20.0f, 20.0f, 0.1f, 1000.0f));
-			BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.5f, Vector3f(0.0f, 0.0f, 0.0f));
+
+			//m_Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(10.0f, 10.0f, 0.1f, 1000.0f));
+			if (CastShadows)
+				m_Sun.initShadowCasting(1024, 1024, Vector2i(10, 10), 0.1f, 1000.0f);
+			m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
 
 			// set camera and lights
-			RDev.activeCamera(&Cam);
-			RDev.addLight(&Sun);
-			RDev.addLight(&BGLight);
+			m_RenderDev.activeCamera(&m_Cam);
+			m_RenderDev.addLight(&m_Sun);
+			m_RenderDev.addLight(&m_BGLight);
+		}//initCameraAndLights
+		
+		void mainLoop() {
 
+			GLTFIO gltfio;
+			
 			// load skydome and a textured cube
 			T3DMesh<float> M;
 			StaticActor Skydome;
@@ -204,7 +166,7 @@ namespace CForge {
 			
 			std::vector<Eigen::Vector3f> joints;
 			nsPiT::convertSkeleton(M.rootBone(), &sklEric, &cvsInfo, sym, fat, foot,
-			       GraphicsUtility::rotationMatrix((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f),Vector3f::UnitX())).block<3,3>(0,0),
+			       CForgeMath::rotationMatrix((Quaternionf) AngleAxisf(CForgeMath::degToRad(-90.0f),Vector3f::UnitX())).block<3,3>(0,0),
 			       &joints);
 			
 			nsPinocchio::Mesh piM;// = new nsPinocchio::Mesh(); //("MyAssets/muppetshow/Model1.obj");
@@ -230,10 +192,11 @@ namespace CForge {
 			
 			/////////////////////////////////////////////////////////////////////////////
 			
-			std::string outName = "MyAssets/AssetOut/out" + modelName + ".gltf";
-			AssetIO::store(outName, &M);
+			std::string outName = "MyAssets/AssetOut/out" + modelName + "3.gltf";
+			//AssetIO::store(outName, &M);
+			gltfio.store(outName,&MT);
 			//*/
-			AutoRigger autoRigger; // for sphere visualisation
+			//AutoRigger autoRigger; // for sphere visualisation
 			//autoRigger.init(&MT,M.getBone(0));
 			//autoRigger.process();
 			
@@ -251,15 +214,15 @@ namespace CForge {
 			//EricSGN.init(&EricTransformSGN, &Spock);
 			EricTransformSGN.scale(Eigen::Vector3f(10.0f,10.0f,10.0f));
 			
-			/*/
+			/**/
 			Controller.init(&MT);
 			Eric.init(&MT, &Controller);
 			/**/
-			/**/
+			/*/
 			Controller.init(&M);
 			Eric.init(&M, &Controller);
 			EricSGN.scale(Vector3f(0.005f, 0.005f, 0.005f));
-			//EricTransformSGN.rotation((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()));
+			//EricTransformSGN.rotation((Quaternionf) AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX()));
 			/**/
 			M.clear();
 
@@ -269,99 +232,99 @@ namespace CForge {
 			//SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
 
 			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CoreUtility::timestamp();
+			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
 
 			// check wheter a GL error occurred
 			std::string GLError = "";
-			GraphicsUtility::checkGLError(&GLError);
+			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 			// start main loop
-			while (!RenderWin.shutdown()) {
-				RenderWin.update();
+			while (!m_RenderWin.shutdown()) {
+				m_RenderWin.update();
 				SG.update(60.0f/FPS);
 				
 				// this will progress all active skeletal animations for this controller
 				Controller.update(60.0f/FPS);
 				
-				defaultCameraUpdate(&Cam, RenderWin.keyboard(), RenderWin.mouse(), 0.4f, 1.0f, 4.0f*60.0f/FPS);
+				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse(), 0.4f, 1.0f, 4.0f*60.0f/FPS);
 				
 				// if user hits key 1, animation will be played
 				// if user also presses shift, animation speed is doubled
 				float AnimationSpeed = 1.0f;
-				if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed = 2.0f;
-				if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed = 2.0f;
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 					SkeletalAnimationController::Animation *pAnim = Controller.createAnimation(0, AnimationSpeed, 0.0f);
 					Eric.activeAnimation(pAnim);
 				}
 				
-				//RDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
-				//SG.render(&RDev);
+				//m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &Sun);
+				//SG.render(&m_RenderDev);
 
-				RDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 
-				//autoRigger.renderGrid(&RDev, GraphicsUtility::translationMatrix(Eigen::Vector3f(0.0,0.0,0.0)),
-				//	GraphicsUtility::rotationMatrix((Quaternionf) AngleAxisf(GraphicsUtility::degToRad(-90.0f), Vector3f::UnitX()))
-				//	*GraphicsUtility::scaleMatrix(Vector3f(0.05f, 0.05f, 0.05f)));
+				//autoRigger.renderGrid(&m_RenderDev, CForgeMath::translationMatrix(Eigen::Vector3f(0.0,0.0,0.0)),
+				//	CForgeMath::rotationMatrix((Quaternionf) AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX()))
+				//	*CForgeMath::scaleMatrix(Vector3f(0.05f, 0.05f, 0.05f)));
 
 				//glEnable(GL_BLEND);
 				//glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-				SG.render(&RDev);
+				SG.render(&m_RenderDev);
 				//glDisable(GL_BLEND);
 				/*/ // render embedded joints
 				for (uint32_t i = 0; i < (uint32_t) rig.embedding.size(); i++) {
-					Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(Eigen::Vector3f(rig.embedding[i][0],rig.embedding[i][1],rig.embedding[i][2]));
+					Eigen::Matrix4f cubeTransform = CForgeMath::translationMatrix(Eigen::Vector3f(rig.embedding[i][0],rig.embedding[i][1],rig.embedding[i][2]));
 					float r = 0.1f;
-					Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
-					Eigen::Matrix4f scale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(10.0f,10.0f,10.0f));
-					RDev.modelUBO()->modelMatrix(scale*cubeTransform*cubeScale);
-					autoRigger.sphere.render(&RDev);
+					Eigen::Matrix4f cubeScale = CForgeMath::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+					Eigen::Matrix4f scale = CForgeMath::scaleMatrix(Eigen::Vector3f(10.0f,10.0f,10.0f));
+					m_RenderDev.modelUBO()->modelMatrix(scale*cubeTransform*cubeScale);
+					autoRigger.sphere.render(&m_RenderDev);
 				}
 				/**/
 				
 				/**/ // render sphere packing
 				//for (uint32_t i = 0; i < (uint32_t) poss.size(); i++) {
-				//	Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(poss[i]);
+				//	Eigen::Matrix4f cubeTransform = CForgeMath::translationMatrix(poss[i]);
 				//	float r = rads[i];
-				//	Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
-				//	Eigen::Matrix4f scale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(10.0f,10.0f,10.0f));
-				//	RDev.modelUBO()->modelMatrix(scale*cubeTransform*cubeScale);
-				//	autoRigger.sphere.render(&RDev);
+				//	Eigen::Matrix4f cubeScale = CForgeMath::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+				//	Eigen::Matrix4f scale = CForgeMath::scaleMatrix(Eigen::Vector3f(10.0f,10.0f,10.0f));
+				//	m_RenderDev.modelUBO()->modelMatrix(scale*cubeTransform*cubeScale);
+				//	autoRigger.sphere.render(&m_RenderDev);
 				//}
 				/**/
 				
 				
 				/*/ // render joints
 				for (uint32_t i = 0; i < (uint32_t) joints.size(); i++) {
-					Eigen::Matrix4f cubeTransform = GraphicsUtility::translationMatrix(joints[i]);
+					Eigen::Matrix4f cubeTransform = CForgeMath::translationMatrix(joints[i]);
 					float r = 0.1f;
-					Eigen::Matrix4f cubeScale = GraphicsUtility::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
-					RDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
-					autoRigger.sphere.render(&RDev);
+					Eigen::Matrix4f cubeScale = CForgeMath::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
+					m_RenderDev.modelUBO()->modelMatrix(cubeTransform*cubeScale);
+					autoRigger.sphere.render(&m_RenderDev);
 				}
 				/**/
-				RDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
-				RenderWin.swapBuffers();
+				m_RenderWin.swapBuffers();
 
 				FPSCount++;
-				if (CoreUtility::timestamp() - LastFPSPrint > 1000U) {
+				if (CForgeUtility::timestamp() - LastFPSPrint > 1000U) {
 					char Buf[64];
 					sprintf(Buf, "FPS: %d\n", FPSCount);
 					FPS = float(FPSCount);
 					FPSCount = 0;
-					LastFPSPrint = CoreUtility::timestamp();
+					LastFPSPrint = CForgeUtility::timestamp();
 
-					RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
+					m_RenderWin.title(WindowTitle + "[" + std::string(Buf) + "]");
 				}
 
-				if (RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
-					RenderWin.closeWindow();
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_ESCAPE)) {
+					m_RenderWin.closeWindow();
 				}
 			}//while[main loop]
 
-			pSMan->release();
+			m_pShaderMan->release();
 
 		}
 		void mergeRedundantVertices(T3DMesh<float>* pMesh) {
@@ -463,12 +426,10 @@ namespace CForge {
 			}
 			return Rval;
 		}//getMatchingVertex
+	private:
+		std::string WindowTitle = "CForge - AutoRigging Test";
+		float FPS = 60.0f;
 	};
-	
-	void autoRiggingTestScene(void) {
-		AutoRiggingTestScene ts;
-		ts.run();
-	}
 }
 
 #endif

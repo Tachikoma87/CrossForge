@@ -10,7 +10,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -18,7 +18,7 @@
 #ifndef __CFORGE_EXAMPLEMULTIVIEWPORT_HPP__
 #define __CFORGE_EXAMPLEMULTIVIEWPORT_HPP__
 
-#include "exampleSceneBase.hpp"
+#include "ExampleSceneBase.hpp"
 
 using namespace Eigen;
 using namespace std;
@@ -36,24 +36,21 @@ namespace CForge {
 			clear();
 		}//Destructor
 
-		void init(void) {
+		void init(void) override{
 
 			initWindowAndRenderDevice();
 			initCameraAndLights();
+			initFPSLabel();
+			initSkybox();
 
 			// load skydome and a textured cube
 			T3DMesh<float> M;
-			
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
-			setMeshShader(&M, 0.8f, 0.04f);
-			M.computePerVertexNormals();
-			m_Skydome.init(&M);
-			M.clear();
 
 			SAssetIO::load("Assets/ExampleScenes/Helmet/DamagedHelmet.gltf", &M);
 			setMeshShader(&M, 0.2f, 0.24f);
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
+			M.computeAxisAlignedBoundingBox();
 			m_Helmet.init(&M);
 			M.clear();
 
@@ -61,17 +58,19 @@ namespace CForge {
 
 			float Speed = 10.0f; // Degree per second
 			Quaternionf HelmetRotationDeltas[4];
-			HelmetRotationDeltas[0] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitX());
-			HelmetRotationDeltas[1] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitY());
-			HelmetRotationDeltas[2] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f::UnitZ());
-			HelmetRotationDeltas[3] = AngleAxisf(GraphicsUtility::degToRad(Speed / 60.0f), Vector3f(1.0f, 1.0f, 1.0f).normalized());
+			HelmetRotationDeltas[0] = AngleAxisf(CForgeMath::degToRad(Speed / 60.0f), Vector3f::UnitX());
+			HelmetRotationDeltas[1] = AngleAxisf(CForgeMath::degToRad(Speed / 60.0f), Vector3f::UnitY());
+			HelmetRotationDeltas[2] = AngleAxisf(CForgeMath::degToRad(Speed / 60.0f), Vector3f::UnitZ());
+			HelmetRotationDeltas[3] = AngleAxisf(CForgeMath::degToRad(Speed / 60.0f), Vector3f(1.0f, 1.0f, 1.0f).normalized());
+
+			initGroundPlane(nullptr, 100.0f, 20.0f);
 
 			for (uint8_t i = 0; i < 4; ++i) {
 				m_RootSGNs[i].init(nullptr);
 				m_SGs[i].init(&m_RootSGNs[i]);
 
 				// add skydome
-				m_DomeGeomSGNs[i].init(&m_RootSGNs[i], &m_Skydome, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(50.0f, 50.0f, 50.0f));
+				m_GroundPlaneSGNs[i].init(&m_RootSGNs[i], &m_GroundPlane, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(1.0f, 1.0f, 1.0f));
 				// add helmet
 				m_HelmetTransSGNs[i].init(&m_RootSGNs[i], Vector3f(0.0f, 3.5f, 0.0f));
 				m_HelmetGeomSGNs[i].init(&m_HelmetTransSGNs[i], &m_Helmet, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(3.0f, 3.0f, 3.0f));
@@ -87,48 +86,66 @@ namespace CForge {
 
 			updateViewportsAndCamera();
 
-			// stuff for performance monitoring
-			uint64_t LastFPSPrint = CoreUtility::timestamp();
-			int32_t FPSCount = 0;
+			m_FPSLabel.position(m_FPSLabel.position() - Vector2f(10, 10));
+
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: (Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
+			m_HelpTexts.push_back(pKeybindings);
+			pKeybindings->color(0.0f, 0.0f, 0.0f, 1.0f);
+			m_DrawHelpTexts = true;
 
 			std::string GLError = "";
-			GraphicsUtility::checkGLError(&GLError);
+			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 		}//initialize
 
-		void clear(void) {
+		void clear(void) override{
 			ExampleSceneBase::clear();
 		}//clear
 
-		void run(void) {
-			while (!m_RenderWin.shutdown()) {
-				m_RenderWin.update();
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+		void mainLoop(void) override{
+			
+			m_RenderWin.update();
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+			m_SkyboxSG.update(60.0f / m_FPS);
 
-				// perform rendering for the 4 viewports
-				for (uint8_t i = 0; i < 4; ++i) {
-					m_SGs[i].update(60.0f / m_FPS);
+			// perform rendering for the 4 viewports
+			for (uint8_t i = 0; i < 4; ++i) {
+				m_SGs[i].update(60.0f / m_FPS);
 
-					// render scene as usual
-					//m_RenderDev.viewport(RenderDevice::RENDERPASS_GEOMETRY, m_GBufferVP);
-					m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-					m_SGs[i].render(&m_RenderDev);
-					m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-					m_SGs[i].render(&m_RenderDev);
+				// render scene as usual
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+				m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
+				m_SGs[i].render(&m_RenderDev);
 
-					// set viewport and perform lighting pass
-					// this will produce the correct tile in the final output window (backbuffer to be specific)
-					m_RenderDev.viewport(RenderDevice::RENDERPASS_LIGHTING, m_VPs[i]);
-					m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING, nullptr, (i == 0) ? true : false);
-				}
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+				m_RenderDev.activeCamera(&m_Cam);
+				m_SGs[i].render(&m_RenderDev);
 
-				m_RenderWin.swapBuffers();
+				// set viewport and perform lighting pass
+				// this will produce the correct tile in the final output window (backbuffer to be specific)
+				m_RenderDev.viewport(RenderDevice::RENDERPASS_LIGHTING, m_VPs[i]);
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING, nullptr, (i == 0) ? true : false);
 
-				updateFPS();
-				defaultKeyboardUpdate(m_RenderWin.keyboard());
+				m_RenderDev.viewport(RenderDevice::RENDERPASS_FORWARD, m_VPs[i]);
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
+				m_SkyboxSG.render(&m_RenderDev);
+			}
 
-			}//while[main loop]
-		}//run
+			updateFPS();
+
+			m_RenderDev.viewport(RenderDevice::RENDERPASS_FORWARD, m_FullScreenVP);
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
+
+			if (m_FPSLabelActive) m_FPSLabel.render(&m_RenderDev);
+			if (m_DrawHelpTexts) drawHelpTexts(Vector2f(10.0f, 10.0f));
+
+			m_RenderWin.swapBuffers();
+
+			defaultKeyboardUpdate(m_RenderWin.keyboard());
+
+		}//mainLoop
 	protected:
 
 		void updateViewportsAndCamera(void) {
@@ -148,49 +165,43 @@ namespace CForge {
 			m_VPs[3].Position = Vector2i(RenderWinWidth / 2, 0) + Vector2i(Margin / 2, Margin);
 			for (uint8_t i = 0; i < 4; ++i) m_VPs[i].Size = VPSize;
 
-			m_Cam.projectionMatrix(m_VPs[0].Size[0], m_VPs[0].Size[1], GraphicsUtility::degToRad(45.0f), 0.1f, 1000.0f);
+			m_Cam.projectionMatrix(m_VPs[0].Size[0], m_VPs[0].Size[1], CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
 			m_GBufferVP.Size = Vector2i(m_RenderDev.gBuffer()->width(), m_RenderDev.gBuffer()->height());
 			m_RenderDev.viewport(RenderDevice::RENDERPASS_GEOMETRY, m_GBufferVP);
 
 			// viewport for forward pass (required for correct screenshots)
-			RenderDevice::Viewport VFPass;
-			VFPass.Position = Vector2i(0, 0);
-			VFPass.Size = Vector2i(RenderWinWidth, RenderWinHeight);
-			m_RenderDev.viewport(RenderDevice::RENDERPASS_FORWARD, VFPass);
+			m_FullScreenVP.Position = Vector2i(0, 0);
+			m_FullScreenVP.Size = Vector2i(RenderWinWidth, RenderWinHeight);
 
 		}//updateViewports
 
-		void listen(GLWindowMsg Msg) {
+		void listen(GLWindowMsg Msg) override{
 			ExampleSceneBase::listen(Msg);
+
+			m_FPSLabel.position(m_FPSLabel.position() - Vector2f(10, 10));
 
 			updateViewportsAndCamera();
 		}
 
-		StaticActor m_Skydome;
 		StaticActor m_Helmet;
 
 		SceneGraph m_SGs[4];
 		SGNTransformation m_RootSGNs[4];
 
 		SGNTransformation m_HelmetTransSGNs[4];
-		SGNGeometry m_DomeGeomSGNs[4];
+		SGNGeometry m_GroundPlaneSGNs[4];
 		SGNGeometry m_HelmetGeomSGNs[4];
+ 
 
 		// required viewports
 		RenderDevice::Viewport m_GBufferVP;
 		RenderDevice::Viewport m_VPs[4];
+		RenderDevice::Viewport m_FullScreenVP;
 	};//ExampleMultiViewport
 
 
-	void exampleMultiViewport(void) {
-
-		ExampleMultiViewport Ex;
-		Ex.init();
-		Ex.run();
-		Ex.clear();
-
-	}//exampleMultiViewport
+	
 
 }
 

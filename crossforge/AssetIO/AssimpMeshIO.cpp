@@ -38,7 +38,7 @@ namespace CForge {
 
 		if (nullptr == pScene) {
 			std::string ErrorMsg = m_Importer.GetErrorString();
-			throw CForgeExcept("Failed to load model from resource " + Filepath + "\n\t" + ErrorMsg);		
+			throw CForgeExcept("Failed to load model from resource " + Filepath + "\n\t" + ErrorMsg);
 		}
 
 		try {
@@ -428,6 +428,7 @@ namespace CForge {
 					aiBone* pB = new aiBone();
 					pB->mName = pBone->Name.c_str();
 					pB->mOffsetMatrix = toAiMatrix(pBone->OffsetMatrix);
+					//TODO pB->mOffsetMatrix = /**/toAiMatrix(Eigen::Matrix4f::Identity());//*/toAiMatrix(pBone->OffsetMatrix); // has no influence
 					pB->mNumWeights = InfluenceIDs.size();
 					pB->mWeights = new aiVertexWeight[pB->mNumWeights];
 					for (uint32_t j = 0; j < InfluenceIDs.size(); ++j) {
@@ -487,6 +488,76 @@ namespace CForge {
 			pSkeletonRoot->mParent = pScene->mRootNode;
 			pScene->mRootNode->addChildren(1, &pSkeletonRoot);
 			writeBone(pScene->mRootNode->mChildren[pScene->mRootNode->mNumChildren-1], pMesh->rootBone());
+						// set rotation of bones
+			rotateBones(pScene->mRootNode->mChildren[pScene->mRootNode->mNumChildren-1],Eigen::Matrix3f::Identity());
+		}
+		
+		std::vector<const T3DMesh<float>::Bone*> Bones;
+		for (uint32_t i = 0; i < pMesh->boneCount(); ++i) {
+			Bones.push_back(pMesh->getBone(i));
+		}
+		
+		// store animation data
+		for (uint32_t i = 0; i < pMesh->skeletalAnimationCount(); ++i) {
+			const T3DMesh<float>::SkeletalAnimation* anim = pMesh->getSkeletalAnimation(i);
+			
+			aiAnimation** newAnimationBlock = (aiAnimation**) realloc(pScene->mAnimations,sizeof(aiAnimation*)*((size_t) pScene->mNumAnimations+1));
+			if (newAnimationBlock) {
+				pScene->mAnimations = newAnimationBlock;
+				pScene->mNumAnimations++;
+			}
+			else
+				throw CForgeExcept("Could not allocate memory for Animation exporting");
+			
+			if (newAnimationBlock) {
+				uint32_t naIdx = pScene->mNumAnimations-1;
+				pScene->mAnimations[naIdx] = new aiAnimation();
+				aiAnimation* nAnim = pScene->mAnimations[naIdx];
+				
+				// make sure only channels are added which are both available in animation channels and skeleton
+				std::vector<T3DMesh<float>::BoneKeyframes*> aKeyf;
+				for (uint32_t i = 0; i < Bones.size(); ++i) {
+					for (uint32_t j = 0; j < anim->Keyframes.size(); ++j) {
+					if (Bones[i]->Name.compare(anim->Keyframes[j]->BoneName) == 0) {
+							aKeyf.push_back(anim->Keyframes[j]);
+							break;
+						}
+					}
+				}
+				
+				nAnim->mDuration = anim->Duration;
+				nAnim->mTicksPerSecond = anim->Speed;
+				nAnim->mName = anim->Name;
+				
+				nAnim->mNumChannels = aKeyf.size();//anim->Keyframes.size();
+				nAnim->mChannels = (aiNodeAnim**) malloc(nAnim->mNumChannels*sizeof(aiNodeAnim*));
+				
+				for (uint32_t j = 0; j < nAnim->mNumChannels; ++j) {
+					nAnim->mChannels[j] = new aiNodeAnim();
+					auto cChan = nAnim->mChannels[j];
+					T3DMesh<float>::BoneKeyframes* cKeyf = aKeyf[j];
+					
+					cChan->mNodeName = aiString(cKeyf->BoneName);
+					cChan->mNumPositionKeys = cKeyf->Positions.size();
+					cChan->mPositionKeys = new aiVectorKey[cChan->mNumPositionKeys]();
+					for (uint32_t k = 0; k < cKeyf->Positions.size(); ++k) {
+						cChan->mPositionKeys[k].mTime = cKeyf->Timestamps[k];
+						cChan->mPositionKeys[k].mValue = toAiVector(cKeyf->Positions[k]);
+					}
+					cChan->mNumRotationKeys = cKeyf->Rotations.size();
+					cChan->mRotationKeys = new aiQuatKey[cChan->mNumRotationKeys]();
+					for (uint32_t k = 0; k < cKeyf->Rotations.size(); ++k) {
+						cChan->mRotationKeys[k].mTime = cKeyf->Timestamps[k];
+						cChan->mRotationKeys[k].mValue = toAiQuat(cKeyf->Rotations[k]);
+					}
+					cChan->mNumScalingKeys = cKeyf->Scalings.size();
+					cChan->mScalingKeys = new aiVectorKey[cChan->mNumScalingKeys]();
+					for (uint32_t k = 0; k < cKeyf->Scalings.size(); ++k) {
+						cChan->mScalingKeys[k].mTime = cKeyf->Timestamps[k];
+						cChan->mScalingKeys[k].mValue = toAiVector(cKeyf->Scalings[k]);
+					}
+				}
+			}
 			
 		}
 		
@@ -503,12 +574,36 @@ namespace CForge {
 		pScene->mMetaData->Add<int32_t>("FrameRate", 11);
 
 
-	}//T3DMeshToAiScene
+	}//T3DMeshToAiScene	
+	
+	void AssimpMeshIO::rotateBones(aiNode* pNode, Eigen::Matrix3f accu) {
+		
+		Eigen::Matrix4f mat = toEigenMat(pNode->mTransformation);
+		Eigen::Matrix3f rot = mat.block<3,3>(0,0);
+		Eigen::Vector3f trans = Eigen::Vector3f(mat.data()[12],mat.data()[13],mat.data()[14]);
+		
+		trans = accu.inverse()*trans;
+		rot = accu.inverse()*rot; // global to relative rotation
+		accu = accu*rot;
+		
+		mat.block<3,3>(0,0) = rot;
+		mat.data()[12] = trans[0];
+		mat.data()[13] = trans[1];
+		mat.data()[14] = trans[2];
+		pNode->mTransformation = toAiMatrix(mat);
+		
+		for (uint32_t i = 0; i < pNode->mNumChildren; i++) {
+			rotateBones(pNode->mChildren[i], accu);
+		}
+	}
 
 	void AssimpMeshIO::writeBone(aiNode* pNode, const T3DMesh<float>::Bone* pBone) {
 
 		pNode->mName = pBone->Name.c_str();
-		pNode->mTransformation.Translation(toAiVector(pBone->Position), pNode->mTransformation);
+		//TODO
+		Eigen::Matrix4f mat = pBone->OffsetMatrix.inverse();
+		pNode->mTransformation = toAiMatrix(mat);
+		//pNode->mTransformation.Translation(toAiVector(pBone->Position), pNode->mTransformation);
 		
 		if (pBone->Children.size() > 0) {
 			pNode->mNumChildren = pBone->Children.size();
@@ -519,6 +614,19 @@ namespace CForge {
 				writeBone(pNode->mChildren[i], pBone->Children[i]);
 			}
 		}
+		
+		// replace translation part with translation relative to previous bone
+		Eigen::Vector3f translation = Eigen::Vector3f(mat.data()[12], mat.data()[13], mat.data()[14]);
+		translation[0] -= pNode->mParent->mTransformation.a4;
+		translation[1] -= pNode->mParent->mTransformation.b4;
+		translation[2] -= pNode->mParent->mTransformation.c4;
+		
+		Eigen::Matrix4f f = mat;
+		f.data()[12] = translation[0];
+		f.data()[13] = translation[1];
+		f.data()[14] = translation[2];
+		
+		pNode->mTransformation = toAiMatrix(f);//pNode->mTransformation*pNode->mParent->mTransformation.Inverse();
 
 	}//writeSkeleton
 

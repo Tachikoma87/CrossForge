@@ -265,8 +265,8 @@ target_link_libraries(crossforge
 	PRIVATE glfw 
 	PRIVATE glad::glad
 	PRIVATE assimp::assimp
-	PRIVATE igl::igl_core 	
-	PRIVATE WebP::webp 
+	PRIVATE igl::igl_core
+	PRIVATE WebP::webp
 	PRIVATE WebP::webpdecoder
 	ws2_32					#winsock2
 	${FREETYPE_LIBRARIES}	# for Text rendering
@@ -280,8 +280,8 @@ elseif(__arm__)
 	PRIVATE glfw
 	PRIVATE glad::glad
 	PRIVATE assimp::assimp
-	PRIVATE igl::igl_core 
-	PRIVATE WebP::webp 
+	PRIVATE igl::igl_core
+	PRIVATE WebP::webp
 	PRIVATE WebP::webpdecoder
 	${FREETYPE_LIBRARIES}	# for Text rendering
 	freetype
@@ -297,8 +297,8 @@ elseif(UNIX)
 	PRIVATE glfw
 	PRIVATE glad::glad
 	PRIVATE assimp::assimp
-	PRIVATE igl::igl_core 
-	PRIVATE WebP::webp 
+	PRIVATE igl::igl_core
+	PRIVATE WebP::webp
 	PRIVATE WebP::webpdecoder
 	${FREETYPE_LIBRARIES}	# for Text rendering
 	freetype

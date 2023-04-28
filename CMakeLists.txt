@@ -131,7 +131,6 @@ elseif(WIN32)
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
 	PRIVATE Pinocchio
-	PRIVATE PinocchioTools
 	PRIVATE glfw 
 	PRIVATE glad::glad
 	ws2_32
@@ -140,7 +139,6 @@ elseif(WIN32)
 	${FREETYPE_LIBRARIES}
 
 	)
-endif (WIN32)
 	
 elseif(__arm__)
 	target_link_libraries(CForgeSandbox 
@@ -151,7 +149,7 @@ elseif(__arm__)
 		PRIVATE imgui::imgui
 #		PRIVATE assimp
 		PRIVATE gpiod
-		PRIVATE dl	
+		PRIVATE dl
 		)
 elseif(UNIX)
 	target_link_libraries(CForgeSandbox 
@@ -161,7 +159,7 @@ elseif(UNIX)
 		PRIVATE tinyxml2::tinyxml2
 		PRIVATE imgui::imgui
 #		PRIVATE assimp
-		PRIVATE dl	
+		PRIVATE dl
 		)
 endif()
 
@@ -206,3 +204,29 @@ add_custom_command(
 )
 endforeach(i)
 endif(EMSCRIPTEN)
+
+add_library(Pinocchio SHARED
+	Thirdparty/Pinocchio/refinement.cpp
+	Thirdparty/Pinocchio/attachment.cpp
+	Thirdparty/Pinocchio/pinocchioApi.cpp
+	Thirdparty/Pinocchio/Pinocchio.cpp
+	Thirdparty/Pinocchio/discretization.cpp
+	Thirdparty/Pinocchio/mesh.cpp
+	Thirdparty/Pinocchio/embedding.cpp
+	Thirdparty/Pinocchio/graphutils.cpp
+	Thirdparty/Pinocchio/matrix.cpp
+	Thirdparty/Pinocchio/lsqSolver.cpp
+	Thirdparty/Pinocchio/indexer.cpp
+	Thirdparty/Pinocchio/intersector.cpp
+	Thirdparty/Pinocchio/skeleton.cpp
+	
+	Thirdparty/Pinocchio/PinocchioTools.cpp
+)
+target_include_directories(Pinocchio PUBLIC "${CMAKE_SOURCE_DIR}/Thirdparty/Pinocchio")
+target_compile_options(Pinocchio PRIVATE -fPIC)
+add_compile_definitions(PINOCCHIO_EXPORTS)
+target_link_libraries(Pinocchio
+	PRIVATE Eigen3::Eigen
+	PRIVATE crossforge
+)
+

@@ -1,6 +1,6 @@
 {
 	"name": "crossforge",
-	"version":  "0.1",
+	"version": "0.1",
 	"dependencies": [
 		"eigen3",
 		"glad",
@@ -9,6 +9,12 @@
 		"freetype",
 		"libigl",
 		"libwebp",
+		"tinyxml2",
+		"tinygltf",
+		{
+			"name": "imgui",
+			"default-features": false,
+			"features": [ "opengl3-binding", "glfw-binding" ]
+		}
 	]
 }
-
