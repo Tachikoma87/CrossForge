@@ -69,11 +69,10 @@ namespace CForge {
 			const T3DMesh<float>::Bone* pRef = pMesh->getBone(i);
 			Joint* pJoint = m_Joints[i];
 
-			if (pRef->pParent != nullptr) pJoint->pParent = m_Joints[pRef->pParent->ID];
-			else pJoint->pParent = nullptr;
+			pJoint->pParent = (pRef->pParent != nullptr) ? m_Joints[pRef->pParent->ID] : nullptr;
 
 			for (uint32_t k = 0; k < pRef->Children.size(); ++k) pJoint->Children.push_back(m_Joints[pRef->Children[k]->ID]);
-		}
+		}//for[bones]
 
 		// find root bone
 		for (uint32_t i = 0; i < m_Joints.size(); ++i) {
@@ -81,7 +80,10 @@ namespace CForge {
 				m_pRoot = m_Joints[i];
 				break;
 			}
-		}//for[all bones]
+		}//for[joints]
+
+		// load user defined joint constraints and kinematic chain configurations (end-effector to root) from JSON file located at ConfigFilepath
+		loadJointConfigFromJSON(ConfigFilepath);
 
 		// initialize global positions and rotations of all joints given the world space transformation of the actor
 		m_GlobalActorPosition = GlobalActorPosition;
@@ -89,15 +91,21 @@ namespace CForge {
 		m_GlobalActorScaling = GlobalActorScaling;
 		forwardKinematics(m_pRoot, GlobalActorPosition, GlobalActorRotation);
 			
-		// load user defined joint constraints and kinematic chain configurations (root to end-effector + target) from JSON file located at ConfigFilepath
-		loadJointConfigFromJSON(ConfigFilepath);
+		// initialize targets of kinematic chains to global positions of end-effectors
+		for (auto& c : m_KinematicChains) {
+			auto& Chain = c.second;
+			Chain.Target = Chain.Joints.front()->GlobalPosition; // first joint is end-effector
+		}//for[kinematic chains]
+		
+		// initialize target of gaze
+		m_pHead->Target = m_pHead->pJoint->GlobalPosition; //TODO: set properly to front-facing direction of head - m_pHead->pJoint->GlobalPosition is only a temporary solution for testing purposes!
 
 		// initialize UBO
 		m_UBO.init(m_Joints.size());
 
 		for (uint32_t i = 0; i < m_Joints.size(); ++i) {
 			m_UBO.skinningMatrix(i, Eigen::Matrix4f::Identity());
-		}//for[bones]
+		}//for[joints]
 
 		SShaderManager* pSMan = SShaderManager::instance();
 
@@ -151,18 +159,18 @@ namespace CForge {
 		if (m_Joints.empty()) throw CForgeExcept("Joints not initialized!");
 
 		std::ifstream f(ConfigFilepath);
-		nlohmann::json Data = nlohmann::json::parse(f);
+		const nlohmann::json Data = nlohmann::json::parse(f);
 		
-		//TODO: Properly handle incomplete/incorrect JSON files and exceptions caused by them, e.g. via a function "validateJointConfigJSON(Data, ConfigFilepath)"!
-		//      The following code will throw exceptions from nlohmann::json.
+		//TODO: properly handle incomplete/incorrect JSON files and exceptions caused by them (e.g. via a function "validateJointConfigJSON(Data, ConfigFilepath)")
+		//      the following code will throw exceptions from nlohmann::json
 
-		// Load joint constraints from file
+		// load joint constraints from file
 		const nlohmann::json& ConstraintsData = Data.at("JointConstraints");
 		for (Joint* i : m_Joints) {
 			const nlohmann::json& JointData = ConstraintsData.at(i->Name);
 			std::string Type = JointData.at("ConstraintType").get<std::string>();
 			
-			// Read constraint properties based on "ConstraintType" value
+			// read constraint properties based on "ConstraintType" value
 			if (Type == "Unconstrained") {
 				//TODO...
 			}
@@ -176,7 +184,7 @@ namespace CForge {
 			}
 
 			//if (Type == "...") ...
-		}
+		}//for[joints]
 		
 		// Load skeleton segments from file
 		const nlohmann::json& SegmentData = Data.at("SkeletonSegments");
@@ -191,16 +199,10 @@ namespace CForge {
 		for (Joint* j : m_Joints) {
 			if (j->Name == GazeJointName) {
 				m_pHead->pJoint = j;
-				m_pHead->Target = j->GlobalPosition; //TODO: set properly to front-facing direction of head - j->GlobalPosition is only a temporary solution for testing purposes!
 				break;
 			}
-		}
-
-		if (m_KinematicChains.at(SPINE).Joints.empty()) throw CForgeExcept("m_SpineChain.Joints initialization failed!");
-		if (m_KinematicChains.at(RIGHT_ARM).Joints.empty()) throw CForgeExcept("m_RightArmChain.Joints initialization failed!");
-		if (m_KinematicChains.at(LEFT_ARM).Joints.empty()) throw CForgeExcept("m_LeftArmChain.Joints initialization failed!");
-		if (m_KinematicChains.at(RIGHT_LEG).Joints.empty()) throw CForgeExcept("m_RightLegChain.Joints initialization failed!");
-		if (m_KinematicChains.at(LEFT_LEG).Joints.empty()) throw CForgeExcept("m_LeftLegChain.Joints initialization failed!");
+		}//for[joints]
+		
 		if (m_pHead->pJoint == nullptr) throw NullpointerExcept("m_pHead->pJoint");
 	}//loadJointConfigFromJSON
 	
@@ -211,22 +213,23 @@ namespace CForge {
 		std::string RootName = ChainData.at("Root").get<std::string>();
 		std::string EndEffectorName = ChainData.at("EndEffector").get<std::string>();
 
-		Joint* pRoot = nullptr;
-		Joint* pEndEffector = nullptr;
+		// fill chain in order end-effector -> chain root
+		Joint* pCurrent = nullptr; 
+		for (Joint* i : m_Joints) { if (i->Name == EndEffectorName) pCurrent = i; break; }
+		if (pCurrent == nullptr) throw NullpointerExcept("pCurrent"); // couldn't find the end-effector joint
 
-		for (Joint* j : m_Joints) { if (j->Name == RootName) pRoot = j; break; }
-		for (Joint* j : m_Joints) { if (j->Name == EndEffectorName) pEndEffector = j; break; }
+		Joint* pEnd = nullptr; 
+		for (Joint* i : m_Joints) { if (i->Name == RootName) pEnd = i; break; }
+		if (pEnd == nullptr) throw NullpointerExcept("pEnd"); // couldn't find the root joint
+				
+		while (pCurrent != pEnd->pParent) { //TODO: test if this works properly!
+			if (pCurrent == m_pRoot && pEnd != m_pRoot) throw CForgeExcept("Reached root joint of skeleton without finding root joint of kinematic chain!");
 
-		if (pRoot == nullptr) throw NullpointerExcept("pRoot");
-		if (pEndEffector == nullptr) throw NullpointerExcept("pEndEffector");
-
-		Joint* pCurrent = pEndEffector;
-		while (pCurrent != pRoot->pParent) {
 			Chain.Joints.push_back(pCurrent);
 			pCurrent = pCurrent->pParent;
 		}
 
-		Chain.Target = Chain.Joints.back()->GlobalPosition;
+		if (Chain.Joints.size() < 2) throw CForgeExcept("Initialization of kinematic chain failed!");
 	}//buildKinematicChain
 
 	void InverseKinematicsController::update(float FPSScale) {
