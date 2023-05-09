@@ -35,6 +35,13 @@ if(EMSCRIPTEN)
 	)
 	FetchContent_MakeAvailable(tinyxml2)
 
+	# nlohmann-json
+	FetchContent_Declare(
+		nlohmann_json
+		GIT_REPOSITORY https://github.com/nlohmann/json.git
+	)
+	FetchContent_MakeAvailable(nlohmann_json)
+
 	# tinygltf
 	FetchContent_Declare(
 		tinygltf 
@@ -56,6 +63,7 @@ if(EMSCRIPTEN)
 else()
 # Additional packages not alreday included in the core library
 FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
+FIND_PACKAGE(nlohmann_json CONFIG REQUIRED) # support for json loading, storing, and processing
 FIND_PACKAGE(imgui CONFIG REQUIRED) # dear-imgui
 endif()
 
@@ -128,6 +136,7 @@ add_executable(CForgeSandbox
 if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox
 		tinyxml2
+		nlohmann_json
 		crossforge
 	)
 	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} ${Optimization_Flag} -sEXIT_RUNTIME=1 -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -fwasm-exceptions -sUSE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader --preload-file MyAssets")
@@ -139,6 +148,7 @@ elseif(WIN32)
 	PRIVATE glad::glad
 	ws2_32
 	PRIVATE tinyxml2::tinyxml2
+	PRIVATE nlohmann_json::nlohmann_json
 	PRIVATE imgui::imgui
 	${FREETYPE_LIBRARIES}
 
@@ -150,6 +160,7 @@ elseif(__arm__)
 		PRIVATE glfw
 		PRIVATE glad::glad
 		PRIVATE tinyxml2::tinyxml2
+		PRIVATE nlohmann_json::nlohmann_json
 		PRIVATE imgui::imgui
 #		PRIVATE assimp
 		PRIVATE gpiod
@@ -161,6 +172,7 @@ elseif(UNIX)
 		PRIVATE glfw
 		PRIVATE glad::glad
 		PRIVATE tinyxml2::tinyxml2
+		PRIVATE nlohmann_json::nlohmann_json
 		PRIVATE imgui::imgui
 #		PRIVATE assimp
 		PRIVATE dl	

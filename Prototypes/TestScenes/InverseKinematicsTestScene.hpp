@@ -28,7 +28,9 @@ namespace CForge {
 		void init(void) override{
 
 			initWindowAndRenderDevice();
-			initCameraAndLights();
+			gladLoadGL();
+			
+			initCameraAndLights();		
 			
 			// build scene graph	
 			m_RootSGN.init(nullptr);
@@ -51,7 +53,7 @@ namespace CForge {
 			SAssetIO::load("MyAssets/NewModel.gltf", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
-			m_CharacterController.init(&M, CharacterPosition, CharacterRotation, CharacterScaling); // CharacterPosition, CharacterRotation, CharacterScaling are used to compute global joint positions
+			m_CharacterController.init(&M, "MyAssets/JointConfig.json", CharacterPosition, CharacterRotation, CharacterScaling); // CharacterPosition, CharacterRotation, CharacterScaling are used to compute global joint positions
 			m_Character.init(&M, &m_CharacterController);
 			m_CharacterStick.init(&M, &m_CharacterController);
 			M.clear();
@@ -151,6 +153,7 @@ namespace CForge {
 			m_SG.update(60.0f / m_FPS);
 
 			m_CharacterController.update(60.0f / m_FPS);
+			m_CharacterController.updateEndEffectorValues(&m_EndEffectors);
 			
 			if (m_RenderWin.mouse()->buttonState(Mouse::BTN_LEFT)) {
 				if (!m_LMBDownLastFrame) pickTarget();
@@ -254,8 +257,7 @@ namespace CForge {
 
 			// apply translation to target		
 			pTargetTransformSGN->translation(DragTranslation + pTargetTransformSGN->translation());
-			pEndEffector->Target = DragTranslation + pEndEffector->Target;
-			m_CharacterController.endEffectorTarget(pEndEffector);
+			m_CharacterController.endEffectorTarget(pEndEffector->Segment, DragTranslation + pEndEffector->Target);
 		}//dragTarget
 
 		SGNTransformation m_RootSGN;

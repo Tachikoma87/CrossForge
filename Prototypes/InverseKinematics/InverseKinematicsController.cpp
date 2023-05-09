@@ -1,6 +1,9 @@
 #include "InverseKinematicsController.h"
 #include <crossforge/Graphics/Shader/SShaderManager.h>
 #include <crossforge/Math/CForgeMath.h>
+#include <crossforge/Core/SLogger.h>
+
+#include <fstream>
 
 using namespace Eigen;
 using namespace std;
@@ -34,13 +37,13 @@ namespace CForge {
 	}//Destructor
 
 	// pMesh has to hold skeletal definition
-	void InverseKinematicsController::init(T3DMesh<float>* pMesh, Vector3f GlobalActorPosition, Quaternionf GlobalActorRotation, Vector3f GlobalActorScaling) {
+	void InverseKinematicsController::init(T3DMesh<float>* pMesh, std::string ConfigFilepath, Vector3f GlobalActorPosition, Quaternionf GlobalActorRotation, Vector3f GlobalActorScaling) {
 		clear();
 
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 		if (pMesh->boneCount() == 0) throw CForgeExcept("Mesh has no bones!");
 		if (pMesh->skeletalAnimationCount() == 0) throw CForgeExcept("Mesh has no animation data!"); // use first keyframe of first animation as rest pose of skeleton for now
-
+		
 		// create bones and copy data
 		T3DMesh<float>::SkeletalAnimation* pAnimation = pMesh->getSkeletalAnimation(0);
 
@@ -79,26 +82,16 @@ namespace CForge {
 				break;
 			}
 		}//for[all bones]
-		
+
 		// initialize global positions and rotations of all joints given the world space transformation of the actor
 		m_GlobalActorPosition = GlobalActorPosition;
 		m_GlobalActorRotation = GlobalActorRotation;
 		m_GlobalActorScaling = GlobalActorScaling;
 		forwardKinematics(m_pRoot, GlobalActorPosition, GlobalActorRotation);
+			
+		// load user defined joint constraints and kinematic chain configurations (root to end-effector + target) from JSON file located at ConfigFilepath
+		loadJointConfigFromJSON(ConfigFilepath);
 
-		// initialize end-effector data
-		for (uint32_t i = 0; i < m_Joints.size(); ++i) {
-			Joint* pJoint = m_Joints[i];
-
-			if (pJoint->Children.empty()) { // leaf joints are used as end-effectors
-				EndEffectorData* pData = new EndEffectorData();
-				
-				pData->Target = pJoint->GlobalPosition;
-
-				pJoint->pEndEffectorData = pData;
-			}
-		}//for[joints]
-				
 		// initialize UBO
 		m_UBO.init(m_Joints.size());
 
@@ -154,32 +147,99 @@ namespace CForge {
 		return Rval;
 	}//jointIDFromName
 
-	std::vector<InverseKinematicsController::Joint*> InverseKinematicsController::buildKinematicChainToRoot(Joint* pEndEffector) {
-		std::vector<Joint*> Rval;
-		
-		Joint* pJoint = pEndEffector->pParent;
+	void InverseKinematicsController::loadJointConfigFromJSON(std::string ConfigFilepath) {
+		if (m_Joints.empty()) throw CForgeExcept("Joints not initialized!");
 
-		while (pJoint != nullptr) {
-			Rval.push_back(pJoint);
-			pJoint = pJoint->pParent;
+		std::ifstream f(ConfigFilepath);
+		nlohmann::json Data = nlohmann::json::parse(f);
+		
+		//TODO: Properly handle incomplete/incorrect JSON files and exceptions caused by them, e.g. via a function "validateJointConfigJSON(Data, ConfigFilepath)"!
+		//      The following code will throw exceptions from nlohmann::json.
+
+		// Load joint constraints from file
+		const nlohmann::json& ConstraintsData = Data.at("JointConstraints");
+		for (Joint* i : m_Joints) {
+			const nlohmann::json& JointData = ConstraintsData.at(i->Name);
+			std::string Type = JointData.at("ConstraintType").get<std::string>();
+			
+			// Read constraint properties based on "ConstraintType" value
+			if (Type == "Unconstrained") {
+				//TODO...
+			}
+
+			if (Type == "Hinge") {
+				//TODO...
+			}
+
+			if (Type == "BallAndSocket") {
+				//TODO...
+			}
+
+			//if (Type == "...") ...
+		}
+		
+		// Load skeleton segments from file
+		const nlohmann::json& SegmentData = Data.at("SkeletonSegments");
+
+		buildKinematicChain(RIGHT_ARM, SegmentData.at("RightArm"));
+		buildKinematicChain(LEFT_ARM, SegmentData.at("LeftArm"));
+		buildKinematicChain(RIGHT_LEG, SegmentData.at("RightLeg"));
+		buildKinematicChain(LEFT_LEG, SegmentData.at("LeftLeg"));
+		buildKinematicChain(SPINE, SegmentData.at("Spine"));
+
+		std::string GazeJointName = SegmentData.at("GazeJoint").get<std::string>();
+		for (Joint* j : m_Joints) {
+			if (j->Name == GazeJointName) {
+				m_pHead->pJoint = j;
+				m_pHead->Target = j->GlobalPosition; //TODO: set properly to front-facing direction of head - j->GlobalPosition is only a temporary solution for testing purposes!
+				break;
+			}
 		}
 
-		return Rval;
-	}//buildKinematicChainToRoot
+		if (m_KinematicChains.at(SPINE).Joints.empty()) throw CForgeExcept("m_SpineChain.Joints initialization failed!");
+		if (m_KinematicChains.at(RIGHT_ARM).Joints.empty()) throw CForgeExcept("m_RightArmChain.Joints initialization failed!");
+		if (m_KinematicChains.at(LEFT_ARM).Joints.empty()) throw CForgeExcept("m_LeftArmChain.Joints initialization failed!");
+		if (m_KinematicChains.at(RIGHT_LEG).Joints.empty()) throw CForgeExcept("m_RightLegChain.Joints initialization failed!");
+		if (m_KinematicChains.at(LEFT_LEG).Joints.empty()) throw CForgeExcept("m_LeftLegChain.Joints initialization failed!");
+		if (m_pHead->pJoint == nullptr) throw NullpointerExcept("m_pHead->pJoint");
+	}//loadJointConfigFromJSON
+	
+	void InverseKinematicsController::buildKinematicChain(SkeletalSegment SegmentID, const nlohmann::json& ChainData) {
+		m_KinematicChains.try_emplace(SegmentID);
+		KinematicChain& Chain = m_KinematicChains.at(SegmentID);
+
+		std::string RootName = ChainData.at("Root").get<std::string>();
+		std::string EndEffectorName = ChainData.at("EndEffector").get<std::string>();
+
+		Joint* pRoot = nullptr;
+		Joint* pEndEffector = nullptr;
+
+		for (Joint* j : m_Joints) { if (j->Name == RootName) pRoot = j; break; }
+		for (Joint* j : m_Joints) { if (j->Name == EndEffectorName) pEndEffector = j; break; }
+
+		if (pRoot == nullptr) throw NullpointerExcept("pRoot");
+		if (pEndEffector == nullptr) throw NullpointerExcept("pEndEffector");
+
+		Joint* pCurrent = pEndEffector;
+		while (pCurrent != pRoot->pParent) {
+			Chain.Joints.push_back(pCurrent);
+			pCurrent = pCurrent->pParent;
+		}
+
+		Chain.Target = Chain.Joints.back()->GlobalPosition;
+	}//buildKinematicChain
 
 	void InverseKinematicsController::update(float FPSScale) {
 
 		forwardKinematics(m_pRoot, m_GlobalActorPosition, m_GlobalActorRotation);
 		
-		// update each end-effector
-		for (auto* i : m_Joints) {
-			if (i->pEndEffectorData == nullptr) continue;
-
-			std::vector<Joint*> KinematicChain = buildKinematicChainToRoot(i);
-						
-			TopDownCCDIK(i, &KinematicChain);
-
-		}//for[each end-effector]
+		// update skeleton segments (kinematic chains + gaze)
+		topDownCCDIK(RIGHT_ARM);
+		topDownCCDIK(LEFT_ARM);
+		topDownCCDIK(RIGHT_LEG);
+		topDownCCDIK(LEFT_LEG);
+		topDownCCDIK(SPINE);
+		gazeLookAt();
 	}//update
 
 	void InverseKinematicsController::applyAnimation(bool UpdateUBO) {
@@ -196,18 +256,17 @@ namespace CForge {
 		return &m_UBO;
 	}//ubo
 
-	void InverseKinematicsController::TopDownCCDIK(Joint* pEndEffector, std::vector<Joint*>* pChain) {
-		if (pEndEffector == nullptr) throw NullpointerExcept("pEndEffector");
-		if (pChain == nullptr) throw NullpointerExcept("pChain");
+	void InverseKinematicsController::topDownCCDIK(SkeletalSegment SegmentID) {
+		KinematicChain& Chain = m_KinematicChains.at(SegmentID);
+		std::vector<Joint*>& Joints = Chain.Joints;
+		Joint* pEndEffector = Joints[0];
 
 		for (int32_t i = 0; i < m_MaxIterations; ++i) {
-
-			// for each joint in constructed kinematic chain of current end-effector
-			for (int32_t k = 0; k < pChain->size(); ++k) {
+			for (int32_t k = 0; k < Joints.size(); ++k) {
 								
-				Joint* pCurrentJoint = (*pChain)[k];
+				Joint* pCurrentJoint = Joints[k];
 
-				Vector3f TargetPos = pEndEffector->pEndEffectorData->Target;
+				Vector3f TargetPos = Chain.Target;
 				Vector3f EffectorPos = pEndEffector->GlobalPosition;			// get current end-effector position in world space
 				Vector3f JointPos = pCurrentJoint->GlobalPosition;				// get current joint position in world space
 				Vector3f JointToTarget = TargetPos - JointPos;					// directional vector in world space: current joint position -> target position
@@ -244,7 +303,11 @@ namespace CForge {
 
 		}//for [m_MaxIterations of IK]
 
-	}//TopDownCCDIK
+	}//topDownCCDIK
+
+	void InverseKinematicsController::gazeLookAt(void) {
+
+	}//gazeLookAt
 
 	void InverseKinematicsController::forwardKinematics(Joint* pJoint, Vector3f ParentPosition, Quaternionf ParentRotation) {
 		if (nullptr == pJoint) throw NullpointerExcept("pJoint");
@@ -341,28 +404,65 @@ namespace CForge {
 
 	std::vector<InverseKinematicsController::SkeletalEndEffector*> InverseKinematicsController::retrieveEndEffectors(void) const {
 		std::vector<SkeletalEndEffector*> Rval;
+		SkeletalEndEffector* pNewEffector = nullptr;
 
-		for (auto i : m_Joints) {
-			if (i->pEndEffectorData == nullptr) continue;
+		for (const auto& Chain : m_KinematicChains) {
+			Joint* pEndEffector = *Chain.second.Joints.begin();
 
-			SkeletalEndEffector* pNewEffector = new SkeletalEndEffector();
-			pNewEffector->JointID = i->ID;
-			pNewEffector->JointName = i->Name;
-			pNewEffector->Target = i->pEndEffectorData->Target;
-
+			pNewEffector = new SkeletalEndEffector();
+			pNewEffector->JointID = pEndEffector->ID;
+			pNewEffector->JointName = pEndEffector->Name;
+			pNewEffector->Segment = Chain.first;
+			pNewEffector->Target = Chain.second.Target;
 			Rval.push_back(pNewEffector);
 		}
+
+		// Gaze
+		pNewEffector = new SkeletalEndEffector();
+		pNewEffector->JointID = m_pHead->pJoint->ID;
+		pNewEffector->JointName = m_pHead->pJoint->Name;
+		pNewEffector->Segment = HEAD;
+		pNewEffector->Target = m_pHead->Target;
+		Rval.push_back(pNewEffector);
+
 		return Rval;
 	}//retrieveEndEffectors
 
-	void InverseKinematicsController::endEffectorTarget(const SkeletalEndEffector* pModifiedEndEffector) {
-		if (nullptr == pModifiedEndEffector) throw NullpointerExcept("pModifiedEndEffector");
+	void InverseKinematicsController::updateEndEffectorValues(std::vector<SkeletalEndEffector*>* pEndEffectors) {
+		if (nullptr == pEndEffectors) throw NullpointerExcept("pEndEffectors");
 
-		for (auto* i : m_Joints) {
-			if (i->ID == pModifiedEndEffector->JointID) {
-				i->pEndEffectorData->Target = pModifiedEndEffector->Target;
+		for (auto i : (*pEndEffectors)) {
+			switch (i->Segment) {
+			case HEAD: {
+				i->Target = m_pHead->Target;
 				break;
 			}
+			case RIGHT_ARM:
+			case LEFT_ARM:
+			case RIGHT_LEG:
+			case LEFT_LEG:
+			case SPINE: {
+				i->Target = m_KinematicChains.at(i->Segment).Target;
+				break;
+			}
+			}
+		}
+	}//updateEndEffectorValues
+
+	void InverseKinematicsController::endEffectorTarget(SkeletalSegment SegmentID, Vector3f NewTarget) {		
+		switch (SegmentID) {
+		case HEAD: {
+			m_pHead->Target = NewTarget;
+			break;
+		}
+		case RIGHT_ARM:
+		case LEFT_ARM:
+		case RIGHT_LEG:
+		case LEFT_LEG:
+		case SPINE: {
+			m_KinematicChains.at(SegmentID).Target = NewTarget;
+			break;
+		}
 		}
 	}//endEffectorTarget
 

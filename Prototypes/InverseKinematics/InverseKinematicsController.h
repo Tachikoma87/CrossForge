@@ -6,9 +6,22 @@
 #include "../../crossforge/Graphics/Shader/ShaderCode.h"
 #include "../../crossforge/Graphics/Shader/GLShader.h"
 
+#include <nlohmann/json.hpp>
+
+#include <map>
+
 namespace CForge {
 	class InverseKinematicsController: public CForgeObject {
 	public:
+		enum SkeletalSegment {
+			RIGHT_ARM = 0,
+			LEFT_ARM = 1,
+			RIGHT_LEG = 2,
+			LEFT_LEG = 3,
+			SPINE = 4,
+			HEAD = 5
+		};
+
 		struct SkeletalJoint : public CForgeObject {
 			int32_t ID;
 			std::string Name;
@@ -31,6 +44,7 @@ namespace CForge {
 		struct SkeletalEndEffector : public CForgeObject {
 			int32_t JointID;
 			std::string JointName;
+			SkeletalSegment Segment;
 			Eigen::Vector3f Target;
 
 			SkeletalEndEffector(void) : CForgeObject("InverseKinematicsController::SkeletalEndEffector") {
@@ -42,7 +56,7 @@ namespace CForge {
 		~InverseKinematicsController(void);
 
 		// pMesh has to hold skeletal definition
-		void init(T3DMesh<float>* pMesh, Eigen::Vector3f GlobalActorPosition, Eigen::Quaternionf GlobalActorRotation, Eigen::Vector3f GlobalActorScaling);
+		void init(T3DMesh<float>* pMesh, std::string ConfigFilepath, Eigen::Vector3f GlobalActorPosition, Eigen::Quaternionf GlobalActorRotation, Eigen::Vector3f GlobalActorScaling);
 		void update(float FPSScale);
 		void clear(void);
 
@@ -65,13 +79,10 @@ namespace CForge {
 		Eigen::Vector3f globalActorScaling(void) const;
 
 		std::vector<SkeletalEndEffector*> retrieveEndEffectors(void) const;
-		void endEffectorTarget(const SkeletalEndEffector* pModifiedEndEffector);
+		void updateEndEffectorValues(std::vector<SkeletalEndEffector*>* pEndEffectors);
+		void endEffectorTarget(SkeletalSegment SegmentID, Vector3f NewTarget);
 
-	protected:		
-		struct EndEffectorData {
-			Eigen::Vector3f Target;
-		};
-
+	protected:
 		struct Joint {
 			int32_t ID;
 			std::string Name;
@@ -85,23 +96,42 @@ namespace CForge {
 			
 			Joint* pParent;
 			std::vector<Joint*> Children;
-			EndEffectorData* pEndEffectorData;
 		};
 		
+		struct HeadJoint {
+			Joint* pJoint;
+			Eigen::Vector3f Target;
+		};
+
+		struct KinematicChain {
+			std::vector<Joint*> Joints; // Joints.begin() == end-effector; Joints.back() == root of chain (not necessarily root of skeleton)
+			Eigen::Vector3f Target;
+		};
+
 		// end-effector -> root CCDIK
-		void TopDownCCDIK(Joint* pEndEffector, std::vector<Joint*>* Chain);
+		void topDownCCDIK(SkeletalSegment SegmentID);
+		void gazeLookAt(void);
 
 		void forwardKinematics(Joint* pJoint, Eigen::Vector3f ParentPosition, Eigen::Quaternionf ParentRotation);
 		void updateSkinningMatrices(Joint* pJoint, Eigen::Matrix4f ParentTransform);
 		int32_t jointIDFromName(std::string JointName);
-		std::vector<Joint*> buildKinematicChainToRoot(Joint* pEndEffector);
-
+		
+		void loadJointConfigFromJSON(std::string ConfigFilepath); //TODO: properly handle incomplete/incorrect JSON files
+		void buildKinematicChain(SkeletalSegment SegmentID, const nlohmann::json& ChainData);
+						
 		Eigen::Vector3f m_GlobalActorPosition;
 		Eigen::Quaternionf m_GlobalActorRotation;
 		Eigen::Vector3f m_GlobalActorScaling;
 
 		Joint* m_pRoot;
 		std::vector<Joint*> m_Joints;
+		HeadJoint* m_pHead;
+		std::map<SkeletalSegment, KinematicChain> m_KinematicChains;
+		//KinematicChain m_SpineChain;
+		//KinematicChain m_LeftArmChain;
+		//KinematicChain m_RightArmChain;
+		//KinematicChain m_LeftLegChain;
+		//KinematicChain m_RightLegChain;
 
 		int32_t m_MaxIterations;
 							
