@@ -14,6 +14,7 @@ namespace CForge {
 	class InverseKinematicsController: public CForgeObject {
 	public:
 		enum SkeletalSegment {
+			NONE = -1,
 			RIGHT_ARM = 0,
 			LEFT_ARM = 1,
 			RIGHT_LEG = 2,
@@ -49,6 +50,7 @@ namespace CForge {
 
 			SkeletalEndEffector(void) : CForgeObject("InverseKinematicsController::SkeletalEndEffector") {
 				JointID = -1;
+				Segment = NONE;
 			}
 		};
 
@@ -71,6 +73,10 @@ namespace CForge {
 		std::vector<SkeletalJoint*> retrieveSkeleton(void) const;
 		void updateSkeletonValues(std::vector<SkeletalJoint*>* pSkeleton);
 
+		std::vector<SkeletalEndEffector*> retrieveEndEffectors(void) const;
+		void updateEndEffectorValues(std::vector<SkeletalEndEffector*>* pEndEffectors);
+		void endEffectorTarget(SkeletalSegment SegmentID, Eigen::Vector3f NewTarget);
+
 		void globalActorPosition(Eigen::Vector3f Position);
 		void globalActorRotation(Eigen::Quaternionf Rotation);
 		void globalActorScaling(Eigen::Vector3f Scaling);
@@ -78,11 +84,14 @@ namespace CForge {
 		Eigen::Quaternionf globalActorRotation(void) const;
 		Eigen::Vector3f globalActorScaling(void) const;
 
-		std::vector<SkeletalEndEffector*> retrieveEndEffectors(void) const;
-		void updateEndEffectorValues(std::vector<SkeletalEndEffector*>* pEndEffectors);
-		void endEffectorTarget(SkeletalSegment SegmentID, Vector3f NewTarget);
-
 	protected:
+		enum ConstraintType {
+			UNCONSTRAINED = 0,
+			HINGE = 1,
+			BALL_AND_SOCKET = 2
+			// ...
+		};
+
 		struct Joint {
 			int32_t ID;
 			std::string Name;
@@ -96,11 +105,14 @@ namespace CForge {
 			
 			Joint* pParent;
 			std::vector<Joint*> Children;
+			ConstraintType ConstraintType;
+			//TODO: constraint data...
 		};
 		
 		struct HeadJoint {
 			Joint* pJoint;
-			Eigen::Vector3f Target;
+			Eigen::Vector3f Forward;
+			Eigen::Vector3f GazeTarget;
 		};
 
 		struct KinematicChain {
@@ -108,17 +120,18 @@ namespace CForge {
 			Eigen::Vector3f Target;
 		};
 
-		// end-effector -> root CCDIK
-		void topDownCCDIK(SkeletalSegment SegmentID);
-		void gazeLookAt(void);
+		// end-effector -> root CCD IK
+		void ikCCD(SkeletalSegment SegmentID);
+		void rotateGaze(void);
+		void constrainLocalRotation(Joint* pJoint);
 
 		void forwardKinematics(Joint* pJoint, Eigen::Vector3f ParentPosition, Eigen::Quaternionf ParentRotation);
 		void updateSkinningMatrices(Joint* pJoint, Eigen::Matrix4f ParentTransform);
 		int32_t jointIDFromName(std::string JointName);
 		
-		void loadJointConfigFromJSON(std::string ConfigFilepath); //TODO: properly handle incomplete/incorrect JSON files
+		void initJointConstraints(const nlohmann::json& ConstraintDefinitions);
 		void buildKinematicChain(SkeletalSegment SegmentID, const nlohmann::json& ChainData);
-						
+		
 		Eigen::Vector3f m_GlobalActorPosition;
 		Eigen::Quaternionf m_GlobalActorRotation;
 		Eigen::Vector3f m_GlobalActorScaling;
@@ -127,11 +140,6 @@ namespace CForge {
 		std::vector<Joint*> m_Joints;
 		HeadJoint* m_pHead;
 		std::map<SkeletalSegment, KinematicChain> m_KinematicChains;
-		//KinematicChain m_SpineChain;
-		//KinematicChain m_LeftArmChain;
-		//KinematicChain m_RightArmChain;
-		//KinematicChain m_LeftLegChain;
-		//KinematicChain m_RightLegChain;
 
 		int32_t m_MaxIterations;
 							

@@ -113,8 +113,7 @@ namespace CForge {
 				pTargetSGN->init(pTargetTransformSGN, &m_Target);
 				pMarkerSGN->init(pTargetTransformSGN, &m_TargetMarker);
 				pMarkerSGN->visualization(SGNGeometry::Visualization::VISUALIZATION_WIREFRAME);
-				
-				
+								
 				m_TargetTransformSGNs.push_back(pTargetTransformSGN);
 				m_TargetSGNs.push_back(pTargetSGN);
 				m_TargetMarkerSGNs.push_back(pMarkerSGN);
@@ -278,7 +277,7 @@ namespace CForge {
 		StaticActor m_TargetMarker;
 		AlignedBox3f m_TargetMarkerAABB;
 				
-		int32_t m_SelectedEffectorTarget; // index into m_Targets vector; NOT id of joint inside m_CharacterController
+		int32_t m_SelectedEffectorTarget; // index into m_EndEffectors vector; NOT id of joint inside m_CharacterController
 		bool m_LMBDownLastFrame;
 		Vector3f m_DragStart;
 	};//InverseKinematicsTestScene
