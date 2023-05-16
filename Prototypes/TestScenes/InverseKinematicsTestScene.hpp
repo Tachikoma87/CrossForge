@@ -53,7 +53,7 @@ namespace CForge {
 			SAssetIO::load("MyAssets/NewModel.gltf", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
-			m_CharacterController.init(&M, "MyAssets/JointConfig.json", CharacterPosition, CharacterRotation, CharacterScaling); // CharacterPosition, CharacterRotation, CharacterScaling are used to compute global joint positions
+			m_CharacterController.init(&M, "MyAssets/SkeletonConfig.json", CharacterPosition, CharacterRotation, CharacterScaling);
 			m_Character.init(&M, &m_CharacterController);
 			m_CharacterStick.init(&M, &m_CharacterController);
 			M.clear();
@@ -119,6 +119,16 @@ namespace CForge {
 				m_TargetMarkerSGNs.push_back(pMarkerSGN);
 			}
 
+			// coordinate axes for reference
+			SAssetIO::load("MyAssets/JointMarker.gltf", &M);
+			setMeshShader(&M, 0.7f, 0.04f);
+			M.computePerVertexNormals();
+			m_CoordAxes.init(&M);
+			M.clear();
+
+			m_CoordAxesTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 0.15f, 0.0f));
+			m_CoordAxesSGN.init(&m_CoordAxesTransformSGN, &m_CoordAxes);
+
 			LineOfText* pKeybindings = new LineOfText();
 			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement:(Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
 			m_HelpTexts.push_back(pKeybindings);
@@ -180,8 +190,10 @@ namespace CForge {
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 			m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
 			m_TargetVisSGN.enable(true, false);
+			m_CoordAxesSGN.enable(true, false);
 			m_SG.render(&m_RenderDev);
 			m_TargetVisSGN.enable(true, true);
+			m_CoordAxesSGN.enable(true, true);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			m_RenderDev.activeCamera(&m_Cam);
@@ -276,7 +288,11 @@ namespace CForge {
 		StaticActor m_Target;
 		StaticActor m_TargetMarker;
 		AlignedBox3f m_TargetMarkerAABB;
-				
+
+		StaticActor m_CoordAxes;
+		SGNGeometry m_CoordAxesSGN;
+		SGNTransformation m_CoordAxesTransformSGN;
+
 		int32_t m_SelectedEffectorTarget; // index into m_EndEffectors vector; NOT id of joint inside m_CharacterController
 		bool m_LMBDownLastFrame;
 		Vector3f m_DragStart;

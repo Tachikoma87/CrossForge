@@ -12,6 +12,7 @@ namespace CForge {
 
 	InverseKinematicsController::InverseKinematicsController(void): CForgeObject("InverseKinematicsController") {
 		m_pRoot = nullptr;
+		m_pHead = nullptr;
 
 		m_MaxIterations = 100;
 		m_GlobalActorPosition = Vector3f::Zero();
@@ -117,6 +118,7 @@ namespace CForge {
 		std::string GazeJointName = SegmentData.at("GazeJoint").get<std::string>();
 		for (uint32_t i = 0; i < m_Joints.size(); ++i) {
 			if (m_Joints[i]->Name == GazeJointName) {
+				m_pHead = new HeadJoint();
 				m_pHead->pJoint = m_Joints[i];
 				break;
 			}
@@ -139,9 +141,9 @@ namespace CForge {
 		// initialize gaze direction and target using the default coordinate system of glTF 2.0 and assuming that the character is always looking straight ahead in bind pose:  
 		// -> from https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#coordinate-system-and-units: "glTF uses a right-handed coordinate system. glTF defines +Y as 
 		// up, +Z as forward, and -X as right; the front of a glTF asset faces +Z."
-		m_pHead->Forward = Vector3f(0.0f, 0.0f, 1.0f);
-		m_pHead->GazeTarget = m_pHead->pJoint->GlobalPosition + (m_GlobalActorRotation * m_pHead->Forward).normalized();
-
+		m_pHead->CurrentGlobalDir = (m_GlobalActorRotation * Vector3f(0.0f, 0.0f, 1.0f)).normalized();
+		m_pHead->Target = m_pHead->pJoint->GlobalPosition + m_pHead->CurrentGlobalDir;
+		
 		// initialize UBO
 		m_UBO.init(m_Joints.size());
 
@@ -172,10 +174,15 @@ namespace CForge {
 	void InverseKinematicsController::clear(void) {
 		m_pRoot = nullptr;
 		for (auto& i : m_Joints) if (nullptr != i) delete i;
+		
+		if (m_pHead != nullptr) {
+			m_pHead->pJoint = nullptr;
+			delete m_pHead;
+		}
+		m_pHead = nullptr;
 
 		m_Joints.clear();
 		m_KinematicChains.clear();
-		m_pHead->pJoint = nullptr;
 		
 		m_UBO.clear();
 
@@ -213,11 +220,21 @@ namespace CForge {
 
 		// fill chain in order end-effector -> chain root
 		Joint* pCurrent = nullptr; 
-		for (Joint* i : m_Joints) { if (i->Name == EndEffectorName) pCurrent = i; break; }
+		for (Joint* i : m_Joints) { 
+			if (i->Name == EndEffectorName) {
+				pCurrent = i;
+				break;
+			}	
+		}
 		if (pCurrent == nullptr) throw NullpointerExcept("pCurrent"); // couldn't find the end-effector joint
 
 		Joint* pEnd = nullptr; 
-		for (Joint* i : m_Joints) { if (i->Name == RootName) pEnd = i; break; }
+		for (Joint* i : m_Joints) { 
+			if (i->Name == RootName) { 
+				pEnd = i; 
+				break; 
+			} 
+		}
 		if (pEnd == nullptr) throw NullpointerExcept("pEnd"); // couldn't find the root joint
 				
 		while (pCurrent != pEnd->pParent) { //TODO: test if this works properly!
@@ -234,12 +251,12 @@ namespace CForge {
 
 		forwardKinematics(m_pRoot, m_GlobalActorPosition, m_GlobalActorRotation);
 
-		ikCCD(SPINE);
+		rotateGaze();
 		ikCCD(RIGHT_ARM);
 		ikCCD(LEFT_ARM);
 		ikCCD(RIGHT_LEG);
 		ikCCD(LEFT_LEG);
-		//rotateGaze(); //TODO disabled for kinematic chain test
+		ikCCD(SPINE);
 	}//update
 
 	void InverseKinematicsController::applyAnimation(bool UpdateUBO) {
@@ -262,7 +279,7 @@ namespace CForge {
 		Joint* pEndEffector = Joints[0];
 
 		for (int32_t i = 0; i < m_MaxIterations; ++i) {
-			for (int32_t k = 0; k < Joints.size(); ++k) {
+			for (int32_t k = 1; k < Joints.size(); ++k) {
 								
 				Joint* pCurrentJoint = Joints[k];
 
@@ -295,10 +312,10 @@ namespace CForge {
 				forwardKinematics(pCurrentJoint, GlobalParentPosition, GlobalParentRotation);
 
 				float DistToTarget = (TargetPos - pEndEffector->GlobalPosition).norm();
-				if (DistToTarget < 0.0001f) return; // terminate iterations -> end-effector reached target
+				if (DistToTarget < 0.00001f) return; // terminate iterations -> end-effector reached target
 
 				float EndEffectorMovement = (LastEndEffectorPos - pEndEffector->GlobalPosition).norm();
-				if (EndEffectorMovement < 0.0001f) return; // terminate iterations -> can't improve end-effector position
+				if (EndEffectorMovement < 0.00001f) return; // terminate iterations -> can't improve end-effector position
 
 			}//for[each joint in chain]
 		}//for[m_MaxIterations]
@@ -307,9 +324,27 @@ namespace CForge {
 	void InverseKinematicsController::rotateGaze(void) {
 		Joint* pJoint = m_pHead->pJoint;
 
-		pJoint->LocalRotation = Quaternionf::Identity(); //TODO: compute new local rotation of pJoint!
+		Vector3f CurrentGlobalDir = m_pHead->CurrentGlobalDir; // global gaze direction before update (expected to be normalized; new values will be normalized when rotation updates happen)
+		Vector3f GlobalTargetDir = (m_pHead->Target - pJoint->GlobalPosition).normalized();
 
-		constrainLocalRotation(pJoint);
+		if (std::abs(1.0f - CurrentGlobalDir.dot(GlobalTargetDir) > 0.00001f)) {
+			Vector3f CurrentLocalDir = pJoint->GlobalRotation.inverse() * CurrentGlobalDir; // local gaze direction in joint space before update
+						
+			// compute unconstrained rotation quaternion to align both directional vectors in world space
+			Quaternionf GlobalIncrement;
+			GlobalIncrement.setFromTwoVectors(CurrentGlobalDir, GlobalTargetDir);
+
+			// compute local joint rotation and constrain		
+			Quaternionf GlobalParentRotation = pJoint->pParent->GlobalRotation;
+			pJoint->LocalRotation = GlobalParentRotation.inverse() * (GlobalIncrement * pJoint->GlobalRotation);
+			constrainLocalRotation(pJoint);
+
+			// compute new global joint rotation and apply to gaze direction
+			forwardKinematics(pJoint, pJoint->pParent->GlobalPosition, GlobalParentRotation);
+
+			// apply new global rotation of pJoint to old gaze direction in joint space to compute the new (normalized) gaze direction in global space
+			m_pHead->CurrentGlobalDir = (pJoint->GlobalRotation * CurrentLocalDir).normalized();
+		}
 	}//rotateGaze
 
 	void InverseKinematicsController::constrainLocalRotation(Joint* pJoint) {
@@ -319,14 +354,14 @@ namespace CForge {
 			//TODO
 			//pJoint->LocalRotation = ...
 		}
-		else /*if (pJoint->ConstraintType == BALL_AND_SOCKET)*/ {
+		else if (pJoint->ConstraintType == BALL_AND_SOCKET) {
 			//TODO
 			//pJoint->LocalRotation = ...
 		}
-		/*else {
+		else /*if (pJoint->ConstraintType == ...)*/ {
 			//TODO
 			//pJoint->LocalRotation = ...
-		}*/
+		}
 	}//constrainLocalRotation
 
 	void InverseKinematicsController::forwardKinematics(Joint* pJoint, Vector3f ParentPosition, Quaternionf ParentRotation) {
@@ -410,7 +445,7 @@ namespace CForge {
 		pNewEffector->JointID = m_pHead->pJoint->ID;
 		pNewEffector->JointName = m_pHead->pJoint->Name;
 		pNewEffector->Segment = HEAD;
-		pNewEffector->Target = m_pHead->GazeTarget;
+		pNewEffector->Target = m_pHead->Target;
 		Rval.push_back(pNewEffector);
 
 		return Rval;
@@ -422,7 +457,7 @@ namespace CForge {
 		for (auto i : (*pEndEffectors)) {
 			switch (i->Segment) {
 			case HEAD: {
-				i->Target = m_pHead->GazeTarget;
+				i->Target = m_pHead->Target;
 				break;
 			}
 			case RIGHT_ARM:
@@ -440,7 +475,7 @@ namespace CForge {
 	void InverseKinematicsController::endEffectorTarget(SkeletalSegment SegmentID, Vector3f NewTarget) {
 		switch (SegmentID) {
 		case HEAD: {
-			m_pHead->GazeTarget = NewTarget;
+			m_pHead->Target = NewTarget;
 			break;
 		}
 		case RIGHT_ARM:

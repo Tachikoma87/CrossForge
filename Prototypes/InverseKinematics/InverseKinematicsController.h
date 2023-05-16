@@ -111,8 +111,8 @@ namespace CForge {
 		
 		struct HeadJoint {
 			Joint* pJoint;
-			Eigen::Vector3f Forward;
-			Eigen::Vector3f GazeTarget;
+			Eigen::Vector3f CurrentGlobalDir;
+			Eigen::Vector3f Target;
 		};
 
 		struct KinematicChain {

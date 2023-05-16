@@ -30,12 +30,28 @@ namespace CForge {
 
 		// initialize the actors
 		T3DMesh<float> M;
-		PrimitiveShapeFactory::uvSphere(&M, Vector3f(1.0f, 1.0f, 1.0f), 8, 8);
+		SAssetIO::load("MyAssets/JointMarker.gltf", &M);
+		for (uint32_t i = 0; i < M.materialCount(); ++i) {
+			T3DMesh<float>::Material* pMat = M.getMaterial(i);
+
+			pMat->VertexShaderGeometryPass.push_back("Shader/BasicGeometryPass.vert");
+			pMat->FragmentShaderGeometryPass.push_back("Shader/BasicGeometryPass.frag");
+
+			pMat->VertexShaderShadowPass.push_back("Shader/ShadowPassShader.vert");
+			pMat->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");
+
+			pMat->VertexShaderForwardPass.push_back("Shader/ForwardPassPBS.vert");
+			pMat->FragmentShaderForwardPass.push_back("Shader/ForwardPassPBS.frag");
+
+			pMat->Metallic = 0.04f;
+			pMat->Roughness = 0.7f;
+		}//for[materials]
+		/*PrimitiveShapeFactory::uvSphere(&M, Vector3f(1.0f, 1.0f, 1.0f), 8, 8);
 		for (uint32_t i = 0; i < M.materialCount(); ++i) {
 			auto* pMat = M.getMaterial(i);
 			buildMaterial(pMat);
 			CForgeUtility::defaultMaterial(pMat, CForgeUtility::METAL_COPPER);
-		}
+		}*/
 		M.computePerVertexNormals();
 		M.computeAxisAlignedBoundingBox();
 		m_Joint.init(&M);
@@ -47,10 +63,8 @@ namespace CForge {
 			buildMaterial(pMat);
 			CForgeUtility::defaultMaterial(pMat, CForgeUtility::METAL_STAINLESS_STEEL);
 		}
-		
-		M.computeAxisAlignedBoundingBox();
 		M.computePerVertexNormals();
-
+		M.computeAxisAlignedBoundingBox();
 		m_Bone.init(&M);
 		M.clear();
 
@@ -72,14 +86,14 @@ namespace CForge {
 		// estimate a good value for the joint and bone sizes
 		Vector3f Diag = (pMesh->aabb().diagonal().norm() < 0.0001f) ? T3DMesh<float>::computeAxisAlignedBoundingBox(pMesh).diagonal() : pMesh->aabb().diagonal();
 
-		m_JointSize = Diag.norm() / 75.0f;
-		m_BoneSize = m_JointSize / 3.0f;
+		m_JointSize = Diag.norm() / 30.0f;				//m_JointSize = Diag.norm() / 75.0f;
+		m_BoneSize = (Diag.norm() / 75.0f) / 3.0f;		//m_BoneSize = m_JointSize / 3.0f;
 
 		// create Scene graph nodes for all joints
 		createBone(pMesh->rootBone(), &m_RootSGN);
 		jointSize(m_JointSize);
 		boneSize(m_BoneSize);
-
+		
 		BoundingVolume BV;
 		m_Bone.boundingVolume(BV);
 
@@ -90,7 +104,7 @@ namespace CForge {
 
 		StaticActor m_Joint;
 		StaticActor m_Bone;
-
+		
 		m_SG.clear();
 		m_RootSGN.clear();
 		for (auto& i : m_JointSGNs) if (nullptr != i) delete i;	
@@ -182,7 +196,7 @@ namespace CForge {
 		m_RootSGN.translation(Translation);
 		m_RootSGN.rotation(Rotation);
 		m_RootSGN.scale(Scale);
-
+		
 		// compute bone transformations
 		for (auto i : m_JointValues) {
 			if (i->Parent == -1) continue; // we don't care about the root node
@@ -195,7 +209,9 @@ namespace CForge {
 			Quaternionf R;
 			R.setFromTwoVectors(Vector3f::UnitY(), BoneVec); // produces better orientation of bone than CForgeMath::alignVectors
 
-			if(R.norm() < 1.01f) m_BoneSGNs[i->ID]->rotation(R);
+			if (R.norm() < 1.01f) {
+				m_BoneSGNs[i->ID]->rotation(R);
+			}
 			else {
 				printf("Error occured\n");
 			}
@@ -226,10 +242,12 @@ namespace CForge {
 	void IKStickFigureActor::createBone(T3DMesh<float>::Bone* pBone, SGNTransformation* pParent) {
 
 		SGNTransformation* pTransSGN = m_JointTransformSGNs[pBone->ID];
-		SGNGeometry* pGeomSGN = m_JointSGNs[pBone->ID];
+		SGNGeometry* pGeomSGN = nullptr;
+		pGeomSGN = m_JointSGNs[pBone->ID];
 
 		pTransSGN->init(pParent);
 		pGeomSGN->init(pTransSGN, &m_Joint);
+
 		for (auto i : pBone->Children) {
 
 			pGeomSGN = m_BoneSGNs[i->ID];

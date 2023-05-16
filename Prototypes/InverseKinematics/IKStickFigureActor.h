@@ -23,6 +23,7 @@ namespace CForge {
 		void boneMaterial(const T3DMesh<float>::Material Mat);
 		void jointSize(float Size);
 		void boneSize(float Size);
+		//void jointAxesSize(float Size);
 
 		T3DMesh<float>::Material jointMaterial(void)const;
 		T3DMesh<float>::Material boneMaterial(void)const;
@@ -36,13 +37,13 @@ namespace CForge {
 
 		StaticActor m_Joint;
 		StaticActor m_Bone;
-
+		
 		SceneGraph m_SG;
 		SGNTransformation m_RootSGN;
 		std::vector<SGNGeometry*> m_JointSGNs;
 		std::vector<SGNTransformation*> m_JointTransformSGNs;
 		std::vector<SGNGeometry*> m_BoneSGNs;
-
+		
 		std::vector<InverseKinematicsController::SkeletalJoint*> m_JointValues;
 
 		float m_JointSize;
