@@ -351,8 +351,20 @@ namespace CForge {
 		if (pJoint->ConstraintType == UNCONSTRAINED) return; // do nothing
 
 		if (pJoint->ConstraintType == HINGE) {
+			
 			//TODO
-			//pJoint->LocalRotation = ...
+			
+			// constrain rotation about the hinge axis:
+			// ==> apply unconstrained local rotation to hinge axis of joint ==> RotatedAxis = pJoint->LocalRotation * pJoint->HingeAxis
+			// ==> compute rotation from RotatedAxis to the correct (original) pJoint->HingeAxis ==> setFromTwoVectors(RotatedAxis, pJoint->HingeAxis)
+			// ==> apply rotation to pJoint->LocalRotation
+			
+			// enforce angle limits:
+			// ==> using Eigen::AngleAxisf:
+			//		==> AngleAxisf RotAngleAxis = pJoint->LocalRotation (this assignment automatically decomposes the quaternion into an axis vector and an angle value)
+			//		==> clamp Angle to min/max values stored in pJoint
+			//		==> reconstruct quaternion using Eigen::AngleAxisf and assign as new pJoint->LocalRotation
+
 		}
 		else if (pJoint->ConstraintType == BALL_AND_SOCKET) {
 			//TODO
