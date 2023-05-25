@@ -53,7 +53,7 @@ namespace CForge {
 		virtual BoundingVolume boundingVolume(void)const;
 		virtual void boundingVolume(const BoundingVolume BV);
 		
-		// 
+		//TODO Deprecated, was part of LOD system, rework.
 		virtual void testAABBvis(RenderDevice* pRDev, Eigen::Matrix4f sgMat);
 		virtual T3DMesh<float>::AABB getAABB();
 		virtual void bindLODLevel(uint32_t level);
@@ -71,7 +71,7 @@ namespace CForge {
 		virtual void clearMatRef();
 
 		float getAABBradius(const Eigen::Matrix4f& mat);
-		//
+		//TODO END Deprecated, was part of LOD system, rework.
 		
 	protected:
 		IRenderableActor(const std::string ClassName, int32_t ActorType);
@@ -91,12 +91,12 @@ namespace CForge {
 
 		BoundingVolume m_BV;
 		
-		//
+		//TODO Deprecated, was part of LOD system, rework.
 		bool m_isInstanced = false;
 		bool m_isManualInstaned = false;
 		bool m_isInLODSG = false;
 		bool m_isInQSG = false;
-		//
+		//TODO END Deprecated, was part of LOD system, rework.
 		
 	private:
 		

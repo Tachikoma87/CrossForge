@@ -6,11 +6,11 @@
 #endif //_WIN32
 
 #pragma once
-#include "../Pinocchio/pinocchioApi.h"
-#include "../Pinocchio/graphutils.h"
-#include "../Pinocchio/attachment.h"
-#include "../Pinocchio/vector.h"
-#include "../Pinocchio/indexer.h"
+#include "pinocchioApi.h"
+#include "graphutils.h"
+#include "attachment.h"
+#include "vector.h"
+#include "indexer.h"
 
 #include "../../crossforge/AssetIO/T3DMesh.hpp"
 /*
@@ -131,8 +131,4 @@ namespace nsPinocchioTools {
 	* \param in animationIndex index of the animation in source which will be copied
 	*/
 	void PINOCCHIOTOOLS_API copyAnimation(CForge::T3DMesh<float>& source, CForge::T3DMesh<float>* target, uint32_t animationIndex);
-	
-	//TODO 2 functions from pinocchio revert
-	void computeTopology(nsPiR::Mesh* mesh);
-	void fixDupFaces(nsPiR::Mesh* mesh);
 }

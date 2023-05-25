@@ -463,6 +463,7 @@ namespace CForge {
 				SkeletalAnimation* pNewAnim = new SkeletalAnimation();
 				pNewAnim->Name = pAnim->Name;
 				pNewAnim->Duration = pAnim->Duration;
+				pNewAnim->Speed = pAnim->Speed;
 				for (auto i : pAnim->Keyframes) {
 					BoneKeyframes* pBK = new BoneKeyframes();
 					(*pBK) = (*i);

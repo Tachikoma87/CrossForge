@@ -22,7 +22,7 @@
 
 #include <Examples/ExampleSceneBase.hpp>
 #include <crossforge/MeshProcessing/PrimitiveShapeFactory.h>
-#include "../Assets/GLTFIO.h"
+#include "../Assets/GLTFIO/GLTFIO.hpp"
 
 
 #include <filesystem>

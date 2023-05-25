@@ -48,7 +48,7 @@ namespace nsPinocchioTools {
 		
 		std::vector<CForge::T3DMesh<float>::Bone*> inList = gatherBones(in);
 		
-		// find scaling and offsetfor skeleton
+		// find scaling and offset for skeleton
 		// bounding box of skeleton
 		Eigen::Vector3f min,max,center,d;
 		std::vector<Eigen::Vector3f> poss;
@@ -107,36 +107,40 @@ namespace nsPinocchioTools {
 		
 		std::vector<CForge::T3DMesh<float>::Bone*> inList = gatherBones(out);
 		
+		// Create OffsetMatrix from embedding points.
+
 		for (uint32_t i = 0; i < inList.size(); i++) {
-			// adapt offset matrix
-			Eigen::Matrix4f mat = inList[i]->OffsetMatrix.inverse();
 			uint32_t sklIndex = inSkl->getJointForName(inList[i]->Name);
 			Vector3 piPos = in->embedding[sklIndex];
 			
 			// get direction of bone for rotation
-			Eigen::Vector3f pos = Eigen::Vector3f(piPos[0],piPos[1],piPos[2]);
-			Eigen::Vector3f vec = Eigen::Vector3f(0.0f,0.0f,0.0f);
-			if (inList[i]->Children.size() == 1) {
+			Eigen::Vector3f pos = Eigen::Vector3f(piPos[0],piPos[1],piPos[2]); ///< Position of the Bone.
+			Eigen::Vector3f dir = Eigen::Vector3f(0.0f,0.0f,0.0f);             ///< Direction of the Bone.
+			
+			if (inList[i]->Children.size() == 1) { // Bone dir is trivial.
 				uint32_t sklIndex = inSkl->getJointForName(inList[i]->Children[0]->Name);
 				Vector3 piVec2 = in->embedding[sklIndex];
 				Eigen::Vector3f pos2 = Eigen::Vector3f(piVec2[0],piVec2[1],piVec2[2]);
-				vec = pos2-pos;
+				dir = pos2-pos;
 			}
-			else if (inList[i]->pParent){
+			else if (inList[i]->pParent) { // On Branching take the parent as direction.
 				uint32_t sklIndex = inSkl->getJointForName(inList[i]->pParent->Name);
 				Vector3 piVec2 = in->embedding[sklIndex];
 				Eigen::Vector3f pos2 = Eigen::Vector3f(piVec2[0],piVec2[1],piVec2[2]);
-				vec = pos-pos2;
+				dir = pos-pos2;
 			}
-			else if (inList[i]->Children.size()>0) {
+			else if (inList[i]->Children.size()>0) { // Bone is Root and Branched.
+				// Take the first Node.
 				uint32_t sklIndex = inSkl->getJointForName(inList[i]->Children[0]->Name);
 				Vector3 piVec2 = in->embedding[sklIndex];
 				Eigen::Vector3f pos2 = Eigen::Vector3f(piVec2[0],piVec2[1],piVec2[2]);
-				vec = pos2-pos;
-			}
+				dir = pos2-pos;
+			} else
+				throw CForgeExcept("PinocchioTools::adaptSkeleton error: Bone is isolated.\n");
+
+			Eigen::Matrix3f rot = CForgeMath::alignVectors(Eigen::Vector3f(0.0,1.0,0.0),dir.normalized());
 			
-			Eigen::Matrix3f rot = CForgeMath::alignVectors(Eigen::Vector3f(0.0,1.0,0.0),vec.normalized());
-			
+			Eigen::Matrix4f mat = Eigen::Matrix4f::Identity();
 			mat.data()[12] = pos[0];
 			mat.data()[13] = pos[1];
 			mat.data()[14] = pos[2];
@@ -149,13 +153,13 @@ namespace nsPinocchioTools {
 	void applyWeights(nsPiR::Skeleton* in, nsPiR::Mesh* inMesh, CForge::T3DMesh<float>* out, const CVScalingInfo& CVSInfo,
 	                  nsPiR::PinocchioOutput& piO, uint32_t vertexCount) {
 		if (!piO.attachment)
-			throw CForgeExcept("PinocchioTools: applyWeights attatchment not valid");
+			throw CForgeExcept("PinocchioTools::applyWeights error: attatchment not valid");
 		std::vector<CForge::T3DMesh<float>::Bone*> outList = gatherBones(out->rootBone());
 		
 		// center embedding and mesh at boneRoot = 0
 		std::vector<Eigen::Vector3f> centeredVertices;
 		Eigen::Vector3f center = Eigen::Vector3f(piO.embedding[0][0],piO.embedding[0][1],piO.embedding[0][2]);
-		for (uint32_t i = 0; i < out->vertexCount(); i++) {	
+		for (uint32_t i = 0; i < out->vertexCount(); i++) {
 			// mesh to PiR cube (0-1)
 			Eigen::Vector3f toAdd = Eigen::Vector3f(inMesh->toAdd[0],inMesh->toAdd[1],inMesh->toAdd[2]);
 			Eigen::Vector3f newVec = out->vertex(i) * inMesh->scale + toAdd;
@@ -320,112 +324,13 @@ namespace nsPinocchioTools {
 			}
 		}
 
-		fixDupFaces(ret);
-		computeTopology(ret);
+		ret->fixDupFaces();
+		ret->computeTopology();
 		//if(ret->integrityCheck())
 			std::cout << "Correct convert: " << ret->vertices.size() << " vertices, " << ret->edges.size() << " edges" << endl;
 		//else
 		//	std::cout << "Somehow convert: " << ret->vertices.size() << " vertices, " << ret->edges.size() << " edges" << endl;
 		ret->computeVertexNormals();
 	}
-	
-	
-	// from nsPiR::Mesh
-	//TODO revert to nsPiR function
-	void computeTopology(nsPiR::Mesh* mesh)
-	{
-		for(int i = 0; i < mesh->edges.size(); ++i)
-			mesh->edges[i].prev = (i - i % 3) + (i + 2) % 3;
-		
-		vector<map<int, int> > halfEdgeMap(mesh->vertices.size());
-		for(int i = 0; i < mesh->edges.size(); ++i) {
-			int v1 = mesh->edges[i].vertex;
-			int v2 = mesh->edges[mesh->edges[i].prev].vertex;
-
-			mesh->vertices[v1].edge = mesh->edges[mesh->edges[i].prev].prev; //assign the vertex' edge
-			
-			if(halfEdgeMap[v1].count(v2)) {
-				std::cout << "Error: duplicate edge detected: " << v1 << " to " << v2 << endl;
-			}
-			halfEdgeMap[v1][v2] = i;
-			if(halfEdgeMap[v2].count(v1)) {
-				int twin = halfEdgeMap[v2][v1];
-				mesh->edges[twin].twin = i;
-				mesh->edges[i].twin = twin;
-			}
-		}
-	}
-	struct MFace
-	{
-		MFace(int v1, int v2, int v3)
-		{
-			v[0] = v1; v[1] = v2; v[2] = v3;
-			sort(v, v + 3);
-		}
-
-		bool operator<(const MFace &f) const { return lexicographical_compare(v, v + 3, f.v, f.v + 3); }
-		int v[3];
-	};
-	void fixDupFaces(nsPiR::Mesh* mesh)
-	{
-		int i;
-		map<MFace, int> faces;
-		for(i = 0; i < (int)mesh->edges.size(); i += 3) {
-			MFace current(mesh->edges[i].vertex, mesh->edges[i + 1].vertex, mesh->edges[i + 2].vertex);
-
-			if(faces.count(current)) {
-				std::cout << "fixDumpFaces: found" << i << "\n";
-				int oth = faces[current];
-				if(oth == -1) {
-					faces[current] = i;
-					continue;
-				}
-				faces[current] = -1;
-				int newOth = mesh->edges.size() - 6;
-				int newCur = mesh->edges.size() - 3;
-
-				mesh->edges[oth] = mesh->edges[newOth];
-				mesh->edges[oth + 1] = mesh->edges[newOth + 1];
-				mesh->edges[oth + 2] = mesh->edges[newOth + 2];
-				mesh->edges[i] = mesh->edges[newCur];
-				mesh->edges[i + 1] = mesh->edges[newCur + 1];
-				mesh->edges[i + 2] = mesh->edges[newCur + 2];
-
-				MFace newOthF(mesh->edges[newOth].vertex, mesh->edges[newOth + 1].vertex, mesh->edges[newOth + 2].vertex);
-				faces[newOthF] = newOth;
-
-				mesh->edges.resize(mesh->edges.size() - 6);
-				i -= 3;
-			}
-			else {
-				faces[current] = i;
-			}
-		}
-
-		//scan for unreferenced vertices and get rid of them
-		set<int> referencedVerts;
-		for(i = 0; i < (int)mesh->edges.size(); ++i) {
-			if(mesh->edges[i].vertex < 0 || mesh->edges[i].vertex >= (int)mesh->vertices.size())
-				continue;
-			referencedVerts.insert(mesh->edges[i].vertex);
-		}
-
-		vector<int> newIdxs(mesh->vertices.size(), -1);
-		int curIdx = 0;
-		for(i = 0; i < (int)mesh->vertices.size(); ++i) {
-			if(referencedVerts.count(i))
-				newIdxs[i] = curIdx++;
-		}
-
-		for(i = 0; i < (int)mesh->edges.size(); ++i) {
-			if(mesh->edges[i].vertex < 0 || mesh->edges[i].vertex >= (int)mesh->vertices.size())
-				continue;
-			mesh->edges[i].vertex = newIdxs[mesh->edges[i].vertex];
-		}
-		for(i = 0; i < (int)mesh->vertices.size(); ++i) {
-			if(newIdxs[i] > 0)
-				mesh->vertices[newIdxs[i]] = mesh->vertices[i];
-		}
-		mesh->vertices.resize(referencedVerts.size());
-	}
 }
+

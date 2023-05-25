@@ -98,6 +98,8 @@ namespace CForge {
 		return aabb;
 	}
 	
+
+	//TODO Deprecated, was part of LOD system, rework.
 	void IRenderableActor::testAABBvis(RenderDevice* pRDev, Eigen::Matrix4f sgMat)
 	{
 	
@@ -156,4 +158,5 @@ namespace CForge {
 		float aabbRadius = std::max(std::abs(scaledAABBMax.norm()), std::abs(scaledAABBMin.norm()));
 		return aabbRadius;
 	}
+	//TODO END Deprecated, was part of LOD system, rework.
 }//name space

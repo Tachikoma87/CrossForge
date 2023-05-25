@@ -83,7 +83,10 @@ add_executable(CForgeSandbox
 
 	Prototypes/Misc/IMUCameraController.cpp
 
-	Prototypes/Assets/GLTFIO.cpp
+	Prototypes/Assets/GLTFIO/GLTFIOutil.cpp
+	Prototypes/Assets/GLTFIO/GLTFIOread.cpp
+	Prototypes/Assets/GLTFIO/GLTFIOwrite.cpp
+	Prototypes/Assets/GLTFIO/GLTFIO.cpp
 
 	Prototypes/MeshProcessing/SurfaceSampler.cpp
 	
@@ -118,7 +121,9 @@ add_executable(CForgeSandbox
 #	Prototypes/Graphics/SFontManager.cpp
 #	Prototypes/Graphics/UBOTextData.cpp
 
-	)
+	Prototypes/SkeletonConvertion.cpp
+
+)
 
 if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox

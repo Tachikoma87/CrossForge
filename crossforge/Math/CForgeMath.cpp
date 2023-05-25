@@ -20,8 +20,11 @@ namespace CForge {
 
 	Eigen::Matrix4f CForgeMath::perspectiveProjection(uint32_t Width, uint32_t Height, float FieldOfView, float Near, float Far) {
 		if (Near >= Far) throw CForgeExcept("Near plane further away than far plane!");
-		if (Width == 0 || Height == 0) throw CForgeExcept("Viewport width and/or viewport height specified with 0!");
-
+		//if (Width == 0 || Height == 0)
+		//	throw CForgeExcept("Viewport width and/or viewport height specified with 0!");
+		if (Width == 0 || Height == 0) {//TODO gets thrown when window is minimized, make window size 1x1px instead
+			Width = 1; Height = 1;
+		}
 
 		Eigen::Matrix4f Rval = Eigen::Matrix4f::Identity();
 

@@ -1,5 +1,6 @@
 # Folders
 .vs/
+.vscode/
 .idea/
 out/
 build/

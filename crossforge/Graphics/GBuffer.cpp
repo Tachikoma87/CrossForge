@@ -21,7 +21,10 @@ namespace CForge {
 
 
 	void GBuffer::init(uint32_t Width, uint32_t Height) {
-		if (Width == 0 || Height == 0) throw CForgeExcept("Zero width or height for GBuffer specified!");
+		if (Width == 0 || Height == 0) {//TODO gets thrown when window is minimized, make window size 1x1px instead
+			Width = 1; Height = 1;
+		}
+			//throw CForgeExcept("Zero width or height for GBuffer specified!");
 		
 		std::string ErrorMsg;
 		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {

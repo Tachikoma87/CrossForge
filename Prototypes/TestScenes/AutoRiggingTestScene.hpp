@@ -40,9 +40,10 @@
 
 //#include "../AutoRig.hpp"
 
-//#include "../../thirdparty/Pinocchio/pinocchioApi.h"
 #include "../../thirdparty/Pinocchio/PinocchioTools.hpp"
-#include "../Assets/GLTFIO.h"
+#include "../Assets/GLTFIO/GLTFIO.hpp"
+
+#include "Prototypes/SkeletonConvertion.hpp"
 
 #include <filesystem>
 #include <stdio.h>
@@ -89,6 +90,8 @@ namespace CForge {
 		
 		void mainLoop() {
 
+			gladLoadGL();
+			
 			GLTFIO gltfio;
 			
 			// load skydome and a textured cube
@@ -113,8 +116,8 @@ namespace CForge {
 			
 			T3DMesh<float> MT;
 			std::filesystem::path modelPath;
-			modelPath = std::filesystem::path("MyAssets/muppetshow/Model1.obj");
-			//modelPath = std::filesystem::path("MyAssets/muppetshow/Model2.obj");
+			//modelPath = std::filesystem::path("MyAssets/muppetshow/Model1.obj");
+			modelPath = std::filesystem::path("MyAssets/muppetshow/Model2.obj");
 			//modelPath = std::filesystem::path("MyAssets/muppetshow/Model3.obj");
 			//modelPath = std::filesystem::path("MyAssets/muppetshow/Model6.obj");
 			//modelPath = std::filesystem::path("MyAssets/muppetshow/female_body.obj");
@@ -174,7 +177,7 @@ namespace CForge {
 			
 			vector<Vector3f> poss;
 			vector<float> rads;
-			nsPinocchioTools::autorigCust(sklEric, piM, &poss, &rads);
+			nsPiT::autorigCust(sklEric, piM, &poss, &rads);
 			//nsPinocchio::PinocchioOutput rig = nsPinocchio::autorig(sklEric, piM);
 			nsPinocchio::PinocchioOutput rig = nsPiT::autorig(sklEric, &piM);
 			
@@ -191,10 +194,15 @@ namespace CForge {
 				nsPiT::applyWeights(&sklEric, &piM, &MT, cvsInfo, rig, MT.vertexCount());
 			
 			/////////////////////////////////////////////////////////////////////////////
+			//std::string outNameFBX = "MyAssets/AssetOut/out" + modelName + "3.fbx";
+			//AssetIO::store(outNameFBX, &M);
 			
 			std::string outName = "MyAssets/AssetOut/out" + modelName + "3.gltf";
-			//AssetIO::store(outName, &M);
 			gltfio.store(outName,&MT);
+			//__debugbreak();
+			exit(0);
+			//std::string outNameEric = "MyAssets/AssetOut/eric.gltf";
+			//gltfio.store(outNameEric,&M);
 			//*/
 			//AutoRigger autoRigger; // for sphere visualisation
 			//autoRigger.init(&MT,M.getBone(0));
@@ -239,6 +247,24 @@ namespace CForge {
 			std::string GLError = "";
 			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
+			
+			T3DMesh<float> sphereMesh;
+			StaticActor sphere;
+			AssetIO::load("MyAssets/sphere.obj", &sphereMesh);
+			setMeshShader(&sphereMesh, 0.8f, 0.04f);
+			sphereMesh.computePerVertexNormals();
+			sphere.init(&sphereMesh);
+			
+			T3DMesh<float> boneMesh;
+			StaticActor boneVis;
+			AssetIO::load("MyAssets/boneVis.obj", &boneMesh);
+			setMeshShader(&boneMesh, 0.8f, 0.04f);
+			boneMesh.computePerVertexNormals();
+			boneVis.init(&boneMesh);
+
+			SkeletonConverter sc;
+			sc.OMtoRH(MT.rootBone());
+			T3DMesh<float>::Bone* sklHroot = sc.getRoot();
 
 			// start main loop
 			while (!m_RenderWin.shutdown()) {
@@ -268,21 +294,55 @@ namespace CForge {
 				//	CForgeMath::rotationMatrix((Quaternionf) AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX()))
 				//	*CForgeMath::scaleMatrix(Vector3f(0.05f, 0.05f, 0.05f)));
 
-				//glEnable(GL_BLEND);
-				//glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-				SG.render(&m_RenderDev);
-				//glDisable(GL_BLEND);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_ONE, GL_ONE);
 				/*/ // render embedded joints
 				for (uint32_t i = 0; i < (uint32_t) rig.embedding.size(); i++) {
 					Eigen::Matrix4f cubeTransform = CForgeMath::translationMatrix(Eigen::Vector3f(rig.embedding[i][0],rig.embedding[i][1],rig.embedding[i][2]));
-					float r = 0.1f;
+					float r = 0.02f;
 					Eigen::Matrix4f cubeScale = CForgeMath::scaleMatrix(Eigen::Vector3f(r,r,r)*2.0f);
 					Eigen::Matrix4f scale = CForgeMath::scaleMatrix(Eigen::Vector3f(10.0f,10.0f,10.0f));
+					Eigen::Quaternionf rot;
 					m_RenderDev.modelUBO()->modelMatrix(scale*cubeTransform*cubeScale);
-					autoRigger.sphere.render(&m_RenderDev);
+					
+					sphere.render(&m_RenderDev,rot,Eigen::Vector3f(),Eigen::Vector3f());
 				}
 				/**/
 				
+				// Render Offset Matrix
+				glColorMask(true,false,false,true);
+				std::vector<T3DMesh<float>::Bone*> MTbones;
+				SkeletonConverter::collectBones(&MTbones,MT.rootBone());
+				for (uint32_t i = 0; i < MTbones.size(); ++i) {
+					Eigen::Quaternionf rot;
+					m_RenderDev.modelUBO()->modelMatrix(CForgeMath::scaleMatrix(Eigen::Vector3f(10.,10.,10.))*MTbones[i]->OffsetMatrix.inverse()*CForgeMath::scaleMatrix(Eigen::Vector3f(.01,.1,.01)));
+					boneVis.render(&m_RenderDev,rot,Eigen::Vector3f(),Eigen::Vector3f());
+				}
+				glColorMask(true,true,true,true);
+				
+				// Render Skeleton Hierarchy
+				glColorMask(false,true,false,true);
+				std::vector<T3DMesh<float>::Bone*> todoBones;
+				todoBones.push_back(sklHroot);
+				while (todoBones.size() > 0) {
+					T3DMesh<float>::Bone* cb = todoBones[todoBones.size()-1];
+					todoBones.pop_back();
+					for (uint32_t i=0;i<cb->Children.size();++i)
+						todoBones.push_back(cb->Children[i]);
+					
+					// accumulate bone mats to get offsetmat replica
+					Eigen::Matrix4f rep = Eigen::Matrix4f::Identity();
+					T3DMesh<float>::Bone* cbr = cb;
+					while (cbr->pParent) {
+						rep = rep*cbr->OffsetMatrix;
+						cbr = cbr->pParent;
+					}
+					
+					Eigen::Quaternionf rot;
+					m_RenderDev.modelUBO()->modelMatrix(CForgeMath::scaleMatrix(Eigen::Vector3f(10.,10.,10.))*rep*CForgeMath::scaleMatrix(Eigen::Vector3f(.01,.1,.01)));
+					boneVis.render(&m_RenderDev,rot,Eigen::Vector3f(),Eigen::Vector3f());
+				}
+				glColorMask(true,true,true,true);
 				/**/ // render sphere packing
 				//for (uint32_t i = 0; i < (uint32_t) poss.size(); i++) {
 				//	Eigen::Matrix4f cubeTransform = CForgeMath::translationMatrix(poss[i]);
@@ -304,6 +364,10 @@ namespace CForge {
 					autoRigger.sphere.render(&m_RenderDev);
 				}
 				/**/
+				
+				SG.render(&m_RenderDev);
+				glDisable(GL_BLEND);
+				
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 				m_RenderWin.swapBuffers();

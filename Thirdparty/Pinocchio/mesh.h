@@ -54,6 +54,7 @@ public:
     void normalizeBoundingBox();
     void computeTopology();
     void writeObj(const string &filename) const;
+    void fixDupFaces();
     
 private:
     void readObj(istream &strm);
@@ -61,7 +62,7 @@ private:
     void readPly(istream &strm);
     void readGts(istream &strm);
     void readStl(istream &strm);
-    void fixDupFaces();
+    //void fixDupFaces();
     void sortEdges(); //sort edges so that triplets forming faces are adjacent
 
 public: //data
