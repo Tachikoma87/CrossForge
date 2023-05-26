@@ -24,6 +24,9 @@ file(MAKE_DIRECTORY "Prototypes/Shader")
 #################################################################
 project (CForgeSandbox)
 
+option(INCLUDE_OPENCV "Include OpenCV in build" ON)
+
+
 if(EMSCRIPTEN)
 	include(FetchContent)
 	
@@ -57,17 +60,18 @@ else()
 # Additional packages not alreday included in the core library
 FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
 FIND_PACKAGE(imgui CONFIG REQUIRED) # dear-imgui
+#FIND_PACKAGE(OpenXR CONFIG REQUIRED)
 endif()
 
 
 # enable OpenCV support
-if(USE_OPENCV)
+if(INCLUDE_OPENCV)
 	FIND_PACKAGE(OpenCV CONFIG REQUIRED)	# Open computer vision library
 	include_directories(
 		"${OpenCV_INCLUDE_DIRS}"
 	)
-	add_compile_definitions(USE_OPENCV)
-endif(USE_OPENCV)
+	add_compile_definitions(INCLUDE_OPENCV)
+endif(INCLUDE_OPENCV)
 
 add_executable(CForgeSandbox 
 	SandboxMain.cpp
@@ -97,6 +101,8 @@ add_executable(CForgeSandbox
 	Prototypes/Graphics/GLRenderbuffer.cpp
 
 	Prototypes/ImGuiUtility.cpp
+
+	Prototypes/Camera/VideoRecorder.cpp
 
 	# GUI
 #	Prototypes/GUI/Font.cpp
@@ -135,8 +141,10 @@ elseif(WIN32)
 	ws2_32
 	PRIVATE tinyxml2::tinyxml2
 	PRIVATE imgui::imgui
+#	PRIVATE OpenXR::headers
+#	PRIVATE OpenXR::openxr_loader
 	${FREETYPE_LIBRARIES}
-
+	${OpenCV_LIBS}
 	)
 	
 elseif(__arm__)
@@ -159,6 +167,7 @@ elseif(UNIX)
 		PRIVATE imgui::imgui
 #		PRIVATE assimp
 		PRIVATE dl	
+		${OpenCV_LIBS}
 		)
 endif()
 

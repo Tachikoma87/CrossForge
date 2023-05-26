@@ -39,6 +39,7 @@ namespace CForge {
 		static void createDirectories(const std::string Path);
 
 		static std::string parentPath(const std::string Path);
+		static std::string retrieveFilename(const std::string Path);
 
 		/**
 		* \brief Returns size of the specified file.

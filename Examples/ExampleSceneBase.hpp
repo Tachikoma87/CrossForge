@@ -116,12 +116,15 @@ namespace CForge {
 			VP.Size = Vector2i(Msg.iParam[0], Msg.iParam[1]);
 			VP.Position = Vector2i(0, 0);
 
+			VP.Size.x() = std::max(8, VP.Size.x());
+			VP.Size.y() = std::max(8, VP.Size.y());
+
 			// change all viewports to new resolution
 			m_RenderDev.viewport(RenderDevice::RENDERPASS_COUNT, VP);
 
 			// change GBuffer resolution
-			m_RenderDev.gBuffer()->init(Msg.iParam[0]/m_RenderBufferScale, Msg.iParam[1]/m_RenderBufferScale);
-			m_Cam.projectionMatrix(Msg.iParam[0]/m_RenderBufferScale, Msg.iParam[1]/m_RenderBufferScale, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
+			m_RenderDev.gBuffer()->init(VP.Size.x()/m_RenderBufferScale, VP.Size.y()/m_RenderBufferScale);
+			m_Cam.projectionMatrix(VP.Size.x()/m_RenderBufferScale, VP.Size.y()/m_RenderBufferScale, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
 			// re-position label to bottom right of screen
 			if (GLWindowMsg::MC_RESIZE == Msg.Code && m_FPSLabelActive) {

@@ -4,6 +4,8 @@
 namespace CForge {
 	GLTexture2D::GLTexture2D(void): CForgeObject("GLTexture2D") {
 		m_TexObj = GL_INVALID_INDEX;
+		m_Width = 0;
+		m_Height = 0;
 	}//Constructor
 
     GLTexture2D::GLTexture2D(uint32_t handle) : CForgeObject("GLTexture2D"), m_TexObj(handle) {}
@@ -44,7 +46,8 @@ namespace CForge {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		
-		
+		m_Width = pImage->width();
+		m_Height = pImage->height();
 	}//initialize
 
 	void GLTexture2D::clear(void) {
@@ -52,6 +55,8 @@ namespace CForge {
 			glDeleteTextures(1, &m_TexObj);
 			m_TexObj = GL_INVALID_INDEX;
 		}
+		m_Width = 0;
+		m_Height = 0;
 	}//clear
 
 	void GLTexture2D::bind(void) {
@@ -66,5 +71,13 @@ namespace CForge {
 	uint32_t GLTexture2D::handle(void)const {
 		return m_TexObj;
 	}//handle
+
+	int32_t GLTexture2D::width(void)const {
+		return m_Width;
+	}//width
+
+	int32_t GLTexture2D::height(void)const {
+		return m_Height;
+	}//height
 
 }//name space

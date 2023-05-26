@@ -181,6 +181,7 @@ void exportLibrary(void) {
 	IncludeFiles.push_back("Math/Box.hpp");
 	IncludeFiles.push_back("Math/CForgeMath.h");
 	IncludeFiles.push_back("Math/Plane.hpp");
+	IncludeFiles.push_back("Math/Rectangle.hpp");
 	IncludeFiles.push_back("Math/Sphere.hpp");
 	
 	// Mesh Processing

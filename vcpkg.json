@@ -15,7 +15,9 @@
 			"name": "imgui",
 			"default-features": false,
 			"features": [ "opengl3-binding", "glfw-binding" ]
-		}
+		},
+		"opencv",
+		"openxr-loader"
 	]
 }
 

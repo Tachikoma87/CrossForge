@@ -34,6 +34,8 @@
 #include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
 #include "Prototypes/TestScenes/GUITestScene.hpp"
 #include "Prototypes/TestScenes/ImGUITestScene.hpp"
+#include "Prototypes/TestScenes/B02DemonstratorScene.hpp"
+#include "Prototypes/TestScenes/SideBySideMotionScene.hpp"
 
 
 
@@ -46,7 +48,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkybox
 //#define ActiveScene ExampleTextRendering
 //#define ActiveScene ExampleShapesAndMaterials
-#define ActiveScene ExampleLighting
+//#define ActiveScene ExampleLighting
 //#define ActiveScene ExampleSceneGraph
 //#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
@@ -63,6 +65,8 @@ using namespace Eigen;
 //#define ActiveScene StickFigureTestScene
 //#define ActiveScene AssetGLTFTestScene
 //#define ActiveScene ImGUITestScene
+//#define ActiveScene B02DemonstratorScene
+#define ActiveScene SideBySideMotionScene
 
 
 ActiveScene* pScene = nullptr;
@@ -76,6 +80,7 @@ int main(int argc, char* argv[]) {
 	_CrtMemState S1, S2, S3;
 	_CrtMemCheckpoint(&S1);
 #endif
+
 
 	SCrossForgeDevice* pDev = nullptr;
 
