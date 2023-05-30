@@ -36,6 +36,7 @@
 #include "Prototypes/TestScenes/ImGUITestScene.hpp"
 #include "Prototypes/TestScenes/B02DemonstratorScene.hpp"
 #include "Prototypes/TestScenes/SideBySideMotionScene.hpp"
+#include "Prototypes/TestScenes/VideoPlayerTestScene.hpp"
 
 
 
@@ -65,8 +66,9 @@ using namespace Eigen;
 //#define ActiveScene StickFigureTestScene
 //#define ActiveScene AssetGLTFTestScene
 //#define ActiveScene ImGUITestScene
-//#define ActiveScene B02DemonstratorScene
-#define ActiveScene SideBySideMotionScene
+#define ActiveScene B02DemonstratorScene
+//#define ActiveScene SideBySideMotionScene
+//#define ActiveScene VideoPlayerTestScene
 
 
 ActiveScene* pScene = nullptr;

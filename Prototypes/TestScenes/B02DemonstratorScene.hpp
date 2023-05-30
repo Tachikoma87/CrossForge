@@ -22,7 +22,7 @@
 #include <Examples/ExampleSceneBase.hpp>
 #include <crossforge/Math/Rectangle.hpp>
 #include "../ImGuiUtility.h"
-
+#include "../Camera/VideoPlayer.h"
 using namespace Eigen;
 using namespace std;
 
@@ -45,6 +45,7 @@ namespace CForge {
 		void init() override {
 
 			initWindowAndRenderDevice();
+			gladLoadGL();
 			// initialize camera
 			m_Cam.init(Vector3f(0.0f, 3.0f, 8.0f), Vector3f::UnitY());
 			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
@@ -154,6 +155,9 @@ namespace CForge {
 
 			m_LastFPSPrint = CForgeUtility::timestamp();
 			m_FPS = 60.0f;
+
+			m_DemoState = STATE_DASHBOARD;
+
 		}//initialize
 
 		void clear(void) override {
@@ -239,56 +243,109 @@ namespace CForge {
 
 			ImGui::EndFrame();
 
+			if (m_RenderWin.mouse()->buttonState(Mouse::BTN_LEFT)) {
+				m_RenderWin.mouse()->buttonState(Mouse::BTN_LEFT, false);
+
+				if (SelectedTile == 0) {
+					startStudyPart1();
+					m_DemoState = STATE_STUDYPART1;
+				}
+
+			}
+
 		}//updateGui
 
 
 		void mainLoop(void)override {
-			m_FPS = std::max(0.25f, m_FPS);
 
-			m_RenderWin.update();
-			m_SG.update(60.0f / m_FPS);
-			m_SkyboxSG.update(60.0f / m_FPS);
 
-			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+			switch (m_DemoState) {
+			case STATE_DASHBOARD: {
+				m_FPS = std::max(0.25f, m_FPS);
+				m_RenderWin.update();
+				m_SG.update(60.0f / m_FPS);
+				m_SkyboxSG.update(60.0f / m_FPS);
 
-			m_CharacterController.update(60.0f / m_FPS);
-			if (m_Character.activeAnimation() == nullptr) {
-				m_pCharacterAnim = m_CharacterController.createAnimation(0, 1000.0f / 60.0f, 0.0f);
-				m_Character.activeAnimation(m_pCharacterAnim);
+				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+
+				m_CharacterController.update(60.0f / m_FPS);
+				if (m_Character.activeAnimation() == nullptr) {
+					m_pCharacterAnim = m_CharacterController.createAnimation(0, 1000.0f / 60.0f, 0.0f);
+					m_Character.activeAnimation(m_pCharacterAnim);
+				}
+
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+				m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
+				m_SG.render(&m_RenderDev);
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+				m_RenderDev.activeCamera(&m_Cam);
+				m_SG.render(&m_RenderDev);
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
+				m_SkyboxSG.render(&m_RenderDev);
+
+				m_FPSLabel.render(&m_RenderDev);
+				if (m_DrawHelpTexts) drawHelpTexts();
+
+				m_TitleText.render(&m_RenderDev);
+
+
+				updateGui();
+				ImGuiUtility::render();
+
+				m_RenderWin.swapBuffers();
+
+				updateFPS();
+
+				defaultKeyboardUpdate(m_RenderWin.keyboard());
+			}break;
+			case STATE_STUDYPART1: {
+				m_RenderWin.update();
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+				//m_SkyboxSG.render(&m_RenderDev);
+
+				m_VideoPlayers[0].update();
+				m_VideoPlayers[0].render(&m_RenderDev);
+
+				m_FPSLabel.render(&m_RenderDev);
+				m_RenderWin.swapBuffers();
+
+				updateFPS();
+
+				defaultKeyboardUpdate(m_RenderWin.keyboard());
+
+			}break;
 			}
-
-
-			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-			m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
-			m_SG.render(&m_RenderDev);
-
-			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			m_RenderDev.activeCamera(&m_Cam);
-			m_SG.render(&m_RenderDev);
-
-			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
-
-			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
-			m_SkyboxSG.render(&m_RenderDev);
-
-			m_FPSLabel.render(&m_RenderDev);
-			if (m_DrawHelpTexts) drawHelpTexts();
-
-			m_TitleText.render(&m_RenderDev);
-
-
-			updateGui();
-			ImGuiUtility::render();
-
-			m_RenderWin.swapBuffers();
-
-			updateFPS();
-
-			defaultKeyboardUpdate(m_RenderWin.keyboard());
+			
 
 		}//mainLoop
 
 	protected:
+
+		enum DemonstratorState {
+			STATE_DASHBOARD = 0,
+			STATE_STUDYPART1,
+			STATE_STUDYPART2,
+			STATE_MOTIONEDITOR,
+		};
+
+		struct StudyPart1Data {
+
+		};
+
+		void startStudyPart1(void) {
+			m_VideoPlayers[0].init(Vector2f(0.25f, 0.05f), Vector2f(0.5f, 0.5f));
+			m_VideoPlayers[0].play("MyAssets/Study_Videos/01_1.mp4");
+		}
+
+		DemonstratorState m_DemoState;
+
+		VideoPlayer m_VideoPlayers[4]; // The 4 required video players
 
 		// Scene Graph
 		SGNTransformation m_RootSGN;

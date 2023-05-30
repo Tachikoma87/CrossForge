@@ -103,6 +103,7 @@ add_executable(CForgeSandbox
 	Prototypes/ImGuiUtility.cpp
 
 	Prototypes/Camera/VideoRecorder.cpp
+	Prototypes/Camera/VideoPlayer.cpp
 
 	# GUI
 #	Prototypes/GUI/Font.cpp

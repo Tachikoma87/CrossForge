@@ -16,7 +16,11 @@
 			"default-features": false,
 			"features": [ "opengl3-binding", "glfw-binding" ]
 		},
-		"opencv",
+		{
+			"name": "opencv",
+			"default-features": false,
+			"features": [ "ffmpeg" ]
+		},
 		"openxr-loader"
 	]
 }
