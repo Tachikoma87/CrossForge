@@ -49,6 +49,7 @@ namespace CForge {
 
 	VideoPlayer::VideoPlayer(void): CForgeObject("VideoPlayer") {
 		m_pVideoCapture = nullptr;
+		m_FinishedPlaying = true;
 	}//Constructor
 
 	VideoPlayer::~VideoPlayer(void) {
@@ -87,13 +88,60 @@ namespace CForge {
 	}//release
 
 	void VideoPlayer::update(void) {
-		if (nullptr == m_pVideoCapture) return; // nothing to do
-		cv::VideoCapture* pVC = static_cast<cv::VideoCapture*>(m_pVideoCapture);
+		/*if (m_FinishedPlaying) return;
+		cv::VideoCapture* pVC = static_cast<cv::VideoCapture*>(m_pVideoCapture);*/
 
-		uint64_t Timestep = uint64_t(1000.0 / pVC->get(cv::CAP_PROP_FPS));
-		while (nullptr != m_pVideoCapture && CForgeUtility::timestamp() > m_VideoStart + m_FrameTimestamp + Timestep) readNextFrame();
+		//uint64_t Timestep = uint64_t(1000.0 / pVC->get(cv::CAP_PROP_FPS));
+		//while (nullptr != m_pVideoCapture && CForgeUtility::timestamp() > m_VideoStart + m_FrameTimestamp + Timestep) readNextFrame();
+
+		uint64_t Timestep = uint64_t(1000.0 / m_FPS);
+		while (!m_FinishedPlaying && CForgeUtility::timestamp() > m_VideoStart + m_FrameTimestamp + Timestep) getNextFrame();
 
 	}//update
+
+	void VideoPlayer::cacheVideo(void) {
+		
+		// clear Video Buffer
+		if (m_VideoBuffer.size() > 0) {
+			for (auto& i : m_VideoBuffer) delete i;
+		}
+		m_VideoBuffer.clear();
+
+		cv::VideoCapture* pVC = static_cast<cv::VideoCapture*>(m_pVideoCapture);
+		m_FPS = pVC->get(cv::CAP_PROP_FPS);
+		cv::Mat Frame;
+		pVC->read(Frame);
+
+		while (!Frame.empty()) {
+			T2DImage<uint8_t> Img;
+			FrameItem* pItem = new FrameItem();
+			convertCVImageToCFImageRGB(&Frame, &pItem->Img);
+			pItem->Timestamp = static_cast<uint64_t>(pVC->get(cv::CAP_PROP_POS_MSEC));
+			m_VideoBuffer.push_back(pItem);
+			pVC->read(Frame);
+		}
+	
+		pVC->release();
+		delete pVC;
+		m_pVideoCapture = nullptr;
+		m_CurrentFrame = 0;
+
+	}//cacheVideo
+
+	void VideoPlayer::getNextFrame(void) {
+		if (m_FinishedPlaying) return;
+
+		m_CurrentFrame++;
+		if (m_CurrentFrame >= m_VideoBuffer.size()) {
+			m_FinishedPlaying = true;
+		}
+		else {
+			m_Tex.init(&m_VideoBuffer[m_CurrentFrame]->Img, false);
+			m_FrameTimestamp = m_VideoBuffer[m_CurrentFrame]->Timestamp;
+		}
+
+
+	}//getNextFrame
 
 	void VideoPlayer::play(const std::string VideoFile) {
 		// open video file
@@ -102,10 +150,24 @@ namespace CForge {
 
 		m_pVideoCapture = pVideoCapture;
 
-		readNextFrame();
+		cacheVideo();
+		m_CurrentFrame = -1;
+		getNextFrame();
+
+		//readNextFrame();
 
 		m_VideoStart = CForgeUtility::timestamp();
+		m_FinishedPlaying = false;
 
+	}//play
+
+	void VideoPlayer::play(void) {
+		if (m_VideoBuffer.size() > 0) {
+			m_FinishedPlaying = false;
+			m_CurrentFrame = -1;
+			getNextFrame();
+			m_VideoStart = CForgeUtility::timestamp();
+		}
 	}//play
 
 	void VideoPlayer::readNextFrame(void) {

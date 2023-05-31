@@ -115,9 +115,10 @@ namespace CForge {
 
 			/*ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
+			ImGui::NewFrame();*/
 
-			ImGui::ShowDemoWindow(&m_DemoWindow);*/
+
+			
 
 			
 			
@@ -157,6 +158,9 @@ namespace CForge {
 			ImGui::NewFrame();*/
 
 			ImGuiUtility::newFrame();
+
+			//ImGuiUtility::newFrame();
+			ImGui::ShowDemoWindow(&m_DemoWindow);
 			
 			ImGui::Begin("My first Tool", &m_ActiveTool, ImGuiWindowFlags_MenuBar);
 			ImGui::SetWindowPos(ImVec2(0, 0), ImGuiCond_Once);

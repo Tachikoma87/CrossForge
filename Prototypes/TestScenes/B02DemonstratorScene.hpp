@@ -83,6 +83,7 @@ namespace CForge {
 
 			T3DMesh<float> M;
 
+
 			T2DImage<uint8_t> Img;
 			AssetIO::load("MyAssets/B02Demonstrator/B02StudyPart01.jpg", &Img);
 			Img.flipRows();
@@ -173,7 +174,7 @@ namespace CForge {
 			ImGui::Text(Text.c_str());
 		}
 
-		void updateGui(void) {
+		void updateDashboardGui(void) {
 			ImGuiUtility::newFrame();
 
 			bool m_ActiveTool = true;
@@ -256,6 +257,68 @@ namespace CForge {
 		}//updateGui
 
 
+		void updateStudyPart1GUI(void) {
+			ImGuiUtility::newFrame();
+
+			int32_t FrameWidth = 720;
+			int32_t FrameHeight = 500;
+
+
+
+			ImVec4 SelectionColor = ImVec4(0.35f, 0.35f, 0.35f, 1.0f);
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, SelectionColor);
+			// create selection of naturalness (1 through 5)
+			ImGui::Begin("Evaluation Part1 Tile", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
+			ImGui::SetWindowPos(ImVec2(m_RenderWin.width() / 2 - FrameWidth/2, 400));
+			ImGui::SetWindowSize(ImVec2(FrameWidth, FrameHeight));
+
+			ImGui::PushFont(m_pFontTileText);
+			ImGui::SetCursorPosX(FrameWidth/2 - ImGui::CalcTextSize("ReplayVideo").x);
+			if (ImGui::Button("Replay Video")) m_VideoPlayers[0].play();
+
+			ImGui::SetNextItemOpen(true);
+			if (ImGui::TreeNode("How natural or artificial did you find the motion sequence depicted in the video?")) {
+				ImGui::Text("Please rate on the scale how natural or artificial the movement of the video looks.");
+				ImGui::Separator();
+
+				ImGui::SetCursorPosX(ImGui::CalcTextSize("The movement of the video appears:").x + 35);
+				ImGui::Image((void*)m_Part1Data.ScaleImg.handle(), ImVec2(250, 50));
+
+				ImGui::SetCursorPosX(ImGui::CalcTextSize("The movement of the video appears:").x + 35);
+				ImGui::Text("artificial"); ImGui::SameLine(); 
+				ImGui::SetCursorPosX(ImGui::CalcTextSize("The movement of the video appears:").x + 35 + 250 - ImGui::CalcTextSize("natural").x);
+				ImGui::Text("natural");
+
+				ImGui::Text("The movement of the video appears:");
+
+				for (int32_t n = 0; n < 5; ++n) {
+					ImGui::SameLine();
+					std::string Label = std::to_string(n);
+					if (ImGui::Selectable(Label.c_str(), m_Part1Data.Selection == n, 0, ImVec2(50,25))) m_Part1Data.Selection = n;		
+				}			
+
+				ImGui::TreePop();
+			}
+			
+			// next button
+			ImGui::SetCursorPosX(FrameWidth / 2 - ImGui::CalcTextSize("Next").x);
+			if (ImGui::Button("Next")) {
+				studyPart1Next();
+			}
+
+			ImGui::PopFont();
+
+			ImGui::PopStyleColor();
+
+			ImGui::End();
+
+			ImGui::EndFrame();
+		}//updateStudyPart1GUI
+
+		void studyPart1Next(void) {
+
+		}//studyPart1Next
+
 		void mainLoop(void)override {
 
 
@@ -294,7 +357,7 @@ namespace CForge {
 				m_TitleText.render(&m_RenderDev);
 
 
-				updateGui();
+				updateDashboardGui();
 				ImGuiUtility::render();
 
 				m_RenderWin.swapBuffers();
@@ -313,11 +376,16 @@ namespace CForge {
 				m_VideoPlayers[0].render(&m_RenderDev);
 
 				m_FPSLabel.render(&m_RenderDev);
+				updateStudyPart1GUI();
+				ImGuiUtility::render();
+
 				m_RenderWin.swapBuffers();
 
 				updateFPS();
 
 				defaultKeyboardUpdate(m_RenderWin.keyboard());
+
+				if(m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_P, true)) m_VideoPlayers[0].play();
 
 			}break;
 			}
@@ -335,12 +403,22 @@ namespace CForge {
 		};
 
 		struct StudyPart1Data {
+			int32_t Selection;
+			GLTexture2D ScaleImg;
 
+			StudyPart1Data(void) {
+				Selection = 2;
+			}
 		};
 
 		void startStudyPart1(void) {
 			m_VideoPlayers[0].init(Vector2f(0.25f, 0.05f), Vector2f(0.5f, 0.5f));
 			m_VideoPlayers[0].play("MyAssets/Study_Videos/01_1.mp4");
+
+			T2DImage<uint8_t> Img;
+			AssetIO::load("MyAssets/B02Demonstrator/Scale.jpg", &Img);
+			Img.flipRows();
+			m_Part1Data.ScaleImg.init(&Img, false);
 		}
 
 		DemonstratorState m_DemoState;
@@ -372,7 +450,7 @@ namespace CForge {
 		SGNGeometry m_CharacterSGN;
 		SGNTransformation m_CharacterTransformSGN;
 		
-
+		StudyPart1Data m_Part1Data;
 	};//ExampleMinimumGraphicsSetup
 
 }//name space

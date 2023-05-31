@@ -38,6 +38,7 @@ namespace CForge {
 		void canvasSize(const uint32_t Width, const uint32_t Height);
 
 		void play(const std::string VideoFile);
+		void play(void); // play same video again
 
 	protected:
 		struct FrameItem {
@@ -48,6 +49,8 @@ namespace CForge {
 
 		void computeDisplayParams(void);
 		void readNextFrame(void);
+		void getNextFrame(void);
+		void cacheVideo(void);
 
 		Eigen::Vector2i m_CanvasSize;
 		Eigen::Vector2f m_Position; 
@@ -56,8 +59,8 @@ namespace CForge {
 		Eigen::Vector3f m_DisplayPosition;
 		Eigen::Vector3f m_DisplayScale; 
 
-		/*std::vector<FrameItem*> m_VideoBuffer;
-		uint32_t m_CurrentBufferItem;*/
+		std::vector<FrameItem*> m_VideoBuffer;
+		uint32_t m_CurrentBufferItem;
 		/*uint32_t m_BufferSize;*/
 
 		ScreenQuad m_DisplayQuad;
@@ -65,11 +68,15 @@ namespace CForge {
 
 		void* m_pVideoCapture;
 
+		int64_t m_CurrentFrame;
 		uint64_t m_VideoStart;
 		uint64_t m_FrameTimestamp;
 		uint64_t m_NextTimestamp;
 		GLTexture2D m_Tex;
 
+		float m_FPS;
+
+		bool m_FinishedPlaying;
 	};//VideoPlayer
 }
 
