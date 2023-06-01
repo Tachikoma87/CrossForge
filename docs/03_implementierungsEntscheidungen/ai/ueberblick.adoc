@@ -1,0 +1,98 @@
+= Methoden für Künstliche Intelligenz
+
+== Genereller Aufbau
+
+* Sensors
+* Decision Making
+* Decision Execution
+* Actuation
+
+===  Was ist ein Multi-Agenten System und was unterscheidet es zu zentraler KI? -> Decision Making
+
+* Zentrale KI:
+** Agenten werden von einem externen, globalen System gesteuert
+** Agenten haben keine Kontrolle über ihre Handlungen
+** Synonyme: Manager Centric, Director/Coordinator
+
+* Agenten Basiert
+** Agenten treffen unabhängige, individuelle Entscheidungen, basierend auf vorhandenen Informationen
+** Es gibt trotzdem globale zugängliche Informationen, die aber nicht missbraucht werden dürfen, um die Handlungen eines Agenten zu beeinflussen
+** natürlicheres Verhalten
+
+== Sensors
+
+* Sammeln Informationen
+* Nehmen Umgebung wahr
+* Wissensrepräsentation -> wie am besten?
+* Blackboard -> Agenten können Informationen teilen
+* Querschnittskonzept?
+
+
+== Decision Making
+=== State machine
+
+* gerichteter Graph
+* Limitierte Anzahl an Stati und Aktionen
+* übergänge zwischen Stati, falls Bedingung erfüllt ist
+* ungeeignet für Vorgangsbeschreibungen
+
+=== Goal Based: BDI
+
+* Beliefs
+** sind die Informationen, die der Agent über die Welt hat
+** können auch falsche Annahmen sein
+** muss nicht komplett sein
+* Desires
+** Status, den der Agent erreichen möchte
+** z.B findPlayer, damagePlayer, preserveHealth
+* Intentions
+** Beliefs entscheiden, welches Desire erfüllt wird
+** Ausgewähltes Desire wird zur Intention
+** Basierend auf Intention wird Aktion ausgewählt
+* großer Vorteil, dass zwei Desires mit einer Aktion befriedigt werden können -> natürlicheres Verhalten, fühlt sich nicht Hardcoded an
+
+
+=== Goal Based: GOAP
+
+* Goal Oriented Action Planning
+* Liste von Aktionen definieren
+** Voraussetzungen: Status, in dem die Welt sich befinden muss
+** Resultat: Status, in dem die Welt sich befindet, nachdem die Aktion ausgeführt wurde
+** Aktionen haben Ausführungskosten
+* Agent erreicht Ziel, indem die Aktionen so ausgewählt werden, dass man vom Startzustand der Welt in den Zielzustand gelangt
+* Einfaches Beispiel:
+** Suchen, Voraussetzung: Agent sieht Spieler nicht, Resultat: Agent sieht Spieler
+** Attackieren: Voraussetzung: Agent sieht Spieler, Resultat: Spieler tot
+* Komplexes verhalten einfach zu erweitern:
+** Zusätzliche Voraussetzung für Attacke: Agent hat Waffe
+** Zusätzliche Aktion: Waffe aufheben, Voraussetzung: Agent hat keine Waffe, Resultat: Agent hat Waffe
+* Bei mehreren möglichen Aktionen werden die mit den geringsten Kosten ausgewählt
+
+
+== Decision Execution: Behaviour Trees
+* exzellent, um komplexe Abfolge von Handlungen zu beschreiben
+** z.B: Agent soll zur Tür laufen, die Klinke betätigen, die Tür öffnen und dem Spielen Platz machen. Nachdem der Spieler durch die Tür gegangen ist, soll er selber durch gehen. Währenddessen soll er sich mit dem Spieler unterhalten
+* BT sind ungeeignet für
+** Unterbrechungen und Übergänge
+** Verhaltenspriorisierung
+** z.B Agent im Gefecht, verliert sichtkontakt zum Gegner -> sollte in Gegner suchen Branch übergehen -> die Zweige müssen Monitore für die Wurzel haben
+** wenn man das versucht, werden Bäume groß und nicht wartbar  -> viel bessere Abdeckung durch State Machines
+* Ziel: simple & kleine Bäume, die ein Ziel ausführen
+** wartbar
+** getrennt von anderen Verhalten testbar
+** isoliert, sodass veränderung in einem State andere nicht beeinflusst
+
+== Actuation
+* Ausführen der gewollten Handlungen
+* z.B Wegpunkte ablaufen und dabei Objekten/Agenten ausweichen
+* Steering Behaviour:
+** Seek
+** Wander
+** Collision Avoidance
+** Queue
+* Alternativen zu Steering Behaviour? -> Collision Avoidance auf NavMesh
+
+== Quellen
+* https://www.youtube.com/watch?v=Qq_xX1JCreI&t=1170s[GDC Talk: AI Arborist: Proper Cultivation and Care for Your Behavior Trees]
+* https://www.youtube.com/live/G5A0-_4dFLg?feature=share&t=7129[Game AI Basics]
+* https://www.youtube.com/watch?v=ValJk15l_y8[ How does videogame AI make its decisions? (FSM, Behaviour Trees, BDI, GOAP) | Bitwise ]

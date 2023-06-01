@@ -1,0 +1,103 @@
+ifndef::imagesdir[:imagesdir: ../images]
+= Projektziel: Szenario Innenstadt
+
+* modernes, menschenorientiertes, platzeffizientes Gelände
+** modern, luxuriös -> geschwungene organische Formen, Steinoberfläche (Granit, Sandstein), Pflanzen, Glas
+** sehr vertikal, um platzeffizient zu sein, außerdem sieht das meist beeindruckend aus
+* Läden, in denen Roboter und Menschen arbeiten
+* belebte Umgebung, ohne dass es sich überfüllt anfühlt
+* Roboter machen Arbeit, die nicht erfüllend/stupide/schwer ist
+
+[cols="a,a,a", frame=none, grid=none]
+|===
+| image::01/plants1.jpg[]
+| image::01/plants3.jpg[]
+| image::01/plants2.jpg[]
+image::01/jewel.jpg[]
+|===
+
+== Putzroboter
+* Fußböden putzen, Mülleimer entleeren/Müll aufsammeln
+* vertikale Oberflächen (Fenster, Türen, Wände) putzen
+* komplexe Geometrie (Toiletten, Waschbecken, Griffe) putzen
+
+== Essensverkäufer
+* halb (von der Hüfte aufwärts) humanoid, der andere Maschinen bedient
+* sowas wie McDonalds, Nordsee, Subway -> benötigt unterschiedliche Fähigkeiten und Interaktionen
+** Essen zubereiten
+** Essen verkaufen
+
+== Gepäckroboter
+* hilft das Gepäck an richtige Stelle zu befördern
+* muss den Zielort erfahren und Gepäck laden/entladen können
+* wahrscheinlich mit Rädern -> ist auf Barrierefreiheit angewiesen
+
+== Gärtnerroboter
+* gießt Pflanzen, sägt Äste ab, sperrt Bereiche ab
+* arbeitet mit Mensch zusammen, der Anweisungen gibt (z.B welche Äste, wie weit abgeschnitten werden müssen)
+
+== Informationssystem
+* gibt Informationen über historische Orte
+* Hologramme?
+
+== Service Roboter
+* Blindenführer
+* Dehydrierter-Menschen-Erkenner-und-Wasser-Anbieter
+* Erste Hilfe Drohnen
+
+== AR-Brille
+* zeigt über HUD Wegpunkte an
+* Informationen über Ankünfte, Wartezeiten, nächste Termine
+* Hinweis auf Sehenswürdigkeiten
+
+== Andere Menschen
+* haben eigenes Leben und Ziele
+** Kind, Erwachsener und Rentner mit eigenen Bedürfnissen
+* Interaktion zwischen Menschen und Service Roboter
+** Koch und Kellnerroboter
+** Gärtner und Gärtnerroboter
+** etc
+* Mensch, Mensch Interaktion ist wichtig
+** Zusammen essen gehen
+** Gemeinsam Reisen / sich fortbewegen
+** Sinnvolle, natürliche Unterhaltungen
+
+== Aus dem Setting resultierende Techniken
+* Physiksystem
+* effizienter Szenengraph
+* Rendering (Occlusion culling, AZDO, Pflanzenshader)
+* Multiagenten System
+* Navigationsmesh
+* Dialogsystem/Interaktionssystem (vielleicht Text to speech)
+* vielleicht inverse Kinematics
+
+= Minimum Viable Produkt
+
+* Setting
+** zwei Terassen mit Pflanzen
+** Rampen gehen von einer Terrase zur nächsten
+** zwei Roboter gießen Pflanzen
+** Roboter gehen sich gegenseitig und dir aus dem Weg
+* Resultierende Anforderungen: Physiksystem, Multiagentensystem, Navigationsmesh, Interaktionssystem, Level Editor, 3D-Modele
+* Multiagentensystem
+** andere Agenten erkennen (anderen Roboter, Spieler)
+** Status der Umwelt sehen ( Wasserbedürfnis der Pflanze)
+* Interaktionssystem
+** Gießroboter fragen: Was ist das für eine Pflanze
+* MVP ist so gestaltet, dass die einzelnen Anforderungen möglichst überschneidungsfrei verteilt werden können
+* **Wichtig: Skalierbarkeit im Hinterkopf behalten!** -> Möglichst generisch halten
+
+== Risikoanalyse und Fragen
+* Was ist das Ziel des Praktikums?
+** Wenn am Ende ein fertiges Produkt entstehen soll, um die Interaktion mit Embodied Technologies zu zeigen, dann ist CrossForge meiner (Projektmanager) Meinung nach nicht die richtige Wahl, weil zu viele Tools in der Engine noch implementiert werden müssen, die in anderen Engines schon vorhanden sind. Das kostet sehr viel Zeit und wir können uns nicht auf die Interaktionen konzentrieren
+** Wenn die Teamarbeit im Fokus steht, habe ich (Projektmanager) bei der Aufgabenstellung keine Bedenken.
+** *Antwort:* Ziel ist es vor allem sich mit den Techniken zu beschäftigen, weshalb CrossForge verwendet werden soll, damit wir noch viel dabei lernen, statt nur Drag-and-Drop zu machen.
+* Eine Richtung für das Multiagenten System wäre sehr hilfreich, um ein System zu implementieren/anzubinden, welches:
+** gut skaliert, sowohl Performance als auch Programmarchitektur (Clean Code, Wartbarer Code)
+** hohe Abstraktionen liefert, um komplexe Interaktionen elegant abbilden zu können
+** leicht verständlich ist ( nice to have)
+** *Antwort:* Leider wurde keine Richtung vorgegeben, aber GOAP könnte gut sein
+* Welchen Grafikstil sollen wir wählen? Realistisch oder ist auch Low Poly möglich ?
+** *Antwort:* Wir sind da recht frei, aber am Ende muss es gut aussehen. Wir müssen die Lizenzen ovn allen Modellen überprüfen, ob wir diese in unserem Rahmen verwenden dürfen
+* Welchen Level Editor können wir einsetzen?
+** *Antwort:* Blender sollte ausreichen

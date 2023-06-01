@@ -1,0 +1,17 @@
+:imagesdir: images
+= Teamorientiertes Praktikum Computergrafik
+
+include::01_aufgabenStellungUndLoesungsansatz/aufgabenstellung.adoc[leveloffset=1]
+
+include::01_aufgabenStellungUndLoesungsansatz/loesungsansatz.adoc[leveloffset=1]
+
+include::02_projektEntscheidungen/entscheidungen.adoc[leveloffset=1]
+
+include::03_implementierungsEntscheidungen/anforderungen.adoc[leveloffset=1]
+
+include::03_implementierungsEntscheidungen/entscheidungen.adoc[leveloffset=1]
+
+include::05_meetingprotokolle/meetings.adoc[leveloffset=1]
+
+include::05_meetingprotokolle/fortschritt.adoc[leveloffset=1]
+

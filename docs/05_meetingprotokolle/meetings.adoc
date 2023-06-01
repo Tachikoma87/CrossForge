@@ -1,0 +1,61 @@
+= Meetingprotokolle
+
+== 25.04.2023 Erstes Treffen mit Betreuer, Erklärung der Aufgabe
+=== embodied digitale technologies:
+- Verkörperungsbergriff im Zentrum
+- Roboter -> hat körper
+- Prothese
+- virtuelle Avatare
+- Hologramm
+
+=== Wichtiger Aspekt ist die Interaktion
+- Bahnhof, Flughafen, Volksfest
+- Gepäckroboter, der Gepäck trägt, Oma hilft
+- Werberoboter
+- nach dem Weg fragen
+- was gibt es in der Szene?
+- was brauchen wir um das zu realisieren?
+- wer möchte welchen Teil bearbeiten?
+
+=== Ziel: Szene, die anderen präsentiert werden kann:
+- selbst durch Welt bewegen, statt passiv zuzuschauen
+- bezug zur Forschung beachten
+- (Hübsch)
+
+=== Agenten:
+- haben eigene ziele
+- Agenten wissen nicht, was Ziele anderer Agenten sind -> nicht globale, sondern lokale Steuerung
+- entity component paradigmen
+
+https://hybrid-societies.org/
+
+=== space sharing conflicts:
+- autonome autos vs fußgänger
+
+Linus bis zum 7. grobe planung. Dokument mit grober Planung. Am 9. darüber sprechen
+
+== 02.05.2023 Ausarbeitung Lösungsansatz
+
+Siehe xref:../01_aufgabenStellungUndLoesungsansatz/loesungsansatz.adoc[Lösungsansatz]
+
+== 09.05.2023 Vorstellen des MVP
+
+* Level Editor: Blender und Python export script
+* NavMesh: Recast & Detour
+* Grafikstil: so realistisch wie möglich, muss auf normalen system 30fps laufen
+* Vielleicht Platz der im realen Leben existiert, und nachmodellieren?
+* 500 agenten sollten in Echtzeit möglich sein
+* Pflanzen umstellen und roboter muss sich anpassen
+* detaillierter taskbreakdown der Aufgaben
+** der schnittstellen bewusst werden
+** Jira, als Projektmanagement Werkzeug
+* Scrum vs Kanban ->Modus festlegen, Zeitkontingent festlegen
+
+== 15.05.2023 Aufteilung der Aufgaben
+
+- Carlo schaut sich Recast an und integriert es in CrossForge
+- Lisa kümmert sich um das Dialogsystem
+- Sophie liest sich in das gltf-Format ein und überlegt, wie Blender als Level Editor eingesetzt werden kann
+- Angelique erstellt das 3D Modell für den Gießroboter und zwei Pflanzenmodelle
+- Leon beliest sich zu ECS, sucht eine Bibliothek aus und integriert diese in CrossForge
+- Linus kümmert sich um das Multiagentensystem

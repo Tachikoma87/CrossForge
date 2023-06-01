@@ -1,0 +1,11 @@
+ifndef::imagesdir[:imagesdir: ../images]
+= Fortschrittsdokumentation
+
+== 01.06.2023
+
+- Angelique: hat zwei Pflanzen modelliert
+
+image::05/plantModels_31_05_23.png[]
+- Lisa: hat sich mit Code-Base vertraut gemacht
+- Sophie: hat es geschafft, gltf aus Blender zu laden und in Engine anzuzeigen
+- Linus: hat Dokumentation für Projekt erstellt

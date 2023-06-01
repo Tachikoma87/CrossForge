@@ -1,0 +1,35 @@
+= Entity Component System
+
+|===
+| |Flecs |EnTT
+
+|Link
+| https://www.flecs.dev/flecs/
+| https://github.com/skypjack/entt
+
+|Aktiv entwickelt
+|Ja
+|Ja
+
+|Letztes Update
+|19.05.23
+|02.12.22
+
+|Sprache
+|C/C++
+|C++
+
+|Dokumentation
+|Sehr gut
+|gut
+
+|Performance
+|Sehr gut
+|Sehr gut
+
+|vcpkg
+| Ja
+| Ja
+|===
+
+Entscheidung für Flecs, weil Dokumentation besser ist

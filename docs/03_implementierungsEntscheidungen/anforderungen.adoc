@@ -1,0 +1,5 @@
+= Ungeordnete Aufzählung von Anforderungen an unsere Simulation
+
+- Grafikstil so realistisch wie möglich
+- Simulation muss mit 30fps auf unserem schwächsten System laufen
+- 500 Agenten sollen in Echtzeit möglich sein

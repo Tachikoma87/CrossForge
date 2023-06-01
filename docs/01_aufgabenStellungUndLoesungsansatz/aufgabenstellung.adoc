@@ -1,0 +1,42 @@
+= Aufgabenstellung
+
+Erzeugung interaktiver Umgebungen für verkörperte digitale Technologien
+
+|===
+|Studenten |Prüfer und Betreuer
+a|
+- Leon Rollenhagen
+- Angelique Gräfe
+- Lisa Neuhaus
+- Carlo Kretzschmann
+- Sophie Neuhaus
+- Linus Thriemer
+a|
+- Prof. Dr. Guido Brunnett, TU Chemnitz
+- Tom Uhlmann M.Sc. TU Chemnitz
+|===
+
+== Vorbetrachtungen und Zielstellung:
+
+Im Sonderforschungsbereich Hybrid Societies wird die Interaktion von Menschen und
+verkörperten digitalen Technologien (EDTs) untersucht. EDTs können autonome Fahr-
+zeuge oder Roboter, Service- oder Info-Roboter, virtuelle Charaktere oder Menschen sein,
+die mit technischen Erweiterungen wie intelligenten Brillen, Prothesen oder Exoskeletten
+ausgestattet sind. Obwohl uns im täglichen Leben noch wenige dieser Dinge begegnen,
+ergeben sich viele technische, logistische und soziale Implikationen, welche sich mit dem
+Einzug solcher Technologien in unseren Alltag ergeben und bereits jetzt untersucht werden
+sollten. Diese Implikationen betreffen unter anderem die Wahrnehmung, Kommunikation,
+Interaktion, Umsetzung und den räumlichen Bedarf der jeweiligen Akteure. Die Erfor-
+schung dieser Aspekte ist schwierig, da die entsprechenden Geräte und Roboter entweder
+noch nicht existieren oder sehr teuer sind. Daher ist es praktisch, eine virtuelle Umgebung
+zu haben, in der diese Aspekte erforscht werden können.
+
+
+In diesem teamorientierten Praktikum werden Möglichkeiten erforscht und umgesetzt,
+wie eine lebendige, interaktive Welt erschaffen werden kann, in der ein Nutzer mit EDTs
+interagieren kann oder die Interaktion von Agenten untereinander und in der Welt beobachten kann. Um dies zu erreichen, müssen die entsprechenden Objekte wie die Welt, die
+Agenten und die Charaktere erschaffen werden. Zusätzlich müssen die Objekte interagierbar gemacht werden, und die Agenten müssen sich selbständig in der Welt bewegen und
+mit ihr interagieren können. Der Fokus sollte dabei auf Glaubwürdigkeit und Plausibilität
+liegen. Das bedeutet, dass Ansätze aus der wissenschaftlichen Literatur und bereits existierende EDTs verwendet werden sollten. Die virtuelle Welt sollte so angelegt sein, dass neue
+Agenten in die Welt eingefügt oder das Verhalten bestehender Agenten geändert werden
+kann, um die Auswirkungen zu untersuchen.

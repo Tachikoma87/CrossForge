@@ -1,0 +1,13 @@
+= Projektmanagement Entscheidungen
+
+== Wie organisieren wir uns?
+
+Die Wahl ist auf Jira gefallen, da unser Betreuer das Tool vorgeschlagen hat und zwei Teammitglieder damit schon vertraut sind.
+
+== Arbeitszeit und Menge
+
+Im Sommersemester 2023 haben wir uns auf sechs Stunden in der Woche geeinigt, die jeder am Projekt leisten will. Wir können uns zweimal in der Woche treffen: Dienstag und Freitag 14Uhr
+
+== Arbeitsmodus
+
+Wir haben uns gegen SCRUM entschieden, a Plannings, Retros , Refinements und Sprintwechsel aller zwei Wochen einen zu großen Mehraufwand bedeutet.

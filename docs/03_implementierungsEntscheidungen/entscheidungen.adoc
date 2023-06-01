@@ -1,0 +1,15 @@
+= Implementierungsentscheidungen
+
+== Einsatz von Bibliotheken
+
+Der Fokus unserer Arbeit soll auf Glaubwürdigkeit und Plausibilität der geschaffenen Welt liegen. Um uns auf Ziel zu konzentrieren und nicht das Rad neu zu erfinden wollen wir bei folgenden Problemen auf Bibliotheken/externe Tools setzen:
+
+- erstellen und laden von 3D-Modellen/Szenen
+- Navigation und Pathfinding
+- Entity Component System
+
+== Bereichspezifische Entscheidungen
+
+include::ai/ueberblick.adoc[leveloffset=2]
+
+include::ecs/ecs.adoc[leveloffset=2]
