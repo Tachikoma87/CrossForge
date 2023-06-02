@@ -202,6 +202,7 @@ namespace CForge {
 
 	void VideoPlayer::canvasSize(const uint32_t Width, const uint32_t Height) {
 		m_CanvasSize = Vector2i(Width, Height);
+		computeDisplayParams();
 	}//canvasSize
 
 	void VideoPlayer::computeDisplayParams(void) {

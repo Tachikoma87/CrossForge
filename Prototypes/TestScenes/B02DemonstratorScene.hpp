@@ -36,6 +36,8 @@ namespace CForge {
 			m_WinHeight = 720;
 
 			m_DrawHelpTexts = false;
+
+			m_DrawFPSLabel = false;
 		}//Constructor
 
 		~B02DemonstratorScene(void) {
@@ -111,7 +113,8 @@ namespace CForge {
 			// add fonts for ImGui
 			ImGuiIO &pImgGuiIo = ImGui::GetIO();
 			m_pFontTileHeading = pImgGuiIo.Fonts->AddFontFromFileTTF("Assets/Fonts/SourceSansPro/SourceSansPro-SemiBold.ttf", 32);
-			m_pFontTileText = pImgGuiIo.Fonts->AddFontFromFileTTF("Assets/Fonts/SourceSansPro/SourceSansPro-Regular.ttf", 18);
+			m_pFontTileText = pImgGuiIo.Fonts->AddFontFromFileTTF("Assets/Fonts/SourceSansPro/SourceSansPro-Regular.ttf", 24);
+			m_pFontStudyTitleLabel = pImgGuiIo.Fonts->AddFontFromFileTTF("Assets/Fonts/SourceSansPro/SourceSansPro-Regular.ttf", 40);
 
 			m_TileRects.push_back(Rectangle());
 			m_TileRects.push_back(Rectangle());
@@ -175,7 +178,7 @@ namespace CForge {
 		}//clear
 
 		void alignDashboardTiles(void) {
-			int32_t TileWidth = std::min(375.0f, m_RenderWin.width() * 0.25f);
+			int32_t TileWidth = 375; // std::min(375.0f, m_RenderWin.width() * 0.25f);
 			m_TileRects[0].init(1 * m_RenderWin.width() / 6 - TileWidth / 2, 75, TileWidth, 600);
 			m_TileRects[1].init(3 * m_RenderWin.width() / 6 - TileWidth / 2, 75, TileWidth, 600);
 			m_TileRects[2].init(5 * m_RenderWin.width() / 6 - TileWidth / 2, 75, TileWidth, 600);
@@ -213,7 +216,7 @@ namespace CForge {
 			ImGui::PushFont(m_pFontTileHeading);
 			drawTextCentered("Evaluation of Naturalness");
 			ImGui::PopFont();
-			ImgScale = float(std::min(350, TileWidth-20)) / float(m_ImgStudyPart1.width());
+			ImgScale = float(std::min(375, TileWidth-20)) / float(m_ImgStudyPart1.width());
 			ImGui::Image((void*)(intptr_t)m_ImgStudyPart1.handle(), ImVec2(m_ImgStudyPart1.width()*ImgScale, m_ImgStudyPart1.height()*ImgScale));
 			ImGui::PushFont(m_pFontTileText);
 			ImGui::Text("Evaluate the naturalness of motion captured\nand synthesized Motions.");
@@ -229,10 +232,10 @@ namespace CForge {
 			ImGui::PushFont(m_pFontTileHeading);
 			drawTextCentered("Evaluation of Synthesis Quality");
 			ImGui::PopFont();
-			ImgScale = float(std::min(350, TileWidth-20)) / float(m_ImgStudyPart2.width());
+			ImgScale = float(std::min(375, TileWidth-20)) / float(m_ImgStudyPart2.width());
 			ImGui::Image((void*)(intptr_t)m_ImgStudyPart2.handle(), ImVec2(m_ImgStudyPart2.width()*ImgScale, m_ImgStudyPart2.height()*ImgScale));
 			ImGui::PushFont(m_pFontTileText);
-			ImGui::Text("Find the matching motion to a given one. Can you\ndistinct between motion captured and synthesized?\nCheck your performance in relation to our study results.");
+			ImGui::Text("Find the matching motion to a given one.\nCan you distinct between motion captured\nand synthesized? Check your performance\nin relation to our study results.");
 			ImGui::PopFont();
 			ImGui::End();
 			if (SelectedTile == 1) ImGui::PopStyleColor();
@@ -246,7 +249,7 @@ namespace CForge {
 			//ImGui::PushFont(m_pFontTileHeading);
 			//drawTextCentered("Try Our Motion Editor");
 			//ImGui::PopFont();
-			//ImgScale = float(std::min(350, TileWidth-20)) / float(m_ImgMotionEditor.width());
+			//ImgScale = float(std::min(375, TileWidth-20)) / float(m_ImgMotionEditor.width());
 			//ImGui::Image((void*)(intptr_t)m_ImgMotionEditor.handle(), ImVec2(m_ImgMotionEditor.width()*ImgScale, m_ImgMotionEditor.height()*ImgScale));
 			//ImGui::PushFont(m_pFontTileText);
 			//ImGui::Text("Use our motion editor to generator gait motions by\nadjusting various parameters.");
@@ -278,7 +281,11 @@ namespace CForge {
 
 			int32_t FrameWidth = m_VideoPlayers[0].size().x() + 50;
 			int32_t FrameHeight = m_RenderWin.height();
-			ImVec4 BGColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+			//ImVec4 BGColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+			ImVec4 BGColor = ImVec4(222.0f / 255.0f, 230.0f / 255.0f, 243.0f / 255.0f, 1.0f);
+			ImVec4 TextColor = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+			ImGui::PushStyleColor(ImGuiCol_Text, TextColor);
 
 			if (m_Part1Data.ExperimentRunning) {
 				ImVec4 SelectionColor = ImVec4(0.35f, 0.35f, 0.35f, 1.0f);
@@ -288,19 +295,29 @@ namespace CForge {
 				ImGui::SetWindowPos(ImVec2(m_RenderWin.width() / 2 - FrameWidth / 2, 0));
 				ImGui::SetWindowSize(ImVec2(FrameWidth, FrameHeight));
 
-				ImGui::PushFont(m_pFontTileText);
-				ImGui::SetCursorPosX(FrameWidth / 2 - ImGui::CalcTextSize("ReplayVideo").x);
+				std::string TitleLabel = "Evaluation of Naturalness (" + std::to_string(m_Part1Data.CurrentItem+1) + "/" + std::to_string(m_Part1Data.ExperimentData.size()) + ")";
+				ImGui::PushFont(m_pFontStudyTitleLabel);
+				drawTextCentered(TitleLabel);
+
+
+				ImGui::SetCursorPosX(FrameWidth / 2 - ImGui::CalcTextSize("ReplayVideo").x/2);
 				ImGui::SetCursorPosY(m_VideoPlayers[0].position().y() + m_VideoPlayers[0].size().y() + 25);
+				ImGui::PopFont();
 
+
+				ImGui::PushFont(m_pFontTileHeading);
 				if (ImGui::Button("Replay Video")) m_VideoPlayers[0].play();
+				ImGui::PopFont();
+				ImGui::Separator();
 
+				ImGui::PushFont(m_pFontTileText);
 				ImGui::SetNextItemOpen(true);
 				if (ImGui::TreeNode("How natural or artificial did you find the motion sequence depicted in the video?")) {
 					ImGui::Text("Please rate on the scale how natural or artificial the movement of the video looks.");
 					ImGui::Separator();
 
-					ImGui::SetCursorPosX(ImGui::CalcTextSize("The movement of the video appears:").x + 35);
-					ImGui::Image((void*)m_Part1Data.ScaleImg.handle(), ImVec2(250, 50));
+					ImGui::SetCursorPosX(ImGui::CalcTextSize("The movement of the video appears:").x + 20);
+					ImGui::Image((void*)m_Part1Data.ScaleImg.handle(), ImVec2(275, 50));
 
 					ImGui::SetCursorPosX(ImGui::CalcTextSize("The movement of the video appears:").x + 35);
 					ImGui::Text("artificial"); ImGui::SameLine();
@@ -316,10 +333,13 @@ namespace CForge {
 					}
 
 					ImGui::TreePop();
-				}
+				}	
+				ImGui::PopFont();
 
+				ImGui::Separator();
 				// next button
-				ImGui::SetCursorPosX( (ImGui::GetWindowWidth() - ImGui::CalcTextSize("Next").x)/2);
+				ImGui::PushFont(m_pFontTileHeading);
+				ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize("Next").x) / 2);
 				if (ImGui::Button("Next")) {
 					studyPart1Next();
 				}
@@ -329,22 +349,34 @@ namespace CForge {
 				ImGui::End();
 			}
 			else {
+				ImGui::PushStyleColor(ImGuiCol_WindowBg, BGColor);
 				ImGui::Begin("Experiment finished", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
-				ImGui::SetWindowPos(ImVec2(m_RenderWin.width() / 2 - FrameWidth / 2, 400));
+				ImGui::SetWindowPos(ImVec2(m_RenderWin.width() / 2 - FrameWidth / 2, 0));
 				ImGui::SetWindowSize(ImVec2(FrameWidth, FrameHeight));
 
-				ImGui::PushFont(m_pFontTileText);
-				drawTextCentered("Experiment finished!");
+				std::string TitleLabel = "Experiment Finished";
+				ImGui::PushFont(m_pFontStudyTitleLabel);
+				drawTextCentered(TitleLabel);
+				ImGui::PopFont();
+				ImGui::Separator();
 
+				ImGui::PushFont(m_pFontTileText);
 				std::string Result = "You gave an average rating of " + std::to_string(m_Part1Data.AverageUserScore) + ". The average rating in our study was 2.99";
 				drawTextCentered(Result.c_str());
+				ImGui::PopFont();
 
+
+				ImGui::Separator();
+				ImGui::PushFont(m_pFontTileHeading);
 				ImGui::SetCursorPosX( (ImGui::GetWindowWidth()- ImGui::CalcTextSize("Return to Dashboard").x)/2);
 				if (ImGui::Button("Return to Dashboard")) m_DemoState = STATE_DASHBOARD;
 				ImGui::PopFont();
 
+				ImGui::PopStyleColor();
 
 			}
+
+			ImGui::PopStyleColor();
 
 			ImGui::EndFrame();
 		}//updateStudyPart1GUI
@@ -352,40 +384,65 @@ namespace CForge {
 		void updateStudyPart2GUI(void) {
 			ImGuiUtility::newFrame();
 
-			int32_t FrameWidth = 720;
-			int32_t FrameHeight = 500;
+			int32_t FrameWidth = m_RenderWin.width(); // m_VideoPlayers[0].size().x() * 3 + 50;
+			int32_t FrameHeight = m_RenderWin.height();
+			ImVec4 BGColor = ImVec4(222.0f / 255.0f, 230.0f / 255.0f, 243.0f / 255.0f, 1.0f);
 
+			ImVec4 TextColor = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+			ImGui::PushStyleColor(ImGuiCol_Text, TextColor);
 
 			if (m_Part2Data.ExperimentRunning) {
 				ImVec4 SelectionColor = ImVec4(0.35f, 0.35f, 0.35f, 1.0f);
-				ImGui::PushStyleColor(ImGuiCol_WindowBg, SelectionColor);
+				ImGui::PushStyleColor(ImGuiCol_WindowBg, BGColor);
 				// create selection of naturalness (1 through 5)
 				ImGui::Begin("Evaluation Part1 Tile", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
-				ImGui::SetWindowPos(ImVec2(m_RenderWin.width() / 2 - FrameWidth / 2, 500));
+				ImGui::SetWindowPos(ImVec2(m_RenderWin.width() / 2 - FrameWidth / 2, 0));
 				ImGui::SetWindowSize(ImVec2(FrameWidth, FrameHeight));
 
-				ImGui::PushFont(m_pFontTileText);
-				ImGui::SetCursorPosX(FrameWidth / 2 - ImGui::CalcTextSize("ReplayVideo").x);
+				std::string TitleLabel = "Evaluation of Synthesis Quality (" + std::to_string(m_Part2Data.CurrentItem + 1) + "/" + std::to_string(m_Part2Data.ExperimentData.size()) + ")";
+				ImGui::PushFont(m_pFontStudyTitleLabel);
+				drawTextCentered(TitleLabel);
+				ImGui::Separator();
+
+				ImGui::PushFont(m_pFontTileHeading);
+				ImGui::SetCursorPosX(FrameWidth / 2 - ImGui::CalcTextSize("ReplayVideo").x/2);
+				ImGui::SetCursorPosY(m_VideoPlayers[1].position().y() + m_VideoPlayers[1].size().y() + 25);
 				if (ImGui::Button("Replay Videos")) 
 				{
 					for (uint8_t i = 0; i < 4; ++i) m_VideoPlayers[i].play();
 				}
+				ImGui::PopFont();
+				ImGui::Separator();
 
+				ImGui::PushFont(m_pFontTileText);
+
+				ImGui::SetCursorPosX(FrameWidth / 2 - ImGui::CalcTextSize("Which of the three videos depicts the movement of the first video?").x / 2);
 				ImGui::SetNextItemOpen(true);
 				if (ImGui::TreeNode("Which of the three videos depicts the movement of the first video?")) {
-					ImGui::Text("Please indicate which video corresponds to the movement of the first video.");
+					drawTextCentered("Please indicate which video corresponds to the movement of the first video.");
 					ImGui::Separator();
 
 					for (int32_t n = 0; n < 3; ++n) {
 						ImGui::SameLine();
 						std::string Label = std::to_string(n+1) + ". Video";
+
+						float Factor = 1.0f;
+						if (n == 0) Factor = 1.5;
+						if (n == 1) Factor = 0;
+						if (n == 2) Factor = -1.5;
+						ImGui::SetCursorPosX(FrameWidth / 2 - Factor * 100);
+						
 						if (ImGui::Selectable(Label.c_str(), m_Part2Data.Selection == n, 0, ImVec2(100, 25))) m_Part2Data.Selection = n;
 					}
 
 					ImGui::TreePop();
 				}
+				ImGui::PopFont();
+
 
 				// next button
+				ImGui::Separator();
+				ImGui::PushFont(m_pFontTileHeading);
 				ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize("Next").x) / 2);
 				if (ImGui::Button("Next")) {
 					studyPart2Next();
@@ -396,23 +453,40 @@ namespace CForge {
 				ImGui::End();
 			}
 			else {
+				
+				ImGui::PushStyleColor(ImGuiCol_WindowBg, BGColor);
 				ImGui::Begin("Experiment finished", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
-				ImGui::SetWindowPos(ImVec2(m_RenderWin.width() / 2 - FrameWidth / 2, 400));
-				ImGui::SetWindowSize(ImVec2(FrameWidth, FrameHeight));
+
+				float FrameWidth2 = 2.0f * m_VideoPlayers[0].size().x() + 50.0f;
+
+				ImGui::SetWindowPos(ImVec2(m_RenderWin.width() / 2 - FrameWidth2 / 2, 0));
+				ImGui::SetWindowSize(ImVec2(FrameWidth2, FrameHeight));
+
+				std::string TitleLabel = "Experiment Finished";
+				ImGui::PushFont(m_pFontStudyTitleLabel);
+				drawTextCentered(TitleLabel);
+				ImGui::PopFont();
+				ImGui::Separator();
 
 				ImGui::PushFont(m_pFontTileText);
-				drawTextCentered("Experiment finished!");
-
 				std::string Result = "You answered " + std::to_string(m_Part2Data.CorrectSelections) + " times correct and " + std::to_string(m_Part2Data.SiblingSelections + m_Part2Data.DistractorSelections) +" times incorrect.";
 				drawTextCentered(Result.c_str()); 
-
-				Result = "The participants of our study answered 749 times (54,2%%) correct and 632 times (45,8%%) incorrect.";
+				Result = "The participants of our study answered 749 times (54,2%%) correct ";
 				drawTextCentered(Result.c_str());
+				Result = "and 632 times(45, 8 % %) incorrect.";
+				drawTextCentered(Result.c_str());
+				ImGui::PopFont();
 
+				ImGui::Separator();
+				ImGui::PushFont(m_pFontTileHeading);
 				ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize("Return to Dashboard").x) / 2);
 				if (ImGui::Button("Return to Dashboard")) m_DemoState = STATE_DASHBOARD;
 				ImGui::PopFont();
+
+				ImGui::PopStyleColor();
 			}
+
+			ImGui::PopStyleColor();
 
 			ImGui::EndFrame();
 		}//updateStudyPart2GUI
@@ -504,7 +578,7 @@ namespace CForge {
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 				m_SkyboxSG.render(&m_RenderDev);
 
-				m_FPSLabel.render(&m_RenderDev);
+				if(m_DrawFPSLabel) m_FPSLabel.render(&m_RenderDev);
 				if (m_DrawHelpTexts) drawHelpTexts();
 
 				m_TitleText.render(&m_RenderDev);
@@ -520,6 +594,7 @@ namespace CForge {
 				defaultKeyboardUpdate(m_RenderWin.keyboard());
 
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F6, true)) m_DemoState = STATE_SCREENSAVER;
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F7, true))  m_DrawFPSLabel = !m_DrawFPSLabel;
 
 			}break;
 			case STATE_STUDYPART1: {
@@ -530,12 +605,15 @@ namespace CForge {
 
 				
 
-				m_FPSLabel.render(&m_RenderDev);
+				if (m_DrawFPSLabel) m_FPSLabel.render(&m_RenderDev);
 				updateStudyPart1GUI();
 				ImGuiUtility::render();
 
-				m_VideoPlayers[0].update();
-				m_VideoPlayers[0].render(&m_RenderDev);
+				if(m_Part1Data.ExperimentRunning)
+				{
+					m_VideoPlayers[0].update();
+					m_VideoPlayers[0].render(&m_RenderDev);
+				}
 
 				m_RenderWin.swapBuffers();
 
@@ -550,17 +628,20 @@ namespace CForge {
 				m_RenderWin.update();
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
-				//m_SkyboxSG.render(&m_RenderDev);
 
-				for (uint8_t i = 0; i < 4; ++i) {
-					m_VideoPlayers[i].update();
-					m_VideoPlayers[i].render(&m_RenderDev);
-				}
-				
-
-				m_FPSLabel.render(&m_RenderDev);
 				updateStudyPart2GUI();
 				ImGuiUtility::render();
+
+				if(m_Part2Data.ExperimentRunning)
+				{
+					for (uint8_t i = 0; i < 4; ++i) {
+						m_VideoPlayers[i].update();
+						m_VideoPlayers[i].render(&m_RenderDev);
+					}
+				}
+				
+				if (m_DrawFPSLabel) m_FPSLabel.render(&m_RenderDev);
+				
 
 				m_RenderWin.swapBuffers();
 
@@ -653,8 +734,19 @@ namespace CForge {
 		};//StudyPart2Data
 
 		void startStudyPart1(void) {
-			m_VideoPlayers[0].init(Vector2f(0.25f, 0.05f), Vector2f(0.5f, 0.5f), Vector2i(m_RenderWin.width(), m_RenderWin.height()));
-			//m_VideoPlayers[0].play("MyAssets/Study_Videos/01_1.mp4");
+			float Aspect = 1280.0f / 720.0f;
+
+			float VideoWidth = 0.5f * m_RenderWin.width();
+			float VideoHeight = 0.5f / Aspect * m_RenderWin.width();
+
+			while (m_RenderWin.height() - VideoHeight < 350) {
+				VideoWidth *= 0.9f;
+				VideoHeight *= 0.9f;
+			}
+
+			float Center = (m_RenderWin.width() - VideoWidth) / 2.0f;
+
+			m_VideoPlayers[0].init(Vector2f(Center, 0.075f), Vector2f(VideoWidth, VideoHeight), Vector2i(m_RenderWin.width(), m_RenderWin.height()));
 
 			T2DImage<uint8_t> Img;
 			AssetIO::load("MyAssets/B02Demonstrator/Scale.jpg", &Img);
@@ -722,17 +814,19 @@ namespace CForge {
 			// initialize video players
 			float Aspect = 1280.0f / 720.0f;
 			float WinAspect = float(m_RenderWin.width()) / float(m_RenderWin.height());
-			float PlayerWidth = 0.32f;
-			float PlayerHeight = PlayerWidth * (1.0f / Aspect) *  (WinAspect);
+			float PlayerWidth = 0.30f;
+			float PlayerHeight = (PlayerWidth) * (WinAspect/Aspect) * m_RenderWin.height();
 			
 			Vector2i Canvas = Vector2i(m_RenderWin.width(), m_RenderWin.height());
 
 			float t = 1.0f / 3.0f - PlayerWidth;
 
-			m_VideoPlayers[0].init(Vector2f(1.0f/3.0f + t/2.0f, 0.01f), Vector2f(PlayerWidth, PlayerHeight), Canvas);
-			m_VideoPlayers[1].init(Vector2f(t/2.0f, PlayerHeight + 0.03f), Vector2f(PlayerWidth, PlayerHeight), Canvas);
-			m_VideoPlayers[2].init(Vector2f(1.0f/3.0f + t/2.0f, PlayerHeight + 0.03f), Vector2f(PlayerWidth, PlayerHeight), Canvas);
-			m_VideoPlayers[3].init(Vector2f(2.0f/3.0f + t/2.0f, PlayerHeight + 0.03f), Vector2f(PlayerWidth, PlayerHeight), Canvas);
+			float TopOffset = 60.0f;
+
+			m_VideoPlayers[0].init(Vector2f(1.0f/3.0f + t/2.0f, TopOffset), Vector2f(PlayerWidth, PlayerHeight), Canvas);
+			m_VideoPlayers[1].init(Vector2f(t/2.0f, PlayerHeight + TopOffset + 25), Vector2f(PlayerWidth, PlayerHeight), Canvas);
+			m_VideoPlayers[2].init(Vector2f(1.0f/3.0f + t/2.0f, PlayerHeight + TopOffset + 25), Vector2f(PlayerWidth, PlayerHeight), Canvas);
+			m_VideoPlayers[3].init(Vector2f(2.0f/3.0f + t/2.0f, PlayerHeight + TopOffset + 25), Vector2f(PlayerWidth, PlayerHeight), Canvas);
 
 			m_Part2Data.ExperimentRunning = true;
 			m_Part2Data.Selection = -1;
@@ -749,7 +843,9 @@ namespace CForge {
 			m_TitleText.canvasSize(m_RenderWin.width(), m_RenderWin.height());
 			m_TitleText.position(m_RenderWin.width() / 2 - m_TitleText.textWidth() / 2, 15);
 
-			for (uint8_t i = 0; i < 4; ++i) m_VideoPlayers[i].canvasSize(m_RenderWin.width(), m_RenderWin.height());
+			for (uint8_t i = 0; i < 4; ++i) {
+				m_VideoPlayers[i].canvasSize(m_RenderWin.width(), m_RenderWin.height());
+			}
 		}//listen
 
 		DemonstratorState m_DemoState;
@@ -772,6 +868,8 @@ namespace CForge {
 
 		ImFont* m_pFontTileHeading;
 		ImFont* m_pFontTileText;
+		ImFont* m_pFontStudyTitleLabel;
+		ImFont* m_pFontButtonText;
 
 
 		SkeletalActor m_Character;
@@ -785,6 +883,8 @@ namespace CForge {
 		StudyPart2Data m_Part2Data;
 
 		std::vector<std::string> m_StudyVideos;
+
+		bool m_DrawFPSLabel;
 	};//ExampleMinimumGraphicsSetup
 
 }//name space
