@@ -38,6 +38,9 @@ namespace CForge {
 			m_DrawHelpTexts = false;
 
 			m_DrawFPSLabel = false;
+
+			m_TrialCountPart1 = 5;
+			m_TrialCountPart2 = 5;
 		}//Constructor
 
 		~B02DemonstratorScene(void) {
@@ -756,7 +759,7 @@ namespace CForge {
 			m_Part1Data.ExperimentData.clear();
 
 			// setup data
-			for (uint32_t i = 0; i < 3; ++i) {
+			for (uint32_t i = 0; i < m_TrialCountPart1; ++i) {
 				StudyPart1Item Item;
 				Item.VideoID = CForgeMath::randRange(0, int32_t(m_StudyVideos.size()-1));
 				m_Part1Data.ExperimentData.push_back(Item);
@@ -770,7 +773,7 @@ namespace CForge {
 			// initialize video players
 
 			m_Part2Data.ExperimentData.clear();
-			for (uint32_t i = 0; i < 3; ++i) {
+			for (uint32_t i = 0; i < m_TrialCountPart2; ++i) {
 				// select video randomly
 				StudyPart2Item Item;
 				Item.VideoIDs[0] = CForgeMath::randRange(0, int32_t(m_StudyVideos.size()));
@@ -785,7 +788,7 @@ namespace CForge {
 				Positions.push_back(1);
 				Positions.push_back(2);
 
-				for (uint8_t k = 1; k < 4; ++k) {
+				for (uint8_t k = 1; k <= 3; ++k) {
 					int32_t P = CForgeMath::randRange(0, 25000) % Positions.size();
 					int32_t Next = Positions[P];
 
@@ -885,6 +888,9 @@ namespace CForge {
 		std::vector<std::string> m_StudyVideos;
 
 		bool m_DrawFPSLabel;
+
+		int32_t m_TrialCountPart1;
+		int32_t m_TrialCountPart2;
 	};//ExampleMinimumGraphicsSetup
 
 }//name space
