@@ -56,9 +56,10 @@ namespace CForge {
 		clear();
 	}//Destructor
 
-	void VideoPlayer::init(Eigen::Vector2f Position, Eigen::Vector2f Size) {
+	void VideoPlayer::init(Eigen::Vector2f Position, Eigen::Vector2f Size, Eigen::Vector2i CanvasSize) {
 		m_Position = Position;
 		m_Size = Size;
+		m_CanvasSize = CanvasSize;
 
 		// create shader
 		SShaderManager* pSMan = SShaderManager::instance();
@@ -152,13 +153,11 @@ namespace CForge {
 
 		cacheVideo();
 		m_CurrentFrame = -1;
+		m_VideoStart = CForgeUtility::timestamp();
+		m_FinishedPlaying = false;
 		getNextFrame();
 
 		//readNextFrame();
-
-		m_VideoStart = CForgeUtility::timestamp();
-		m_FinishedPlaying = false;
-
 	}//play
 
 	void VideoPlayer::play(void) {
@@ -212,14 +211,14 @@ namespace CForge {
 			m_DisplayScale.x() = m_Size.x();
 		}
 		else {
-
+			m_DisplayScale.x() = m_Size.x() / m_CanvasSize.x();
 		}
 
 		if (m_Size.y() <= 1.0f) {
 			m_DisplayScale.y() = m_Size.y();
 		}
 		else {
-
+			m_DisplayScale.y() = m_Size.y() / m_CanvasSize.y();
 		}
 
 		// compute translation values
@@ -227,15 +226,33 @@ namespace CForge {
 			m_DisplayPosition.x() = 2.0f*m_Position.x() - (1.0f - m_DisplayScale.x());
 		}
 		else {
-
+			float Pos = m_Position.x() / m_CanvasSize.x();
+			m_DisplayPosition.x() = 2.0f * Pos - (1.0f - m_DisplayScale.x());
 		}
 
 		if (m_Position.y() <= 1.0f) {
 			m_DisplayPosition.y() = ( -2.0f * m_Position.y() + (1.0f-m_DisplayScale.y()));
 		}
 		else {
-
+			float Pos = m_Position.y() / m_CanvasSize.y();
+			m_DisplayPosition.y() = (-2.0f * Pos + (1.0f - m_DisplayScale.y()));
 		}
 
 	}//computeDisplayParams
+
+	Eigen::Vector2f VideoPlayer::position(void)const {
+		Vector2f Rval;
+		Rval.x() = (m_Position.x() <= 1.0f) ? m_Position.x() * m_CanvasSize.x() : m_Position.x();
+		Rval.y() = (m_Position.y() <= 1.0f) ? m_Position.y() * m_CanvasSize.y() : m_Position.y();
+		return Rval;
+	}//position
+
+	Eigen::Vector2f VideoPlayer::size(void)const {
+		Vector2f Rval;
+		Rval.x() = (m_Size.x() < 1.0f) ? m_Size.x() * m_CanvasSize.x() : m_Size.x();
+		Rval.y() = (m_Size.y() < 1.0f) ? m_Size.y() * m_CanvasSize.y() : m_Size.y();
+		return Rval;
+	}//size
+
+	
 }//name space

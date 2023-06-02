@@ -28,7 +28,7 @@ namespace CForge {
 		VideoPlayer(void);
 		~VideoPlayer(void);
 
-		void init(Eigen::Vector2f Position, Eigen::Vector2f Size);
+		void init(Eigen::Vector2f Position, Eigen::Vector2f Size, Eigen::Vector2i CanvasSize = Eigen::Vector2i::Zero());
 		void clear(void);
 		void release(void);
 
@@ -39,6 +39,9 @@ namespace CForge {
 
 		void play(const std::string VideoFile);
 		void play(void); // play same video again
+
+		Eigen::Vector2f position(void)const;
+		Eigen::Vector2f size(void)const;
 
 	protected:
 		struct FrameItem {

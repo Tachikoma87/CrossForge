@@ -69,9 +69,10 @@ namespace CForge {
 		bool isPointInside(const Eigen::Vector2f Point) {
 			return (
 				(Point.x() >= m_Position.x()) &&
-				(Point.x() >= m_Position.y()) &&
+				(Point.y() >= m_Position.y()) &&
 				(Point.x() <= m_Position.x() + m_Size.x()) &&
-				(Point.y() <= m_Position.y() + m_Size.y()));
+				(Point.y() <= m_Position.y() + m_Size.y())
+				);
 
 		}//isPointInside
 
