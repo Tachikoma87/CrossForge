@@ -71,6 +71,8 @@ namespace CForge {
 
 			initFPSLabel();
 
+			CForgeMath::randSeed(CForgeUtility::timestamp());
+
 			// build scene graph
 			m_RootSGN.init(nullptr);
 			m_SG.init(&m_RootSGN);
