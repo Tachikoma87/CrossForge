@@ -70,13 +70,9 @@ namespace CForge {
 			m_GroundTransformSGN.init(&m_RootSGN);
 			m_GroundSGN.init(&m_GroundTransformSGN, &m_Ground);
 			m_GroundSGN.scale(Vector3f(15.0f, 15.0f, 15.0f));
-			
-
-			
 
 			// add cube
-
-			m_BirdTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 30.0f, 0.0f));
+			m_BirdTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 10.0f, 0.0f));
 			m_BirdTransformSGN.scale(Vector3f(0.1f, 0.1f, 0.1f));
 			//m_BirdTranslateSGN.init(&m_BirdTransformSGN, Vector3f(0.0f, 0.0f, 0.0f));
 
@@ -105,7 +101,6 @@ namespace CForge {
 
 
 			// create actor and initialize
-
 			m_Skybox.init(m_ClearSky[0], m_ClearSky[1], m_ClearSky[2], m_ClearSky[3], m_ClearSky[4], m_ClearSky[5]);
 
 			// set initialize color adjustment values
@@ -138,14 +133,16 @@ namespace CForge {
 			//float S = 1.0f;
 			//if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) S = SpeedScale;
 			Vector3f mm;
-			Vector3f posC = Vector3f(0.0f, 3.0f, -10.0f);
+			Vector3f posC = Vector3f(0.0f, 3.0f, -10.0f); // position for the camera
+
+			// eigen matrix3f -> (row, col)
 			mm.x() = bird(0, 0) * posC.x() + bird(0, 2) * posC.z();
 			mm.y() = posC.y();
 			mm.z() = bird(2, 0) * posC.x() + bird(2, 2) * posC.z();
 			pCamera->position(posBird + mm);
 			pCamera->lookAt(pCamera->position(), posBird, up);
 
-			if (pMouse->buttonState(Mouse::BTN_RIGHT)) {
+			/*if (pMouse->buttonState(Mouse::BTN_RIGHT)) {
 				if (m_CameraRotation) {
 					const Eigen::Vector2f MouseDelta = pMouse->movement();
 					pCamera->rotY(CForgeMath::degToRad(-0.1f * 1 * MouseDelta.x()));
@@ -160,7 +157,7 @@ namespace CForge {
 			}
 			else {
 				m_CameraRotation = false;
-			}
+			}*/
 		}//defaultCameraUpdate
 
 		void mainLoop(void)override {
@@ -190,21 +187,41 @@ namespace CForge {
 			To_YN = AngleAxis(CForgeMath::degToRad(-5.0f), Vector3f::UnitY());
 			To_Z = AngleAxis(CForgeMath::degToRad(-5.0f), Vector3f::UnitZ());
 			
-			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT))m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Y);
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) { 
+				m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Y);
+			}
 			if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT))m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_YN);
-			if (pKeyboard->keyPressed(Keyboard::KEY_DOWN))m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Z);
+			//if (pKeyboard->keyPressed(Keyboard::KEY_DOWN))m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Z);
+
 			Vector3f pos;
 			Vector3f dir;
 			Quaternionf rot;
 			Matrix3f m3;
 			Vector3f m;
 			
-			if (pKeyboard->keyPressed(Keyboard::KEY_UP))speed.z() += 0.01f;
-			//if (pKeyboard->keyPressed(Keyboard::KEY_DOWN))speed.z() -= 0.01f;
+			// gain and loose speed
+			if (pKeyboard->keyPressed(Keyboard::KEY_UP) && speed.z() <= 1.5f)speed.z() += 0.01f;
+			if (pKeyboard->keyPressed(Keyboard::KEY_DOWN) && speed.z() >= 0.1f)speed.z() -= 0.01f;
+
+			// the bird sinks during normal flight and gains altitude when pressed enter
+			if (pKeyboard->keyPressed(Keyboard::KEY_SPACE)) speed.y() += 0.03;
+			if (speed.y() > -0.01f) speed.y() -= 0.01f;
+
+
 			m3 = m_BirdTransformSGN.rotation().toRotationMatrix();
 			m.x() = m3(0, 0) * speed.x() + m3(0, 2) * speed.z();
 			m.y() = speed.y();
 			m.z() = m3(2, 0) * speed.x() + m3(2, 2) * speed.z();
+
+			dir = Vector3f(m.x(), 0, m.z()).normalized();
+
+			//Quaternionf rotate_left = AngleAxis(CForgeMath::degToRad(2.5f), dir);
+
+			// in translation there is the postion
+			printf("%f - %f - %f | %f\n", m_BirdTransformSGN.translation().x(), m_BirdTransformSGN.translation().y(), m_BirdTransformSGN.translation().z(), speed.y());
+			
+			if (m_BirdTransformSGN.translation().y() < 0.05) speed.y() += 0.1f;
+
 
 			m_BirdTransformSGN.translationDelta(m); 
 
@@ -248,6 +265,7 @@ namespace CForge {
 		SGNGeometry m_BirdSGN;
 		SGNTransformation m_BirdTransformSGN;
 		SGNTransformation m_BirdTranslateSGN;
+		SGNTransformation m_BirdRollSGN;
 
 		SGNGeometry m_MountainSGN;
 		SGNTransformation m_MountainTransformSGN;
