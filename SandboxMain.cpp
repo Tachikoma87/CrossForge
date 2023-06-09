@@ -23,6 +23,7 @@
 #include <Examples/ExampleTransformation.hpp>
 #include <Examples/ExampleTransformationSG.hpp>
 #include <Examples/ExampleSockets.hpp>
+#include <Examples/ExampleBirdVR.hpp>
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
@@ -50,8 +51,9 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleSkybox
 //#define ActiveScene ExampleTransformation
-#define ActiveScene ExampleTransformationSG
+//#define ActiveScene ExampleTransformationSG
 //#define ActiveScene ExampleSocket
+#define ActiveScene ExampleBird
 
 
 //#define ActiveScene ImuInputDeviceTestScene	 
