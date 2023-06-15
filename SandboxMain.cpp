@@ -23,6 +23,7 @@
 #include <Examples/ExampleShapesAndMaterials.hpp>
 #include <Examples/ExampleTextRendering.hpp>
 #include <Examples/ExampleLighting.hpp>
+#include <Examples/EDT.hpp>
 
 using namespace CForge;
 using namespace Eigen;
@@ -33,8 +34,8 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkybox
 //#define ActiveScene ExampleTextRendering
 //#define ActiveScene ExampleShapesAndMaterials
-#define ActiveScene ExampleLighting
-//#define ActiveScene ExampleSceneGraph
+//#define ActiveScene ExampleLighting
+#define ActiveScene EDT
 //#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport

@@ -57,6 +57,7 @@ else()
 # Additional packages not alreday included in the core library
 FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
 FIND_PACKAGE(imgui CONFIG REQUIRED) # dear-imgui
+FIND_PACKAGE(flecs CONFIG REQUIRED) # dear-imgui
 endif()
 
 
@@ -89,6 +90,7 @@ elseif(WIN32)
 	ws2_32
 	PRIVATE tinyxml2::tinyxml2
 	PRIVATE imgui::imgui
+	PRIVATE flecs::flecs
 	${FREETYPE_LIBRARIES}
 
 	)
@@ -112,6 +114,7 @@ elseif(UNIX)
 		PRIVATE tinyxml2::tinyxml2
 		PRIVATE imgui::imgui
 #		PRIVATE assimp
+		PRIVATE flecs::flecs
 		PRIVATE dl	
 		)
 endif()
