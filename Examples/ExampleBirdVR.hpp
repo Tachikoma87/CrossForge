@@ -74,7 +74,7 @@ namespace CForge {
 			// add cube
 			m_BirdTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 10.0f, 0.0f));
 			m_BirdTransformSGN.scale(Vector3f(0.1f, 0.1f, 0.1f));
-			//m_BirdTranslateSGN.init(&m_BirdTransformSGN, Vector3f(0.0f, 0.0f, 0.0f));
+			m_BirdTurnSGN.init(&m_BirdTransformSGN, Vector3f(0.0f, 0.0f, 0.0f));
 
 			m_MountainTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 5.0f, 0.0f));
 			//m_MountainTransformSGN.scale(Vector3f(1.5f, 1.5f, 1.5f));
@@ -82,7 +82,7 @@ namespace CForge {
 			Quaternionf To_Y;
 			To_Y = AngleAxis(CForgeMath::degToRad(90.0f), Vector3f::UnitY());
 			m_BirdTransformSGN.rotation(To_Y);
-			m_BirdSGN.init(&m_BirdTransformSGN, &m_Bird);
+			m_BirdSGN.init(&m_BirdTurnSGN, &m_Bird);
 			
 
 			// rotate about the y-axis at 45 degree every second and about the X axis to make it a bit more interesting
@@ -180,17 +180,33 @@ namespace CForge {
 				m_SkyboxTransSGN.rotationDelta(RDelta);
 			}
 
-			Quaternionf To_Y;
-			Quaternionf To_YN;
+			
+			
 			Quaternionf To_Z;
-			To_Y = AngleAxis(CForgeMath::degToRad(5.0f), Vector3f::UnitY());
-			To_YN = AngleAxis(CForgeMath::degToRad(-5.0f), Vector3f::UnitY());
 			To_Z = AngleAxis(CForgeMath::degToRad(-5.0f), Vector3f::UnitZ());
+
+			
 			
 			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) { 
-				m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Y);
+				if (turnSpeed < 4.0f) turnSpeed += 1.0f;
 			}
-			if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT))m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_YN);
+			else
+			{
+				if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT)) {
+					if (turnSpeed > -4.0f) turnSpeed -= 1.0f;
+				}
+				else {
+					turnSpeed = 0.0f;
+				}
+			}
+			Quaternionf To_Y;
+			To_Y = AngleAxis(CForgeMath::degToRad(turnSpeed), Vector3f::UnitY());
+			m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Y);
+
+			Quaternionf To_X;
+			To_X = AngleAxis(CForgeMath::degToRad(turnSpeed*2.0f), Vector3f::UnitX());
+			m_BirdTurnSGN.rotation(To_X);
+
 			//if (pKeyboard->keyPressed(Keyboard::KEY_DOWN))m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Z);
 
 			Vector3f pos;
@@ -264,7 +280,7 @@ namespace CForge {
 
 		SGNGeometry m_BirdSGN;
 		SGNTransformation m_BirdTransformSGN;
-		SGNTransformation m_BirdTranslateSGN;
+		SGNTransformation m_BirdTurnSGN;
 		SGNTransformation m_BirdRollSGN;
 
 		SGNGeometry m_MountainSGN;
@@ -281,6 +297,8 @@ namespace CForge {
 
 		//Speed für Vogel
 		Vector3f speed = Vector3f(0.0f, 0.0f, 0.01f);
+
+		float turnSpeed = 0.0f;
 
 	};//ExampleBird
 
