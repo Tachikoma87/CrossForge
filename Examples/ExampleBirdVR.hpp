@@ -45,7 +45,6 @@ namespace CForge {
 			m_SG.init(&m_RootSGN);
 			// load skydome and a textured cube
 			T3DMesh<float> M;
-
 			SAssetIO::load("MyAssets/Bird/bird.fbx", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
@@ -91,6 +90,31 @@ namespace CForge {
 			RX = AngleAxisf(CForgeMath::degToRad(-25.0f / 60.0f), Vector3f::UnitZ());
 			m_BirdTransformSGN.rotationDelta(RX * RY);*/
 
+			// load buildings
+			SAssetIO::load("MyAssets/Buildings/building_06/scene.gltf", &M);
+			setMeshShader(&M, 0.1f, 0.04f);
+			M.computePerVertexNormals();
+			m_Buildings[0].init(&M);
+			M.clear();
+
+			SAssetIO::load("MyAssets/Buildings/building_07/scene.gltf", &M);
+			setMeshShader(&M, 0.1f, 0.04f);
+			M.computePerVertexNormals();
+			m_Buildings[1].init(&M);
+			M.clear();
+
+			uint32_t BuildingCount = 10;
+			float radius = 25.0f;
+			m_BuildingGroupSGN.init(&m_RootSGN);
+			for (uint32_t x = 0; x < BuildingCount; x++)
+			{
+				float tmp = radius * radius - (float(x) - radius) * (float(x) - radius);
+				float y = sqrt(tmp);
+
+				set_building(x * 25,y * 25);
+			}
+			
+
 			/// gather textures for the skyboxes
 			m_ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_right.png");
 			m_ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_left.png");
@@ -124,6 +148,25 @@ namespace CForge {
 		void clear(void) override {
 			ExampleSceneBase::clear();
 		}//clear
+
+		void set_building(float x, float y) {
+			SGNTransformation* pTransformSGN = nullptr;
+			SGNGeometry* pGeomSGN = nullptr;
+
+			pTransformSGN = new SGNTransformation();
+			pTransformSGN->init(&m_BuildingGroupSGN);
+
+			// set to other vector
+			pTransformSGN->translation(Vector3f(x, 0.0f, y));
+			pTransformSGN->scale(Vector3f(10.0f, 10.0f, 10.0f));
+
+			pGeomSGN = new SGNGeometry();
+			pGeomSGN->init(pTransformSGN, &m_Buildings[0]);
+
+			m_BuildingTransformationSGNs.push_back(pTransformSGN);
+			m_BuildingSGNs.push_back(pGeomSGN);
+
+		}
 
 		void defaultCameraUpdateBird(VirtualCamera* pCamera, Keyboard* pKeyboard, Mouse* pMouse, Vector3f m, Vector3f posBird, Vector3f up, Matrix3f bird) {
 			if (nullptr == pCamera) throw NullpointerExcept("pCamera");
@@ -274,6 +317,13 @@ namespace CForge {
 		StaticActor m_Ground;
 		SGNGeometry m_GroundSGN;
 		SGNTransformation m_GroundTransformSGN;
+
+		// Building
+		StaticActor m_Buildings[3];
+		SGNTransformation m_BuildingGroupSGN;
+		std::vector<SGNTransformation*> m_BuildingTransformationSGNs;
+		std::vector<SGNGeometry*> m_BuildingSGNs;
+
 
 		SceneGraph m_SkyboxSG;
 		SGNTransformation m_SkyboxTransSGN;
