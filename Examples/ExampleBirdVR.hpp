@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): exampleSkybox.hpp                                            *
+* File(s): ExampleBirdVR		                                            *
 *                                                                           *
-* Content: Example scene that shows minimum setup with an OpenGL capable   *
+* Content: Example scene that shows minimum setup with an OpenGL capable    *
 *          window, lighting setup, and a single moving object.              *
 *                                                                           *
 *                                                                           *
@@ -103,15 +103,17 @@ namespace CForge {
 			m_Buildings[1].init(&M);
 			M.clear();
 
-			uint32_t BuildingCount = 10;
+			uint32_t BuildingCount = 5;
 			float radius = 25.0f;
 			m_BuildingGroupSGN.init(&m_RootSGN);
+
 			for (uint32_t x = 0; x < BuildingCount; x++)
 			{
-				float tmp = radius * radius - (float(x) - radius) * (float(x) - radius);
-				float y = sqrt(tmp);
-
-				set_building(x * 25,y * 25);
+				for (uint32_t y = 0; y < BuildingCount; y++)
+				{
+					// not every building needs to be set - 7 is choosen because it is a prime number
+					if ((x + y) % 7 != 0) set_building(x * 60, y * 60);
+				}
 			}
 			
 
@@ -168,6 +170,10 @@ namespace CForge {
 
 		}
 
+		void translate_bird(Vector3f move) {
+			m_BirdTransformSGN.translation(Vector3f(m_BirdTransformSGN.translation().x() + move.x(), m_BirdTransformSGN.translation().y() + move.y(), m_BirdTransformSGN.translation().z() + move.z()));
+		}
+
 		void defaultCameraUpdateBird(VirtualCamera* pCamera, Keyboard* pKeyboard, Mouse* pMouse, Vector3f m, Vector3f posBird, Vector3f up, Matrix3f bird) {
 			if (nullptr == pCamera) throw NullpointerExcept("pCamera");
 			if (nullptr == pKeyboard) throw NullpointerExcept("pKeyboard");
@@ -222,12 +228,6 @@ namespace CForge {
 				RDelta = AngleAxisf(CForgeMath::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
 				m_SkyboxTransSGN.rotationDelta(RDelta);
 			}
-
-			
-			
-			Quaternionf To_Z;
-			To_Z = AngleAxis(CForgeMath::degToRad(-5.0f), Vector3f::UnitZ());
-
 			
 			
 			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) { 
@@ -246,12 +246,11 @@ namespace CForge {
 			To_Y = AngleAxis(CForgeMath::degToRad(turnSpeed), Vector3f::UnitY());
 			m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Y);
 
-			Quaternionf To_X;
-			To_X = AngleAxis(CForgeMath::degToRad(turnSpeed*2.0f), Vector3f::UnitX());
-			m_BirdTurnSGN.rotation(To_X);
+			Quaternionf To_Z;
+			To_Z = AngleAxis(CForgeMath::degToRad(-turnSpeed*2.0f), Vector3f::UnitZ());
+			m_BirdTurnSGN.rotation(To_Z);
 
-			//if (pKeyboard->keyPressed(Keyboard::KEY_DOWN))m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Z);
-
+			
 			Vector3f pos;
 			Vector3f dir;
 			Quaternionf rot;
@@ -262,11 +261,17 @@ namespace CForge {
 			if (pKeyboard->keyPressed(Keyboard::KEY_UP) && speed.z() <= 1.5f)speed.z() += 0.01f;
 			if (pKeyboard->keyPressed(Keyboard::KEY_DOWN) && speed.z() >= 0.1f)speed.z() -= 0.01f;
 
-			// the bird sinks during normal flight and gains altitude when pressed enter
+			// the bird sinks during normal flight and gains altitude when pressed space
 			if (pKeyboard->keyPressed(Keyboard::KEY_SPACE)) speed.y() += 0.03;
 			if (speed.y() > -0.01f) speed.y() -= 0.01f;
 
+			// bird to near the ground -> gains altitude
+			if (m_BirdTransformSGN.translation().y() < 0.05) speed.y() += 0.1f;
 
+			// for testing - if shift is pressed - can come down faster
+			if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT_SHIFT)) translate_bird(Vector3f(0.0f, -1.0f, 0.0f));
+
+			// Bird is rotated in the direction where it is looking
 			m3 = m_BirdTransformSGN.rotation().toRotationMatrix();
 			m.x() = m3(0, 0) * speed.x() + m3(0, 2) * speed.z();
 			m.y() = speed.y();
@@ -279,9 +284,6 @@ namespace CForge {
 			// in translation there is the postion
 			printf("%f - %f - %f | %f\n", m_BirdTransformSGN.translation().x(), m_BirdTransformSGN.translation().y(), m_BirdTransformSGN.translation().z(), speed.y());
 			
-			if (m_BirdTransformSGN.translation().y() < 0.05) speed.y() += 0.1f;
-
-
 			m_BirdTransformSGN.translationDelta(m); 
 
 			//defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
@@ -309,7 +311,6 @@ namespace CForge {
 
 	protected:
 
-
 		StaticActor m_Bird;
 		SGNTransformation m_RootSGN;
 		StaticActor m_Mountain;
@@ -335,7 +336,7 @@ namespace CForge {
 		SGNTransformation m_GroundTransformSGN;
 
 		// Building
-		StaticActor m_Buildings[3];
+		StaticActor m_Buildings[2];
 		SGNTransformation m_BuildingGroupSGN;
 		std::vector<SGNTransformation*> m_BuildingTransformationSGNs;
 		std::vector<SGNGeometry*> m_BuildingSGNs;
