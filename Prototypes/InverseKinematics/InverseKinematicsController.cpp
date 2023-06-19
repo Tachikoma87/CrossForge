@@ -135,7 +135,11 @@ namespace CForge {
 		// initialize end-effector targets
 		for (auto& c : m_KinematicChains) {
 			auto& Chain = c.second;
-			Chain.Target = Chain.Joints.front()->GlobalPosition; // first joint is end-effector
+			Chain.GlobalTargetPoints = Matrix<float, 3, 4>::Zero();
+			
+			updateGlobalEndEffectorPoints(Chain);
+
+			Chain.GlobalTargetPoints = Chain.GlobalTargetPoints;
 		}//for[kinematic chains]
 		
 		// initialize gaze direction and target using the default coordinate system of glTF 2.0 and assuming that the character is always looking straight ahead in bind pose:  
@@ -237,7 +241,7 @@ namespace CForge {
 		}
 		if (pEnd == nullptr) throw NullpointerExcept("pEnd"); // couldn't find the root joint
 				
-		while (pCurrent != pEnd->pParent) { //TODO: test if this works properly!
+		while (pCurrent != pEnd->pParent) {
 			if (pCurrent == m_pRoot && pEnd != m_pRoot) throw CForgeExcept("Reached root joint of skeleton without finding root joint of kinematic chain!");
 
 			Chain.Joints.push_back(pCurrent);
@@ -275,48 +279,37 @@ namespace CForge {
 
 	void InverseKinematicsController::ikCCD(SkeletalSegment SegmentID) {
 		KinematicChain& Chain = m_KinematicChains.at(SegmentID);
-		std::vector<Joint*>& Joints = Chain.Joints;
-		Joint* pEndEffector = Joints[0];
-
-		for (int32_t i = 0; i < m_MaxIterations; ++i) {
-			for (int32_t k = 1; k < Joints.size(); ++k) {
-								
-				Joint* pCurrentJoint = Joints[k];
-
-				Vector3f TargetPos = Chain.Target;
-				Vector3f EffectorPos = pEndEffector->GlobalPosition;			// get current end-effector position in world space
-				Vector3f JointPos = pCurrentJoint->GlobalPosition;				// get current joint position in world space
-				Vector3f JointToTarget = TargetPos - JointPos;					// directional vector in world space: current joint position -> target position
-				Vector3f JointToEffector = EffectorPos - JointPos;				// directional vector in world space: current joint position -> current end-effector position
 				
-				JointToEffector.normalize();
-				JointToTarget.normalize();
+		for (int32_t i = 0; i < m_MaxIterations; ++i) {
+			for (int32_t k = 0; k < Chain.Joints.size(); ++k) { //TODO: test CCD with inclusion of end-effector joint (k = 0), so that orientation of end-effector can change!
+				Joint* pCurrent = Chain.Joints[k];
 
-				// compute unconstrained rotation quaternion to align both directional vectors in world space
-				Quaternionf GlobalIncrement;
-				GlobalIncrement.setFromTwoVectors(JointToEffector, JointToTarget);
+				// compute unconstrained global rotation quaternion that best aligns position and orientation of end effector with desired target values
+				Quaternionf GlobalIncrement = computeUnconstrainedGlobalRotation(*pCurrent, Chain);
 
-				// apply rotation to joint and update affected global rotations and positions
+				// transform global rotation to local rotation
 				Vector3f GlobalParentPosition = m_GlobalActorPosition;
 				Quaternionf GlobalParentRotation = m_GlobalActorRotation;
 
-				if (pCurrentJoint->pParent != nullptr) {
-					GlobalParentPosition = pCurrentJoint->pParent->GlobalPosition;
-					GlobalParentRotation = pCurrentJoint->pParent->GlobalRotation;
+				if (pCurrent->pParent != nullptr) {
+					GlobalParentPosition = pCurrent->pParent->GlobalPosition;
+					GlobalParentRotation = pCurrent->pParent->GlobalRotation;
 				}
 
-				pCurrentJoint->LocalRotation = GlobalParentRotation.inverse() * (GlobalIncrement * pCurrentJoint->GlobalRotation);
-				constrainLocalRotation(pCurrentJoint);
+				pCurrent->LocalRotation = GlobalParentRotation.inverse() * (GlobalIncrement * pCurrent->GlobalRotation);
 
-				Vector3f LastEndEffectorPos = pEndEffector->GlobalPosition;
-				forwardKinematics(pCurrentJoint, GlobalParentPosition, GlobalParentRotation);
+				// apply joint constraints to local rotation
+				constrainLocalRotation(pCurrent);
 
-				float DistToTarget = (TargetPos - pEndEffector->GlobalPosition).norm();
-				if (DistToTarget < 0.00001f) return; // terminate iterations -> end-effector reached target
+				// update kinematic chain
+				//Vector3f LastEndEffectorPos = pEndEffector->GlobalPosition; //TODO: update condition for termination: sum of errors between old and new positions of points of an end effector
+				forwardKinematics(pCurrent, GlobalParentPosition, GlobalParentRotation);
+				updateGlobalEndEffectorPoints(Chain);
 
-				float EndEffectorMovement = (LastEndEffectorPos - pEndEffector->GlobalPosition).norm();
-				if (EndEffectorMovement < 0.00001f) return; // terminate iterations -> can't improve end-effector position
-
+				// check for termination -> condition: end-effector has reached the targets position and orientation
+				Matrix<float, 3, 4> EffectorTargetDiff = Chain.GlobalTargetPoints - Chain.GlobalEndEffectorPoints;
+				float Error = EffectorTargetDiff.cwiseProduct(EffectorTargetDiff).sum() / float(Chain.GlobalEndEffectorPoints.cols());
+				if (Error < 1e-5f) return;
 			}//for[each joint in chain]
 		}//for[m_MaxIterations]
 	}//ikCCD
@@ -327,14 +320,14 @@ namespace CForge {
 		Vector3f CurrentGlobalDir = m_pHead->CurrentGlobalDir; // global gaze direction before update (expected to be normalized; new values will be normalized when rotation updates happen)
 		Vector3f GlobalTargetDir = (m_pHead->Target - pJoint->GlobalPosition).normalized();
 
-		if (std::abs(1.0f - CurrentGlobalDir.dot(GlobalTargetDir) > 0.00001f)) {
+		if (std::abs(1.0f - CurrentGlobalDir.dot(GlobalTargetDir) > 1e-5f)) {
 			Vector3f CurrentLocalDir = pJoint->GlobalRotation.inverse() * CurrentGlobalDir; // local gaze direction in joint space before update
 						
 			// compute unconstrained rotation quaternion to align both directional vectors in world space
 			Quaternionf GlobalIncrement;
 			GlobalIncrement.setFromTwoVectors(CurrentGlobalDir, GlobalTargetDir);
 
-			// compute local joint rotation and constrain		
+			// compute local joint rotation and constrain
 			Quaternionf GlobalParentRotation = pJoint->pParent->GlobalRotation;
 			pJoint->LocalRotation = GlobalParentRotation.inverse() * (GlobalIncrement * pJoint->GlobalRotation);
 			constrainLocalRotation(pJoint);
@@ -346,6 +339,44 @@ namespace CForge {
 			m_pHead->CurrentGlobalDir = (pJoint->GlobalRotation * CurrentLocalDir).normalized();
 		}
 	}//rotateGaze
+
+	Quaternionf InverseKinematicsController::computeUnconstrainedGlobalRotation(Joint& Joint, KinematicChain& Chain) {
+
+		// compute rotation using quaternion characteristic polynomial from: "Closed-form solution of absolute orientation using unit quaternions." - Berthold K. P. Horn, 1987
+
+		//TODO: combine points of multiple end effectors and targets into 2 point clouds to compute CCD rotation for multiple end effectors?
+		Matrix<float, 3, 4> EffectorPoints = Chain.GlobalEndEffectorPoints.colwise() - Joint.GlobalPosition;
+		Matrix<float, 3, 4> TargetPoints = Chain.GlobalTargetPoints.colwise() - Joint.GlobalPosition;
+
+		//
+		//			0	1	2
+		//		0	Sxx	Sxy	Sxz
+		// S =	1	Syx	Syy	Syz
+		//		2	Szx	Szy	Szz
+		//
+		Matrix3f S = EffectorPoints * TargetPoints.transpose();
+
+		//
+		// N = 
+		//		Sxx + Syy + Szz		Syz - Szy			 Szx - Sxz			 Sxy - Syx
+		//		Syz - Szy			Sxx - Syy - Szz		 Sxy + Syx			 Szx + Sxz
+		//		Szx - Sxz			Sxy + Syx			-Sxx + Syy - Szz	 Syz + Szy
+		//		Sxy - Syx			Szx + Sxz			 Syz + Szy			-Sxx - Syy + Szz
+		//
+		Matrix4f N = Matrix4f::Zero();
+
+		N(0, 0) = S(0, 0) + S(1, 1) + S(2, 2);		N(0, 1) = S(1, 2) - S(2, 1);				N(0, 2) = S(2, 0) - S(0, 2);				N(0, 3) = S(0, 1) - S(1, 0);
+		N(1, 0) = N(0, 1);							N(1, 1) = S(0, 0) - S(1, 1) - S(2, 2);		N(1, 2) = S(0, 1) + S(1, 0);				N(1, 3) = S(2, 0) + S(0, 2);
+		N(2, 0) = N(0, 2);							N(2, 1) = N(1, 2);							N(2, 2) = -S(0, 0) + S(1, 1) - S(2, 2);		N(2, 3) = S(1, 2) + S(2, 1);
+		N(3, 0) = N(0, 3);							N(3, 1) = N(1, 3);							N(3, 2) = N(2, 3);							N(3, 3) = -S(0, 0) - S(1, 1) + S(2, 2);
+		
+		Eigen::SelfAdjointEigenSolver<Matrix4f> Solver(4);
+		Solver.compute(N);
+		Quaternionf GlobalRotation = Quaternionf(Solver.eigenvectors().col(3)); // last column of eigenvectors() matrix contains eigenvector of largest eigenvalue; that's supposed to equal the desired rotation quaternion
+		GlobalRotation.normalize();	// thrown in for good measure
+
+		return GlobalRotation; 
+	}//computeUnconstrainedGlobalRotation
 
 	void InverseKinematicsController::constrainLocalRotation(Joint* pJoint) {
 		if (pJoint->ConstraintType == UNCONSTRAINED) return; // do nothing
@@ -385,17 +416,24 @@ namespace CForge {
 		for (auto i : pJoint->Children) forwardKinematics(i, pJoint->GlobalPosition, pJoint->GlobalRotation);
 	}//forwardKinematics
 
-	void InverseKinematicsController::updateSkinningMatrices(Joint* pJoint, Matrix4f ParentTransform) {
+	void InverseKinematicsController::updateGlobalEndEffectorPoints(KinematicChain& Chain) {
+		Chain.GlobalTargetPoints.col(0) = Chain.Joints.front()->GlobalPosition; // global end-effector position (first joint is end-effector)
+		Chain.GlobalTargetPoints.col(1) = (Chain.Joints.front()->GlobalRotation * Vector3f(1.0f, 0.0f, 0.0f)) + Chain.GlobalTargetPoints.col(0); // global end-effector x-point
+		Chain.GlobalTargetPoints.col(2) = (Chain.Joints.front()->GlobalRotation * Vector3f(0.0f, 1.0f, 0.0f)) + Chain.GlobalTargetPoints.col(0); // global end-effector y-point
+		Chain.GlobalTargetPoints.col(3) = (Chain.Joints.front()->GlobalRotation * Vector3f(1.0f, 0.0f, 1.0f)) + Chain.GlobalTargetPoints.col(0); // global end-effector z-point
+	}//updateGlobalEndEffectorPoints
+
+	void InverseKinematicsController::updateSkinningMatrices(Joint* pJoint, Matrix4f GlobalParentTransform) {
 		if (nullptr == pJoint) throw NullpointerExcept("pJoint");
 		const Matrix4f R = CForgeMath::rotationMatrix(pJoint->LocalRotation);
 		const Matrix4f T = CForgeMath::translationMatrix(pJoint->LocalPosition);
 		const Matrix4f S = CForgeMath::scaleMatrix(pJoint->LocalScale);
-		const Matrix4f JointTransform = T * R * S;
+		const Matrix4f LocalJointTransform = T * R * S;
 
-		Matrix4f LocalTransform = ParentTransform * JointTransform;
-		pJoint->SkinningMatrix = LocalTransform * pJoint->OffsetMatrix;
+		Matrix4f GlobalJointTransform = GlobalParentTransform * LocalJointTransform;
+		pJoint->SkinningMatrix = GlobalJointTransform * pJoint->OffsetMatrix;
 
-		for (auto i : pJoint->Children) updateSkinningMatrices(i, LocalTransform);
+		for (auto i : pJoint->Children) updateSkinningMatrices(i, GlobalJointTransform);
 	}//updateSkinningMatrices
 
 	void InverseKinematicsController::retrieveSkinningMatrices(std::vector<Matrix4f>* pSkinningMats) {
@@ -448,7 +486,8 @@ namespace CForge {
 			pNewEffector->JointID = pEndEffector->ID;
 			pNewEffector->JointName = pEndEffector->Name;
 			pNewEffector->Segment = Chain.first;
-			pNewEffector->Target = Chain.second.Target;
+			pNewEffector->TargetPoints = Matrix<float, 3, 4>::Zero();
+			pNewEffector->TargetPoints = Chain.second.GlobalTargetPoints;
 			Rval.push_back(pNewEffector);
 		}
 
@@ -457,7 +496,8 @@ namespace CForge {
 		pNewEffector->JointID = m_pHead->pJoint->ID;
 		pNewEffector->JointName = m_pHead->pJoint->Name;
 		pNewEffector->Segment = HEAD;
-		pNewEffector->Target = m_pHead->Target;
+		pNewEffector->TargetPoints = Matrix<float, 3, 4>::Zero();
+		pNewEffector->TargetPoints.col(0) = m_pHead->Target;
 		Rval.push_back(pNewEffector);
 
 		return Rval;
@@ -469,7 +509,7 @@ namespace CForge {
 		for (auto i : (*pEndEffectors)) {
 			switch (i->Segment) {
 			case HEAD: {
-				i->Target = m_pHead->Target;
+				i->TargetPoints.col(0) = m_pHead->Target;
 				break;
 			}
 			case RIGHT_ARM:
@@ -477,7 +517,7 @@ namespace CForge {
 			case RIGHT_LEG:
 			case LEFT_LEG:
 			case SPINE: {
-				i->Target = m_KinematicChains.at(i->Segment).Target;
+				i->TargetPoints = m_KinematicChains.at(i->Segment).GlobalTargetPoints;
 				break;
 			}
 			}
@@ -495,7 +535,10 @@ namespace CForge {
 		case RIGHT_LEG:
 		case LEFT_LEG:
 		case SPINE: {
-			m_KinematicChains.at(SegmentID).Target = NewTarget;
+			m_KinematicChains.at(SegmentID).GlobalTargetPoints.col(0) = NewTarget;
+			m_KinematicChains.at(SegmentID).GlobalTargetPoints.col(1) = Vector3f(1.0f, 0.0f, 0.0f) + NewTarget; //TODO: enable rotations of target orientation
+			m_KinematicChains.at(SegmentID).GlobalTargetPoints.col(2) = Vector3f(0.0f, 1.0f, 0.0f) + NewTarget; //TODO: enable rotations of target orientation
+			m_KinematicChains.at(SegmentID).GlobalTargetPoints.col(3) = Vector3f(0.0f, 0.0f, 1.0f) + NewTarget; //TODO: enable rotations of target orientation
 			break;
 		}
 		}

@@ -46,7 +46,7 @@ namespace CForge {
 			int32_t JointID;
 			std::string JointName;
 			SkeletalSegment Segment;
-			Eigen::Vector3f Target;
+			Eigen::Matrix<float, 3, 4> TargetPoints;
 
 			SkeletalEndEffector(void) : CForgeObject("InverseKinematicsController::SkeletalEndEffector") {
 				JointID = -1;
@@ -117,15 +117,18 @@ namespace CForge {
 
 		struct KinematicChain {
 			std::vector<Joint*> Joints; // Joints.begin() == end-effector; Joints.back() == root of chain (not necessarily root of skeleton)
-			Eigen::Vector3f Target;
+			Eigen::Matrix<float, 3, 4> GlobalEndEffectorPoints; //TODO: might need a 3x7 matrix instead of a 3x4 matrix?
+			Eigen::Matrix<float, 3, 4> GlobalTargetPoints; //TODO: might need a 3x7 matrix instead of a 3x4 matrix?
 		};
 
 		// end-effector -> root CCD IK
 		void ikCCD(SkeletalSegment SegmentID);
 		void rotateGaze(void);
+		Eigen::Quaternionf computeUnconstrainedGlobalRotation(Joint& Joint, KinematicChain& Chain);
 		void constrainLocalRotation(Joint* pJoint);
 
 		void forwardKinematics(Joint* pJoint, Eigen::Vector3f ParentPosition, Eigen::Quaternionf ParentRotation);
+		void updateGlobalEndEffectorPoints(KinematicChain& Chain);
 		void updateSkinningMatrices(Joint* pJoint, Eigen::Matrix4f ParentTransform);
 		int32_t jointIDFromName(std::string JointName);
 		

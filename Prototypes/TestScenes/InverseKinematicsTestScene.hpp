@@ -109,7 +109,7 @@ namespace CForge {
 				SGNGeometry* pTargetSGN = new SGNGeometry();
 				SGNGeometry* pMarkerSGN = new SGNGeometry();
 
-				pTargetTransformSGN->init(&m_TargetVisSGN, m_EndEffectors[i]->Target);
+				pTargetTransformSGN->init(&m_TargetVisSGN, m_EndEffectors[i]->TargetPoints.col(0));
 				pTargetSGN->init(pTargetTransformSGN, &m_Target);
 				pMarkerSGN->init(pTargetTransformSGN, &m_TargetMarker);
 				pMarkerSGN->visualization(SGNGeometry::Visualization::VISUALIZATION_WIREFRAME);
@@ -229,7 +229,7 @@ namespace CForge {
 				auto* pEndEffector = m_EndEffectors[i];
 
 				//const AlignedBox3f TranslatedAABB = m_TargetMarkerAABB.translated(pEndEffector->Target); // according to emscripten 3.1.31 "translated" is not a member of AlignedBox<float, 3>
-				const AlignedBox3f TranslatedAABB = AlignedBox3f(m_TargetMarkerAABB.min() + pEndEffector->Target, m_TargetMarkerAABB.max() + pEndEffector->Target);
+				const AlignedBox3f TranslatedAABB = AlignedBox3f(m_TargetMarkerAABB.min() + pEndEffector->TargetPoints.col(0), m_TargetMarkerAABB.max() + pEndEffector->TargetPoints.col(0));
 				
 				const float T0 = 0.0f;
 				const float T1 = m_Cam.farPlane();
@@ -239,7 +239,7 @@ namespace CForge {
 					m_SelectedEffectorTarget = i;
 								
 					Vector3f DragPlaneNormal = m_Cam.dir();
-					float IntersectionDist = (pEndEffector->Target - RayOrigin).dot(DragPlaneNormal) / RayDirection.dot(DragPlaneNormal);
+					float IntersectionDist = (pEndEffector->TargetPoints.col(0) - RayOrigin).dot(DragPlaneNormal) / RayDirection.dot(DragPlaneNormal);
 					m_DragStart = RayOrigin + (RayDirection * IntersectionDist);
 
 					break;
@@ -261,14 +261,14 @@ namespace CForge {
 			RayDirection.normalize();
 
 			Vector3f DragPlaneNormal = m_Cam.dir();
-			float IntersectionDist = (pEndEffector->Target - RayOrigin).dot(DragPlaneNormal) / RayDirection.dot(DragPlaneNormal);
+			float IntersectionDist = (pEndEffector->TargetPoints.col(0) - RayOrigin).dot(DragPlaneNormal) / RayDirection.dot(DragPlaneNormal);
 			Vector3f DragEnd = RayOrigin + (RayDirection * IntersectionDist);
 			Vector3f DragTranslation = DragEnd - m_DragStart;
 			m_DragStart = DragEnd;
 
 			// apply translation to target		
 			pTargetTransformSGN->translation(DragTranslation + pTargetTransformSGN->translation());
-			m_CharacterController.endEffectorTarget(pEndEffector->Segment, DragTranslation + pEndEffector->Target);
+			m_CharacterController.endEffectorTarget(pEndEffector->Segment, DragTranslation + pEndEffector->TargetPoints.col(0));
 		}//dragTarget
 
 		SGNTransformation m_RootSGN;
