@@ -37,6 +37,7 @@ namespace CForge {
 	GLWindow::GLWindow(void): CForgeObject("GLWindow") {
 		m_pHandle = nullptr;
 		m_pInputMan = nullptr;
+		m_Fullscreen = false;
 	}//Constructor
 
 	GLWindow::~GLWindow(void) {
@@ -150,6 +151,8 @@ namespace CForge {
 			SLogger::log("Not handled OpenGL error occurred before initialization of RenderDevice: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
 		}
 
+		m_Fullscreen = false;
+
 	}//initialize
 
 	GLFWwindow* GLWindow::createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion) {
@@ -242,5 +245,64 @@ namespace CForge {
 	void GLWindow::makeCurrent(void)const {
 		if(nullptr != m_pHandle)	glfwMakeContextCurrent((GLFWwindow*)m_pHandle);
 	}//makeCurrent
+
+	Eigen::Vector2i GLWindow::position(void)const {
+		Vector2i Rval;
+		int32_t x, y;
+		GLFWwindow* pWin = static_cast<GLFWwindow*>(m_pHandle);
+		glfwGetWindowPos(pWin, &x, &y);
+		Rval.x() = x;
+		Rval.y() = y;
+		return Rval;
+	}//position
+
+	Eigen::Vector2i GLWindow::size(void)const {
+		Vector2i Rval;
+		int32_t x, y;
+		GLFWwindow* pWin = static_cast<GLFWwindow*>(m_pHandle);
+		glfwGetWindowSize(pWin, &x, &y);
+		Rval.x() = x;
+		Rval.y() = y;
+		return Rval;
+	}//size
+
+	void GLWindow::position(const int32_t X, const int32_t Y) {
+		GLFWwindow* pWin = static_cast<GLFWwindow*>(m_pHandle);
+		glfwSetWindowPos(pWin, X, Y);
+	}//position
+
+	void GLWindow::size(const int32_t Width, const int32_t Height) {
+		GLFWwindow* pWin = static_cast<GLFWwindow*>(m_pHandle);
+		glfwSetWindowSize(pWin, Width, Height);
+	}//size
+
+	void GLWindow::toggleFullscreen(void) {
+		GLFWwindow* pWin = static_cast<GLFWwindow*>(m_pHandle);
+
+		if (m_Fullscreen) {
+			glfwSetWindowMonitor(pWin, nullptr, m_WindowPosBackup.x(), m_WindowPosBackup.y(), m_WindowPosBackup.z(), m_WindowPosBackup.w(), 0);;
+			m_Fullscreen = false;
+		}
+		else {
+			Vector2i Pos = position();
+			Vector2i Size = size();
+			m_WindowPosBackup.x() = Pos.x();
+			m_WindowPosBackup.y() = Pos.y();
+			m_WindowPosBackup.z() = Size.x();
+			m_WindowPosBackup.w() = Size.y();
+
+			int32_t MonitorCount;
+			auto **ppMonitor = glfwGetMonitors(&MonitorCount);
+
+			const GLFWvidmode* pMode = glfwGetVideoMode(ppMonitor[0]);
+			glfwSetWindowMonitor(pWin, ppMonitor[0], 0, 0, pMode->width, pMode->height, pMode->refreshRate);
+
+			m_Fullscreen = true;
+		}
+	}//toggleFullscreen
+
+	bool GLWindow::fullscreen(void) {
+		return m_Fullscreen;
+	}//fullscreen
 
 }//name space

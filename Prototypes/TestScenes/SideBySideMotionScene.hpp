@@ -108,8 +108,8 @@ namespace CForge {
 				pTile->VideoDescriptionLabel.color(0.0f, 0.0f, 0.0f, 1.0f);	
 				pTile->VideoDescriptionLabel.text("Video Description Label");
 			}
-			updateMotion(&m_DisplayTiles[0]->CharacterData, "MyAssets/5_f_1_0_6_224_430.bvh");
-			updateMotion(&m_DisplayTiles[1]->CharacterData, "MyAssets/5_f_1_1_6_224_430.bvh");
+			updateMotion(&m_DisplayTiles[0]->CharacterData, "MyAssets/1_f_63_o.bvh");
+			updateMotion(&m_DisplayTiles[1]->CharacterData, "MyAssets/0_m_54_o.bvh");
 
 
 			updateViewportsAndCamera();
@@ -140,8 +140,8 @@ namespace CForge {
 			CamDir = Vector3f(0.08, -0.11, -0.99);*/
 
 			// close side camera (For top bottom)
-			CamPos = Vector3f(12.03, 2.58, 10.22);
-			CamDir = Vector3f(-0.96, -0.05, -0.29);
+			CamPos = Vector3f(14.30, 2.70, 16.00);
+			CamDir = Vector3f(-0.94, -0.05, -0.32);
 
 			// side camera for 2 characters
 			/*CamPos = Vector3f(20.53, 3.15, 18.82);
@@ -152,7 +152,7 @@ namespace CForge {
 			//m_RenderWin.vsync(true, 2);
 
 
-			m_MotionFiles.push_back("MyAssets/20230510/0_f_model_female_5_skeleton_female_5.bvh");
+			/*m_MotionFiles.push_back("MyAssets/20230510/0_f_model_female_5_skeleton_female_5.bvh");
 			m_MotionFiles.push_back("MyAssets/20230510/1_m_model_female_5_skeleton_male_9_scaled_stride_length.bvh");
 			m_MotionFiles.push_back("MyAssets/20230510/2_f_model_female_12_skeleton_12.bvh");
 			m_MotionFiles.push_back("MyAssets/20230510/3_f_model_female_group_skeleton_12.bvh");
@@ -163,7 +163,18 @@ namespace CForge {
 			m_MotionFiles.push_back("MyAssets/20230510/8_f_model_female_28_skeleton_female_28.bvh");
 			m_MotionFiles.push_back("MyAssets/20230510/9_f_model_female_group24_skeleton_female_28.bvh");
 
-			m_Combinations.push_back(pair<int32_t, int32_t>(8, 9));
+			m_Combinations.push_back(pair<int32_t, int32_t>(8, 9));*/
+
+			m_MotionFiles.push_back("MyAssets/2023-06-14/0_m_54_o.bvh");
+			m_MotionFiles.push_back("MyAssets/2023-06-14/1_f_63_o.bvh");
+			m_MotionFiles.push_back("MyAssets/2023-06-14/2_m_54.bvh");
+			m_MotionFiles.push_back("MyAssets/2023-06-14/3_m_54_n.bvh");
+			m_MotionFiles.push_back("MyAssets/2023-06-14/4_f_63.bvh");
+			m_MotionFiles.push_back("MyAssets/2023-06-14/5_f_63_n.bvh");
+
+			m_Combinations.push_back(pair<int32_t, int32_t>(1, 0));
+			m_Combinations.push_back(pair<int32_t, int32_t>(3, 2));
+			m_Combinations.push_back(pair<int32_t, int32_t>(5, 4));
 
 		}//initialize
 

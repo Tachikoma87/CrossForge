@@ -48,6 +48,12 @@ namespace CForge {
 			T2DImage<uint8_t> Img; ///< Frame image
 			uint32_t FrameIndex;
 			uint64_t Timestamp; ///< Timestamp in milliseconds
+
+			FrameItem(void) {
+				Img.clear();
+				FrameIndex = 0;
+				Timestamp = 0;
+			}
 		};
 
 		void computeDisplayParams(void);

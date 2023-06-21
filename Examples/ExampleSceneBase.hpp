@@ -319,6 +319,10 @@ namespace CForge {
 				takeScreenshot(ScreenshotURI);
 			}
 
+			if (pKeyboard->keyPressed(Keyboard::KEY_F11, true)) {
+				m_RenderWin.toggleFullscreen();
+			}
+
 
 
 			if (pKeyboard->keyPressed(Keyboard::KEY_ESCAPE)) {

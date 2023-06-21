@@ -112,27 +112,27 @@ namespace CForge {
 		// log all objects that have not been release properly
 		uint32_t UnreleasedObjects = 0;
 		string MemleakMsg = "";
-		for (uint32_t i = 0; i < m_RegisteredObjects.size(); ++i) {
-			if (m_RegisteredObjects[i] != nullptr) {
-				UnreleasedObjects++;
-				CForgeObject* pObj = m_RegisteredObjects[i];
-				MemleakMsg += "Object with internal class name \"" + pObj->className() + "\"[ID: " + to_string(pObj->objectID()) + "] was not released properly!\n";
-			}
-		}//for[registered objects]
+		//for (uint32_t i = 0; i < m_RegisteredObjects.size(); ++i) {
+		//	if (m_RegisteredObjects[i] != nullptr) {
+		//		UnreleasedObjects++;
+		//		CForgeObject* pObj = m_RegisteredObjects[i];
+		//		MemleakMsg += "Object with internal class name \"" + pObj->className() + "\"[ID: " + to_string(pObj->objectID()) + "] was not released properly!\n";
+		//	}
+		//}//for[registered objects]
 
-		if (0 == UnreleasedObjects) printf("All CForge objects have been released properly!\n");
-		else {
-			printf("A total of %d objects have not been released properly. See log for details!\n", UnreleasedObjects);
-		}
-		if(!MemLeakFile.empty()){
-			FILE* pF = fopen(MemLeakFile.c_str(), "a");
-			//fopen_s(&pF, MemLeakFile.c_str(), "a");
-			if (nullptr != pF) {
-				fprintf(pF, "%s", MemleakMsg.c_str());
-				fclose(pF);
-				pF = nullptr;
-			}
-		}
+		//if (0 == UnreleasedObjects) printf("All CForge objects have been released properly!\n");
+		//else {
+		//	printf("A total of %d objects have not been released properly. See log for details!\n", UnreleasedObjects);
+		//}
+		//if(!MemLeakFile.empty()){
+		//	FILE* pF = fopen(MemLeakFile.c_str(), "a");
+		//	//fopen_s(&pF, MemLeakFile.c_str(), "a");
+		//	if (nullptr != pF) {
+		//		fprintf(pF, "%s", MemleakMsg.c_str());
+		//		fclose(pF);
+		//		pF = nullptr;
+		//	}
+		//}
 
 		m_FreeObjSlots.clear();
 		m_RegisteredObjects.clear();
@@ -162,23 +162,23 @@ namespace CForge {
 	void SCrossForgeDevice::unregisterObject(CForgeObject* pObj) {
 		if (nullptr == pObj) throw NullpointerExcept("pObj");
 
-		m_Mutex.lock();
+		//m_Mutex.lock();
 
-		uint32_t Index = pObj->objectID();
-		if (Index >= m_RegisteredObjects.size()) {
-			m_Mutex.unlock();
-			throw IndexOutOfBoundsExcept("Index of registered object!");
-		}
+		//uint32_t Index = pObj->objectID();
+		//if (Index >= m_RegisteredObjects.size()) {
+		//	m_Mutex.unlock();
+		//	throw IndexOutOfBoundsExcept("Index of registered object!");
+		//}
 
-		if (m_RegisteredObjects[Index] == nullptr || m_RegisteredObjects[Index]->objectID() != pObj->objectID()) {
-			//printf("That should not happen!\n");
-		}
-		else {
-			m_RegisteredObjects[Index] = nullptr;
-			m_FreeObjSlots.push_back(Index);
-		}
+		//if (m_RegisteredObjects[Index] == nullptr || m_RegisteredObjects[Index]->objectID() != pObj->objectID()) {
+		//	//printf("That should not happen!\n");
+		//}
+		//else {
+		//	m_RegisteredObjects[Index] = nullptr;
+		//	m_FreeObjSlots.push_back(Index);
+		//}
 
-		m_Mutex.unlock();
+		//m_Mutex.unlock();
 	}//unregisterObject
 
 

@@ -82,6 +82,32 @@ namespace CForge {
 
 			ImGuiUtility::initImGui(&m_RenderWin);
 
+			m_MaleVideos.push_back("01_1.mp4");
+			m_MaleVideos.push_back("01_2.mp4");
+			m_MaleVideos.push_back("03_1.mp4");
+			m_MaleVideos.push_back("03_2.mp4");
+			m_MaleVideos.push_back("04_1.mp4");
+			m_MaleVideos.push_back("04_2.mp4");
+			m_MaleVideos.push_back("07_1.mp4");
+			m_MaleVideos.push_back("07_2.mp4");
+			m_MaleVideos.push_back("09_1.mp4");
+			m_MaleVideos.push_back("09_2.mp4");
+			m_MaleVideos.push_back("11_1.mp4");
+			m_MaleVideos.push_back("11_2.mp4");
+
+			m_FemaleVideos.push_back("02_1.mp4");
+			m_FemaleVideos.push_back("02_2.mp4");
+			m_FemaleVideos.push_back("05_1.mp4");
+			m_FemaleVideos.push_back("05_2.mp4");
+			m_FemaleVideos.push_back("06_1.mp4");
+			m_FemaleVideos.push_back("06_2.mp4");
+			m_FemaleVideos.push_back("08_1.mp4");
+			m_FemaleVideos.push_back("08_2.mp4");
+			m_FemaleVideos.push_back("10_1.mp4");
+			m_FemaleVideos.push_back("10_2.mp4");
+			m_FemaleVideos.push_back("12_1.mp4");
+			m_FemaleVideos.push_back("12_2.mp4");
+
 
 			m_TitleText.init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 40, true, false), "Text");
 			m_TitleText.color(0.0f, 0.0f, 0.0f);
@@ -247,20 +273,20 @@ namespace CForge {
 
 
 			//// Motion Editor
-			//if (SelectedTile == 2) ImGui::PushStyleColor(ImGuiCol_WindowBg, SelectionColor);
-			//ImGui::Begin("Motion Editor Tile", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
-			//ImGui::SetWindowSize(ImVec2(TileWidth, 600));
-			//ImGui::SetWindowPos(ImVec2(5 * m_RenderWin.width() / 6 - TileWidth / 2, 75));
-			//ImGui::PushFont(m_pFontTileHeading);
-			//drawTextCentered("Try Our Motion Editor");
-			//ImGui::PopFont();
-			//ImgScale = float(std::min(375, TileWidth-20)) / float(m_ImgMotionEditor.width());
-			//ImGui::Image((void*)(intptr_t)m_ImgMotionEditor.handle(), ImVec2(m_ImgMotionEditor.width()*ImgScale, m_ImgMotionEditor.height()*ImgScale));
-			//ImGui::PushFont(m_pFontTileText);
-			//ImGui::Text("Use our motion editor to generator gait motions by\nadjusting various parameters.");
-			//ImGui::PopFont();
-			//ImGui::End();
-			//if (SelectedTile == 2) ImGui::PopStyleColor();
+			if (SelectedTile == 2) ImGui::PushStyleColor(ImGuiCol_WindowBg, SelectionColor);
+			ImGui::Begin("Motion Editor Tile", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
+			ImGui::SetWindowSize(ImVec2(TileWidth, 600));
+			ImGui::SetWindowPos(ImVec2(5 * m_RenderWin.width() / 6 - TileWidth / 2, 75));
+			ImGui::PushFont(m_pFontTileHeading);
+			drawTextCentered("Try Our Motion Editor");
+			ImGui::PopFont();
+			ImgScale = float(std::min(375, TileWidth-20)) / float(m_ImgMotionEditor.width());
+			ImGui::Image((void*)(intptr_t)m_ImgMotionEditor.handle(), ImVec2(m_ImgMotionEditor.width()*ImgScale, m_ImgMotionEditor.height()*ImgScale));
+			ImGui::PushFont(m_pFontTileText);
+			ImGui::Text("Use our motion editor to generator gait motions by\nadjusting various parameters.");
+			ImGui::PopFont();
+			ImGui::End();
+			if (SelectedTile == 2) ImGui::PopStyleColor();
 
 			ImGui::EndFrame();
 
@@ -275,6 +301,9 @@ namespace CForge {
 					startStudyPart2();
 					m_DemoState = STATE_STUDYPART2;
 				}
+				else if (SelectedTile == 2) {
+					startMotionEditor();
+				}
 
 			}
 
@@ -284,7 +313,7 @@ namespace CForge {
 		void updateStudyPart1GUI(void) {
 			ImGuiUtility::newFrame();
 
-			int32_t FrameWidth = m_VideoPlayers[0].size().x() + 50;
+			int32_t FrameWidth = std::max(800.0f, m_VideoPlayers[0].size().x() + 50);
 			int32_t FrameHeight = m_RenderWin.height();
 			//ImVec4 BGColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 			ImVec4 BGColor = ImVec4(222.0f / 255.0f, 230.0f / 255.0f, 243.0f / 255.0f, 1.0f);
@@ -366,7 +395,11 @@ namespace CForge {
 				ImGui::Separator();
 
 				ImGui::PushFont(m_pFontTileText);
-				std::string Result = "You gave an average rating of " + std::to_string(m_Part1Data.AverageUserScore) + ". The average rating in our study was 2.99";
+
+				char Buff[64];
+				sprintf(Buff, "%.2f", m_Part1Data.AverageUserScore);
+
+				std::string Result = "You gave an average rating of " + std::string(Buff) + ". The average rating in our study was 2.024";
 				drawTextCentered(Result.c_str());
 				ImGui::PopFont();
 
@@ -389,7 +422,7 @@ namespace CForge {
 		void updateStudyPart2GUI(void) {
 			ImGuiUtility::newFrame();
 
-			int32_t FrameWidth = m_RenderWin.width(); // m_VideoPlayers[0].size().x() * 3 + 50;
+			int32_t FrameWidth = m_RenderWin.width(); // std::max(1000.0f, m_VideoPlayers[0].size().x() * 3 + 50);
 			int32_t FrameHeight = m_RenderWin.height();
 			ImVec4 BGColor = ImVec4(222.0f / 255.0f, 230.0f / 255.0f, 243.0f / 255.0f, 1.0f);
 
@@ -515,6 +548,7 @@ namespace CForge {
 			else {
 				int32_t VideoID = m_Part1Data.ExperimentData[m_Part1Data.CurrentItem].VideoID;
 				m_VideoPlayers[0].play(m_StudyVideos[VideoID]);
+				m_VideoPlayers[0].play();
 				m_Part1Data.Selection = 2;
 			}
 		}//studyPart1Next
@@ -542,9 +576,43 @@ namespace CForge {
 				printf("\tWrong answers: %d\n", m_Part2Data.SiblingSelections + m_Part2Data.DistractorSelections);
 			}
 			else {
+				uint64_t Start = CForgeUtility::timestamp();
+
 				int32_t VideoIDs[4];
 				for (uint8_t i = 0; i < 4; ++i) VideoIDs[i] = m_Part2Data.ExperimentData[m_Part2Data.CurrentItem].VideoIDs[i];
-				for (uint8_t i = 0; i < 4; ++i) m_VideoPlayers[i].play(m_StudyVideos[VideoIDs[i]]);
+
+				bool LoadMultiThreaded = true;
+
+				if (LoadMultiThreaded) {
+					// start thready and cache video
+					std::thread CacheThreads[4];
+					bool Ready[4];
+					for (uint8_t i = 0; i < 4; ++i) {
+						Ready[i] = false;
+						CacheThreads[i] = std::thread(videoCacheThread, &m_VideoPlayers[i], m_StudyVideos[VideoIDs[i]], &Ready[i]);
+					}
+
+					bool C = false;
+					while (!C) {
+						C = true;
+						for (uint8_t i = 0; i < 4; ++i) {
+							if (Ready[i] != true) C = false;
+						}
+						std::this_thread::sleep_for(std::chrono::milliseconds(1));
+					}//while[caching not ready]
+
+					for (uint8_t i = 0; i < 4; ++i) {
+						CacheThreads[i].join();
+					}
+				}
+				else {
+					for (uint8_t i = 0; i < 4; ++i) m_VideoPlayers[i].play(m_StudyVideos[VideoIDs[i]]);
+				}
+				
+
+				float CachingTime = float(CForgeUtility::timestamp() - Start)/1000.0f;
+
+				printf("Time for caching: %.2f seconds\n", CachingTime);
 
 				for (uint8_t i = 0; i < 4; ++i) m_VideoPlayers[i].play();
 				m_Part2Data.Selection = -1;
@@ -608,8 +676,6 @@ namespace CForge {
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 				//m_SkyboxSG.render(&m_RenderDev);
 
-				
-
 				if (m_DrawFPSLabel) m_FPSLabel.render(&m_RenderDev);
 				updateStudyPart1GUI();
 				ImGuiUtility::render();
@@ -627,6 +693,7 @@ namespace CForge {
 				defaultKeyboardUpdate(m_RenderWin.keyboard());
 
 				if(m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_P, true)) m_VideoPlayers[0].play();
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F6, true)) m_DemoState = STATE_DASHBOARD;
 
 			}break;
 			case STATE_STUDYPART2: {
@@ -653,6 +720,7 @@ namespace CForge {
 				updateFPS();
 
 				defaultKeyboardUpdate(m_RenderWin.keyboard());
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F6, true)) m_DemoState = STATE_DASHBOARD;
 			}break;
 			case STATE_SCREENSAVER: {
 				m_RenderWin.update();
@@ -700,19 +768,19 @@ namespace CForge {
 
 			int32_t UserSelection; // the actual user selection
 
-			StudyPart2Item(void) {
-				for (uint8_t i = 0; i < 4; ++i) VideoIDs[i] = -1;
-				Original = -1;
-				Sibling = -1;
-				Distractor = -1;
-			}
+StudyPart2Item(void) {
+	for (uint8_t i = 0; i < 4; ++i) VideoIDs[i] = -1;
+	Original = -1;
+	Sibling = -1;
+	Distractor = -1;
+}
 		};//StudyPart2Item
 
 		struct StudyPart1Data {
 			int32_t CurrentItem;
 			int32_t Selection;
 			float AverageUserScore;
-			
+
 			GLTexture2D ScaleImg;
 			bool ExperimentRunning;
 
@@ -744,6 +812,9 @@ namespace CForge {
 			float VideoWidth = 0.5f * m_RenderWin.width();
 			float VideoHeight = 0.5f / Aspect * m_RenderWin.width();
 
+			// abort if windows no high enough
+			if (m_RenderWin.height() < 400) return;
+
 			while (m_RenderWin.height() - VideoHeight < 350) {
 				VideoWidth *= 0.9f;
 				VideoHeight *= 0.9f;
@@ -763,7 +834,7 @@ namespace CForge {
 			// setup data
 			for (uint32_t i = 0; i < m_TrialCountPart1; ++i) {
 				StudyPart1Item Item;
-				Item.VideoID = CForgeMath::randRange(0, int32_t(m_StudyVideos.size()-1));
+				Item.VideoID = CForgeMath::randRange(0, int32_t(m_StudyVideos.size() - 1));
 				m_Part1Data.ExperimentData.push_back(Item);
 			}
 			m_Part1Data.ExperimentRunning = true;
@@ -771,9 +842,43 @@ namespace CForge {
 			studyPart1Next();
 		}//startStudyPart1
 
-		void startStudyPart2(void) {
-			// initialize video players
+		bool isMaleVideo(const std::string File) {
+			for (auto i : m_MaleVideos) {
+				if (File.find(i) != std::string::npos) return true;
+			}
+			return false;
+		}//isMaleVideo
 
+		bool isFemaleVideo(const std::string File) {
+			for (auto i : m_FemaleVideos) {
+				if (File.find(i) != std::string::npos) return true;
+			}
+			return false;
+		}//isFemaleVideo
+
+		int32_t getDistractor(int32_t VideoID) {
+			int32_t Rval = -1;
+			std::string DisFile;
+			if (isMaleVideo(m_StudyVideos[VideoID])) {
+				DisFile = m_MaleVideos[CForgeMath::randRange(0, int32_t(m_MaleVideos.size()))];
+			}
+			else if (isFemaleVideo(m_StudyVideos[VideoID])) {
+				DisFile = m_FemaleVideos[CForgeMath::randRange(0, int32_t(m_MaleVideos.size()))];
+			}
+			else {
+				printf("Sex of video could not be detected!");
+				DisFile = m_MaleVideos[0];
+			}
+
+			for (uint32_t i = 0; i < m_StudyVideos.size(); ++i) {
+				if (m_StudyVideos[i].find(DisFile) != std::string::npos) Rval = i;
+			}
+			return Rval;
+		}//getDistractor
+
+		void startStudyPart2(void) {
+
+			// initialize trial data
 			m_Part2Data.ExperimentData.clear();
 			for (uint32_t i = 0; i < m_TrialCountPart2; ++i) {
 				// select video randomly
@@ -781,9 +886,15 @@ namespace CForge {
 				Item.VideoIDs[0] = CForgeMath::randRange(0, int32_t(m_StudyVideos.size()));
 
 				// find sibling and distractor
+				int32_t Original = Item.VideoIDs[0];
 				int32_t Sibling = (m_StudyVideos[Item.VideoIDs[0]].find("_1") == std::string::npos) ? Item.VideoIDs[0] - 1 : Item.VideoIDs[0] + 1;
 				int32_t Distractor = CForgeMath::randRange(0, int32_t(m_StudyVideos.size()));
-				int32_t Original = Item.VideoIDs[0];
+				
+				do {
+					Distractor = getDistractor(Item.VideoIDs[0]);
+				} while (Distractor == Original || Distractor == Sibling);
+				
+				printf("Triplet: (%d, %d, %d)\n", Original, Sibling, Distractor);
 
 				std::vector<int32_t> Positions;
 				Positions.push_back(0);
@@ -824,14 +935,21 @@ namespace CForge {
 			
 			Vector2i Canvas = Vector2i(m_RenderWin.width(), m_RenderWin.height());
 
-			float t = 1.0f / 3.0f - PlayerWidth;
-
 			float TopOffset = 60.0f;
+			// abort if render win is too small
+			if (m_RenderWin.height() < (200 + TopOffset + 25 + 10)) return;
 
-			m_VideoPlayers[0].init(Vector2f(1.0f/3.0f + t/2.0f, TopOffset), Vector2f(PlayerWidth, PlayerHeight), Canvas);
-			m_VideoPlayers[1].init(Vector2f(t/2.0f, PlayerHeight + TopOffset + 25), Vector2f(PlayerWidth, PlayerHeight), Canvas);
-			m_VideoPlayers[2].init(Vector2f(1.0f/3.0f + t/2.0f, PlayerHeight + TopOffset + 25), Vector2f(PlayerWidth, PlayerHeight), Canvas);
-			m_VideoPlayers[3].init(Vector2f(2.0f/3.0f + t/2.0f, PlayerHeight + TopOffset + 25), Vector2f(PlayerWidth, PlayerHeight), Canvas);
+			while (m_RenderWin.height() - (2.0f*PlayerHeight+TopOffset+25) < 200) {
+				PlayerWidth *= 0.9f;
+				PlayerHeight *= 0.9f;
+			}//while[adjust video players]
+
+			float t = 1.0f / 3.0f - PlayerWidth;
+	
+			m_VideoPlayers[0].init(Vector2f(1.0f / 3.0f + t / 2.0f, TopOffset), Vector2f(PlayerWidth, PlayerHeight), Canvas);
+			m_VideoPlayers[1].init(Vector2f(1.0f / 3.0f + t / 2.0f - PlayerWidth*1.10f, PlayerHeight + TopOffset + 25), Vector2f(PlayerWidth, PlayerHeight), Canvas);
+			m_VideoPlayers[2].init(Vector2f(1.0f / 3.0f + t / 2.0f, PlayerHeight + TopOffset + 25), Vector2f(PlayerWidth, PlayerHeight), Canvas);
+			m_VideoPlayers[3].init(Vector2f(1.0f / 3.0f + t / 2.0f + PlayerWidth*1.10f, PlayerHeight + TopOffset + 25), Vector2f(PlayerWidth, PlayerHeight), Canvas);
 
 			m_Part2Data.ExperimentRunning = true;
 			m_Part2Data.Selection = -1;
@@ -840,6 +958,11 @@ namespace CForge {
 
 		}//startStudyPart2
 
+		virtual void startMotionEditor(void) {
+
+			system("cd ./MyAssets/MotionEditor && start GaitMotionEditor.exe");
+			
+		}//startMotionEditor
 
 		virtual void listen(GLWindowMsg Msg) override {
 			ExampleSceneBase::listen(Msg);
@@ -852,6 +975,11 @@ namespace CForge {
 				m_VideoPlayers[i].canvasSize(m_RenderWin.width(), m_RenderWin.height());
 			}
 		}//listen
+
+		static void videoCacheThread(VideoPlayer* pPlayer, std::string Filepath, bool* pReady) {
+			pPlayer->play(Filepath);
+			(*pReady) = true;
+		}//videoCacheThread
 
 		DemonstratorState m_DemoState;
 
@@ -893,6 +1021,11 @@ namespace CForge {
 
 		int32_t m_TrialCountPart1;
 		int32_t m_TrialCountPart2;
+
+		std::vector<std::string> m_MaleVideos;
+		std::vector<std::string> m_FemaleVideos;
+
+		
 	};//ExampleMinimumGraphicsSetup
 
 }//name space

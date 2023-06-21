@@ -104,7 +104,10 @@ namespace CForge {
 		
 		// clear Video Buffer
 		if (m_VideoBuffer.size() > 0) {
-			for (auto& i : m_VideoBuffer) delete i;
+			for (auto& i : m_VideoBuffer) {
+				delete i;
+				i = nullptr;
+			}
 		}
 		m_VideoBuffer.clear();
 
@@ -114,7 +117,6 @@ namespace CForge {
 		pVC->read(Frame);
 
 		while (!Frame.empty()) {
-			T2DImage<uint8_t> Img;
 			FrameItem* pItem = new FrameItem();
 			convertCVImageToCFImageRGB(&Frame, &pItem->Img);
 			pItem->Timestamp = static_cast<uint64_t>(pVC->get(cv::CAP_PROP_POS_MSEC));
@@ -125,7 +127,7 @@ namespace CForge {
 		pVC->release();
 		delete pVC;
 		m_pVideoCapture = nullptr;
-		m_CurrentFrame = 0;
+		m_CurrentFrame = -1;
 
 	}//cacheVideo
 
@@ -155,9 +157,6 @@ namespace CForge {
 		m_CurrentFrame = -1;
 		m_VideoStart = CForgeUtility::timestamp();
 		m_FinishedPlaying = false;
-		getNextFrame();
-
-		//readNextFrame();
 	}//play
 
 	void VideoPlayer::play(void) {
