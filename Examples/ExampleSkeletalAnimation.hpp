@@ -52,7 +52,9 @@ namespace CForge {
 			M.clear();
 
 			// initialize skeletal actor (Eric) and its animation controller
-			SAssetIO::load("Assets/ExampleScenes/CesiumMan/CesiumMan.gltf", &M);
+			//SAssetIO::load("Assets/ExampleScenes/CesiumMan/CesiumMan.gltf", &M);
+	
+			SAssetIO::load("MyAssets/Eagle_Animated/scene.gltf", &M);
 
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
@@ -75,7 +77,7 @@ namespace CForge {
 
 			Quaternionf Rot;
 			Rot = AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX());
-			m_CesiumManSGN.rotation(Rot);
+			//m_CesiumManSGN.rotation(Rot);
 
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CForgeUtility::timestamp();
@@ -86,7 +88,7 @@ namespace CForge {
 			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
-			m_RepeatAnimation = false;
+			m_RepeatAnimation = true;
 		}//initialize
 
 		void clear(void) override{
