@@ -46,7 +46,8 @@ namespace CForge {
 			int32_t JointID;
 			std::string JointName;
 			SkeletalSegment Segment;
-			Eigen::Matrix<float, 3, 4> TargetPoints;
+			Eigen::Matrix3Xf EndEffectorPoints;
+			Eigen::Matrix3Xf TargetPoints;
 
 			SkeletalEndEffector(void) : CForgeObject("InverseKinematicsController::SkeletalEndEffector") {
 				JointID = -1;
@@ -58,7 +59,7 @@ namespace CForge {
 		~InverseKinematicsController(void);
 
 		// pMesh has to hold skeletal definition
-		void init(T3DMesh<float>* pMesh, std::string ConfigFilepath, Eigen::Vector3f GlobalActorPosition, Eigen::Quaternionf GlobalActorRotation, Eigen::Vector3f GlobalActorScaling);
+		void init(T3DMesh<float>* pMesh, std::string ConfigFilepath, Eigen::Vector3f ActorScaling);
 		void update(float FPSScale);
 		void clear(void);
 
@@ -77,12 +78,8 @@ namespace CForge {
 		void updateEndEffectorValues(std::vector<SkeletalEndEffector*>* pEndEffectors);
 		void endEffectorTarget(SkeletalSegment SegmentID, Eigen::Vector3f NewTarget);
 
-		void globalActorPosition(Eigen::Vector3f Position);
-		void globalActorRotation(Eigen::Quaternionf Rotation);
-		void globalActorScaling(Eigen::Vector3f Scaling);
-		Eigen::Vector3f globalActorPosition(void) const;
-		Eigen::Quaternionf globalActorRotation(void) const;
-		Eigen::Vector3f globalActorScaling(void) const;
+		Eigen::Vector3f rootPosition(void); //TODO
+		void rootPosition(Eigen::Vector3f Position); //TODO
 
 	protected:
 		enum ConstraintType {
@@ -90,6 +87,13 @@ namespace CForge {
 			HINGE = 1,
 			BALL_AND_SOCKET = 2
 			// ...
+		};
+
+		struct EndEffectorData {
+			Eigen::Matrix3Xf LocalEndEffectorPoints;
+			Eigen::Matrix3Xf GlobalEndEffectorPoints;
+			Eigen::Matrix3Xf GlobalTargetPoints;
+			Eigen::Quaternionf GlobalTargetRotation;
 		};
 
 		struct Joint {
@@ -105,7 +109,10 @@ namespace CForge {
 			
 			Joint* pParent;
 			std::vector<Joint*> Children;
+			EndEffectorData* pEndEffectorData;
 			ConstraintType ConstraintType;
+			Eigen::Vector3f LocalHingeAxis;
+			
 			//TODO: constraint data...
 		};
 		
@@ -115,37 +122,28 @@ namespace CForge {
 			Eigen::Vector3f Target;
 		};
 
-		struct KinematicChain {
-			std::vector<Joint*> Joints; // Joints.begin() == end-effector; Joints.back() == root of chain (not necessarily root of skeleton)
-			Eigen::Matrix<float, 3, 4> GlobalEndEffectorPoints; //TODO: might need a 3x7 matrix instead of a 3x4 matrix?
-			Eigen::Matrix<float, 3, 4> GlobalTargetPoints; //TODO: might need a 3x7 matrix instead of a 3x4 matrix?
-		};
-
 		// end-effector -> root CCD IK
 		void ikCCD(SkeletalSegment SegmentID);
 		void rotateGaze(void);
-		Eigen::Quaternionf computeUnconstrainedGlobalRotation(Joint& Joint, KinematicChain& Chain);
+		Eigen::Quaternionf computeUnconstrainedGlobalRotation(Joint* pJoint, InverseKinematicsController::EndEffectorData* pEffData);
 		void constrainLocalRotation(Joint* pJoint);
 
-		void forwardKinematics(Joint* pJoint, Eigen::Vector3f ParentPosition, Eigen::Quaternionf ParentRotation);
-		void updateGlobalEndEffectorPoints(KinematicChain& Chain);
+		void forwardKinematics(Joint* pJoint);
 		void updateSkinningMatrices(Joint* pJoint, Eigen::Matrix4f ParentTransform);
 		int32_t jointIDFromName(std::string JointName);
 		
 		void initJointConstraints(const nlohmann::json& ConstraintDefinitions);
 		void buildKinematicChain(SkeletalSegment SegmentID, const nlohmann::json& ChainData);
-		
-		Eigen::Vector3f m_GlobalActorPosition;
-		Eigen::Quaternionf m_GlobalActorRotation;
-		Eigen::Vector3f m_GlobalActorScaling;
 
 		Joint* m_pRoot;
 		std::vector<Joint*> m_Joints;
 		HeadJoint* m_pHead;
-		std::map<SkeletalSegment, KinematicChain> m_KinematicChains;
+		std::map<SkeletalSegment, std::vector<Joint*>> m_JointChains; // Joints.front() is end-effector joint
+
+		Eigen::Vector3f m_ActorScaling;
 
 		int32_t m_MaxIterations;
-							
+
 		UBOBoneData m_UBO;
 		GLShader *m_pShadowPassShader;
 		ShaderCode* m_pShadowPassVSCode;
