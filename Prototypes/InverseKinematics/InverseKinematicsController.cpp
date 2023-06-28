@@ -105,6 +105,9 @@ namespace CForge {
 			}
 		}//for[joints]
 
+		// initialize global positions and rotations of all joints (no scaling here, so that end-effector points are properly positioned in local joint space)
+		forwardKinematics(m_pRoot, Vector3f::Ones());
+
 		// create user defined skeleton segments 
 		const nlohmann::json& SegmentData = ConfigData.at("SkeletonSegments");
 
@@ -114,42 +117,23 @@ namespace CForge {
 		buildKinematicChain(LEFT_LEG, SegmentData.at("LeftLeg"));
 		buildKinematicChain(SPINE, SegmentData.at("Spine"));
 
-		std::string GazeJointName = SegmentData.at("GazeJoint").get<std::string>();
+		std::string GazeJointName = SegmentData.at("Gaze").at("Joint").get<std::string>();
 		for (uint32_t i = 0; i < m_Joints.size(); ++i) {
 			if (m_Joints[i]->Name == GazeJointName) {
 				m_pHead = new HeadJoint();
 				m_pHead->pJoint = m_Joints[i];
-
-				EndEffectorData* pEffData = new EndEffectorData();
-				pEffData->LocalEndEffectorPoints.resize(3, 7);
-				pEffData->GlobalEndEffectorPoints.resize(3, 7);
-				pEffData->LocalEndEffectorPoints.col(0) = m_pHead->pJoint->LocalPosition;
-				m_pHead->pJoint->pEndEffectorData = pEffData;
-
 				break;
 			}
 		}//for[joints]
 
 		if (m_pHead->pJoint == nullptr) throw NullpointerExcept("m_pHead->pJoint");
 
-		// initialize global positions and rotations of all joints given the world space transformation of the actor
-		forwardKinematics(m_pRoot);
+		// initialize end-effector points
+		initEndEffectorPoints(SegmentData);
 
-		// initialize targets of chains
-		for (auto& c : m_JointChains) {
-			auto& Chain = c.second;
-			Joint* pEff = Chain.front();
-			EndEffectorData* pEffData = pEff->pEndEffectorData;
-			pEffData->GlobalTargetPoints.resize(3, 7);
-			pEffData->GlobalTargetPoints = pEffData->GlobalEndEffectorPoints;
-			pEffData->GlobalTargetRotation = pEff->GlobalRotation;
-		}//for[kinematic chains]
-		
-		// initialize gaze direction and target using the default coordinate system of glTF 2.0 and assuming that the character is always looking straight ahead in bind pose:  
-		// -> from https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#coordinate-system-and-units: "glTF uses a right-handed coordinate system. glTF defines +Y as 
-		// up, +Z as forward, and -X as right; the front of a glTF asset faces +Z."
-		m_pHead->CurrentGlobalDir = Vector3f(0.0f, 0.0f, 1.0f);
-		m_pHead->Target = m_pHead->pJoint->GlobalPosition + m_pHead->CurrentGlobalDir;
+		// initialize target points (due to the way scaling is applied this requires another forwardKinematics pass with scaling -> CHANGE THAT)
+		forwardKinematics(m_pRoot, m_ActorScaling);
+		initTargetPoints();
 		
 		// initialize UBO
 		m_UBO.init(m_Joints.size());
@@ -255,27 +239,143 @@ namespace CForge {
 		}
 
 		if (Chain.size() < 2) throw CForgeExcept("Initialization of chain failed!");
-
-		// initialize end-effector data
-		EndEffectorData* pEffData = new EndEffectorData();
-
-		pEffData->LocalEndEffectorPoints.resize(3, 7);
-		pEffData->GlobalEndEffectorPoints.resize(3, 7);
-		
-		pEffData->LocalEndEffectorPoints.col(0) = Chain.front()->LocalPosition;
-		pEffData->LocalEndEffectorPoints.col(1) = (Chain.front()->LocalRotation * Vector3f(0.5f / m_ActorScaling(0), 0.0f, 0.0f)) + Chain.front()->LocalPosition;
-		pEffData->LocalEndEffectorPoints.col(2) = (Chain.front()->LocalRotation * Vector3f(0.0f, 0.5f / m_ActorScaling(1), 0.0f)) + Chain.front()->LocalPosition;
-		pEffData->LocalEndEffectorPoints.col(3) = (Chain.front()->LocalRotation * Vector3f(0.0f, 0.0f, 0.5f / m_ActorScaling(2))) + Chain.front()->LocalPosition;
-		pEffData->LocalEndEffectorPoints.col(4) = (Chain.front()->LocalRotation * Vector3f(-(0.5f / m_ActorScaling(0)), 0.0f, 0.0f)) + Chain.front()->LocalPosition;
-		pEffData->LocalEndEffectorPoints.col(5) = (Chain.front()->LocalRotation * Vector3f(0.0f, -(0.5f / m_ActorScaling(1)), 0.0f)) + Chain.front()->LocalPosition;
-		pEffData->LocalEndEffectorPoints.col(6) = (Chain.front()->LocalRotation * Vector3f(0.0f, 0.0f, -(0.5f / m_ActorScaling(2)))) + Chain.front()->LocalPosition;
-
-		Chain.front()->pEndEffectorData = pEffData;
 	}//buildKinematicChain
+
+	void InverseKinematicsController::initEndEffectorPoints(const nlohmann::json& SegmentData) {
+		// spine
+		Joint* pEndEffector = m_JointChains.at(SPINE).front();
+		EndEffectorData* pEff = new EndEffectorData();
+		pEff->LocalEndEffectorPoints.resize(3, 7);
+		pEff->GlobalEndEffectorPoints.resize(3, 7);
+		
+		const nlohmann::json& Spine = SegmentData.at("Spine");
+		pEff->GlobalEndEffectorPoints.col(0) = Vector3f(Spine.at("GlobalEffectorPosition").at("x").get<float>(), Spine.at("GlobalEffectorPosition").at("y").get<float>(), Spine.at("GlobalEffectorPosition").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(1) = Vector3f(Spine.at("GlobalFront").at("x").get<float>(), Spine.at("GlobalFront").at("y").get<float>(), Spine.at("GlobalFront").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(2) = Vector3f(Spine.at("GlobalBack").at("x").get<float>(), Spine.at("GlobalBack").at("y").get<float>(), Spine.at("GlobalBack").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(3) = Vector3f(Spine.at("GlobalLeft").at("x").get<float>(), Spine.at("GlobalLeft").at("y").get<float>(), Spine.at("GlobalLeft").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(4) = Vector3f( Spine.at("GlobalRight").at("x").get<float>(), Spine.at("GlobalRight").at("y").get<float>(), Spine.at("GlobalRight").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(5) = Vector3f(Spine.at("GlobalUp").at("x").get<float>(), Spine.at("GlobalUp").at("y").get<float>(), Spine.at("GlobalUp").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(6) = Vector3f(Spine.at("GlobalDown").at("x").get<float>(), Spine.at("GlobalDown").at("y").get<float>(), Spine.at("GlobalDown").at("z").get<float>());
+		
+		for (int i = 1; i < pEff->GlobalEndEffectorPoints.cols(); ++i) {
+			pEff->GlobalEndEffectorPoints.col(i) += pEff->GlobalEndEffectorPoints.col(0);
+		}
+
+		Vector3f ScaleUp = Vector3f(1.0f / m_ActorScaling(0), 1.0f / m_ActorScaling(1), 1.0f / m_ActorScaling(2));
+
+		for (int i = 0; i < pEff->LocalEndEffectorPoints.cols(); ++i) {
+			pEff->LocalEndEffectorPoints.col(i) = pEndEffector->GlobalRotation.inverse() * (pEff->GlobalEndEffectorPoints.col(i) - pEndEffector->GlobalPosition);
+			pEff->LocalEndEffectorPoints.col(i) = ScaleUp.cwiseProduct(pEff->LocalEndEffectorPoints.col(i));
+		}
+
+		pEndEffector->pEndEffectorData = pEff;
+
+		// right arm
+		pEndEffector = m_JointChains.at(RIGHT_ARM).front();
+		pEff = new EndEffectorData();
+		pEff->LocalEndEffectorPoints.resize(3, 3);
+		pEff->GlobalEndEffectorPoints.resize(3, 3);
+		
+		const nlohmann::json& RightArm = SegmentData.at("RightArm");
+		pEff->GlobalEndEffectorPoints.col(0) = Vector3f(RightArm.at("Palm1").at("x").get<float>(), RightArm.at("Palm1").at("y").get<float>(), RightArm.at("Palm1").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(1) = Vector3f(RightArm.at("Palm2").at("x").get<float>(), RightArm.at("Palm2").at("y").get<float>(), RightArm.at("Palm2").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(2) = Vector3f(RightArm.at("Palm3").at("x").get<float>(), RightArm.at("Palm3").at("y").get<float>(), RightArm.at("Palm3").at("z").get<float>());
+
+		for (int i = 0; i < pEff->LocalEndEffectorPoints.cols(); ++i) {
+			pEff->LocalEndEffectorPoints.col(i) = pEndEffector->GlobalRotation.inverse() * (pEff->GlobalEndEffectorPoints.col(i) - pEndEffector->GlobalPosition);
+		}
+
+		pEndEffector->pEndEffectorData = pEff;
+
+		// left arm
+		pEndEffector = m_JointChains.at(LEFT_ARM).front();
+		pEff = new EndEffectorData();
+		pEff->LocalEndEffectorPoints.resize(3, 3);
+		pEff->GlobalEndEffectorPoints.resize(3, 3);
+		
+		const nlohmann::json& LeftArm = SegmentData.at("LeftArm");
+		pEff->GlobalEndEffectorPoints.col(0) = Vector3f(LeftArm.at("Palm1").at("x").get<float>(), LeftArm.at("Palm1").at("y").get<float>(), LeftArm.at("Palm1").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(1) = Vector3f(LeftArm.at("Palm2").at("x").get<float>(), LeftArm.at("Palm2").at("y").get<float>(), LeftArm.at("Palm2").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(2) = Vector3f(LeftArm.at("Palm3").at("x").get<float>(), LeftArm.at("Palm3").at("y").get<float>(), LeftArm.at("Palm3").at("z").get<float>());
+
+		for (int i = 0; i < pEff->LocalEndEffectorPoints.cols(); ++i) {
+			pEff->LocalEndEffectorPoints.col(i) = pEndEffector->GlobalRotation.inverse() * (pEff->GlobalEndEffectorPoints.col(i) - pEndEffector->GlobalPosition);
+		}
+
+		pEndEffector->pEndEffectorData = pEff;
+
+		// right leg
+		pEndEffector = m_JointChains.at(RIGHT_LEG).front();
+		pEff = new EndEffectorData();
+		pEff->LocalEndEffectorPoints.resize(3, 3);
+		pEff->GlobalEndEffectorPoints.resize(3, 3);
+		
+		const nlohmann::json& RightLeg = SegmentData.at("RightLeg");
+		pEff->GlobalEndEffectorPoints.col(0) = Vector3f(RightLeg.at("Sole1").at("x").get<float>(), RightLeg.at("Sole1").at("y").get<float>(), RightLeg.at("Sole1").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(1) = Vector3f(RightLeg.at("Sole2").at("x").get<float>(), RightLeg.at("Sole2").at("y").get<float>(), RightLeg.at("Sole2").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(2) = Vector3f(RightLeg.at("Sole3").at("x").get<float>(), RightLeg.at("Sole3").at("y").get<float>(), RightLeg.at("Sole3").at("z").get<float>());
+
+		for (int i = 0; i < pEff->LocalEndEffectorPoints.cols(); ++i) {
+			pEff->LocalEndEffectorPoints.col(i) = pEndEffector->GlobalRotation.inverse() * (pEff->GlobalEndEffectorPoints.col(i) - pEndEffector->GlobalPosition);
+		}
+
+		pEndEffector->pEndEffectorData = pEff;
+
+		// left leg
+		pEndEffector = m_JointChains.at(LEFT_LEG).front();
+		pEff = new EndEffectorData();
+		pEff->LocalEndEffectorPoints.resize(3, 3);
+		pEff->GlobalEndEffectorPoints.resize(3, 3);
+		
+		const nlohmann::json& LeftLeg = SegmentData.at("LeftLeg");
+		pEff->GlobalEndEffectorPoints.col(0) = Vector3f(LeftLeg.at("Sole1").at("x").get<float>(), LeftLeg.at("Sole1").at("y").get<float>(), LeftLeg.at("Sole1").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(1) = Vector3f(LeftLeg.at("Sole2").at("x").get<float>(), LeftLeg.at("Sole2").at("y").get<float>(), LeftLeg.at("Sole2").at("z").get<float>());
+		pEff->GlobalEndEffectorPoints.col(2) = Vector3f(LeftLeg.at("Sole3").at("x").get<float>(), LeftLeg.at("Sole3").at("y").get<float>(), LeftLeg.at("Sole3").at("z").get<float>());
+
+		for (int i = 0; i < pEff->LocalEndEffectorPoints.cols(); ++i) {
+			pEff->LocalEndEffectorPoints.col(i) = pEndEffector->GlobalRotation.inverse() * (pEff->GlobalEndEffectorPoints.col(i) - pEndEffector->GlobalPosition);
+		}
+
+		pEndEffector->pEndEffectorData = pEff;
+
+		// gaze
+		const nlohmann::json& Gaze = SegmentData.at("Gaze").at("GlobalGazeDirection");
+		m_pHead->CurrentGlobalDir = Vector3f(Gaze.at("x").get<float>(), Gaze.at("y").get<float>(), Gaze.at("z").get<float>());
+	}//initEndEffectorPoints
+
+	void InverseKinematicsController::initTargetPoints(void) {
+		// spine
+		Joint* pEff = m_JointChains.at(SPINE).front();
+		pEff->pEndEffectorData->GlobalTargetPoints = pEff->pEndEffectorData->GlobalEndEffectorPoints;
+		pEff->pEndEffectorData->GlobalTargetRotation = pEff->GlobalRotation;
+
+		// right arm
+		pEff = m_JointChains.at(RIGHT_ARM).front();
+		pEff->pEndEffectorData->GlobalTargetPoints = pEff->pEndEffectorData->GlobalEndEffectorPoints;
+		pEff->pEndEffectorData->GlobalTargetRotation = pEff->GlobalRotation;
+
+		// left arm
+		pEff = m_JointChains.at(LEFT_ARM).front();
+		pEff->pEndEffectorData->GlobalTargetPoints = pEff->pEndEffectorData->GlobalEndEffectorPoints;
+		pEff->pEndEffectorData->GlobalTargetRotation = pEff->GlobalRotation;
+
+		// right leg
+		pEff = m_JointChains.at(RIGHT_LEG).front();
+		pEff->pEndEffectorData->GlobalTargetPoints = pEff->pEndEffectorData->GlobalEndEffectorPoints;
+		pEff->pEndEffectorData->GlobalTargetRotation = pEff->GlobalRotation;
+
+		// left leg
+		pEff = m_JointChains.at(LEFT_LEG).front();
+		pEff->pEndEffectorData->GlobalTargetPoints = pEff->pEndEffectorData->GlobalEndEffectorPoints;
+		pEff->pEndEffectorData->GlobalTargetRotation = pEff->GlobalRotation;
+
+		// gaze
+		m_pHead->Target = m_pHead->pJoint->GlobalPosition + m_pHead->CurrentGlobalDir;
+	}//initTargetPoints
 
 	void InverseKinematicsController::update(float FPSScale) {
 
-		forwardKinematics(m_pRoot);
+		forwardKinematics(m_pRoot, m_ActorScaling);
 
 		rotateGaze();
 		ikCCD(RIGHT_ARM);
@@ -321,7 +421,7 @@ namespace CForge {
 				//constrainLocalRotation(pCurrent); //TODO
 
 				// update kinematic chain
-				forwardKinematics(pCurrent);
+				forwardKinematics(pCurrent, m_ActorScaling); //TODO: update global end-effector points
 			}//for[each joint in chain]
 
 			// check for termination -> condition: end-effector has reached the targets position and orientation
@@ -353,7 +453,7 @@ namespace CForge {
 			//constrainLocalRotation(pJoint); //TODO
 
 			// compute new global joint rotation and apply to gaze direction
-			forwardKinematics(pJoint);
+			forwardKinematics(pJoint, m_ActorScaling);
 
 			// apply new global rotation of pJoint to old gaze direction in joint space to compute the new (normalized) gaze direction in global space
 			m_pHead->CurrentGlobalDir = (pJoint->GlobalRotation * CurrentLocalDir).normalized();
@@ -462,28 +562,28 @@ namespace CForge {
 		}
 	}//constrainLocalRotation
 
-	void InverseKinematicsController::forwardKinematics(Joint* pJoint) {
+	void InverseKinematicsController::forwardKinematics(Joint* pJoint, Vector3f ActorScaling) {
 		if (nullptr == pJoint) throw NullpointerExcept("pJoint");
 
 		if (pJoint == m_pRoot) {
-			pJoint->GlobalPosition = m_ActorScaling.cwiseProduct(pJoint->LocalPosition);
+			pJoint->GlobalPosition = ActorScaling.cwiseProduct(pJoint->LocalPosition);
 			pJoint->GlobalRotation = pJoint->LocalRotation;
 		}
 		else {
-			pJoint->GlobalPosition = (pJoint->pParent->GlobalRotation * m_ActorScaling.cwiseProduct(pJoint->LocalPosition)) + pJoint->pParent->GlobalPosition;
+			pJoint->GlobalPosition = (pJoint->pParent->GlobalRotation * ActorScaling.cwiseProduct(pJoint->LocalPosition)) + pJoint->pParent->GlobalPosition;
 			pJoint->GlobalRotation = pJoint->pParent->GlobalRotation * pJoint->LocalRotation;
 		}
 
 		if (pJoint->pEndEffectorData != nullptr) {
-			Matrix3Xf& LocalEffPoints = pJoint->pEndEffectorData->LocalEndEffectorPoints;
-			Matrix3Xf& GlobalEffPoints = pJoint->pEndEffectorData->GlobalEndEffectorPoints;
+			auto& GlobalEndEffectorPoints = pJoint->pEndEffectorData->GlobalEndEffectorPoints;
+			auto& LocalEndEffectorPoints = pJoint->pEndEffectorData->LocalEndEffectorPoints;
 
-			for (int i = 0; i < LocalEffPoints.cols(); ++i) {
-				GlobalEffPoints.col(i) = (pJoint->GlobalRotation * m_ActorScaling.cwiseProduct(LocalEffPoints.col(i))) + pJoint->GlobalPosition;
+			for (int i = 0; i < GlobalEndEffectorPoints.cols(); ++i) {
+				GlobalEndEffectorPoints.col(i) = (pJoint->GlobalRotation * ActorScaling.cwiseProduct(LocalEndEffectorPoints.col(i))) + pJoint->GlobalPosition;
 			}
 		}
 
-		for (auto i : pJoint->Children) forwardKinematics(i);
+		for (auto i : pJoint->Children) forwardKinematics(i, ActorScaling);
 	}//forwardKinematics
 
 	void InverseKinematicsController::updateSkinningMatrices(Joint* pJoint, Matrix4f GlobalParentTransform) {
@@ -541,23 +641,21 @@ namespace CForge {
 		std::vector<SkeletalEndEffector*> Rval;
 		SkeletalEndEffector* pNewEffector = nullptr;
 
-		// limbs and spine
 		for (const auto& Chain : m_JointChains) {
 			Joint* pEff = Chain.second.front();
-
 			pNewEffector = new SkeletalEndEffector();
+
 			pNewEffector->JointID = pEff->ID;
 			pNewEffector->JointName = pEff->Name;
 			pNewEffector->Segment = Chain.first;
-			pNewEffector->EndEffectorPoints.resize(3, 7);
 			pNewEffector->EndEffectorPoints = pEff->pEndEffectorData->GlobalEndEffectorPoints;
-			pNewEffector->TargetPoints.resize(3, 7);
 			pNewEffector->TargetPoints = pEff->pEndEffectorData->GlobalTargetPoints;
 			Rval.push_back(pNewEffector);
 		}
 
 		// gaze
 		pNewEffector = new SkeletalEndEffector();
+
 		pNewEffector->JointID = m_pHead->pJoint->ID;
 		pNewEffector->JointName = m_pHead->pJoint->Name;
 		pNewEffector->Segment = HEAD;
@@ -587,16 +685,23 @@ namespace CForge {
 			case SPINE: {
 				i->EndEffectorPoints = m_JointChains.at(i->Segment).front()->pEndEffectorData->GlobalEndEffectorPoints;
 				i->TargetPoints = m_JointChains.at(i->Segment).front()->pEndEffectorData->GlobalTargetPoints;
+
+				// test
+				std::vector<Vector3f> Points;
+				for (int j = 0; j < m_JointChains.at(i->Segment).front()->pEndEffectorData->GlobalEndEffectorPoints.cols(); ++j) {
+					Points.push_back(m_JointChains.at(i->Segment).front()->pEndEffectorData->GlobalEndEffectorPoints.col(j));
+				}
+
 				break;
 			}
 			}
 		}
 	}//updateEndEffectorValues
 
-	void InverseKinematicsController::endEffectorTarget(SkeletalSegment SegmentID, Vector3f NewTarget) {
+	void InverseKinematicsController::translateTarget(SkeletalSegment SegmentID, Vector3f Translation) {
 		switch (SegmentID) {
 		case HEAD: {
-			m_pHead->Target = NewTarget;
+			m_pHead->Target += Translation;
 			break;
 		}
 		case RIGHT_ARM:
@@ -604,14 +709,8 @@ namespace CForge {
 		case RIGHT_LEG:
 		case LEFT_LEG:
 		case SPINE: {
-			EndEffectorData* pEffData = m_JointChains.at(SegmentID).front()->pEndEffectorData;
-			pEffData->GlobalTargetPoints.col(0) = NewTarget;
-			pEffData->GlobalTargetPoints.col(1) = (pEffData->GlobalTargetRotation * Vector3f(0.5f / m_ActorScaling(0), 0.0f, 0.0f)) + NewTarget;
-			pEffData->GlobalTargetPoints.col(2) = (pEffData->GlobalTargetRotation * Vector3f(0.0f, 0.5f / m_ActorScaling(0), 0.0f)) + NewTarget;
-			pEffData->GlobalTargetPoints.col(3) = (pEffData->GlobalTargetRotation * Vector3f(0.0f, 0.0f, 0.5f / m_ActorScaling(0))) + NewTarget;
-			pEffData->GlobalTargetPoints.col(4) = (pEffData->GlobalTargetRotation * Vector3f(-(0.5f / m_ActorScaling(0)), 0.0f, 0.0f)) + NewTarget;
-			pEffData->GlobalTargetPoints.col(5) = (pEffData->GlobalTargetRotation * Vector3f(0.0f, -(0.5f / m_ActorScaling(0)), 0.0f)) + NewTarget;
-			pEffData->GlobalTargetPoints.col(6) = (pEffData->GlobalTargetRotation * Vector3f(0.0f, 0.0f, -(0.5f / m_ActorScaling(0)))) + NewTarget;
+			EndEffectorData* pEffData = m_JointChains.at(SPINE).front()->pEndEffectorData;
+			pEffData->GlobalTargetPoints.colwise() += Translation;
 			break;
 		}
 		}

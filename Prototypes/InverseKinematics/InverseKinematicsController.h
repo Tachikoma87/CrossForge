@@ -76,7 +76,7 @@ namespace CForge {
 
 		std::vector<SkeletalEndEffector*> retrieveEndEffectors(void) const;
 		void updateEndEffectorValues(std::vector<SkeletalEndEffector*>* pEndEffectors);
-		void endEffectorTarget(SkeletalSegment SegmentID, Eigen::Vector3f NewTarget);
+		void translateTarget(SkeletalSegment SegmentID, Eigen::Vector3f Translation);
 
 		Eigen::Vector3f rootPosition(void); //TODO
 		void rootPosition(Eigen::Vector3f Position); //TODO
@@ -128,12 +128,14 @@ namespace CForge {
 		Eigen::Quaternionf computeUnconstrainedGlobalRotation(Joint* pJoint, InverseKinematicsController::EndEffectorData* pEffData);
 		void constrainLocalRotation(Joint* pJoint);
 
-		void forwardKinematics(Joint* pJoint);
+		void forwardKinematics(Joint* pJoint, Eigen::Vector3f ActorScaling);
 		void updateSkinningMatrices(Joint* pJoint, Eigen::Matrix4f ParentTransform);
 		int32_t jointIDFromName(std::string JointName);
 		
 		void initJointConstraints(const nlohmann::json& ConstraintDefinitions);
 		void buildKinematicChain(SkeletalSegment SegmentID, const nlohmann::json& ChainData);
+		void initEndEffectorPoints(const nlohmann::json& SegmentData);
+		void initTargetPoints(void);
 
 		Joint* m_pRoot;
 		std::vector<Joint*> m_Joints;
