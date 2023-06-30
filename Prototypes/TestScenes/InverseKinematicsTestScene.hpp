@@ -18,7 +18,7 @@ namespace CForge {
 	class InverseKinematicsTestScene : public ExampleSceneBase {
 	public:
 		InverseKinematicsTestScene(void) {
-			m_WindowTitle = "CrossForge Example - Inverse Kinematics Test Scene";
+			m_WindowTitle = "CrossForge Prototype - Inverse Kinematics Test Scene";
 		}//Constructor
 
 		~InverseKinematicsTestScene(void) {
@@ -142,7 +142,7 @@ namespace CForge {
 	protected:
 		void pickTarget(void) {
 			m_SelectedEffectorTarget = -1; // assume nothing will be picked
-						
+			
 			const Vector4f Viewport = Vector4f(0.0f, 0.0f, float(m_RenderWin.width()), float(m_RenderWin.height())); 
 			const Vector2f CursorPos = Vector2f(m_RenderWin.mouse()->position().x(), Viewport(3) - m_RenderWin.mouse()->position().y());
 			const Matrix4f View = m_Cam.cameraMatrix();
@@ -154,18 +154,11 @@ namespace CForge {
 
 			for (int32_t i = 0; i < m_EndEffectors.size(); ++i) {
 				auto* pEndEffector = m_EndEffectors[i];
+				auto& TargetTransforms = m_TargetTransformSGNs.at(pEndEffector->Segment);
 
-				AlignedBox3f TranslatedAABB;
-
-				if (pEndEffector->Segment == InverseKinematicsController::SkeletalSegment::HEAD || InverseKinematicsController::SkeletalSegment::SPINE) {
-					TranslatedAABB = AlignedBox3f(m_TargetMarkerAABB.min() + pEndEffector->TargetPoints.col(0),	m_TargetMarkerAABB.max() + pEndEffector->TargetPoints.col(0));
-				}
-				else {
-					int32_t AABBIndex = pEndEffector->EndEffectorPoints.cols();
-					Vector3f AABBPos = m_TargetTransformSGNs.at(m_EndEffectors[i]->Segment)[AABBIndex]->translation();
-
-					TranslatedAABB = AlignedBox3f(m_TargetMarkerAABB.min() + AABBPos, m_TargetMarkerAABB.max() + AABBPos);
-				}
+				int32_t AABBIndex = (pEndEffector->Segment == InverseKinematicsController::HEAD || InverseKinematicsController::SPINE) ? 0 : pEndEffector->TargetPoints.cols();
+				Vector3f AABBPos = TargetTransforms[AABBIndex]->translation();
+				AlignedBox3f TranslatedAABB = AlignedBox3f(m_TargetMarkerAABB.min() + AABBPos, m_TargetMarkerAABB.max() + AABBPos);
 
 				const float T0 = 0.0f;
 				const float T1 = m_Cam.farPlane();
@@ -175,7 +168,7 @@ namespace CForge {
 					m_SelectedEffectorTarget = i;
 
 					Vector3f DragPlaneNormal = m_Cam.dir();
-					float IntersectionDist = (pEndEffector->TargetPoints.col(0) - RayOrigin).dot(DragPlaneNormal) / RayDirection.dot(DragPlaneNormal);
+					float IntersectionDist = (AABBPos - RayOrigin).dot(DragPlaneNormal) / RayDirection.dot(DragPlaneNormal);
 					m_DragStart = RayOrigin + (RayDirection * IntersectionDist);
 
 					break;
@@ -185,7 +178,7 @@ namespace CForge {
 
 		void dragTarget(void) {
 			auto* pEndEffector = m_EndEffectors[m_SelectedEffectorTarget];
-						
+			auto& TargetTransforms = m_TargetTransformSGNs.at(pEndEffector->Segment);
 			const Vector4f Viewport = Vector4f(0.0f, 0.0f, float(m_RenderWin.width()), float(m_RenderWin.height()));
 			const Vector2f CursorPos = Vector2f(m_RenderWin.mouse()->position().x(), Viewport(3) - m_RenderWin.mouse()->position().y());
 			const Matrix4f View = m_Cam.cameraMatrix();
@@ -195,47 +188,37 @@ namespace CForge {
 			igl::unproject_ray(CursorPos, View, Projection, Viewport, RayOrigin, RayDirection);
 			RayDirection.normalize();
 
+			int32_t AABBIndex = (pEndEffector->Segment == InverseKinematicsController::HEAD || InverseKinematicsController::SPINE) ? 0 : pEndEffector->TargetPoints.cols();
+			Vector3f AABBPos = TargetTransforms[AABBIndex]->translation();
+
 			Vector3f DragPlaneNormal = m_Cam.dir();
-			float IntersectionDist = (pEndEffector->TargetPoints.col(0) - RayOrigin).dot(DragPlaneNormal) / RayDirection.dot(DragPlaneNormal);
+			float IntersectionDist = (AABBPos - RayOrigin).dot(DragPlaneNormal) / RayDirection.dot(DragPlaneNormal);
 			Vector3f DragEnd = RayOrigin + (RayDirection * IntersectionDist);
 			Vector3f DragTranslation = DragEnd - m_DragStart;
 			m_DragStart = DragEnd;
 
 			// apply translation to target marker transformation SGNs
-			if (pEndEffector->Segment == InverseKinematicsController::SkeletalSegment::HEAD) {
-				auto& TargetTransforms = m_TargetTransformSGNs.at(pEndEffector->Segment);
-				TargetTransforms[0]->translation(DragTranslation + TargetTransforms[0]->translation());
+			for (int32_t i = 0; i < TargetTransforms.size(); ++i) {
+				if (TargetTransforms[i] == nullptr) continue;
+				TargetTransforms[i]->translation(DragTranslation + TargetTransforms[i]->translation());
 			}
-			else if (pEndEffector->Segment == InverseKinematicsController::SkeletalSegment::SPINE) {
-				auto& TargetTransforms = m_TargetTransformSGNs.at(pEndEffector->Segment);
-
-				for (int i = 0; i < pEndEffector->EndEffectorPoints.cols(); ++i) {
-					TargetTransforms[i]->translation(DragTranslation + TargetTransforms[i]->translation());
-				}
-			}
-			else {
-				auto& TargetTransforms = m_TargetTransformSGNs.at(pEndEffector->Segment);
-
-				for (int i = 0; i <= pEndEffector->EndEffectorPoints.cols(); ++i) {
-					TargetTransforms[i]->translation(DragTranslation + TargetTransforms[i]->translation());
-				}
-			}
-
+			
+			// apply translation to target points in character controller
 			m_CharacterController.translateTarget(pEndEffector->Segment, DragTranslation);
 		}//dragTarget
 
 		void initCharacter(void) {
 			T3DMesh<float> M;
-			SAssetIO::load("MyAssets/NewModel.gltf", &M);
+			SAssetIO::load("MyAssets/Scaled.gltf", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
-			m_CharacterController.init(&M, "MyAssets/SkeletonConfig.json", Vector3f(0.025f, 0.025f, 0.025f));
+			m_CharacterController.init(&M, "MyAssets/SkeletonConfig.json");
 			m_Character.init(&M, &m_CharacterController);
 			m_CharacterStick.init(&M, &m_CharacterController);
 			M.clear();
 
-			m_CharacterSGN.init(&m_RootSGN, &m_Character, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(0.025f, 0.025f, 0.025f));
-			m_CharacterStickSGN.init(&m_RootSGN, &m_CharacterStick, Vector3f::Zero(), Quaternionf::Identity(), Vector3f(0.025f, 0.025f, 0.025f));
+			m_CharacterSGN.init(&m_RootSGN, &m_Character);
+			m_CharacterStickSGN.init(&m_RootSGN, &m_CharacterStick);
 			m_CharacterStickSGN.enable(true, false);
 		}//initActors
 
@@ -245,7 +228,7 @@ namespace CForge {
 			T3DMesh<float> M;
 
 			// end-effector actors
-			PrimitiveShapeFactory::uvSphere(&M, Vector3f(0.1f, 0.1f, 0.1f), 8, 8);
+			PrimitiveShapeFactory::uvSphere(&M, Vector3f(0.05f, 0.05f, 0.05f), 8, 8);
 			for (uint32_t i = 0; i < M.materialCount(); ++i) {
 				auto* pMat = M.getMaterial(i);
 				pMat->Color = Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
@@ -281,7 +264,7 @@ namespace CForge {
 			M.clear();
 
 			// target actors
-			PrimitiveShapeFactory::cuboid(&M, Vector3f(0.04f, 0.04f, 0.04f), Vector3i(1, 1, 1));
+			PrimitiveShapeFactory::cuboid(&M, Vector3f(0.05f, 0.05f, 0.05f), Vector3i(1, 1, 1));
 			for (uint32_t i = 0; i < M.materialCount(); ++i) {
 				auto* pMat = M.getMaterial(i);
 				pMat->Color = Vector4f(1.0f, 0.4f, 0.9f, 1.0f);
@@ -317,7 +300,7 @@ namespace CForge {
 			M.clear();
 
 			// target aabb actor
-			PrimitiveShapeFactory::cuboid(&M, Vector3f(0.3f, 0.3f, 0.3f), Vector3i(1, 1, 1));
+			PrimitiveShapeFactory::cuboid(&M, Vector3f(0.5f, 0.5f, 0.5f), Vector3i(1, 1, 1));
 			for (uint32_t i = 0; i < M.materialCount(); ++i) {
 				auto* pMat = M.getMaterial(i);
 				pMat->Color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -356,7 +339,7 @@ namespace CForge {
 				TargetTransforms = { nullptr };
 				TargetGeoms = { nullptr };
 
-				for (int j = 0; j < m_EndEffectors[i]->EndEffectorPoints.cols(); ++j) {
+				for (int32_t j = 0; j < m_EndEffectors[i]->EndEffectorPoints.cols(); ++j) {
 					EffectorTransforms[j] = new SGNTransformation();
 					EffectorGeoms[j] = new SGNGeometry();
 					EffectorTransforms[j]->init(&m_EffectorVis, m_EndEffectors[i]->EndEffectorPoints.col(j));
@@ -376,7 +359,7 @@ namespace CForge {
 					TargetGeoms[1]->visualization(SGNGeometry::Visualization::VISUALIZATION_WIREFRAME);
 				}
 				else if (m_EndEffectors[i]->Segment == InverseKinematicsController::SkeletalSegment::SPINE) {
-					for (int j = 0; j < m_EndEffectors[i]->EndEffectorPoints.cols(); ++j) {
+					for (int32_t j = 0; j < m_EndEffectors[i]->EndEffectorPoints.cols(); ++j) {
 						TargetTransforms[j] = new SGNTransformation();
 						TargetGeoms[j] = new SGNGeometry();
 						TargetTransforms[j]->init(&m_TargetVis, m_EndEffectors[i]->TargetPoints.col(j));
@@ -391,8 +374,8 @@ namespace CForge {
 					EffectorGeoms[6]->init(EffectorTransforms[6], &m_EffectorY);
 
 					TargetGeoms[0]->init(TargetTransforms[0], &m_TargetPos);
-					TargetGeoms[1]->init(TargetTransforms[1], &m_EffectorZ);
-					TargetGeoms[2]->init(TargetTransforms[2], &m_EffectorZ);
+					TargetGeoms[1]->init(TargetTransforms[1], &m_TargetZ);
+					TargetGeoms[2]->init(TargetTransforms[2], &m_TargetZ);
 					TargetGeoms[3]->init(TargetTransforms[3], &m_TargetX);
 					TargetGeoms[4]->init(TargetTransforms[4], &m_TargetX);
 					TargetGeoms[5]->init(TargetTransforms[5], &m_TargetY);
@@ -405,7 +388,7 @@ namespace CForge {
 					TargetGeoms[AABBIndex]->visualization(SGNGeometry::Visualization::VISUALIZATION_WIREFRAME);
 				}
 				else {
-					for (int j = 0; j < m_EndEffectors[i]->EndEffectorPoints.cols(); ++j) {
+					for (int32_t j = 0; j < m_EndEffectors[i]->EndEffectorPoints.cols(); ++j) {
 						TargetTransforms[j] = new SGNTransformation();
 						TargetGeoms[j] = new SGNGeometry();
 						EffectorGeoms[j]->init(EffectorTransforms[j], &m_EffectorPos);
@@ -418,8 +401,8 @@ namespace CForge {
 					TargetTransforms[AABBIndex] = new SGNTransformation();
 					TargetGeoms[AABBIndex] = new SGNGeometry();
 
-					Vector3f AABBPos = m_EndEffectors[i]->TargetPoints.colwise().sum();
-					AABBPos /= m_EndEffectors[i]->TargetPoints.rows();
+					Vector3f AABBPos = m_EndEffectors[i]->TargetPoints.rowwise().sum();
+					AABBPos /= m_EndEffectors[i]->TargetPoints.cols();
 					
 					TargetTransforms[AABBIndex]->init(&m_TargetVis, AABBPos);
 					TargetGeoms[AABBIndex]->init(TargetTransforms[AABBIndex], &m_TargetAABB);
@@ -464,7 +447,7 @@ namespace CForge {
 			//TODO: add continuous rotation around random axis to m_ConstraintTestTransformSGN & m_ConstraintTestUnconstrainedSGN -> see rotation of CesiumMan around scene origin in ExampleSkeletalAnimation.hpp
 		}//initDebugActor
 
-		void updateEndEffectorMarkers(void) { //TODO: aktualisieren: Punkte der Dreiecke für Hände und Füße
+		void updateEndEffectorMarkers(void) {
 			m_CharacterController.updateEndEffectorValues(&m_EndEffectors);
 
 			for (int32_t i = 0; i < m_EndEffectors.size(); ++i) {

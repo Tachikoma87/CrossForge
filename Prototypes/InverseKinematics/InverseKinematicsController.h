@@ -59,7 +59,7 @@ namespace CForge {
 		~InverseKinematicsController(void);
 
 		// pMesh has to hold skeletal definition
-		void init(T3DMesh<float>* pMesh, std::string ConfigFilepath, Eigen::Vector3f ActorScaling);
+		void init(T3DMesh<float>* pMesh, std::string ConfigFilepath);
 		void update(float FPSScale);
 		void clear(void);
 
@@ -122,27 +122,26 @@ namespace CForge {
 			Eigen::Vector3f Target;
 		};
 
+		void initJointProperties(T3DMesh<float>* pMesh, const nlohmann::json& ConstraintData);
+		void initSkeletonStructure(T3DMesh<float>* pMesh, const nlohmann::json& StructureData);
+		void buildKinematicChain(SkeletalSegment SegmentID, const nlohmann::json& ChainData);
+		void initEndEffectorPoints(const nlohmann::json& EndEffectorPropertiesData);
+		void initTargetPoints(void);
+
 		// end-effector -> root CCD IK
 		void ikCCD(SkeletalSegment SegmentID);
 		void rotateGaze(void);
 		Eigen::Quaternionf computeUnconstrainedGlobalRotation(Joint* pJoint, InverseKinematicsController::EndEffectorData* pEffData);
 		void constrainLocalRotation(Joint* pJoint);
+		void forwardKinematics(Joint* pJoint);
 
-		void forwardKinematics(Joint* pJoint, Eigen::Vector3f ActorScaling);
 		void updateSkinningMatrices(Joint* pJoint, Eigen::Matrix4f ParentTransform);
 		int32_t jointIDFromName(std::string JointName);
 		
-		void initJointConstraints(const nlohmann::json& ConstraintDefinitions);
-		void buildKinematicChain(SkeletalSegment SegmentID, const nlohmann::json& ChainData);
-		void initEndEffectorPoints(const nlohmann::json& SegmentData);
-		void initTargetPoints(void);
-
 		Joint* m_pRoot;
 		std::vector<Joint*> m_Joints;
 		HeadJoint* m_pHead;
 		std::map<SkeletalSegment, std::vector<Joint*>> m_JointChains; // Joints.front() is end-effector joint
-
-		Eigen::Vector3f m_ActorScaling;
 
 		int32_t m_MaxIterations;
 

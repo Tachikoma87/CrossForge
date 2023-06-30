@@ -58,6 +58,7 @@ namespace CForge {
 			
 			// initialize skeletal actor (Eric) and its animation controller
 			SAssetIO::load("Assets/ExampleScenes/CesiumMan/CesiumMan.gltf", &M);
+			SAssetIO::load("MyAssets/Scaled.gltf", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
 			m_BipedController.init(&M);
@@ -66,18 +67,20 @@ namespace CForge {
 			M.clear();
 
 			// add skeletal actor to scene graph (Eric)			
-			m_CesiumManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, -0.025f, 0.0f));
-			m_CesiumManOffsetSGN.init(&m_CesiumManTransformSGN, Vector3f(0.0f, 0.0f, -8.0f));
+			//m_CesiumManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, -0.025f, 0.0f));
+			//m_CesiumManOffsetSGN.init(&m_CesiumManTransformSGN, Vector3f(0.0f, 0.0f, -8.0f));
+			m_CesiumManTransformSGN.init(&m_RootSGN);
+			m_CesiumManOffsetSGN.init(&m_CesiumManTransformSGN);
 			m_CesiumManSGN.init(&m_CesiumManOffsetSGN, &m_CesiumMan);
-			m_CesiumManSGN.scale(Vector3f(3.0f, 3.0f, 3.0f));
+			//m_CesiumManSGN.scale(Vector3f(3.0f, 3.0f, 3.0f));
 			m_CesiumManStickSGN.init(&m_CesiumManOffsetSGN, &m_CesiumManStick);
-			m_CesiumManStickSGN.scale(Vector3f(3.0f, 3.0f, 3.0f));
+			//m_CesiumManStickSGN.scale(Vector3f(3.0f, 3.0f, 3.0f));
 			m_CesiumManStickSGN.enable(true, false);
 
-			Quaternionf Rot;
+			/*Quaternionf Rot;
 			Rot = AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX());
 			m_CesiumManSGN.rotation(Rot);
-			m_CesiumManStickSGN.rotation(Rot);
+			m_CesiumManStickSGN.rotation(Rot);*/
 
 			LineOfText* pKeybindings = new LineOfText();
 			LineOfText* pAnimationControls = new LineOfText();
@@ -111,13 +114,13 @@ namespace CForge {
 				auto* pAnim = m_CesiumMan.activeAnimation();
 				if (pAnim->t >= pAnim->Duration) pAnim->t -= pAnim->Duration;
 			}
-			if (nullptr != m_CesiumMan.activeAnimation()) {
+			/*if (nullptr != m_CesiumMan.activeAnimation()) {
 				Quaternionf Q;
 
 				float Deg = m_CesiumMan.activeAnimation()->Speed/50.0f;
 				Q = AngleAxisf(CForgeMath::degToRad(-Deg), Vector3f::UnitY());
 				m_CesiumManTransformSGN.rotation(Q * m_CesiumManTransformSGN.rotation());
-			}
+			}*/
 
 			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
