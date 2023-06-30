@@ -596,15 +596,9 @@ namespace CForge {
 			case RIGHT_LEG:
 			case LEFT_LEG:
 			case SPINE: {
-				i->EndEffectorPoints = m_JointChains.at(i->Segment).front()->pEndEffectorData->GlobalEndEffectorPoints;
-				i->TargetPoints = m_JointChains.at(i->Segment).front()->pEndEffectorData->GlobalTargetPoints;
-
-				// test
-				std::vector<Vector3f> Points;
-				for (int j = 0; j < m_JointChains.at(i->Segment).front()->pEndEffectorData->GlobalEndEffectorPoints.cols(); ++j) {
-					Points.push_back(m_JointChains.at(i->Segment).front()->pEndEffectorData->GlobalEndEffectorPoints.col(j));
-				}
-
+				Joint* pEff = m_JointChains.at(i->Segment).front();
+				i->EndEffectorPoints = pEff->pEndEffectorData->GlobalEndEffectorPoints;
+				i->TargetPoints = pEff->pEndEffectorData->GlobalTargetPoints;
 				break;
 			}
 			}

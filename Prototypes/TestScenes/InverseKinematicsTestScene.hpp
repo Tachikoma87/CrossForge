@@ -41,6 +41,8 @@ namespace CForge {
 			initCharacter(); // initialize character & animation controller
 			initEndEffectorMarkers(); // initialize end-effector & target markers
 			initDebugActor(); // initialize debug actor (axis model)
+			initHingeTest();
+			initBallAndSocketTest();
 
 			LineOfText* pKeybindings = new LineOfText();
 			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement:(Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
@@ -156,7 +158,7 @@ namespace CForge {
 				auto* pEndEffector = m_EndEffectors[i];
 				auto& TargetTransforms = m_TargetTransformSGNs.at(pEndEffector->Segment);
 
-				int32_t AABBIndex = (pEndEffector->Segment == InverseKinematicsController::HEAD || InverseKinematicsController::SPINE) ? 0 : pEndEffector->TargetPoints.cols();
+				int32_t AABBIndex = (pEndEffector->Segment == InverseKinematicsController::HEAD || pEndEffector->Segment == InverseKinematicsController::SPINE) ? 0 : pEndEffector->TargetPoints.cols();
 				Vector3f AABBPos = TargetTransforms[AABBIndex]->translation();
 				AlignedBox3f TranslatedAABB = AlignedBox3f(m_TargetMarkerAABB.min() + AABBPos, m_TargetMarkerAABB.max() + AABBPos);
 
@@ -188,7 +190,7 @@ namespace CForge {
 			igl::unproject_ray(CursorPos, View, Projection, Viewport, RayOrigin, RayDirection);
 			RayDirection.normalize();
 
-			int32_t AABBIndex = (pEndEffector->Segment == InverseKinematicsController::HEAD || InverseKinematicsController::SPINE) ? 0 : pEndEffector->TargetPoints.cols();
+			int32_t AABBIndex = (pEndEffector->Segment == InverseKinematicsController::HEAD || pEndEffector->Segment == InverseKinematicsController::SPINE) ? 0 : pEndEffector->TargetPoints.cols();
 			Vector3f AABBPos = TargetTransforms[AABBIndex]->translation();
 
 			Vector3f DragPlaneNormal = m_Cam.dir();
@@ -411,42 +413,6 @@ namespace CForge {
 			}
 		}//initEndEffectorMarkers
 
-		void initDebugActor(void) {
-			T3DMesh<float> M;
-			SAssetIO::load("MyAssets/JointMarker.gltf", &M);
-			setMeshShader(&M, 0.7f, 0.04f);
-			M.computePerVertexNormals();
-			m_CoordAxes.init(&M);
-			M.clear();
-
-			m_CoordAxesTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 0.15f, 0.0f));
-			m_CoordAxesSGN.init(&m_CoordAxesTransformSGN, &m_CoordAxes);
-
-			m_PosXRotTransformSGN.init(&m_RootSGN, Vector3f(-3.0f, 0.15f, 6.0f)); //TODO: add 45° rotation according to node name
-			m_PosXRotSGN.init(&m_PosXRotTransformSGN, &m_CoordAxes);
-			
-			m_NegXRotTransformSGN.init(&m_RootSGN, Vector3f(-2.0f, 0.15f, 6.0f)); //TODO: add 45° rotation according to node name
-			m_NegXRotSGN.init(&m_NegXRotTransformSGN, &m_CoordAxes);
-			
-			m_PosYRotTransformSGN.init(&m_RootSGN, Vector3f(-1.0f, 0.15f, 6.0f)); //TODO: add 45° rotation according to node name
-			m_PosYRotSGN.init(&m_PosYRotTransformSGN, &m_CoordAxes);
-			
-			m_NegYRotTransformSGN.init(&m_RootSGN, Vector3f(1.0f, 0.15f, 6.0f)); //TODO: add 45° rotation according to node name
-			m_NegYRotSGN.init(&m_NegYRotTransformSGN, &m_CoordAxes);
-			
-			m_PosZRotTransformSGN.init(&m_RootSGN, Vector3f(2.0f, 0.15f, 6.0f)); //TODO: add 45° rotation according to node name
-			m_PosZRotSGN.init(&m_PosZRotTransformSGN, &m_CoordAxes);
-			
-			m_NegZRotTransformSGN.init(&m_RootSGN, Vector3f(3.0f, 0.15f, 6.0f)); //TODO: add 45° rotation according to node name
-			m_NegZRotSGN.init(&m_NegZRotTransformSGN, &m_CoordAxes);
-
-			m_ConstraintTestTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 1.5f, 6.0f));
-			m_ConstraintTestSGN.init(&m_ConstraintTestTransformSGN, &m_CoordAxes);
-			m_ConstraintTestUnconstrainedTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 3.5f, 6.0f));
-			m_ConstraintTestunconstrainedSGN.init(&m_ConstraintTestUnconstrainedTransformSGN, &m_CoordAxes);
-			//TODO: add continuous rotation around random axis to m_ConstraintTestTransformSGN & m_ConstraintTestUnconstrainedSGN -> see rotation of CesiumMan around scene origin in ExampleSkeletalAnimation.hpp
-		}//initDebugActor
-
 		void updateEndEffectorMarkers(void) {
 			m_CharacterController.updateEndEffectorValues(&m_EndEffectors);
 
@@ -459,11 +425,62 @@ namespace CForge {
 			}
 		}//updateEndEffectorMarkers
 
-		void testRotationConstraints(void) {
-			
-			//TODO: constrain continuously rotating m_RotationConstraintTestTransformSGN by adding constraints
+		void initDebugActor(void) {
+			T3DMesh<float> M;
+			SAssetIO::load("MyAssets/JointMarker.gltf", &M);
+			setMeshShader(&M, 0.7f, 0.04f);
+			M.computePerVertexNormals();
+			m_CoordAxes.init(&M);
+			M.clear();
 
-		}//testRotationConstraints
+			m_CoordAxesTransform.init(&m_RootSGN, Vector3f(0.0f, 0.15f, 0.0f));
+			m_CoordAxesGeom.init(&m_CoordAxesTransform, &m_CoordAxes);
+		}//initDebugActor
+
+		void initHingeTest(void) {
+			m_HingeTransform[0].init(&m_RootSGN, Vector3f(-3.0f, 1.0f, 6.0f));	// unconstrained
+			m_HingeTransform[1].init(&m_RootSGN, Vector3f(-3.0f, 4.0f, 6.0f));	// constrained
+			m_HingeGeom[0].init(&m_HingeTransform[0], &m_CoordAxes);			// unconstrained
+			m_HingeGeom[1].init(&m_HingeTransform[1], &m_CoordAxes);			// constrained
+
+			//TODO: add continuous rotation around random axis to m_ConstraintTestTransformSGN & m_ConstraintTestUnconstrainedSGN 
+			//		-> see rotation of CesiumMan around scene origin in ExampleSkeletalAnimation.hpp
+
+			m_HingeContinuousRot = Quaternionf::Identity(); //TODO: use this to continuously rotate m_HingeTransform[0] & m_HingeTransform[1]!
+
+			m_HingeAxis = Vector3f(1.0f, 1.0f, 1.0f);
+			m_HingeAxis.normalize();
+
+			m_HingeMinAngle = 45.0f;	//TODO
+			m_HingeMaxAngle = 270.0f;	//TODO
+		}//initHingeTest
+
+		void initBallAndSocketTest(void) {
+			m_BallAndSocketTransform[0].init(&m_RootSGN, Vector3f(3.0f, 1.0f, 6.0f));	// unconstrained
+			m_BallAndSocketTransform[1].init(&m_RootSGN, Vector3f(3.0f, 4.0f, 6.0f));	// constrained
+			m_BallAndSocketGeom[0].init(&m_BallAndSocketTransform[0], &m_CoordAxes);	// unconstrained
+			m_BallAndSocketGeom[1].init(&m_BallAndSocketTransform[1], &m_CoordAxes);	// constrained
+
+			//TODO: add continuous rotation around random axis to m_ConstraintTestTransformSGN & m_ConstraintTestUnconstrainedSGN 
+			//		-> see rotation of CesiumMan around scene origin in ExampleSkeletalAnimation.hpp
+
+			m_BallAndSocketContinuousRot = Quaternionf::Identity(); //TODO: use this to continuously rotate m_BallAndSocketTransform[0] & m_BallAndSocketTransform[1]!
+
+			//TODO: initialize constraint parameters here
+
+		}//initBallAndSocketTest
+
+		void testHingeConstraint(void) {
+
+			//TODO: constrain continuously rotating m_HingeTransform[1] by adding constraints
+
+		}//testHingeConstraint
+
+		void testBallAndSocketConstraint(void) {
+
+			//TODO: constrain continuously rotating m_BallAndSocketTransform[1] by adding constraints
+
+		}//testBallAndSocketConstraint
 
 		void showMarkers(bool Visible) {
 			m_EffectorVis.enable(true, Visible);
@@ -471,15 +488,11 @@ namespace CForge {
 		}//showMarkers
 
 		void showTestModels(bool Visible) {
-			m_CoordAxesSGN.enable(true, Visible);
-			m_PosXRotSGN.enable(true, Visible);
-			m_NegXRotSGN.enable(true, Visible);
-			m_PosYRotSGN.enable(true, Visible);
-			m_NegYRotSGN.enable(true, Visible);
-			m_PosZRotSGN.enable(true, Visible);
-			m_NegZRotSGN.enable(true, Visible);
-			m_ConstraintTestSGN.enable(true, Visible);
-			m_ConstraintTestunconstrainedSGN.enable(true, Visible);
+			m_CoordAxesTransform.enable(true, Visible);
+			m_HingeTransform[0].enable(true, Visible);
+			m_HingeTransform[1].enable(true, Visible);
+			m_BallAndSocketTransform[0].enable(true, Visible);
+			m_BallAndSocketTransform[1].enable(true, Visible);
 		}//showTestModels
 
 		SGNTransformation m_RootSGN;
@@ -505,30 +518,23 @@ namespace CForge {
 		StaticActor m_TargetPos, m_TargetX, m_TargetY, m_TargetZ, m_TargetAABB;
 		AlignedBox3f m_TargetMarkerAABB;
 
-		// for debugging / testing
-		StaticActor m_CoordAxes;
-		SGNGeometry m_CoordAxesSGN;
-		SGNTransformation m_CoordAxesTransformSGN;
-		SGNGeometry m_PosXRotSGN;
-		SGNTransformation m_PosXRotTransformSGN;
-		SGNGeometry m_NegXRotSGN;
-		SGNTransformation m_NegXRotTransformSGN;
-		SGNGeometry m_PosYRotSGN;
-		SGNTransformation m_PosYRotTransformSGN;
-		SGNGeometry m_NegYRotSGN;
-		SGNTransformation m_NegYRotTransformSGN;
-		SGNGeometry m_PosZRotSGN;
-		SGNTransformation m_PosZRotTransformSGN;
-		SGNGeometry m_NegZRotSGN;
-		SGNTransformation m_NegZRotTransformSGN;
-		SGNGeometry m_ConstraintTestSGN;
-		SGNTransformation m_ConstraintTestTransformSGN;
-		SGNGeometry m_ConstraintTestunconstrainedSGN;
-		SGNTransformation m_ConstraintTestUnconstrainedTransformSGN;
-
 		int32_t m_SelectedEffectorTarget; // index into m_EndEffectors vector; NOT id of joint inside m_CharacterController
 		bool m_LMBDownLastFrame;
 		Vector3f m_DragStart;
+
+		// for debugging / testing
+		StaticActor m_CoordAxes;
+		SGNTransformation m_CoordAxesTransform;
+		SGNGeometry m_CoordAxesGeom;
+		std::array<SGNTransformation, 2> m_HingeTransform;
+		std::array <SGNGeometry, 2> m_HingeGeom;
+		Quaternionf m_HingeContinuousRot;
+		Vector3f m_HingeAxis;
+		float m_HingeMinAngle;
+		float m_HingeMaxAngle;
+		std::array<SGNTransformation, 2> m_BallAndSocketTransform;
+		std::array <SGNGeometry, 2> m_BallAndSocketGeom;
+		Quaternionf m_BallAndSocketContinuousRot;
 	};//InverseKinematicsTestScene
 
 	
