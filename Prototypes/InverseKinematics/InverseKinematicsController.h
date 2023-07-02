@@ -110,10 +110,20 @@ namespace CForge {
 			Joint* pParent;
 			std::vector<Joint*> Children;
 			EndEffectorData* pEndEffectorData;
+
+			// data for constraints
 			ConstraintType ConstraintType;
-			Eigen::Vector3f LocalHingeAxis;
-			
-			//TODO: constraint data...
+			Eigen::Vector3f RestBoneDir;	// relative to parent joint
+			Eigen::Vector3f CurrentBoneDir; // relative to parent joint
+
+			// hinge constraint
+			Eigen::Vector3f HingeAxis;
+			Eigen::Vector3f HingeAxisInParentSpace;
+			float MaxAngle; // in radians
+			float MinAngle; // in radians
+						
+			// ball-and-socket constraint
+			//TODO...
 		};
 		
 		struct HeadJoint {

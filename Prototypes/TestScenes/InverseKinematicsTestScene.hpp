@@ -40,10 +40,9 @@ namespace CForge {
 			initSkybox();
 			initCharacter(); // initialize character & animation controller
 			initEndEffectorMarkers(); // initialize end-effector & target markers
-			initDebugActor(); // initialize debug actor (axis model)
-			initHingeTest();
-			initBallAndSocketTest();
-
+			initTestActors();
+			initRotationTest();
+			
 			LineOfText* pKeybindings = new LineOfText();
 			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement:(Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
 			m_HelpTexts.push_back(pKeybindings);
@@ -93,6 +92,9 @@ namespace CForge {
 			m_CharacterController.update(60.0f / m_FPS);
 			updateEndEffectorMarkers();
 			
+			// testing
+			testRotations();
+			
 			if (m_RenderWin.mouse()->buttonState(Mouse::BTN_LEFT)) {
 				if (!m_LMBDownLastFrame) pickTarget();
 				if (m_SelectedEffectorTarget > -1) dragTarget();
@@ -119,11 +121,9 @@ namespace CForge {
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 			m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
 			showMarkers(false);
-			showTestModels(false);
 			m_SG.render(&m_RenderDev);
 			showMarkers(true);
-			showTestModels(true);
-
+			
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			m_RenderDev.activeCamera(&m_Cam);
 			m_SG.render(&m_RenderDev);
@@ -425,7 +425,7 @@ namespace CForge {
 			}
 		}//updateEndEffectorMarkers
 
-		void initDebugActor(void) {
+		void initTestActors(void) {
 			T3DMesh<float> M;
 			SAssetIO::load("MyAssets/JointMarker.gltf", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
@@ -433,67 +433,59 @@ namespace CForge {
 			m_CoordAxes.init(&M);
 			M.clear();
 
-			m_CoordAxesTransform.init(&m_RootSGN, Vector3f(0.0f, 0.15f, 0.0f));
-			m_CoordAxesGeom.init(&m_CoordAxesTransform, &m_CoordAxes);
+			PrimitiveShapeFactory::cylinder(&M, Vector2f(0.1f, 0.1f), Vector2f(0.1f, 0.1f), 3.0f, 8, Vector2f(0.0f, 0.0f));
+			for (uint32_t i = 0; i < M.materialCount(); ++i) {
+				auto* pMat = M.getMaterial(i);
+				pMat->VertexShaderForwardPass.push_back("Shader/ForwardPassPBS.vert");
+				pMat->FragmentShaderForwardPass.push_back("Shader/ForwardPassPBS.frag");
+				pMat->VertexShaderGeometryPass.push_back("Shader/BasicGeometryPass.vert");
+				pMat->FragmentShaderGeometryPass.push_back("Shader/BasicGeometryPass.frag");
+				pMat->VertexShaderShadowPass.push_back("Shader/ShadowPassShader.vert");
+				pMat->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");
+				CForgeUtility::defaultMaterial(pMat, CForgeUtility::STONE_YELLOW);
+			}
+			M.computePerVertexNormals();
+			m_Bone.init(&M);
+
+			for (uint32_t i = 0; i < M.materialCount(); ++i) {
+				auto* pMat = M.getMaterial(i);
+				CForgeUtility::defaultMaterial(pMat, CForgeUtility::STONE_WHITE);
+			}
+			m_BoneDefault.init(&M);
+			
+			for (uint32_t i = 0; i < M.materialCount(); ++i) {
+				auto* pMat = M.getMaterial(i);
+				CForgeUtility::defaultMaterial(pMat, CForgeUtility::STONE_BLUE);
+			}
+			m_BoneMin.init(&M);
+
+			for (uint32_t i = 0; i < M.materialCount(); ++i) {
+				auto* pMat = M.getMaterial(i);
+				CForgeUtility::defaultMaterial(pMat, CForgeUtility::STONE_GREEN);
+			}
+			m_BoneMax.init(&M);
+
+			for (uint32_t i = 0; i < M.materialCount(); ++i) {
+				auto* pMat = M.getMaterial(i);
+				CForgeUtility::defaultMaterial(pMat, CForgeUtility::STONE_RED);
+			}
+			m_BoneHinge.init(&M);
+
+			M.clear();
 		}//initDebugActor
 
-		void initHingeTest(void) {
-			m_HingeTransform[0].init(&m_RootSGN, Vector3f(-3.0f, 1.0f, 6.0f));	// unconstrained
-			m_HingeTransform[1].init(&m_RootSGN, Vector3f(-3.0f, 4.0f, 6.0f));	// constrained
-			m_HingeGeom[0].init(&m_HingeTransform[0], &m_CoordAxes);			// unconstrained
-			m_HingeGeom[1].init(&m_HingeTransform[1], &m_CoordAxes);			// constrained
+		void initRotationTest(void) {
 
-			//TODO: add continuous rotation around random axis to m_ConstraintTestTransformSGN & m_ConstraintTestUnconstrainedSGN 
-			//		-> see rotation of CesiumMan around scene origin in ExampleSkeletalAnimation.hpp
+		}//initRotationTest
 
-			m_HingeContinuousRot = Quaternionf::Identity(); //TODO: use this to continuously rotate m_HingeTransform[0] & m_HingeTransform[1]!
+		void testRotations(void) {				
 
-			m_HingeAxis = Vector3f(1.0f, 1.0f, 1.0f);
-			m_HingeAxis.normalize();
-
-			m_HingeMinAngle = 45.0f;	//TODO
-			m_HingeMaxAngle = 270.0f;	//TODO
-		}//initHingeTest
-
-		void initBallAndSocketTest(void) {
-			m_BallAndSocketTransform[0].init(&m_RootSGN, Vector3f(3.0f, 1.0f, 6.0f));	// unconstrained
-			m_BallAndSocketTransform[1].init(&m_RootSGN, Vector3f(3.0f, 4.0f, 6.0f));	// constrained
-			m_BallAndSocketGeom[0].init(&m_BallAndSocketTransform[0], &m_CoordAxes);	// unconstrained
-			m_BallAndSocketGeom[1].init(&m_BallAndSocketTransform[1], &m_CoordAxes);	// constrained
-
-			//TODO: add continuous rotation around random axis to m_ConstraintTestTransformSGN & m_ConstraintTestUnconstrainedSGN 
-			//		-> see rotation of CesiumMan around scene origin in ExampleSkeletalAnimation.hpp
-
-			m_BallAndSocketContinuousRot = Quaternionf::Identity(); //TODO: use this to continuously rotate m_BallAndSocketTransform[0] & m_BallAndSocketTransform[1]!
-
-			//TODO: initialize constraint parameters here
-
-		}//initBallAndSocketTest
-
-		void testHingeConstraint(void) {
-
-			//TODO: constrain continuously rotating m_HingeTransform[1] by adding constraints
-
-		}//testHingeConstraint
-
-		void testBallAndSocketConstraint(void) {
-
-			//TODO: constrain continuously rotating m_BallAndSocketTransform[1] by adding constraints
-
-		}//testBallAndSocketConstraint
+		}//testRotations
 
 		void showMarkers(bool Visible) {
 			m_EffectorVis.enable(true, Visible);
 			m_TargetVis.enable(true, Visible);
 		}//showMarkers
-
-		void showTestModels(bool Visible) {
-			m_CoordAxesTransform.enable(true, Visible);
-			m_HingeTransform[0].enable(true, Visible);
-			m_HingeTransform[1].enable(true, Visible);
-			m_BallAndSocketTransform[0].enable(true, Visible);
-			m_BallAndSocketTransform[1].enable(true, Visible);
-		}//showTestModels
 
 		SGNTransformation m_RootSGN;
 
@@ -524,17 +516,13 @@ namespace CForge {
 
 		// for debugging / testing
 		StaticActor m_CoordAxes;
-		SGNTransformation m_CoordAxesTransform;
-		SGNGeometry m_CoordAxesGeom;
-		std::array<SGNTransformation, 2> m_HingeTransform;
-		std::array <SGNGeometry, 2> m_HingeGeom;
-		Quaternionf m_HingeContinuousRot;
-		Vector3f m_HingeAxis;
-		float m_HingeMinAngle;
-		float m_HingeMaxAngle;
-		std::array<SGNTransformation, 2> m_BallAndSocketTransform;
-		std::array <SGNGeometry, 2> m_BallAndSocketGeom;
-		Quaternionf m_BallAndSocketContinuousRot;
+		StaticActor m_Bone;
+		StaticActor m_BoneDefault;
+		StaticActor m_BoneMin;
+		StaticActor m_BoneMax;
+		StaticActor m_BoneHinge;
+		std::array<SGNTransformation, 2> m_BoneTransform;
+		std::array<SGNGeometry, 6> m_BoneGeom;
 	};//InverseKinematicsTestScene
 
 	

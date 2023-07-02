@@ -146,8 +146,17 @@ namespace CForge {
 
 			if (Type == "Hinge") {
 				pJoint->ConstraintType = HINGE;
-				//TODO: set constraint properties
-				//...
+				std::string Axis = JointData.at("LocalHingeAxis").get<std::string>();
+				if (Axis == "x") pJoint->HingeAxis = Vector3f(1.0f, 0.0f, 0.0f);
+				if (Axis == "y") pJoint->HingeAxis = Vector3f(0.0f, 1.0f, 0.0f);
+				if (Axis == "z") pJoint->HingeAxis = Vector3f(0.0f, 0.0f, 1.0f);
+				if (Axis == "-x") pJoint->HingeAxis = Vector3f(-1.0f, 0.0f, 0.0f);
+				if (Axis == "-y") pJoint->HingeAxis = Vector3f(0.0f, -1.0f, 0.0f);
+				if (Axis == "-z") pJoint->HingeAxis = Vector3f(0.0f, 0.0f, -1.0f);
+				pJoint->HingeAxisInParentSpace = pJoint->LocalRotation * pJoint->HingeAxis;
+
+
+				//TODO: min/max angles
 			}
 
 			if (Type == "BallAndSocket") {
@@ -320,7 +329,7 @@ namespace CForge {
 		for (int32_t i = 0; i < m_MaxIterations; ++i) {
 			LastEndEffectorPoints = pEffData->GlobalEndEffectorPoints;
 
-			for (int32_t k = 0; k < Chain.size(); ++k) {
+			for (int32_t k = 0; k < Chain.size() - 1; ++k) {
 				Joint* pCurrent = Chain[k];
 
 				// compute unconstrained global rotation that best aligns position and orientation of end effector with desired target values
@@ -331,7 +340,7 @@ namespace CForge {
 				pCurrent->LocalRotation = (pCurrent == m_pRoot) ? NewGlobalRotation : pCurrent->pParent->GlobalRotation.inverse() * NewGlobalRotation;
 				
 				// apply joint constraints to local rotation
-				//constrainLocalRotation(pCurrent); //TODO
+				constrainLocalRotation(pCurrent); //TODO
 
 				// update kinematic chain
 				forwardKinematics(pCurrent);
@@ -363,7 +372,7 @@ namespace CForge {
 
 			// compute local joint rotation and constrain
 			pJoint->LocalRotation = pJoint->pParent->GlobalRotation.inverse() * (GlobalIncrement * pJoint->GlobalRotation);
-			//constrainLocalRotation(pJoint); //TODO
+			constrainLocalRotation(pJoint); //TODO
 
 			// compute new global joint rotation and apply to gaze direction
 			forwardKinematics(pJoint);
@@ -451,19 +460,21 @@ namespace CForge {
 		if (pJoint->ConstraintType == HINGE) {
 			
 			// enforce rotation around hinge axis
-			Vector3f RotatedAxis = pJoint->LocalRotation * pJoint->LocalHingeAxis; //TODO: is LocalHingeAxis correct?
-			Quaternionf HingeEnforcement;
-			HingeEnforcement.setFromTwoVectors(RotatedAxis, pJoint->LocalHingeAxis);
-			Quaternionf AxisConstrainedLocalRotation = HingeEnforcement * pJoint->LocalRotation; //TODO: is this the correct order of rotations?
+			Vector3f CurrentHingeInParentSpace = pJoint->LocalRotation * pJoint->HingeAxis;
+
+			Quaternionf FromTo;
+			FromTo.setFromTwoVectors(CurrentHingeInParentSpace, pJoint->HingeAxisInParentSpace);
+
+			Quaternionf AxisConstrainedLocalRotation = FromTo * pJoint->LocalRotation;
+			AxisConstrainedLocalRotation.normalize();
 			pJoint->LocalRotation = AxisConstrainedLocalRotation;
 					
-			//TODO:
-			// enforce angle limits:
-			// ==> using Eigen::AngleAxisf:
-			//		==> AngleAxisf RotAngleAxis = pJoint->LocalRotation (this assignment automatically decomposes the quaternion into an axis vector and an angle value)
-			//		==> clamp Angle to min/max values stored in pJoint
-			//		==> reconstruct quaternion using Eigen::AngleAxisf and assign as new pJoint->LocalRotation
+			AngleAxisf AA = AngleAxisf(pJoint->LocalRotation);
+			Vector3f Axis = AA.axis();
+			float Angle = CForgeMath::radToDeg(AA.angle());
 
+			//TODO: enforce angle limits
+			//...
 		}
 		else if (pJoint->ConstraintType == BALL_AND_SOCKET) {
 			//TODO
