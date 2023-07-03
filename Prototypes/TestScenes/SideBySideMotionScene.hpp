@@ -165,16 +165,14 @@ namespace CForge {
 
 			m_Combinations.push_back(pair<int32_t, int32_t>(8, 9));*/
 
-			m_MotionFiles.push_back("MyAssets/2023-06-14/0_m_54_o.bvh");
-			m_MotionFiles.push_back("MyAssets/2023-06-14/1_f_63_o.bvh");
-			m_MotionFiles.push_back("MyAssets/2023-06-14/2_m_54.bvh");
-			m_MotionFiles.push_back("MyAssets/2023-06-14/3_m_54_n.bvh");
-			m_MotionFiles.push_back("MyAssets/2023-06-14/4_f_63.bvh");
-			m_MotionFiles.push_back("MyAssets/2023-06-14/5_f_63_n.bvh");
+			m_MotionFiles.push_back("MyAssets/2023-06-23/0_m_54.bvh");
+			m_MotionFiles.push_back("MyAssets/2023-06-23/1_m_54_neutral.bvh");
+			m_MotionFiles.push_back("MyAssets/2023-06-23/2_f_63.bvh");
+			m_MotionFiles.push_back("MyAssets/2023-06-23/3_f_63_neutral.bvh");
+			
 
 			m_Combinations.push_back(pair<int32_t, int32_t>(1, 0));
 			m_Combinations.push_back(pair<int32_t, int32_t>(3, 2));
-			m_Combinations.push_back(pair<int32_t, int32_t>(5, 4));
 
 		}//initialize
 

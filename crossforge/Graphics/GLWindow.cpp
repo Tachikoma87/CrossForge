@@ -305,4 +305,15 @@ namespace CForge {
 		return m_Fullscreen;
 	}//fullscreen
 
+	void GLWindow::hideMouseCursor(bool Hide) {
+		GLFWwindow* pWin = static_cast<GLFWwindow*>(m_pHandle);
+		if(Hide) glfwSetInputMode(pWin, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		else glfwSetInputMode(pWin, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}//hideMouseCursor
+
+	bool GLWindow::isMouseCursorHidden(void)const {
+		GLFWwindow* pWin = static_cast<GLFWwindow*>(m_pHandle);
+		auto Mode = glfwGetInputMode(pWin, GLFW_CURSOR);
+		return (Mode != GLFW_CURSOR_NORMAL);
+	}//isMouseCursorHidden
 }//name space

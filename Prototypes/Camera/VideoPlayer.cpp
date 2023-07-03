@@ -254,5 +254,8 @@ namespace CForge {
 		return Rval;
 	}//size
 
+	bool VideoPlayer::finished(void)const {
+		return m_FinishedPlaying;
+	}//finished
 	
 }//name space

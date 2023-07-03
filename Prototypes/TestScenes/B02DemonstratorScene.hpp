@@ -56,12 +56,13 @@ namespace CForge {
 			m_Cam.projectionMatrix(m_WinWidth, m_WinHeight, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
 			// initialize sun (key light) and back ground light (fill light)
-			Vector3f SunPos = Vector3f(-15.0f, 15.0f, 25.0f);
+			Vector3f SunPos = Vector3f(15.0f, 35.0f, 25.0f);
 			Vector3f BGLightPos = Vector3f(0.0f, 5.0f, -30.0f);
 			m_Sun.init(SunPos, -SunPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 5.0f);
 			// sun will cast shadows
 			//m_Sun.initShadowCasting(1024, 1024, GraphicsUtility::orthographicProjection(30.0f, 30.0f, 0.1f, 1000.0f));
-			m_Sun.initShadowCasting(1024, 1024, Vector2i(30, 30), 01.f, 1000.0f);
+			int32_t ShadowMapScale = 2;
+			m_Sun.initShadowCasting(1024 * ShadowMapScale, 1024*ShadowMapScale, Vector2i(35, 35), 01.f, 1000.0f);
 			m_BGLight.init(BGLightPos, -BGLightPos.normalized(), Vector3f(1.0f, 1.0f, 1.0f), 1.5f, Vector3f(0.0f, 0.0f, 0.0f));
 
 			// set camera and lights
@@ -109,9 +110,9 @@ namespace CForge {
 			m_FemaleVideos.push_back("12_2.mp4");
 
 
-			m_TitleText.init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 40, true, false), "Text");
+			m_TitleText.init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SERIF, 40, true, false), "Text");
 			m_TitleText.color(0.0f, 0.0f, 0.0f);
-			m_TitleText.text("B02 Demonstrator - Disguising Undesired Cues in Motion");
+			m_TitleText.text("B02 - Synthesizing Gait Movements using Motion Signatures");
 			m_TitleText.position(m_RenderWin.width() / 2 - m_TitleText.textWidth()/2, 15);
 
 			T3DMesh<float> M;
@@ -153,40 +154,25 @@ namespace CForge {
 
 
 			alignDashboardTiles();
+
+			initDisplayModels();
+
+			// create background characters
+			for (uint32_t i = 0; i < 15; ++i) {
+				Actor* pA = new Actor();
+
+				pA->TransformSGN.init(&m_RootSGN);
+				pA->GeomSGN.init(&pA->TransformSGN, nullptr);
+				pA->GeomSGN.scale(Vector3f(0.025f, 0.025f, 0.025f));
+				m_BackgroundCharacters.push_back(pA);
+
+			}//for[characters]
 			
-			// load model to show in background
-			SAssetIO::load("MyAssets/B02Demonstrator/ModelNewSkeleton.gltf", &M);
-			setMeshShader(&M, 0.6f, 0.04f);
-			M.getMaterial(0)->TexAlbedo = "MyAssets/MHTextures/young_lightskinned_female_diffuse.png";
-			M.getMaterial(1)->TexAlbedo = "MyAssets/MHTextures/female_casualsuit01_diffuse.png";
-			M.getMaterial(1)->TexNormal = "MyAssets/MHTextures/female_casualsuit01_normal.png";
-
-			M.getMaterial(2)->TexAlbedo = "MyAssets/MHTextures/brown_eye.jpg";
-			M.getMaterial(3)->TexAlbedo = "MyAssets/MHTextures/shoes06_diffuse.jpg";
-
-			M.computePerVertexNormals();
-			M.computePerVertexTangents();
-			m_CharacterController.init(&M, true);
-			m_Character.init(&M, &m_CharacterController);
-			BoundingVolume BV;
-			m_Character.boundingVolume(BV);
-			M.clear();
-
-			// insert in scene graph
-
-			float CharacterScale = 0.025f;
-			Quaternionf CharacterRot;
-			CharacterRot = Quaternionf::Identity();
-			CharacterRot = AngleAxisf(CForgeMath::degToRad(20.0f), Vector3f::UnitY());
-			m_CharacterTransformSGN.init(&m_RootSGN);
-			Quaternionf R;
-			R = AngleAxisf(CForgeMath::degToRad(60.0f), Vector3f::UnitY());
-			m_CharacterTransformSGN.rotation(R);
-			m_CharacterTransformSGN.translation(Vector3f(-20.0f, 0.0f, -30.0f));
-			m_CharacterSGN.init(&m_CharacterTransformSGN, &m_Character, Vector3f(0.0f, 0.0f, 15.0f), CharacterRot, Vector3f(CharacterScale, CharacterScale, CharacterScale));
 
 			m_LastFPSPrint = CForgeUtility::timestamp();
 			m_FPS = 60.0f;
+			m_LastCharacterSpawn = CForgeUtility::timestamp();
+			m_LastInteraction = CForgeUtility::timestamp();
 
 			// set study videos
 			std::string BasePath = "MyAssets/B02Demonstrator/Study_Videos/";
@@ -199,6 +185,45 @@ namespace CForge {
 			m_DemoState = STATE_DASHBOARD;
 
 		}//initialize
+
+		void updateBackgroundCharacters(void) {
+
+			for (auto i : m_BackgroundCharacters) {
+				i->AnimationController.update(std::max(60.0f / m_FPS, 0.5f));
+				if (i->Character.activeAnimation() == nullptr || i->Character.activeAnimation()->Finished) i->GeomSGN.enable(true, false);
+			}//for[background characters]
+
+			// try to spawn new character?
+			if (CForgeUtility::timestamp() - m_LastCharacterSpawn > 2500) {
+
+				for (auto i : m_BackgroundCharacters) {
+					if (i->Character.activeAnimation() == nullptr || i->Character.activeAnimation()->Finished) {
+						// need to spawn character
+						std::string File = string("MyAssets/B02Demonstrator/GeneratedMotions/") + ((CForgeMath::rand() % 2) ? "m" : "f") + string("_") + std::to_string(CForgeMath::rand() % 11) + ".bvh";
+
+						float OffsetRange = 4.0f;
+
+						Vector3f Pos = Vector3f(-25.0f, 0.0f, -20.0f);
+						Pos += Vector3f(CForgeMath::randRange(-OffsetRange, OffsetRange), 0.0f, CForgeMath::randRange(-OffsetRange, OffsetRange));
+						Quaternionf Rot = Quaternionf::Identity();
+						Rot = AngleAxisf(CForgeMath::degToRad(60.0f + CForgeMath::randRange(-5.0f, 5.0f)), Vector3f::UnitY());
+
+						int32_t Z = CForgeMath::randRange(0, 50000);
+						
+						i->DisplayModel = (CForgeMath::rand() % 2);
+						if (Z%11 == 0) i->DisplayModel = 2;
+
+						spawnCharacter(i, File, Pos, Rot);
+						i->GeomSGN.enable(true, true);
+
+						m_LastCharacterSpawn = CForgeUtility::timestamp();
+						break;
+					}
+				}//for[background characters
+			}//if[spawn chacter]
+
+
+		}//updateCharacterEmiter
 
 		void clear(void) override {
 			m_RenderWin.stopListening(this);
@@ -278,15 +303,16 @@ namespace CForge {
 			ImGui::SetWindowSize(ImVec2(TileWidth, 600));
 			ImGui::SetWindowPos(ImVec2(5 * m_RenderWin.width() / 6 - TileWidth / 2, 75));
 			ImGui::PushFont(m_pFontTileHeading);
-			drawTextCentered("Try Our Motion Editor");
+			drawTextCentered("Gait Motion Editor");
 			ImGui::PopFont();
 			ImgScale = float(std::min(375, TileWidth-20)) / float(m_ImgMotionEditor.width());
 			ImGui::Image((void*)(intptr_t)m_ImgMotionEditor.handle(), ImVec2(m_ImgMotionEditor.width()*ImgScale, m_ImgMotionEditor.height()*ImgScale));
 			ImGui::PushFont(m_pFontTileText);
-			ImGui::Text("Use our motion editor to generator gait motions by\nadjusting various parameters.");
+			ImGui::Text("Try our motion editor to generate gait\nmotions by adjusting various parameters\nand explore motion signatures.");
 			ImGui::PopFont();
 			ImGui::End();
 			if (SelectedTile == 2) ImGui::PopStyleColor();
+
 
 			ImGui::EndFrame();
 
@@ -346,30 +372,35 @@ namespace CForge {
 
 				ImGui::PushFont(m_pFontTileText);
 				ImGui::SetNextItemOpen(true);
-				if (ImGui::TreeNode("How natural or artificial did you find the motion sequence depicted in the video?")) {
-					ImGui::Text("Please rate on the scale how natural or artificial the movement of the video looks.");
-					ImGui::Separator();
+				drawTextCentered("How natural or artificial did you find the motion sequence depicted in the video?");
+				drawTextCentered("Please rate on the scale how natural or artificial the movement of the video looks.");
+				ImGui::Separator();
 
-					ImGui::SetCursorPosX(ImGui::CalcTextSize("The movement of the video appears:").x + 20);
-					ImGui::Image((void*)m_Part1Data.ScaleImg.handle(), ImVec2(275, 50));
+				
 
-					ImGui::SetCursorPosX(ImGui::CalcTextSize("The movement of the video appears:").x + 35);
-					ImGui::Text("artificial"); ImGui::SameLine();
-					ImGui::SetCursorPosX(ImGui::CalcTextSize("The movement of the video appears:").x + 35 + 250 - ImGui::CalcTextSize("natural").x);
-					ImGui::Text("natural");
+				float Offset = ImGui::CalcTextSize("The movement of the video appears:").x;
+				float CenteringOffset = (ImGui::GetWindowWidth() - Offset - 275) / 2.0f;
 
-					ImGui::Text("The movement of the video appears:");
+				ImGui::SetCursorPosX(CenteringOffset + Offset - 10);
+				ImGui::Image((void*)m_Part1Data.ScaleImg.handle(), ImVec2(275, 50));
 
-					for (int32_t n = 0; n < 5; ++n) {
-						ImGui::SameLine();
-						std::string Label = std::to_string(n);
-						if (ImGui::Selectable(Label.c_str(), m_Part1Data.Selection == n, 0, ImVec2(50, 25))) m_Part1Data.Selection = n;
-					}
+				ImGui::SetCursorPosX(CenteringOffset + Offset + 20 - 10);
+				ImGui::Text("artificial"); ImGui::SameLine();
+				ImGui::SetCursorPosX(CenteringOffset + Offset + 275 - ImGui::CalcTextSize("natural").x - 25);
+				ImGui::Text("natural");
 
-					ImGui::TreePop();
-				}	
+				ImGui::SetCursorPosX(CenteringOffset);
+				ImGui::Text("The movement of the video appears:");
+				//ImGui::SetCursorPosX(CenteringOffset + ImGui::CalcTextSize("The movement of the video appears:").x + 25 );
+
+				for (int32_t n = 0; n < 5; ++n) {
+					ImGui::SameLine();
+					std::string Label = std::to_string(n);
+					if (ImGui::Selectable(Label.c_str(), m_Part1Data.Selection == n, 0, ImVec2(50, 25))) m_Part1Data.Selection = n;
+				}
+
+					
 				ImGui::PopFont();
-
 				ImGui::Separator();
 				// next button
 				ImGui::PushFont(m_pFontTileHeading);
@@ -397,9 +428,9 @@ namespace CForge {
 				ImGui::PushFont(m_pFontTileText);
 
 				char Buff[64];
-				sprintf(Buff, "%.2f", m_Part1Data.AverageUserScore);
+				sprintf(Buff, "%.3f", m_Part1Data.AverageUserScore);
 
-				std::string Result = "You gave an average rating of " + std::string(Buff) + ". The average rating in our study was 2.024";
+				std::string Result = "You gave an average rating of " + std::string(Buff) + ". The average rating in our study was 2.024.";
 				drawTextCentered(Result.c_str());
 				ImGui::PopFont();
 
@@ -456,27 +487,26 @@ namespace CForge {
 
 				ImGui::SetCursorPosX(FrameWidth / 2 - ImGui::CalcTextSize("Which of the three videos depicts the movement of the first video?").x / 2);
 				ImGui::SetNextItemOpen(true);
-				if (ImGui::TreeNode("Which of the three videos depicts the movement of the first video?")) {
-					drawTextCentered("Please indicate which video corresponds to the movement of the first video.");
-					ImGui::Separator();
 
-					for (int32_t n = 0; n < 3; ++n) {
-						ImGui::SameLine();
-						std::string Label = std::to_string(n+1) + ". Video";
+				//drawTextCentered("Which of the three videos depicts the movement of the first video?");
+				drawTextCentered("Which of the three videos in the bottom row depicts the movement of the video shown in the top row?");
 
-						float Factor = 1.0f;
-						if (n == 0) Factor = 1.5;
-						if (n == 1) Factor = 0;
-						if (n == 2) Factor = -1.5;
-						ImGui::SetCursorPosX(FrameWidth / 2 - Factor * 100);
+				//drawTextCentered("Please indicate which video corresponds to the movement of the first video.");
+				ImGui::Separator();
+
+				for (int32_t n = 0; n < 3; ++n) {
+					ImGui::SameLine();
+					std::string Label = std::to_string(n+1) + ". Video";
+
+					float Factor = 1.0f;
+					if (n == 0) Factor = 1.5;
+					if (n == 1) Factor = 0;
+					if (n == 2) Factor = -1.5;
+					ImGui::SetCursorPosX(FrameWidth / 2 - Factor * 100);
 						
-						if (ImGui::Selectable(Label.c_str(), m_Part2Data.Selection == n, 0, ImVec2(100, 25))) m_Part2Data.Selection = n;
-					}
-
-					ImGui::TreePop();
+					if (ImGui::Selectable(Label.c_str(), m_Part2Data.Selection == n, 0, ImVec2(100, 25))) m_Part2Data.Selection = n;
 				}
 				ImGui::PopFont();
-
 
 				// next button
 				ImGui::Separator();
@@ -507,11 +537,14 @@ namespace CForge {
 				ImGui::Separator();
 
 				ImGui::PushFont(m_pFontTileText);
-				std::string Result = "You answered " + std::to_string(m_Part2Data.CorrectSelections) + " times correct and " + std::to_string(m_Part2Data.SiblingSelections + m_Part2Data.DistractorSelections) +" times incorrect.";
+
+				std::string Result = "You selected " + std::to_string(m_Part2Data.CorrectSelections) + " times the correct video, " + std::to_string(m_Part2Data.SiblingSelections) + " times the twin,\nand " + std::to_string(m_Part2Data.DistractorSelections) + " times the distractor.\n";
+				drawTextCentered(Result);
+
+				Result = "";
 				drawTextCentered(Result.c_str()); 
-				Result = "The participants of our study answered 749 times (54,2%%) correct ";
-				drawTextCentered(Result.c_str());
-				Result = "and 632 times(45, 8 % %) incorrect.";
+
+				Result = "The participants of our study selected 749 times (54.2%%) the correct video,\n539 times (39.0%%) the twin, and 92 times (6.8%%) the distractor.";
 				drawTextCentered(Result.c_str());
 				ImGui::PopFont();
 
@@ -571,9 +604,9 @@ namespace CForge {
 					else printf("Invalid selection: %d\n", k.UserSelection);
 				}
 
-				printf("Your results from experiment 2:\n");
+				/*printf("Your results from experiment 2:\n");
 				printf("\tCorrect answers: %d\n", m_Part2Data.CorrectSelections);
-				printf("\tWrong answers: %d\n", m_Part2Data.SiblingSelections + m_Part2Data.DistractorSelections);
+				printf("\tWrong answers: %d\n", m_Part2Data.SiblingSelections + m_Part2Data.DistractorSelections);*/
 			}
 			else {
 				uint64_t Start = CForgeUtility::timestamp();
@@ -621,7 +654,6 @@ namespace CForge {
 
 		void mainLoop(void)override {
 
-
 			switch (m_DemoState) {
 			case STATE_DASHBOARD: {
 				m_FPS = std::max(0.25f, m_FPS);
@@ -631,12 +663,12 @@ namespace CForge {
 
 				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
-				m_CharacterController.update(60.0f / m_FPS);
-				if (m_Character.activeAnimation() == nullptr) {
-					m_pCharacterAnim = m_CharacterController.createAnimation(0, 1000.0f / 60.0f, 0.0f);
-					m_Character.activeAnimation(m_pCharacterAnim);
-				}
+				if (m_RenderWin.mouse()->movement().norm() > 0.1f) m_LastInteraction = CForgeUtility::timestamp();
+				m_RenderWin.mouse()->movement(Vector2f(0.0f, 0.0f));
 
+				float IdleTime = (CForgeUtility::timestamp() - m_LastInteraction)/1000.0f;
+
+				updateBackgroundCharacters();
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 				m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
@@ -656,9 +688,18 @@ namespace CForge {
 
 				m_TitleText.render(&m_RenderDev);
 
-
-				updateDashboardGui();
-				ImGuiUtility::render();
+				if (IdleTime < 60.0f) {
+					updateDashboardGui();
+					ImGuiUtility::render();
+					if (m_RenderWin.isMouseCursorHidden()) {
+						m_RenderWin.hideMouseCursor(false);
+					}
+				}
+				else {
+					if (!m_RenderWin.isMouseCursorHidden()) {
+						m_RenderWin.hideMouseCursor(true);
+					}
+				}
 
 				m_RenderWin.swapBuffers();
 
@@ -666,9 +707,16 @@ namespace CForge {
 
 				defaultKeyboardUpdate(m_RenderWin.keyboard());
 
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F4, true)) m_LastInteraction = CForgeUtility::timestamp() - static_cast<uint64_t>(60000);
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F6, true)) m_DemoState = STATE_SCREENSAVER;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F7, true))  m_DrawFPSLabel = !m_DrawFPSLabel;
 
+				if ((IdleTime > 75.0f && (CForgeUtility::timestamp() - m_LastB03VideoPlay) > 150000) || (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F5, true)) ) {
+					for (auto i : m_BackgroundCharacters) i->Character.activeAnimation(nullptr);
+					startB03Video();
+				}
+
+				
 			}break;
 			case STATE_STUDYPART1: {
 				m_RenderWin.update();
@@ -734,10 +782,39 @@ namespace CForge {
 
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F6, true)) m_DemoState = STATE_DASHBOARD;
 			}break;
+			case STATE_B03VIDEO: {
+				m_RenderWin.update();
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
+
+				m_B03Video.update();
+				m_B03Video.render(&m_RenderDev);
+				m_RenderWin.swapBuffers();
+
+				if (m_B03Video.finished() || m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F6, true)) {
+					m_DemoState = STATE_DASHBOARD;
+					m_LastB03VideoPlay = CForgeUtility::timestamp();
+					m_LastCharacterSpawn = CForgeUtility::timestamp();
+				}
+			}break;
 			}
 			
 
 		}//mainLoop
+
+		void startB03Video(void) {
+			if (m_B03VidoeInitialized) {
+				m_B03Video.canvasSize(m_RenderWin.width(), m_RenderWin.height());
+				m_B03Video.play();
+			}
+			else {
+				m_B03Video.init(Vector2f(0.0f, 0.0f), Vector2f(1.0f, 1.0f));
+				m_B03Video.canvasSize(m_RenderWin.width(), m_RenderWin.height());
+				m_B03Video.play("MyAssets/B02Demonstrator/B03_Einspieler.mp4");
+				m_B03VidoeInitialized = true;
+			}
+			m_DemoState = STATE_B03VIDEO;
+		}//startB03Video
 
 	protected:
 
@@ -747,6 +824,16 @@ namespace CForge {
 			STATE_STUDYPART2,
 			STATE_MOTIONEDITOR,
 			STATE_SCREENSAVER,
+			STATE_B03VIDEO,
+		};
+
+		struct DisplayModel {
+			int32_t ID;
+			std::string FilePath;
+			std::string OriginalMotion;
+			std::vector<std::pair<int32_t, std::string>> AlbedoReplacements; // pair<int, string> = pair<material id, texture path>
+			std::vector<std::pair<int32_t, std::string>> NormalReplacements; // pair<int, string> = pair<material id, texture path>
+			std::vector<std::pair<int32_t, CForge::CForgeUtility::DefaultMaterial>> MaterialReplacements;
 		};
 
 		struct StudyPart1Item {
@@ -768,12 +855,12 @@ namespace CForge {
 
 			int32_t UserSelection; // the actual user selection
 
-StudyPart2Item(void) {
-	for (uint8_t i = 0; i < 4; ++i) VideoIDs[i] = -1;
-	Original = -1;
-	Sibling = -1;
-	Distractor = -1;
-}
+			StudyPart2Item(void) {
+				for (uint8_t i = 0; i < 4; ++i) VideoIDs[i] = -1;
+				Original = -1;
+				Sibling = -1;
+				Distractor = -1;
+			}
 		};//StudyPart2Item
 
 		struct StudyPart1Data {
@@ -805,6 +892,327 @@ StudyPart2Item(void) {
 
 			std::vector<StudyPart2Item> ExperimentData;
 		};//StudyPart2Data
+
+		void initDisplayModels(void) {
+
+			DisplayModel* pM = new DisplayModel();
+			pM->ID = m_DisplayModels.size();
+			pM->FilePath = "MyAssets/Models/B02FemaleModelMKIII.gltf";
+			pM->OriginalMotion = "MyAssets/Models/RigFemale.bvh";
+			pM->AlbedoReplacements.push_back(std::pair(0, "MyAssets/Models/Textures/young_lightskinned_female_diffuse.jpg"));
+			pM->AlbedoReplacements.push_back(std::pair(1, "MyAssets/Models/Textures/female_casualsuit01_diffuse.jpg"));
+			pM->AlbedoReplacements.push_back(std::pair(2, "MyAssets/Models/Textures/brown_eye.jpg"));
+			pM->AlbedoReplacements.push_back(std::pair(3, "MyAssets/Models/Textures/shoes06_diffuse.jpg"));
+			pM->NormalReplacements.push_back(std::pair(1, "MyAssets/Models/Textures/female_casualsuit01_normal.jpg"));
+
+			m_DisplayModels.push_back(pM);
+
+			pM = new DisplayModel();
+			pM->ID = m_DisplayModels.size();
+			pM->FilePath = "MyAssets/Models/B02MaleModelMKIII.gltf";
+			pM->OriginalMotion = "MyAssets/Models/RigMale.bvh";
+
+			pM->AlbedoReplacements.push_back(std::pair(0, "MyAssets/Models/Textures/young_lightskinned_male_diffuse2.jpg"));
+			pM->AlbedoReplacements.push_back(std::pair(2, "MyAssets/Models/Textures/male_casualsuit04_diffuse.jpg"));
+			pM->AlbedoReplacements.push_back(std::pair(1, "MyAssets/Models/Textures/brown_eye.jpg"));
+			pM->AlbedoReplacements.push_back(std::pair(3, "MyAssets/Models/Textures/shoes06_diffuse.jpg"));
+			pM->NormalReplacements.push_back(std::pair(2, "MyAssets/Models/Textures/male_casualsuit04_normal.jpg"));
+			m_DisplayModels.push_back(pM);
+
+			pM = new DisplayModel();
+			pM->ID = m_DisplayModels.size();
+			pM->FilePath = "MyAssets/Models/B02ARKitRobot.gltf";
+			pM->OriginalMotion = "MyAssets/Models/RigMale.bvh";
+			pM->AlbedoReplacements.push_back(std::pair(0, ""));
+			pM->MaterialReplacements.push_back(std::pair(0, CForgeUtility::PLASTIC_GREY));
+			m_DisplayModels.push_back(pM);
+
+			//CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::PLASTIC_GREY);
+
+		}//initDisplayModels
+
+		struct Actor {
+			SkeletalAnimationController AnimationController;
+			SkeletalActor Character;
+
+			SGNTransformation TransformSGN;
+			SGNGeometry GeomSGN;
+
+			int32_t DisplayModel;
+		};//Actor
+
+		void spawnCharacter(Actor* pActor, std::string Filepath, Vector3f Position, Quaternionf Rotation) {
+			pActor->TransformSGN.translation(Position);
+			pActor->TransformSGN.rotation(Rotation);
+
+			updateMotion(pActor, Filepath);
+
+			pActor->GeomSGN.actor(&pActor->Character);
+			pActor->Character.activeAnimation(pActor->AnimationController.createAnimation(0, 1.0f, 0.0f));
+		}//spawnCharacter
+
+		void updateMotion(Actor* pActor, const std::string MotionData) {
+			// load new animation data
+			T3DMesh<float> Anim;
+			AssetIO::load(MotionData, &Anim);
+
+			// load display model ...
+			DisplayModel* pDM = m_DisplayModels[pActor->DisplayModel];
+			T3DMesh<float> M;
+			AssetIO::load(pDM->FilePath, &M);
+
+			// .. and apply original skeleton bvh-styl
+			T3DMesh<float> MOrig;
+			AssetIO::load(pDM->OriginalMotion, &MOrig);
+			M.clearSkeletalAnimations();
+			for (uint32_t i = 0; i < MOrig.skeletalAnimationCount(); ++i) M.addSkeletalAnimation(MOrig.getSkeletalAnimation(i), true);
+			recomputeInverseBindPoseMatrix(&M, true, true);
+
+			// copy rotation data of new motion
+			T3DMesh<float>::SkeletalAnimation Merged;
+			mergeAnimationData(M.getSkeletalAnimation(0), Anim.getSkeletalAnimation(0), &Merged, "Hips");
+			M.clearSkeletalAnimations();
+			M.addSkeletalAnimation(&Merged);
+			//recomputeInverseBindPoseMatrix(&M, true, true);
+
+			// retrieve size differences of the two skeletons
+			Vector2f MinMaxOrig = retrieveSkeletonExtrema(&MOrig);
+			Vector2f MinMaxAnim = retrieveSkeletonExtrema(&Anim);
+
+			float Deviation = (MinMaxAnim.y() - MinMaxAnim.x()) / (MinMaxOrig.y() - MinMaxOrig.x());
+
+			for (auto i : M.getSkeletalAnimation(0)->Keyframes) {
+				if (i->BoneName.compare("Hips") == 0) {
+					//for (auto& k : i->Scalings) k = Vector3f(Deviation, Deviation, Deviation);
+					for (auto& k : i->Positions) k = 1.0f / Deviation * k;
+				}
+			}
+
+			// adapt material if necessary
+			for (auto i : pDM->AlbedoReplacements) M.getMaterial(i.first)->TexAlbedo = i.second;
+			for (auto i : pDM->NormalReplacements) M.getMaterial(i.first)->TexNormal = i.second;
+			for (auto i : pDM->MaterialReplacements) CForgeUtility::defaultMaterial(M.getMaterial(i.first), i.second);
+
+			M.computePerVertexNormals();
+			BoundingVolume BV;
+
+			pActor->AnimationController.init(&M, true);
+			pActor->Character.init(&M, &pActor->AnimationController);
+			pActor->Character.boundingVolume(BV);
+
+			/*pTile->StickFigure.init(&M, &pTile->AnimationController);
+			pTile->StickFigure.jointSize(pTile->StickFigure.jointSize() / 1.5f);
+			pTile->StickFigure.boneSize(pTile->StickFigure.boneSize() * 0.75f);*/
+
+		}//updateMotion
+
+		void transformSkeleton(T3DMesh<float>::Bone* pBone, Eigen::Matrix4f ParentTransform, std::vector<T3DMesh<float>::BoneKeyframes*>* pKeyframes, Eigen::Vector4f* pMinMax, bool ConsiderTranslationOnly, bool DryRun) {
+			// compute local transform
+			T3DMesh<float>::BoneKeyframes* pFrame = nullptr;
+
+			for (auto i : (*pKeyframes)) {
+				if (i->BoneName.compare(pBone->Name) == 0) pFrame = i;
+			}
+
+			Eigen::Matrix4f JointTransform = Matrix4f::Identity();
+			if (pFrame != nullptr) {
+				Matrix4f R = (pFrame->Rotations.size() > 0) ? CForgeMath::rotationMatrix(pFrame->Rotations[0]) : Matrix4f::Identity();
+				Matrix4f T = (pFrame->Positions.size() > 0) ? CForgeMath::translationMatrix(pFrame->Positions[0]) : Matrix4f::Identity();
+				Matrix4f S = (pFrame->Scalings.size() > 0) ? CForgeMath::scaleMatrix(pFrame->Scalings[0]) : Matrix4f::Identity();
+
+				if (ConsiderTranslationOnly) {
+					S = R = Matrix4f::Identity();
+				}
+
+				if (pBone->pParent == nullptr) {
+					JointTransform = R * S;
+				}
+				else {
+					JointTransform = T * R * S;
+				}
+			}
+
+			Matrix4f LocalTransform = ParentTransform * JointTransform;
+			float x = LocalTransform(0, 3);
+			float y = LocalTransform(1, 3);
+			float z = LocalTransform(2, 3);
+			// new y values
+			if (x < pMinMax[0].z()) pMinMax[0].z() = x;
+			if (y < pMinMax[1].z()) pMinMax[1].z() = y;
+			if (z < pMinMax[2].z()) pMinMax[2].z() = z;
+
+			if (pBone->pParent == nullptr) {
+				pMinMax[0].w() = x;
+				pMinMax[1].w() = y;
+				pMinMax[2].w() = z;
+			}
+
+			// old y values
+			x = pBone->OffsetMatrix.inverse()(0, 3);
+			y = pBone->OffsetMatrix.inverse()(1, 3);
+			z = pBone->OffsetMatrix.inverse()(2, 3);
+
+			if (x < pMinMax[0].x()) pMinMax[0].x() = x;
+			if (y < pMinMax[1].x()) pMinMax[1].x() = y;
+			if (z < pMinMax[2].x()) pMinMax[2].x() = z;
+
+			if (pBone->pParent == nullptr) {
+				pMinMax[0].y() = x;
+				pMinMax[1].y() = y;
+				pMinMax[2].y() = z;
+			}
+
+			if (!DryRun)	pBone->OffsetMatrix = LocalTransform.inverse();
+
+			// recursion
+			for (auto i : pBone->Children) transformSkeleton(i, LocalTransform, pKeyframes, pMinMax, ConsiderTranslationOnly, DryRun);
+
+		}//transformSkeleton
+
+		void recomputeInverseBindPoseMatrix(T3DMesh<float>* pMesh, bool ScaleRootAnimation, bool ConsiderTranslationOnly) {
+			if (nullptr == pMesh->rootBone()) throw CForgeExcept("Mesh contains no root bone!");
+			if (0 == pMesh->skeletalAnimationCount()) throw CForgeExcept("Mesh contains no animations!");
+
+			auto* pRoot = pMesh->rootBone();
+			auto* pAnim = pMesh->getSkeletalAnimation(0);
+
+			Eigen::Vector4f MinMax[3] = { Eigen::Vector4f::Zero(), Eigen::Vector4f::Zero(), Eigen::Vector4f::Zero() };
+
+			//for(auto i: pRoot->Children) transformSkeleton(i, Eigen::Matrix4f::Identity(), &pAnim->Keyframes, MinMax, false);
+			transformSkeleton(pRoot, Eigen::Matrix4f::Identity(), &pAnim->Keyframes, MinMax, ConsiderTranslationOnly, false);
+
+
+			if (ScaleRootAnimation) {
+				// scale vertices of mesh
+				std::vector<Eigen::Vector3f> Vertices;
+				Eigen::Matrix3f ScaleMatrix = Matrix3f::Identity();
+				ScaleMatrix(0, 0) = (MinMax[0].w() - MinMax[0].z()) / (MinMax[0].y() - MinMax[0].x());
+				ScaleMatrix(1, 1) = (MinMax[1].w() - MinMax[1].z()) / (MinMax[1].y() - MinMax[1].x());
+				ScaleMatrix(2, 2) = (MinMax[2].w() - MinMax[2].z()) / (MinMax[2].y() - MinMax[2].x());
+
+				/*for (uint32_t i = 0; i < pMesh->vertexCount(); ++i) {
+					auto v = ScaleMatrix * pMesh->vertex(i);
+					Vertices.push_back(v);
+				}
+				pMesh->vertices(&Vertices);*/
+
+				float s = (MinMax[1].y() - MinMax[1].x()) / (MinMax[1].w() - MinMax[1].z());
+				ScaleMatrix(0, 0) = s;
+				ScaleMatrix(1, 1) = s;
+				ScaleMatrix(2, 2) = s;
+
+
+				for (uint32_t i = 0; i < pMesh->skeletalAnimationCount(); ++i) {
+					auto* pAnim = pMesh->getSkeletalAnimation(i);
+
+					for (uint32_t k = 0; k < pAnim->Keyframes.size(); ++k) {
+						if (pAnim->Keyframes[k]->BoneName.compare(pMesh->rootBone()->Name) == 0) {
+							for (auto& j : pAnim->Keyframes[i]->Positions) j = ScaleMatrix * j;
+						}
+					}
+
+				}
+			}//ScaleRootAnimation
+
+		}//recomputeInverseBindPoseMatrix
+
+		void retrieveSkeletonExtrema(T3DMesh<float>::Bone* pBone, Eigen::Matrix4f ParentTransform, std::vector<T3DMesh<float>::BoneKeyframes*>* pKeyframes, Eigen::Vector2f* pExtrema) {
+			T3DMesh<float>::BoneKeyframes* pFrame = nullptr;
+
+			for (auto i : (*pKeyframes)) {
+				if (i->BoneName.compare(pBone->Name) == 0) pFrame = i;
+			}
+
+			Eigen::Matrix4f JointTransform = Matrix4f::Identity();
+			if (pFrame != nullptr) {
+				Matrix4f R = (pFrame->Rotations.size() > 0) ? CForgeMath::rotationMatrix(pFrame->Rotations[0]) : Matrix4f::Identity();
+				Matrix4f T = (pFrame->Positions.size() > 0) ? CForgeMath::translationMatrix(pFrame->Positions[0]) : Matrix4f::Identity();
+				Matrix4f S = (pFrame->Scalings.size() > 0) ? CForgeMath::scaleMatrix(pFrame->Scalings[0]) : Matrix4f::Identity();
+
+
+				S = R = Matrix4f::Identity();
+
+				if (pBone->pParent == nullptr) {
+					JointTransform = R * S;
+				}
+				else {
+					JointTransform = T * R * S;
+				}
+			}
+
+			Matrix4f LocalTransform = ParentTransform * JointTransform;
+			float x = LocalTransform(0, 3);
+			float y = LocalTransform(1, 3);
+			float z = LocalTransform(2, 3);
+
+			if (pBone->pParent == nullptr) pExtrema->y() = y;
+
+			//if (y > pExtrema->y()) pExtrema->y() = y;
+			if (y < pExtrema->x()) pExtrema->x() = y;
+
+			// recursion
+			for (auto i : pBone->Children) retrieveSkeletonExtrema(i, LocalTransform, pKeyframes, pExtrema);
+
+		}//retrieveSkeletonExtrema
+
+		Eigen::Vector2f retrieveSkeletonExtrema(T3DMesh<float>* pMesh) {
+
+			Eigen::Vector2f Rval = Vector2f(std::numeric_limits<float>::max(), std::numeric_limits<float>::min());
+			retrieveSkeletonExtrema(pMesh->rootBone(), Eigen::Matrix4f::Identity(), &pMesh->getSkeletalAnimation(0)->Keyframes, &Rval);
+			return Rval;
+
+		}//retrieveSkeletonHeight
+
+		void mergeAnimationData(T3DMesh<float>::SkeletalAnimation* pAnimOrig, T3DMesh<float>::SkeletalAnimation* pAnimNew, T3DMesh<float>::SkeletalAnimation* pMerged, std::string RootBone) {
+
+			pMerged->Duration = pAnimNew->Duration;
+			pMerged->Keyframes.clear();
+			pMerged->Speed = pAnimNew->Speed;
+			pMerged->Name = pAnimNew->Name;
+
+			for (uint32_t i = 0; i < pAnimOrig->Keyframes.size(); ++i) {
+
+				pMerged->Keyframes.push_back(new T3DMesh<float>::BoneKeyframes());
+				pMerged->Keyframes[i]->ID = i;
+				pMerged->Keyframes[i]->BoneID = pAnimOrig->Keyframes[i]->BoneID;
+				pMerged->Keyframes[i]->BoneName = pAnimOrig->Keyframes[i]->BoneName;
+
+				// we use position and scale of first keyframe (rest pose)
+				Vector3f Pos = (pAnimOrig->Keyframes[i]->Positions.size() > 0) ? pAnimOrig->Keyframes[i]->Positions[0] : Vector3f::Zero();
+				Vector3f Scale = (pAnimOrig->Keyframes[i]->Scalings.size() > 0) ? pAnimOrig->Keyframes[i]->Scalings[0] : Vector3f::Ones();
+				Quaternionf Rot = (pAnimOrig->Keyframes[i]->Rotations.size() > 0) ? pAnimOrig->Keyframes[i]->Rotations[0] : Quaternionf::Identity();
+
+				// find matching keyframe in new animation
+				T3DMesh<float>::BoneKeyframes* pKeyframeNew = nullptr;
+				for (auto j : pAnimNew->Keyframes) {
+					if (pAnimOrig->Keyframes[i]->BoneName.compare(j->BoneName) == 0) {
+						pKeyframeNew = j;
+						break;
+					}
+				}
+
+				if (nullptr == pKeyframeNew) {
+					printf("Did not find a valid match for bone %s\n", pMerged->Keyframes[i]->BoneName.c_str());
+					continue;
+				}
+
+				for (uint32_t k = 0; k < pKeyframeNew->Rotations.size(); ++k) {
+
+					pMerged->Keyframes[i]->Positions.push_back(Pos);
+					pMerged->Keyframes[i]->Scalings.push_back(Scale);
+					pMerged->Keyframes[i]->Rotations.push_back(pKeyframeNew->Rotations[k]);
+					pMerged->Keyframes[i]->Timestamps.push_back(float(k)); // pKeyframeNew->Timestamps[k]);
+
+				}//for[rotation data]
+
+				// copy root bone data
+				if (pMerged->Keyframes[i]->BoneName.compare(RootBone) == 0) {
+					pMerged->Keyframes[i]->Positions = pKeyframeNew->Positions;
+				}
+			}//for[all keyframes]
+
+		}//copyRotationData
+
 
 		void startStudyPart1(void) {
 			float Aspect = 1280.0f / 720.0f;
@@ -1025,7 +1433,17 @@ StudyPart2Item(void) {
 		std::vector<std::string> m_MaleVideos;
 		std::vector<std::string> m_FemaleVideos;
 
-		
+		std::vector<DisplayModel*> m_DisplayModels;
+		std::vector<Actor*> m_BackgroundCharacters;
+
+		uint64_t m_LastCharacterSpawn;
+
+		uint64_t m_LastInteraction;
+
+		VideoPlayer m_B03Video;
+		bool m_B03VidoeInitialized;
+		uint64_t m_LastB03VideoPlay;
+
 	};//ExampleMinimumGraphicsSetup
 
 }//name space

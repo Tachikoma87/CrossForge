@@ -83,6 +83,9 @@ namespace CForge {
 
 		void makeCurrent(void)const;
 
+		void hideMouseCursor(bool Hide);
+		bool isMouseCursorHidden(void)const;
+
 	private:
 		struct GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
 
@@ -94,6 +97,8 @@ namespace CForge {
 		bool m_VSync;
 		int8_t m_ThrottleFactor;
 		bool m_Fullscreen;
+
+		bool m_MouseHidden;
 
 		Eigen::Vector4i m_WindowPosBackup;
 

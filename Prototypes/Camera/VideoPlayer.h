@@ -43,6 +43,8 @@ namespace CForge {
 		Eigen::Vector2f position(void)const;
 		Eigen::Vector2f size(void)const;
 
+		bool finished(void)const;
+
 	protected:
 		struct FrameItem {
 			T2DImage<uint8_t> Img; ///< Frame image

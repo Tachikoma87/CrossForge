@@ -321,6 +321,7 @@ namespace CForge {
 
 			if (pKeyboard->keyPressed(Keyboard::KEY_F11, true)) {
 				m_RenderWin.toggleFullscreen();
+				m_RenderWin.vsync(true);
 			}
 
 
