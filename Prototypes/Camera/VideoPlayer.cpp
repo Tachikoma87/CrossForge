@@ -81,7 +81,13 @@ namespace CForge {
 	}//initialize
 
 	void VideoPlayer::clear(void) {
-
+		if (m_VideoBuffer.size() > 0) {
+			for (auto& i : m_VideoBuffer) {
+				delete i;
+				i = nullptr;
+			}
+		}
+		m_VideoBuffer.clear();
 	}//clear
 
 	void VideoPlayer::release(void) {

@@ -77,6 +77,7 @@ void mainLoop(void *pArg) {
 	static_cast<ActiveScene*>(pArg)->mainLoop();
 }//mainLoop
 
+
 int main(int argc, char* argv[]) {
 #ifdef WIN32
 	_CrtMemState S1, S2, S3;

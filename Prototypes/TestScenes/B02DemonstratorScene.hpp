@@ -39,7 +39,7 @@ namespace CForge {
 
 			m_DrawFPSLabel = false;
 
-			m_TrialCountPart1 = 5;
+			m_TrialCountPart1 = 6;
 			m_TrialCountPart2 = 5;
 		}//Constructor
 
@@ -359,11 +359,9 @@ namespace CForge {
 				ImGui::PushFont(m_pFontStudyTitleLabel);
 				drawTextCentered(TitleLabel);
 
-
 				ImGui::SetCursorPosX(FrameWidth / 2 - ImGui::CalcTextSize("ReplayVideo").x/2);
 				ImGui::SetCursorPosY(m_VideoPlayers[0].position().y() + m_VideoPlayers[0].size().y() + 25);
 				ImGui::PopFont();
-
 
 				ImGui::PushFont(m_pFontTileHeading);
 				if (ImGui::Button("Replay Video")) m_VideoPlayers[0].play();
@@ -375,8 +373,6 @@ namespace CForge {
 				drawTextCentered("How natural or artificial did you find the motion sequence depicted in the video?");
 				drawTextCentered("Please rate on the scale how natural or artificial the movement of the video looks.");
 				ImGui::Separator();
-
-				
 
 				float Offset = ImGui::CalcTextSize("The movement of the video appears:").x;
 				float CenteringOffset = (ImGui::GetWindowWidth() - Offset - 275) / 2.0f;
@@ -398,8 +394,7 @@ namespace CForge {
 					std::string Label = std::to_string(n);
 					if (ImGui::Selectable(Label.c_str(), m_Part1Data.Selection == n, 0, ImVec2(50, 25))) m_Part1Data.Selection = n;
 				}
-
-					
+	
 				ImGui::PopFont();
 				ImGui::Separator();
 				// next button
@@ -428,12 +423,31 @@ namespace CForge {
 				ImGui::PushFont(m_pFontTileText);
 
 				char Buff[64];
-				sprintf(Buff, "%.3f", m_Part1Data.AverageUserScore);
+				sprintf(Buff, "%.3f", m_Part1Data.AverageUserScoreSynthetic);
 
-				std::string Result = "You gave an average rating of " + std::string(Buff) + ". The average rating in our study was 2.024.";
+				//std::string Result = "You gave an average rating of " + std::string(Buff) + ". The average rating in our study was 2.024.";
+				//drawTextCentered(Result.c_str());
+				
+
+				// you gave the following rankings
+				// original motions   | synthetic motions
+
+				std::string Result = "You gave the videos the following rating:\n\n";
+				Result += "Original Motions \t\t\t\t\t\tSynthetic Motions\n";
+				for (int32_t i = 0; i < m_Part1Data.OriginalRatings.size(); ++i) {
+					Result += "Video " + std::to_string(m_Part1Data.OriginalRatings[i].first) + ": " + std::to_string(int32_t(m_Part1Data.OriginalRatings[i].second)) + "\t\t\t\t\t\t\t\t\t\tVideo " + std::to_string(m_Part1Data.SyntheticRatings[i].first) + ": " + std::to_string(int32_t(m_Part1Data.SyntheticRatings[i].second)) + "\n";
+				}//
+				char Buf1[64];
+				char Buf2[64];
+				sprintf(Buf1, "%.2f", m_Part1Data.AverageUserScoreOriginal);
+				sprintf(Buf2, "%.2f", m_Part1Data.AverageUserScoreSynthetic);
+				Result += "\n";
+				Result += "Average (you): " + std::string(Buf1) + "\t\t\t\t\tAverage(you): " + std::string(Buf2) + "\n";
+				Result += "Average (study): 2.02 \t\t\t   Average(study): 2.05";
+
+
 				drawTextCentered(Result.c_str());
 				ImGui::PopFont();
-
 
 				ImGui::Separator();
 				ImGui::PushFont(m_pFontTileHeading);
@@ -512,7 +526,7 @@ namespace CForge {
 				ImGui::Separator();
 				ImGui::PushFont(m_pFontTileHeading);
 				ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize("Next").x) / 2);
-				if (ImGui::Button("Next")) {
+				if (ImGui::Button("Next") && m_Part2Data.Selection != -1) {
 					studyPart2Next();
 				}
 
@@ -539,12 +553,13 @@ namespace CForge {
 				ImGui::PushFont(m_pFontTileText);
 
 				std::string Result = "You selected " + std::to_string(m_Part2Data.CorrectSelections) + " times the correct video, " + std::to_string(m_Part2Data.SiblingSelections) + " times the twin,\nand " + std::to_string(m_Part2Data.DistractorSelections) + " times the distractor.\n";
-				drawTextCentered(Result);
+				//drawTextCentered(Result);
 
-				Result = "";
-				drawTextCentered(Result.c_str()); 
+				Result += "\n\n";
+				//drawTextCentered(Result.c_str()); 
 
-				Result = "The participants of our study selected 749 times (54.2%%) the correct video,\n539 times (39.0%%) the twin, and 92 times (6.8%%) the distractor.";
+				Result += "The participants of our study selected 749 times (58.15%%) the\ncorrect video and 539 times (41.85%%) the twin.";
+				// 1288
 				drawTextCentered(Result.c_str());
 				ImGui::PopFont();
 
@@ -570,12 +585,27 @@ namespace CForge {
 				// experiment finished
 				m_Part1Data.ExperimentRunning = false;
 
-				// score
-				float Score = 0.0f;
-				for (auto i : m_Part1Data.ExperimentData) Score += float(i.UserRating);
-				Score /= float(m_Part1Data.ExperimentData.size());
-				m_Part1Data.AverageUserScore = Score;
-				printf("Experiment finished! You gave an average score of %.2f\n", Score);
+				// score synthetic
+				float ScoreSyn = 0.0f;
+				float ScoreOrig = 0.0f;
+				int c = 1;
+				for (auto i : m_Part1Data.ExperimentData) 
+				{
+					if (i.Synthetic) {
+						ScoreSyn += float(i.UserRating);
+						m_Part1Data.SyntheticRatings.push_back(std::pair(c, float(i.UserRating)));
+					}
+					else {
+						ScoreOrig += float(i.UserRating);
+						m_Part1Data.OriginalRatings.push_back(std::pair(c, float(i.UserRating)));
+					}
+					c++;
+				}
+				ScoreSyn /= (float(m_Part1Data.ExperimentData.size())*0.5f);
+				ScoreOrig /= (float(m_Part1Data.ExperimentData.size()) * 0.5f);
+				m_Part1Data.AverageUserScoreOriginal = ScoreOrig;
+				m_Part1Data.AverageUserScoreSynthetic = ScoreSyn;
+				printf("Experiment finished! You gave an average score of %.2f | %.2f\n", ScoreOrig, ScoreSyn);
 
 			}
 			else {
@@ -839,10 +869,12 @@ namespace CForge {
 		struct StudyPart1Item {
 			int32_t VideoID; // 0 through 11
 			int32_t UserRating; // user rating 0 through 4
+			bool Synthetic;
 
 			StudyPart1Item(void) {
 				VideoID = -1;
 				UserRating = -1;
+				Synthetic = true;
 			}
 		};
 
@@ -866,7 +898,11 @@ namespace CForge {
 		struct StudyPart1Data {
 			int32_t CurrentItem;
 			int32_t Selection;
-			float AverageUserScore;
+			float AverageUserScoreSynthetic;
+			float AverageUserScoreOriginal;
+
+			std::vector<std::pair<int32_t, float>> OriginalRatings;
+			std::vector<std::pair<int32_t, float>> SyntheticRatings;
 
 			GLTexture2D ScaleImg;
 			bool ExperimentRunning;
@@ -876,7 +912,8 @@ namespace CForge {
 			StudyPart1Data(void) {
 				Selection = 2;
 				CurrentItem = 0;
-				AverageUserScore = -1.0f;
+				AverageUserScoreSynthetic = -1.0f;
+				AverageUserScoreOriginal = -1.0f;
 			}
 		};//StudyPart1Data
 
@@ -1215,6 +1252,12 @@ namespace CForge {
 
 
 		void startStudyPart1(void) {
+
+			if (m_B03VidoeInitialized) {
+				m_B03Video.clear();
+				m_B03VidoeInitialized = false;
+			}
+
 			float Aspect = 1280.0f / 720.0f;
 
 			float VideoWidth = 0.5f * m_RenderWin.width();
@@ -1238,13 +1281,30 @@ namespace CForge {
 			m_Part1Data.ScaleImg.init(&Img, false);
 
 			m_Part1Data.ExperimentData.clear();
+			m_Part1Data.OriginalRatings.clear();
+			m_Part1Data.SyntheticRatings.clear();
 
 			// setup data
-			for (uint32_t i = 0; i < m_TrialCountPart1; ++i) {
+			int32_t SynCount = 0;
+			int32_t OrigCount = 0;
+			while (m_Part1Data.ExperimentData.size() < m_TrialCountPart1) {
 				StudyPart1Item Item;
 				Item.VideoID = CForgeMath::randRange(0, int32_t(m_StudyVideos.size() - 1));
-				m_Part1Data.ExperimentData.push_back(Item);
+				Item.Synthetic = (m_StudyVideos[Item.VideoID].find("_1") != std::string::npos) ? false : true;
+
+				if(SynCount < m_TrialCountPart1/2 && Item.Synthetic) 
+				{
+					m_Part1Data.ExperimentData.push_back(Item);
+					SynCount++;
+				}
+				else if(OrigCount < m_TrialCountPart1/2 && !Item.Synthetic){
+					m_Part1Data.ExperimentData.push_back(Item);
+					OrigCount++;
+				}
+				
+				//printf("Video: %d:%d\n", Item.VideoID, int32_t(Item.Synthetic));
 			}
+
 			m_Part1Data.ExperimentRunning = true;
 			m_Part1Data.CurrentItem = -1;
 			studyPart1Next();
@@ -1285,6 +1345,10 @@ namespace CForge {
 		}//getDistractor
 
 		void startStudyPart2(void) {
+			if (m_B03VidoeInitialized) {
+				m_B03Video.clear();
+				m_B03VidoeInitialized = false;
+			}
 
 			// initialize trial data
 			m_Part2Data.ExperimentData.clear();
