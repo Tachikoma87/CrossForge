@@ -475,10 +475,27 @@ namespace CForge {
 		}//initDebugActor
 
 		void initRotationTest(void) {
+			m_AxesTransform[0].init(&m_RootSGN, Vector3f(0.0f, 3.0f, 20.0f));
+			m_AxesTransform[1].init(&m_AxesTransform[0], Vector3f(-3.0f, 0.5f, 0.0f));
+			m_AxesTransform[2].init(&m_AxesTransform[0], Vector3f(0.0f, 0.5f, 0.0f));
+			m_AxesTransform[3].init(&m_AxesTransform[0], Vector3f(3.0f, 0.5f, 0.0f));
+			m_AxesTransform[4].init(&m_AxesTransform[0], Vector3f(0.0f, -0.5f, 0.0f));
 
+			m_AxesTransform[1].rotationDelta(Quaternionf(AngleAxisf(CForgeMath::degToRad(1.0f), Vector3f::UnitX())));
+			m_AxesTransform[2].rotationDelta(Quaternionf(AngleAxisf(CForgeMath::degToRad(1.0f), Vector3f::UnitY())));
+			m_AxesTransform[3].rotationDelta(Quaternionf(AngleAxisf(CForgeMath::degToRad(1.0f), Vector3f::UnitZ())));
+			m_AxesTransform[4].rotationDelta(Quaternionf(AngleAxisf(CForgeMath::degToRad(1.0f), -Vector3f::UnitY())));
+
+			m_AxesGeom[0].init(&m_AxesTransform[1], &m_CoordAxes);
+			m_AxesGeom[1].init(&m_AxesTransform[2], &m_CoordAxes);
+			m_AxesGeom[2].init(&m_AxesTransform[3], &m_CoordAxes);
+			m_AxesGeom[3].init(&m_AxesTransform[4], &m_CoordAxes);
+			m_AxesGeom[3].rotation(Quaternionf(AngleAxisf(CForgeMath::degToRad(180.0f), Vector3f::UnitZ())));
 		}//initRotationTest
 
 		void testRotations(void) {				
+
+
 
 		}//testRotations
 
@@ -521,8 +538,8 @@ namespace CForge {
 		StaticActor m_BoneMin;
 		StaticActor m_BoneMax;
 		StaticActor m_BoneHinge;
-		std::array<SGNTransformation, 2> m_BoneTransform;
-		std::array<SGNGeometry, 6> m_BoneGeom;
+		std::array<SGNTransformation, 5> m_AxesTransform;
+		std::array<SGNGeometry, 4> m_AxesGeom;
 	};//InverseKinematicsTestScene
 
 	

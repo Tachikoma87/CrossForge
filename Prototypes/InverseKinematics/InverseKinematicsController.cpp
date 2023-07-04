@@ -14,6 +14,7 @@ namespace CForge {
 		m_pRoot = nullptr;
 		m_pHead = nullptr;
 
+		m_BoneDefaultDir = Vector3f::Zero();
 		m_MaxIterations = 50;
 		
 		m_pShadowPassShader = nullptr;
@@ -45,6 +46,11 @@ namespace CForge {
 		std::ifstream f(ConfigFilepath);
 		const nlohmann::json ConfigData = nlohmann::json::parse(f);
 		
+		m_BoneDefaultDir(0) = ConfigData.at("BoneDefaultDirection").at("x").get<float>();
+		m_BoneDefaultDir(1) = ConfigData.at("BoneDefaultDirection").at("y").get<float>();
+		m_BoneDefaultDir(2) = ConfigData.at("BoneDefaultDirection").at("z").get<float>();
+		m_BoneDefaultDir.normalize();
+
 		initJointProperties(pMesh, ConfigData.at("JointConstraints"));
 		
 		initSkeletonStructure(pMesh, ConfigData.at("SkeletonStructure"));
@@ -138,6 +144,8 @@ namespace CForge {
 			pJoint->OffsetMatrix = pRef->OffsetMatrix;
 			pJoint->SkinningMatrix = Matrix4f::Identity(); // computed during applyAnimation()
 
+			pJoint->RestDir = pJoint->LocalRotation * m_BoneDefaultDir;
+
 			// create user defined joint constraints
 			const nlohmann::json& JointData = ConstraintData.at(pJoint->Name);
 			std::string Type = JointData.at("ConstraintType").get<std::string>();
@@ -155,8 +163,11 @@ namespace CForge {
 				if (Axis == "-z") pJoint->HingeAxis = Vector3f(0.0f, 0.0f, -1.0f);
 				pJoint->HingeAxisInParentSpace = pJoint->LocalRotation * pJoint->HingeAxis;
 
+				float MinDeg = JointData.at("MinAngleDegrees").get<float>();
+				float MaxDeg = JointData.at("MaxAngleDegrees").get<float>();
 
-				//TODO: min/max angles
+				pJoint->MinRad = CForgeMath::degToRad(MinDeg);
+				pJoint->MaxRad = CForgeMath::degToRad(MaxDeg);
 			}
 
 			if (Type == "BallAndSocket") {
@@ -299,7 +310,7 @@ namespace CForge {
 
 		forwardKinematics(m_pRoot);
 
-		rotateGaze();
+		//rotateGaze();
 		ikCCD(RIGHT_ARM);
 		//ikCCD(LEFT_ARM);
 		//ikCCD(RIGHT_LEG);
@@ -329,18 +340,21 @@ namespace CForge {
 		for (int32_t i = 0; i < m_MaxIterations; ++i) {
 			LastEndEffectorPoints = pEffData->GlobalEndEffectorPoints;
 
-			for (int32_t k = 0; k < Chain.size() - 1; ++k) {
+			for (int32_t k = 1; k < Chain.size() - 2; ++k) {
 				Joint* pCurrent = Chain[k];
 
 				// compute unconstrained global rotation that best aligns position and orientation of end effector with desired target values
 				Quaternionf GlobalIncrement = computeUnconstrainedGlobalRotation(pCurrent, pEffData);
 				Quaternionf NewGlobalRotation = GlobalIncrement * pCurrent->GlobalRotation;
 
-				// transform global rotation to local rotation
-				pCurrent->LocalRotation = (pCurrent == m_pRoot) ? NewGlobalRotation : pCurrent->pParent->GlobalRotation.inverse() * NewGlobalRotation;
+				// transform new global rotation to new local rotation
+				Quaternionf NewLocalRotation = (pCurrent == m_pRoot) ? NewGlobalRotation : pCurrent->pParent->GlobalRotation.inverse() * NewGlobalRotation;
 				
-				// apply joint constraints to local rotation
-				constrainLocalRotation(pCurrent); //TODO
+				// constrain new local rotation
+				constrainLocalRotation(pCurrent, NewLocalRotation); //TODO: ball-and-socket joint, others?
+
+				// apply new local rotation to joint
+				pCurrent->LocalRotation = NewLocalRotation;
 
 				// update kinematic chain
 				forwardKinematics(pCurrent);
@@ -366,13 +380,19 @@ namespace CForge {
 		if (std::abs(1.0f - CurrentGlobalDir.dot(GlobalTargetDir) > 1e-5f)) {
 			Vector3f CurrentLocalDir = pJoint->GlobalRotation.inverse() * CurrentGlobalDir; // local gaze direction in joint space before update
 						
-			// compute unconstrained rotation quaternion to align both directional vectors in world space
+			// compute unconstrained global rotation to align both directional vectors in world space
 			Quaternionf GlobalIncrement;
 			GlobalIncrement.setFromTwoVectors(CurrentGlobalDir, GlobalTargetDir);
+			Quaternionf NewGlobalRotation = GlobalIncrement * pJoint->GlobalRotation;
 
-			// compute local joint rotation and constrain
-			pJoint->LocalRotation = pJoint->pParent->GlobalRotation.inverse() * (GlobalIncrement * pJoint->GlobalRotation);
-			constrainLocalRotation(pJoint); //TODO
+			// transform new global rotation to new local rotation
+			Quaternionf NewLocalRotation = (pJoint == m_pRoot) ? NewGlobalRotation : pJoint->pParent->GlobalRotation.inverse() * NewGlobalRotation;
+
+			// constrain new local rotation
+			constrainLocalRotation(pJoint, NewLocalRotation); //TODO: ball-and-socket joint, others?
+
+			// apply new local rotation to joint 
+			pJoint->LocalRotation = NewLocalRotation;
 
 			// compute new global joint rotation and apply to gaze direction
 			forwardKinematics(pJoint);
@@ -454,27 +474,38 @@ namespace CForge {
 		return GlobalRotation;
 	}//computeUnconstrainedGlobalRotation
 
-	void InverseKinematicsController::constrainLocalRotation(Joint* pJoint) {
+	void InverseKinematicsController::constrainLocalRotation(const Joint* pJoint, Eigen::Quaternionf& Rotation) {
 		if (pJoint->ConstraintType == UNCONSTRAINED) return; // do nothing
 
 		if (pJoint->ConstraintType == HINGE) {
 			
 			// enforce rotation around hinge axis
-			Vector3f CurrentHingeInParentSpace = pJoint->LocalRotation * pJoint->HingeAxis;
+			Vector3f RotatedHingeAxisInParentSpace = Rotation * pJoint->HingeAxis;
 
 			Quaternionf FromTo;
-			FromTo.setFromTwoVectors(CurrentHingeInParentSpace, pJoint->HingeAxisInParentSpace);
+			FromTo.setFromTwoVectors(RotatedHingeAxisInParentSpace, pJoint->HingeAxisInParentSpace);
+			Rotation = FromTo * Rotation;
+			
+			// compute new angle of bone/joint relative to its rest position
+			Vector3f NewDir = Rotation * m_BoneDefaultDir;
+			NewDir.normalize();
+			
+			Vector3f Cross = pJoint->RestDir.cross(NewDir);
+			float Dot = pJoint->RestDir.dot(NewDir);
+			float AngleToRest = std::atan2f(Cross.dot(pJoint->HingeAxisInParentSpace), Dot); // angle from RestDir to NewDir in radians
+			
+			// enforce angle limits by adding a rotation that moves the bone/joint back into the allowed range of motion
+			float Diff = 0.0f;
+			if (AngleToRest > pJoint->MaxRad) Diff = pJoint->MaxRad - AngleToRest;
+			if (AngleToRest < pJoint->MinRad) Diff = pJoint->MinRad - AngleToRest;
 
-			Quaternionf AxisConstrainedLocalRotation = FromTo * pJoint->LocalRotation;
-			AxisConstrainedLocalRotation.normalize();
-			pJoint->LocalRotation = AxisConstrainedLocalRotation;
-					
-			AngleAxisf AA = AngleAxisf(pJoint->LocalRotation);
-			Vector3f Axis = AA.axis();
-			float Angle = CForgeMath::radToDeg(AA.angle());
 
-			//TODO: enforce angle limits
-			//...
+			if (std::abs(Diff) > 1e-6f) {
+				Quaternionf BackRotation = Quaternionf(AngleAxisf(Diff, pJoint->HingeAxisInParentSpace));
+				Rotation = BackRotation * Rotation;
+			}
+						
+			Rotation.normalize();
 		}
 		else if (pJoint->ConstraintType == BALL_AND_SOCKET) {
 			//TODO

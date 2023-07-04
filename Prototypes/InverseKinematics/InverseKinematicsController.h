@@ -113,14 +113,13 @@ namespace CForge {
 
 			// data for constraints
 			ConstraintType ConstraintType;
-			Eigen::Vector3f RestBoneDir;	// relative to parent joint
-			Eigen::Vector3f CurrentBoneDir; // relative to parent joint
+			Eigen::Vector3f RestDir;	// relative to parent joint
 
 			// hinge constraint
 			Eigen::Vector3f HingeAxis;
 			Eigen::Vector3f HingeAxisInParentSpace;
-			float MaxAngle; // in radians
-			float MinAngle; // in radians
+			float MaxRad; // maximum angle in radians
+			float MinRad; // minimum angle in radians
 						
 			// ball-and-socket constraint
 			//TODO...
@@ -142,12 +141,14 @@ namespace CForge {
 		void ikCCD(SkeletalSegment SegmentID);
 		void rotateGaze(void);
 		Eigen::Quaternionf computeUnconstrainedGlobalRotation(Joint* pJoint, InverseKinematicsController::EndEffectorData* pEffData);
-		void constrainLocalRotation(Joint* pJoint);
+		void constrainLocalRotation(const Joint* pJoint, Eigen::Quaternionf& Rotation);
 		void forwardKinematics(Joint* pJoint);
 
 		void updateSkinningMatrices(Joint* pJoint, Eigen::Matrix4f ParentTransform);
 		int32_t jointIDFromName(std::string JointName);
 		
+		Eigen::Vector3f m_BoneDefaultDir;
+
 		Joint* m_pRoot;
 		std::vector<Joint*> m_Joints;
 		HeadJoint* m_pHead;
