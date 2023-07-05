@@ -745,8 +745,6 @@ namespace CForge {
 					for (auto i : m_BackgroundCharacters) i->Character.activeAnimation(nullptr);
 					startB03Video();
 				}
-
-				
 			}break;
 			case STATE_STUDYPART1: {
 				m_RenderWin.update();

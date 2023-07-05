@@ -71,6 +71,7 @@ using namespace Eigen;
 //#define ActiveScene VideoPlayerTestScene
 
 
+
 ActiveScene* pScene = nullptr;
 
 void mainLoop(void *pArg) {
