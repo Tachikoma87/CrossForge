@@ -243,11 +243,11 @@ namespace CForge {
 				}
 			}
 			Quaternionf To_Y;
-			To_Y = AngleAxis(CForgeMath::degToRad(turnSpeed), Vector3f::UnitY());
+			To_Y = AngleAxis(CForgeMath::degToRad(turnSpeed/3.0f), Vector3f::UnitY());
 			m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Y);
 
 			Quaternionf To_Z;
-			To_Z = AngleAxis(CForgeMath::degToRad(-turnSpeed*2.0f), Vector3f::UnitZ());
+			To_Z = AngleAxis(CForgeMath::degToRad(-turnSpeed*4.0f), Vector3f::UnitZ());
 			m_BirdTurnSGN.rotation(To_Z);
 
 			
