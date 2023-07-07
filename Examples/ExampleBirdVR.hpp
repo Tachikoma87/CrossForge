@@ -103,6 +103,12 @@ namespace CForge {
 			m_Buildings[1].init(&M);
 			M.clear();
 
+			SAssetIO::load("MyAssets/Buildings/building_08/scene.gltf", &M);
+			setMeshShader(&M, 0.1f, 0.04f);
+			M.computePerVertexNormals();
+			m_Buildings[2].init(&M);
+			M.clear();
+
 			uint32_t BuildingCount = 5;
 			float radius = 25.0f;
 			m_BuildingGroupSGN.init(&m_RootSGN);
@@ -112,7 +118,7 @@ namespace CForge {
 				for (uint32_t y = 0; y < BuildingCount; y++)
 				{
 					// not every building needs to be set - 7 is choosen because it is a prime number
-					if ((x + y) % 7 != 0) set_building(x * 60, y * 60);
+					if ((x + y) % 7 != 0) set_building(x * 60, y * 60, CForgeMath::rand() % 3);
 				}
 			}
 			
@@ -151,7 +157,7 @@ namespace CForge {
 			ExampleSceneBase::clear();
 		}//clear
 
-		void set_building(float x, float y) {
+		void set_building(float x, float y, int model) {
 			SGNTransformation* pTransformSGN = nullptr;
 			SGNGeometry* pGeomSGN = nullptr;
 
@@ -159,11 +165,11 @@ namespace CForge {
 			pTransformSGN->init(&m_BuildingGroupSGN);
 
 			// set to other vector
-			pTransformSGN->translation(Vector3f(x, 0.0f, y));
+			pTransformSGN->translation(Vector3f(x, 5.0f, y));
 			pTransformSGN->scale(Vector3f(10.0f, 10.0f, 10.0f));
 
 			pGeomSGN = new SGNGeometry();
-			pGeomSGN->init(pTransformSGN, &m_Buildings[0]);
+			pGeomSGN->init(pTransformSGN, &m_Buildings[model]);
 
 			m_BuildingTransformationSGNs.push_back(pTransformSGN);
 			m_BuildingSGNs.push_back(pGeomSGN);
@@ -228,7 +234,7 @@ namespace CForge {
 				RDelta = AngleAxisf(CForgeMath::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
 				m_SkyboxTransSGN.rotationDelta(RDelta);
 			}
-			
+		
 			
 			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) { 
 				if (turnSpeed < 4.0f) turnSpeed += 1.0f;
@@ -336,7 +342,7 @@ namespace CForge {
 		SGNTransformation m_GroundTransformSGN;
 
 		// Building
-		StaticActor m_Buildings[2];
+		StaticActor m_Buildings[3];
 		SGNTransformation m_BuildingGroupSGN;
 		std::vector<SGNTransformation*> m_BuildingTransformationSGNs;
 		std::vector<SGNGeometry*> m_BuildingSGNs;
@@ -347,8 +353,7 @@ namespace CForge {
 		SGNGeometry m_SkyboxGeomSGN;
 
 		//Speed für Vogel
-		Vector3f speed = Vector3f(0.0f, 0.0f, 0.01f);
-
+		Vector3f speed = Vector3f(0.0f, 0.0f, 0.01f); 
 		float turnSpeed = 0.0f;
 
 	};//ExampleBird
