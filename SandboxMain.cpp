@@ -47,13 +47,13 @@ using namespace Eigen;
 //#define ActiveScene ExampleMinimumGraphicsSetup
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
-//#define ActiveScene ExampleSceneGraph
-#define ActiveScene ExampleSkeletalAnimation
+#define ActiveScene ExampleSceneGraph
+//#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleSkybox
 //#define ActiveScene ExampleTransformation
 //#define ActiveScene ExampleTransformationSG
 //#define ActiveScene ExampleSocket
-//#define ActiveScene ExampleBird
+#define ActiveScene ExampleBird
 
 
 //#define ActiveScene ImuInputDeviceTestScene	 
