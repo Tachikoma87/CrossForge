@@ -237,19 +237,19 @@ namespace CForge {
 		
 			
 			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) { 
-				if (turnSpeed < 4.0f) turnSpeed += 1.0f;
+				if (turnSpeed < 3.0f) turnSpeed += 1.0f;
 			}
-			else
-			{
+			else {
 				if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT)) {
-					if (turnSpeed > -4.0f) turnSpeed -= 1.0f;
+					if (turnSpeed > -3.0f) turnSpeed -= 1.0f;
 				}
 				else {
-					turnSpeed = 0.0f;
+					if (turnSpeed < 0.0f) turnSpeed += 1.0f;
+					if (turnSpeed > 0.0f) turnSpeed -= 1.0f;
 				}
 			}
 			Quaternionf To_Y;
-			To_Y = AngleAxis(CForgeMath::degToRad(turnSpeed/3.0f), Vector3f::UnitY());
+			To_Y = AngleAxis(CForgeMath::degToRad(turnSpeed/(10.0f*speed.z())), Vector3f::UnitY());
 			m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Y);
 
 			Quaternionf To_Z;
@@ -258,42 +258,43 @@ namespace CForge {
 
 			
 			Vector3f pos;
-			Vector3f dir;
+			Vector3f xzdir;
 			Quaternionf rot;
 			Matrix3f m3;
-			Vector3f m;
+			Vector3f dir;
 			
 			// gain and loose speed
-			if (pKeyboard->keyPressed(Keyboard::KEY_UP) && speed.z() <= 1.5f)speed.z() += 0.01f;
-			if (pKeyboard->keyPressed(Keyboard::KEY_DOWN) && speed.z() >= 0.1f)speed.z() -= 0.01f;
+			if (pKeyboard->keyPressed(Keyboard::KEY_UP) && speed.z() <= 0.5f)speed.z() += 0.01f;
+			if (pKeyboard->keyPressed(Keyboard::KEY_DOWN) && speed.z() >= 0.3f)speed.z() -= 0.01f;
 
 			// the bird sinks during normal flight and gains altitude when pressed space
-			if (pKeyboard->keyPressed(Keyboard::KEY_SPACE)) speed.y() += 0.03;
+			if (pKeyboard->keyPressed(Keyboard::KEY_SPACE, true)) speed.y() += 0.2;
 			if (speed.y() > -0.01f) speed.y() -= 0.01f;
 
-			// bird to near the ground -> gains altitude
+			// bird to near the ground -> remains altitude
 			if (m_BirdTransformSGN.translation().y() < 0.05) speed.y() += 0.1f;
 
-			// for testing - if shift is pressed - can come down faster
-			if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT_SHIFT)) translate_bird(Vector3f(0.0f, -1.0f, 0.0f));
+			// for testing - if ctrl is pressed - can come down faster
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) speed.y() -= 0.01f;
+			else if (speed.y() < -0.01f) speed.y() += 0.02f;
 
 			// Bird is rotated in the direction where it is looking
 			m3 = m_BirdTransformSGN.rotation().toRotationMatrix();
-			m.x() = m3(0, 0) * speed.x() + m3(0, 2) * speed.z();
-			m.y() = speed.y();
-			m.z() = m3(2, 0) * speed.x() + m3(2, 2) * speed.z();
+			dir.x() = m3(0, 0) * speed.x() + m3(0, 2) * speed.z();
+			dir.y() = speed.y();
+			dir.z() = m3(2, 0) * speed.x() + m3(2, 2) * speed.z();
 
-			dir = Vector3f(m.x(), 0, m.z()).normalized();
+			xzdir = Vector3f(dir.x(), 0, dir.z()).normalized();
 
 			//Quaternionf rotate_left = AngleAxis(CForgeMath::degToRad(2.5f), dir);
 
 			// in translation there is the postion
 			printf("%f - %f - %f | %f\n", m_BirdTransformSGN.translation().x(), m_BirdTransformSGN.translation().y(), m_BirdTransformSGN.translation().z(), speed.y());
 			
-			m_BirdTransformSGN.translationDelta(m); 
+			m_BirdTransformSGN.translationDelta(dir); 
 
 			//defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
-			defaultCameraUpdateBird(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse(), m, m_BirdTransformSGN.translation(), Vector3f(0.0f, 1.0f, 0.0f), m3);
+			defaultCameraUpdateBird(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse(), dir, m_BirdTransformSGN.translation(), Vector3f(0.0f, 1.0f, 0.0f), m3);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 			m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
@@ -353,7 +354,7 @@ namespace CForge {
 		SGNGeometry m_SkyboxGeomSGN;
 
 		//Speed für Vogel
-		Vector3f speed = Vector3f(0.0f, 0.0f, 0.01f); 
+		Vector3f speed = Vector3f(0.0f, 0.0f, 0.3f); 
 		float turnSpeed = 0.0f;
 
 	};//ExampleBird
