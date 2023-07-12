@@ -73,7 +73,8 @@ namespace CForge {
 			// add cube
 			m_BirdTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 10.0f, 0.0f));
 			m_BirdTransformSGN.scale(Vector3f(0.1f, 0.1f, 0.1f));
-			m_BirdTurnSGN.init(&m_BirdTransformSGN, Vector3f(0.0f, 0.0f, 0.0f));
+			m_BirdPitchSGN.init(&m_BirdTransformSGN, Vector3f(0.0f, 0.0f, 0.0f));
+			m_BirdRollSGN.init(&m_BirdPitchSGN, Vector3f(0.0f, 0.0f, 0.0f));
 
 			m_MountainTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 5.0f, 0.0f));
 			//m_MountainTransformSGN.scale(Vector3f(1.5f, 1.5f, 1.5f));
@@ -81,7 +82,7 @@ namespace CForge {
 			Quaternionf To_Y;
 			To_Y = AngleAxis(CForgeMath::degToRad(90.0f), Vector3f::UnitY());
 			m_BirdTransformSGN.rotation(To_Y);
-			m_BirdSGN.init(&m_BirdTurnSGN, &m_Bird);
+			m_BirdSGN.init(&m_BirdRollSGN, &m_Bird);
 			
 
 			// rotate about the y-axis at 45 degree every second and about the X axis to make it a bit more interesting
@@ -237,26 +238,25 @@ namespace CForge {
 		
 			
 			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) { 
-				if (turnSpeed < 3.0f) turnSpeed += 1.0f;
+				if (rollSpeed < 3.0f) rollSpeed += 1.0f;
 			}
 			else {
 				if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT)) {
-					if (turnSpeed > -3.0f) turnSpeed -= 1.0f;
+					if (rollSpeed > -3.0f) rollSpeed -= 1.0f;
 				}
 				else {
-					if (turnSpeed < 0.0f) turnSpeed += 1.0f;
-					if (turnSpeed > 0.0f) turnSpeed -= 1.0f;
+					if (rollSpeed < 0.0f) rollSpeed += 1.0f;
+					if (rollSpeed > 0.0f) rollSpeed -= 1.0f;
 				}
 			}
 			Quaternionf To_Y;
-			To_Y = AngleAxis(CForgeMath::degToRad(turnSpeed/(10.0f*speed.z())), Vector3f::UnitY());
+			To_Y = AngleAxis(CForgeMath::degToRad(rollSpeed/(10.0f*speed.z())), Vector3f::UnitY());
 			m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Y);
 
 			Quaternionf To_Z;
-			To_Z = AngleAxis(CForgeMath::degToRad(-turnSpeed*4.0f), Vector3f::UnitZ());
-			m_BirdTurnSGN.rotation(To_Z);
-
-			
+			To_Z = AngleAxis(CForgeMath::degToRad(-rollSpeed*4.0f), Vector3f::UnitZ());
+			m_BirdRollSGN.rotation(To_Z);
+		
 			Vector3f pos;
 			Vector3f xzdir;
 			Quaternionf rot;
@@ -274,9 +274,16 @@ namespace CForge {
 			// bird to near the ground -> remains altitude
 			if (m_BirdTransformSGN.translation().y() < 0.05) speed.y() += 0.1f;
 
-			// for testing - if ctrl is pressed - can come down faster
+			// dive
 			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) speed.y() -= 0.01f;
 			else if (speed.y() < -0.01f) speed.y() += 0.02f;
+
+			if (speed.y() < -0.01f) {
+				Quaternionf To_X;
+				float pitchAngle = -speed.y() * 40.0f; if (pitchAngle < -80.0f) pitchAngle = -80.0f;
+				To_X = AngleAxis(CForgeMath::degToRad(pitchAngle), Vector3f::UnitX());
+				m_BirdPitchSGN.rotation(To_X);
+			}
 
 			// Bird is rotated in the direction where it is looking
 			m3 = m_BirdTransformSGN.rotation().toRotationMatrix();
@@ -331,8 +338,8 @@ namespace CForge {
 
 		SGNGeometry m_BirdSGN;
 		SGNTransformation m_BirdTransformSGN;
-		SGNTransformation m_BirdTurnSGN;
 		SGNTransformation m_BirdRollSGN;
+		SGNTransformation m_BirdPitchSGN;
 
 		SGNGeometry m_MountainSGN;
 		SGNTransformation m_MountainTransformSGN;
@@ -355,7 +362,7 @@ namespace CForge {
 
 		//Speed für Vogel
 		Vector3f speed = Vector3f(0.0f, 0.0f, 0.3f); 
-		float turnSpeed = 0.0f;
+		float rollSpeed = 0.0f;
 
 	};//ExampleBird
 
