@@ -54,7 +54,7 @@ namespace CForge {
 			// initialize skeletal actor (Eric) and its animation controller
 			//SAssetIO::load("Assets/ExampleScenes/CesiumMan/CesiumMan.gltf", &M);
 	
-			SAssetIO::load("MyAssets/Eagle_Animated/scene.gltf", &M);
+			SAssetIO::load("MyAssets/Eagle_Animated/Current/scene.gltf", &M);
 
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
@@ -71,12 +71,12 @@ namespace CForge {
 			m_SkydomeSGN.scale(Vector3f(50.0f, 50.0f, 50.0f));
 
 			// add skeletal actor to scene graph (Eric)			
-			m_CesiumManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 0.0f, 0.0f));
+			m_CesiumManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, -3.0f, 0.0f));
 			m_CesiumManSGN.init(&m_CesiumManTransformSGN, &m_CesiumMan);
-			m_CesiumManSGN.scale(Vector3f(3.0f, 3.0f, 3.0f));
+			m_CesiumManSGN.scale(Vector3f(0.2f, 0.2f, 0.2f));
 
 			Quaternionf Rot;
-			Rot = AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX());
+			Rot = AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitZ());
 			//m_CesiumManSGN.rotation(Rot);
 
 			// stuff for performance monitoring

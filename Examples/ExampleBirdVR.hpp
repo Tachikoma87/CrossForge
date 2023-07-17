@@ -70,7 +70,7 @@ namespace CForge {
 			m_GroundSGN.init(&m_GroundTransformSGN, &m_Ground);
 			m_GroundSGN.scale(Vector3f(15.0f, 15.0f, 15.0f));
 
-			// add cube
+			// raven
 			m_BirdTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 10.0f, 0.0f));
 			m_BirdTransformSGN.scale(Vector3f(0.1f, 0.1f, 0.1f));
 			m_BirdPitchSGN.init(&m_BirdTransformSGN, Vector3f(0.0f, 0.0f, 0.0f));
@@ -269,7 +269,7 @@ namespace CForge {
 
 			// the bird sinks during normal flight and gains altitude when pressed space
 			if (pKeyboard->keyPressed(Keyboard::KEY_SPACE, true)) speed.y() += 0.2;
-			if (speed.y() > -0.01f) speed.y() -= 0.01f;
+			if (speed.y() > -0.01f) speed.y() -= 0.03f;
 
 			// bird to near the ground -> remains altitude
 			if (m_BirdTransformSGN.translation().y() < 0.05) speed.y() += 0.1f;
@@ -280,7 +280,7 @@ namespace CForge {
 
 			if (speed.y() < -0.01f) {
 				Quaternionf To_X;
-				float pitchAngle = -speed.y() * 40.0f; if (pitchAngle < -80.0f) pitchAngle = -80.0f;
+				float pitchAngle = -speed.y() * 40.0f; if (pitchAngle > 80.0f) pitchAngle = 80.0f;
 				To_X = AngleAxis(CForgeMath::degToRad(pitchAngle), Vector3f::UnitX());
 				m_BirdPitchSGN.rotation(To_X);
 			}
