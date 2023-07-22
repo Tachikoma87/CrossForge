@@ -130,7 +130,12 @@ add_executable(CForgeSandbox
 	Prototypes/InverseKinematics/InverseKinematicsController.cpp
 	Prototypes/InverseKinematics/IKSkeletalActor.cpp
 	Prototypes/InverseKinematics/IKStickFigureActor.cpp
-
+	Prototypes/InverseKinematics/JointLimits/JointLimits.cpp
+	Prototypes/InverseKinematics/JointLimits/HingeLimits.cpp
+	Prototypes/InverseKinematics/JointLimits/SwingXZTwistYLimits.cpp
+	Prototypes/InverseKinematics/JointLimits/SwingXTwistYLimits.cpp
+	Prototypes/InverseKinematics/JointLimits/SwingZTwistYLimits.cpp
+	Prototypes/InverseKinematics/JointLimits/SwingXYTwistZLimits.cpp
 	)
 
 if(EMSCRIPTEN)

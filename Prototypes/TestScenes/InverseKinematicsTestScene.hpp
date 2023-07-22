@@ -92,15 +92,12 @@ namespace CForge {
 			m_CharacterController.update(60.0f / m_FPS);
 			updateEndEffectorMarkers();
 			
-			// testing
-			testRotations();
-			
 			if (m_RenderWin.mouse()->buttonState(Mouse::BTN_LEFT)) {
 				if (!m_LMBDownLastFrame) pickTarget();
 				if (m_SelectedEffectorTarget > -1) dragTarget();
 			}
 			else {
-				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse(), 0.05f, 1.0f, 32.0f);
 			}
 			
 			m_LMBDownLastFrame = m_RenderWin.mouse()->buttonState(Mouse::BTN_LEFT);
@@ -117,6 +114,10 @@ namespace CForge {
 					m_CharacterStickSGN.enable(true, false);
 				}
 			}
+
+			//TEST
+			moveTargetKeyboard(InverseKinematicsController::HEAD);
+			//TEST
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 			m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
@@ -432,77 +433,36 @@ namespace CForge {
 			M.computePerVertexNormals();
 			m_CoordAxes.init(&M);
 			M.clear();
-
-			PrimitiveShapeFactory::cylinder(&M, Vector2f(0.1f, 0.1f), Vector2f(0.1f, 0.1f), 3.0f, 8, Vector2f(0.0f, 0.0f));
-			for (uint32_t i = 0; i < M.materialCount(); ++i) {
-				auto* pMat = M.getMaterial(i);
-				pMat->VertexShaderForwardPass.push_back("Shader/ForwardPassPBS.vert");
-				pMat->FragmentShaderForwardPass.push_back("Shader/ForwardPassPBS.frag");
-				pMat->VertexShaderGeometryPass.push_back("Shader/BasicGeometryPass.vert");
-				pMat->FragmentShaderGeometryPass.push_back("Shader/BasicGeometryPass.frag");
-				pMat->VertexShaderShadowPass.push_back("Shader/ShadowPassShader.vert");
-				pMat->FragmentShaderShadowPass.push_back("Shader/ShadowPassShader.frag");
-				CForgeUtility::defaultMaterial(pMat, CForgeUtility::STONE_YELLOW);
-			}
-			M.computePerVertexNormals();
-			m_Bone.init(&M);
-
-			for (uint32_t i = 0; i < M.materialCount(); ++i) {
-				auto* pMat = M.getMaterial(i);
-				CForgeUtility::defaultMaterial(pMat, CForgeUtility::STONE_WHITE);
-			}
-			m_BoneDefault.init(&M);
-			
-			for (uint32_t i = 0; i < M.materialCount(); ++i) {
-				auto* pMat = M.getMaterial(i);
-				CForgeUtility::defaultMaterial(pMat, CForgeUtility::STONE_BLUE);
-			}
-			m_BoneMin.init(&M);
-
-			for (uint32_t i = 0; i < M.materialCount(); ++i) {
-				auto* pMat = M.getMaterial(i);
-				CForgeUtility::defaultMaterial(pMat, CForgeUtility::STONE_GREEN);
-			}
-			m_BoneMax.init(&M);
-
-			for (uint32_t i = 0; i < M.materialCount(); ++i) {
-				auto* pMat = M.getMaterial(i);
-				CForgeUtility::defaultMaterial(pMat, CForgeUtility::STONE_RED);
-			}
-			m_BoneHinge.init(&M);
-
-			M.clear();
 		}//initDebugActor
 
 		void initRotationTest(void) {
-			m_AxesTransform[0].init(&m_RootSGN, Vector3f(0.0f, 3.0f, 20.0f));
-			m_AxesTransform[1].init(&m_AxesTransform[0], Vector3f(-3.0f, 0.5f, 0.0f));
-			m_AxesTransform[2].init(&m_AxesTransform[0], Vector3f(0.0f, 0.5f, 0.0f));
-			m_AxesTransform[3].init(&m_AxesTransform[0], Vector3f(3.0f, 0.5f, 0.0f));
-			m_AxesTransform[4].init(&m_AxesTransform[0], Vector3f(0.0f, -0.5f, 0.0f));
-
-			m_AxesTransform[1].rotationDelta(Quaternionf(AngleAxisf(CForgeMath::degToRad(1.0f), Vector3f::UnitX())));
-			m_AxesTransform[2].rotationDelta(Quaternionf(AngleAxisf(CForgeMath::degToRad(1.0f), Vector3f::UnitY())));
-			m_AxesTransform[3].rotationDelta(Quaternionf(AngleAxisf(CForgeMath::degToRad(1.0f), Vector3f::UnitZ())));
-			m_AxesTransform[4].rotationDelta(Quaternionf(AngleAxisf(CForgeMath::degToRad(1.0f), -Vector3f::UnitY())));
-
-			m_AxesGeom[0].init(&m_AxesTransform[1], &m_CoordAxes);
-			m_AxesGeom[1].init(&m_AxesTransform[2], &m_CoordAxes);
-			m_AxesGeom[2].init(&m_AxesTransform[3], &m_CoordAxes);
-			m_AxesGeom[3].init(&m_AxesTransform[4], &m_CoordAxes);
-			m_AxesGeom[3].rotation(Quaternionf(AngleAxisf(CForgeMath::degToRad(180.0f), Vector3f::UnitZ())));
+			
 		}//initRotationTest
-
-		void testRotations(void) {				
-
-
-
-		}//testRotations
 
 		void showMarkers(bool Visible) {
 			m_EffectorVis.enable(true, Visible);
 			m_TargetVis.enable(true, Visible);
 		}//showMarkers
+
+		void moveTargetKeyboard(InverseKinematicsController::SkeletalSegment Segment) {
+			Vector3f Translation = Vector3f::Zero();
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_H, true)) Translation.x() += 0.01f;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_K, true)) Translation.x() -= 0.01f;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_U, true)) Translation.y() += 0.01f;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_J, true)) Translation.y() -= 0.01f;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_Y, true)) Translation.z() += 0.01f;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_I, true)) Translation.z() -= 0.01f;
+
+			auto& TargetTransforms = m_TargetTransformSGNs.at(Segment);
+
+			for (int32_t i = 0; i < TargetTransforms.size(); ++i) {
+				if (TargetTransforms[i] == nullptr) continue;
+				TargetTransforms[i]->translation(Translation + TargetTransforms[i]->translation());
+			}
+
+			// apply translation to target points in character controller
+			m_CharacterController.translateTarget(Segment, Translation);
+		}
 
 		SGNTransformation m_RootSGN;
 
@@ -533,13 +493,6 @@ namespace CForge {
 
 		// for debugging / testing
 		StaticActor m_CoordAxes;
-		StaticActor m_Bone;
-		StaticActor m_BoneDefault;
-		StaticActor m_BoneMin;
-		StaticActor m_BoneMax;
-		StaticActor m_BoneHinge;
-		std::array<SGNTransformation, 5> m_AxesTransform;
-		std::array<SGNGeometry, 4> m_AxesGeom;
 	};//InverseKinematicsTestScene
 
 	

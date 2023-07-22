@@ -5,6 +5,11 @@
 #include "../../crossforge/Graphics/UniformBufferObjects/UBOBoneData.h"
 #include "../../crossforge/Graphics/Shader/ShaderCode.h"
 #include "../../crossforge/Graphics/Shader/GLShader.h"
+#include "JointLimits/HingeLimits.h"
+#include "JointLimits/SwingXZTwistYLimits.h"
+#include "JointLimits/SwingXTwistYLimits.h"
+#include "JointLimits/SwingZTwistYLimits.h"
+#include "JointLimits/SwingXYTwistZLimits.h"
 
 #include <nlohmann/json.hpp>
 
@@ -82,13 +87,6 @@ namespace CForge {
 		void rootPosition(Eigen::Vector3f Position); //TODO
 
 	protected:
-		enum ConstraintType {
-			UNCONSTRAINED = 0,
-			HINGE = 1,
-			BALL_AND_SOCKET = 2
-			// ...
-		};
-
 		struct EndEffectorData {
 			Eigen::Matrix3Xf LocalEndEffectorPoints;
 			Eigen::Matrix3Xf GlobalEndEffectorPoints;
@@ -110,27 +108,9 @@ namespace CForge {
 			Joint* pParent;
 			std::vector<Joint*> Children;
 			EndEffectorData* pEndEffectorData;
-
-			// data for constraints
-			ConstraintType ConstraintType;
-			Eigen::Vector3f RestDir;	// relative to parent joint
-
-			// hinge constraint
-			Eigen::Vector3f HingeAxis;
-			Eigen::Vector3f HingeAxisInParentSpace;
-			float MaxRad; // maximum angle in radians
-			float MinRad; // minimum angle in radians
-						
-			// ball-and-socket constraint
-			//TODO...
+			JointLimits* pLimits;
 		};
 		
-		struct HeadJoint {
-			Joint* pJoint;
-			Eigen::Vector3f CurrentGlobalDir;
-			Eigen::Vector3f Target;
-		};
-
 		void initJointProperties(T3DMesh<float>* pMesh, const nlohmann::json& ConstraintData);
 		void initSkeletonStructure(T3DMesh<float>* pMesh, const nlohmann::json& StructureData);
 		void buildKinematicChain(SkeletalSegment SegmentID, const nlohmann::json& ChainData);
@@ -141,17 +121,14 @@ namespace CForge {
 		void ikCCD(SkeletalSegment SegmentID);
 		void rotateGaze(void);
 		Eigen::Quaternionf computeUnconstrainedGlobalRotation(Joint* pJoint, InverseKinematicsController::EndEffectorData* pEffData);
-		void constrainLocalRotation(const Joint* pJoint, Eigen::Quaternionf& Rotation);
 		void forwardKinematics(Joint* pJoint);
 
 		void updateSkinningMatrices(Joint* pJoint, Eigen::Matrix4f ParentTransform);
 		int32_t jointIDFromName(std::string JointName);
-		
-		Eigen::Vector3f m_BoneDefaultDir;
 
 		Joint* m_pRoot;
 		std::vector<Joint*> m_Joints;
-		HeadJoint* m_pHead;
+		Joint* m_pHead;
 		std::map<SkeletalSegment, std::vector<Joint*>> m_JointChains; // Joints.front() is end-effector joint
 
 		int32_t m_MaxIterations;

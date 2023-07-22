@@ -6,7 +6,6 @@
 #include <fstream>
 
 using namespace Eigen;
-using namespace std;
 
 namespace CForge {
 
@@ -14,7 +13,6 @@ namespace CForge {
 		m_pRoot = nullptr;
 		m_pHead = nullptr;
 
-		m_BoneDefaultDir = Vector3f::Zero();
 		m_MaxIterations = 50;
 		
 		m_pShadowPassShader = nullptr;
@@ -46,12 +44,7 @@ namespace CForge {
 		std::ifstream f(ConfigFilepath);
 		const nlohmann::json ConfigData = nlohmann::json::parse(f);
 		
-		m_BoneDefaultDir(0) = ConfigData.at("BoneDefaultDirection").at("x").get<float>();
-		m_BoneDefaultDir(1) = ConfigData.at("BoneDefaultDirection").at("y").get<float>();
-		m_BoneDefaultDir(2) = ConfigData.at("BoneDefaultDirection").at("z").get<float>();
-		m_BoneDefaultDir.normalize();
-
-		initJointProperties(pMesh, ConfigData.at("JointConstraints"));
+		initJointProperties(pMesh, ConfigData.at("JointLimits"));
 		
 		initSkeletonStructure(pMesh, ConfigData.at("SkeletonStructure"));
 		
@@ -92,13 +85,10 @@ namespace CForge {
 		m_pRoot = nullptr;
 		for (auto& i : m_Joints) if (nullptr != i) {
 			if (nullptr != i->pEndEffectorData) delete i->pEndEffectorData;
+			if (nullptr != i->pLimits) delete i->pLimits;
 			delete i;
 		}
 		
-		if (m_pHead != nullptr) {
-			m_pHead->pJoint = nullptr;
-			delete m_pHead;
-		}
 		m_pHead = nullptr;
 
 		m_Joints.clear();
@@ -137,46 +127,94 @@ namespace CForge {
 			pJoint->ID = pRef->ID;
 			pJoint->Name = pRef->Name;
 			pJoint->LocalPosition = pAnimation->Keyframes[i]->Positions[0];
-			pJoint->LocalRotation = pAnimation->Keyframes[i]->Rotations[0];
+			pJoint->LocalRotation = pAnimation->Keyframes[i]->Rotations[0].normalized();
 			pJoint->LocalScale = pAnimation->Keyframes[i]->Scalings[0];
 			pJoint->GlobalPosition = Vector3f::Zero(); // computed after joint hierarchy has been constructed
 			pJoint->GlobalRotation = Quaternionf::Identity(); // computed after joint hierarchy has been constructed
 			pJoint->OffsetMatrix = pRef->OffsetMatrix;
 			pJoint->SkinningMatrix = Matrix4f::Identity(); // computed during applyAnimation()
-
-			pJoint->RestDir = pJoint->LocalRotation * m_BoneDefaultDir;
-
+			
 			// create user defined joint constraints
 			const nlohmann::json& JointData = ConstraintData.at(pJoint->Name);
-			std::string Type = JointData.at("ConstraintType").get<std::string>();
+			std::string Type = JointData.at("Type").get<std::string>();
 
-			if (Type == "Unconstrained") pJoint->ConstraintType = UNCONSTRAINED;
+			if (Type == "Unconstrained") pJoint->pLimits = nullptr;
 
-			if (Type == "Hinge") {
-				pJoint->ConstraintType = HINGE;
-				std::string Axis = JointData.at("LocalHingeAxis").get<std::string>();
-				if (Axis == "x") pJoint->HingeAxis = Vector3f(1.0f, 0.0f, 0.0f);
-				if (Axis == "y") pJoint->HingeAxis = Vector3f(0.0f, 1.0f, 0.0f);
-				if (Axis == "z") pJoint->HingeAxis = Vector3f(0.0f, 0.0f, 1.0f);
-				if (Axis == "-x") pJoint->HingeAxis = Vector3f(-1.0f, 0.0f, 0.0f);
-				if (Axis == "-y") pJoint->HingeAxis = Vector3f(0.0f, -1.0f, 0.0f);
-				if (Axis == "-z") pJoint->HingeAxis = Vector3f(0.0f, 0.0f, -1.0f);
-				pJoint->HingeAxisInParentSpace = pJoint->LocalRotation * pJoint->HingeAxis;
+			if (Type == "Hinge") {				
+				std::string Hinge = JointData.at("HingeAxis").get<std::string>();
+				std::string Forward = JointData.at("BoneForward").get<std::string>();
 
-				float MinDeg = JointData.at("MinAngleDegrees").get<float>();
-				float MaxDeg = JointData.at("MaxAngleDegrees").get<float>();
+				if (Hinge == Forward) throw CForgeExcept("JointLimits for '" + pJoint->Name + "': HingeAxis and BoneForward cannot be the same joint axis!");
 
-				pJoint->MinRad = CForgeMath::degToRad(MinDeg);
-				pJoint->MaxRad = CForgeMath::degToRad(MaxDeg);
+				Vector3f HingeAxis = Vector3f::Zero();
+				Vector3f BoneForward = Vector3f::Zero();
+
+				if (Hinge == "x") HingeAxis = Vector3f::UnitX();
+				else if (Hinge == "y") HingeAxis = Vector3f::UnitY();
+				else if (Hinge == "z") HingeAxis = Vector3f::UnitZ();
+				else throw CForgeExcept("JointLimits for '" + pJoint->Name + "': HingeAxis must be 'x', 'y' or 'z'!");
+
+				if (Forward == "x") BoneForward = Vector3f::UnitX();
+				else if (Forward == "y") BoneForward = Vector3f::UnitY();
+				else if (Forward == "z") BoneForward = Vector3f::UnitZ();
+				else throw CForgeExcept("JointLimits for '" + pJoint->Name + "': BoneForward must be 'x', 'y' or 'z'!");
+
+				float MinRad = CForgeMath::degToRad(JointData.at("MinAngleDegrees").get<float>());
+				float MaxRad = CForgeMath::degToRad(JointData.at("MaxAngleDegrees").get<float>());
+
+				HingeLimits* pNewLimits = new HingeLimits(pJoint->LocalRotation, HingeAxis, BoneForward, MinRad, MaxRad);
+				pJoint->pLimits = pNewLimits;
+			}
+			
+			if (Type == "SwingXZTwistY") {
+				float MinTwist = CForgeMath::degToRad(JointData.at("MinTwist").get<float>());
+				float MaxTwist = CForgeMath::degToRad(JointData.at("MaxTwist").get<float>());
+				float MinXSwing = CForgeMath::degToRad(JointData.at("MinXSwing").get<float>());
+				float MaxXSwing = CForgeMath::degToRad(JointData.at("MaxXSwing").get<float>());
+				float MinZSwing = CForgeMath::degToRad(JointData.at("MinZSwing").get<float>());
+				float MaxZSwing = CForgeMath::degToRad(JointData.at("MaxZSwing").get<float>());
+				
+				SwingXZTwistYLimits* pNewLimits = new SwingXZTwistYLimits(pJoint->LocalRotation, MinXSwing, MaxXSwing, MinZSwing, MaxZSwing, MinTwist, MaxTwist);
+				pJoint->pLimits = pNewLimits;
 			}
 
-			if (Type == "BallAndSocket") {
-				pJoint->ConstraintType = BALL_AND_SOCKET;
-				//TODO: set constraint properties
-				//...
+			if (Type == "SwingXTwistY") {
+				float MinTwist = CForgeMath::degToRad(JointData.at("MinTwist").get<float>());
+				float MaxTwist = CForgeMath::degToRad(JointData.at("MaxTwist").get<float>());
+				float MinSwing = CForgeMath::degToRad(JointData.at("MinSwing").get<float>());
+				float MaxSwing = CForgeMath::degToRad(JointData.at("MaxSwing").get<float>());
+				
+				SwingXTwistYLimits* pNewLimits = new SwingXTwistYLimits(pJoint->LocalRotation, MinSwing, MaxSwing, MinTwist, MaxTwist);
+				pJoint->pLimits = pNewLimits;
 			}
 
-			//if (Type == "...") ...
+			if (Type == "SwingZTwistY") {
+				float MinTwist = CForgeMath::degToRad(JointData.at("MinTwist").get<float>());
+				float MaxTwist = CForgeMath::degToRad(JointData.at("MaxTwist").get<float>());
+				float MinSwing = CForgeMath::degToRad(JointData.at("MinSwing").get<float>());
+				float MaxSwing = CForgeMath::degToRad(JointData.at("MaxSwing").get<float>());
+
+				SwingZTwistYLimits* pNewLimits = new SwingZTwistYLimits(pJoint->LocalRotation, MinSwing, MaxSwing, MinTwist, MaxTwist);
+				pJoint->pLimits = pNewLimits;
+			}
+
+			if (Type == "SwingXYTwistZ") {
+				float MinTwist = CForgeMath::degToRad(JointData.at("MinTwist").get<float>());
+				float MaxTwist = CForgeMath::degToRad(JointData.at("MaxTwist").get<float>());
+				float MinXSwing = CForgeMath::degToRad(JointData.at("MinXSwing").get<float>());
+				float MaxXSwing = CForgeMath::degToRad(JointData.at("MaxXSwing").get<float>());
+				float MinYSwing = CForgeMath::degToRad(JointData.at("MinYSwing").get<float>());
+				float MaxYSwing = CForgeMath::degToRad(JointData.at("MaxYSwing").get<float>());
+				
+				SwingXYTwistZLimits* pNewLimits = new SwingXYTwistZLimits(pJoint->LocalRotation, MinXSwing, MaxXSwing, MinYSwing, MaxYSwing, MinTwist, MaxTwist);
+				pJoint->pLimits = pNewLimits;
+			}
+
+			//if (Type == "SwingXTwistZ") ...
+			//if (Type == "SwingYTwistZ") ...
+			//if (Type == "SwingYZTwistX") ...
+			//if (Type == "SwingYTwistX") ...
+			//if (Type == "SwingZTwistX") ...
 
 			m_Joints.push_back(pJoint);
 		}//for[bones]
@@ -212,8 +250,7 @@ namespace CForge {
 		std::string GazeJointName = StructureData.at("Gaze").at("Joint").get<std::string>();
 		for (uint32_t i = 0; i < m_Joints.size(); ++i) {
 			if (m_Joints[i]->Name == GazeJointName) {
-				m_pHead = new HeadJoint();
-				m_pHead->pJoint = m_Joints[i];
+				m_pHead = m_Joints[i];
 				break;
 			}
 		}//for[joints]
@@ -259,10 +296,23 @@ namespace CForge {
 
 	void InverseKinematicsController::initEndEffectorPoints(const nlohmann::json& EndEffectorPropertiesData) {
 		for (const auto& el : EndEffectorPropertiesData.items()) {
-			if (el.key() == "GazeDirection") {
-				m_pHead->CurrentGlobalDir(0) = el.value().at("x").get<float>();
-				m_pHead->CurrentGlobalDir(1) = el.value().at("y").get<float>();
-				m_pHead->CurrentGlobalDir(2) = el.value().at("z").get<float>();
+			if (el.key() == "Gaze") {
+				if (m_pHead == nullptr) throw NullpointerExcept("m_pHead");
+
+				EndEffectorData* pEffData = new EndEffectorData();
+
+				pEffData->LocalEndEffectorPoints.resize(3, 1);
+				pEffData->GlobalEndEffectorPoints.resize(3, 1);
+
+				float FwdX = el.value().at("Forward").at("x").get<float>();
+				float FwdY = el.value().at("Forward").at("y").get<float>();
+				float FwdZ = el.value().at("Forward").at("z").get<float>();
+				Vector3f Forward = Vector3f(FwdX, FwdY, FwdZ);
+
+				pEffData->GlobalEndEffectorPoints.col(0) = m_pHead->GlobalPosition + Forward;
+				pEffData->LocalEndEffectorPoints.col(0) = m_pHead->GlobalRotation.conjugate() * Forward;
+
+				m_pHead->pEndEffectorData = pEffData;
 			}
 			else {
 				SkeletalSegment Seg = SkeletalSegment::NONE;
@@ -288,7 +338,7 @@ namespace CForge {
 				}
 
 				for (int32_t i = 0; i < pEffData->LocalEndEffectorPoints.cols(); ++i) {
-					pEffData->LocalEndEffectorPoints.col(i) = pEff->GlobalRotation.inverse() * (pEffData->GlobalEndEffectorPoints.col(i) - pEff->GlobalPosition);
+					pEffData->LocalEndEffectorPoints.col(i) = pEff->GlobalRotation.conjugate() * (pEffData->GlobalEndEffectorPoints.col(i) - pEff->GlobalPosition);
 				}
 
 				pEff->pEndEffectorData = pEffData;
@@ -297,7 +347,7 @@ namespace CForge {
 	}//initEndEffectorPoints
 
 	void InverseKinematicsController::initTargetPoints(void) {
-		m_pHead->Target = m_pHead->pJoint->GlobalPosition + m_pHead->CurrentGlobalDir;
+		m_pHead->pEndEffectorData->GlobalTargetPoints = m_pHead->pEndEffectorData->GlobalEndEffectorPoints;
 		
 		for (auto& c : m_JointChains) {
 			Joint* pEff = c.second.front();
@@ -310,12 +360,12 @@ namespace CForge {
 
 		forwardKinematics(m_pRoot);
 
-		//rotateGaze();
+		rotateGaze();
 		ikCCD(RIGHT_ARM);
-		//ikCCD(LEFT_ARM);
-		//ikCCD(RIGHT_LEG);
-		//ikCCD(LEFT_LEG);
-		//ikCCD(SPINE);
+		ikCCD(LEFT_ARM);
+		ikCCD(RIGHT_LEG);
+		ikCCD(LEFT_LEG);
+		ikCCD(SPINE);
 	}//update
 
 	void InverseKinematicsController::applyAnimation(bool UpdateUBO) {
@@ -340,18 +390,19 @@ namespace CForge {
 		for (int32_t i = 0; i < m_MaxIterations; ++i) {
 			LastEndEffectorPoints = pEffData->GlobalEndEffectorPoints;
 
-			for (int32_t k = 1; k < Chain.size() - 2; ++k) {
+			for (int32_t k = 0; k < Chain.size(); ++k) {
 				Joint* pCurrent = Chain[k];
 
 				// compute unconstrained global rotation that best aligns position and orientation of end effector with desired target values
 				Quaternionf GlobalIncrement = computeUnconstrainedGlobalRotation(pCurrent, pEffData);
 				Quaternionf NewGlobalRotation = GlobalIncrement * pCurrent->GlobalRotation;
-
-				// transform new global rotation to new local rotation
-				Quaternionf NewLocalRotation = (pCurrent == m_pRoot) ? NewGlobalRotation : pCurrent->pParent->GlobalRotation.inverse() * NewGlobalRotation;
 				
-				// constrain new local rotation
-				constrainLocalRotation(pCurrent, NewLocalRotation); //TODO: ball-and-socket joint, others?
+				// transform new global rotation to new local rotation
+				Quaternionf NewLocalRotation = (pCurrent == m_pRoot) ? NewGlobalRotation : pCurrent->pParent->GlobalRotation.conjugate() * NewGlobalRotation;
+				NewLocalRotation.normalize();
+
+				// constrain new local rotation if joint is not unconstrained
+				if (pCurrent->pLimits != nullptr) NewLocalRotation = pCurrent->pLimits->constrain(NewLocalRotation);
 
 				// apply new local rotation to joint
 				pCurrent->LocalRotation = NewLocalRotation;
@@ -372,33 +423,29 @@ namespace CForge {
 	}//ikCCD
 
 	void InverseKinematicsController::rotateGaze(void) {
-		Joint* pJoint = m_pHead->pJoint;
+		Vector3f EPos = m_pHead->pEndEffectorData->GlobalEndEffectorPoints.col(0);
+		Vector3f TPos = m_pHead->pEndEffectorData->GlobalTargetPoints.col(0);
+		Vector3f CurrentDir = (EPos - m_pHead->GlobalPosition).normalized();
+		Vector3f TargetDir = (TPos - m_pHead->GlobalPosition).normalized();
 
-		Vector3f CurrentGlobalDir = m_pHead->CurrentGlobalDir; // global gaze direction before update (expected to be normalized; new values will be normalized when rotation updates happen)
-		Vector3f GlobalTargetDir = (m_pHead->Target - pJoint->GlobalPosition).normalized();
-
-		if (std::abs(1.0f - CurrentGlobalDir.dot(GlobalTargetDir) > 1e-5f)) {
-			Vector3f CurrentLocalDir = pJoint->GlobalRotation.inverse() * CurrentGlobalDir; // local gaze direction in joint space before update
-						
+		if (std::abs(1.0f - CurrentDir.dot(TargetDir) > 1e-6f)) {			
 			// compute unconstrained global rotation to align both directional vectors in world space
 			Quaternionf GlobalIncrement;
-			GlobalIncrement.setFromTwoVectors(CurrentGlobalDir, GlobalTargetDir);
-			Quaternionf NewGlobalRotation = GlobalIncrement * pJoint->GlobalRotation;
-
+			GlobalIncrement.setFromTwoVectors(CurrentDir, TargetDir);
+			Quaternionf NewGlobalRotation = GlobalIncrement * m_pHead->GlobalRotation;
+			
 			// transform new global rotation to new local rotation
-			Quaternionf NewLocalRotation = (pJoint == m_pRoot) ? NewGlobalRotation : pJoint->pParent->GlobalRotation.inverse() * NewGlobalRotation;
+			Quaternionf NewLocalRotation = (m_pHead == m_pRoot) ? NewGlobalRotation : m_pHead->pParent->GlobalRotation.conjugate() * NewGlobalRotation;
+			NewLocalRotation.normalize();
 
-			// constrain new local rotation
-			constrainLocalRotation(pJoint, NewLocalRotation); //TODO: ball-and-socket joint, others?
+			// constrain new local rotation if joint is not unconstrained
+			if (m_pHead->pLimits != nullptr) NewLocalRotation = m_pHead->pLimits->constrain(NewLocalRotation);
 
 			// apply new local rotation to joint 
-			pJoint->LocalRotation = NewLocalRotation;
+			m_pHead->LocalRotation = NewLocalRotation;
 
 			// compute new global joint rotation and apply to gaze direction
-			forwardKinematics(pJoint);
-
-			// apply new global rotation of pJoint to old gaze direction in joint space to compute the new (normalized) gaze direction in global space
-			m_pHead->CurrentGlobalDir = (pJoint->GlobalRotation * CurrentLocalDir).normalized();
+			forwardKinematics(m_pHead);
 		}
 	}//rotateGaze
 
@@ -474,49 +521,6 @@ namespace CForge {
 		return GlobalRotation;
 	}//computeUnconstrainedGlobalRotation
 
-	void InverseKinematicsController::constrainLocalRotation(const Joint* pJoint, Eigen::Quaternionf& Rotation) {
-		if (pJoint->ConstraintType == UNCONSTRAINED) return; // do nothing
-
-		if (pJoint->ConstraintType == HINGE) {
-			
-			// enforce rotation around hinge axis
-			Vector3f RotatedHingeAxisInParentSpace = Rotation * pJoint->HingeAxis;
-
-			Quaternionf FromTo;
-			FromTo.setFromTwoVectors(RotatedHingeAxisInParentSpace, pJoint->HingeAxisInParentSpace);
-			Rotation = FromTo * Rotation;
-			
-			// compute new angle of bone/joint relative to its rest position
-			Vector3f NewDir = Rotation * m_BoneDefaultDir;
-			NewDir.normalize();
-			
-			Vector3f Cross = pJoint->RestDir.cross(NewDir);
-			float Dot = pJoint->RestDir.dot(NewDir);
-			float AngleToRest = std::atan2f(Cross.dot(pJoint->HingeAxisInParentSpace), Dot); // angle from RestDir to NewDir in radians
-			
-			// enforce angle limits by adding a rotation that moves the bone/joint back into the allowed range of motion
-			float Diff = 0.0f;
-			if (AngleToRest > pJoint->MaxRad) Diff = pJoint->MaxRad - AngleToRest;
-			if (AngleToRest < pJoint->MinRad) Diff = pJoint->MinRad - AngleToRest;
-
-
-			if (std::abs(Diff) > 1e-6f) {
-				Quaternionf BackRotation = Quaternionf(AngleAxisf(Diff, pJoint->HingeAxisInParentSpace));
-				Rotation = BackRotation * Rotation;
-			}
-						
-			Rotation.normalize();
-		}
-		else if (pJoint->ConstraintType == BALL_AND_SOCKET) {
-			//TODO
-			//pJoint->LocalRotation = ...
-		}
-		else /*if (pJoint->ConstraintType == ...)*/ {
-			//TODO
-			//pJoint->LocalRotation = ...
-		}
-	}//constrainLocalRotation
-
 	void InverseKinematicsController::forwardKinematics(Joint* pJoint) {
 		if (nullptr == pJoint) throw NullpointerExcept("pJoint");
 
@@ -529,11 +533,13 @@ namespace CForge {
 			pJoint->GlobalRotation = pJoint->pParent->GlobalRotation * pJoint->LocalRotation;
 		}
 
+		pJoint->GlobalRotation.normalize();
+
 		if (pJoint->pEndEffectorData != nullptr) {
 			auto& GlobalEndEffectorPoints = pJoint->pEndEffectorData->GlobalEndEffectorPoints;
 			auto& LocalEndEffectorPoints = pJoint->pEndEffectorData->LocalEndEffectorPoints;
 
-			for (int i = 0; i < GlobalEndEffectorPoints.cols(); ++i) {
+			for (int32_t i = 0; i < GlobalEndEffectorPoints.cols(); ++i) {
 				GlobalEndEffectorPoints.col(i) = (pJoint->GlobalRotation * LocalEndEffectorPoints.col(i)) + pJoint->GlobalPosition;
 			}
 		}
@@ -594,31 +600,31 @@ namespace CForge {
 
 	std::vector<InverseKinematicsController::SkeletalEndEffector*> InverseKinematicsController::retrieveEndEffectors(void) const {
 		std::vector<SkeletalEndEffector*> Rval;
-		SkeletalEndEffector* pNewEffector = nullptr;
-
+		
 		for (const auto& c : m_JointChains) {
-			Joint* pEff = c.second.front();
-			pNewEffector = new SkeletalEndEffector();
+			SkeletalEndEffector* pEff = new SkeletalEndEffector();
 
-			pNewEffector->JointID = pEff->ID;
-			pNewEffector->JointName = pEff->Name;
-			pNewEffector->Segment = c.first;
-			pNewEffector->EndEffectorPoints = pEff->pEndEffectorData->GlobalEndEffectorPoints;
-			pNewEffector->TargetPoints = pEff->pEndEffectorData->GlobalTargetPoints;
-			Rval.push_back(pNewEffector);
+			pEff->JointID = c.second.front()->ID;
+			pEff->JointName = c.second.front()->Name;
+			pEff->Segment = c.first;
+			pEff->EndEffectorPoints = c.second.front()->pEndEffectorData->GlobalEndEffectorPoints;
+			pEff->TargetPoints = c.second.front()->pEndEffectorData->GlobalTargetPoints;
+
+			Rval.push_back(pEff);
 		}
 
 		// gaze
-		pNewEffector = new SkeletalEndEffector();
+		SkeletalEndEffector* pEff = new SkeletalEndEffector();
 
-		pNewEffector->JointID = m_pHead->pJoint->ID;
-		pNewEffector->JointName = m_pHead->pJoint->Name;
-		pNewEffector->Segment = HEAD;
-		pNewEffector->EndEffectorPoints.resize(3, 1);
-		pNewEffector->EndEffectorPoints.col(0) = m_pHead->pJoint->GlobalPosition;
-		pNewEffector->TargetPoints.resize(3, 1);
-		pNewEffector->TargetPoints.col(0) = m_pHead->Target;
-		Rval.push_back(pNewEffector);
+		pEff->JointID = m_pHead->ID;
+		pEff->JointName = m_pHead->Name;
+		pEff->Segment = HEAD;
+		pEff->EndEffectorPoints.resize(3, 1);
+		pEff->EndEffectorPoints = m_pHead->pEndEffectorData->GlobalEndEffectorPoints;
+		pEff->TargetPoints.resize(3, 1);
+		pEff->TargetPoints = m_pHead->pEndEffectorData->GlobalTargetPoints;
+
+		Rval.push_back(pEff);
 
 		return Rval;
 	}//retrieveEndEffectors
@@ -627,34 +633,15 @@ namespace CForge {
 		if (nullptr == pEndEffectors) throw NullpointerExcept("pEndEffectors");
 
 		for (auto i : (*pEndEffectors)) {
-			switch (i->Segment) {
-			case HEAD: {
-				i->EndEffectorPoints.col(0) = m_pHead->pJoint->GlobalPosition;
-				i->TargetPoints.col(0) = m_pHead->Target;
-				break;
-			}
-			case RIGHT_ARM:
-			case LEFT_ARM:
-			case RIGHT_LEG:
-			case LEFT_LEG:
-			case SPINE: {
-				Joint* pEff = m_JointChains.at(i->Segment).front();
-				i->EndEffectorPoints = pEff->pEndEffectorData->GlobalEndEffectorPoints;
-				i->TargetPoints = pEff->pEndEffectorData->GlobalTargetPoints;
-				break;
-			}
-			}
+			Joint* pEff = (i->Segment == HEAD) ? m_pHead : m_JointChains.at(i->Segment).front();
+			i->EndEffectorPoints = pEff->pEndEffectorData->GlobalEndEffectorPoints;
+			i->TargetPoints = pEff->pEndEffectorData->GlobalTargetPoints;
 		}
 	}//updateEndEffectorValues
 
 	void InverseKinematicsController::translateTarget(SkeletalSegment SegmentID, Vector3f Translation) {
-		if (SegmentID == HEAD) {
-			m_pHead->Target += Translation;
-		}
-		else {
-			EndEffectorData* pEffData = m_JointChains.at(SegmentID).front()->pEndEffectorData;
-			pEffData->GlobalTargetPoints.colwise() += Translation;
-		}
+		EndEffectorData* pEffData = (SegmentID == HEAD) ? m_pHead->pEndEffectorData : m_JointChains.at(SegmentID).front()->pEndEffectorData;
+		pEffData->GlobalTargetPoints.colwise() += Translation;
 	}//endEffectorTarget
 
 	Eigen::Vector3f InverseKinematicsController::rootPosition(void) {
