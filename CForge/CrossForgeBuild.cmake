@@ -261,6 +261,7 @@ target_link_libraries(crossforge
 	PRIVATE glad::glad
 	PRIVATE assimp::assimp
 	PRIVATE igl::core 
+	# TODO: normally use igl::igl_core
 	PRIVATE igl::common		
 	PRIVATE WebP::webp 
 	PRIVATE WebP::webpdecoder

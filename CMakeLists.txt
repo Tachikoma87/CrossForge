@@ -38,6 +38,7 @@ if(EMSCRIPTEN)
 	set(CMAKE_EXECUTABLE_SUFFIX .html)
 else()
 # Additional packages not alreday included in the core library
+FIND_PACKAGE(fcl REQUIRED)
 FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
 endif()
 
@@ -97,6 +98,7 @@ elseif(WIN32)
 	PRIVATE glad::glad
 	ws2_32
 	PRIVATE tinyxml2::tinyxml2
+	PRIVATE fcl
 #	${FREETYPE_LIBRARIES}
 
 	)
@@ -110,8 +112,11 @@ elseif(UNIX)
 #		PRIVATE assimp
 		PRIVATE gpiod
 		PRIVATE dl	
+		PRIVATE fcl
 		)
 endif()
+
+target_compile_options(CForgeSandbox PRIVATE /bigobj)
 
 #copy shaders
 add_custom_command(

@@ -21,6 +21,9 @@
 #include "ExampleSceneBase.hpp"
 #include "../CForge/Graphics/Actors/SkyboxActor.h"
 
+#include "fcl/narrowphase/collision_object.h"
+#include "fcl/narrowphase/distance.h"
+
 
 using namespace Eigen;
 using namespace std;
@@ -49,7 +52,14 @@ namespace CForge {
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
 			m_Bird.init(&M);
+
+			// calculate AABB for the bird -->
+			M.computeAxisAlignedBoundingBox();
+			T3DMesh<float>::AABB birdAABB = M.aabb();
+			float birdBBSphereR = birdAABB.Min.norm();
+			birdBBSphereR = birdBBSphereR > birdAABB.Min.norm() ? birdBBSphereR : birdAABB.Max.norm();
 			M.clear();
+			// # Todo: make the same for the buildings (all 3 types -> get the size of them) 
 
 			/*SAssetIO::load("Assets/ExampleScenes/Bird/mountain_range_01.glb", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
@@ -84,6 +94,7 @@ namespace CForge {
 			m_BirdTransformSGN.rotation(To_Y);
 			m_BirdSGN.init(&m_BirdRollSGN, &m_Bird);
 			
+			
 
 			// rotate about the y-axis at 45 degree every second and about the X axis to make it a bit more interesting
 			/*Quaternionf RY, RX;
@@ -91,10 +102,31 @@ namespace CForge {
 			RX = AngleAxisf(CForgeMath::degToRad(-25.0f / 60.0f), Vector3f::UnitZ());
 			m_BirdTransformSGN.rotationDelta(RX * RY);*/
 
+			/*
+			T3DMesh<float> M;
+			SAssetIO::load("MyAssets/Bird/bird.fbx", &M);
+			setMeshShader(&M, 0.1f, 0.04f);
+			M.computePerVertexNormals();
+			m_Bird.init(&M);
+
+			// calculate AABB for the bird -->
+			M.computeAxisAlignedBoundingBox();
+			T3DMesh<float>::AABB birdAABB = M.aabb();
+			float birdBBSphereR = birdAABB.Min.norm();
+			birdBBSphereR = birdBBSphereR > birdAABB.Min.norm() ? birdBBSphereR : birdAABB.Max.norm();
+			M.clear();
+			*/
+
 			// load buildings
 			SAssetIO::load("MyAssets/Buildings/building_06/scene.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
+			M.computeAxisAlignedBoundingBox();
+			T3DMesh<float>::AABB buildingAABB = M.aabb();
+			float diagx = buildingAABB.diagonal().x();
+			float diagy = buildingAABB.diagonal().y();
+			float diagz = buildingAABB.diagonal().z();
+			float tmp = buildingAABB.Max.z() - buildingAABB.Min.z();
 			m_Buildings[0].init(&M);
 			M.clear();
 

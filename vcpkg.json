@@ -9,7 +9,8 @@
 		"freetype",
 		"libigl",
 		"libwebp",
-		"tinyxml2"
+		"tinyxml2",
+		"fcl"
 	]
 }
 
