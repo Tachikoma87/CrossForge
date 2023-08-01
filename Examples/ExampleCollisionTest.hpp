@@ -24,6 +24,12 @@
 using namespace Eigen;
 using namespace std;
 
+enum RotationCube {
+	UNITX,
+	UNITY,
+	UNITZ,
+};
+
 namespace CForge {
 
 	class ExampleCollisionTest : public ExampleSceneBase {
@@ -132,23 +138,25 @@ namespace CForge {
 			//  for (Real sy : y_values ) {
 			// Repose the sphere.
 			float sx, sy, sz;
-			sx = m_matSphere.data()[11], sy = m_matSphere.data()[12], sz = m_matSphere.data()[13];
-			X_WS.translation() << sx, sy, sz;
+			sx = m_matSphere.data()[12], sy = m_matSphere.data()[13], sz = m_matSphere.data()[14];
+			//X_WS.translation() << sx, sy, sz;
 
 			float bx, by, bz;
-			bx = m_matCube.data()[11], by = m_matCube.data()[12], bz = m_matCube.data()[13];
-			X_WB.translation() << bx, by, bz;
+			float deltaX = 0.f, deltaY = 0.f, deltaZ = 0.f;
+			bx = m_matCube.data()[12], by = m_matCube.data()[13], bz = m_matCube.data()[14];
+			//X_WB.translation() << bx, by, bz;
 
-			box.setTransform(X_WB);
-			// box.setQuatRotation(); // kann rotation reinsetzten von static actor
-			sphere.setTransform(X_WS);
+			//box.setTranslation(Eigen::Vector3f(bx, by, bz));
+			//box.setTransform(m_matCube.block<3, 3>(0, 0), Eigen::Vector3f(bx, by, bz));
+			box.setRotation(m_matCube.block<3, 3>(0, 0));
+			box.setTranslation(Eigen::Vector3f(bx, by, bz));
+			sphere.setTransform(m_matSphere.block<3, 3>(0, 0), Eigen::Vector3f(sx, sy, sz));
 
 			auto evaluate_collision = [&](
 				const fcl::CollisionObject<float>* s1, const fcl::CollisionObject<float>* s2) {
 					// Compute collision.
 					fcl::CollisionResult<float> collision_result;
-					std::size_t contact_count =
-						fcl::collide(s1, s2, collision_request, collision_result);
+					std::size_t contact_count = fcl::collide(s1, s2, collision_request, collision_result);
 
 					// Test answers
 					if (contact_count == collision_request.num_max_contacts) {
@@ -167,28 +175,64 @@ namespace CForge {
 
 			m_RenderWin.update();
 			m_SG.update(60.0f / m_FPS);
-			globalTimer += 1.f / m_FPS * 0.3;
+			globalTimer += 1.f / m_FPS * 0.6;
+			deltaTime = 1 / m_FPS; // gleich schnell zum rotieren
 
 			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD);
 			//m_SG.render(&m_RenderDev);
 
-			m_matCube = CForgeMath::translationMatrix(Eigen::Vector3f(0.f, 2.f * sin(globalTimer), 0.f));
-			m_matSphere = CForgeMath::translationMatrix(Eigen::Vector3f(0.f, 2.f * sin(globalTimer + 2.f), 0.f));
+			float doRot = 0.0f;
+
+			Keyboard* pKeyboard = m_RenderWin.keyboard();
+			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) m_rotationCube = UNITX;
+			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) m_rotationCube = UNITY;
+			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) m_rotationCube = UNITZ;
+			
+			if (pKeyboard->keyPressed(Keyboard::KEY_T, true)) doRot = deltaTime;
+			if (pKeyboard->keyPressed(Keyboard::KEY_Z, true)) doRot = -deltaTime;
+
+			if (pKeyboard->keyPressed(Keyboard::KEY_UP, true)) deltaZ = -deltaTime;
+			if (pKeyboard->keyPressed(Keyboard::KEY_DOWN, true)) deltaZ = deltaTime;
+			if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT, true)) deltaX = -deltaTime;
+			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT, true)) deltaX = deltaTime;
+			if (pKeyboard->keyPressed(Keyboard::KEY_R, true)) deltaY = -deltaTime;
+			if (pKeyboard->keyPressed(Keyboard::KEY_E, true)) deltaY = deltaTime;
+
+			switch (m_rotationCube)
+			{
+			case UNITX:
+				m_rot = Vector3f::UnitX();
+				break;
+			case UNITY:
+				m_rot = Vector3f::UnitY();
+				break;
+			case UNITZ:
+				m_rot = Vector3f::UnitZ();
+				break;
+			default:
+				break;
+			}
+
+
+			m_matCubeRot *= CForgeMath::rotationMatrix((Quaternionf)AngleAxisf(CForgeMath::degToRad(doRot) * 8, m_rot));
+			m_matCubeTrans *= CForgeMath::translationMatrix(Eigen::Vector3f(deltaX, deltaY, deltaZ));
+			m_matCube = m_matCubeRot * m_matCubeTrans;
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE, GL_ONE);
 
 			m_RenderDev.modelUBO()->modelMatrix(m_matCube);
-			m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
+			m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 
 			if (col)
 				glColorMask(true, false, false, true);
 			else
 				glColorMask(true, true, true, true);
+
 			m_RenderDev.modelUBO()->modelMatrix(m_matSphere);
-			m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
+			m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 			glColorMask(true, true, true, true);
 
 			m_RenderWin.swapBuffers();
@@ -219,14 +263,20 @@ namespace CForge {
 		StaticActor m_Skydome;
 		StaticActor m_Cube;
 
-		Eigen::Matrix4f m_matCube;
-		Eigen::Matrix4f m_matSphere;
+		Eigen::Matrix4f m_matCube = Eigen::Matrix4f::Identity();
+		Eigen::Matrix4f m_matCubeTrans = Eigen::Matrix4f::Identity();
+		Eigen::Matrix4f m_matCubeRot = Eigen::Matrix4f::Identity();
+		Eigen::Matrix4f m_matSphere = Eigen::Matrix4f::Identity();
 
 		StaticActor m_Sphere;
+		RotationCube m_rotationCube; 
+		Vector3f m_rot = Vector3f::UnitX();
 
 		float globalTimer = 0.f;
+		float deltaTime = 0.f;
 
 	};//ExampleMinimumGraphicsSetup
 
 }//name space
+
 

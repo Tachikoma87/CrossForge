@@ -46,7 +46,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleSceneBase
 
 //#define ActiveScene ExampleMinimumGraphicsSetup
-#define ActiveScene ExampleCollisionTest
+//#define ActiveScene ExampleCollisionTest
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
 //#define ActiveScene ExampleSceneGraph
@@ -55,7 +55,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleTransformation
 //#define ActiveScene ExampleTransformationSG
 //#define ActiveScene ExampleSocket
-//#define ActiveScene ExampleBird
+#define ActiveScene ExampleBird
 
 
 //#define ActiveScene ImuInputDeviceTestScene	 
