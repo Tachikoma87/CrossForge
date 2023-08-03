@@ -245,32 +245,60 @@ namespace CForge {
 
 		}
 
-		void initCheckpoints(void) {
+		void initRandomCheckpoints(void) {
 
 			m_CPPositions[0] = m_startPosition + Vector3f(0.0f, 0.0f, 60.0f);
 
-			// 2D Grid movements: forward, right, left
-			vector <Vector3f> actionRoom = { Vector3f(0.0f, 0.0f, 60.0f), Vector3f(60.0f, 0.0f, 0.0f), Vector3f(-60.0f, 0.0f, 0.0f) };
+			// 2D Grid movements
+			vector <Vector3f> actionRoom = { Vector3f(0.0f, 0.0f, 60.0f), Vector3f(0.0f, 0.0f, -60.0f), Vector3f(60.0f, 0.0f, 0.0f), Vector3f(-60.0f, 0.0f, 0.0f) };
+			vector <Vector3f> activeActionRoom;
+
+			Vector3f prevAction = Vector3f(0.0f, 0.0f, 60.0f);
 
 			for (int i = 0; i < m_CPCount; i++) {
 				if (i != 0) {
 					float heightChange = 2.0f * (float)(rand() / (float) RAND_MAX) - 2.0f;		// random heightchange from -2.0f to 2.0f
-					m_CPPositions[i] = m_CPPositions[i - 1] + actionRoom[CForgeMath::rand() % 3] + Vector3f(0.0f, heightChange, 0.0f);
+					activeActionRoom.clear();
+					for (auto j : actionRoom) {
+						if (j != -prevAction) activeActionRoom.push_back(j);
+					}
+					prevAction = activeActionRoom[rand() % 3];
+					m_CPPositions[i] = m_CPPositions[i - 1] + prevAction + Vector3f(0.0f, heightChange, 0.0f);
 					if (m_CPPositions[i].y() < m_minHeight) m_CPPositions[i].y() = m_minHeight;
 					else if (m_CPPositions[i].y() > m_maxHeight) m_CPPositions[i].y() = m_maxHeight;
 				}
 			}
 
+			buildCheckpoints(m_CPPositions);
+
+		}
+
+		void initCheckpoints(void) {
+			//TODO create checkpoints positions manually
+			buildCheckpoints(m_CPPositions);
+		}
+
+		void buildCheckpoints(vector <Vector3f> positions) {
+
+			//if (positions == ([] || NULL)) return;
+
 			m_CheckpointsSG.clear();
 
 			//add to scenegraph
 			T3DMesh <float> M;
-			PrimitiveShapeFactory::Torus(&M, 2.0f, 0.2f, 5, 5); //alt.: load
+			PrimitiveShapeFactory::Torus(&M, 2.0f, 0.2f, 15, 15); //alt.: load
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
-			// TODO set Color for Mesh 
+
+			//set Color for Mesh 
+			for (uint32_t i = 0; i < M->materialCount(); ++i) {
+				T3DMesh<float>::Material* pMat = M->getMaterial(i);
+				pMat->Color = Vector4f(0.0f, 0.0f, 0.7f, 0.4f);
+			}
 			m_Checkpoint.init(&M);
 			M.clear();
+
+			//int checkpointNum = positions.length();
 
 			m_CPGroupSGN.init(nullptr);
 			for (int i = 0; i < m_CPCount; i++) {
@@ -286,9 +314,9 @@ namespace CForge {
 				pGeomSGN = new SGNGeometry();
 				pGeomSGN->init(pTransformSGN, &m_Checkpoint);
 			}
-			
-			m_CheckpointsSG.init(&m_CPGroupSGN);
 
+			m_CheckpointsSG.init(&m_CPGroupSGN);
+			return;
 		}
 
 		void translate_bird(Vector3f move) {
@@ -598,10 +626,6 @@ namespace CForge {
 		SceneGraph m_SkyboxSG;
 		SGNTransformation m_SkyboxTransSGN;
 		SGNGeometry m_SkyboxGeomSGN;
-
-		//Speed für Vogel
-		Vector3f speed = Vector3f(0.0f, 0.0f, 0.3f); 
-		float rollSpeed = 0.0f;
 
 
 		// vectors for the buildings - check whether it works or not! 
