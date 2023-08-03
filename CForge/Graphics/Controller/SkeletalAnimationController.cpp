@@ -212,6 +212,19 @@ namespace CForge {
 		}//for[active animations]
 	}//update
 
+	//Addition for pausing and resuming animations
+	void SkeletalAnimationController::pauseAnimation(Animation* pAnim) {
+		if (pAnim != nullptr) {
+			pAnim->Speed = 0.0f; // Set the animation speed to 0 to pause it
+		}
+	}
+
+	void SkeletalAnimationController::resumeAnimation(Animation* pAnim) {
+		if (pAnim != nullptr) {
+			pAnim->Speed = 1.0f; // Set the animation speed back to 1 to resume it
+		}
+	}
+
 	void SkeletalAnimationController::destroyAnimation(Animation* pAnim) {
 
 		for (auto& i : m_ActiveAnimations) {
@@ -232,8 +245,12 @@ namespace CForge {
 		else {
 			T3DMesh<float>::SkeletalAnimation* pAnimData = m_SkeletalAnimations[pAnim->AnimationID];
 
-			if (pAnim->t > pAnimData->Duration) {
+			/*if (pAnim->t > pAnimData->Duration) {
 				pAnim->t = pAnimData->Duration;
+				pAnim->Finished = true;
+			} */
+			if (pAnim != nullptr && pAnim->t >= pAnimData->Duration) {
+				pAnim->t = pAnimData->Duration; 
 				pAnim->Finished = true;
 			}
 

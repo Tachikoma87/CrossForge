@@ -125,4 +125,16 @@ namespace CForge {
 		return m_pActiveAnimation;
 	}//activeAnimation
 
+	void SkeletalActor::pauseActiveAnimation() {
+		if (m_pAnimationController != nullptr) {
+			m_pAnimationController->pauseAnimation(m_pActiveAnimation);
+		}
+	}
+
+	void SkeletalActor::resumeActiveAnimation() {
+		if (m_pAnimationController != nullptr) {
+			m_pAnimationController->resumeAnimation(m_pActiveAnimation);
+		}
+	}
+
 }//name-space
