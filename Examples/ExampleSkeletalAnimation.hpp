@@ -53,8 +53,10 @@ namespace CForge {
 
 			// initialize skeletal actor (Eric) and its animation controller
 			//SAssetIO::load("Assets/ExampleScenes/CesiumMan/CesiumMan.gltf", &M);
-	
-			SAssetIO::load("MyAssets/Eagle_Animated/Current/scene.gltf", &M);
+			SAssetIO::load("MyAssets/Eagle_Animated/EagleFallFull/EagleFall.gltf", &M);   
+			//SAssetIO::load("MyAssets/Eagle_Animated/EagleFlap4/EagleFlap.gltf", &M);
+			//SAssetIO::load("MyAssets/Small_Bird/SmallFlap.gltf", &M);
+
 
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
@@ -71,7 +73,7 @@ namespace CForge {
 			m_SkydomeSGN.scale(Vector3f(50.0f, 50.0f, 50.0f));
 
 			// add skeletal actor to scene graph (Eric)			
-			m_CesiumManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, -3.0f, 0.0f));
+			m_CesiumManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 5.0f, 0.0f));
 			m_CesiumManSGN.init(&m_CesiumManTransformSGN, &m_CesiumMan);
 			m_CesiumManSGN.scale(Vector3f(0.2f, 0.2f, 0.2f));
 
@@ -88,7 +90,7 @@ namespace CForge {
 			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
-			m_RepeatAnimation = true;
+			m_RepeatAnimation = false;
 		}//initialize
 
 		void clear(void) override{
@@ -98,6 +100,7 @@ namespace CForge {
 		void mainLoop(void)override {
 			m_RenderWin.update();
 			m_SG.update(60.0f / m_FPS);
+			static uint64_t lastFrameTime = CForgeUtility::timestamp();
 
 			// this will progress all active skeletal animations for this controller
 			m_BipedController.update(60.0f / m_FPS);
@@ -116,10 +119,20 @@ namespace CForge {
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
 				SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
 				m_CesiumMan.activeAnimation(pAnim);
+				
 			}
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_R, true)) {
 				m_RepeatAnimation = !m_RepeatAnimation;
 			}
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
+				m_CesiumMan.pauseActiveAnimation(); // Pause the active animation when "Taste 2" (Key 2) is pressed
+			}
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
+				m_CesiumMan.resumeActiveAnimation(); // Resume the paused animation when "Taste 3" (Key 3) is pressed
+			}
+
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 			m_SG.render(&m_RenderDev);
@@ -146,6 +159,8 @@ namespace CForge {
 		SGNTransformation m_CesiumManTransformSGN;
 
 		bool m_RepeatAnimation;
+		
+
 
 	};//ExampleSkeletalAnimation
 

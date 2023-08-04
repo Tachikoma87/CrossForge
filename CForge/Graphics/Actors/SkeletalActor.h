@@ -35,6 +35,9 @@ namespace CForge {
 
 		virtual void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 
+		virtual void pauseActiveAnimation(void);
+		virtual void resumeActiveAnimation(void);
+
 	protected:
 		SkeletalAnimationController* m_pAnimationController;
 		SkeletalAnimationController::Animation* m_pActiveAnimation;

@@ -65,6 +65,10 @@ namespace CForge {
 		void addAnimationData(T3DMesh<float>::SkeletalAnimation* pAnimation);
 
 		Animation* createAnimation(int32_t AnimationID, float Speed, float Offset);
+
+		void pauseAnimation(Animation* pAnim);
+		void resumeAnimation(Animation* pAnim);
+
 		void destroyAnimation(Animation* pAnim);
 		void applyAnimation(Animation* pAnim, bool UpdateUBO = true);
 
