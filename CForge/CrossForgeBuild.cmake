@@ -260,9 +260,10 @@ target_link_libraries(crossforge
 	PRIVATE glfw 
 	PRIVATE glad::glad
 	PRIVATE assimp::assimp
-	PRIVATE igl::core 
+#	PRIVATE igl::core 
 	# TODO: normally use igl::igl_core
-	PRIVATE igl::common		
+#	PRIVATE igl::common		
+	PRIVATE igl::igl_core
 	PRIVATE WebP::webp 
 	PRIVATE WebP::webpdecoder
 #	pmp
@@ -280,6 +281,7 @@ elseif(UNIX)
 	PRIVATE assimp::assimp
 	PRIVATE igl::core 
 	PRIVATE igl::common
+	PRIVATE igl::igl_core
 	PRIVATE WebP::webp 
 	PRIVATE WebP::webpdecoder
 	${FREETYPE_LIBRARIES}	# for Text rendering
