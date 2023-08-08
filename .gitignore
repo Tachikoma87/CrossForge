@@ -48,5 +48,5 @@ external/
 # Compiled documentation
 Documentation/Doc/
 Documentation/Doxywarnings.txt
-
+CMakePresets.json
 CMakeSettings.json
