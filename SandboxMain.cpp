@@ -25,7 +25,7 @@
 #include <Examples/ExampleSockets.hpp>
 #include <Examples/ExampleBirdVR.hpp>
 #include <Examples/ExampleCollisionTest.hpp>
-
+#include <Examples/ExampleFlappyBird.hpp>
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
@@ -55,7 +55,8 @@ using namespace Eigen;
 //#define ActiveScene ExampleTransformation
 //#define ActiveScene ExampleTransformationSG
 //#define ActiveScene ExampleSocket
-#define ActiveScene ExampleBird
+//#define ActiveScene ExampleBird
+#define ActiveScene ExampleFlappyBird
 
 
 //#define ActiveScene ImuInputDeviceTestScene	 
