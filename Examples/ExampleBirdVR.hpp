@@ -189,7 +189,7 @@ namespace CForge {
 
 			//Checkpoints
 
-			//initCheckpoints();
+			initCheckpoints();
 			
 
 			/// gather textures for the skyboxes
@@ -247,7 +247,7 @@ namespace CForge {
 
 		void initRandomCheckpoints(void) {
 
-			m_CPPositions[0] = m_startPosition + Vector3f(0.0f, 0.0f, 60.0f);
+			m_CPPosVec.push_back(m_startPosition + Vector3f(0.0f, 0.0f, 60.0f));
 
 			// 2D Grid movements
 			vector <Vector3f> actionRoom = { Vector3f(0.0f, 0.0f, 60.0f), Vector3f(0.0f, 0.0f, -60.0f), Vector3f(60.0f, 0.0f, 0.0f), Vector3f(-60.0f, 0.0f, 0.0f) };
@@ -255,27 +255,29 @@ namespace CForge {
 
 			Vector3f prevAction = Vector3f(0.0f, 0.0f, 60.0f);
 
-			for (int i = 0; i < m_CPCount; i++) {
-				if (i != 0) {
-					float heightChange = 2.0f * (float)(rand() / (float) RAND_MAX) - 2.0f;		// random heightchange from -2.0f to 2.0f
-					activeActionRoom.clear();
-					for (auto j : actionRoom) {
-						if (j != -prevAction) activeActionRoom.push_back(j);
-					}
-					prevAction = activeActionRoom[rand() % 3];
-					m_CPPositions[i] = m_CPPositions[i - 1] + prevAction + Vector3f(0.0f, heightChange, 0.0f);
-					if (m_CPPositions[i].y() < m_minHeight) m_CPPositions[i].y() = m_minHeight;
-					else if (m_CPPositions[i].y() > m_maxHeight) m_CPPositions[i].y() = m_maxHeight;
+			for (int i = 1; i < m_CPCount; i++) {
+				float heightChange = 2.0f * (float)(rand() / (float) RAND_MAX) - 2.0f;		// random heightchange from -2.0f to 2.0f
+				activeActionRoom.clear();
+				for (auto j : actionRoom) {
+					if (j != -prevAction) activeActionRoom.push_back(j);
 				}
+				prevAction = activeActionRoom[rand() % 3];
+				m_CPPosVec.push_back(m_CPPosVec[i - 1] + prevAction + Vector3f(0.0f, heightChange, 0.0f));
+				if (m_CPPosVec[i].y() < m_minHeight) m_CPPosVec[i].y() = m_minHeight;
+				else if (m_CPPosVec[i].y() > m_maxHeight) m_CPPosVec[i].y() = m_maxHeight;
+				
 			}
 
-			buildCheckpoints(m_CPPositions);
+			buildCheckpoints(m_CPPosVec);
 
 		}
 
 		void initCheckpoints(void) {
 			//TODO create checkpoints positions manually
-			buildCheckpoints(m_CPPositions);
+			m_CPPosVec.push_back(m_startPosition + Vector3f(30.0f, 0.0f, 0.0f));
+			m_CPPosVec.push_back(m_CPPosVec[0] + Vector3f(30.0f, 5.0f, 0.0f));
+			m_CPPosVec.push_back(m_CPPosVec[1] + Vector3f(30.0f, 5.0f, 30.0f));
+			buildCheckpoints(m_CPPosVec);
 		}
 
 		void buildCheckpoints(vector <Vector3f> positions) {
@@ -287,32 +289,62 @@ namespace CForge {
 			//add to scenegraph
 			T3DMesh <float> M;
 			PrimitiveShapeFactory::Torus(&M, 2.0f, 0.2f, 15, 15); //alt.: load
+			//SAssetIO::load("MyAssets/Torus/scene.gltf", &M);
+
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
 
-			//set Color for Mesh 
-			for (uint32_t i = 0; i < M->materialCount(); ++i) {
-				T3DMesh<float>::Material* pMat = M->getMaterial(i);
-				pMat->Color = Vector4f(0.0f, 0.0f, 0.7f, 0.4f);
+			//set Color for Mesh
+			
+			for (uint32_t i = 0; i < M.materialCount(); ++i) {
+				T3DMesh<float>::Material* pMat = M.getMaterial(i);
+
+				//PrimitiveShape
+				pMat->Color = Vector4f(0.0f, 0.0f, 0.9f, 0.3f);
+
+				//Asset
+				//pMat->Color.w() = 0.7f;
 			}
+			
+
 			m_Checkpoint.init(&M);
 			M.clear();
+			
+			//base rotation for torus
+			Quaternionf Q;
+			Q = AngleAxis(CForgeMath::degToRad(90.0f), Vector3f::UnitZ());
 
 			//int checkpointNum = positions.length();
 
 			m_CPGroupSGN.init(nullptr);
-			for (int i = 0; i < m_CPCount; i++) {
+			for (size_t i = 0; i < positions.size(); i++) {
 				SGNTransformation* pTransformSGN = nullptr;
 				SGNGeometry* pGeomSGN = nullptr;
 
 				pTransformSGN = new SGNTransformation();
 				pTransformSGN->init(&m_CPGroupSGN);
 
-				pTransformSGN->translation(m_CPPositions[i]);
-				//TODO rotation
+				pTransformSGN->translation(positions[i]);
+
+				//rotation
+					Vector3f change = Vector3f(0.0f, 0.0f, 0.0f);
+					if (i != 0) change += positions[i] - positions[i - 1];
+					if (i + 1 < positions.size()) change += positions[i + 1] - positions[i];
+					Vector3f changeNorm = change.normalized();
+					Vector3f changeNoY = Vector3f(change.x(), 0.0f, change.z());
+					changeNoY.normalize();
+					float yAngle = acos(Vector3f::UnitX().dot(changeNoY));
+					float xzAngle = acos(changeNorm.dot(changeNoY));
+					//rotate so that checkpoint points in change direction
+					Quaternionf Y;
+					Y = AngleAxis(CForgeMath::degToRad(yAngle), Vector3f::UnitY());
+					Quaternionf XZ;
+					XZ = AngleAxis(CForgeMath::degToRad(xzAngle), (Vector3f::UnitY().cross(changeNoY)).normalized());
+					pTransformSGN->rotation(Q * Y * XZ);
 
 				pGeomSGN = new SGNGeometry();
 				pGeomSGN->init(pTransformSGN, &m_Checkpoint);
+				pGeomSGN->scale(Vector3f(1.0f, 1.0f, 1.0f));
 			}
 
 			m_CheckpointsSG.init(&m_CPGroupSGN);
@@ -366,6 +398,7 @@ namespace CForge {
 
 			m_RenderWin.update();
 			m_SG.update(60.0f / m_FPS);
+			m_CheckpointsSG.update(60.0f / m_FPS);
 			m_SkyboxSG.update(60.0f / m_FPS);
 
 			// setup for collision detections
@@ -539,7 +572,7 @@ namespace CForge {
 			//Quaternionf rotate_left = AngleAxis(CForgeMath::degToRad(2.5f), dir);
 
 			// in translation there is the postion
-			printf("%f - %f - %f | %f\n", m_BirdTransformSGN.translation().x(), m_BirdTransformSGN.translation().y(), m_BirdTransformSGN.translation().z(), speed.y());
+			printf("%f - %f - %f | %f\n", m_BirdTransformSGN.translation().x(), m_BirdTransformSGN.translation().y(), m_BirdTransformSGN.translation().z(), m_speed.y());
 
 			m_BirdTransformSGN.translationDelta(dir);
 
@@ -549,11 +582,12 @@ namespace CForge {
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 			m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
 			m_SG.render(&m_RenderDev);
-			//m_CheckpointsSG.render(&m_RenderDev);
+			m_CheckpointsSG.render(&m_RenderDev);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			m_RenderDev.activeCamera(&m_Cam);
 			m_SG.render(&m_RenderDev);
+			m_CheckpointsSG.render(&m_RenderDev);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
@@ -642,7 +676,7 @@ namespace CForge {
 
 		Vector3f m_speed = Vector3f(0.0f, 0.0f, 0.3f);
 		float m_rollSpeed = 0.0f;
-		Vector3f m_startPosition = Vector3f(0.0f, 10.0f, 0.0f);
+		Vector3f m_startPosition = Vector3f(0.0f, 10.0f, 30.0f);
 
 		//Checkpoints
 		SceneGraph m_CheckpointsSG;
@@ -651,7 +685,7 @@ namespace CForge {
 		std::vector<SGNTransformation*> m_CPTransformationSGNs;
 		std::vector<SGNGeometry*> m_CPSGNs;
 		int m_CPCount = 20;
-		Vector3f m_CPPositions[20];
+		vector<Vector3f> m_CPPosVec;
 		float m_minHeight = 2.0f;
 		float m_maxHeight = 30.0f;
 
