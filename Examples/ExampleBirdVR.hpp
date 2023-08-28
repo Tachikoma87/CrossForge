@@ -322,7 +322,7 @@ namespace CForge {
 				T3DMesh<float>::Material* pMat = M.getMaterial(i);
 
 				//PrimitiveShape
-				pMat->Color = Vector4f(0.0f, 0.0f, 0.9f, 0.3f);
+				pMat->Color = Vector4f(0.0f, 0.0f, 0.9f, 0.2f);
 
 				//Asset
 				//pMat->Color.w() = 0.7f;
@@ -355,14 +355,16 @@ namespace CForge {
 					Vector3f changeNorm = change.normalized();
 					Vector3f changeNoY = Vector3f(change.x(), 0.0f, change.z());
 					changeNoY.normalize();
-					float yAngle = acos(Vector3f::UnitX().dot(changeNoY));
+					float yAngle = acos(changeNoY.dot(Vector3f::UnitX()));
 					float xzAngle = acos(changeNorm.dot(changeNoY));
+					printf("y: %f, xz: %f\n", yAngle, xzAngle);
 					//rotate so that checkpoint points in change direction
 					Quaternionf Y;
-					Y = AngleAxis(CForgeMath::degToRad(yAngle), Vector3f::UnitY());
+					Y = AngleAxis(yAngle, Vector3f::UnitY());
 					Quaternionf XZ;
-					XZ = AngleAxis(CForgeMath::degToRad(xzAngle), (Vector3f::UnitY().cross(changeNoY)).normalized());
-					pTransformSGN->rotation(Q * Y * XZ);
+					XZ = AngleAxis(xzAngle, (changeNoY.cross(changeNorm)).normalized());
+					//XZ = AngleAxis(xzAngle, Vector3f::UnitX());
+					pTransformSGN->rotation(XZ * Y * Q);
 
 				pGeomSGN = new SGNGeometry();
 				pGeomSGN->init(pTransformSGN, &m_Checkpoint);
@@ -598,7 +600,7 @@ namespace CForge {
 				//Quaternionf rotate_left = AngleAxis(CForgeMath::degToRad(2.5f), dir);
 
 				// in translation there is the postion
-				printf("%f - %f - %f | %f\n", m_BirdTransformSGN.translation().x(), m_BirdTransformSGN.translation().y(), m_BirdTransformSGN.translation().z(), m_speed.y());
+				//printf("%f - %f - %f | %f\n", m_BirdTransformSGN.translation().x(), m_BirdTransformSGN.translation().y(), m_BirdTransformSGN.translation().z(), m_speed.y());
 
 				m_BirdTransformSGN.translationDelta(dir);
 
