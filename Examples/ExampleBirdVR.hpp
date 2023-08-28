@@ -60,7 +60,7 @@ namespace CForge {
 			M.computePerVertexNormals();
 			m_Bird.init(&M);
 
-			
+
 
 			// calculate AABB for the bird -->
 			M.computeAxisAlignedBoundingBox();
@@ -76,7 +76,7 @@ namespace CForge {
 			m_Mountain.init(&M);
 			M.clear();*/
 
-     		SAssetIO::load("Assets/ExampleScenes/TexturedGround.gltf", &M);
+			SAssetIO::load("Assets/ExampleScenes/TexturedGround.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			for (uint8_t i = 0; i < 4; ++i) M.textureCoordinate(i) *= 50.0f;
 			M.computePerVertexNormals();
@@ -134,7 +134,7 @@ namespace CForge {
 			T3DMesh<float>::AABB buildingAABB = M.aabb();
 			m_buildingDiag[0] = buildingAABB.diagonal();
 			m_buildingOrigin[0] = buildingAABB.Min + (m_buildingDiag[0] * 0.5f);
-			m_box_building[0] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z()); 
+			m_box_building[0] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z());
 
 			m_Buildings[0].init(&M);
 			M.clear();
@@ -147,7 +147,7 @@ namespace CForge {
 			buildingAABB = M.aabb();
 			m_buildingDiag[1] = buildingAABB.diagonal();
 			m_buildingOrigin[1] = buildingAABB.Min + (m_buildingDiag[1] * 0.5f);
-			m_box_building[1] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z()); 
+			m_box_building[1] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z());
 
 			m_Buildings[1].init(&M);
 			M.clear();
@@ -160,7 +160,7 @@ namespace CForge {
 			buildingAABB = M.aabb();
 			m_buildingDiag[2] = buildingAABB.diagonal();
 			m_buildingOrigin[2] = buildingAABB.Min + (m_buildingDiag[2] * 0.5f);
-			m_box_building[2] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z()); 
+			m_box_building[2] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z());
 
 			/*	float diagx = buildingAABB.diagonal().x();
 			float diagy = buildingAABB.diagonal().y();
@@ -199,7 +199,7 @@ namespace CForge {
 			//Checkpoints
 
 			initCheckpoints();
-			
+
 
 			/// gather textures for the skyboxes
 			m_ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_right.png");
@@ -265,7 +265,7 @@ namespace CForge {
 			Vector3f prevAction = Vector3f(0.0f, 0.0f, 60.0f);
 
 			for (int i = 1; i < m_CPCount; i++) {
-				float heightChange = 2.0f * (float)(rand() / (float) RAND_MAX) - 2.0f;		// random heightchange from -2.0f to 2.0f
+				float heightChange = 2.0f * (float)(rand() / (float)RAND_MAX) - 2.0f;		// random heightchange from -2.0f to 2.0f
 				activeActionRoom.clear();
 				for (auto j : actionRoom) {
 					if (j != -prevAction) activeActionRoom.push_back(j);
@@ -274,7 +274,7 @@ namespace CForge {
 				m_CPPosVec.push_back(m_CPPosVec[i - 1] + prevAction + Vector3f(0.0f, heightChange, 0.0f));
 				if (m_CPPosVec[i].y() < m_minHeight) m_CPPosVec[i].y() = m_minHeight;
 				else if (m_CPPosVec[i].y() > m_maxHeight) m_CPPosVec[i].y() = m_maxHeight;
-				
+
 			}
 
 			buildCheckpoints(m_CPPosVec);
@@ -326,7 +326,7 @@ namespace CForge {
 			M.computePerVertexNormals();
 
 			//set Color for Mesh
-			
+
 			for (uint32_t i = 0; i < M.materialCount(); ++i) {
 				T3DMesh<float>::Material* pMat = M.getMaterial(i);
 
@@ -336,11 +336,11 @@ namespace CForge {
 				//Asset
 				//pMat->Color.w() = 0.7f;
 			}
-			
+
 
 			m_Checkpoint.init(&M);
 			M.clear();
-			
+
 			//base rotation for torus
 			Quaternionf Q;
 			Q = AngleAxis(CForgeMath::degToRad(90.0f), Vector3f::UnitZ());
@@ -358,22 +358,22 @@ namespace CForge {
 				pTransformSGN->translation(positions[i]);
 
 				//rotation
-					Vector3f change = Vector3f(0.0f, 0.0f, 0.0f);
-					if (i != 0) change += positions[i] - positions[i - 1];
-					if (i + 1 < positions.size()) change += positions[i + 1] - positions[i];
-					Vector3f changeNorm = change.normalized();
-					Vector3f changeNoY = Vector3f(change.x(), 0.0f, change.z());
-					changeNoY.normalize();
-					float yAngle = acos(changeNoY.dot(Vector3f::UnitX()));
-					float xzAngle = acos(changeNorm.dot(changeNoY));
-					printf("y: %f, xz: %f\n", yAngle, xzAngle);
-					//rotate so that checkpoint points in change direction
-					Quaternionf Y;
-					Y = AngleAxis(yAngle, Vector3f::UnitY());
-					Quaternionf XZ;
-					XZ = AngleAxis(xzAngle, (changeNoY.cross(changeNorm)).normalized());
-					//XZ = AngleAxis(xzAngle, Vector3f::UnitX());
-					pTransformSGN->rotation(XZ * Y * Q);
+				Vector3f change = Vector3f(0.0f, 0.0f, 0.0f);
+				if (i != 0) change += positions[i] - positions[i - 1];
+				if (i + 1 < positions.size()) change += positions[i + 1] - positions[i];
+				Vector3f changeNorm = change.normalized();
+				Vector3f changeNoY = Vector3f(change.x(), 0.0f, change.z());
+				changeNoY.normalize();
+				float yAngle = acos(changeNoY.dot(Vector3f::UnitX()));
+				float xzAngle = acos(changeNorm.dot(changeNoY));
+				printf("y: %f, xz: %f\n", yAngle, xzAngle);
+				//rotate so that checkpoint points in change direction
+				Quaternionf Y;
+				Y = AngleAxis(yAngle, Vector3f::UnitY());
+				Quaternionf XZ;
+				XZ = AngleAxis(xzAngle, (changeNoY.cross(changeNorm)).normalized());
+				//XZ = AngleAxis(xzAngle, Vector3f::UnitX());
+				pTransformSGN->rotation(XZ * Y * Q);
 
 				pGeomSGN = new SGNGeometry();
 				pGeomSGN->init(pTransformSGN, &m_Checkpoint);
@@ -420,7 +420,7 @@ namespace CForge {
 			fcl::Transform3f bMat = fcl::Transform3f::Identity();
 			bMat.translate(BirdPos);// +birdSphere.center() * max_scale_birb);
 			bMat.rotate(BirdRot);
-			
+
 			m_birdTestCollision = bMat.matrix();
 			bird_collision_geometry.setTransform(bMat);
 			//bird_collision_geometry.setTransform();
@@ -440,9 +440,6 @@ namespace CForge {
 						//GTEST_ASSERT_EQ(contacts.size(), collision_request.num_max_contacts);
 						m_col = true;
 					}
-					else {
-						m_col = false;
-					}
 			};
 
 
@@ -461,7 +458,7 @@ namespace CForge {
 				}
 
 				// get transformnode - m_BuildingTransformationSGNs[i];
-				auto buildingTSGN = m_BuildingSGNs[i]->parent(); 
+				auto buildingTSGN = m_BuildingSGNs[i]->parent();
 
 				Eigen::Vector3f posBuilding;
 				Eigen::Quaternionf rotBuilding;
@@ -480,8 +477,8 @@ namespace CForge {
 
 				fcl::Transform3f mat = fcl::Transform3f::Identity();
 				mat.rotate(rotBuilding);
-				mat.translate(posBuilding+m_buildingOrigin[model].cwiseProduct(scaleBuilding));
-				m_buildingTestCollision = mat.matrix() * CForgeMath::scaleMatrix(Vector3f(buildingDiag.x(), buildingDiag.y(), buildingDiag.z()));
+				mat.translate(posBuilding + m_buildingOrigin[model].cwiseProduct(scaleBuilding));
+				m_buildingTestCollision[i] = mat.matrix() * CForgeMath::scaleMatrix(Vector3f(buildingDiag.x(), buildingDiag.y(), buildingDiag.z()));
 				building_collisoin_geometry.setTransform(mat);
 
 				evaluate_collision(&bird_collision_geometry, &building_collisoin_geometry);
@@ -551,7 +548,7 @@ namespace CForge {
 				m_SkyboxTransSGN.rotationDelta(RDelta);
 			}
 
-				//TODO input for resetting Checkpoints
+			//TODO input for resetting Checkpoints
 			if (pKeyboard->keyPressed(Keyboard::KEY_P, true)) m_paused = !m_paused;
 			if (m_paused) m_BirdTransformSGN.translationDelta(Vector3f(0.0f, 0.0f, 0.0f));
 			if (!m_paused)
@@ -644,17 +641,17 @@ namespace CForge {
 			glEnable(GL_BLEND);
 			glDisable(GL_DEPTH_TEST);
 			glBlendFunc(GL_ONE, GL_ONE);
-			
+
 			if (m_col)
 				glColorMask(true, false, false, true);
 			else
 				glColorMask(false, true, false, true);
 
-			
-					Eigen::Vector3f posBird;
-				Eigen::Quaternionf rotBird;
-				Eigen::Vector3f scaleBird;
-				m_BirdTransformSGN.buildTansformation(&posBird, &rotBird, &scaleBird);
+
+			Eigen::Vector3f posBird;
+			Eigen::Quaternionf rotBird;
+			Eigen::Vector3f scaleBird;
+			m_BirdTransformSGN.buildTansformation(&posBird, &rotBird, &scaleBird);
 
 			// delete!
 			// Eigen::Matrix4f posMatrix = CForgeMath::translationMatrix(posBird);// +birdSphere.center() * max_scale_birb);
@@ -665,7 +662,7 @@ namespace CForge {
 
 			// TODO: Remove
 			//m_birdTransformfclPure = posMatrix * rotMatrix;
-			
+
 			m_RenderDev.modelUBO()->modelMatrix(m_birdTestCollision * scaleMatrix);
 			m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 			glColorMask(true, true, true, true);
@@ -715,7 +712,7 @@ namespace CForge {
 
 				//Eigen::Matrix4f buildingTransformation = posMatrix * rotMatrix * scaleMatrix;
 
-				m_RenderDev.modelUBO()->modelMatrix(m_buildingTestCollision);
+				m_RenderDev.modelUBO()->modelMatrix(m_buildingTestCollision[i]);
 				m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 
 			}
@@ -723,7 +720,7 @@ namespace CForge {
 			glDisable(GL_BLEND);
 			glEnable(GL_DEPTH_TEST);
 
-			
+
 
 			m_RenderWin.swapBuffers();
 
@@ -782,7 +779,7 @@ namespace CForge {
 		CForge::Sphere m_birdSphere;// = m_BirdSGN.actor()->boundingVolume().boundingSphere();
 		float m_max_scale_bird;
 
-		Eigen::Matrix4f m_buildingTestCollision = Eigen::Matrix4f::Identity();
+		std::vector<Eigen::Matrix4f> m_buildingTestCollision = std::vector<Eigen::Matrix4f>(BUILDING_COUNT, Eigen::Matrix4f::Identity());
 		Eigen::Matrix4f m_birdTestCollision = Eigen::Matrix4f::Identity();
 
 		bool m_col = false;

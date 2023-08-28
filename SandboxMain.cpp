@@ -55,8 +55,8 @@ using namespace Eigen;
 //#define ActiveScene ExampleTransformation
 //#define ActiveScene ExampleTransformationSG
 //#define ActiveScene ExampleSocket
-//#define ActiveScene ExampleBird
-#define ActiveScene ExampleFlappyBird
+#define ActiveScene ExampleBird
+//#define ActiveScene ExampleFlappyBird
 
 
 //#define ActiveScene ImuInputDeviceTestScene	 
