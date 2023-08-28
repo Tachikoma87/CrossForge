@@ -138,7 +138,7 @@ namespace CForge {
 			//  for (Real sy : y_values ) {
 			// Repose the sphere.
 			float sx, sy, sz;
-			sx = m_matSphere.data()[12], sy = m_matSphere.data()[13], sz = m_matSphere.data()[14];
+			sx = m_birdTransform.data()[12], sy = m_birdTransform.data()[13], sz = m_birdTransform.data()[14];
 			//X_WS.translation() << sx, sy, sz;
 
 			float bx, by, bz;
@@ -150,7 +150,7 @@ namespace CForge {
 			//box.setTransform(m_matCube.block<3, 3>(0, 0), Eigen::Vector3f(bx, by, bz));
 			box.setRotation(m_matCube.block<3, 3>(0, 0));
 			box.setTranslation(Eigen::Vector3f(bx, by, bz));
-			sphere.setTransform(m_matSphere.block<3, 3>(0, 0), Eigen::Vector3f(sx, sy, sz));
+			sphere.setTransform(m_birdTransform.block<3, 3>(0, 0), Eigen::Vector3f(sx, sy, sz));
 
 			auto evaluate_collision = [&](
 				const fcl::CollisionObject<float>* s1, const fcl::CollisionObject<float>* s2) {
@@ -231,7 +231,7 @@ namespace CForge {
 			else
 				glColorMask(true, true, true, true);
 
-			m_RenderDev.modelUBO()->modelMatrix(m_matSphere);
+			m_RenderDev.modelUBO()->modelMatrix(m_birdTransform);
 			m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 			glColorMask(true, true, true, true);
 
@@ -266,7 +266,7 @@ namespace CForge {
 		Eigen::Matrix4f m_matCube = Eigen::Matrix4f::Identity();
 		Eigen::Matrix4f m_matCubeTrans = Eigen::Matrix4f::Identity();
 		Eigen::Matrix4f m_matCubeRot = Eigen::Matrix4f::Identity();
-		Eigen::Matrix4f m_matSphere = Eigen::Matrix4f::Identity();
+		Eigen::Matrix4f m_birdTransform = Eigen::Matrix4f::Identity();
 
 		StaticActor m_Sphere;
 		RotationCube m_rotationCube; 
