@@ -198,8 +198,8 @@ namespace CForge {
 
 			//Checkpoints
 
-			//initCheckpoints();
-
+			initCheckpoints();
+			
 
 			/// gather textures for the skyboxes
 			m_ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_right.png");
@@ -223,12 +223,11 @@ namespace CForge {
 			m_SkyboxGeomSGN.init(&m_SkyboxTransSGN, &m_Skybox);
 			m_SkyboxSG.init(&m_SkyboxTransSGN);
 
-			// init checkpoints
-			m_CPPositions = std::vector<Vector3f>(m_CPCount, Vector3f());
-
 			std::string GLError = "";
 			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
+
+
 
 		}//initialize
 
@@ -257,7 +256,7 @@ namespace CForge {
 
 		void initRandomCheckpoints(void) {
 
-			m_CPPositions[0] = m_startPosition + Vector3f(0.0f, 0.0f, 60.0f);
+			m_CPPosVec.push_back(m_startPosition + Vector3f(0.0f, 0.0f, 60.0f));
 
 			// 2D Grid movements
 			vector <Vector3f> actionRoom = { Vector3f(0.0f, 0.0f, 60.0f), Vector3f(0.0f, 0.0f, -60.0f), Vector3f(60.0f, 0.0f, 0.0f), Vector3f(-60.0f, 0.0f, 0.0f) };
@@ -265,30 +264,54 @@ namespace CForge {
 
 			Vector3f prevAction = Vector3f(0.0f, 0.0f, 60.0f);
 
-			for (int i = 0; i < m_CPCount; i++) {
-				if (i != 0) {
-					float heightChange = 2.0f * (float)(rand() / (float)RAND_MAX) - 2.0f;		// random heightchange from -2.0f to 2.0f
-					activeActionRoom.clear();
-					for (auto j : actionRoom) {
-						if (j != -prevAction) activeActionRoom.push_back(j);
-					}
-					prevAction = activeActionRoom[rand() % 3];
-					m_CPPositions[i] = m_CPPositions[i - 1] + prevAction + Vector3f(0.0f, heightChange, 0.0f);
-					if (m_CPPositions[i].y() < m_minHeight) m_CPPositions[i].y() = m_minHeight;
-					else if (m_CPPositions[i].y() > m_maxHeight) m_CPPositions[i].y() = m_maxHeight;
+			for (int i = 1; i < m_CPCount; i++) {
+				float heightChange = 2.0f * (float)(rand() / (float) RAND_MAX) - 2.0f;		// random heightchange from -2.0f to 2.0f
+				activeActionRoom.clear();
+				for (auto j : actionRoom) {
+					if (j != -prevAction) activeActionRoom.push_back(j);
 				}
+				prevAction = activeActionRoom[rand() % 3];
+				m_CPPosVec.push_back(m_CPPosVec[i - 1] + prevAction + Vector3f(0.0f, heightChange, 0.0f));
+				if (m_CPPosVec[i].y() < m_minHeight) m_CPPosVec[i].y() = m_minHeight;
+				else if (m_CPPosVec[i].y() > m_maxHeight) m_CPPosVec[i].y() = m_maxHeight;
+				
 			}
 
-			buildCheckpoints(m_CPPositions);
+			buildCheckpoints(m_CPPosVec);
 
 		}
 
 		void initCheckpoints(void) {
 			//TODO create checkpoints positions manually
-			buildCheckpoints(m_CPPositions);
+			m_CPPosVec.push_back(m_startPosition + Vector3f(30.0f, 0.0f, 0.0f));
+			m_CPPosVec.push_back(m_CPPosVec[0] + Vector3f(30.0f, 5.0f, 0.0f));
+			m_CPPosVec.push_back(m_CPPosVec[1] + Vector3f(15.0f, 5.0f, 15.0f));
+			m_CPPosVec.push_back(m_CPPosVec[2] + Vector3f(15.0f, 5.0f, 15.0f));
+			m_CPPosVec.push_back(m_CPPosVec[3] + Vector3f(0.0f, 5.0f, 30.0f));
+			m_CPPosVec.push_back(m_CPPosVec[4] + Vector3f(0.0f, 0.0f, 30.0f));
+			m_CPPosVec.push_back(m_CPPosVec[5] + Vector3f(10.0f, -5.0f, 20.0f));
+			m_CPPosVec.push_back(m_CPPosVec[6] + Vector3f(20.0f, -5.0f, 10.0f));
+			m_CPPosVec.push_back(m_CPPosVec[7] + Vector3f(20.0f, -5.0f, -10.0f));
+			m_CPPosVec.push_back(m_CPPosVec[8] + Vector3f(10.0f, 0.0f, -20.0f));
+			m_CPPosVec.push_back(m_CPPosVec[9] + Vector3f(-10.0f, 0.0f, -20.0f));
+			m_CPPosVec.push_back(m_CPPosVec[10] + Vector3f(-20.0f, 0.0f, -10.0f));
+			m_CPPosVec.push_back(m_CPPosVec[11] + Vector3f(-30.0f, 0.0f, 0.0f));
+			m_CPPosVec.push_back(m_CPPosVec[12] + Vector3f(-30.0f, 5.0f, 0.0f));
+			m_CPPosVec.push_back(m_CPPosVec[13] + Vector3f(-20.0f, 5.0f, -10.0f));
+			m_CPPosVec.push_back(m_CPPosVec[14] + Vector3f(-10.0f, 5.0f, -20.0f));
+			m_CPPosVec.push_back(m_CPPosVec[15] + Vector3f(0.0f, 5.0f, -30.0f));
+			m_CPPosVec.push_back(m_CPPosVec[16] + Vector3f(10.0f, 5.0f, -20.0f));
+			m_CPPosVec.push_back(m_CPPosVec[17] + Vector3f(20.0f, 0.0f, -10.0f));
+			m_CPPosVec.push_back(m_CPPosVec[18] + Vector3f(15.0f, 0.0f, 15.0f));
+			m_CPPosVec.push_back(m_CPPosVec[19] + Vector3f(15.0f, 0.0f, 15.0f));
+			m_CPPosVec.push_back(m_CPPosVec[20] + Vector3f(30.0f, 0.0f, 30.0f));
+			m_CPPosVec.push_back(m_CPPosVec[21] + Vector3f(30.0f, -5.0f, 30.0f));
+			m_CPPosVec.push_back(m_CPPosVec[22] + Vector3f(30.0f, -5.0f, 0.0f));
+			m_CPPosVec.push_back(m_CPPosVec[23] + Vector3f(30.0f, -5.0f, 0.0f));
+			buildCheckpoints(m_CPPosVec);
 		}
 
-		void buildCheckpoints(std::vector<Vector3f> positions) {
+		void buildCheckpoints(vector <Vector3f> positions) {
 
 			//if (positions == ([] || NULL)) return;
 
@@ -297,32 +320,64 @@ namespace CForge {
 			//add to scenegraph
 			T3DMesh <float> M;
 			PrimitiveShapeFactory::Torus(&M, 2.0f, 0.2f, 15, 15); //alt.: load
+			//SAssetIO::load("MyAssets/Torus/scene.gltf", &M);
+
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
 
-			//set Color for Mesh 
+			//set Color for Mesh
+			
 			for (uint32_t i = 0; i < M.materialCount(); ++i) {
 				T3DMesh<float>::Material* pMat = M.getMaterial(i);
-				pMat->Color = Vector4f(0.0f, 0.0f, 0.7f, 0.4f);
+
+				//PrimitiveShape
+				pMat->Color = Vector4f(0.0f, 0.0f, 0.9f, 0.2f);
+
+				//Asset
+				//pMat->Color.w() = 0.7f;
 			}
+			
+
 			m_Checkpoint.init(&M);
 			M.clear();
+			
+			//base rotation for torus
+			Quaternionf Q;
+			Q = AngleAxis(CForgeMath::degToRad(90.0f), Vector3f::UnitZ());
 
 			//int checkpointNum = positions.length();
 
 			m_CPGroupSGN.init(nullptr);
-			for (int i = 0; i < m_CPCount; i++) {
+			for (size_t i = 0; i < positions.size(); i++) {
 				SGNTransformation* pTransformSGN = nullptr;
 				SGNGeometry* pGeomSGN = nullptr;
 
 				pTransformSGN = new SGNTransformation();
 				pTransformSGN->init(&m_CPGroupSGN);
 
-				pTransformSGN->translation(m_CPPositions[i]);
-				//TODO rotation
+				pTransformSGN->translation(positions[i]);
+
+				//rotation
+					Vector3f change = Vector3f(0.0f, 0.0f, 0.0f);
+					if (i != 0) change += positions[i] - positions[i - 1];
+					if (i + 1 < positions.size()) change += positions[i + 1] - positions[i];
+					Vector3f changeNorm = change.normalized();
+					Vector3f changeNoY = Vector3f(change.x(), 0.0f, change.z());
+					changeNoY.normalize();
+					float yAngle = acos(changeNoY.dot(Vector3f::UnitX()));
+					float xzAngle = acos(changeNorm.dot(changeNoY));
+					printf("y: %f, xz: %f\n", yAngle, xzAngle);
+					//rotate so that checkpoint points in change direction
+					Quaternionf Y;
+					Y = AngleAxis(yAngle, Vector3f::UnitY());
+					Quaternionf XZ;
+					XZ = AngleAxis(xzAngle, (changeNoY.cross(changeNorm)).normalized());
+					//XZ = AngleAxis(xzAngle, Vector3f::UnitX());
+					pTransformSGN->rotation(XZ * Y * Q);
 
 				pGeomSGN = new SGNGeometry();
 				pGeomSGN->init(pTransformSGN, &m_Checkpoint);
+				pGeomSGN->scale(Vector3f(1.0f, 1.0f, 1.0f));
 			}
 
 			m_CheckpointsSG.init(&m_CPGroupSGN);
@@ -384,6 +439,9 @@ namespace CForge {
 						collision_result.getContacts(contacts);
 						//GTEST_ASSERT_EQ(contacts.size(), collision_request.num_max_contacts);
 						m_col = true;
+					}
+					else {
+						m_col = false;
 					}
 			};
 
@@ -493,83 +551,88 @@ namespace CForge {
 				m_SkyboxTransSGN.rotationDelta(RDelta);
 			}
 
-			//TODO input for resetting Checkpoints
+				//TODO input for resetting Checkpoints
+			if (pKeyboard->keyPressed(Keyboard::KEY_P, true)) m_paused = !m_paused;
+			if (m_paused) m_BirdTransformSGN.translationDelta(Vector3f(0.0f, 0.0f, 0.0f));
+			if (!m_paused)
+			{
 
-
-			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) {
-				if (m_rollSpeed < 3.0f) m_rollSpeed += 1.0f;
-			}
-			else {
-				if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT)) {
-					if (m_rollSpeed > -3.0f) m_rollSpeed -= 1.0f;
+				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) {
+					if (m_rollSpeed < 3.0f) m_rollSpeed += 1.0f;
 				}
 				else {
-					if (m_rollSpeed < 0.0f) m_rollSpeed += 1.0f;
-					if (m_rollSpeed > 0.0f) m_rollSpeed -= 1.0f;
+					if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT)) {
+						if (m_rollSpeed > -3.0f) m_rollSpeed -= 1.0f;
+					}
+					else {
+						if (m_rollSpeed < 0.0f) m_rollSpeed += 1.0f;
+						if (m_rollSpeed > 0.0f) m_rollSpeed -= 1.0f;
+					}
 				}
+				Quaternionf To_Y;
+				To_Y = AngleAxis(CForgeMath::degToRad(m_rollSpeed / (8.0f * m_speed.z())), Vector3f::UnitY());
+				m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Y);
+
+				Quaternionf To_Z;
+				To_Z = AngleAxis(CForgeMath::degToRad(-m_rollSpeed * 4.0f), Vector3f::UnitZ());
+				m_BirdRollSGN.rotation(To_Z);
+
+				Vector3f pos;
+				Vector3f xzdir;
+				Quaternionf rot;
+				Matrix3f m3;
+				Vector3f dir;
+
+				// gain and loose speed
+				if (pKeyboard->keyPressed(Keyboard::KEY_UP) && m_speed.z() <= 0.5f)m_speed.z() += 0.01f;
+				if (pKeyboard->keyPressed(Keyboard::KEY_DOWN) && m_speed.z() >= 0.3f)m_speed.z() -= 0.01f;
+
+				// the bird sinks during normal flight and gains altitude when pressed space
+				if (pKeyboard->keyPressed(Keyboard::KEY_SPACE, true)) m_speed.y() += 0.3;
+				if (m_speed.y() > -0.01f) m_speed.y() -= 0.03f;
+
+				// bird to near the ground -> remains altitude
+				if (m_BirdTransformSGN.translation().y() < 0.05) m_speed.y() += 0.1f;
+
+				// dive
+				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) m_speed.y() -= 0.01f;
+				else if (m_speed.y() < -0.01f) m_speed.y() += 0.02f;
+
+				if (m_speed.y() < -0.01f) {
+					Quaternionf To_X;
+					float pitchAngle = -m_speed.y() * 40.0f; if (pitchAngle > 80.0f) pitchAngle = 80.0f;
+					To_X = AngleAxis(CForgeMath::degToRad(pitchAngle), Vector3f::UnitX());
+					m_BirdPitchSGN.rotation(To_X);
+				}
+
+				// Bird is rotated in the direction where it is looking
+				m3 = m_BirdTransformSGN.rotation().toRotationMatrix();
+				dir.x() = m3(0, 0) * m_speed.x() + m3(0, 2) * m_speed.z();
+				dir.y() = m_speed.y();
+				dir.z() = m3(2, 0) * m_speed.x() + m3(2, 2) * m_speed.z();
+
+				xzdir = Vector3f(dir.x(), 0, dir.z()).normalized();
+
+				//Quaternionf rotate_left = AngleAxis(CForgeMath::degToRad(2.5f), dir);
+
+				// in translation there is the postion
+				//printf("%f - %f - %f | %f\n", m_BirdTransformSGN.translation().x(), m_BirdTransformSGN.translation().y(), m_BirdTransformSGN.translation().z(), m_speed.y());
+
+				m_BirdTransformSGN.translationDelta(dir);
+
+
+				//defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+				defaultCameraUpdateBird(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse(), dir, m_BirdTransformSGN.translation(), Vector3f(0.0f, 1.0f, 0.0f), m3);
 			}
-			Quaternionf To_Y;
-			To_Y = AngleAxis(CForgeMath::degToRad(m_rollSpeed / (10.0f * m_speed.z())), Vector3f::UnitY());
-			m_BirdTransformSGN.rotation(m_BirdTransformSGN.rotation() * To_Y);
-
-			Quaternionf To_Z;
-			To_Z = AngleAxis(CForgeMath::degToRad(-m_rollSpeed * 4.0f), Vector3f::UnitZ());
-			m_BirdRollSGN.rotation(To_Z);
-
-			Vector3f pos;
-			Vector3f xzdir;
-			Quaternionf rot;
-			Matrix3f m3;
-			Vector3f dir;
-
-			// gain and loose speed
-			if (pKeyboard->keyPressed(Keyboard::KEY_UP) && m_speed.z() <= 0.5f)m_speed.z() += 0.01f;
-			if (pKeyboard->keyPressed(Keyboard::KEY_DOWN) && m_speed.z() >= 0.3f)m_speed.z() -= 0.01f;
-
-			// the bird sinks during normal flight and gains altitude when pressed space
-			if (pKeyboard->keyPressed(Keyboard::KEY_SPACE, true)) m_speed.y() += 0.2;
-			if (m_speed.y() > -0.01f) m_speed.y() -= 0.03f;
-
-			// bird to near the ground -> remains altitude
-			if (m_BirdTransformSGN.translation().y() < 0.05) m_speed.y() += 0.1f;
-
-			// dive
-			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) m_speed.y() -= 0.01f;
-			else if (m_speed.y() < -0.01f) m_speed.y() += 0.02f;
-
-			if (m_speed.y() < -0.01f) {
-				Quaternionf To_X;
-				float pitchAngle = -m_speed.y() * 40.0f; if (pitchAngle > 80.0f) pitchAngle = 80.0f;
-				To_X = AngleAxis(CForgeMath::degToRad(pitchAngle), Vector3f::UnitX());
-				m_BirdPitchSGN.rotation(To_X);
-			}
-
-			// Bird is rotated in the direction where it is looking
-			m3 = m_BirdTransformSGN.rotation().toRotationMatrix();
-			dir.x() = m3(0, 0) * m_speed.x() + m3(0, 2) * m_speed.z();
-			dir.y() = m_speed.y();
-			dir.z() = m3(2, 0) * m_speed.x() + m3(2, 2) * m_speed.z();
-
-			xzdir = Vector3f(dir.x(), 0, dir.z()).normalized();
-
-			//Quaternionf rotate_left = AngleAxis(CForgeMath::degToRad(2.5f), dir);
-
-			// in translation there is the postion
-			printf("%f - %f - %f | %f\n", m_BirdTransformSGN.translation().x(), m_BirdTransformSGN.translation().y(), m_BirdTransformSGN.translation().z(), m_speed.y());
-
-			m_BirdTransformSGN.translationDelta(dir);
-
-			//defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
-			defaultCameraUpdateBird(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse(), dir, m_BirdTransformSGN.translation(), Vector3f(0.0f, 1.0f, 0.0f), m3);
-
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 			m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
 			m_SG.render(&m_RenderDev);
-			//m_CheckpointsSG.render(&m_RenderDev);
+			m_CheckpointsSG.render(&m_RenderDev);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			m_RenderDev.activeCamera(&m_Cam);
 			m_SG.render(&m_RenderDev);
+			m_CheckpointsSG.render(&m_RenderDev);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
@@ -581,16 +644,17 @@ namespace CForge {
 			glEnable(GL_BLEND);
 			glDisable(GL_DEPTH_TEST);
 			glBlendFunc(GL_ONE, GL_ONE);
-
+			
 			if (m_col)
 				glColorMask(true, false, false, true);
 			else
 				glColorMask(false, true, false, true);
 
-			Eigen::Vector3f posBird;
-			Eigen::Quaternionf rotBird;
-			Eigen::Vector3f scaleBird;
-			m_BirdTransformSGN.buildTansformation(&posBird, &rotBird, &scaleBird);
+			
+					Eigen::Vector3f posBird;
+				Eigen::Quaternionf rotBird;
+				Eigen::Vector3f scaleBird;
+				m_BirdTransformSGN.buildTansformation(&posBird, &rotBird, &scaleBird);
 
 			// delete!
 			// Eigen::Matrix4f posMatrix = CForgeMath::translationMatrix(posBird);// +birdSphere.center() * max_scale_birb);
@@ -726,7 +790,7 @@ namespace CForge {
 
 		Vector3f m_speed = Vector3f(0.0f, 0.0f, 0.3f);
 		float m_rollSpeed = 0.0f;
-		Vector3f m_startPosition = Vector3f(0.0f, 10.0f, 0.0f);
+		Vector3f m_startPosition = Vector3f(0.0f, 10.0f, 30.0f);
 
 		//Checkpoints
 		SceneGraph m_CheckpointsSG;
@@ -735,9 +799,11 @@ namespace CForge {
 		std::vector<SGNTransformation*> m_CPTransformationSGNs;
 		std::vector<SGNGeometry*> m_CPSGNs;
 		int m_CPCount = 20;
-		std::vector<Vector3f> m_CPPositions;
+		vector<Vector3f> m_CPPosVec;
 		float m_minHeight = 2.0f;
 		float m_maxHeight = 30.0f;
+
+		bool m_paused = true;
 
 	};//ExampleBird
 
