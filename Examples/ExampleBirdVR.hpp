@@ -366,7 +366,9 @@ namespace CForge {
 				changeNoY.normalize();
 				float yAngle = acos(changeNoY.dot(Vector3f::UnitX()));
 				float xzAngle = acos(changeNorm.dot(changeNoY));
-				printf("y: %f, xz: %f\n", yAngle, xzAngle);
+				// get correct sign of yAngle
+				if (changeNoY.z() > 0) yAngle = -yAngle;
+				//printf("y: %f, xz: %f\n", yAngle, xzAngle);
 				//rotate so that checkpoint points in change direction
 				Quaternionf Y;
 				Y = AngleAxis(yAngle, Vector3f::UnitY());
