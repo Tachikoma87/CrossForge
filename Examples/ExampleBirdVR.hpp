@@ -53,28 +53,21 @@ namespace CForge {
 			// build scene graph	
 			m_RootSGN.init(nullptr);
 			m_SG.init(&m_RootSGN);
-			// load skydome and a textured cube
+	
 			T3DMesh<float> M;
+			
+			// load Bird
 			SAssetIO::load("MyAssets/Bird/bird.fbx", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
 			m_Bird.init(&M);
 
-
-
-			// calculate AABB for the bird -->
+			// calculate AABB for the bird
 			M.computeAxisAlignedBoundingBox();
 			T3DMesh<float>::AABB birdAABB = M.aabb();
 			float birdBBSphereR = birdAABB.Min.norm();
 			birdBBSphereR = birdBBSphereR > birdAABB.Min.norm() ? birdBBSphereR : birdAABB.Max.norm();
 			M.clear();
-			// # Todo: make the same for the buildings (all 3 types -> get the size of them) 
-
-			/*SAssetIO::load("Assets/ExampleScenes/Bird/mountain_range_01.glb", &M);
-			setMeshShader(&M, 0.1f, 0.04f);
-			M.computePerVertexNormals();
-			m_Mountain.init(&M);
-			M.clear();*/
 
 			SAssetIO::load("Assets/ExampleScenes/TexturedGround.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
@@ -95,77 +88,37 @@ namespace CForge {
 			m_BirdPitchSGN.init(&m_BirdTransformSGN, Vector3f(0.0f, 0.0f, 0.0f));
 			m_BirdRollSGN.init(&m_BirdPitchSGN, Vector3f(0.0f, 0.0f, 0.0f));
 
-			m_MountainTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 5.0f, 0.0f));
-			//m_MountainTransformSGN.scale(Vector3f(1.5f, 1.5f, 1.5f));
-
-			Quaternionf To_Y;
-			To_Y = AngleAxis(CForgeMath::degToRad(90.0f), Vector3f::UnitY());
+			// Quaternionf To_Y;
+			Quaternionf To_Y = (Quaternionf)AngleAxis(CForgeMath::degToRad(90.0f), Vector3f::UnitY());
 			m_BirdTransformSGN.rotation(To_Y);
 			m_BirdSGN.init(&m_BirdRollSGN, &m_Bird);
 			m_birdSphere = m_BirdSGN.actor()->boundingVolume().boundingSphere();
-
-			// rotate about the y-axis at 45 degree every second and about the X axis to make it a bit more interesting
-			/*Quaternionf RY, RX;
-			RY = AngleAxisf(CForgeMath::degToRad(45.0f / 60.0f), Vector3f::UnitY());
-			RX = AngleAxisf(CForgeMath::degToRad(-25.0f / 60.0f), Vector3f::UnitZ());
-			m_BirdTransformSGN.rotationDelta(RX * RY);*/
-
-			/*
-			T3DMesh<float> M;
-			SAssetIO::load("MyAssets/Bird/bird.fbx", &M);
-			setMeshShader(&M, 0.1f, 0.04f);
-			M.computePerVertexNormals();
-			m_Bird.init(&M);
-
-			// calculate AABB for the bird -->
-			M.computeAxisAlignedBoundingBox();
-			T3DMesh<float>::AABB birdAABB = M.aabb();
-			float birdBBSphereR = birdAABB.Min.norm();
-			birdBBSphereR = birdBBSphereR > birdAABB.Min.norm() ? birdBBSphereR : birdAABB.Max.norm();
-			M.clear();
-			*/
 
 			// load buildings
 			SAssetIO::load("MyAssets/Buildings/building_06/scene.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
-
 			M.computeAxisAlignedBoundingBox();
 			T3DMesh<float>::AABB buildingAABB = M.aabb();
-			m_buildingDiag[0] = buildingAABB.diagonal();
-			m_buildingOrigin[0] = buildingAABB.Min + (m_buildingDiag[0] * 0.5f);
-			m_box_building[0] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z());
-
+			setBuildingAABB(buildingAABB, 0);
 			m_Buildings[0].init(&M);
 			M.clear();
 
 			SAssetIO::load("MyAssets/Buildings/building_07/scene.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
-
 			M.computeAxisAlignedBoundingBox();
 			buildingAABB = M.aabb();
-			m_buildingDiag[1] = buildingAABB.diagonal();
-			m_buildingOrigin[1] = buildingAABB.Min + (m_buildingDiag[1] * 0.5f);
-			m_box_building[1] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z());
-
+			setBuildingAABB(buildingAABB, 1);
 			m_Buildings[1].init(&M);
 			M.clear();
 
 			SAssetIO::load("MyAssets/Buildings/building_08/scene.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
-			M.computePerVertexNormals();
-
+			M.computePerVertexNormals(); 
 			M.computeAxisAlignedBoundingBox();
 			buildingAABB = M.aabb();
-			m_buildingDiag[2] = buildingAABB.diagonal();
-			m_buildingOrigin[2] = buildingAABB.Min + (m_buildingDiag[2] * 0.5f);
-			m_box_building[2] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z());
-
-			/*	float diagx = buildingAABB.diagonal().x();
-			float diagy = buildingAABB.diagonal().y();
-			float diagz = buildingAABB.diagonal().z();
-			float tmp = buildingAABB.Max.z() - buildingAABB.Min.z();*/
+			setBuildingAABB(buildingAABB, 2);
 			m_Buildings[2].init(&M);
 			M.clear();
 
@@ -183,6 +136,7 @@ namespace CForge {
 
 			m_BuildingGroupSGN.init(&m_RootSGN);
 
+			// TODO: change to vector
 			for (uint32_t i = 0; i < BUILDING_COUNT; i++)
 			{
 				uint32_t x = i / BUILDING_COLUMN_COUNT;
@@ -197,9 +151,7 @@ namespace CForge {
 			}
 
 			//Checkpoints
-
 			initCheckpoints();
-
 
 			/// gather textures for the skyboxes
 			m_ClearSky.push_back("Assets/ExampleScenes/skybox/vz_clear_right.png");
@@ -227,13 +179,17 @@ namespace CForge {
 			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
-
-
 		}//initialize
 
 		void clear(void) override {
 			ExampleSceneBase::clear();
 		}//clear
+
+		void setBuildingAABB(T3DMesh<float>::AABB buildingAABB, int i) {
+			m_buildingDiag[i] = buildingAABB.diagonal();
+			m_buildingOrigin[i] = buildingAABB.Min + (m_buildingDiag[i] * 0.5f);
+			m_box_building[i] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z());
+		}
 
 		void set_building(float x, float y, float z, int model, int i) {
 			SGNTransformation* pTransformSGN = nullptr;
@@ -309,6 +265,7 @@ namespace CForge {
 			m_CPPosVec.push_back(m_CPPosVec[22] + Vector3f(30.0f, -5.0f, 0.0f));
 			m_CPPosVec.push_back(m_CPPosVec[23] + Vector3f(30.0f, -5.0f, 0.0f));
 			buildCheckpoints(m_CPPosVec);
+
 		}
 
 		void buildCheckpoints(vector <Vector3f> positions) {
@@ -386,10 +343,6 @@ namespace CForge {
 			return;
 		}
 
-		void translate_bird(Vector3f move) {
-			m_BirdTransformSGN.translation(Vector3f(m_BirdTransformSGN.translation().x() + move.x(), m_BirdTransformSGN.translation().y() + move.y(), m_BirdTransformSGN.translation().z() + move.z()));
-		}
-
 		void CollisionTest() {
 
 			// setup for collision detections
@@ -420,14 +373,12 @@ namespace CForge {
 			collision_request.gjk_solver_type = solver_type;
 
 			fcl::Transform3f bMat = fcl::Transform3f::Identity();
-			bMat.translate(BirdPos);// +birdSphere.center() * max_scale_birb);
-			bMat.rotate(BirdRot);
+			bMat.translate(BirdPos); // no further offset is needed
+			bMat.rotate(BirdRot); // scale can not be set! -> can just do it above with the m_max_scale_bird
 
 			m_birdTestCollision = bMat.matrix();
 			bird_collision_geometry.setTransform(bMat);
-			//bird_collision_geometry.setTransform();
 
-			//sphere.setTransform(m_birdTransform.block<3, 3>(0, 0), Eigen::Vector3f(sx, sy, sz));
 			m_col = false;
 			auto evaluate_collision = [&](
 				const fcl::CollisionObject<float>* s1, const fcl::CollisionObject<float>* s2) {
@@ -444,6 +395,7 @@ namespace CForge {
 					}
 			};
 
+			// TODO: collison test with the ring
 
 			int buildingAssetsIdx = 0;
 			for (size_t i = 0; i < m_BuildingSGNs.size(); i++)
@@ -655,36 +607,11 @@ namespace CForge {
 			Eigen::Vector3f scaleBird;
 			m_BirdTransformSGN.buildTansformation(&posBird, &rotBird, &scaleBird);
 
-			// delete!
-			// Eigen::Matrix4f posMatrix = CForgeMath::translationMatrix(posBird);// +birdSphere.center() * max_scale_birb);
-			// Eigen::Matrix4f rotMatrix = CForgeMath::rotationMatrix(rotBird);
-
 			Eigen::Matrix4f scaleMatrix = CForgeMath::scaleMatrix(Eigen::Vector3f(m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius())));
-			// m_birdTransform = posMatrix * rotMatrix * scaleMatrix;
-
-			// TODO: Remove
-			//m_birdTransformfclPure = posMatrix * rotMatrix;
 
 			m_RenderDev.modelUBO()->modelMatrix(m_birdTestCollision * scaleMatrix);
 			m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 			glColorMask(true, true, true, true);
-
-			// draw box for every building
-			/*for (auto building : m_BuildingTransformationSGNs) {
-				Eigen::Vector3f posBuilding;
-				Eigen::Quaternionf rotBuilding;
-				Eigen::Vector3f scaleBuilding;
-
-				building->buildTansformation(&posBuilding, &rotBuilding, &scaleBuilding);
-
-				Eigen::Matrix4f posMatrix = CForgeMath::translationMatrix(posBuilding);
-				Eigen::Matrix4f rotMatrix = CForgeMath::rotationMatrix(rotBuilding);
-				Eigen::Matrix4f scaleMatrix = CForgeMath::scaleMatrix(scaleBuilding);
-
-				Eigen::Matrix4f buildingTransformation = posMatrix * rotMatrix * scaleMatrix;
-				m_RenderDev.modelUBO()->modelMatrix(buildingTransformation);
-				m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
-			}*/
 
 			int buildingCollisionIdx = 0;
 			// m_BuildingSGNs.size()
@@ -702,18 +629,6 @@ namespace CForge {
 				}
 				auto building = m_BuildingTransformationSGNs[i];
 
-				//Eigen::Vector3f posBuilding;
-				//Eigen::Quaternionf rotBuilding;
-				//Eigen::Vector3f scaleBuilding;
-
-				//building->buildTansformation(&posBuilding, &rotBuilding, &scaleBuilding);
-
-				//Eigen::Matrix4f posMatrix = CForgeMath::translationMatrix(posBuilding);// +m_buildingOrigin[model].cwiseProduct(scaleBuilding));
-				//Eigen::Matrix4f rotMatrix = CForgeMath::rotationMatrix(rotBuilding);
-				//Eigen::Matrix4f scaleMatrix = CForgeMath::scaleMatrix(scaleBuilding);// .cwiseProduct(m_buildingDiag[model]));
-
-				//Eigen::Matrix4f buildingTransformation = posMatrix * rotMatrix * scaleMatrix;
-
 				m_RenderDev.modelUBO()->modelMatrix(m_buildingTestCollision[i]);
 				m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 
@@ -721,8 +636,6 @@ namespace CForge {
 
 			glDisable(GL_BLEND);
 			glEnable(GL_DEPTH_TEST);
-
-
 
 			m_RenderWin.swapBuffers();
 
@@ -734,7 +647,6 @@ namespace CForge {
 
 		StaticActor m_Bird;
 		SGNTransformation m_RootSGN;
-		StaticActor m_Mountain;
 
 		vector<string> m_ClearSky;
 		vector<string> m_EmptySpace;
@@ -747,10 +659,6 @@ namespace CForge {
 		SGNTransformation m_BirdTransformSGN;
 		SGNTransformation m_BirdRollSGN;
 		SGNTransformation m_BirdPitchSGN;
-
-		SGNGeometry m_MountainSGN;
-		SGNTransformation m_MountainTransformSGN;
-		SGNTransformation m_MountainTranslateSGN;
 
 		StaticActor m_Ground;
 		SGNGeometry m_GroundSGN;
@@ -778,7 +686,7 @@ namespace CForge {
 		StaticActor m_Cube;
 		Eigen::Matrix4f m_birdTransform = Eigen::Matrix4f::Identity();
 		Eigen::Matrix4f m_birdTransformfclPure = Eigen::Matrix4f::Identity();
-		CForge::Sphere m_birdSphere;// = m_BirdSGN.actor()->boundingVolume().boundingSphere();
+		CForge::Sphere m_birdSphere;
 		float m_max_scale_bird;
 
 		std::vector<Eigen::Matrix4f> m_buildingTestCollision = std::vector<Eigen::Matrix4f>(BUILDING_COUNT, Eigen::Matrix4f::Identity());
