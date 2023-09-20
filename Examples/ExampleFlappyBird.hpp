@@ -41,7 +41,7 @@ namespace CForge {
 			M.computePerVertexNormals();
 			m_Bird.init(&M);
 
-			SAssetIO::load("Assets/ExampleScenes/TexturedGround.gltf", &M);
+			SAssetIO::load("MyAssets/Ground/cloud.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			for (uint8_t i = 0; i < 4; ++i) M.textureCoordinate(i) *= 50.0f;
 			M.computePerVertexNormals();
@@ -84,23 +84,25 @@ namespace CForge {
 			building_3.init(&M);
 			M.clear();
 
-			//Textures for Skybox City 1
-			m_City1.push_back("MyAssets/FlappyAssets/skybox/right.bmp");
-			m_City1.push_back("MyAssets/FlappyAssets/skybox/left.bmp");
-			m_City1.push_back("MyAssets/FlappyAssets/skybox/up.bmp");
-			m_City1.push_back("MyAssets/FlappyAssets/skybox/down.bmp");
-			m_City1.push_back("MyAssets/FlappyAssets/skybox/back.bmp");
-			m_City1.push_back("MyAssets/FlappyAssets/skybox/front.bmp");
-			
-			//Textures for second Skybox City 2
+			//Textures for second Skybox City 1
 
 			/// gather textures for the skyboxes
-			m_City2.push_back("MyAssets/FlappyAssets/skybox1/right.bmp");
-			m_City2.push_back("MyAssets/FlappyAssets/skybox1/left.bmp");
-			m_City2.push_back("MyAssets/FlappyAssets/skybox1/up.bmp");
-			m_City2.push_back("MyAssets/FlappyAssets/skybox1/down.bmp");
-			m_City2.push_back("MyAssets/FlappyAssets/skybox1/back.bmp");
-			m_City2.push_back("MyAssets/FlappyAssets/skybox1/front.bmp");
+			m_City1.push_back("MyAssets/FlappyAssets/skybox1/right.bmp");
+			m_City1.push_back("MyAssets/FlappyAssets/skybox1/left.bmp");
+			m_City1.push_back("MyAssets/FlappyAssets/skybox1/up.bmp");
+			m_City1.push_back("MyAssets/FlappyAssets/skybox1/down.bmp");
+			m_City1.push_back("MyAssets/FlappyAssets/skybox1/back.bmp");
+			m_City1.push_back("MyAssets/FlappyAssets/skybox1/front.bmp");
+
+			//Textures for Skybox City 2
+			m_City2.push_back("MyAssets/FlappyAssets/skybox/right.bmp");
+			m_City2.push_back("MyAssets/FlappyAssets/skybox/left.bmp");
+			m_City2.push_back("MyAssets/FlappyAssets/skybox/up.bmp");
+			m_City2.push_back("MyAssets/FlappyAssets/skybox/down.bmp");
+			m_City2.push_back("MyAssets/FlappyAssets/skybox/back.bmp");
+			m_City2.push_back("MyAssets/FlappyAssets/skybox/front.bmp");
+			
+			
 
 			// create actor and initialize
 			m_Skybox.init(m_City1[0], m_City1[1], m_City1[2], m_City1[3], m_City1[4], m_City1[5]);
@@ -140,6 +142,9 @@ namespace CForge {
 			buildings.push_back(&building_2);
 			buildings.push_back(&building_3);
 
+			// Erstellen der Start-Area
+			createStartingArea(-100.0f);
+			createStartingArea(-50.0f);
 			// Erstellen von Gebäude-Reihen
 			for (int row = 0; row < 5; ++row) {
 				float xOffset = row * 50.0f; // Abstand zwischen den Reihen
@@ -156,6 +161,50 @@ namespace CForge {
 
 		}//initialize
 
+		void ExampleFlappyBird::createStartingArea(float xOffset) {
+			////////////////////////////////////////////////////////////////////////////////
+			// Erstelle Boden-Transformation-SGN
+			SGNTransformation* GroundTransformSGN = new SGNTransformation();
+			GroundTransformSGN->init(&m_RootSGN);
+			GroundTransformSGN->translation(Vector3f(0.0f, -0.5f, xOffset));
+			// ... Weitere Transformationsoperationen für die linke Seitenwand ...
+			m_BuildingSGNs.push_back(GroundTransformSGN);
+
+			// Boden-Geometrie-SGN 
+			SGNGeometry* GroundGeoSGN = new SGNGeometry();
+			GroundGeoSGN->init(GroundTransformSGN, &m_Ground);
+			GroundGeoSGN->scale(Vector3f(0.75f, 0.75f, 0.835f)); // Nur Skalierung entlang der z-Achse
+			m_BuildingGeoSGNs.push_back(GroundGeoSGN);
+
+			////////////////////////////////////////////////////////////////////////////////
+			// Erstelle linke Seitenwand-Transformation-SGN
+			SGNTransformation* leftSidewallTransformSGN = new SGNTransformation();
+			leftSidewallTransformSGN->init(&m_RootSGN);
+			leftSidewallTransformSGN->translation(Vector3f(17.0f, 0.0f, xOffset));
+			// ... Weitere Transformationsoperationen für die linke Seitenwand ...
+			m_BuildingSGNs.push_back(leftSidewallTransformSGN);
+
+			// Geometrie-SGN für die linke Seitenwand
+			SGNGeometry* leftSidewallGeoSGN = new SGNGeometry();
+			leftSidewallGeoSGN->init(leftSidewallTransformSGN, &building_2);
+			leftSidewallGeoSGN->scale(Vector3f(5.0f, 5.0f, 50.0f)); // Nur Skalierung entlang der z-Achse
+			m_BuildingGeoSGNs.push_back(leftSidewallGeoSGN);
+
+			////////////////////////////////////////////////////////////////////////////////
+			// Erstelle rechte Seitenwand-Transformation-SGN
+			SGNTransformation* rightSidewallTransformSGN = new SGNTransformation();
+			rightSidewallTransformSGN->init(&m_RootSGN);
+			rightSidewallTransformSGN->translation(Vector3f(-11.0f, 0.0f, xOffset));
+			// ... Weitere Transformationsoperationen für die rechte Seitenwand ...
+			m_BuildingSGNs.push_back(rightSidewallTransformSGN);
+
+			// Geometrie-SGN für die rechte Seitenwand
+			SGNGeometry* rightSidewallGeoSGN = new SGNGeometry();
+			rightSidewallGeoSGN->init(rightSidewallTransformSGN, &building_2);
+			rightSidewallGeoSGN->scale(Vector3f(5.0f, 5.0f, 50.0f)); // Nur Skalierung entlang der z-Achse
+			m_BuildingGeoSGNs.push_back(rightSidewallGeoSGN);
+		}
+		 
 		void ExampleFlappyBird::createBuildingRow(float xOffset) {
 			float buildingSpacing = 5.0f; // Abstand zwischen den Gebäuden in einer Reihe
 			float buildingWidth = 3.0f; // Breite eines Gebäudes
@@ -170,14 +219,14 @@ namespace CForge {
 			// Erstelle Boden-Transformation-SGN
 			SGNTransformation* GroundTransformSGN = new SGNTransformation();
 			GroundTransformSGN->init(&m_RootSGN);
-			GroundTransformSGN->translation(Vector3f(0.0f, 0.0f, xOffset));
+			GroundTransformSGN->translation(Vector3f(0.0f, -0.5f, xOffset));
 			// ... Weitere Transformationsoperationen für die linke Seitenwand ...
 			m_BuildingSGNs.push_back(GroundTransformSGN);
 
 			// Boden-Geometrie-SGN 
 			SGNGeometry* GroundGeoSGN = new SGNGeometry();
 			GroundGeoSGN->init(GroundTransformSGN, &m_Ground);
-			GroundGeoSGN->scale(Vector3f(1.0f, 1.0f, 1.0f)); // Nur Skalierung entlang der z-Achse
+			GroundGeoSGN->scale(Vector3f(0.75f, 0.75f, 0.835f)); // Nur Skalierung entlang der z-Achse
 			m_BuildingGeoSGNs.push_back(GroundGeoSGN);
 
 			////////////////////////////////////////////////////////////////////////////////
@@ -400,6 +449,7 @@ namespace CForge {
 			else {
 				m_speed.x() = 0.0f; // Stop horizontal movement when no keys are pressed
 			}
+			
 
 
 			// Calculate and limit roll angle based on speed
@@ -500,21 +550,28 @@ namespace CForge {
 
 			// Update the bird's vertical position
 			m_BirdTransformSGN.translation(Vector3f(m_BirdTransformSGN.translation().x(), newVerticalPosition, m_BirdTransformSGN.translation().z()));
-
-
-
-			// Handle speed adjustments
-			if (pKeyboard->keyPressed(Keyboard::KEY_SPACE) && m_speed.z() <= 0.3f) {
-				m_speed.z() += 0.01f; // Increase speed
+			if (pKeyboard->keyPressed(Keyboard::KEY_P, true)) {
+				m_paused = !m_paused;
+				if(m_paused != true) m_speed.z() = oldSpeed + 0.01f;
 			}
-			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL) && m_speed.z() >= 0.05f) {
-				m_speed.z() -= 0.01f; // Decrease speed
+			if (m_paused) {
+				m_speed.z() = pauseSpeed;
+			}
+			if (!m_paused) {
+				// Handle speed adjustments
+				if (pKeyboard->keyPressed(Keyboard::KEY_SPACE) && m_speed.z() <= 1.0f) {
+					m_speed.z() += 0.01f; // Increase speed
+				}
+				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL) && m_speed.z() >= 0.05f) {
+					m_speed.z() -= 0.01f; // Decrease speed
+				}
+				oldSpeed = m_speed.z();
+				// Sink during normal flight
+				if (m_speed.y() > -0.01f) {
+					m_speed.y() -= 0.02f;
+				}
 			}
 
-			// Sink during normal flight
-			if (m_speed.y() > -0.01f) {
-				m_speed.y() -= 0.02f;
-			}
 			
 
 			
@@ -526,10 +583,10 @@ namespace CForge {
 				float firstBuildingZ = m_BuildingSGNs[0]->translation().z();
 
 				// Überprüfen, ob der Vogel die erste Reihe passiert hat
-				if (birdZ > firstBuildingZ + 5.0f) {
+				if (birdZ > firstBuildingZ + 105.0f) {
 					score++;
 					cout << "Score: " << score << endl;
-					m_speed.z() += 0.05f;
+					if(m_speed.z() < 0.80) m_speed.z() += 0.01f;
 					cout << "Aktueller Speed: " << m_speed.z() << endl;
 					
 					// Löschen der ersten Reihe
@@ -544,9 +601,9 @@ namespace CForge {
 
 					// Hinzufügen von zwei neuen Reihen hinten
 					float lastBuildingZ = m_BuildingSGNs.back()->translation().z();
-					float newRowsStartZ = lastBuildingZ + 100.0f; // Abstand zwischen den neuen Reihen
+					float newRowsStartZ = lastBuildingZ + 50.0f; // Abstand zwischen den neuen Reihen
 					createBuildingRow(newRowsStartZ);
-					createBuildingRow(newRowsStartZ + 100.0f); // Abstand zwischen den neuen Reihen
+					//createBuildingRow(newRowsStartZ + 50.0f); // Abstand zwischen den neuen Reihen
 				}
 			}
 
@@ -629,9 +686,11 @@ namespace CForge {
 		vector<SGNTransformation*> m_BuildingSGNs; // List to hold building SGNs
 		vector<SGNGeometry*> m_BuildingGeoSGNs;   // List to hold building geometry SGNs
 		
-	
+		bool m_paused = true;
 
 		//Speed für Vogel
+		float oldSpeed = 0.3f;
+		float pauseSpeed = 0.0f;
 		Vector3f speed = Vector3f(0.0f, 0.0f, 0.3f);
 		float rollSpeed = 0.0f;
 
@@ -640,6 +699,7 @@ namespace CForge {
 
 		bool m_col = false;
 		bool glLoaded = false;
+
 
 		Vector3f m_speed = Vector3f(0.0f, 0.0f, 0.1f);
 		float m_rollSpeed = 0.0f;
