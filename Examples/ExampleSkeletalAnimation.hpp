@@ -53,9 +53,17 @@ namespace CForge {
 
 			// initialize skeletal actor (Eric) and its animation controller
 			//SAssetIO::load("Assets/ExampleScenes/CesiumMan/CesiumMan.gltf", &M);
-			SAssetIO::load("MyAssets/Eagle_Animated/EagleFallFull/EagleFall.gltf", &M);   
+			//SAssetIO::load("MyAssets/Eagle_Animated/EagleFallFull/EagleFall.gltf", &M);    
 			//SAssetIO::load("MyAssets/Eagle_Animated/EagleFlap4/EagleFlap.gltf", &M);
+			
+			//SAssetIO::load("MyAssets/Crow_Animated/Crow2/Crow2.gltf", &M); 
+			// 
+			SAssetIO::load("MyAssets/Crow_Animated/Crow4/Crow.gltf", &M);
+			//SAssetIO::load("MyAssets/Crow_Animated/CrowAnim2/Crow.gltf", &M);
 			//SAssetIO::load("MyAssets/Small_Bird/SmallFlap.gltf", &M);
+			//SAssetIO::load("MyAssets/BirdD/Kolibri.gltf", &M);
+			//SAssetIO::load("MyAssets/BirdA/Crow.gltf", &M);
+			//SAssetIO::load("MyAssets/BirdE/LittleBird.gltf", &M);
 
 
 			setMeshShader(&M, 0.7f, 0.04f);
@@ -70,7 +78,7 @@ namespace CForge {
 
 			// add skydome		
 			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
-			m_SkydomeSGN.scale(Vector3f(50.0f, 50.0f, 50.0f));
+			m_SkydomeSGN.scale(Vector3f(150.0f, 150.0f, 150.0f));
 
 			// add skeletal actor to scene graph (Eric)			
 			m_CesiumManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 5.0f, 0.0f));
@@ -132,6 +140,19 @@ namespace CForge {
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
 				m_CesiumMan.resumeActiveAnimation(); // Resume the paused animation when "Taste 3" (Key 3) is pressed
 			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_UP, true)) {
+				m_CesiumManTransformSGN.translationDelta(Vector3f(0.0f, 0.1f, 0.0f));
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_DOWN, true)) {
+				m_CesiumManTransformSGN.translationDelta(Vector3f(0.0f, -0.1f, 0.0f));
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT, true)) {
+				m_CesiumManTransformSGN.translationDelta(Vector3f(-0.1f, 0.0f, 0.0f));
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_RIGHT, true)) {
+				m_CesiumManTransformSGN.translationDelta(Vector3f(0.1f, 0.0f, 0.0f));
+			}
+
 
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
