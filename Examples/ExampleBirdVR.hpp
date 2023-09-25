@@ -134,6 +134,12 @@ namespace CForge {
 			m_Cube.init(&M);
 			M.clear();
 
+			SAssetIO::load("MyAssets/cylinder.obj", &M);
+			setMeshShader(&M, 0.1f, 0.04f);
+			M.computePerVertexNormals();
+			m_Cylinder.init(&M);
+			M.clear();
+
 			m_BuildingGroupSGN.init(&m_RootSGN);
 
 			// TODO: change to vector
@@ -276,7 +282,7 @@ namespace CForge {
 
 			//add to scenegraph
 			T3DMesh <float> M;
-			PrimitiveShapeFactory::Torus(&M, 2.0f, 0.2f, 15, 15); //alt.: load
+			PrimitiveShapeFactory::Torus(&M, m_CPRadius, m_CPHeight, 15, 15); //alt.: load
 			//SAssetIO::load("MyAssets/Torus/scene.gltf", &M);
 
 			setMeshShader(&M, 0.1f, 0.04f);
@@ -337,6 +343,9 @@ namespace CForge {
 				pGeomSGN = new SGNGeometry();
 				pGeomSGN->init(pTransformSGN, &m_Checkpoint);
 				pGeomSGN->scale(Vector3f(1.0f, 1.0f, 1.0f));
+
+				m_CPSGNs.push_back(pGeomSGN);
+				m_CPTransformationSGNs.push_back(pTransformSGN);
 			}
 
 			m_CheckpointsSG.init(&m_CPGroupSGN);
@@ -380,8 +389,9 @@ namespace CForge {
 			bird_collision_geometry.setTransform(bMat);
 
 			m_col = false;
+			m_colCP = false;
 			auto evaluate_collision = [&](
-				const fcl::CollisionObject<float>* s1, const fcl::CollisionObject<float>* s2) {
+				const fcl::CollisionObject<float>* s1, const fcl::CollisionObject<float>* s2, bool* col) {
 					// Compute collision.
 					fcl::CollisionResult<float> collision_result;
 					std::size_t contact_count = fcl::collide(s1, s2, collision_request, collision_result);
@@ -391,11 +401,41 @@ namespace CForge {
 						std::vector<fcl::Contact<float>> contacts;
 						collision_result.getContacts(contacts);
 						//GTEST_ASSERT_EQ(contacts.size(), collision_request.num_max_contacts);
-						m_col = true;
+						*col = true;
 					}
 			};
 
 			// TODO: collison test with the ring
+			// still position is wrong -> need to change it
+			// as well as setting next when collision occured
+
+			if (m_CPCollisonCurrent < m_CPSGNs.size()) {
+				auto CheckPointTSGN = m_CPSGNs[m_CPCollisonCurrent]->parent();
+
+				Eigen::Vector3f posCheckPoint;
+				Eigen::Quaternionf rotCheckPoint;
+				Eigen::Vector3f scaleCheckPoint;
+
+				CheckPointTSGN->buildTansformation(&posCheckPoint, &rotCheckPoint, &scaleCheckPoint);
+
+				auto cylinder_checkpoint = std::make_shared<fcl::Cylinder<float>>(m_CPRadius, m_CPHeight);
+
+				fcl::Transform3<float> X_WB = fcl::Transform3<float>::Identity();
+				fcl::CollisionObject<float> cylinder_collisoin_geometry(cylinder_checkpoint, X_WB);
+
+				fcl::Transform3f mat = fcl::Transform3f::Identity();
+				mat.translate(posCheckPoint);
+				mat.rotate(rotCheckPoint);
+				mat.rotate((Quaternionf)AngleAxisf(CForgeMath::degToRad(90.0f), Vector3f::UnitX()));
+
+				m_cylinderTestCollision = mat.matrix() * CForgeMath::scaleMatrix(Vector3f(1.0f, 1.0f, 1.0f));
+				cylinder_collisoin_geometry.setTransform(mat);
+
+
+				evaluate_collision(&bird_collision_geometry, &cylinder_collisoin_geometry, &m_colCP);
+				if (m_colCP) m_CPCollisonCurrent++; // needs to be a frame after that
+			}
+			
 
 			int buildingAssetsIdx = 0;
 			for (size_t i = 0; i < m_BuildingSGNs.size(); i++)
@@ -435,7 +475,7 @@ namespace CForge {
 				m_buildingTestCollision[i] = mat.matrix() * CForgeMath::scaleMatrix(Vector3f(buildingDiag.x(), buildingDiag.y(), buildingDiag.z()));
 				building_collisoin_geometry.setTransform(mat);
 
-				evaluate_collision(&bird_collision_geometry, &building_collisoin_geometry);
+				evaluate_collision(&bird_collision_geometry, &building_collisoin_geometry, &m_col);
 			}
 		}
 
@@ -601,7 +641,6 @@ namespace CForge {
 			else
 				glColorMask(false, true, false, true);
 
-
 			Eigen::Vector3f posBird;
 			Eigen::Quaternionf rotBird;
 			Eigen::Vector3f scaleBird;
@@ -633,6 +672,19 @@ namespace CForge {
 				m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 
 			}
+
+			if (m_colCP)
+				glColorMask(false, false, true, true);
+			else
+				glColorMask(false, true, false, true);
+
+			if (m_CPCollisonCurrent < m_CPSGNs.size()) {
+				m_cylinderTestCollision *= CForgeMath::scaleMatrix(Eigen::Vector3f(m_CPRadius * 2, m_CPRadius * 2, m_CPHeight));
+				m_RenderDev.modelUBO()->modelMatrix(m_cylinderTestCollision);
+				m_Cylinder.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
+			}
+			
+			glColorMask(true, true, true, true);
 
 			glDisable(GL_BLEND);
 			glEnable(GL_DEPTH_TEST);
@@ -684,6 +736,7 @@ namespace CForge {
 
 		StaticActor m_Sphere;
 		StaticActor m_Cube;
+		StaticActor m_Cylinder;
 		Eigen::Matrix4f m_birdTransform = Eigen::Matrix4f::Identity();
 		Eigen::Matrix4f m_birdTransformfclPure = Eigen::Matrix4f::Identity();
 		CForge::Sphere m_birdSphere;
@@ -693,6 +746,7 @@ namespace CForge {
 		Eigen::Matrix4f m_birdTestCollision = Eigen::Matrix4f::Identity();
 
 		bool m_col = false;
+		bool m_colCP = false;
 		bool glLoaded = false;
 
 		Vector3f m_speed = Vector3f(0.0f, 0.0f, 0.3f);
@@ -706,9 +760,14 @@ namespace CForge {
 		std::vector<SGNTransformation*> m_CPTransformationSGNs;
 		std::vector<SGNGeometry*> m_CPSGNs;
 		int m_CPCount = 20;
+		int m_CPCollisonCurrent = 0;
+		const float m_CPHeight = 0.2f;
+		const float m_CPRadius = 2.0f;
+		Eigen::Matrix4f m_cylinderTestCollision;
 		vector<Vector3f> m_CPPosVec;
 		float m_minHeight = 2.0f;
 		float m_maxHeight = 30.0f;
+		
 
 		bool m_paused = true;
 
