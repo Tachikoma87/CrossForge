@@ -23,6 +23,7 @@
 #include <Examples/ExampleShapesAndMaterials.hpp>
 #include <Examples/ExampleTextRendering.hpp>
 #include <Examples/ExampleLighting.hpp>
+#include <Examples/ExampleRealtimeMotion2.hpp>
 
 using namespace CForge;
 using namespace Eigen;
@@ -33,12 +34,13 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkybox
 //#define ActiveScene ExampleTextRendering
 //#define ActiveScene ExampleShapesAndMaterials
-#define ActiveScene ExampleLighting
+//#define ActiveScene ExampleLighting
 //#define ActiveScene ExampleSceneGraph
 //#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
 //#define ActiveScene ExampleSocket
+#define ActiveScene ExampleRealtimeMotion
 
 
 ActiveScene* pScene = nullptr;

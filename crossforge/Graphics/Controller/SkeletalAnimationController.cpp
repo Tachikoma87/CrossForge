@@ -156,7 +156,6 @@ namespace CForge {
 			}
 		}
 
-
 		for (uint32_t i = 0; i < pAnim->Keyframes.size(); ++i) {
 			auto* pKeyFrame = pAnim->Keyframes[i];
 			if (pKeyFrame->BoneName.empty()) continue;
@@ -164,7 +163,6 @@ namespace CForge {
 			Vector3f Pos = pKeyFrame->Positions[0];
 			Vector3f Scale = pKeyFrame->Scalings[0];
 			Quaternionf Rot = pKeyFrame->Rotations[0];
-
 
 			while (pKeyFrame->Positions.size() < MaxTimestamps) pKeyFrame->Positions.push_back(Pos);
 			while (pKeyFrame->Scalings.size() < MaxTimestamps) pKeyFrame->Scalings.push_back(Scale);
@@ -227,7 +225,7 @@ namespace CForge {
 	void SkeletalAnimationController::applyAnimation(Animation* pAnim, bool UpdateUBO) {
 
 		if (nullptr == pAnim) {
-			for (auto i : m_Joints) i->SkinningMatrix = Eigen::Matrix4f::Identity();
+			// for (auto i : m_Joints) i->SkinningMatrix = Eigen::Matrix4f::Identity();
 		}
 		else {
 			T3DMesh<float>::SkeletalAnimation* pAnimData = m_SkeletalAnimations[pAnim->AnimationID];
@@ -271,10 +269,17 @@ namespace CForge {
 		
 	}//applyAnimation
 
+	SkeletalAnimationController::Joint* SkeletalAnimationController::root(void) {
+		return m_pRoot;
+	}//root
+
+	std::vector<SkeletalAnimationController::Joint*>& SkeletalAnimationController::joints(void) {
+		return m_Joints;
+	}//joints
+
 	UBOBoneData* SkeletalAnimationController::ubo(void) {
 		return &m_UBO;
 	}//ubo
-
 
 	void SkeletalAnimationController::transformSkeleton(Joint* pJoint, Eigen::Matrix4f ParentTransform) {
 		if (nullptr == pJoint) throw NullpointerExcept("pJoint");
@@ -283,7 +288,7 @@ namespace CForge {
 		const Matrix4f S = CForgeMath::scaleMatrix(pJoint->LocalScale);
 		const Matrix4f JointTransform = T * R * S;
 
-		Matrix4f LocalTransform =  ParentTransform * JointTransform;
+		Matrix4f LocalTransform = ParentTransform * JointTransform;
 		pJoint->SkinningMatrix = LocalTransform * pJoint->OffsetMatrix;
 
 		for (auto i : pJoint->Children) transformSkeleton(i, LocalTransform);

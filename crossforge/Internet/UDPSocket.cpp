@@ -44,7 +44,7 @@ namespace CForge {
 		m_pRecvThread = new std::thread(&UDPSocket::recvThread, this);
 
 		// create Buffer
-		m_BufferSize = 2048;
+		m_BufferSize = 4096;
 		m_pInBuffer = new uint8_t[m_BufferSize];
 		m_pOutBuffer = new uint8_t[m_BufferSize];
 	}//begin

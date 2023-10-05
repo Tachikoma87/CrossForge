@@ -35,6 +35,22 @@ namespace CForge {
 			bool Finished;
 		};
 
+		struct Joint {
+			int32_t ID;
+			std::string Name;
+			Eigen::Matrix4f OffsetMatrix;
+			Eigen::Vector3f LocalPosition;
+			Eigen::Quaternionf LocalRotation;
+			Eigen::Vector3f LocalScale;
+			Eigen::Vector3f LastLocalPosition;
+			Eigen::Quaternionf LastLocalRotation;
+			Eigen::Vector3f LastLocalScale;
+			Eigen::Matrix4f SkinningMatrix;
+
+			Joint* pParent;
+			std::vector<Joint*> Children;
+		};
+
 		struct SkeletalJoint: public CForgeObject {
 			int32_t ID;
 			std::string Name;
@@ -51,7 +67,6 @@ namespace CForge {
 				ID = -1;
 				Parent = -1;
 			}
-
 		};
 
 		SkeletalAnimationController(void);
@@ -68,7 +83,11 @@ namespace CForge {
 		void destroyAnimation(Animation* pAnim);
 		void applyAnimation(Animation* pAnim, bool UpdateUBO = true);
 
+		Joint* root(void);
+		std::vector<Joint*>& joints(void);
 		UBOBoneData* ubo(void);
+
+		void transformSkeleton(Joint* pJoint, Eigen::Matrix4f ParentTransform);
 
 		T3DMesh<float>::SkeletalAnimation* animation(uint32_t ID);
 		uint32_t animationCount(void)const;
@@ -78,25 +97,11 @@ namespace CForge {
 		UBOBoneData* boneUBO(void);
 		void retrieveSkinningMatrices(std::vector<Eigen::Matrix4f>* pSkinningMats);
 
-		std::vector<SkeletalJoint*> retrieveSkeleton(void)const;
+		std::vector<SkeletalJoint*> retrieveSkeleton(void) const;
 		void updateSkeletonValues(std::vector<SkeletalJoint*>* pSkeleton);
 
 	protected:
 
-		struct Joint {
-			int32_t ID;
-			std::string Name;
-			Eigen::Matrix4f OffsetMatrix;
-			Eigen::Vector3f LocalPosition;
-			Eigen::Quaternionf LocalRotation;
-			Eigen::Vector3f LocalScale;
-			Eigen::Matrix4f SkinningMatrix;
-
-			Joint* pParent;
-			std::vector<Joint*> Children;
-		};
-
-		void transformSkeleton(Joint* pJoint, Eigen::Matrix4f ParentTransform);
 		int32_t jointIDFromName(std::string JointName);
 
 		Joint* m_pRoot;
