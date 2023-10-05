@@ -18,6 +18,7 @@
 #ifndef __CFORGE_VIDEOPLAYERTESTSCENE_HPP__
 #define __CFORGE_VIDEOPLAYERTESTSCENE_HPP__
 
+#ifdef USE_OPENCV
 
 #include <Examples/ExampleSceneBase.hpp>
 #include "../Camera/VideoPlayer.h"
@@ -140,4 +141,5 @@ namespace CForge {
 
 }//name space
 
+#endif
 #endif

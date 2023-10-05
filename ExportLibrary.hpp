@@ -212,7 +212,7 @@ void exportLibrary(void) {
 	BinaryFiles.push_back("x64-Debug/freetyped.dll");
 	BinaryFiles.push_back("x64-Debug/glfw3.dll");
 	BinaryFiles.push_back("x64-Debug/libpng16d.dll");
-	BinaryFiles.push_back("x64-Debug/webp.dll");
+	BinaryFiles.push_back("x64-Debug/libwebp.dll");
 	BinaryFiles.push_back("x64-Debug/zlibd1.dll");
 	BinaryFiles.push_back("X64-Debug/pugixml.dll");
 
@@ -239,8 +239,7 @@ void exportLibrary(void) {
 	BinaryFiles.push_back("x64-Release/freetype.dll");
 	BinaryFiles.push_back("x64-Release/glfw3.dll");
 	BinaryFiles.push_back("x64-Release/libpng16.dll");
-	BinaryFiles.push_back("x64-Release/webp.dll");
-//	BinaryFiles.push_back("x64-Release/webpdecoder.dll");
+	BinaryFiles.push_back("x64-Release/libwebp.dll");
 	BinaryFiles.push_back("x64-Release/zlib1.dll");
 	BinaryFiles.push_back("x64-Release/pugixml.dll");
 	
@@ -259,8 +258,12 @@ void exportLibrary(void) {
 	Directories.push_back("crossforge/Shader/");
 	ShaderFiles.push_back("Shader/BasicGeometryPass.frag");
 	ShaderFiles.push_back("Shader/BasicGeometryPass.vert");
+	ShaderFiles.push_back("Shader/CFText.frag");
+	ShaderFiles.push_back("Shader/CFText.vert");
 	ShaderFiles.push_back("Shader/DRLightingPassPBS.frag");
 	ShaderFiles.push_back("Shader/DRLightingPassPBS.vert");
+	ShaderFiles.push_back("Shader/ForwardPassPBS.frag");
+	ShaderFiles.push_back("Shader/ForwardPassPBS.vert");
 	ShaderFiles.push_back("Shader/ScreenQuad.frag");
 	ShaderFiles.push_back("Shader/ScreenQuad.vert");
 	ShaderFiles.push_back("Shader/ShadowPassShader.frag");

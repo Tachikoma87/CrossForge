@@ -18,6 +18,8 @@
 #ifndef __CFORGE_VIDEOPLAYER_H__
 #define __CFORGE_VIDEOPLAYER_H__
 
+#ifdef USE_OPENCV
+
 #include <crossforge/Core/CForgeObject.h>
 #include <crossforge/Graphics/Actors/ScreenQuad.h>
 #include <crossforge/Graphics/GLTexture2D.h>
@@ -92,3 +94,4 @@ namespace CForge {
 }
 
 #endif 
+#endif

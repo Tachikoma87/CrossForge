@@ -18,6 +18,7 @@
 #ifndef __CFORGE_SIDEBYSIDEMOTIONSCENE_HPP__
 #define __CFORGE_SIDEBYSIDEMOTIONSCENE_HPP__
 
+#ifdef USE_OPENCV
 
 #include <Examples/ExampleSceneBase.hpp>
 #include "../Camera/VideoRecorder.h"
@@ -758,3 +759,5 @@ namespace CForge {
 }//name space
 
 #endif
+
+#endif // USE_OPENCV

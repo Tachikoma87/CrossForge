@@ -1,3 +1,5 @@
+#ifdef USE_OPENCV
+
 #include <opencv2/opencv.hpp>
 #include "VideoRecorder.h"
 
@@ -106,3 +108,5 @@ namespace CForge {
 	}//isRecording
 
 }//name space
+
+#endif // USE_OPENCV

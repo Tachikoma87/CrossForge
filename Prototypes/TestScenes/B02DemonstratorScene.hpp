@@ -17,7 +17,7 @@
 \****************************************************************************/
 #ifndef __CFORGE_B02DEMONSTRATORSCENE_HPP__
 #define __CFORGE_B02DEMONSTRATORSCENE_HPP__
-
+#ifdef USE_OPENCV
 
 #include <Examples/ExampleSceneBase.hpp>
 #include <crossforge/Math/Rectangle.hpp>
@@ -1510,4 +1510,5 @@ namespace CForge {
 
 }//name space
 
+#endif
 #endif

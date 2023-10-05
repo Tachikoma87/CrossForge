@@ -1,5 +1,6 @@
 #include "VideoPlayer.h"
 
+#ifdef USE_OPENCV
 #include <opencv2/opencv.hpp>
 
 #include <crossforge/Utility/CForgeUtility.h>
@@ -265,3 +266,5 @@ namespace CForge {
 	}//finished
 	
 }//name space
+
+#endif

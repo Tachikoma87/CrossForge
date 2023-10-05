@@ -39,7 +39,6 @@
 #include "Prototypes/TestScenes/VideoPlayerTestScene.hpp"
 
 
-
 using namespace CForge;
 using namespace Eigen;
 
@@ -49,7 +48,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkybox
 //#define ActiveScene ExampleTextRendering
 //#define ActiveScene ExampleShapesAndMaterials
-//#define ActiveScene ExampleLighting
+#define ActiveScene ExampleLighting
 //#define ActiveScene ExampleSceneGraph
 //#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
@@ -66,7 +65,7 @@ using namespace Eigen;
 //#define ActiveScene StickFigureTestScene
 //#define ActiveScene AssetGLTFTestScene
 //#define ActiveScene ImGUITestScene
-#define ActiveScene B02DemonstratorScene
+//#define ActiveScene B02DemonstratorScene
 //#define ActiveScene SideBySideMotionScene
 //#define ActiveScene VideoPlayerTestScene
 
@@ -119,7 +118,7 @@ int main(int argc, char* argv[]) {
 
 		if (nullptr != pScene) delete pScene;
 		pScene = nullptr;
-		//exportLibrary();
+		exportLibrary();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
