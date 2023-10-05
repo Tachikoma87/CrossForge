@@ -66,7 +66,7 @@ namespace CForge
 			setMeshShader(&Mesh, 0.7f, 0.04f);
 			Mesh.computePerVertexNormals();
 			m_BipedController.init(&Mesh);
-			// m_MuscleMan.init(&Mesh, &m_BipedController);
+			m_MuscleMan.init(&Mesh, &m_BipedController);
 			m_MuscleManStick.init(&Mesh, &m_BipedController);
 
 			SAssetIO::load("Assets/ExampleScenes/MuscleMan/TexturedUnitCube.gltf", &Mesh);
@@ -83,8 +83,9 @@ namespace CForge
 			Rot = AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX());
 
 			m_MuscleManTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 0.0f, 0.0f), Rot, Vector3f(0.002f, 0.002f, 0.002f));
-			// m_MuscleManSGN.init(&m_MuscleManTransformSGN, &m_MuscleMan);
+			m_MuscleManSGN.init(&m_MuscleManTransformSGN, &m_MuscleMan);
 			m_MuscleManStickSGN.init(&m_MuscleManTransformSGN, &m_MuscleManStick);
+			m_MuscleManSGN.enable(true, false);
 
 			// for (int index = 0; index < 21; ++index)
 			// {
@@ -150,6 +151,22 @@ namespace CForge
 			m_BipedController.update(60.0f / m_FPS);
 
 			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true))
+			{
+				bool enabled = true;
+				m_MuscleManSGN.enabled(nullptr, &enabled);
+
+				if (enabled)
+				{
+					m_MuscleManSGN.enable(true, false);
+					m_MuscleManStickSGN.enable(true, true);
+				}
+				else {
+					m_MuscleManSGN.enable(true, true);
+					m_MuscleManStickSGN.enable(true, false);
+				}
+			}
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 			m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
@@ -276,10 +293,10 @@ namespace CForge
 		}
 
 		SGNTransformation m_RootSGN;
-		// SkeletalActor m_MuscleMan;
+		SkeletalActor m_MuscleMan;
 		StickFigureActor m_MuscleManStick;
 		SkeletalAnimationController m_BipedController;
-		// SGNGeometry m_MuscleManSGN;
+		SGNGeometry m_MuscleManSGN;
 		SGNGeometry m_MuscleManStickSGN;
 		SGNTransformation m_MuscleManTransformSGN;
 		// StaticActor m_Cube[21];
