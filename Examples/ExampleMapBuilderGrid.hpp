@@ -33,7 +33,7 @@ namespace CForge {
 
 			// build scene graph	
 			m_RootSGN.init(nullptr);
-			m_SG.init(&m_RootSGN); 
+			m_SG.init(&m_RootSGN);
 
 			T3DMesh<float> M;
 			// load buildings
@@ -80,7 +80,7 @@ namespace CForge {
 			m_City2.push_back("MyAssets/FlappyAssets/skybox/down.bmp");
 			m_City2.push_back("MyAssets/FlappyAssets/skybox/back.bmp");
 			m_City2.push_back("MyAssets/FlappyAssets/skybox/front.bmp");
-			
+
 			// create actor and initialize
 			m_Skybox.init(m_City1[0], m_City1[1], m_City1[2], m_City1[3], m_City1[4], m_City1[5]);
 
@@ -98,6 +98,7 @@ namespace CForge {
 			//placeBuilding(0, 60.0f, 1.0f, 1.0f);
 			//placeBuilding(1, 120.0f, 1.0f, 1.0f);
 			//placeBuilding(2, 180.0f, 1.0f, 1.0f);
+			
 
 
 			std::string GLError = "";
@@ -111,32 +112,57 @@ namespace CForge {
 		//PlaceBuilding
 
 		void placeBuilding(int variant, float x, float y, float z) {
-			SGNTransformation* pTransformSGN = nullptr;
-			SGNGeometry* pGeomSGN = nullptr;
+			// Erstellen Sie eine Transformation für das Gebäude
+			SGNTransformation* pBuildingTransform = new SGNTransformation();
+			pBuildingTransform->init(&m_BuildingGroupSGN);
+			pBuildingTransform->translation(Vector3f(x, y, z));
+			pBuildingTransform->scale(m_building_scale);
 
-			pTransformSGN = new SGNTransformation();
-			pTransformSGN->init(&m_BuildingGroupSGN);
+			
+			if (variant == 2) pBuildingTransform->scale(Vector3f(2.5f, 5.0f, 2.5f));
 
-			// set to other vector
-			pTransformSGN->translation(Vector3f(x, z, y));
-			pTransformSGN->scale(m_building_scale);
-			if (variant == 2) pTransformSGN->scale(Vector3f(2.5f, 5.0f, 2.5f));
+			// Erstellen Sie Geometrie für das Gebäude
+			SGNGeometry* pBuildingGeometry = new SGNGeometry();
+			pBuildingGeometry->init(pBuildingTransform, &m_Buildings[variant]);
 
-			pGeomSGN = new SGNGeometry();
-			pGeomSGN->init(pTransformSGN, &m_Buildings[variant]);
+			// Fügen Sie das Gebäude zur Szene hinzu
+			//gridBuildingTransforms[activeTileRow][activeTileCol].push_back(pBuildingTransform);
+			//gridBuildingGeometries[activeTileRow][activeTileCol].push_back(pBuildingGeometry);
 
-			m_BuildingTransformSGNs.push_back(pTransformSGN);
-			m_BuildingGeoSGNs.push_back(pGeomSGN);
+			gridBuildingSGNSs[activeTileRow][activeTileCol].first = pBuildingTransform;
+			gridBuildingSGNSs[activeTileRow][activeTileCol].second = pBuildingGeometry;
+			//gridBuildingGeometries[activeTileRow][activeTileCol].push_back(pBuildingGeometry);
+
+
+			//m_BuildingTransformSGNs.push_back(pBuildingTransform);
+			//m_BuildingGeoSGNs.push_back(pBuildingGeometry);
 		}
-		 
+
+		void replaceBuilding(int variant) {
+			if (variant == 2) {
+				gridBuildingSGNSs[activeTileRow][activeTileCol].first->scale(Vector3f(2.5f, 5.0f, 2.5f));
+			}
+			else {
+				gridBuildingSGNSs[activeTileRow][activeTileCol].first->scale(Vector3f(5.0f, 5.0f, 5.0f));
+			}
+			gridBuildingSGNSs[activeTileRow][activeTileCol].second->init(gridBuildingSGNSs[activeTileRow][activeTileCol].first, &m_Buildings[variant]);
+		}
+
 		void createGrid() {
 			// Setze die Anfangsposition für das aktive Tile
 			activeTileRow = 0;
 			activeTileCol = 0;
 
+
 			// Größe und Anzahl der Reihen und Spalten des Grids
-			
+
 			const float tileSize = 10.0f; // Die Größe eines Tiles
+
+			// Initialisiere gridBuildingSGNs, um anzuzeigen, dass auf keinem Rasterfeld ein Gebäude vorhanden ist
+			gridBuildingSGNs.resize(numRows, vector<pair<bool, int>>(numCols, { false, -1 }));
+			gridBuildingSGNSs.resize(numRows, vector<pair<SGNTransformation*, SGNGeometry*>>(numCols));
+
+
 
 			// Schleife zur Erstellung und Platzierung der Grid-Tiles
 			for (int row = 0; row < numRows; ++row) {
@@ -183,19 +209,28 @@ namespace CForge {
 				pActiveTileTransform->scale(Vector3f(1.0f, 1.0f, 1.0f)); // Hier die gewünschte Skalierung eintragen
 			}
 		}
-		
-		void placeBuildingAtActiveTile(int variant) {
-			// Stelle sicher, dass die aktive Tile-Position gültig ist
+
+		void placeBuildingAtActiveTile() {
+			// Überprüfen Sie, ob das aktive Tile gültig ist
 			if (activeTileRow >= 0 && activeTileRow < numRows && activeTileCol >= 0 && activeTileCol < numCols) {
-				// Berechne die Position für das Gebäude basierend auf der aktiven Tile-Position
-				float x = activeTileCol * 10; // Multipliziere mit der Gebäude-Skalierung in x-Richtung
-				float y = activeTileRow * 10; // Multipliziere mit der Gebäude-Skalierung in z-Richtung
-
-				// Rufe die Methode zum Platzieren eines Gebäudes auf
-				placeBuilding(variant, x, y, 0.0f);
-
-				// Inkrementiere den Index der ausgewählten Gebäudevariante für das nächste Gebäude
-				variant = (variant + 1) % 3; // Annahme: Es gibt 3 Gebäudevaiants
+				// Überprüfen Sie, ob bereits ein Gebäude auf diesem Tile steht
+				if (gridBuildingSGNs[activeTileRow][activeTileCol].first) {
+					// Platzieren Sie das Gebäude auf dem aktiven Tile
+					selectedBuildingVariant = gridBuildingSGNs[activeTileRow][activeTileCol].second;
+					selectedBuildingVariant = (selectedBuildingVariant + 1) % 3;
+					//placeBuilding(selectedBuildingVariant, activeTileCol * 10.0f + 2.5f, 1.0f, activeTileRow * 10.0f);
+					replaceBuilding(selectedBuildingVariant);
+					
+					// Aktualisieren Sie gridBuildingSGNs, um anzuzeigen, dass ein Gebäude vorhanden ist
+					//gridBuildingSGNs[activeTileRow][activeTileCol].first = true;
+					gridBuildingSGNs[activeTileRow][activeTileCol].second = selectedBuildingVariant;
+				}
+				else {
+					placeBuilding(0, activeTileCol * 10.0f + 2.5f, 1.0f, activeTileRow * 10.0f);
+					// Aktualisieren Sie gridBuildingSGNs, um das erste Gebäude anzuzeigen
+					gridBuildingSGNs[activeTileRow][activeTileCol].first = true;
+					gridBuildingSGNs[activeTileRow][activeTileCol].second = 0;
+				}
 
 			}
 		}
@@ -204,14 +239,32 @@ namespace CForge {
 			// Überprüfe, ob eine Taste für den Gebäudeplatzierung eingegeben wurde
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_B, true)) {
 				// Platzieren Sie das ausgewählte Gebäude am aktiven Tile
-				placeBuildingAtActiveTile(selectedBuildingVariant);
+				placeBuildingAtActiveTile();
 
 				// Erhöhen Sie den Index des ausgewählten Gebäudevaiants für das nächste Gebäude
 				selectedBuildingVariant = (selectedBuildingVariant + 1) % 3; // Annahme: Es gibt 3 Gebäudevaiants
 			}
 		}
 
-		
+		void clear() {
+			// Gebäude-Transformationen und -Geometrien freigeben
+			for (int i = 0; i < m_BuildingTransformSGNs.size(); ++i) {
+				delete m_BuildingTransformSGNs[i];
+				delete m_BuildingGeoSGNs[i];
+			}
+
+			// Setzen Sie die Vektoren zurück
+			m_BuildingTransformSGNs.clear();
+			m_BuildingGeoSGNs.clear();
+
+			// Setzen Sie gridBuildingSGNs zurück, um anzuzeigen, dass auf keinem Rasterfeld ein Gebäude vorhanden ist
+			for (int row = 0; row < numRows; ++row) {
+				for (int col = 0; col < numCols; ++col) {
+					gridBuildingSGNs[row][col].first = false;
+					gridBuildingSGNs[row][col].second = -1;
+				}
+			}
+		}
 
 
 		enum CameraMode {
@@ -267,13 +320,13 @@ namespace CForge {
 				RDelta = AngleAxisf(CForgeMath::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
 				m_SkyboxTransSGN.rotationDelta(RDelta);
 			}
-			
+
 			//CAMERA SWITCH 
 			updateCamera(pKeyboard);
 			//SKYBOX SWITCH
 			if (pKeyboard->keyPressed(Keyboard::KEY_F1, true)) m_Skybox.init(m_City1[0], m_City1[1], m_City1[2], m_City1[3], m_City1[4], m_City1[5]);
 			if (pKeyboard->keyPressed(Keyboard::KEY_F2, true)) m_Skybox.init(m_City2[0], m_City2[1], m_City2[2], m_City2[3], m_City2[4], m_City2[5]);
-			
+
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_G, true)) {
 				// Erstelle das Grid, wenn die Leertaste gedrückt wird
 				createGrid();
@@ -306,6 +359,12 @@ namespace CForge {
 					updateActiveTileScaling();
 				}
 			}
+			else if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_SPACE, true)) {
+				//m_BuildingGeoSGNs[1]->init(m_BuildingGeoSGNs[1], &m_Buildings[2]);
+				m_BuildingGeoSGNs[3]->init(m_BuildingTransformSGNs[3], &m_Buildings[1]);
+				m_BuildingGeoSGNs[2]->init(m_BuildingTransformSGNs[2], &m_Buildings[1]);
+
+			}
 			handleBuildingPlacementInput();
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
@@ -329,7 +388,7 @@ namespace CForge {
 			else
 				glColorMask(true, false, false, true);
 
-			
+
 			glColorMask(true, true, true, true);
 			glDisable(GL_BLEND);
 
@@ -371,6 +430,13 @@ namespace CForge {
 		SGNTransformation m_GridTileGroupSGN;
 		vector<SGNTransformation*> m_GridTilesTransformSGNs;
 		vector<SGNGeometry*> m_GridTileGeoSGNs;
+
+		vector<vector<SGNTransformation*>> gridBuildingTransforms;
+		vector<vector<SGNGeometry*>> gridBuildingGeometries;
+
+		vector<vector<pair<SGNTransformation*, SGNGeometry*>>> gridBuildingSGNSs;
+		vector<vector<pair<bool, int>>> gridBuildingSGNs;
+
 		StaticActor m_Cube;
 		bool m_paused = true;
 
