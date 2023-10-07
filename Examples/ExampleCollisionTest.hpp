@@ -58,7 +58,7 @@ namespace CForge {
 			m_Skydome.init(&M);
 			M.clear();
 
-			SAssetIO::load("MyAssets/cube.obj", &M);
+			SAssetIO::load("MyAssets/cylinder.obj", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
 			m_Cube.init(&M);
@@ -122,7 +122,11 @@ namespace CForge {
 			const Vector3<float> half_size{ w / 2, d / 2, h / 2 };
 			const Real r = .5;
 			auto sphere_geometry = std::make_shared<fcl::Sphere<float>>(r);
-			auto box_geometry = std::make_shared<fcl::Box<float>>(w, d, h);
+
+			const Real r_c = 0.5f;
+			const Real h_c = 1.0f;
+			auto box_geometry = std::make_shared<fcl::Cylinder<float>>(r_c, h_c);
+			//auto box_geometry = std::make_shared<fcl::Box<float>>(w, d, h);
 
 			fcl::Transform3<float> X_WB = fcl::Transform3<float>::Identity();
 			fcl::Transform3<float> X_WS = fcl::Transform3<float>::Identity();
