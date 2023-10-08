@@ -9,6 +9,9 @@
 #include "fcl/narrowphase/collision_object.h"
 #include "fcl/narrowphase/distance.h"
 
+#include <CForge/GUI/Widgets/Form.h>
+
+
 
 using namespace Eigen;
 using namespace std;
@@ -19,6 +22,8 @@ namespace CForge {
 	public:
 		ExampleFlappyBird(void) {
 			m_WindowTitle = "CrossForge Example - Bird";
+			
+			
 		}//Constructor
 
 		~ExampleFlappyBird(void) {
@@ -36,10 +41,17 @@ namespace CForge {
 			m_SG.init(&m_RootSGN);
 			
 			T3DMesh<float> M;
-			SAssetIO::load("MyAssets/Bird/bird.fbx", &M);
-			setMeshShader(&M, 0.1f, 0.04f);
+			//SAssetIO::load("MyAssets/Bird/bird.fbx", &M);
+			//setMeshShader(&M, 0.1f, 0.04f);
+			//M.computePerVertexNormals();
+			//m_Bird.init(&M);
+			SAssetIO::load("MyAssets/BirdD/Kolibri.gltf", &M);
+			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
-			m_Bird.init(&M);
+			m_BipedController.init(&M);
+			m_Bird.init(&M, &m_BipedController);
+			M.clear();
+			m_RepeatAnimation = true;
 
 			SAssetIO::load("MyAssets/Ground/cloud.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
@@ -48,21 +60,34 @@ namespace CForge {
 			M.computePerVertexTangents();
 			m_Ground.init(&M);
 			M.clear();
-			//m_GroundTransformSGN.init(&m_RootSGN);
-			//m_GroundSGN.init(&m_GroundTransformSGN, &m_Ground);
-			//m_GroundSGN.scale(Vector3f(15.0f, 15.0f, 15.0f));
 
+			Quaternionf Rot;
+			Rot = AngleAxisf(CForgeMath::degToRad(90.0f), Vector3f::UnitY());
+			//m_BirdTransformSGN.rotation(Rot);
 			// raven
 			m_BirdTransformSGN.init(&m_RootSGN, m_startPosition);
-			m_BirdTransformSGN.scale(Vector3f(0.1f, 0.1f, 0.1f));
+			
+			m_BirdTransformSGN.scale(Vector3f(0.2f, 0.2f, 0.2f));
+			//m_BirdTransformSGN.rotation(Rot);
 			m_BirdPitchSGN.init(&m_BirdTransformSGN, Vector3f(0.0f, 0.0f, 0.0f));
 			m_BirdRollSGN.init(&m_BirdPitchSGN, Vector3f(0.0f, 0.0f, 0.0f));
+			m_BirdYawSGN.init(&m_BirdRollSGN, Vector3f(0.0f, 0.0f, 0.0f));
+			m_BirdYawSGN.rotation(Rot);
+			//m_BirdTransformSGN.rotation(Rot);
+
+			//Quaternionf To_Y1;
+			//To_Y1 = AngleAxis(CForgeMath::degToRad(180.0f), Vector3f::UnitY());
+			//m_BirdTransformSGN.rotation(Rot);
+			m_BirdSGN.init(&m_BirdRollSGN, &m_Bird, Eigen::DenseBase<Eigen::Vector3f>::Zero(), Rot);
 
 
-			Quaternionf To_Y1;
-			To_Y1 = AngleAxis(CForgeMath::degToRad(180.0f), Vector3f::UnitY());
-			//m_BirdTransformSGN.rotation(To_Y);
-			m_BirdSGN.init(&m_BirdRollSGN, &m_Bird);
+			//different birds
+			//SAssetIO::load("MyAssets/Bird/bird.fbx", &BirdMesh1);
+			
+
+			//SAssetIO::load("MyAssets/Eagle_Animated/EagleFlapFINAL/EagleFlap.gltf", &BirdMesh2); 
+			
+
 
 			// load buildings
 			//weiß hoch
@@ -84,7 +109,7 @@ namespace CForge {
 			building_3.init(&M);
 			M.clear();
 
-			//Textures for second Skybox City 1
+			//Textures for Skybox City 1
 
 			/// gather textures for the skyboxes
 			m_City1.push_back("MyAssets/FlappyAssets/skybox1/right.bmp");
@@ -129,14 +154,6 @@ namespace CForge {
 			//building_3_SGN.init(&m_RootSGN);
 			//building_3_geo.init(&building_3_SGN, &building_3);
 
-			//building_1_SGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
-			//building_2_SGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
-			//building_3_SGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
-
-			//building_1_SGN.translation(Vector3f(-7.0f, 0.0f, 150.0f));
-			//building_2_SGN.translation(Vector3f(12.0f, 0.0f, 150.0f));
-			//building_3_SGN.translation(Vector3f(6.0f, 0.0f, 150.0f));
-
 			vector<StaticActor*> buildings;
 			buildings.push_back(&building_1);
 			buildings.push_back(&building_2);
@@ -150,15 +167,14 @@ namespace CForge {
 				float xOffset = row * 50.0f; // Abstand zwischen den Reihen
 				createBuildingRow(xOffset);   // Methode zum Erstellen einer Gebäude-Reihe aufrufen
 			}
-
-
-
+			float AnimationSpeed = 1000 / 60.0f;
+			SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
+			m_Bird.activeAnimation(pAnim);
+			
 			std::string GLError = "";
 			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
-
-
-
+			
 		}//initialize
 
 		void ExampleFlappyBird::createStartingArea(float xOffset) {
@@ -265,7 +281,24 @@ namespace CForge {
 				//buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 5.0f, 0.0f, xOffset));
 				
 				if (i == building2Position) {
-					buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 5.0f, -10.0f, xOffset));
+					int Version = rand() % 3;
+					if (Version == 1) {
+						Quaternionf querRot;
+						querRot = AngleAxisf(CForgeMath::degToRad(90.0f), Vector3f::UnitZ());
+						buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 5.0, 5.0f, xOffset));
+						buildingTransformSGN->rotation(querRot);
+					}
+					else if(Version == 2) {
+						Quaternionf querRot;
+						querRot = AngleAxisf(CForgeMath::degToRad(90.0f), Vector3f::UnitZ());
+						buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 3.0, 12.0f, xOffset));
+						buildingTransformSGN->rotation(querRot);
+						buildingTransformSGN->scale(Vector3f(0.75f, 0.75f, 0.75f));
+					}
+					else {
+						buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 5.0f, -10.0f, xOffset));
+					}
+					
 
 				}
 				else {
@@ -318,6 +351,8 @@ namespace CForge {
 				delete buildingTransformSGN;
 			}
 			m_BuildingSGNs.clear();
+			// GUI-Aufräumen (Kopiere den entsprechenden Code aus GUITestScene)
+			
 		}//clear
 
 		void translate_bird(Vector3f move) {
@@ -418,9 +453,28 @@ namespace CForge {
 			m_SG.update(60.0f / m_FPS);
 			m_SkyboxSG.update(60.0f / m_FPS);
 
+	
+
+			//Animation
+			static uint64_t lastFrameTime = CForgeUtility::timestamp();
+
+			// this will progress all active skeletal animations for this controller
+			m_BipedController.update(60.0f / m_FPS);
+			if (m_RepeatAnimation && nullptr != m_Bird.activeAnimation()) {
+				auto* pAnim = m_Bird.activeAnimation();
+				if (pAnim->t >= pAnim->Duration) pAnim->t -= pAnim->Duration;
+			}
+
 			// handle input for the skybox
 			Keyboard* pKeyboard = m_RenderWin.keyboard();
+			//float AnimationSpeed = 1000 / 60.0f;
 			float Step = (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) ? -0.05f : 0.05f;
+			
+			//if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_G, true)) {
+			//	SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
+			//	m_Bird.activeAnimation(pAnim);
+
+			//}
 			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) m_Skybox.brightness(m_Skybox.brightness() + Step);
 			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) m_Skybox.saturation(m_Skybox.saturation() + Step);
 			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) m_Skybox.contrast(m_Skybox.contrast() + Step);
@@ -439,6 +493,10 @@ namespace CForge {
 			if (pKeyboard->keyPressed(Keyboard::KEY_F1, true)) m_Skybox.init(m_City1[0], m_City1[1], m_City1[2], m_City1[3], m_City1[4], m_City1[5]);
 			if (pKeyboard->keyPressed(Keyboard::KEY_F2, true)) m_Skybox.init(m_City2[0], m_City2[1], m_City2[2], m_City2[3], m_City2[4], m_City2[5]);
 
+			if (pKeyboard->keyPressed(Keyboard::KEY_F3, true)) {
+				
+			}
+			
 			// Handle left and right movement
 			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) {
 				m_speed.x() += 0.01f; // Move left
@@ -607,6 +665,8 @@ namespace CForge {
 				}
 			}
 
+
+
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 			m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
 			m_SG.render(&m_RenderDev);
@@ -615,6 +675,25 @@ namespace CForge {
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
 			m_RenderDev.activeCamera(&m_Cam);
 			m_SG.render(&m_RenderDev);
+
+			//GUI gui2 = GUI();
+			//gui2.init(&m_RenderWin);
+			// Erstellen eines Text-Widgets und Festlegen des Texts
+
+			//TextWidget* fpsWidget = gui.createPlainText();
+			//fpsWidget->setTextAlign(TextWidget::ALIGN_RIGHT);
+			//wchar_t text_wstring[10] = { 0 };
+			//int charcount = swprintf(text_wstring, 10, L"Score: %d\nZweite Zeile", score);
+			//std::u32string text;
+			//ugly cast to u32string from wchar[]
+			//for (int i = 0; i < charcount; i++) {
+			//	text.push_back((char32_t)text_wstring[i]);
+			//}
+
+			//fpsWidget->setText(text);
+			//fpsWidget->setPosition(RenderWin.width() - fpsWidget->getWidth(), 0);
+
+			//gui.render(&m_RenderDev);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
@@ -635,7 +714,18 @@ namespace CForge {
 			// Skybox should be last thing to render
 			m_SkyboxSG.render(&m_RenderDev);
 
+
 			m_RenderWin.swapBuffers();
+
+			wchar_t text_wstring[10] = { 0 };
+			int charcount = swprintf(text_wstring, 10, L"score: %d\nZw", score);
+			std::u32string text;
+			//ugly cast to u32string from wchar[]
+			for (int i = 0; i < charcount; i++) {
+				text.push_back((char32_t)text_wstring[i]);
+			}
+			//fpsWidget->setText(text);
+			//fpsWidget->setPosition(m_RenderWin.width() - fpsWidget->getWidth(), 0);
 
 			updateFPS();
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
@@ -643,18 +733,15 @@ namespace CForge {
 
 	protected:
 
-		StaticActor m_Bird;
+		SkeletalActor m_Bird;
+		T3DMesh<float> BirdMesh1;
+		T3DMesh<float> BirdMesh2;
+		SkeletalAnimationController m_BipedController;
 		SGNTransformation m_RootSGN;
-		StaticActor m_Mountain;
+
 
 		vector<string> m_City1;
 		vector<string> m_City2;
-
-
-		vector<string> m_ClearSky;
-		vector<string> m_EmptySpace;
-		vector<string> m_Techno;
-		vector<string> m_BlueCloud;
 
 		SkyboxActor m_Skybox;
 
@@ -662,6 +749,7 @@ namespace CForge {
 		SGNTransformation m_BirdTransformSGN;
 		SGNTransformation m_BirdRollSGN;
 		SGNTransformation m_BirdPitchSGN;
+		SGNTransformation m_BirdYawSGN;
 
 		StaticActor m_Ground;
 		SGNGeometry m_GroundSGN;
@@ -687,23 +775,23 @@ namespace CForge {
 		vector<SGNGeometry*> m_BuildingGeoSGNs;   // List to hold building geometry SGNs
 		
 		bool m_paused = true;
-
-		//Speed für Vogel
-		float oldSpeed = 0.3f;
-		float pauseSpeed = 0.0f;
-		Vector3f speed = Vector3f(0.0f, 0.0f, 0.3f);
-		float rollSpeed = 0.0f;
-
-		StaticActor m_Sphere;
-		Eigen::Matrix4f m_matSphere = Eigen::Matrix4f::Identity();
+		bool m_RepeatAnimation = true;
 
 		bool m_col = false;
 		bool glLoaded = false;
+		
+		StaticActor m_Sphere;
+		Eigen::Matrix4f m_matSphere = Eigen::Matrix4f::Identity();
 
+		
+		//Speed für Vogel
+		float oldSpeed = 0.3f;
+		float pauseSpeed = 0.0f;
+		
+		
+		
 
 		Vector3f m_speed = Vector3f(0.0f, 0.0f, 0.1f);
-		float m_rollSpeed = 0.0f;
-		float m_pitchSpeed = 0.0f;
 		Vector3f m_startPosition = Vector3f(0.0f, 10.0f, -100.0f);
 
 		int score = 0; // Anfangswert des Scores
@@ -714,14 +802,15 @@ namespace CForge {
 		const float maxVerticalPosition = 15.0f; // Adjust as needed
 		const float minVerticalPosition = 0.0f; // Adjust as needed
 
+		float m_rollSpeed = 0.0f;
+		float m_pitchSpeed = 0.0f;
 		// Limit the pitch angle to a reasonable range
 		const float maxPitchAngle = 25.0f; // Adjust as needed
 		const float maxRollAngle = 20.0f; // Adjust as needed
 		const float maxRollSpeed = 5.0f; // Max roll speed (adjust as needed)
+
 		const float rollDecayRate = 0.05f; // Rate at which roll speed decays (adjust as needed)
 
-
-		
 
 	};//ExampleFlappyBird
 
