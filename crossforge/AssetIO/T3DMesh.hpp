@@ -247,7 +247,7 @@ namespace CForge {
 		struct SkeletalAnimation {
 			std::string Name;
 			float Duration; // total duration in seconds
-			float Speed; // keyframes per second
+			float SamplesPerSecond; // keyframes per second
 			std::vector<BoneKeyframes*> Keyframes;
 
 			SkeletalAnimation(void) {
@@ -262,7 +262,7 @@ namespace CForge {
 				clear();
 				Name = pRef->Name;
 				Duration = pRef->Duration;
-				Speed = pRef->Speed;
+				SamplesPerSecond = pRef->SamplesPerSecond;
 				for (auto i : pRef->Keyframes) {
 					BoneKeyframes* pKey = new BoneKeyframes();
 					pKey->init(i);
@@ -273,7 +273,7 @@ namespace CForge {
 			void clear(void) {
 				Name = "";
 				Duration = 0.0f;
-				Speed = 0.0f;
+				SamplesPerSecond = 0.0f;
 				for (auto& i : Keyframes) delete i;
 			}//clear
 		};
@@ -461,6 +461,7 @@ namespace CForge {
 				SkeletalAnimation* pNewAnim = new SkeletalAnimation();
 				pNewAnim->Name = pAnim->Name;
 				pNewAnim->Duration = pAnim->Duration;
+				pNewAnim->SamplesPerSecond = pAnim->SamplesPerSecond;
 				for (auto i : pAnim->Keyframes) {
 					BoneKeyframes* pBK = new BoneKeyframes();
 					(*pBK) = (*i);

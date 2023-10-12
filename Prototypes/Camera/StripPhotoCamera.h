@@ -19,10 +19,10 @@
 #ifndef __CFORGE_STRIPPHOTOCAMERA_H__
 #define __CFORGE_STRIPPHOTOCAMERA_H__
 
-#ifdef USE_OPENCV
+#ifdef INCLUDE_OPENCV
 #include <opencv2/opencv.hpp>
 #include <Eigen/Eigen>
-#include "../../CForge/Core/CrossForgeException.h"
+#include <crossforge/Core/CForgeObject.h>
 #include "StripPhoto.h"
 
 namespace CForge {

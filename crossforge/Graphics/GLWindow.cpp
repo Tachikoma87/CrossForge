@@ -48,7 +48,6 @@ namespace CForge {
 		clear();
 		GLFWwindow* pWin = nullptr;
 
-
 #if defined(__EMSCRIPTEN__)
 		GLMajorVersion = 2;
 		GLMinorVersion = 0;
@@ -169,6 +168,7 @@ namespace CForge {
 			m_pInputMan->unregisterDevice(&m_Keyboard);
 			m_pInputMan->release();
 		}
+		closeWindow();
 		m_pInputMan = nullptr;	
 		m_pHandle = nullptr;
 		m_Mouse.clear();

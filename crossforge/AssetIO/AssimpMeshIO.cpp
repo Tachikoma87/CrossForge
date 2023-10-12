@@ -279,7 +279,7 @@ namespace CForge {
 			BoneAnimations.push_back(pSkelAnim);
 
 			pSkelAnim->Duration = pAnim->mDuration;
-			pSkelAnim->Speed = pAnim->mTicksPerSecond;
+			pSkelAnim->SamplesPerSecond = pAnim->mTicksPerSecond;
 			pSkelAnim->Name = pAnim->mName.C_Str();
 
 			// create keyframe for every bone

@@ -593,7 +593,7 @@ namespace CForge {
 			pAnim->Name = animation.name;
 			pAnim->Keyframes = keyframes;
 			pAnim->Duration = duration;
-			pAnim->Speed = 1.0;
+			pAnim->SamplesPerSecond = 1.0;
 
 			pMesh->addSkeletalAnimation(pAnim, false);
 		}
@@ -1431,7 +1431,7 @@ namespace CForge {
 				}
 
 				for (int k = 0; k < pBoneKf->Timestamps.size(); k++) {
-					pBoneKf->Timestamps[k] /= pAnim->Speed;
+					pBoneKf->Timestamps[k] /= pAnim->SamplesPerSecond;
 				}
 
 				writeAccessorDataScalar(0, &pBoneKf->Timestamps);

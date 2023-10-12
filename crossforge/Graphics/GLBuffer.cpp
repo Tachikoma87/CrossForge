@@ -54,7 +54,7 @@ namespace CForge {
 		
 		std::string ErrorMsg;
 		if (GL_NO_ERROR != CForgeUtility::checkGLError(&ErrorMsg)) {
-			SLogger::log("Not handled OpenGL error occurred during initialization of a GLBuffer: " + ErrorMsg, "RenderDevice", SLogger::LOGTYPE_ERROR);
+			SLogger::log("Not handled OpenGL error occurred during initialization of a GLBuffer: " + ErrorMsg, "GLBuffer", SLogger::LOGTYPE_ERROR);
 		}
 
 	}//initialize

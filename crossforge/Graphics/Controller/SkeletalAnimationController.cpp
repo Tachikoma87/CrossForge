@@ -1,6 +1,7 @@
 #include "SkeletalAnimationController.h"
 #include "../Shader/SShaderManager.h"
 #include "../../Math/CForgeMath.h"
+#include "../../Utility/CForgeUtility.h"
 
 using namespace Eigen;
 using namespace std;
@@ -133,7 +134,7 @@ namespace CForge {
 		T3DMesh<float>::SkeletalAnimation* pAnim = new T3DMesh<float>::SkeletalAnimation();
 		pAnim->Duration = pAnimation->Duration;
 		pAnim->Name = pAnimation->Name;
-		pAnim->Speed = pAnimation->Speed;
+		pAnim->SamplesPerSecond = pAnimation->SamplesPerSecond;
 
 		// keyframes and join names have to match
 		for (uint32_t i = 0; i < pAnimation->Keyframes.size(); ++i) {
@@ -170,6 +171,20 @@ namespace CForge {
 			while (pKeyFrame->Scalings.size() < MaxTimestamps) pKeyFrame->Scalings.push_back(Scale);
 			while (pKeyFrame->Rotations.size() < MaxTimestamps) pKeyFrame->Rotations.push_back(Rot);
 		}
+
+		// scale all timestamps to unit scale
+		for (uint32_t i = 0; i < pAnim->Keyframes.size(); ++i) {
+			auto* pKeyFrame = pAnim->Keyframes[i];
+			for (auto& k : pKeyFrame->Timestamps) k /= pAnim->SamplesPerSecond;
+		}//for[all keyframes]
+		pAnim->Duration = pAnim->Keyframes[0]->Timestamps[pAnim->Keyframes[0]->Timestamps.size()-1];
+		// now we count the sample per second
+		auto Timestamps = pAnim->Keyframes[0]->Timestamps;
+		pAnim->SamplesPerSecond = 0;
+		for (auto i : Timestamps) {
+			pAnim->SamplesPerSecond++;
+			if (i >= 1.0f) break;
+		}
 	
 	}//addAnimation
 
@@ -190,6 +205,8 @@ namespace CForge {
 		pRval->t = Offset;
 		pRval->Finished = false;
 		pRval->Duration = m_SkeletalAnimations[AnimationID]->Duration;
+		pRval->TicksPerSecond = m_SkeletalAnimations[AnimationID]->SamplesPerSecond;
+		pRval->LastTimestamp = CForgeUtility::timestamp();
 		Animation* pTemp = pRval;
 		for (uint32_t i = 0; i < m_ActiveAnimations.size(); ++i) {
 			if (m_ActiveAnimations[i] == nullptr) {
@@ -207,7 +224,9 @@ namespace CForge {
 	void SkeletalAnimationController::update(float FPSScale) {
 		for (auto i : m_ActiveAnimations) {
 			if (nullptr != i && !i->Finished) {
-				i->t += FPSScale * i->Speed;
+				float TimePassed = (CForgeUtility::timestamp() - i->LastTimestamp) / 1000.0f; // time passed in seconds since last update
+				i->t += (TimePassed * i->Speed);
+				i->LastTimestamp = CForgeUtility::timestamp();
 			}
 		}//for[active animations]
 	}//update

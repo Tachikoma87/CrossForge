@@ -24,7 +24,7 @@ file(MAKE_DIRECTORY "Prototypes/Shader")
 #################################################################
 project (CForgeSandbox)
 
-option(INCLUDE_OPENCV "Include OpenCV in build" OFF)
+option(INCLUDE_OPENCV "Include OpenCV in build" ON)
 
 
 if(EMSCRIPTEN)

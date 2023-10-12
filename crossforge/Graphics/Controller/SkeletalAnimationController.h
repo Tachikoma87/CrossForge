@@ -32,6 +32,7 @@ namespace CForge {
 			float Duration;
 			float t; //current
 			float TicksPerSecond;
+			int64_t LastTimestamp;
 			bool Finished;
 		};
 

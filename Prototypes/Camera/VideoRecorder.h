@@ -17,7 +17,7 @@
 \****************************************************************************/
 #ifndef __CFORGE_VIDEORECORDER_H__
 #define __CFORGE_VIDEORECORDER_H__
-#ifdef USE_OPENCV
+#ifdef INCLUDE_OPENCV
 
 #include <crossforge/Core/CForgeObject.h>
 #include <crossforge/AssetIO/T2DImage.hpp>

@@ -48,9 +48,9 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkybox
 //#define ActiveScene ExampleTextRendering
 //#define ActiveScene ExampleShapesAndMaterials
-#define ActiveScene ExampleLighting
+//#define ActiveScene ExampleLighting
 //#define ActiveScene ExampleSceneGraph
-//#define ActiveScene ExampleSkeletalAnimation
+#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
 
@@ -118,7 +118,22 @@ int main(int argc, char* argv[]) {
 
 		if (nullptr != pScene) delete pScene;
 		pScene = nullptr;
-		exportLibrary();
+
+
+		auto *pScene2 = new ExampleLighting();
+		pScene2->init();
+
+#if defined(__EMSCRIPTEN__)
+		emscripten_set_main_loop_arg(mainLoop, pScene, 0, true);
+#else
+		while (!pScene2->renderWindow()->shutdown()) pScene2->mainLoop();
+#endif
+
+		if (nullptr != pScene2) delete pScene2;
+		pScene2 = nullptr;
+
+
+		//exportLibrary();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

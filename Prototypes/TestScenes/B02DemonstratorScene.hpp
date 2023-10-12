@@ -17,7 +17,7 @@
 \****************************************************************************/
 #ifndef __CFORGE_B02DEMONSTRATORSCENE_HPP__
 #define __CFORGE_B02DEMONSTRATORSCENE_HPP__
-#ifdef USE_OPENCV
+#ifdef INCLUDE_OPENCV
 
 #include <Examples/ExampleSceneBase.hpp>
 #include <crossforge/Math/Rectangle.hpp>
@@ -996,7 +996,7 @@ namespace CForge {
 			T3DMesh<float> M;
 			AssetIO::load(pDM->FilePath, &M);
 
-			// .. and apply original skeleton bvh-styl
+			// .. and apply original skeleton bvh-style
 			T3DMesh<float> MOrig;
 			AssetIO::load(pDM->OriginalMotion, &MOrig);
 			M.clearSkeletalAnimations();
@@ -1202,7 +1202,7 @@ namespace CForge {
 
 			pMerged->Duration = pAnimNew->Duration;
 			pMerged->Keyframes.clear();
-			pMerged->Speed = pAnimNew->Speed;
+			pMerged->SamplesPerSecond = pAnimNew->SamplesPerSecond;
 			pMerged->Name = pAnimNew->Name;
 
 			for (uint32_t i = 0; i < pAnimOrig->Keyframes.size(); ++i) {

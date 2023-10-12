@@ -1,4 +1,4 @@
-#ifdef USE_OPENCV
+#ifdef INCLUDE_OPENCV
 
 #include <opencv2/opencv.hpp>
 #include "VideoRecorder.h"

@@ -114,7 +114,7 @@ namespace CForge {
 			if (nullptr != m_CesiumMan.activeAnimation()) {
 				Quaternionf Q;
 
-				float Deg = m_CesiumMan.activeAnimation()->Speed/50.0f;
+				float Deg = m_CesiumMan.activeAnimation()->Speed/3.0f;
 				Q = AngleAxisf(CForgeMath::degToRad(-Deg), Vector3f::UnitY());
 				m_CesiumManTransformSGN.rotation(Q * m_CesiumManTransformSGN.rotation());
 			}
@@ -123,7 +123,7 @@ namespace CForge {
 
 			// if user hits key 1, animation will be played
 			// if user also presses shift, animation speed is doubled
-			float AnimationSpeed = 1000 / 60.0f;
+			float AnimationSpeed = 1.0f; // Animation speed in percent
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
