@@ -445,7 +445,7 @@ namespace CForge {
 
 				std::cout << "You did it in: " << std::chrono::duration_cast<std::chrono::seconds>(totalSeconds).count() 
 					<< "." << std::chrono::duration_cast<std::chrono::milliseconds>(remainingMilliseconds).count() 
-					<< " seconds" << std::endl;
+					<< " seconds - you hit " << m_hitCounter << " buildings" << std::endl;
 				m_timePrinted = true;
 
 				m_totalTime = std::chrono::milliseconds::zero();
@@ -492,6 +492,21 @@ namespace CForge {
 				building_collisoin_geometry.setTransform(mat);
 
 				evaluate_collision(&bird_collision_geometry, &building_collisoin_geometry, &m_col);
+			}
+		}
+
+		void checkCollisionBuilding() {
+			// penalty for colding with building
+			if (!m_colLastFrame && m_col) {
+				// first instance of collision
+				using namespace std::literals::chrono_literals;
+				m_totalTime += 1000ms;
+				m_colLastFrame = true;
+				m_hitCounter += 1;
+			}
+			if (m_colLastFrame && !m_col) {
+				// do not collide anymore
+				m_colLastFrame = false; 
 			}
 		}
 
@@ -558,8 +573,10 @@ namespace CForge {
 			m_SG.update(60.0f / m_FPS);
 			m_SkyboxSG.update(60.0f / m_FPS);
 
-			// from here onwards extra function
 			CollisionTest();
+
+			// give penalty if building was hit
+			checkCollisionBuilding();
 
 			// handle input for the skybox
 			Keyboard* pKeyboard = m_RenderWin.keyboard();
@@ -584,6 +601,7 @@ namespace CForge {
 				m_timeStart = chrono::high_resolution_clock::now();
 				m_timePrinted = false;
 				m_totalTime = std::chrono::milliseconds::zero();
+				m_hitCounter = 0;
 			}
 
 			//TODO input for resetting Checkpoints
@@ -676,49 +694,50 @@ namespace CForge {
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 
-			// Skybox should be last thing to render
-			//m_SkyboxSG.render(&m_RenderDev);
 
 			glEnable(GL_BLEND);
-			glDisable(GL_DEPTH_TEST);
-			glBlendFunc(GL_ONE, GL_ONE);
+			//glDisable(GL_DEPTH_TEST);
+			//glBlendFunc(GL_ONE, GL_ONE);
 
-			if (m_col)
-				glColorMask(true, false, false, true);
-			else
-				glColorMask(false, true, false, true);
+			//if (m_col)
+			//	glColorMask(true, false, false, true);
+			//else
+			//	glColorMask(false, true, false, true);
 
-			Eigen::Vector3f posBird;
-			Eigen::Quaternionf rotBird;
-			Eigen::Vector3f scaleBird;
-			m_BirdTransformSGN.buildTansformation(&posBird, &rotBird, &scaleBird);
+			//Eigen::Vector3f posBird;
+			//Eigen::Quaternionf rotBird;
+			//Eigen::Vector3f scaleBird;
+			//m_BirdTransformSGN.buildTansformation(&posBird, &rotBird, &scaleBird);
 
-			Eigen::Matrix4f scaleMatrix = CForgeMath::scaleMatrix(Eigen::Vector3f(m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius())));
+			//Eigen::Matrix4f scaleMatrix = CForgeMath::scaleMatrix(Eigen::Vector3f(m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius())));
 
-			m_RenderDev.modelUBO()->modelMatrix(m_birdTestCollision * scaleMatrix);
-			m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
-			glColorMask(true, true, true, true);
+			//m_RenderDev.modelUBO()->modelMatrix(m_birdTestCollision * scaleMatrix);
+			//m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 
-			int buildingCollisionIdx = 0;
-			// m_BuildingSGNs.size()
-			for (size_t i = 0; i < m_BuildingSGNs.size(); i++)
-			{
-				int model = m_building_asset[buildingCollisionIdx];
-				buildingCollisionIdx++;
 
-				while (model == -1) {
-					buildingCollisionIdx++;
+			//glColorMask(true, true, true, true);
 
-					if (buildingCollisionIdx >= m_BuildingSGNs.size()) throw CForgeExcept("Index out of bounds");
+			//int buildingCollisionIdx = 0;
+			//// m_BuildingSGNs.size()
+			//for (size_t i = 0; i < m_BuildingSGNs.size(); i++)
+			//{
+			//	int model = m_building_asset[buildingCollisionIdx];
+			//	buildingCollisionIdx++;
 
-					model = m_building_asset[buildingCollisionIdx];
-				}
-				auto building = m_BuildingTransformationSGNs[i];
+			//	while (model == -1) {
+			//		buildingCollisionIdx++;
 
-				m_RenderDev.modelUBO()->modelMatrix(m_buildingTestCollision[i]);
-				m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
+			//		if (buildingCollisionIdx >= m_BuildingSGNs.size()) throw CForgeExcept("Index out of bounds");
 
-			}
+			//		model = m_building_asset[buildingCollisionIdx];
+			//	}
+			//	auto building = m_BuildingTransformationSGNs[i];
+
+			//	m_RenderDev.modelUBO()->modelMatrix(m_buildingTestCollision[i]);
+			//	m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
+
+			//}
+			
 
 			if (m_colCP)
 				glColorMask(false, false, true, true);
@@ -735,6 +754,9 @@ namespace CForge {
 
 			glDisable(GL_BLEND);
 			glEnable(GL_DEPTH_TEST);
+
+			// Skybox should be last thing to render
+			m_SkyboxSG.render(&m_RenderDev);
 
 			m_RenderWin.swapBuffers();
 
@@ -793,12 +815,16 @@ namespace CForge {
 		Eigen::Matrix4f m_birdTestCollision = Eigen::Matrix4f::Identity();
 
 		bool m_col = false;
+		bool m_colLastFrame = false; 
 		bool m_colCP = false;
 		bool glLoaded = false;
+		uint16_t m_hitCounter = 0; 
 
 		Vector3f m_speed = Vector3f(0.0f, 0.0f, 0.3f);
 		float m_rollSpeed = 0.0f;
 		Vector3f m_startPosition = Vector3f(0.0f, 10.0f, 30.0f);
+
+		bool m_debugMode = false;
 
 		//Checkpoints
 		SceneGraph m_CheckpointsSG;
