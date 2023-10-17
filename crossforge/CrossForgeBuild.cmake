@@ -146,6 +146,7 @@ add_library(crossforge SHARED
 	crossforge/Core/SCrossForgeDevice.cpp
 	crossforge/Core/SGPIO.cpp
 	crossforge/Core/SLogger.cpp
+	crossforge/Core/SCForgeSimulation.cpp
 	
 	
 	# Asset import/exporter stuff

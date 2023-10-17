@@ -119,8 +119,7 @@ int main(int argc, char* argv[]) {
 		if (nullptr != pScene) delete pScene;
 		pScene = nullptr;
 
-
-		auto *pScene2 = new ExampleLighting();
+		/*auto *pScene2 = new ExampleLighting();
 		pScene2->init();
 
 #if defined(__EMSCRIPTEN__)
@@ -130,7 +129,7 @@ int main(int argc, char* argv[]) {
 #endif
 
 		if (nullptr != pScene2) delete pScene2;
-		pScene2 = nullptr;
+		pScene2 = nullptr;*/
 
 
 		//exportLibrary();

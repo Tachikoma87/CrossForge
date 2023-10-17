@@ -79,6 +79,7 @@ namespace CForge {
 		class STextureManager* m_pTexMan; ///< Texture manager
 		class SShaderManager* m_pSMan;	///< Shader manager
 		class SFontManager* m_pFontMan; ///< Font manager
+		class SCForgeSimulation* m_pSimulation; ///< Simulation object
 
 		std::vector<CForgeObject*> m_RegisteredObjects;
 		std::list<uint32_t> m_FreeObjSlots;

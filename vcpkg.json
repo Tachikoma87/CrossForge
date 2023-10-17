@@ -1,6 +1,6 @@
 {
 	"name": "crossforge",
-	"version":  "0.1",
+	"version": "0.1",
 	"dependencies": [
 		"eigen3",
 		"glad",

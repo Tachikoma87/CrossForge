@@ -9,6 +9,7 @@
 #include "../Graphics/STextureManager.h"
 #include "../Graphics/Shader/SShaderManager.h"
 #include "../Graphics/Font/SFontManager.h"
+#include "SCForgeSimulation.h"
 
 
 using namespace std;
@@ -50,6 +51,7 @@ namespace CForge {
 		m_pSMan = nullptr;
 		m_pTexMan = nullptr;
 		m_pFontMan = nullptr;
+		m_pSimulation = nullptr;
 	}//Constructor
 
 	SCrossForgeDevice::~SCrossForgeDevice(void) {	
@@ -80,6 +82,7 @@ namespace CForge {
 		m_pSMan = SShaderManager::instance();
 		m_pTexMan = STextureManager::instance();
 		m_pFontMan = SFontManager::instance();
+		m_pSimulation = SCForgeSimulation::instance();
 
 
 #if defined(__linux_) && defined(__arm__)
@@ -98,6 +101,7 @@ namespace CForge {
 		if (nullptr != m_pTexMan) m_pTexMan->release();
 		if (nullptr != m_pSMan) m_pSMan->release();
 		if (nullptr != m_pFontMan) m_pFontMan->release();
+		if (nullptr != m_pSimulation) m_pSimulation->release();
 		if (nullptr != m_pLogger) {
 			MemLeakFile = SLogger::logFile(SLogger::LOGTYPE_DEBUG);
 			m_pLogger->release();
@@ -108,6 +112,7 @@ namespace CForge {
 		m_pAssIO = nullptr;
 		m_pTexMan = nullptr;
 		m_pSMan = nullptr;
+		m_pSimulation = nullptr;
 
 		// log all objects that have not been release properly
 		uint32_t UnreleasedObjects = 0;
