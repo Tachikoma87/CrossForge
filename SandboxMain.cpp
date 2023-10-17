@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
 		pScene2 = nullptr;*/
 
 
-		//exportLibrary();
+		exportLibrary();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

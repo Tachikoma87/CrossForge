@@ -79,6 +79,7 @@ void exportLibrary(void) {
 	IncludeFiles.push_back("Core/CrossForgeException.h");
 	IncludeFiles.push_back("Core/ITCaller.hpp");
 	IncludeFiles.push_back("Core/ITListener.hpp");
+	IncludeFiles.push_back("Core/SCForgeSimulation.h");
 	IncludeFiles.push_back("Core/SCrossForgeDevice.h");
 	IncludeFiles.push_back("Core/SGPIO.h");
 	IncludeFiles.push_back("Core/SLogger.h");
@@ -208,6 +209,7 @@ void exportLibrary(void) {
 	BinaryFiles.push_back("x64-Debug/brotlicommon.dll");
 	BinaryFiles.push_back("x64-Debug/brotlidec.dll");
 	BinaryFiles.push_back("x64-Debug/bz2d.dll");
+	BinaryFiles.push_back("x64-Debug/minizip.dll");
 	BinaryFiles.push_back("x64-Debug/crossforge.dll");
 	BinaryFiles.push_back("x64-Debug/freetyped.dll");
 	BinaryFiles.push_back("x64-Debug/glfw3.dll");
@@ -235,6 +237,7 @@ void exportLibrary(void) {
 	BinaryFiles.push_back("x64-Release/brotlicommon.dll");
 	BinaryFiles.push_back("x64-Release/brotlidec.dll");
 	BinaryFiles.push_back("x64-Release/bz2.dll");
+	BinaryFiles.push_back("x64-Release/minizip.dll");
 	BinaryFiles.push_back("x64-Release/crossforge.dll");
 	BinaryFiles.push_back("x64-Release/freetype.dll");
 	BinaryFiles.push_back("x64-Release/glfw3.dll");
