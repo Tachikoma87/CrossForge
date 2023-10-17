@@ -695,49 +695,59 @@ namespace CForge {
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 
 
+			// while pressing key 9 you can enable the debug mode
+			// there you can see the bounding boxes of the bird and the buildings
+
 			glEnable(GL_BLEND);
-			//glDisable(GL_DEPTH_TEST);
-			//glBlendFunc(GL_ONE, GL_ONE);
 
-			//if (m_col)
-			//	glColorMask(true, false, false, true);
-			//else
-			//	glColorMask(false, true, false, true);
+			// debug bird
 
-			//Eigen::Vector3f posBird;
-			//Eigen::Quaternionf rotBird;
-			//Eigen::Vector3f scaleBird;
-			//m_BirdTransformSGN.buildTansformation(&posBird, &rotBird, &scaleBird);
+			Eigen::Vector3f posBird;
+			Eigen::Quaternionf rotBird;
+			Eigen::Vector3f scaleBird;
+			m_BirdTransformSGN.buildTansformation(&posBird, &rotBird, &scaleBird);
 
-			//Eigen::Matrix4f scaleMatrix = CForgeMath::scaleMatrix(Eigen::Vector3f(m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius())));
+			Eigen::Matrix4f scaleMatrix = CForgeMath::scaleMatrix(Eigen::Vector3f(m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius())));
 
-			//m_RenderDev.modelUBO()->modelMatrix(m_birdTestCollision * scaleMatrix);
-			//m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
-
-
-			//glColorMask(true, true, true, true);
-
-			//int buildingCollisionIdx = 0;
-			//// m_BuildingSGNs.size()
-			//for (size_t i = 0; i < m_BuildingSGNs.size(); i++)
-			//{
-			//	int model = m_building_asset[buildingCollisionIdx];
-			//	buildingCollisionIdx++;
-
-			//	while (model == -1) {
-			//		buildingCollisionIdx++;
-
-			//		if (buildingCollisionIdx >= m_BuildingSGNs.size()) throw CForgeExcept("Index out of bounds");
-
-			//		model = m_building_asset[buildingCollisionIdx];
-			//	}
-			//	auto building = m_BuildingTransformationSGNs[i];
-
-			//	m_RenderDev.modelUBO()->modelMatrix(m_buildingTestCollision[i]);
-			//	m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
-
-			//}
+			// debug building
+			int buildingCollisionIdx = 0;
+			int model = 0;
 			
+ 			if (pKeyboard->keyPressed(Keyboard::KEY_9)) {
+				// bird
+				glDisable(GL_DEPTH_TEST);
+				glBlendFunc(GL_ONE, GL_ONE);
+
+				if (m_col)
+					glColorMask(true, false, false, true);
+				else
+					glColorMask(false, true, false, true);
+
+				m_RenderDev.modelUBO()->modelMatrix(m_birdTestCollision * scaleMatrix);
+				m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
+
+				// building
+				glColorMask(true, true, true, true);
+
+				for (size_t i = 0; i < m_BuildingSGNs.size(); i++)
+				{
+					model = m_building_asset[buildingCollisionIdx];
+					buildingCollisionIdx++;
+
+					while (model == -1) {
+						buildingCollisionIdx++;
+
+						if (buildingCollisionIdx >= m_BuildingSGNs.size()) throw CForgeExcept("Index out of bounds");
+
+						model = m_building_asset[buildingCollisionIdx];
+					}
+					auto building = m_BuildingTransformationSGNs[i];
+
+					m_RenderDev.modelUBO()->modelMatrix(m_buildingTestCollision[i]);
+					m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
+
+				}
+			}
 
 			if (m_colCP)
 				glColorMask(false, false, true, true);
@@ -823,8 +833,6 @@ namespace CForge {
 		Vector3f m_speed = Vector3f(0.0f, 0.0f, 0.3f);
 		float m_rollSpeed = 0.0f;
 		Vector3f m_startPosition = Vector3f(0.0f, 10.0f, 30.0f);
-
-		bool m_debugMode = false;
 
 		//Checkpoints
 		SceneGraph m_CheckpointsSG;
