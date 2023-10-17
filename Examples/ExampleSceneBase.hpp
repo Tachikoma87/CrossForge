@@ -40,6 +40,8 @@
 #include <crossforge/Graphics/Font/LineOfText.h>
 #include <crossforge/MeshProcessing/PrimitiveShapeFactory.h>
 
+#include <crossforge/Core/SCForgeSimulation.h>
+
 #ifdef __EMSCRIPTEN__
 #include <crossforge/Graphics/OpenGLHeader.h>
 #else
@@ -65,6 +67,7 @@ namespace CForge {
 			m_LastFPSPrint = CForgeUtility::timestamp();
 			m_CameraRotation = false;
 			m_FPSLabelActive = false;
+			m_pSimulation = CForgeSimulation::instance();
 		}//Constructor
 
 		~ExampleSceneBase(void) {
@@ -84,7 +87,9 @@ namespace CForge {
 		virtual void clear(void) {
 			m_RenderWin.stopListening(this);
 			if (nullptr != m_pShaderMan) m_pShaderMan->release();
+			if (nullptr != m_pSimulation) m_pSimulation->release();
 			m_pShaderMan = nullptr;
+			m_pSimulation = nullptr;
 		}//clear
 
 		virtual void release(void) {
@@ -419,6 +424,8 @@ namespace CForge {
 
 		std::vector<LineOfText*> m_HelpTexts;
 		bool m_DrawHelpTexts;
+
+		CForgeSimulation* m_pSimulation;
 	};//ExampleMinimumGraphicsSetup
 
 }

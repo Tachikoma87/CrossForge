@@ -2,6 +2,7 @@
 #include "../Shader/SShaderManager.h"
 #include "../../Math/CForgeMath.h"
 #include "../../Utility/CForgeUtility.h"
+#include "../../Core/SCForgeSimulation.h"
 
 using namespace Eigen;
 using namespace std;
@@ -130,7 +131,6 @@ namespace CForge {
 	void SkeletalAnimationController::addAnimationData(T3DMesh<float>::SkeletalAnimation* pAnimation) {
 		if (nullptr == pAnimation) throw NullpointerExcept("pAnimation");
 
-		
 		T3DMesh<float>::SkeletalAnimation* pAnim = new T3DMesh<float>::SkeletalAnimation();
 		pAnim->Duration = pAnimation->Duration;
 		pAnim->Name = pAnimation->Name;
@@ -206,7 +206,7 @@ namespace CForge {
 		pRval->Finished = false;
 		pRval->Duration = m_SkeletalAnimations[AnimationID]->Duration;
 		pRval->TicksPerSecond = m_SkeletalAnimations[AnimationID]->SamplesPerSecond;
-		pRval->LastTimestamp = CForgeUtility::timestamp();
+		pRval->LastTimestamp = CForgeSimulation::simulationTime();
 		Animation* pTemp = pRval;
 		for (uint32_t i = 0; i < m_ActiveAnimations.size(); ++i) {
 			if (m_ActiveAnimations[i] == nullptr) {
@@ -224,9 +224,9 @@ namespace CForge {
 	void SkeletalAnimationController::update(float FPSScale) {
 		for (auto i : m_ActiveAnimations) {
 			if (nullptr != i && !i->Finished) {
-				float TimePassed = (CForgeUtility::timestamp() - i->LastTimestamp) / 1000.0f; // time passed in seconds since last update
+				float TimePassed = (CForgeSimulation::simulationTime() - i->LastTimestamp) / 1000.0f; // time passed in seconds since last update
 				i->t += (TimePassed * i->Speed);
-				i->LastTimestamp = CForgeUtility::timestamp();
+				i->LastTimestamp = CForgeSimulation::simulationTime();
 			}
 		}//for[active animations]
 	}//update

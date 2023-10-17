@@ -42,7 +42,6 @@ namespace CForge {
 
 			initWindowAndRenderDevice();
 			initCameraAndLights();
-			
 
 			// build scene graph	
 			m_RootSGN.init(nullptr);
@@ -104,6 +103,7 @@ namespace CForge {
 		void mainLoop(void)override {
 			m_RenderWin.update();
 			m_SG.update(60.0f / m_FPS);
+			m_pSimulation->advanceTime(0);
 
 			// this will progress all active skeletal animations for this controller
 			m_BipedController.update(60.0f / m_FPS);
