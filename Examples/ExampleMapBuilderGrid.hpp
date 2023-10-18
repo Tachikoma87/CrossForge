@@ -3,8 +3,8 @@
 #define __CFORGE_EXAMPLEMAPBUILDERGRID_HPP__
 
 #include "ExampleSceneBase.hpp"
-#include "../CForge/Graphics/Actors/SkyboxActor.h"
-#include "../CForge/MeshProcessing/PrimitiveShapeFactory.h"
+#include "../crossforge/Graphics/Actors/SkyboxActor.h"
+#include "../crossforge/MeshProcessing/PrimitiveShapeFactory.h"
 
 #include "fcl/narrowphase/collision_object.h"
 #include "fcl/narrowphase/distance.h"

@@ -20,7 +20,7 @@
 
 
 #include "ExampleSceneBase.hpp"
-#include "../CForge/Graphics/Actors/SkyboxActor.h"
+#include "../crossforge/Graphics/Actors/SkyboxActor.h"
 
 using namespace Eigen;
 using namespace std;

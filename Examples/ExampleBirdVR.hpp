@@ -19,8 +19,8 @@
 #define __CFORGE_EXAMPLEBIRD_HPP__
 
 #include "ExampleSceneBase.hpp"
-#include "../CForge/Graphics/Actors/SkyboxActor.h"
-#include "../CForge/MeshProcessing/PrimitiveShapeFactory.h"
+#include "../crossforge/Graphics/Actors/SkyboxActor.h"
+#include "../crossforge/MeshProcessing/PrimitiveShapeFactory.h"
 
 #include "fcl/narrowphase/collision_object.h"
 #include "fcl/narrowphase/distance.h"
@@ -71,7 +71,7 @@ namespace CForge {
 			birdBBSphereR = birdBBSphereR > birdAABB.Min.norm() ? birdBBSphereR : birdAABB.Max.norm();
 			M.clear();
 
-			SAssetIO::load("Assets/ExampleScenes/TexturedGround.gltf", &M);
+			SAssetIO::load("MyAssets/TexturedGround/TexturedGround.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			for (uint8_t i = 0; i < 4; ++i) M.textureCoordinate(i) *= 50.0f;
 			M.computePerVertexNormals();

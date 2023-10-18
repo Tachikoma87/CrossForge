@@ -18,7 +18,7 @@
 #ifndef __CFORGE_EXAMPLESKELETALANIMATION_HPP__
 #define __CFORGE_EXAMPLESKELETALANIMATION_HPP__
 
-#include "../CForge/Graphics/Actors/SkeletalActor.h"
+#include "../crossforge/Graphics/Actors/SkeletalActor.h"
 
 #include "ExampleSceneBase.hpp"
 
