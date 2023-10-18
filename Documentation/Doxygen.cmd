@@ -1,1 +1,1 @@
-C:/DevelopmentTools/doxygen/bin/doxygen.exe DoxyConfig
+doxygen.exe DoxyConfig

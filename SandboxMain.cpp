@@ -8,11 +8,10 @@
 
 #endif
 
-
 #include "ExportLibrary.hpp"
 
-#include "CForge/Core/SCrossForgeDevice.h"
-#include "CForge/Core/SLogger.h"
+#include "crossforge/Core/SCrossForgeDevice.h"
+#include "crossforge/Core/SLogger.h"
 
 #include <Examples/ExampleMinimumGraphicsSetup.hpp>
 #include <Examples/ExampleMorphTargetAnimation.hpp>
@@ -23,25 +22,14 @@
 #include <Examples/ExampleTransformation.hpp>
 #include <Examples/ExampleTransformationSG.hpp>
 #include <Examples/ExampleSockets.hpp>
+#include <Examples/ExampleShapesAndMaterials.hpp>
+#include <Examples/ExampleTextRendering.hpp>
+#include <Examples/ExampleLighting.hpp>
 #include <Examples/ExampleBirdVR.hpp>
 #include <Examples/ExampleCollisionTest.hpp>
 #include <Examples/ExampleFlappyBird.hpp>
 #include <Examples/ExampleMapBuilderGrid.hpp>
 #include <Examples/ExampleBirdMenu.hpp>
-
-#include "Prototypes/TestScenes/ShadowTestScene.hpp"
-#include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
-#include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
-#include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
-#include "Prototypes/TestScenes/ImageTestScene.hpp"
-#include "Prototypes/TestScenes/ForwardTestScene.hpp"
-#include "Prototypes/TestScenes/FrustumCullingTestScene.hpp"
-#include "Prototypes/TestScenes/StickFigureTestScene.hpp"
-#include "Prototypes/TestScenes/PrimitiveFactoryTestScene.hpp"
-#include "Prototypes/TestScenes/EmscriptenGLTestScene.hpp"
-
-#include "Prototypes/TestScenes/GUITestScene.hpp"
-
 
 using namespace CForge;
 using namespace Eigen;
@@ -49,12 +37,16 @@ using namespace Eigen;
 //#define ActiveScene ExampleSceneBase
 
 //#define ActiveScene ExampleMinimumGraphicsSetup
+//#define ActiveScene ExampleSkybox
+//#define ActiveScene ExampleTextRendering
+//#define ActiveScene ExampleShapesAndMaterials
+//#define ActiveScene ExampleLighting
+//#define ActiveScene ExampleSceneGraph
+//#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleCollisionTest
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
-//#define ActiveScene ExampleSceneGraph
-//#define ActiveScene ExampleSkeletalAnimation
-//#define ActiveScene ExampleSkybox
+//#define ActiveScene ExampleBirdSkeletalTestAnimation
 //#define ActiveScene ExampleTransformation
 //#define ActiveScene ExampleTransformationSG
 //#define ActiveScene ExampleSocket
@@ -62,16 +54,6 @@ using namespace Eigen;
 //#define ActiveScene ExampleFlappyBird  
 //#define ActiveScene ExampleMapBuilderGrid
 //#define ActiveScene ExampleBirdMenu
-
-
-//#define ActiveScene ImuInputDeviceTestScene	 
-//#define ActiveScene SkelAnimTestScene
-//#define ActiveScene SurfaceSamplerTestScene
-//#define ActiveScene ForwardTestScene
-//#define ActiveScene PrimitiveFactoryTestScene
-//#define ActiveScene FrustumCullingTestScene
-//#define ActiveScene StickFigureTestScene
-
 
 
 ActiveScene* pScene = nullptr;
@@ -98,7 +80,7 @@ int main(int argc, char* argv[]) {
 #endif
 	}
 	catch (const CrossForgeException & e) {
-		printf("Exception occurred during initialization. See Log.");
+		printf("Exception occurred during initialization. See Log. %s\n", e.msg().c_str());
 		SLogger::logException(e);
 		if (nullptr != pDev) pDev->release();
 		pDev = nullptr;
@@ -123,7 +105,7 @@ int main(int argc, char* argv[]) {
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);
-		printf("Exception occurred. See Log.");
+		printf("Exception occurred. See Log. \n %s\n", e.msg().c_str());
 	}
 	catch (...) {
 		printf("A not handled exception occurred!\n");

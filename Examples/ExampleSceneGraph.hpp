@@ -11,7 +11,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -19,6 +19,7 @@
 #ifndef __CFORGE_EXAMPLESCENEGRAPH_HPP__
 #define __CFORGE_EXAMPLESCENEGRAPH_HPP__
 
+#include <crossforge/MeshProcessing/PrimitiveShapeFactory.h>
 #include "ExampleSceneBase.hpp"
 
 namespace CForge {
@@ -37,6 +38,8 @@ namespace CForge {
 			initCameraAndLights();
 
 			initSkybox();
+			initFPSLabel();
+			m_FPSLabel.color(1.0f, 1.0f, 1.0f, 1.0f);
 
 			m_RootSGN.init(nullptr);
 			m_SG.rootNode(&m_RootSGN);
@@ -45,11 +48,14 @@ namespace CForge {
 			T3DMesh<float> M;
 
 			// load the ground model
-			SAssetIO::load("Assets/ExampleScenes/TexturedGround.gltf", &M);
-			setMeshShader(&M, 0.8f, 0.04f);
-			for (uint8_t i = 0; i < 4; ++i) M.textureCoordinate(i) *= 50.0f;
+			//SAssetIO::load("Assets/ExampleScenes/TexturedGround.gltf", &M);
+			PrimitiveShapeFactory::plane(&M, Vector2f(1250.0f, 1250.0f), Vector2i(10, 10));
+			setMeshShader(&M, 0.6f, 0.2f);
+			M.changeUVTiling(Vector3f(250.0f, 250.0f, 1.0f));
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
+			M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/Textures/Ground003/Ground003_2K_Color.webp";
+			M.getMaterial(0)->TexNormal = "Assets/ExampleScenes/Textures/Ground003/Ground003_2K_NormalGL.webp";
 			m_Ground.init(&M);
 			BoundingVolume BV;
 			m_Ground.boundingVolume(BV);
@@ -58,10 +64,9 @@ namespace CForge {
 			// initialize ground transformation and geometry scene graph node
 			m_GroundTransformSGN.init(&m_RootSGN);
 			m_GroundSGN.init(&m_GroundTransformSGN, &m_Ground);
-			m_GroundSGN.scale(Vector3f(15.0f, 15.0f, 15.0f));
 			
 			// load the tree models
-			SAssetIO::load("Assets/ExampleScenes/Trees/LowPolyTree_01.glb", &M);
+			SAssetIO::load("Assets/ExampleScenes/Trees/LowPolyTree_01.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			scaleAndOffsetModel(&M, 0.5f);
@@ -69,7 +74,7 @@ namespace CForge {
 			m_Trees[0].init(&M);
 			M.clear();
 
-			SAssetIO::load("Assets/ExampleScenes/Trees/LowPolyTree_02.glb", &M);
+			SAssetIO::load("Assets/ExampleScenes/Trees/LowPolyTree_02.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
 			M.computePerVertexNormals();
 			M.computeAxisAlignedBoundingBox();
@@ -124,6 +129,14 @@ namespace CForge {
 			m_Sun.initShadowCasting(2048*2, 2048*2, Vector2i(1000, 1000), 1.0f, 5000.0f);
 
 			m_Fly = false;
+
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement:(Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
+			m_HelpTexts.push_back(pKeybindings);
+			pKeybindings->color(0.0f, 0.0f, 0.0f, 1.0f);
+			m_DrawHelpTexts = true;
+
 		}//initialize
 
 		void clear(void) override{
@@ -149,7 +162,7 @@ namespace CForge {
 			m_SG.update(60.0f / m_FPS);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-			m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
+			m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
 			m_SG.render(&m_RenderDev);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
@@ -160,6 +173,8 @@ namespace CForge {
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 			m_SkyboxSG.render(&m_RenderDev);
+			if(m_FPSLabelActive) m_FPSLabel.render(&m_RenderDev);
+			if (m_DrawHelpTexts) drawHelpTexts();
 
 			m_RenderWin.swapBuffers();
 

@@ -11,7 +11,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -19,8 +19,8 @@
 #ifndef __CFORGE_EXAMPLESOCKETS_HPP__
 #define __CFORGE_EXAMPLESOCKETS_HPP__
 
-#include "../CForge/Internet/TCPSocket.h"
-#include "../CForge/Internet/UDPSocket.h"
+#include <crossforge/Internet/TCPSocket.h>
+#include <crossforge/Internet/UDPSocket.h>
 
 #include "ExampleSceneBase.hpp"
 
