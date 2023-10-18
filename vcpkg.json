@@ -10,6 +10,12 @@
 		"libigl",
 		"libwebp",
 		"tinyxml2",
+		"tinygltf",
+		{
+			"name": "imgui",
+			"default-features": false,
+			"features": [ "opengl3-binding", "glfw-binding" ]
+		},
 		"fcl"
 	]
 }

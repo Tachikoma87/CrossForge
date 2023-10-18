@@ -10,7 +10,7 @@
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
-* FreeBSD License without any warranty or guaranty to work properly.        *
+* MIT License without any warranty or guaranty to work properly.            *
 * For additional license, copyright and contact/support issues see the      *
 * supplied documentation.                                                   *
 *                                                                           *
@@ -19,7 +19,7 @@
 #define __CFORGE_EXAMPLESKYBOX_HPP__
 
 #include "ExampleSceneBase.hpp"
-#include "../CForge/Graphics/Actors/SkyboxActor.h"
+#include <crossforge/Graphics/Actors/SkyboxActor.h>
 
 
 using namespace Eigen;
@@ -40,24 +40,24 @@ namespace CForge {
 		void init(void) override{
 			initWindowAndRenderDevice();
 			initCameraAndLights();
-
-			// load skydome and a textured cube
-			T3DMesh<float> M;
-			
-
-			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
-			setMeshShader(&M, 0.1f, 0.04f);
-			M.computePerVertexNormals();
-			m_Duck.init(&M);
-			M.clear();
+			initFPSLabel();
 
 			// build scene graph	
 			m_RootSGN.init(nullptr);
 			m_SG.init(&m_RootSGN);
 
-			// add cube
+			initGroundPlane(&m_RootSGN, 15.0f, 3.0f);
 			
-			m_DuckTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 2.0f, 0.0f));
+
+			// Add the duck
+			T3DMesh<float> M;
+			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
+			for (uint32_t i = 0; i < M.materialCount(); ++i) CForgeUtility::defaultMaterial(M.getMaterial(i), CForgeUtility::PLASTIC_YELLOW);
+			M.computePerVertexNormals();
+			m_Duck.init(&M);
+			M.clear();
+
+			m_DuckTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 1.0f, 0.0f));
 			m_DuckTransformSGN.scale(Vector3f(0.02f, 0.02f, 0.02f));
 			m_DuckSGN.init(&m_DuckTransformSGN, &m_Duck);
 
@@ -110,6 +110,19 @@ namespace CForge {
 			m_SkyboxGeomSGN.init(&m_SkyboxTransSGN, &m_Skybox);
 			m_SkyboxSG.init(&m_SkyboxTransSGN);
 
+
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			LineOfText* pSkyboxControls = new LineOfText();
+			LineOfText* pSkyboxControls2 = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: (Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
+			pSkyboxControls->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "(Shift) + B: +/- Brightness | (Shift) + C: +/- Contrast | (Shift) + V: +/- Saturation");
+			pSkyboxControls2->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "1 - 4: Change skybox textures | R: increase skybox rotation | Shift + R: stop skybox rotation");
+			m_HelpTexts.push_back(pKeybindings);
+			m_HelpTexts.push_back(pSkyboxControls);
+			m_HelpTexts.push_back(pSkyboxControls2);
+			m_DrawHelpTexts = true;
+
 			std::string GLError = "";
 			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
@@ -128,22 +141,22 @@ namespace CForge {
 			// handle input for the skybox
 			Keyboard* pKeyboard = m_RenderWin.keyboard();
 			float Step = (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) ? -0.05f : 0.05f;
-			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) m_Skybox.brightness(m_Skybox.brightness() + Step);
-			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) m_Skybox.saturation(m_Skybox.saturation() + Step);
-			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) m_Skybox.contrast(m_Skybox.contrast() + Step);
+			if (pKeyboard->keyPressed(Keyboard::KEY_B, true)) m_Skybox.brightness(m_Skybox.brightness() + Step);
+			if (pKeyboard->keyPressed(Keyboard::KEY_V, true)) m_Skybox.saturation(m_Skybox.saturation() + Step);
+			if (pKeyboard->keyPressed(Keyboard::KEY_C, true)) m_Skybox.contrast(m_Skybox.contrast() + Step);
 			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) && pKeyboard->keyPressed(Keyboard::KEY_R)) {
 				m_SkyboxTransSGN.rotationDelta(Quaternionf::Identity());
 			}
 			else if (pKeyboard->keyPressed(Keyboard::KEY_R, true)) {
-				Quaternionf RDelta;
-				RDelta = AngleAxisf(CForgeMath::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
-				m_SkyboxTransSGN.rotationDelta(RDelta);
+				Quaternionf RDelta = m_SkyboxTransSGN.rotationDelta();
+				auto R = AngleAxisf(CForgeMath::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
+				m_SkyboxTransSGN.rotationDelta(R * RDelta);
 			}
 
-			if (pKeyboard->keyPressed(Keyboard::KEY_F1, true)) m_Skybox.init(m_ClearSky[0], m_ClearSky[1], m_ClearSky[2], m_ClearSky[3], m_ClearSky[4], m_ClearSky[5]);
-			if (pKeyboard->keyPressed(Keyboard::KEY_F2, true)) m_Skybox.init(m_EmptySpace[0], m_EmptySpace[1], m_EmptySpace[2], m_EmptySpace[3], m_EmptySpace[4], m_EmptySpace[5]);
-			if (pKeyboard->keyPressed(Keyboard::KEY_F3, true)) m_Skybox.init(m_Techno[0], m_Techno[1], m_Techno[2], m_Techno[3], m_Techno[4], m_Techno[5]);
-			if (pKeyboard->keyPressed(Keyboard::KEY_F4, true)) m_Skybox.init(m_BlueCloud[0], m_BlueCloud[1], m_BlueCloud[2], m_BlueCloud[3], m_BlueCloud[4], m_BlueCloud[5]);
+			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) m_Skybox.init(m_ClearSky[0], m_ClearSky[1], m_ClearSky[2], m_ClearSky[3], m_ClearSky[4], m_ClearSky[5]);
+			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) m_Skybox.init(m_EmptySpace[0], m_EmptySpace[1], m_EmptySpace[2], m_EmptySpace[3], m_EmptySpace[4], m_EmptySpace[5]);
+			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) m_Skybox.init(m_Techno[0], m_Techno[1], m_Techno[2], m_Techno[3], m_Techno[4], m_Techno[5]);
+			if (pKeyboard->keyPressed(Keyboard::KEY_4, true)) m_Skybox.init(m_BlueCloud[0], m_BlueCloud[1], m_BlueCloud[2], m_BlueCloud[3], m_BlueCloud[4], m_BlueCloud[5]);
 
 			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
@@ -160,6 +173,8 @@ namespace CForge {
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 			// Skybox should be last thing to render
 			m_SkyboxSG.render(&m_RenderDev);
+			m_FPSLabel.render(&m_RenderDev);
+			if (m_DrawHelpTexts) drawHelpTexts();
 
 			m_RenderWin.swapBuffers();
 
@@ -168,19 +183,17 @@ namespace CForge {
 		}
 
 	protected:
-
-		StaticActor m_Duck;
 		SGNTransformation m_RootSGN;
 
+		StaticActor m_Duck;
+		SGNGeometry m_DuckSGN;
+		SGNTransformation m_DuckTransformSGN;
+		
 		vector<string> m_ClearSky;
 		vector<string> m_EmptySpace;
 		vector<string> m_Techno;
 		vector<string> m_BlueCloud;
-
 		SkyboxActor m_Skybox;
-
-		SGNGeometry m_DuckSGN;
-		SGNTransformation m_DuckTransformSGN;
 
 		SceneGraph m_SkyboxSG;
 		SGNTransformation m_SkyboxTransSGN;
