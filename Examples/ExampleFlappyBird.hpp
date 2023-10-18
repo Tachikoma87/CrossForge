@@ -44,7 +44,7 @@ namespace CForge {
 			//setMeshShader(&M, 0.1f, 0.04f);
 			//M.computePerVertexNormals();
 			//m_Bird.init(&M);
-			SAssetIO::load("MyAssets/BirdD/Kolibri.gltf", &M);
+			SAssetIO::load("MyAssets/Kolibri/Kolibri.gltf", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
 			m_BipedController.init(&M);
