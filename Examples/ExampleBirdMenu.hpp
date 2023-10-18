@@ -1,9 +1,9 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): exampleMinimumGraphicsSetup.hpp                                            *
+* File(s): exampleBirdMenu.hpp                                            *
 *                                                                           *
-* Content: Example scene that shows minimum setup with an OpenGL capable   *
-*          window, lighting setup, and a single moving object.              *
+* Content:   *
+*                      *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,26 +15,31 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_EXAMPLEMINIMUMGRAPHICSSETUP_HPP__
-#define __CFORGE_EXAMPLEMINIMUMGRAPHICSSETUP_HPP__
+#ifndef __CFORGE_EXAMPLEBIRDMENU_HPP__
+#define __CFORGE_EXAMPLEBIRDMENU_HPP__
 
 
 #include "ExampleSceneBase.hpp"
+#include <Examples/ExampleMinimumGraphicsSetup.hpp>
+#include <Examples/ExampleBirdVR.hpp>
+#include <Examples/ExampleCollisionTest.hpp>
+#include <Examples/ExampleFlappyBird.hpp>
+#include <Examples/ExampleMapBuilderGrid.hpp>
 
 using namespace Eigen;
 using namespace std;
 
 namespace CForge {
 
-	class ExampleMinimumGraphicsSetup : public ExampleSceneBase {
+	class ExampleBirdMenu : public ExampleSceneBase {
 	public:
-		ExampleMinimumGraphicsSetup(void) {
-			m_WindowTitle = "CrossForge Example - Minimum Graphics Setup";
+		ExampleBirdMenu(void) {
+			m_WindowTitle = "CrossForge Example - Bird Game Menu";
 			m_WinWidth = 1280;
 			m_WinHeight = 720;
 		}//Constructor
 
-		~ExampleMinimumGraphicsSetup(void) {
+		~ExampleBirdMenu(void) {
 			clear();
 		}//Destructor
 
@@ -42,40 +47,7 @@ namespace CForge {
 
 			initWindowAndRenderDevice();
 			initCameraAndLights();
-
-			// load skydome and a textured cube
-			T3DMesh<float> M;
-
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
-			setMeshShader(&M, 0.8f, 0.04f);
-			M.computePerVertexNormals();
-			m_Skydome.init(&M);
-			M.clear();
-
-			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
-			setMeshShader(&M, 0.1f, 0.04f);
-			M.computePerVertexNormals();
-			m_Duck.init(&M);
-			M.clear();
-
-			// build scene graph
-			m_RootSGN.init(nullptr);
-			m_SG.init(&m_RootSGN);
-
-			// add skydome
-			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
-			m_SkydomeSGN.scale(Vector3f(50.0f, 50.0f, 50.0f));
-
-			// add cube
-			m_DuckTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 1.5f, 0.0f));
-			m_DuckSGN.init(&m_DuckTransformSGN, &m_Duck);
-			m_DuckSGN.scale(Vector3f(0.02f, 0.02f, 0.02f));
-
-			// rotate about the y-axis at 45 degree every second
-			Quaternionf R;
-			R = AngleAxisf(CForgeMath::degToRad(45.0f / 60.0f), Vector3f::UnitY());
-			m_DuckTransformSGN.rotationDelta(R);
-
+			/*
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CForgeUtility::timestamp();
 			int32_t FPSCount = 0;
@@ -84,21 +56,45 @@ namespace CForge {
 			if (0 != CForgeUtility::checkGLError(&ErrorMsg)) {
 				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
 			}
-
+			*/
 		}//initialize
 
 		void clear(void) override{
 			m_RenderWin.stopListening(this);
 			if (nullptr != m_pShaderMan) m_pShaderMan->release();
 			m_pShaderMan = nullptr;
-			m_RenderWin.closeWindow();
 		}//clear
 
 
 		void mainLoop(void)override {
 			m_RenderWin.update();
-			m_SG.update(60.0f / m_FPS);
 
+			Keyboard* pKeyboard = m_RenderWin.keyboard();
+			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) {
+				ExampleMinimumGraphicsSetup* mScene = new ExampleMinimumGraphicsSetup();
+				mScene->init();
+				while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
+				if (nullptr != mScene) delete mScene;
+				mScene = nullptr;
+			}
+
+			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) {
+				ExampleBird* mScene = new ExampleBird();
+				mScene->init();
+				while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
+				if (nullptr != mScene) delete mScene;
+				mScene = nullptr;
+			}
+
+			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) {
+				ExampleFlappyBird* mScene = new ExampleFlappyBird();
+				mScene->init();
+				while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
+				if (nullptr != mScene) delete mScene;
+				mScene = nullptr;
+			}
+			
+			/*
 			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
@@ -110,31 +106,24 @@ namespace CForge {
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			m_RenderWin.swapBuffers();
-
+			*/
 			updateFPS();
 
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
-
+			/*
 			std::string ErrorMsg;
 			if (0 != CForgeUtility::checkGLError(&ErrorMsg)) {
 				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
-			}
+			}*/
 		}
 
 
 
 	protected:
 
-		// Scene Graph
-		SGNTransformation m_RootSGN;
-		SGNGeometry m_SkydomeSGN;
-		SGNGeometry m_DuckSGN;
-		SGNTransformation m_DuckTransformSGN;
+		bool activeScene = false;
 
-		StaticActor m_Skydome;
-		StaticActor m_Duck;
-
-	};//ExampleMinimumGraphicsSetup
+	};//ExampleBirdMenu
 
 }//name space
 

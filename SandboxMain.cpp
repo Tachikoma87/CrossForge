@@ -27,6 +27,7 @@
 #include <Examples/ExampleCollisionTest.hpp>
 #include <Examples/ExampleFlappyBird.hpp>
 #include <Examples/ExampleMapBuilderGrid.hpp>
+#include <Examples/ExampleBirdMenu.hpp>
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
@@ -60,6 +61,7 @@ using namespace Eigen;
 #define ActiveScene ExampleBird
 //#define ActiveScene ExampleFlappyBird  
 //#define ActiveScene ExampleMapBuilderGrid
+//#define ActiveScene ExampleBirdMenu
 
 
 //#define ActiveScene ImuInputDeviceTestScene	 

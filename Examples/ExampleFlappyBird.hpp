@@ -352,6 +352,7 @@ namespace CForge {
 			}
 			m_BuildingSGNs.clear();
 			// GUI-Aufräumen (Kopiere den entsprechenden Code aus GUITestScene)
+			m_RenderWin.closeWindow();
 			
 		}//clear
 

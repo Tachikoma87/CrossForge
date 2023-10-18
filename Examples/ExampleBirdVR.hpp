@@ -194,6 +194,7 @@ namespace CForge {
 
 		void clear(void) override {
 			ExampleSceneBase::clear();
+			m_RenderWin.closeWindow();
 		}//clear
 
 		void setBuildingAABB(T3DMesh<float>::AABB buildingAABB, int i) {
