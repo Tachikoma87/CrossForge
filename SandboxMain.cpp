@@ -54,6 +54,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleFlappyBird  
 //#define ActiveScene ExampleMapBuilderGrid
 //#define ActiveScene ExampleBirdMenu
+//#define ActiveScene ExampleTextRendering
 
 
 ActiveScene* pScene = nullptr;

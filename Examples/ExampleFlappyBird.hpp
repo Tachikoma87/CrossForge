@@ -169,6 +169,25 @@ namespace CForge {
 			float AnimationSpeed = 1000 / 60.0f;
 			SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
 			m_Bird.activeAnimation(pAnim);
+
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: W,A,S,D  | Pause/Unpause: P | F3: Toggle help text");
+			pKeybindings->color(0.0f, 0.0f, 0.0f, 1.0f);
+			m_HelpTexts.push_back(pKeybindings);
+			m_DrawHelpTexts = true;
+
+			// create the Score label
+			// position upper middle
+			uint32_t FontSize = 30;
+			//LineOfText* pText = nullptr;
+			Font* pFont = CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 24, true, false);
+			scoreLabel.init(pFont, "Score:");
+			Vector2f LabelPos;
+			LabelPos.x() = m_RenderWin.width() / 2 - pFont->computeStringWidth("Score: XXX");
+			LabelPos.y() = 34;
+			scoreLabel.position(LabelPos);
+			
 			
 			std::string GLError = "";
 			CForgeUtility::checkGLError(&GLError);
@@ -453,7 +472,7 @@ namespace CForge {
 			m_SG.update(60.0f / m_FPS);
 			m_SkyboxSG.update(60.0f / m_FPS);
 
-	
+			
 
 			//Animation
 			static uint64_t lastFrameTime = CForgeUtility::timestamp();
@@ -486,7 +505,10 @@ namespace CForge {
 				RDelta = AngleAxisf(CForgeMath::degToRad(-2.5f / 60.0f), Vector3f::UnitY());
 				m_SkyboxTransSGN.rotationDelta(RDelta);
 			}
-			
+			//Toggle Help Text
+			if (pKeyboard->keyPressed(Keyboard::KEY_F3, true)) {
+			m_DrawHelpTexts = !m_DrawHelpTexts;
+		}
 			//CAMERA SWITCH 
 			updateCamera(pKeyboard);
 			//SKYBOX SWITCH
@@ -676,6 +698,7 @@ namespace CForge {
 			m_RenderDev.activeCamera(&m_Cam);
 			m_SG.render(&m_RenderDev);
 
+
 			//GUI gui2 = GUI();
 			//gui2.init(&m_RenderWin);
 			// Erstellen eines Text-Widgets und Festlegen des Texts
@@ -699,6 +722,8 @@ namespace CForge {
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 
+			
+
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE, GL_ONE);
 
@@ -714,6 +739,11 @@ namespace CForge {
 			// Skybox should be last thing to render
 			m_SkyboxSG.render(&m_RenderDev);
 
+			// update and draw FPS label
+			std::string LabelText = "Score: " + std::to_string(int32_t(score));
+			scoreLabel.text(LabelText);
+			scoreLabel.render(&m_RenderDev);
+			if (m_DrawHelpTexts) drawHelpTexts();
 
 			m_RenderWin.swapBuffers();
 
@@ -724,12 +754,27 @@ namespace CForge {
 			for (int i = 0; i < charcount; i++) {
 				text.push_back((char32_t)text_wstring[i]);
 			}
-			//fpsWidget->setText(text);
-			//fpsWidget->setPosition(m_RenderWin.width() - fpsWidget->getWidth(), 0);
 
 			updateFPS();
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
 		}
+
+		virtual void listen(GLWindowMsg Msg) override {
+			ExampleSceneBase::listen(Msg);
+
+			// we have to notify the labels if canvas size changes
+			if (GLWindowMsg::MC_RESIZE == Msg.Code) {
+				
+				scoreLabel.canvasSize(m_RenderWin.width(), m_RenderWin.height());
+
+				// reposition score Label
+				Vector2f LabelPos;
+				LabelPos.x() = m_RenderWin.width() / 2 - scoreLabel.font()->computeStringWidth("Score: XXX");
+				LabelPos.y() = 34;
+				scoreLabel.position(LabelPos);
+			}
+
+		}//listen[GLWindow]
 
 	protected:
 
@@ -795,6 +840,7 @@ namespace CForge {
 		Vector3f m_startPosition = Vector3f(0.0f, 10.0f, -100.0f);
 
 		int score = 0; // Anfangswert des Scores
+		LineOfText scoreLabel;
 
 		const float maxHorizontalPosition = 10.0f; // Adjust as needed
 		const float minHorizontalPosition = -10.0f; // Adjust as needed
