@@ -47,6 +47,8 @@ namespace CForge {
 
 	void SCForgeSimulation::timestamp(int64_t Milliseconds) {
 		m_SimulationTimestamp = Milliseconds;
+		m_SimulationDelta = 0;
+		m_LastSimulationUpdate = CForgeUtility::timestamp();
 	}//timestamp
 
 	void SCForgeSimulation::advanceTime(int64_t Milliseconds) {
@@ -58,6 +60,8 @@ namespace CForge {
 		}
 		else {
 			m_SimulationTimestamp += Milliseconds;
+			m_LastSimulationUpdate = CForgeUtility::timestamp();
+			m_SimulationDelta = Milliseconds;
 		}
 	}//advanceTime
 
