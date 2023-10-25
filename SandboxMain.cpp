@@ -37,6 +37,7 @@
 #include "Prototypes/TestScenes/B02DemonstratorScene.hpp"
 #include "Prototypes/TestScenes/SideBySideMotionScene.hpp"
 #include "Prototypes/TestScenes/VideoPlayerTestScene.hpp"
+#include "Prototypes/TestScenes/StripPhotoTestScene.hpp"
 
 
 using namespace CForge;
@@ -50,7 +51,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleShapesAndMaterials
 //#define ActiveScene ExampleLighting
 //#define ActiveScene ExampleSceneGraph
-#define ActiveScene ExampleSkeletalAnimation
+//#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
 
@@ -68,6 +69,7 @@ using namespace Eigen;
 //#define ActiveScene B02DemonstratorScene
 //#define ActiveScene SideBySideMotionScene
 //#define ActiveScene VideoPlayerTestScene
+#define ActiveScene StripPhotoTestScene
 
 
 
@@ -132,7 +134,7 @@ int main(int argc, char* argv[]) {
 		pScene2 = nullptr;*/
 
 
-		exportLibrary();
+		//exportLibrary();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

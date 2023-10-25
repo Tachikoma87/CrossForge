@@ -70,7 +70,7 @@ namespace CForge {
 		}//initialize
 
 		void clear(void) {
-			delete[] m_pData;
+			if(nullptr != m_pData)	delete[] m_pData;
 			m_pData = nullptr;
 			m_Width = 0;
 			m_Height = 0;

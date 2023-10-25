@@ -36,17 +36,19 @@ namespace CForge {
 		void clear(void);
 
 		void update(void);
-		cv::Mat lastFrame(void);
+		void lastFrame(T2DImage<uint8_t>* pImg);
 
 	protected:
-		StripPhoto m_StripPhoto;
+		//StripPhoto m_StripPhoto;
 		cv::VideoCapture m_Camera;
 		cv::Mat m_ImageFrame;
 
-		cv::Mat m_LastFrame;
+		T2DImage<uint8_t> m_LastFrame;
 
 		uint16_t m_FPSCounter;
 		uint64_t m_LastFPSPrint;
+
+		void convertCVImageToCFImageRGB(const cv::Mat* pCVImg, T2DImage<uint8_t>* pImg);
 	};//StripPhotoCamera
 
 }//name-space
