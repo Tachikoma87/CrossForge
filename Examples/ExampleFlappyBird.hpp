@@ -515,9 +515,7 @@ namespace CForge {
 			if (pKeyboard->keyPressed(Keyboard::KEY_F1, true)) m_Skybox.init(m_City1[0], m_City1[1], m_City1[2], m_City1[3], m_City1[4], m_City1[5]);
 			if (pKeyboard->keyPressed(Keyboard::KEY_F2, true)) m_Skybox.init(m_City2[0], m_City2[1], m_City2[2], m_City2[3], m_City2[4], m_City2[5]);
 
-			if (pKeyboard->keyPressed(Keyboard::KEY_F3, true)) {
-				
-			}
+			
 			
 			// Handle left and right movement
 			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) {
