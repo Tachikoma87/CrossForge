@@ -244,6 +244,7 @@ namespace CForge {
 				// Erhöhen Sie den Index des ausgewählten Gebäudevaiants für das nächste Gebäude
 				selectedBuildingVariant = (selectedBuildingVariant + 1) % 3; // Annahme: Es gibt 3 Gebäudevaiants
 			}
+			
 		}
 
 		void clear() {
@@ -331,6 +332,10 @@ namespace CForge {
 				// Erstelle das Grid, wenn die Leertaste gedrückt wird
 				createGrid();
 			}
+
+			
+			//Handle Vertical Placement
+			
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT, true)) {
 				// Bewege das aktive Tile nach links (col verringern)
 				if (activeTileCol > 0) {
@@ -338,12 +343,18 @@ namespace CForge {
 					updateActiveTileScaling();
 				}
 			}
-			else if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_RIGHT, true)) {
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_RIGHT, true)) {
 				// Bewege das aktive Tile nach rechts (col erhöhen)
 				if (activeTileCol < 3) { // 4 Spalten insgesamt (0, 1, 2, 3)
 					activeTileCol++;
 					updateActiveTileScaling();
 				}
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL) && m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_UP, true)) {
+				float currentX = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().x();
+				float currentY = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().y();
+				float currentZ = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().z();
+				gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation(Vector3f(currentX, currentY + 1.0f, currentZ));
 			}
 			else if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_UP, true)) {
 				// Bewege das aktive Tile nach oben (row verringern)
@@ -352,6 +363,12 @@ namespace CForge {
 					updateActiveTileScaling();
 				}
 			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL) && m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_DOWN, true)) {
+				float currentX = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().x();
+				float currentY = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().y();
+				float currentZ = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().z();
+				gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation(Vector3f(currentX, currentY - 1.0f, currentZ));
+			}
 			else if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_DOWN, true)) {
 				// Bewege das aktive Tile nach unten (row erhöhen)
 				if (activeTileRow < 3) { // 4 Reihen insgesamt (0, 1, 2, 3)
@@ -359,12 +376,7 @@ namespace CForge {
 					updateActiveTileScaling();
 				}
 			}
-			else if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_SPACE, true)) {
-				//m_BuildingGeoSGNs[1]->init(m_BuildingGeoSGNs[1], &m_Buildings[2]);
-				m_BuildingGeoSGNs[3]->init(m_BuildingTransformSGNs[3], &m_Buildings[1]);
-				m_BuildingGeoSGNs[2]->init(m_BuildingTransformSGNs[2], &m_Buildings[1]);
-
-			}
+			
 			handleBuildingPlacementInput();
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
