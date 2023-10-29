@@ -72,26 +72,32 @@ namespace CForge {
 			Keyboard* pKeyboard = m_RenderWin.keyboard();
 			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) {
 				ExampleMinimumGraphicsSetup* mScene = new ExampleMinimumGraphicsSetup();
+				m_RenderWin.closeWindow();
 				mScene->init();
 				while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
 				if (nullptr != mScene) delete mScene;
 				mScene = nullptr;
+				initWindowAndRenderDevice();
 			}
 
 			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) {
 				ExampleBird* mScene = new ExampleBird();
+				m_RenderWin.closeWindow();
 				mScene->init();
 				while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
 				if (nullptr != mScene) delete mScene;
 				mScene = nullptr;
+				initWindowAndRenderDevice();
 			}
 
 			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) {
 				ExampleFlappyBird* mScene = new ExampleFlappyBird();
+				m_RenderWin.closeWindow();
 				mScene->init();
 				while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
 				if (nullptr != mScene) delete mScene;
 				mScene = nullptr;
+				initWindowAndRenderDevice();
 			}
 			
 			/*
