@@ -59,10 +59,15 @@ namespace CForge {
 			T3DMesh<float> M;
 			
 			// load Bird
-			SAssetIO::load("MyAssets/Bird/bird.fbx", &M);
+			//SAssetIO::load("MyAssets/Bird/bird.fbx", &M);
+			//setMeshShader(&M, 0.1f, 0.04f);
+			//M.computePerVertexNormals();
+			//m_Bird.init(&M);
+			SAssetIO::load("MyAssets/Eagle_Animated/EagleFlapFinal/EagleFlap.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
-			m_Bird.init(&M);
+			m_BipedController.init(&M);
+			m_Bird.init(&M, &m_BipedController);
 
 			// calculate AABB for the bird
 			M.computeAxisAlignedBoundingBox();
@@ -70,6 +75,9 @@ namespace CForge {
 			float birdBBSphereR = birdAABB.Min.norm();
 			birdBBSphereR = birdBBSphereR > birdAABB.Min.norm() ? birdBBSphereR : birdAABB.Max.norm();
 			M.clear();
+
+			Quaternionf Rot;
+			Rot = AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitY());
 
 			SAssetIO::load("MyAssets/TexturedGround/TexturedGround.gltf", &M);
 			setMeshShader(&M, 0.8f, 0.04f);
@@ -89,11 +97,13 @@ namespace CForge {
 			m_BirdTransformSGN.scale(Vector3f(0.1f, 0.1f, 0.1f));
 			m_BirdPitchSGN.init(&m_BirdTransformSGN, Vector3f(0.0f, 0.0f, 0.0f));
 			m_BirdRollSGN.init(&m_BirdPitchSGN, Vector3f(0.0f, 0.0f, 0.0f));
+			//m_BirdYawSGN.init(&m_BirdRollSGN, Vector3f(0.0f, 0.0f, 0.0f));
+			//m_BirdYawSGN.rotation(Rot);
 
 			// Quaternionf To_Y;
 			Quaternionf To_Y = (Quaternionf)AngleAxis(CForgeMath::degToRad(90.0f), Vector3f::UnitY());
 			m_BirdTransformSGN.rotation(To_Y);
-			m_BirdSGN.init(&m_BirdRollSGN, &m_Bird);
+			m_BirdSGN.init(&m_BirdRollSGN, &m_Bird, Eigen::DenseBase<Eigen::Vector3f>::Zero(), Rot);
 			m_birdSphere = m_BirdSGN.actor()->boundingVolume().boundingSphere();
 
 			// load buildings
@@ -185,6 +195,26 @@ namespace CForge {
 
 			// start time
 			m_timeStart = std::chrono::high_resolution_clock::now();
+
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: SPACEBAR,Left,Right,CONTROL | Pause/Unpause: P | F3: Toggle help text | Backspace: Reset");
+			pKeybindings->color(0.0f, 0.0f, 0.0f, 1.0f);
+			m_HelpTexts.push_back(pKeybindings);
+			m_DrawHelpTexts = true;
+
+			// create the Score label
+			// position upper middle
+			uint32_t FontSize = 30;
+			//LineOfText* pText = nullptr;
+			Font* pFont = CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 24, true, false);
+			scoreLabel.init(pFont, "Score:");
+			Vector2f LabelPos;
+			LabelPos.x() = m_RenderWin.width() / 2 - pFont->computeStringWidth("Score: XXX");
+			LabelPos.y() = 34;
+			scoreLabel.position(LabelPos);
+
+			m_RepeatAnimation = false;
 
 			std::string GLError = "";
 			CForgeUtility::checkGLError(&GLError);
@@ -572,6 +602,13 @@ namespace CForge {
 
 			m_RenderWin.update();
 			m_SG.update(60.0f / m_FPS);
+
+			m_BipedController.update(60.0f / m_FPS);
+			if (m_RepeatAnimation && nullptr != m_Bird.activeAnimation()) {
+				auto* pAnim = m_Bird.activeAnimation();
+				if (pAnim->t >= pAnim->Duration) pAnim->t -= pAnim->Duration;
+			}
+
 			m_SkyboxSG.update(60.0f / m_FPS);
 
 			CollisionTest();
@@ -581,6 +618,15 @@ namespace CForge {
 
 			// handle input for the skybox
 			Keyboard* pKeyboard = m_RenderWin.keyboard();
+
+			float AnimationSpeed = 1000 / 10.0f;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_SPACE, true)) {
+				SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
+				m_Bird.activeAnimation(pAnim);
+				m_speed.y() += 0.3;
+			}
+
+
 			float Step = (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) ? -0.05f : 0.05f;
 			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) m_Skybox.brightness(m_Skybox.brightness() + Step);
 			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) m_Skybox.saturation(m_Skybox.saturation() + Step);
@@ -645,7 +691,7 @@ namespace CForge {
 				if (pKeyboard->keyPressed(Keyboard::KEY_DOWN) && m_speed.z() >= 0.3f)m_speed.z() -= 0.01f;
 
 				// the bird sinks during normal flight and gains altitude when pressed space
-				if (pKeyboard->keyPressed(Keyboard::KEY_SPACE, true)) m_speed.y() += 0.3;
+				//if (pKeyboard->keyPressed(Keyboard::KEY_SPACE, true)) m_speed.y() += 0.3;
 				if (m_speed.y() > -0.01f) m_speed.y() -= 0.03f;
 
 				// bird to near the ground -> remains altitude
@@ -680,6 +726,12 @@ namespace CForge {
 
 				//defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 				defaultCameraUpdateBird(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse(), dir, m_BirdTransformSGN.translation(), Vector3f(0.0f, 1.0f, 0.0f), m3);
+
+				
+			}
+			//Toggle Help Text
+			if (pKeyboard->keyPressed(Keyboard::KEY_F3, true)) {
+				m_DrawHelpTexts = !m_DrawHelpTexts;
 			}
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
 			m_RenderDev.activeCamera((VirtualCamera*)m_Sun.camera());
@@ -769,16 +821,48 @@ namespace CForge {
 			// Skybox should be last thing to render
 			m_SkyboxSG.render(&m_RenderDev);
 
+			//Help text need to be rendered last, since the skybox would block it otherwise
+			if (m_DrawHelpTexts) drawHelpTexts();
+
 			m_RenderWin.swapBuffers();
+
+			/* TODO
+			// update and draw SCORE label
+			std::string LabelText = "Time: " + std::to_string(int32_t(ZEITVARIABLE));
+			scoreLabel.text(LabelText);
+			scoreLabel.render(&m_RenderDev);
+			*/
+			
+			
 
 			updateFPS();
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
 		}
 
+		virtual void listen(GLWindowMsg Msg) override {
+			ExampleSceneBase::listen(Msg);
+
+			// we have to notify the labels if canvas size changes
+			if (GLWindowMsg::MC_RESIZE == Msg.Code) {
+
+				scoreLabel.canvasSize(m_RenderWin.width(), m_RenderWin.height());
+
+				// reposition score Label
+				Vector2f LabelPos;
+				LabelPos.x() = m_RenderWin.width() / 2 - scoreLabel.font()->computeStringWidth("Score: XXX");
+				LabelPos.y() = 34;
+				scoreLabel.position(LabelPos);
+			}
+
+		}//listen[GLWindow]
+
 	protected:
 
-		StaticActor m_Bird;
+		//StaticActor m_Bird;
+		SkeletalActor m_Bird;
+		bool m_RepeatAnimation;
 		SGNTransformation m_RootSGN;
+		SkeletalAnimationController m_BipedController;
 
 		vector<string> m_ClearSky;
 		vector<string> m_EmptySpace;
@@ -791,6 +875,7 @@ namespace CForge {
 		SGNTransformation m_BirdTransformSGN;
 		SGNTransformation m_BirdRollSGN;
 		SGNTransformation m_BirdPitchSGN;
+		SGNTransformation m_BirdYawSGN;
 
 		StaticActor m_Ground;
 		SGNGeometry m_GroundSGN;
@@ -857,6 +942,8 @@ namespace CForge {
 		std::chrono::steady_clock::time_point m_timeEnd;
 		std::chrono::milliseconds m_totalTime = std::chrono::milliseconds::zero();
 		bool m_timePrinted = false;
+
+		LineOfText scoreLabel;
 
 	};//ExampleBird
 
