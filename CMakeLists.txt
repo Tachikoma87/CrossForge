@@ -73,6 +73,8 @@ endif(USE_OPENCV)
 add_executable(CForgeSandbox 
 	SandboxMain.cpp
 
+	# ImGuiUtility
+	Examples/ImGui/ImGuiUtility.cpp
 	)
 
 if(EMSCRIPTEN)

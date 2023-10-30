@@ -238,6 +238,8 @@ add_library(crossforge SHARED
 	crossforge/MeshProcessing/Builder/MorphTargetModelBuilder.cpp
 	crossforge/MeshProcessing/PrimitiveShapeFactory.cpp
 
+	# ImGuiUtility
+	#crossforge/ImGui/ImGuiUtility.cpp
 
 	# Utility
 	crossforge/Utility/CForgeUtility.cpp
