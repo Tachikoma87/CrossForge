@@ -115,6 +115,8 @@ namespace CForge
 			// Store the bones of the skeleton and prepare memory to store the global transformations
 			m_NumberBones = m_BipedController.retrieveSkeleton().size();
 			m_GlobalTransforms.resize(m_NumberBones);
+
+			m_WasInverseBoneMatricesRecomputed = false;
 		}
 
 		void clear() override
@@ -142,6 +144,11 @@ namespace CForge
 			if (m_Time >= 0)
 			{
 				// Compute the local transformations and apply this transformations to every bone
+				if (!m_WasInverseBoneMatricesRecomputed) {
+					recomputeInverseBindPoseMatrix(m_BipedController.root(), Matrix4f::Identity(), m_GlobalTransforms, Matrix4f::Identity());
+					m_WasInverseBoneMatricesRecomputed = true;
+				}
+
 				calculateLocalTransformations(m_BipedController.root(), Matrix4f::Identity(), m_GlobalTransforms);
 			}
 			
@@ -194,6 +201,31 @@ namespace CForge
 
 
 	protected:
+
+		void recomputeInverseBindPoseMatrix(SkeletalAnimationController::Joint* pJoint, Eigen::Matrix4f ParentTransform, std::vector<Eigen::Matrix4f>& GlobalTransforms, Eigen::Matrix4f TranslationTransform) {
+			if (nullptr == pJoint)
+			{
+				throw NullpointerExcept("pJoint");
+			}
+
+			Eigen::Affine3f Transformation(ParentTransform.inverse() * GlobalTransforms[pJoint->ID]);
+			if (pJoint->pParent == nullptr) {
+				TranslationTransform = Eigen::Matrix4f::Identity();
+			}
+			else {
+				Matrix4f M = Matrix4f::Identity();
+				M(0, 3) = Transformation.translation().x();
+				M(1, 3) = Transformation.translation().y();
+				M(2, 3) = Transformation.translation().z();
+				TranslationTransform = M * TranslationTransform;		
+			}
+			pJoint->OffsetMatrix = TranslationTransform.inverse();
+
+			for (SkeletalAnimationController::Joint* child : pJoint->Children)
+			{
+				recomputeInverseBindPoseMatrix(child, GlobalTransforms[pJoint->ID], GlobalTransforms, TranslationTransform);
+			}
+		}
 
 		void calculateLocalTransformations(SkeletalAnimationController::Joint* pJoint, Eigen::Matrix4f ParentGlobalTransform, std::vector<Eigen::Matrix4f>& GlobalTransforms)
 		{
@@ -290,7 +322,10 @@ namespace CForge
 					}
 				}
 			}
-		}
+		}//parseUDPStream
+
+
+
 
 		SGNTransformation m_RootSGN;
 		SkeletalActor m_MuscleMan;
@@ -329,6 +364,8 @@ namespace CForge
 
 		std::vector<Eigen::Matrix4f> m_GlobalTransforms;
 		int m_NumberBones;
+
+		bool m_WasInverseBoneMatricesRecomputed;
 	};
 }
 
