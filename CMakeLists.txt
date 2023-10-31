@@ -24,7 +24,7 @@ file(MAKE_DIRECTORY "Prototypes/Shader")
 #################################################################
 project (CForgeSandbox)
 
-option(INCLUDE_OPENCV "Include OpenCV in build" ON)
+option(INCLUDE_OPENCV "Include OpenCV in build" OFF)
 
 
 if(EMSCRIPTEN)
@@ -104,6 +104,9 @@ add_executable(CForgeSandbox
 
 	Prototypes/Camera/VideoRecorder.cpp
 	Prototypes/Camera/VideoPlayer.cpp
+
+	Prototypes/Animation/SkeletalSkinning.cpp
+	Prototypes/Actor/AdaptiveSkeletalActor.cpp
 
 	# GUI
 #	Prototypes/GUI/Font.cpp

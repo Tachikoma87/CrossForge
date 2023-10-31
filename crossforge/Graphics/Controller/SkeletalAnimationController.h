@@ -80,7 +80,10 @@ namespace CForge {
 		void retrieveSkinningMatrices(std::vector<Eigen::Matrix4f>* pSkinningMats);
 
 		std::vector<SkeletalJoint*> retrieveSkeleton(void)const;
-		void updateSkeletonValues(std::vector<SkeletalJoint*>* pSkeleton);
+		void retrieveSkeleton(std::vector<SkeletalJoint*>* pSkeleton);
+		void setSkeletonValues(std::vector<SkeletalJoint*>* pSkeleton, bool UpdateUBO = true);
+
+		Eigen::Vector3f transformVertex(Eigen::Vector3f V, Eigen::Vector4i BoneInfluences, Eigen::Vector4f BoneWeights);
 
 	protected:
 
@@ -113,6 +116,7 @@ namespace CForge {
 
 		std::string m_GLSLVersionTag;
 		std::string m_GLSLPrecisionTag;
+
 	};//SkeletalAnimationController
 
 }//name space

@@ -227,6 +227,7 @@ namespace CForge {
 				float TimePassed = (CForgeSimulation::simulationTime() - i->LastTimestamp) / 1000.0f; // time passed in seconds since last update
 				i->t += (TimePassed * i->Speed);
 				i->LastTimestamp = CForgeSimulation::simulationTime();
+				if (i->t > i->Duration) i->Finished = true;
 			}
 		}//for[active animations]
 	}//update
@@ -347,7 +348,7 @@ namespace CForge {
 		return Rval;
 	}//retrieveSkeleton
 
-	void SkeletalAnimationController::updateSkeletonValues(std::vector<SkeletalAnimationController::SkeletalJoint*>* pSkeleton) {
+	void SkeletalAnimationController::retrieveSkeleton(std::vector<SkeletalAnimationController::SkeletalJoint*>* pSkeleton) {
 		if (nullptr == pSkeleton) throw NullpointerExcept("pSkeleton");
 
 		for (auto i : (*pSkeleton)) {
@@ -357,6 +358,35 @@ namespace CForge {
 			i->LocalScale = m_Joints[i->ID]->LocalScale;
 			i->SkinningMatrix = m_Joints[i->ID]->SkinningMatrix;
 		}
+
+		
 	}//updateSkeleton
+
+	void SkeletalAnimationController::setSkeletonValues(std::vector<SkeletalJoint*>* pSkeleton, bool UpdateUBO) {
+		if (nullptr == pSkeleton) throw NullpointerExcept("pSkeleton");
+
+		for (auto i : (*pSkeleton)) {
+			m_Joints[i->ID]->OffsetMatrix = i->OffsetMatrix;;
+			m_Joints[i->ID]->LocalPosition = i->LocalPosition;
+			m_Joints[i->ID]->LocalRotation = i->LocalRotation;
+			m_Joints[i->ID]->LocalScale = i->LocalScale;
+			m_Joints[i->ID]->SkinningMatrix = i->SkinningMatrix;
+		}
+
+		transformSkeleton(m_pRoot, Matrix4f::Identity());
+
+		if (UpdateUBO) {
+			for (uint32_t i = 0; i < m_Joints.size(); ++i) m_UBO.skinningMatrix(i, m_Joints[i]->SkinningMatrix);
+		}
+
+	}//setSkeletonValues
+
+	Eigen::Vector3f SkeletalAnimationController::transformVertex(Eigen::Vector3f V, Eigen::Vector4i BoneInfluences, Eigen::Vector4f BoneWeights) {
+		Eigen::Matrix4f T = Eigen::Matrix4f::Zero();
+		for (uint8_t i = 0; i < 4; ++i) T += BoneWeights[i] * m_Joints[BoneInfluences[i]]->SkinningMatrix;
+
+		Vector4f VPrime = T * Vector4f(V.x(), V.y(), V.z(), 1.0f);
+		return Vector3f(VPrime.x(), VPrime.y(), VPrime.z());
+	}//transformVertex
 
 }//name space
