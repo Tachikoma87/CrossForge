@@ -25,6 +25,8 @@
 using namespace Eigen;
 using namespace std;
 
+#ifdef INCLUDE_OPENCV
+
 namespace CForge {
 
 	class StripPhotoTestScene : public ExampleSceneBase {
@@ -162,3 +164,4 @@ namespace CForge {
 }//name space
 
 #endif
+#endif //OpenCV

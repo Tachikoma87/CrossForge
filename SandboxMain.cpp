@@ -122,6 +122,7 @@ int main(int argc, char* argv[]) {
 		if (nullptr != pScene) delete pScene;
 		pScene = nullptr;
 
+
 		/*auto *pScene2 = new ExampleLighting();
 		pScene2->init();
 
