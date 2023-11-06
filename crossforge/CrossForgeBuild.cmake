@@ -13,8 +13,6 @@ project(crossforge VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-option(USE_OPENCV "Include OpenCV in build" OFF)
 set(Optimization_Flag "-O2")
 
 #[[
@@ -98,7 +96,6 @@ if(EMSCRIPTEN)
 	FetchContent_MakeAvailable(tinygltf)
 	include_directories(${tinygltf_SOURCE_DIR}/)
 
-
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Optimization_Flag} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Optimization_Flag} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -Wno-tautological-pointer-compare -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
 
@@ -110,34 +107,14 @@ else()
 	FIND_PACKAGE(glfw3 CONFIG REQUIRED)	# cross-plattform window management
 	FIND_PACKAGE(assimp CONFIG REQUIRED)# Asset import library (and partially export)
 	FIND_PACKAGE(freetype REQUIRED)		# Library to load and process vector based fonts
-	FIND_PACKAGE(libigl CONFIG REQUIRED)	# mesh processing library
+	FIND_PACKAGE(libigl CONFIG REQUIRED)# mesh processing library
 	FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp
 
 endif()
 
-
-if(USE_OPENCV)
-	FIND_PACKAGE(OpenCV CONFIG REQUIRED)	# Open computer vision library
-	include_directories(
-		"${OpenCV_INCLUDE_DIRS}"
-	)
-	add_compile_definitions(USE_OPENCV)
-else()
-	set(OpenCV_LIBS "")
-	remove_definitions(USE_OPENCV)
-endif(USE_OPENCV)
-
 include_directories(
 	"./"
 )
-
-#enable edit and continue and hot reload (Visual Studio 2022)
-#if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-#	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /ZI")
-#	string(REPLACE "/Zi" "/ZI" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS})
-#	set(CMAKE_SHARED_LINKER_FLAGS "/SAFESEH:NO")
-#	set(CMAKE_EXE_LINKER_FLAGS "/SAFESEH:NO")
-#endif()
 
 add_library(crossforge SHARED
 	# Core related
@@ -154,7 +131,6 @@ add_library(crossforge SHARED
 	crossforge/AssetIO/AssimpMeshIO.cpp
 	crossforge/AssetIO/I2DImageIO.cpp
 	crossforge/AssetIO/I3DMeshIO.cpp
-	crossforge/AssetIO/OpenCVImageIO.cpp
 	crossforge/AssetIO/StbImageIO.cpp 
 	crossforge/AssetIO/WebPImageIO.cpp
 	crossforge/AssetIO/SAssetIO.cpp
@@ -271,7 +247,6 @@ target_link_libraries(crossforge
 	PRIVATE WebP::webpdecoder
 	ws2_32					#winsock2
 	${FREETYPE_LIBRARIES}	# for Text rendering
-	${OpenCV_LIBS}
 	#	pmp # not used yet
 	)
 elseif(__arm__)
@@ -286,7 +261,6 @@ elseif(__arm__)
 	PRIVATE WebP::webpdecoder
 	${FREETYPE_LIBRARIES}	# for Text rendering
 	freetype
-#	${OpenCV_LIBS}
 
 	PRIVATE gpiod 
 	PRIVATE stdc++fs
@@ -303,7 +277,6 @@ elseif(UNIX)
 	PRIVATE WebP::webpdecoder
 	${FREETYPE_LIBRARIES}	# for Text rendering
 	freetype
-#	${OpenCV_LIBS}
 	PRIVATE stdc++fs
 	)
 endif()
