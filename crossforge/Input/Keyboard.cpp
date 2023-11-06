@@ -29,13 +29,27 @@ namespace CForge {
 		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
 		return (m_KeyStates[K] != KEY_RELEASED);
 	}//keyPressed
-
+	
 	bool Keyboard::keyPressed(Key K, bool Reset) {
 		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
 		const bool Rval = (m_KeyStates[K] != KEY_RELEASED);
 		if (Reset) m_KeyStates[K] = KEY_RELEASED;
 		return Rval;
 	}//keyPressed
+
+	bool Keyboard::keyPressedConst(Key K, bool Reset) {
+		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
+
+		// Prüfen, ob die Taste vorher nicht gedrückt war
+		if (m_KeyStates[K] == KEY_RELEASED) {
+			const bool Rval = true; // Die Taste ist jetzt gedrückt
+			if (Reset) m_KeyStates[K] = KEY_PRESSED;
+			return Rval;
+		}
+
+		// Die Taste war bereits gedrückt
+		return false;
+	}
 
 	bool Keyboard::keyPressed(Key K1, Key K2, Key K3)const {
 		bool Rval = keyPressed(K1);
