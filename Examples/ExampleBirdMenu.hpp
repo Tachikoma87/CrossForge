@@ -25,6 +25,7 @@
 #include <Examples/ExampleCollisionTest.hpp>
 #include <Examples/ExampleFlappyBird.hpp>
 #include <Examples/ExampleMapBuilderGrid.hpp>
+#include "Examples/ImGui/ImGuiUtility.h"
 
 using namespace Eigen;
 using namespace std;
@@ -57,17 +58,63 @@ namespace CForge {
 				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
 			}
 			*/
+
+			m_ActiveTool = true;
+			m_DemoWindow = true;
+
+			ImGuiUtility::initImGui(&m_RenderWin);
 		}//initialize
 
 		void clear(void) override{
 			m_RenderWin.stopListening(this);
 			if (nullptr != m_pShaderMan) m_pShaderMan->release();
 			m_pShaderMan = nullptr;
+			ImGuiUtility::shutdownImGui();
 		}//clear
 
 
 		void mainLoop(void)override {
 			m_RenderWin.update();
+
+			
+			
+			
+			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
+			//m_SG.render(&m_RenderDev);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+			//m_SG.render(&m_RenderDev);
+
+			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+			
+
+			
+			ImGuiUtility::newFrame();
+
+			//ImGuiUtility::newFrame();
+			ImGui::ShowDemoWindow(&m_DemoWindow);
+
+			ImGui::Begin("My first Tool", &m_ActiveTool, ImGuiWindowFlags_MenuBar);
+			ImGui::SetWindowPos(ImVec2(0, 0), ImGuiCond_Once);
+			if (ImGui::BeginMenuBar()) {
+				if (ImGui::BeginMenu("File")) {
+					if (ImGui::MenuItem("Open..", "Ctrl+O")) {}
+					if (ImGui::MenuItem("Close", "Ctrl+W")) { m_ActiveTool = false; printf("Close\n"); }
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenuBar();
+			}
+			else {
+				SLogger::log("Problem creating ImGui window!");
+			}
+			ImGui::End();
+
+			//ImGui::Render();
+			//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			ImGuiUtility::render();
+			
 
 			Keyboard* pKeyboard = m_RenderWin.keyboard();
 			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) {
@@ -99,20 +146,9 @@ namespace CForge {
 				mScene = nullptr;
 				initWindowAndRenderDevice();
 			}
-			
-			/*
-			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
-
-			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-			m_SG.render(&m_RenderDev);
-
-			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			m_SG.render(&m_RenderDev);
-
-			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			m_RenderWin.swapBuffers();
-			*/
+			
 			updateFPS();
 
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
@@ -126,8 +162,10 @@ namespace CForge {
 
 
 	protected:
+		SGNTransformation m_RootSGN;
 
-		bool activeScene = false;
+		bool m_DemoWindow;
+		bool m_ActiveTool;
 
 	};//ExampleBirdMenu
 
