@@ -50,7 +50,7 @@ namespace CForge {
 		if (G == MFVideoFormat_UYVY) Rval = "UYVY";
 		if (G == MFVideoFormat_NV11) Rval = "NV11";
 		if (G == MFVideoFormat_NV12) Rval = "NV12";
-		if (G == MFVideoFormat_NV21) Rval = "NV21";
+//		if (G == MFVideoFormat_NV21) Rval = "NV21";
 		if (G == MFVideoFormat_YV12) Rval = "YV12";
 		if (G == MFVideoFormat_I420) Rval = "I420";
 		if (G == MFVideoFormat_IYUV) Rval = "IYUV";
@@ -160,7 +160,7 @@ namespace CForge {
 				MFGetAttributeRatio(pType, MF_MT_FRAME_SIZE, &FrameWidth, &FrameHeight);
 				pType->GetGUID(MF_MT_SUBTYPE, &Subtype);
 				Bitrate = MFGetAttributeUINT32(pType, MF_MT_AVG_BITRATE, 0);
-				printf("\t\t %dx%d @ %d FPS - %d Kb/s (%s)\n", FrameWidth, FrameHeight, FPS, Bitrate / 8000, getVideoFormatDescriptor(Subtype).c_str());
+				printf("\t\t %dx%d @ %d FPS - %d (%s)\n", FrameWidth, FrameHeight, FPS, Stub, getVideoFormatDescriptor(Subtype).c_str());
 				pType->Release();
 			}
 			dwMediaTypeIndex++;
@@ -199,11 +199,12 @@ namespace CForge {
 
 		// define the output type
 		hr = MFCreateMediaType(&pType);
-		pType->SetGUID(MF_MT_MAJOR_TYPE, MajorType);
+		//pType->SetGUID(MF_MT_MAJOR_TYPE, MajorType);
+		pType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
 		pType->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_MJPG);
 
 		MFSetAttributeRatio(pType, MF_MT_FRAME_SIZE, 1280, 720);
-		MFSetAttributeRatio(pType, MF_MT_FRAME_RATE, 30, 1);
+		//MFSetAttributeRatio(pType, MF_MT_FRAME_RATE, 10, 1);
 
 		hr = pReader->SetCurrentMediaType(MF_SOURCE_READER_FIRST_VIDEO_STREAM, nullptr, pType);
 
@@ -251,7 +252,7 @@ namespace CForge {
 			DWORD StreamIndex, Flags;
 			LONGLONG llTimeStamp;
 
-			hr = pReader->ReadSample(0,
+			hr = pReader->ReadSample(MF_SOURCE_READER_FIRST_VIDEO_STREAM,
 				0,
 				&StreamIndex, &Flags, &llTimeStamp,
 				&pSample);
@@ -263,8 +264,8 @@ namespace CForge {
 
 			else if (nullptr != pSample) {
 				pSample->GetTotalLength(&TotalLength);
-
 				pSample->GetBufferByIndex(0, &pMediaBuffer);
+
 				pMediaBuffer->Lock(&pBuffer, &MaxSize, &BufferSize);
 				T2DImage<uint8_t> Img;
 				AssetIO::load(pBuffer, uint32_t(BufferSize), &Img);
