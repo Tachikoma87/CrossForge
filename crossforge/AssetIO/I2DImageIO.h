@@ -40,6 +40,7 @@ namespace CForge {
 		};
 
 		virtual void load(const std::string Filepath, T2DImage<uint8_t>* pImgData) = 0;
+		virtual void load(const uint8_t* pBuffer, const uint32_t BufferLength, T2DImage<uint8_t>* pImgData) = 0;
 		virtual void store(const std::string Filepath, const T2DImage<uint8_t>* pImgData) = 0;
 		virtual bool accepted(const std::string Filepath, Operation Op) = 0;
 		virtual void release(void) = 0;

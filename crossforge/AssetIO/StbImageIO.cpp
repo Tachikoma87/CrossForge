@@ -52,6 +52,36 @@ namespace CForge {
 		pData = nullptr;
 	}//load
 
+	void StbImageIO::load(const uint8_t* pBuffer, const uint32_t BufferLength, T2DImage<uint8_t>* pImgData) {
+		if (nullptr == pBuffer) throw NullpointerExcept("pBuffer");
+		if (0 == BufferLength) throw CForgeExcept("Buffer with size 0 specified!");
+
+		int32_t Width = 0;
+		int32_t Height = 0;
+		int32_t Components = 0;
+		uint8_t* pData = stbi_load_from_memory(pBuffer, BufferLength, &Width, &Height, &Components, 0);
+
+		if (nullptr == pData) throw CForgeExcept("Image data stream could not be decompressed!");
+
+		T2DImage<uint8_t>::ColorSpace CS;
+		switch (Components) {
+		case 1: CS = T2DImage<uint8_t>::COLORSPACE_GRAYSCALE; break;
+		case 3: CS = T2DImage<uint8_t>::COLORSPACE_RGB; break;
+		case 4: CS = T2DImage<uint8_t>::COLORSPACE_RGBA; break;
+		default: CS = T2DImage<uint8_t>::COLORSPACE_UNKNOWN; break;
+		}
+
+		if (CS == T2DImage<uint8_t>::COLORSPACE_UNKNOWN) {
+			stbi_image_free(pData);
+			throw CForgeExcept("Image has unknown format!");
+		}
+
+		pImgData->init(Width, Height, CS, pData);
+
+		stbi_image_free(pData);
+		pData = nullptr;
+	}//load
+
 	void StbImageIO::store(const std::string Filepath, const T2DImage<uint8_t>* pImgData) {
 		if (pImgData->width() == 0 || pImgData->height() == 0) throw CForgeExcept("Image has invalid dimensions!");
 		if (pImgData->data() == nullptr) throw CForgeExcept("Image contains no data!");

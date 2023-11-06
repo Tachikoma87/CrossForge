@@ -1,9 +1,9 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): WebPImageIO.h and WebPImageIO.cpp                                            *
+* File(s): CameraCapture.h and CameraCapture.cpp                *
 *                                                                           *
-* Content: Import/Export class using libwebp.   *
-*                                                   *
+* Content:                 *
+*                                                                           *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,31 +15,27 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_WEBPIMAGEIO_H__
-#define __CFORGE_WEBPIMAGEIO_H__
+#ifndef __CFORGE_CAMERACAPTURE_H__
+#define __CFORGE_CAMERACAPTURE_H__
+#include <crossforge/Core/CForgeObject.h>
 
-#include "I2DImageIO.h"
+#include <Windows.h>
+
 
 namespace CForge {
-	class WebPImageIO: public I2DImageIO {
+	class CameraCapture {
 	public:
-		WebPImageIO(void);
-		~WebPImageIO(void);
+		CameraCapture();
+		~CameraCapture();
 
-		void init(void);
-		void clear(void);
-
-		void load(const std::string Filepath, T2DImage<uint8_t>* pImgData);
-		void load(const uint8_t* pBuffer, const uint32_t BufferLength, T2DImage<uint8_t>* pImgData);
-		void store(const std::string Filepath, const T2DImage<uint8_t>* pImgData);
-		bool accepted(const std::string Filepath, Operation Op);
-		void release(void);
+		void init();
+		void clear();
+		void release();
 
 	protected:
 
-	};//WebPImageIO
-
-}//name space
+	};//CameraCapture
+}//name-space
 
 
 #endif 

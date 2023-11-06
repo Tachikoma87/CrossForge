@@ -105,6 +105,8 @@ add_executable(CForgeSandbox
 	Prototypes/Camera/VideoRecorder.cpp
 	Prototypes/Camera/VideoPlayer.cpp
 
+	Prototypes/Camera/CameraCapture.cpp
+
 	Prototypes/Animation/SkeletalSkinning.cpp
 	Prototypes/Actor/AdaptiveSkeletalActor.cpp
 

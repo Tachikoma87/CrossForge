@@ -39,6 +39,7 @@
 #include "Prototypes/TestScenes/VideoPlayerTestScene.hpp"
 #include "Prototypes/TestScenes/StripPhotoTestScene.hpp"
 #include "Prototypes/TestScenes/CPUSkinningTestScene.hpp"
+#include "Prototypes/TestScenes/CameraCaptureTestScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -70,7 +71,8 @@ using namespace Eigen;
 //#define ActiveScene SideBySideMotionScene
 //#define ActiveScene VideoPlayerTestScene
 //#define ActiveScene StripPhotoTestScene
-#define ActiveScene CPUSkinningTestScene
+//#define ActiveScene CPUSkinningTestScene
+#define ActiveScene CameraCaptureTestScene
 
 
 
@@ -136,7 +138,7 @@ int main(int argc, char* argv[]) {
 		pScene2 = nullptr;*/
 
 
-		exportLibrary();
+		//exportLibrary();
 	}
 	catch (const CrossForgeException & e) {
 		SLogger::logException(e);

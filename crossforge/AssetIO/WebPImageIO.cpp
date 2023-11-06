@@ -28,9 +28,7 @@ namespace CForge {
 		if (!File::exists(Filepath)) throw CForgeExcept("File" + Filepath + " does not exist!");
 
 		uint8_t* pBuffer = nullptr;
-		int32_t Width = 0;
-		int32_t Height = 0;
-
+		
 		File F;
 		F.begin(Filepath, "rb");	
 		int64_t Filesize = File::size(Filepath);
@@ -39,10 +37,18 @@ namespace CForge {
 		F.read(pBuffer, Filesize);
 		F.end();
 
-		uint8_t* pDecoded = WebPDecodeRGBA(pBuffer, Filesize, &Width, &Height);
-		if (nullptr != pBuffer) delete[] pBuffer;
+		load(pBuffer, Filesize, pImgData);
 
-		if (nullptr == pDecoded) throw CForgeExcept("Decoding WebP image failed " + Filepath);
+		if (nullptr != pBuffer) delete pBuffer;
+
+	}//load
+
+	void WebPImageIO::load(const uint8_t* pBuffer, const uint32_t BufferLength, T2DImage<uint8_t>* pImgData) {
+		int32_t Width = 0;
+		int32_t Height = 0;
+
+		uint8_t* pDecoded = WebPDecodeRGBA(pBuffer, BufferLength, &Width, &Height);
+		if (nullptr == pDecoded) throw CForgeExcept("Decoding WebP image failed");
 
 		pImgData->init(Width, Height, T2DImage<uint8_t>::COLORSPACE_RGBA, pDecoded);
 		pImgData->flipRows();

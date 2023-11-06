@@ -59,6 +59,12 @@ namespace CForge {
 		pInstance->release();
 	}//load
 
+	void SAssetIO::load(const uint8_t* pBuffer, uint32_t BufferLength, T2DImage<uint8_t>* pImage) {
+		SAssetIO* pInstance = SAssetIO::instance();
+		pInstance->loadImage(pBuffer, BufferLength, pImage);
+		pInstance->release();
+	}//load
+
 	void SAssetIO::release(void) {
 		if (m_InstanceCount == 0) throw CForgeExcept("Not enough instances for a release call!");
 		m_InstanceCount--;
@@ -212,6 +218,26 @@ namespace CForge {
 				}
 				catch (...) {
 					SLogger::log("An unhandled exception occurred during image loading from " + Filepath);
+				}
+				break; // successfully loaded
+			}//if[accepted]
+		}
+	}//loadImage
+
+	void SAssetIO::loadImage(const uint8_t* pBuffer, uint32_t BufferLength, T2DImage<uint8_t>* pImage) {
+		if (nullptr == pImage) throw NullpointerExcept("pImage");
+
+		for (auto i : m_ImageIOPlugins) {
+			if (i.pInstance->accepted(".jpeg", I2DImageIO::OP_LOAD)) {
+				try {
+
+					i.pInstance->load(pBuffer, BufferLength, pImage);
+				}
+				catch (const CrossForgeException& e) {
+					SLogger::logException(e);
+				}
+				catch (...) {
+					SLogger::log("An unhandled exception occurred during image loading from Buffer");
 				}
 				break; // successfully loaded
 			}//if[accepted]
