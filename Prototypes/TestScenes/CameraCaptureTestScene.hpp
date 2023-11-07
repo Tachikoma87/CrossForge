@@ -18,7 +18,7 @@
 #ifndef __CFORGE_CAMERACAPTURETESTSCENE_HPP__
 #define __CFORGE_CAMERACAPTURETESTSCENE_HPP__
 
-
+#include "../Multimedia/SMediaDeviceManager.h"
 #include "../../Examples/ExampleSceneBase.hpp"
 #include "../Camera/CameraCapture.h"
 
@@ -82,7 +82,20 @@ namespace CForge {
 				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
 			}
 
-			initCamera();
+			m_pMediaDevMan = SMediaDeviceManager::instance();
+			
+			if (m_pMediaDevMan->cameraCount() > 0) {
+				m_pCamDevice = m_pMediaDevMan->camera(0);
+				std::vector<int32_t> Formats;
+				m_pCamDevice->findOptimalCaptureFormats(1280, 720, &Formats);
+				m_pCamDevice->changeCaptureFormat(Formats[0]);
+
+				printf("Found %d suitable capture formats:\n", Formats.size());
+				for (auto i : Formats) {
+					CameraDevice::CaptureFormat F = m_pCamDevice->captureFormat(i);
+					printf("\t%dx%d - %s\n", F.FrameSize.x(), F.FrameSize.y(), F.DataFormat.c_str());
+				}
+			}
 
 		}//initialize
 
@@ -90,6 +103,8 @@ namespace CForge {
 			m_RenderWin.stopListening(this);
 			if (nullptr != m_pShaderMan) m_pShaderMan->release();
 			m_pShaderMan = nullptr;
+			if(nullptr != m_pMediaDevMan) m_pMediaDevMan->release();
+			m_pMediaDevMan = nullptr;
 		}//clear
 
 
@@ -117,6 +132,18 @@ namespace CForge {
 
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
 
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_5, true)) {
+				T2DImage<uint8_t> Img;
+				m_pCamDevice->retrieveImage(&Img);
+
+				if (Img.width() > 0) {
+					static int32_t c = 0;
+					std::string Filename = "MyAssets/Webcam/" + std::to_string(c++) + ".jpg";
+					SAssetIO::store(Filename, &Img);
+				}
+				
+			}
+
 		}//mainLoop
 
 	protected:
@@ -134,6 +161,8 @@ namespace CForge {
 		SGNTransformation m_DuckTransformSGN;
 
 		CameraCapture m_CameraCapture;
+		SMediaDeviceManager* m_pMediaDevMan;
+		CameraDevice* m_pCamDevice;
 
 	};//CameraCaptureTestScene
 

@@ -19,6 +19,7 @@
 #define __CFORGE_SMEDIADEVICEMANAGER_H__
 
 #include <crossforge/Core/CForgeObject.h>
+#include "CameraDevice.h"
 
 namespace CForge {
 	class SMediaDeviceManager {
@@ -26,22 +27,38 @@ namespace CForge {
 		static SMediaDeviceManager* instance();
 		void release();
 
-
+		int32_t cameraCount()const;
+		CameraDevice* camera(int32_t ID);
 
 	protected:
-		struct CameraDevice {
+		
+		struct Camera {
+			int32_t ID;
 			std::string Name;
+			void* pDeviceHandle;
+			CameraDevice* pCamera;
 
-		};//CameraDevice
+			Camera() {
+				ID = -1;
+				Name = "";
+				pDeviceHandle = nullptr;
+			}//Constructor
+
+		};//Camera
 
 		SMediaDeviceManager();
 		~SMediaDeviceManager();
 
 		void clear();
 		void init();
+
+		void enumerateMediaDevices();
+		void enumerateCameraDevices();
 	private:
 		static SMediaDeviceManager* m_pInstance;
 		static uint32_t m_InstanceCount;
+
+		std::vector<Camera*> m_Cameras;
 
 	};//SMediaDeviceManager
 

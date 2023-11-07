@@ -124,7 +124,9 @@ namespace CForge {
 		static void defaultMaterial(class RenderMaterial* pMat, DefaultMaterial M);
 
 		static std::string convertToString(const std::u32string String);
+		static std::string convertToString(const std::wstring String);
 		static std::u32string convertTou32String(const std::string String);
+		static std::wstring convertToWString(const std::string String);
 
 		static Font* defaultFont(DefaultFontType FontType, uint32_t FontSize, bool Bold = false, bool Italic = false, std::u32string CharSet = U"");
 
