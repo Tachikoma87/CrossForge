@@ -110,6 +110,9 @@ add_executable(CForgeSandbox
 	Prototypes/Animation/SkeletalSkinning.cpp
 	Prototypes/Actor/AdaptiveSkeletalActor.cpp
 
+	Prototypes/Multimedia/SMediaDeviceManager.cpp
+	Prototypes/Multimedia/CameraDevice.cpp
+
 	# GUI
 #	Prototypes/GUI/Font.cpp
 #	Prototypes/GUI/GUI.cpp
