@@ -98,14 +98,15 @@ namespace CForge {
 		enumerateCaptureFormats();
 
 		// debug
-		/*printf("Found %d formats for camera device\n", m_CaptureFormats.size());
+		printf("Found %d formats for camera device\n", m_CaptureFormats.size());
 		for (auto i : m_CaptureFormats) {
-			std::string Message = "\t" + std::to_string(i.FrameSize.x()) + "x" + std::to_string(i.FrameSize.x()) + " - ";
+			std::string Message = "\t" + std::to_string(i.FrameSize.x()) + "x" + std::to_string(i.FrameSize.y()) + " - ";
 			for (auto k : i.FPS) Message += std::to_string(k) + "/";
 			Message += " FPS (" + i.DataFormat + ")";
 
 			printf("%s\n", Message.c_str());	
-		}*/
+		}
+		printf("\n\n");
 
 	/*
 		configureDecoder(pReader, 0);
@@ -157,21 +158,26 @@ namespace CForge {
 
 					//sort into list
 					bool Inserted = false;
-					for (auto i = FormatsList.begin(); i != FormatsList.end(); ++i) {
+					for (auto i = FormatsList.begin(); i != FormatsList.end(); i++) {
 						// first criterion is frame width and height
 						if (i->FrameSize.x() < Format.FrameSize.x()) continue;
 						if (i->FrameSize.y() < Format.FrameSize.y()) continue;
 						if (i->FrameSize.x() == Format.FrameSize.x() && i->FrameSize.y() == Format.FrameSize.y()) {
 							// same frame size
-							// also same format?
-							if (i->DataFormat.compare(Format.DataFormat) == 0) {
-								// insert additional fps and call it a day
-								i->FPS.push_back(FPS);
-								Inserted = true;
-								break;
+							// does same format already exist?
+							for (auto &k : FormatsList) {
+								if (k.FrameSize.x() != Format.FrameSize.x() || k.FrameSize.y() != Format.FrameSize.y()) continue;
+								if (k.DataFormat.compare(Format.DataFormat) == 0) {
+									k.FPS.push_back(FPS);
+									Inserted = true;
+									break;
+								}
 							}
+							if (!Inserted) FormatsList.insert(i, Format);
+							Inserted = true;
+							break;
 						}
-						FormatsList.insert(i, Format);
+						if (!Inserted) FormatsList.insert(i, Format);
 						Inserted = true;
 						break;
 					}//for[formats list]
@@ -180,7 +186,6 @@ namespace CForge {
 					if (!Inserted) {
 						FormatsList.push_back(Format);
 					}
-
 
 					if (nullptr != pType) pType->Release();
 					pType = nullptr;
@@ -191,7 +196,7 @@ namespace CForge {
 		};
 
 		// copy sorted list to storage
-		for (auto i : FormatsList) {
+		for (auto &i : FormatsList) {
 			// sort FPS
 			std::list<uint32_t> FPSList;
 			for (auto k : i.FPS) FPSList.push_back(k);
