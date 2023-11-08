@@ -18,6 +18,7 @@
 #include <Examples/ExampleMultiViewport.hpp>
 #include <Examples/ExampleSceneGraph.hpp>
 #include <Examples/ExampleSkeletalAnimation.hpp>
+#include <Examples/ExampleBirdSkeletalTestAnimation.hpp>
 #include <Examples/ExampleSkybox.hpp>
 #include <Examples/ExampleTransformation.hpp>
 #include <Examples/ExampleTransformationSG.hpp>
