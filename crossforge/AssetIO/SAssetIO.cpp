@@ -2,6 +2,7 @@
 #include "AssimpMeshIO.h"
 #include "StbImageIO.h"
 #include "WebPImageIO.h"
+#include "JPEGTurboIO.h"
 #include "../Core/SLogger.h"
 #include "../AssetIO/File.h"
 
@@ -98,6 +99,12 @@ namespace CForge {
 
 		// Image Plugins
 		ImageIOPlugin ImgPlug;
+
+		JPEGTurboIO* pJpegImageIO = new JPEGTurboIO();
+		pJpegImageIO->init();
+		ImgPlug.pInstance = pJpegImageIO;
+		ImgPlug.Name = pJpegImageIO->pluginName();
+		m_ImageIOPlugins.push_back(ImgPlug);
 
 		StbImageIO* pStbImageIO = new StbImageIO();
 		pStbImageIO->init();

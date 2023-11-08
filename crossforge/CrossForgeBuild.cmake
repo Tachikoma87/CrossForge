@@ -109,6 +109,8 @@ else()
 	FIND_PACKAGE(freetype REQUIRED)		# Library to load and process vector based fonts
 	FIND_PACKAGE(libigl CONFIG REQUIRED)# mesh processing library
 	FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp
+	find_package(JPEG REQUIRED)			# jpeg loader (required by libjpeg turbo)
+	find_package(libjpeg-turbo)			# jpeg-turbo library to compress/decompress jpeg
 
 endif()
 
@@ -134,6 +136,7 @@ add_library(crossforge SHARED
 	crossforge/AssetIO/StbImageIO.cpp 
 	crossforge/AssetIO/WebPImageIO.cpp
 	crossforge/AssetIO/SAssetIO.cpp
+	crossforge/AssetIO/JPEGTurboIO.cpp
 
 	# Graphics related
 	crossforge/Graphics/GBuffer.cpp 
@@ -247,6 +250,8 @@ target_link_libraries(crossforge
 	PRIVATE WebP::webpdecoder
 	ws2_32					#winsock2
 	${FREETYPE_LIBRARIES}	# for Text rendering
+	libjpeg-turbo::turbojpeg
+	PRIVATE ${JPEG_LIBRARIES}
 	#	pmp # not used yet
 	)
 elseif(__arm__)
@@ -278,5 +283,7 @@ elseif(UNIX)
 	${FREETYPE_LIBRARIES}	# for Text rendering
 	freetype
 	PRIVATE stdc++fs
+	libjpeg-turbo::turbojpeg
+	PRIVATE ${JPEG_LIBRARIES}
 	)
 endif()

@@ -312,6 +312,8 @@ namespace CForge {
 
 			pMediaBuffer->Lock(&pBuffer, &MaxSize, &BufferSize);
 			AssetIO::load(pBuffer, uint32_t(BufferSize), pImg);
+			/*JPEGTurboIO TurboIO;
+			TurboIO.load(pBuffer, uint32_t(BufferSize), pImg);*/
 			pMediaBuffer->Unlock();
 
 			if (nullptr != pMediaBuffer) pMediaBuffer->Release();
@@ -319,9 +321,6 @@ namespace CForge {
 			pSample = nullptr;
 			pMediaBuffer = nullptr;
 		}
-		
-
-
 	}//retrieveImage
 
 }//name space

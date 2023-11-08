@@ -140,10 +140,10 @@ namespace CForge {
 					static int32_t c = 0;
 					std::string Filename = "MyAssets/Webcam/" + std::to_string(c++) + ".jpg";
 					SAssetIO::store(Filename, &Img);
-				}
-				
+					/*JPEGTurboIO JpegIO;
+					JpegIO.store(Filename, &Img);*/
+				}	
 			}
-
 		}//mainLoop
 
 	protected:
