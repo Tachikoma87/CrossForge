@@ -29,6 +29,7 @@ namespace CForge {
 		struct Animation {
 			int32_t AnimationID;
 			float Speed;
+			float oldSpeed;
 			float Duration;
 			float t; //current
 			float TicksPerSecond;

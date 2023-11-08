@@ -187,6 +187,7 @@ namespace CForge {
 		Animation* pRval = new Animation();
 		pRval->AnimationID = AnimationID;
 		pRval->Speed = Speed;
+		pRval->oldSpeed = 1.0f;
 		pRval->t = Offset;
 		pRval->Finished = false;
 		pRval->Duration = m_SkeletalAnimations[AnimationID]->Duration;
@@ -215,13 +216,14 @@ namespace CForge {
 	//Addition for pausing and resuming animations
 	void SkeletalAnimationController::pauseAnimation(Animation* pAnim) {
 		if (pAnim != nullptr) {
+			if(pAnim->Speed != 0.0f) pAnim->oldSpeed = pAnim->Speed;
 			pAnim->Speed = 0.0f; // Set the animation speed to 0 to pause it
 		}
 	}
 
 	void SkeletalAnimationController::resumeAnimation(Animation* pAnim) {
 		if (pAnim != nullptr) {
-			pAnim->Speed = 1.0f; // Set the animation speed back to 1 to resume it
+			pAnim->Speed = pAnim->oldSpeed; // Set the animation speed back to 1 to resume it
 		}
 	}
 

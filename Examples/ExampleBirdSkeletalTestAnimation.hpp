@@ -51,23 +51,14 @@ namespace CForge {
 
 			// load skydome
 			T3DMesh<float> M;
-			//SAssetIO::load("MyAssets/Eagle_Animated/EagleFallFinal/EagleFall.gltf", &M);
-			//m_EagleFall.init(&M, &m_BipedController);
-			//M.clear();
 			// initialize skeletal actor (Eric) and its animation controller
 			//SAssetIO::load("Assets/ExampleScenes/CesiumMan/CesiumMan.gltf", &M); 
-			// Working Eagle Flap
-			//SAssetIO::load("MyAssets/Eagle_Animated/EagleFlapFinal/EagleFlap.gltf", &M);
-			//AfterImportExport - Working...
-			SAssetIO::load("MyAssets/Eagle_Animated/EagleFlapSym/EagleFlap.gltf", &M);
+			
 			//WorkingAnimationButCannotEditOrImportInBlenderSinceItWillNotWorkAfterwards
-			//SAssetIO::load("MyAssets/Crow_Animated/WorkingInFrameworkAsItIs/CrowFlap.gltf", &M);
-
-			//NotWorkingAfterImportExport...
-			//SAssetIO::load("MyAssets/Crow_Animated/OriginalCrowAfterImportExport/CrowOriginal.gltf", &M);
-
-			//CrowFunctionalButDead
-			//SAssetIO::load("MyAssets/Small_Bird/SmallFlap.gltf", &M);
+			//SAssetIO::load("MyAssets/Crow_Animated/NotWorkingInFramework/CrowSimple/Crow.gltf", &M);
+	
+			//WORKING EAGLE
+			SAssetIO::load("MyAssets/Eagle_Animated/EagleFlapSym/EagleFlap.gltf", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
 			m_BipedController.init(&M);
@@ -129,10 +120,10 @@ namespace CForge {
 				if (pAnim->t >= pAnim->Duration) pAnim->t -= pAnim->Duration;
 			}
 			if (nullptr != m_CesiumMan.activeAnimation()) {
-				Quaternionf Q;
+				//Quaternionf Q;
 
-				float Deg = m_CesiumMan.activeAnimation()->Speed / 50.0f;
-				Q = AngleAxisf(CForgeMath::degToRad(-Deg), Vector3f::UnitY());
+				//float Deg = m_CesiumMan.activeAnimation()->Speed / 50.0f;
+				//Q = AngleAxisf(CForgeMath::degToRad(-Deg), Vector3f::UnitY());
 				//m_CesiumManTransformSGN.rotation(Q * m_CesiumManTransformSGN.rotation());
 			}
 
@@ -165,6 +156,16 @@ namespace CForge {
 				//}
 				
 			}
+			if (m_RenderWin.keyboard()->keyState(Keyboard::KEY_5) == m_RenderWin.keyboard()->KEY_PRESSED)
+			{
+				//std::cout << "main function\n";
+				
+				printf("main");
+				if (m_RenderWin.keyboard()->keyState(Keyboard::KEY_5) == m_RenderWin.keyboard()->KEY_RELEASED)
+				{
+					printf("hub");
+				}
+			}
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
 				bool Enabled = true;
 				m_CesiumManSGN.enabled(nullptr, &Enabled);
@@ -177,6 +178,14 @@ namespace CForge {
 					//m_EagleFallSGN.enable(true, false);
 				}
 			}
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F1, true)) {
+				m_CesiumMan.pauseActiveAnimation();
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
+				m_CesiumMan.resumeActiveAnimation();
+			}
+
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_R, true)) {
 				m_RepeatAnimation = !m_RepeatAnimation;
 			}
