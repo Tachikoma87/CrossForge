@@ -9,6 +9,7 @@
 #include <mfreadwrite.h>
 #include <Mferror.h>
 
+#include "FFMPEG.h"
 
 
 namespace CForge {
@@ -107,10 +108,6 @@ namespace CForge {
 			printf("%s\n", Message.c_str());	
 		}
 		printf("\n\n");
-
-	/*
-		configureDecoder(pReader, 0);
-		processSample(pReader);*/
 
 	}//initialize
 
@@ -223,7 +220,9 @@ namespace CForge {
 		// define the output type
 		hr = MFCreateMediaType(&pType);
 		pType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
-		pType->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_MJPG);
+		if (F.DataFormat.compare("MJPG") == 0) pType->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_MJPG);
+		else if (F.DataFormat.compare("NV12") == 0) pType->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_NV12);
+		else throw CForgeExcept("Invalid data format defined for video stream!");
 
 		MFSetAttributeRatio(pType, MF_MT_FRAME_SIZE, F.FrameSize.x(), F.FrameSize.y());
 		// if FPS < 0 use default value (max fps I suppose)
@@ -311,16 +310,29 @@ namespace CForge {
 			pSample->GetBufferByIndex(0, &pMediaBuffer);
 
 			pMediaBuffer->Lock(&pBuffer, &MaxSize, &BufferSize);
-			AssetIO::load(pBuffer, uint32_t(BufferSize), pImg);
-			/*JPEGTurboIO TurboIO;
-			TurboIO.load(pBuffer, uint32_t(BufferSize), pImg);*/
+			const CaptureFormat CF = m_CaptureFormats[m_ActiveCaptureFormat];
+			if(CF.DataFormat.compare("MJPG") == 0){
+				printf("received mjpeg image\n");
+				AssetIO::load(pBuffer, uint32_t(BufferSize), pImg);
+			}
+			else if (CF.DataFormat.compare("NV12") == 0) {
+				printf("received nv12 image\n");
+				FFMPEG FP;
+				FP.convertNV12(pBuffer, BufferSize, CF.FrameSize.x(), CF.FrameSize.y(), pImg);
+
+			}
+
 			pMediaBuffer->Unlock();
 
 			if (nullptr != pMediaBuffer) pMediaBuffer->Release();
 			if (nullptr != pSample) pSample->Release();
 			pSample = nullptr;
 			pMediaBuffer = nullptr;
+
+			
 		}
+
+		changeCaptureFormat(m_ActiveCaptureFormat);
 	}//retrieveImage
 
 }//name space

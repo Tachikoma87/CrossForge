@@ -21,6 +21,7 @@
 #include "../Multimedia/SMediaDeviceManager.h"
 #include "../../Examples/ExampleSceneBase.hpp"
 #include "../Camera/CameraCapture.h"
+#include "../Multimedia/FFMPEG.h"
 
 using namespace Eigen;
 using namespace std;
@@ -88,7 +89,7 @@ namespace CForge {
 				m_pCamDevice = m_pMediaDevMan->camera(0);
 				std::vector<int32_t> Formats;
 				m_pCamDevice->findOptimalCaptureFormats(1280, 720, &Formats);
-				m_pCamDevice->changeCaptureFormat(Formats[0]);
+				m_pCamDevice->changeCaptureFormat(Formats[1]);
 
 				printf("Found %d suitable capture formats:\n", Formats.size());
 				for (auto i : Formats) {
@@ -96,6 +97,9 @@ namespace CForge {
 					printf("\t%dx%d - %s\n", F.FrameSize.x(), F.FrameSize.y(), F.DataFormat.c_str());
 				}
 			}
+
+			FFMPEG F;
+			F.firstTest();
 
 		}//initialize
 

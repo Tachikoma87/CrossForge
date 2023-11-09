@@ -142,6 +142,8 @@ add_executable(CForgeSandbox
 
 	)
 
+	message(STATUS "ffmpeg libs: " ${FFMPEG_LIBRARIES})
+	
 if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox
 		tinyxml2
@@ -152,7 +154,11 @@ if(EMSCRIPTEN)
 elseif(WIN32)
 	target_include_directories(CForgeSandbox 
 	PRIVATE ${JPEG_INCLUDE_DIR}
-	PRIVATE ${FFMPEG_LIBRARY_DIRS}
+	PRIVATE ${FFMPEG_INCLUDE_DIRS}
+	)
+
+	target_link_directories(CForgeSandbox
+		PRIVATE ${FFMPEG_LIBRARY_DIRS}
 	)
 
 	target_link_libraries(CForgeSandbox 
@@ -165,7 +171,7 @@ elseif(WIN32)
 #	PRIVATE OpenXR::headers
 #	PRIVATE OpenXR::openxr_loader
     libjpeg-turbo::turbojpeg
-	${FFMPEG_LIBRARIES}
+	PRIVATE ${FFMPEG_LIBRARIES}
 	PRIVATE ${JPEG_LIBRARIES}
 	${FREETYPE_LIBRARIES}
 	${OpenCV_LIBS}
