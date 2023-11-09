@@ -123,8 +123,8 @@ namespace CForge {
 				}
 				m_Cameras.push_back(pDev);	
 
-				/*if (nullptr != pSource) pSource->Release();
-				pSource = nullptr;*/
+				if (nullptr != pSource) pSource->Release();
+				pSource = nullptr;
 			}
 		}
 		else {

@@ -62,6 +62,7 @@ FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and p
 FIND_PACKAGE(imgui CONFIG REQUIRED) # dear-imgui
 find_package(JPEG REQUIRED)
 find_package(libjpeg-turbo)
+find_package(FFMPEG REQUIRED)
 
 #FIND_PACKAGE(OpenXR CONFIG REQUIRED)
 endif()
@@ -115,6 +116,7 @@ add_executable(CForgeSandbox
 
 	Prototypes/Multimedia/SMediaDeviceManager.cpp
 	Prototypes/Multimedia/CameraDevice.cpp
+	Prototypes/Multimedia/FFMPEG.cpp
 
 	
 
@@ -148,7 +150,10 @@ if(EMSCRIPTEN)
 	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} ${Optimization_Flag} -sEXIT_RUNTIME=1 -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -fwasm-exceptions -sUSE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader --preload-file MyAssets")
 
 elseif(WIN32)
-	target_include_directories(CForgeSandbox PRIVATE ${JPEG_INCLUDE_DIR})
+	target_include_directories(CForgeSandbox 
+	PRIVATE ${JPEG_INCLUDE_DIR}
+	PRIVATE ${FFMPEG_LIBRARY_DIRS}
+	)
 
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
@@ -160,6 +165,7 @@ elseif(WIN32)
 #	PRIVATE OpenXR::headers
 #	PRIVATE OpenXR::openxr_loader
     libjpeg-turbo::turbojpeg
+	${FFMPEG_LIBRARIES}
 	PRIVATE ${JPEG_LIBRARIES}
 	${FREETYPE_LIBRARIES}
 	${OpenCV_LIBS}

@@ -39,7 +39,7 @@ namespace CForge {
 
 		load(pBuffer, Filesize, pImgData);
 
-		if (nullptr != pBuffer) delete pBuffer;
+		if (nullptr != pBuffer) delete [] pBuffer;
 
 	}//load
 
@@ -51,7 +51,6 @@ namespace CForge {
 		if (nullptr == pDecoded) throw CForgeExcept("Decoding WebP image failed");
 
 		pImgData->init(Width, Height, T2DImage<uint8_t>::COLORSPACE_RGBA, pDecoded);
-		pImgData->flipRows();
 
 		WebPFree(pDecoded);
 		pDecoded = nullptr;
@@ -60,18 +59,13 @@ namespace CForge {
 
 	void WebPImageIO::store(const std::string Filepath, const T2DImage<uint8_t>* pImgData) {
 		uint8_t* pOutput = nullptr;
-
-		T2DImage<uint8_t> Img;
-		Img.init(pImgData->width(), pImgData->height(), pImgData->colorSpace(), pImgData->data());
-		Img.flipRows();
-
-
 		uint32_t Size = 0;
-		if (Img.colorSpace() == T2DImage<uint8_t>::COLORSPACE_RGB) {
-			Size = WebPEncodeRGB(Img.data(), Img.width(), Img.height(), Img.width() * 3, 90, &pOutput);
+
+		if (pImgData->colorSpace() == T2DImage<uint8_t>::COLORSPACE_RGB) {
+			Size = WebPEncodeRGB(pImgData->data(), pImgData->width(), pImgData->height(), pImgData->width() * 3, 90, &pOutput);
 		}
-		else if (Img.colorSpace() == T2DImage<uint8_t>::COLORSPACE_RGBA) {
-			Size = WebPEncodeRGBA(Img.data(), Img.width(), Img.height(), Img.width() * 4, 90, &pOutput);
+		else if (pImgData->colorSpace() == T2DImage<uint8_t>::COLORSPACE_RGBA) {
+			Size = WebPEncodeRGBA(pImgData->data(), pImgData->width(), pImgData->height(), pImgData->width() * 4, 90, &pOutput);
 		}
 		else {
 			throw CForgeExcept("Image has invalid color space to be stored as webp!");

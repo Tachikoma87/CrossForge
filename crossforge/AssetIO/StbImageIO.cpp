@@ -17,8 +17,7 @@ namespace CForge {
 	}//Destructor
 
 	void StbImageIO::init(void) {
-		stbi_set_flip_vertically_on_load(true);
-		stbi_flip_vertically_on_write(true);
+		
 	}//initialize
 
 	void StbImageIO::clear(void) {

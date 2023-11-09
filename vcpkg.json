@@ -12,6 +12,7 @@
     "tinyxml2",
     "tinygltf",
     "libjpeg-turbo",
+    "ffmpeg",
     {
       "name": "imgui",
       "default-features": false,

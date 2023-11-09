@@ -40,8 +40,6 @@ namespace CForge {
 		uint32_t JpegSize = BufferLength; //!< _jpegSize from above
 		uint8_t* pCompressedImage = const_cast<uint8_t*>(pBuffer); //!< _compressedImage from above
 
-
-
 		int JpegSubsamp, Width, Height;
 		tjhandle JpegDecompressor = tjInitDecompress();
 		if (0 != tjDecompressHeader2(JpegDecompressor, pCompressedImage, JpegSize, &Width, &Height, &JpegSubsamp)) {
@@ -56,7 +54,6 @@ namespace CForge {
 		tjDestroy(JpegDecompressor);
 
 		pImgData->init(Width, Height, T2DImage<uint8_t>::COLORSPACE_RGB, pDstBuffer);
-		pImgData->flipRows();
 
 		if (nullptr != pDstBuffer) delete[] pDstBuffer;
 		pDstBuffer = nullptr;
@@ -69,7 +66,6 @@ namespace CForge {
 		unsigned char* pCompressedImage = nullptr; //!< Memory is allocated by tjCompress2 if _jpegSize == 0
 
 		tjhandle JpegCompressor = tjInitCompress();
-
 		int32_t PixelFormat = pixelFormat(pImgData->colorSpace());
 
 		tjCompress2(JpegCompressor, pImgData->data(), pImgData->width(), 0, pImgData->height(), PixelFormat,
