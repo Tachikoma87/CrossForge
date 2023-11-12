@@ -124,7 +124,7 @@ namespace CForge {
 				while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
 				if (nullptr != mScene) delete mScene;
 				mScene = nullptr;
-				initWindowAndRenderDevice();
+				init();
 			}
 
 			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) {
@@ -134,7 +134,7 @@ namespace CForge {
 				while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
 				if (nullptr != mScene) delete mScene;
 				mScene = nullptr;
-				initWindowAndRenderDevice();
+				init();
 			}
 
 			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) {
@@ -144,7 +144,7 @@ namespace CForge {
 				while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
 				if (nullptr != mScene) delete mScene;
 				mScene = nullptr;
-				initWindowAndRenderDevice();
+				init();
 			}
 
 			m_RenderWin.swapBuffers();
