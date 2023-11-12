@@ -245,6 +245,10 @@ namespace CForge {
 				selectedBuildingVariant = (selectedBuildingVariant + 1) % 3; // Annahme: Es gibt 3 Gebäudevaiants
 			}
 			
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_C, true)) {
+				//placeCheckpointAtActiveTile();
+			}
+			
 		}
 
 		void clear() {

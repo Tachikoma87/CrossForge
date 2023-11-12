@@ -59,21 +59,29 @@ namespace CForge {
 			T3DMesh<float> M;
 			
 			// load Bird
-			//SAssetIO::load("MyAssets/Bird/bird.fbx", &M);
+			//SAssetIO::load("MyAssets/Bird/bird.fbx", &M); 
 			//setMeshShader(&M, 0.1f, 0.04f);
 			//M.computePerVertexNormals();
 			//m_Bird.init(&M);
-			SAssetIO::load("MyAssets/Eagle_Animated/EagleFlapFinal/EagleFlap.gltf", &M);
+			SAssetIO::load("MyAssets/Eagle_Animated/EagleFlapSym/EagleFlap.gltf", &M);
+			//SAssetIO::load("MyAssets/Eagle_Animated/EagleFlap4/EagleFlap.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
 			m_BipedController.init(&M);
 			m_Bird.init(&M, &m_BipedController);
+
 
 			// calculate AABB for the bird
 			M.computeAxisAlignedBoundingBox();
 			T3DMesh<float>::AABB birdAABB = M.aabb();
 			float birdBBSphereR = birdAABB.Min.norm();
 			birdBBSphereR = birdBBSphereR > birdAABB.Min.norm() ? birdBBSphereR : birdAABB.Max.norm();
+			M.clear();
+
+			SAssetIO::load("MyAssets/Eagle_Animated/EagleFallSym/EagleFall.gltf", &M);
+			setMeshShader(&M, 0.7f, 0.04f);
+			M.computePerVertexNormals();
+			m_BipedController.addAnimationData(M.getSkeletalAnimation(0)),
 			M.clear();
 
 			Quaternionf Rot;
@@ -94,7 +102,7 @@ namespace CForge {
 
 			// raven
 			m_BirdTransformSGN.init(&m_RootSGN, m_startPosition);
-			m_BirdTransformSGN.scale(Vector3f(0.1f, 0.1f, 0.1f));
+			m_BirdTransformSGN.scale(Vector3f(0.05f, 0.05f, 0.05f));
 			m_BirdPitchSGN.init(&m_BirdTransformSGN, Vector3f(0.0f, 0.0f, 0.0f));
 			m_BirdRollSGN.init(&m_BirdPitchSGN, Vector3f(0.0f, 0.0f, 0.0f));
 			//m_BirdYawSGN.init(&m_BirdRollSGN, Vector3f(0.0f, 0.0f, 0.0f));
@@ -698,7 +706,12 @@ namespace CForge {
 				if (m_BirdTransformSGN.translation().y() < 0.05) m_speed.y() += 0.1f;
 
 				// dive
-				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) m_speed.y() -= 0.01f;
+				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) {
+					SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(1, AnimationSpeed, 0.0f);
+					m_Bird.activeAnimation(pAnim);
+					m_speed.y() -= 0.01f;
+					
+				}
 				else if (m_speed.y() < -0.01f) m_speed.y() += 0.02f;
 
 				if (m_speed.y() < -0.01f) {

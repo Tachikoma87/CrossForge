@@ -50,6 +50,14 @@ namespace CForge {
 			m_BipedController.init(&M);
 			m_Bird.init(&M, &m_BipedController);
 			M.clear();
+
+			// calculate AABB for the bird
+			//M.computeAxisAlignedBoundingBox();
+			//T3DMesh<float>::AABB birdAABB = M.aabb();
+			//float birdBBSphereR = birdAABB.Min.norm();
+			//birdBBSphereR = birdBBSphereR > birdAABB.Min.norm() ? birdBBSphereR : birdAABB.Max.norm();
+			//M.clear();
+
 			m_RepeatAnimation = true;
 
 			SAssetIO::load("MyAssets/Ground/cloud.gltf", &M);
@@ -78,7 +86,7 @@ namespace CForge {
 			//To_Y1 = AngleAxis(CForgeMath::degToRad(180.0f), Vector3f::UnitY());
 			//m_BirdTransformSGN.rotation(Rot);
 			m_BirdSGN.init(&m_BirdRollSGN, &m_Bird, Eigen::DenseBase<Eigen::Vector3f>::Zero(), Rot);
-
+			//m_birdSphere = m_BirdSGN.actor()->boundingVolume().boundingSphere();
 
 			//different birds
 			//SAssetIO::load("MyAssets/Bird/bird.fbx", &BirdMesh1);
@@ -106,6 +114,12 @@ namespace CForge {
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals(); 
 			building_3.init(&M);
+			M.clear();
+
+			SAssetIO::load("MyAssets/Sphere.obj", &M);
+			setMeshShader(&M, 0.1f, 0.04f);
+			M.computePerVertexNormals();
+			m_Sphere.init(&M);
 			M.clear();
 
 			//Textures for Skybox City 1
@@ -173,7 +187,7 @@ namespace CForge {
 			// create help text
 			LineOfText* pKeybindings = new LineOfText();
 			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: W,A,S,D  | Pause/Unpause: P | F3: Toggle help text");
-			pKeybindings->color(0.0f, 0.0f, 0.0f, 1.0f);
+			pKeybindings->color(1.0f, 1.0f, 1.0f, 1.0f);
 			m_HelpTexts.push_back(pKeybindings);
 			m_DrawHelpTexts = true;
 
@@ -719,8 +733,42 @@ namespace CForge {
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
+#
 
+			//glEnable(GL_BLEND);
+			// debug bird
+
+			//Eigen::Vector3f posBird;
+			//Eigen::Quaternionf rotBird;
+			//Eigen::Vector3f scaleBird;
+			//m_BirdTransformSGN.buildTansformation(&posBird, &rotBird, &scaleBird);
+
+			//Eigen::Matrix4f scaleMatrix = CForgeMath::scaleMatrix(Eigen::Vector3f(m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius())));
+
+			/*
+			if (pKeyboard->keyPressed(Keyboard::KEY_9)) {
+				// bird
+				glDisable(GL_DEPTH_TEST);
+				glBlendFunc(GL_ONE, GL_ONE);
+
+				if (!m_col)
+					glColorMask(true, false, false, true);
+				else
+					glColorMask(false, true, false, true);
+
+				m_RenderDev.modelUBO()->modelMatrix(m_birdTestCollision * scaleMatrix);
+				m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
+
+				
+
+				
+			}*/
 			
+			/*if (m_colCP)
+				glColorMask(false, false, true, true);
+			else
+				glColorMask(false, true, false, true);
+			*/
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE, GL_ONE);
@@ -729,11 +777,11 @@ namespace CForge {
 				glColorMask(false, true, false, true);
 			else
 				glColorMask(true, false, false, true);
-
+				
 			
 			glColorMask(true, true, true, true);
 			glDisable(GL_BLEND);
-
+			//glEnable(GL_DEPTH_TEST);
 			// Skybox should be last thing to render
 			m_SkyboxSG.render(&m_RenderDev);
 
@@ -782,6 +830,10 @@ namespace CForge {
 		SkeletalAnimationController m_BipedController;
 		SGNTransformation m_RootSGN;
 
+		StaticActor m_Sphere;
+		CForge::Sphere m_birdSphere;
+		float m_max_scale_bird;
+		Eigen::Matrix4f m_birdTestCollision = Eigen::Matrix4f::Identity();
 
 		vector<string> m_City1;
 		vector<string> m_City2;
@@ -821,9 +873,10 @@ namespace CForge {
 		bool m_RepeatAnimation = true;
 
 		bool m_col = false;
+		bool m_colCP = false;
 		bool glLoaded = false;
 		
-		StaticActor m_Sphere;
+		
 		Eigen::Matrix4f m_matSphere = Eigen::Matrix4f::Identity();
 
 		
