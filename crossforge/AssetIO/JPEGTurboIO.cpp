@@ -60,7 +60,7 @@ namespace CForge {
 	}//load
 
 	void JPEGTurboIO::store(const std::string Filepath, const T2DImage<uint8_t>* pImgData) {
-		const int32_t Quality = 75;
+		const int32_t Quality = 85;
 		const int32_t ColorComponents = 3;
 		long unsigned int JpegSize = 0;
 		unsigned char* pCompressedImage = nullptr; //!< Memory is allocated by tjCompress2 if _jpegSize == 0

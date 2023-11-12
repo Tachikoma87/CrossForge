@@ -17,8 +17,8 @@
 \****************************************************************************/
 #ifndef __CFORGE_VIDEORECORDER_H__
 #define __CFORGE_VIDEORECORDER_H__
-#ifdef INCLUDE_OPENCV
 
+#include <crossforge/AssetIO/File.h>
 #include <crossforge/Core/CForgeObject.h>
 #include <crossforge/AssetIO/T2DImage.hpp>
 #include <list>
@@ -29,7 +29,10 @@ namespace CForge {
 		VideoRecorder(void);
 		~VideoRecorder(void);
 
-		void init(const std::string Filename, const float FPS = 30.0f);
+		void init();
+
+		void startRecording(const std::string Filename, uint32_t Width, uint32_t Height, const float FPS = 30.0f);
+		void stopRecording();
 		void clear(void);
 		void release(void);
 
@@ -57,11 +60,14 @@ namespace CForge {
 		uint32_t m_FrameWidth;
 		uint32_t m_FrameHeight; 
 
-		void* m_pVideoWriter;
 
+
+		File m_VideoFile;
+		void* m_pCodecCtx;
+		void* m_pPkt;
+		int32_t m_FrameCounter;
 	};//VideoRecorder
 		
 }//name-space
 
 #endif 
-#endif

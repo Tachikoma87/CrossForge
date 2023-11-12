@@ -141,8 +141,6 @@ add_executable(CForgeSandbox
 #	Prototypes/Graphics/UBOTextData.cpp
 
 	)
-
-	message(STATUS "ffmpeg libs: " ${FFMPEG_LIBRARIES})
 	
 if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox

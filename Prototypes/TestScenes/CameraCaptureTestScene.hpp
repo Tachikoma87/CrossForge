@@ -22,6 +22,7 @@
 #include "../../Examples/ExampleSceneBase.hpp"
 #include "../Camera/CameraCapture.h"
 #include "../Multimedia/FFMPEG.h"
+#include "../Camera/VideoRecorder.h"
 
 using namespace Eigen;
 using namespace std;
@@ -98,9 +99,8 @@ namespace CForge {
 				}
 			}
 
-			FFMPEG F;
-			F.firstTest();
-
+			m_CaptureActive = false;
+			m_RecordingActive = false;
 		}//initialize
 
 		void clear(void) override {
@@ -137,6 +137,36 @@ namespace CForge {
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
 
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_5, true)) {
+				m_CaptureActive = !m_CaptureActive;
+				m_CaptureStart = CForgeUtility::timestamp();	
+			}
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_6, true)) {
+
+				if (m_RecordingActive) {
+					m_VideoRecorder.stopRecording();
+					m_RecordingActive = false;
+				}
+				else {
+					try {
+						m_VideoRecorder.startRecording("MyAssets/VideoTest.mp4", 1280, 720, 25.0f);
+						m_RecordingActive = true;
+					}
+					catch (CrossForgeException& e) {
+						printf("Exception occurred on starting the video recorder: %s\n", e.msg().c_str());
+					}
+				}
+				
+			}
+
+			if (m_RecordingActive) {
+				T2DImage<uint8_t> Img;
+				m_pCamDevice->retrieveImage(&Img);
+
+				if(Img.width() > 0) m_VideoRecorder.addFrame(&Img, 0);
+			}
+
+			if (m_CaptureActive) {
 				T2DImage<uint8_t> Img;
 				m_pCamDevice->retrieveImage(&Img);
 
@@ -144,13 +174,14 @@ namespace CForge {
 					static int32_t c = 0;
 					std::string Filename = "MyAssets/Webcam/" + std::to_string(c++) + ".jpg";
 					SAssetIO::store(Filename, &Img);
-					/*JPEGTurboIO JpegIO;
-					JpegIO.store(Filename, &Img);*/
-				}	
+				}
 			}
 		}//mainLoop
 
 	protected:
+
+		bool m_CaptureActive;
+		uint64_t m_CaptureStart;
 
 		void initCamera() {
 			m_CameraCapture.init();
@@ -168,6 +199,8 @@ namespace CForge {
 		SMediaDeviceManager* m_pMediaDevMan;
 		CameraDevice* m_pCamDevice;
 
+		VideoRecorder m_VideoRecorder;
+		bool m_RecordingActive;
 	};//CameraCaptureTestScene
 
 }//name space

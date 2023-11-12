@@ -312,11 +312,11 @@ namespace CForge {
 			pMediaBuffer->Lock(&pBuffer, &MaxSize, &BufferSize);
 			const CaptureFormat CF = m_CaptureFormats[m_ActiveCaptureFormat];
 			if(CF.DataFormat.compare("MJPG") == 0){
-				printf("received mjpeg image\n");
+				//printf("received mjpeg image\n");
 				AssetIO::load(pBuffer, uint32_t(BufferSize), pImg);
 			}
 			else if (CF.DataFormat.compare("NV12") == 0) {
-				printf("received nv12 image\n");
+				//printf("received nv12 image\n");
 				FFMPEG FP;
 				FP.convertNV12(pBuffer, BufferSize, CF.FrameSize.x(), CF.FrameSize.y(), pImg);
 
