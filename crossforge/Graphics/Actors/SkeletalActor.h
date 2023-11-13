@@ -37,6 +37,7 @@ namespace CForge {
 
 		virtual void pauseActiveAnimation(void);
 		virtual void resumeActiveAnimation(void);
+		virtual void reverseActiveAnimation(void);
 
 	protected:
 		SkeletalAnimationController* m_pAnimationController;

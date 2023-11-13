@@ -137,4 +137,10 @@ namespace CForge {
 		}
 	}
 
+	void SkeletalActor::reverseActiveAnimation() {
+		if (m_pAnimationController != nullptr) {
+			m_pAnimationController->reverseAnimation(m_pActiveAnimation);
+		}
+	}
+
 }//name-space
