@@ -101,7 +101,7 @@ namespace CForge {
 
 			//ImGuiUtility::newFrame();
 			//ImGui::ShowDemoWindow(&m_DemoWindow);
-			ImGui::Begin("My first Tool", &m_ActiveTool, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse);
+			ImGui::Begin("My first Tool", &m_ActiveTool, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
 			ImGui::SetWindowPos(ImVec2(0, 0), ImGuiCond_Once);
 			ImGui::SetWindowSize(ImVec2(m_RenderWin.width(), m_RenderWin.height()));
 			ImVec2 image_size{ 300, 200 };
@@ -113,17 +113,17 @@ namespace CForge {
 			ImGui::SameLine((ImGui::GetContentRegionAvail().x / 3) - (image_size.x * 2 / 3));
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
 			if (ImGui::ImageButton((void*)ExampleTexture, image_size)) {
-				startExample();
 				ImGui::PopStyleVar();
-				ImGui::End();
+				startExample();
+				//ImGui::End();
 				return;
 			}
 			ImGui::SameLine((ImGui::GetContentRegionAvail().x * 2 / 3) - (image_size.x / 3));
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
 			if (ImGui::ImageButton((void*)BirdTexture, image_size)) {
-				startBirdVR();
 				ImGui::PopStyleVar();
-				ImGui::End();
+				startBirdVR();
+				//ImGui::End();
 				return;
 			}
 
@@ -142,9 +142,9 @@ namespace CForge {
 			ImGui::SameLine((ImGui::GetContentRegionAvail().x / 3) - (image_size.x * 2 / 3));
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 40);
 			if (ImGui::ImageButton((void*)FlappyTexture, image_size)) {
-				startFlappy();
 				ImGui::PopStyleVar();
-				ImGui::End();
+				startFlappy();
+				//ImGui::End();
 				return;
 			}
 
@@ -157,6 +157,9 @@ namespace CForge {
 			ImGui::PopStyleVar();
 
 			ImGui::End();
+			//ImGui::Render();
+			//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			ImGuiUtility::render();
 
 			return;
 		}
@@ -164,7 +167,7 @@ namespace CForge {
 		void startExample(void) {
 			ExampleMinimumGraphicsSetup* mScene = new ExampleMinimumGraphicsSetup();
 			m_RenderWin.closeWindow();
-			//ImGuiUtility::shutdownImGui();
+			ImGuiUtility::shutdownImGui();
 			mScene->init();
 			while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
 			if (nullptr != mScene) delete mScene;
@@ -176,7 +179,7 @@ namespace CForge {
 		void startBirdVR(void) {
 			ExampleBird* mScene = new ExampleBird();
 			m_RenderWin.closeWindow();
-			//ImGuiUtility::shutdownImGui();
+			ImGuiUtility::shutdownImGui();
 			mScene->init();
 			while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
 			if (nullptr != mScene) delete mScene;
@@ -188,7 +191,7 @@ namespace CForge {
 		void startFlappy(void) {
 			ExampleFlappyBird* mScene = new ExampleFlappyBird();
 			m_RenderWin.closeWindow();
-			//ImGuiUtility::shutdownImGui();
+			ImGuiUtility::shutdownImGui();
 			mScene->init();
 			while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
 			if (nullptr != mScene) delete mScene;
@@ -214,9 +217,6 @@ namespace CForge {
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 			
 			handleGUI();
-			//ImGui::Render();
-			//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-			ImGuiUtility::render();
 
 			Keyboard* pKeyboard = m_RenderWin.keyboard();
 			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) {
