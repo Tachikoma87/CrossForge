@@ -58,9 +58,9 @@ namespace CForge {
 				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
 			}
 			*/
-			AssetIO::load("MyAssets/Menu/bird_sample.png", &ExampleImage);
+			AssetIO::load("MyAssets/Menu/example.png", &ExampleImage);
 			AssetIO::load("MyAssets/Menu/bird_sample.png", &BirdImage);
-			AssetIO::load("MyAssets/Menu/bird_sample.png", &FlappyImage);
+			AssetIO::load("MyAssets/Menu/flappy_sample.png", &FlappyImage);
 
 			ExampleTexture.init(&ExampleImage);
 
