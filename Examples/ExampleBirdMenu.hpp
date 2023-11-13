@@ -62,18 +62,11 @@ namespace CForge {
 			AssetIO::load("MyAssets/Menu/bird_sample.png", &BirdImage);
 			AssetIO::load("MyAssets/Menu/bird_sample.png", &FlappyImage);
 
-			GLTexture2D MTexture;
-			MTexture.init(&ExampleImage);
-			ExampleTexture = MTexture.handle();
-			MTexture.clear();
+			ExampleTexture.init(&ExampleImage);
 
-			MTexture.init(&BirdImage);
-			BirdTexture = MTexture.handle();
-			MTexture.clear();
+			BirdTexture.init(&BirdImage);
 
-			MTexture.init(&FlappyImage);
-			FlappyTexture = MTexture.handle();
-			MTexture.clear();
+			FlappyTexture.init(&FlappyImage);
 
 			m_ActiveTool = true;
 			m_DemoWindow = true;
@@ -112,7 +105,7 @@ namespace CForge {
 			ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2.0f);
 			ImGui::SameLine((ImGui::GetContentRegionAvail().x / 3) - (image_size.x * 2 / 3));
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
-			if (ImGui::ImageButton((void*)ExampleTexture, image_size)) {
+			if (ImGui::ImageButton((void*)ExampleTexture.handle(), image_size, ImVec2(0, 1), ImVec2(1, 0))) {
 				ImGui::PopStyleVar();
 				startExample();
 				//ImGui::End();
@@ -120,7 +113,7 @@ namespace CForge {
 			}
 			ImGui::SameLine((ImGui::GetContentRegionAvail().x * 2 / 3) - (image_size.x / 3));
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
-			if (ImGui::ImageButton((void*)BirdTexture, image_size)) {
+			if (ImGui::ImageButton((void*)BirdTexture.handle(), image_size, ImVec2(0, 1), ImVec2(1, 0))) {
 				ImGui::PopStyleVar();
 				startBirdVR();
 				//ImGui::End();
@@ -141,7 +134,7 @@ namespace CForge {
 			ImGui::NewLine();
 			ImGui::SameLine((ImGui::GetContentRegionAvail().x / 3) - (image_size.x * 2 / 3));
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 40);
-			if (ImGui::ImageButton((void*)FlappyTexture, image_size)) {
+			if (ImGui::ImageButton((void*)FlappyTexture.handle(), image_size, ImVec2(0, 1), ImVec2(1, 0))) {
 				ImGui::PopStyleVar();
 				startFlappy();
 				//ImGui::End();
@@ -252,9 +245,9 @@ namespace CForge {
 		T2DImage<uint8_t> BirdImage;
 		T2DImage<uint8_t> FlappyImage;
 
-		GLuint ExampleTexture;
-		uint32_t BirdTexture;
-		uint32_t FlappyTexture;
+		GLTexture2D ExampleTexture;
+		GLTexture2D BirdTexture;
+		GLTexture2D FlappyTexture;
 
 		bool m_DemoWindow;
 		bool m_ActiveTool;
