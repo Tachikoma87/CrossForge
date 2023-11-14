@@ -37,19 +37,22 @@ namespace CForge {
 		return Rval;
 	}//keyPressed
 
-	bool Keyboard::keyPressedConst(Key K, bool Reset) {
+
+	bool Keyboard::keyReleased(Key K, bool Reset) {
 		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
 
-		// Prüfen, ob die Taste vorher nicht gedrückt war
+		// Überprüfe, ob die Taste vorher gedrückt war
 		if (m_KeyStates[K] == KEY_RELEASED) {
-			const bool Rval = true; // Die Taste ist jetzt gedrückt
+			const bool Rval = true; // Die Taste ist jetzt losgelassen
 			if (Reset) m_KeyStates[K] = KEY_PRESSED;
 			return Rval;
 		}
-
-		// Die Taste war bereits gedrückt
-		return false;
+		else {
+			// Die Taste war bereits losgelassen oder initial als losgelassen gespeichert
+			return false;
+		}
 	}
+
 
 	bool Keyboard::keyPressed(Key K1, Key K2, Key K3)const {
 		bool Rval = keyPressed(K1);

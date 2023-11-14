@@ -157,7 +157,7 @@ namespace CForge {
 		void init(struct GLFWwindow *pWin);
 		void clear(void);
 
-		bool keyPressedConst(Key K, bool Reset);
+		bool keyReleased(Key K, bool Reset);
 		bool keyPressed(Key K, bool Reset);
 		bool keyPressed(Key K)const;
 		bool keyPressed(Key K1, Key K2, Key K3 = KEY_UNKNOWN)const;
