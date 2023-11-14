@@ -47,11 +47,11 @@ using namespace Eigen;
 //#define ActiveScene ExampleCollisionTest
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
-//#define ActiveScene ExampleBirdSkeletalTestAnimation
+#define ActiveScene ExampleBirdSkeletalTestAnimation
 //#define ActiveScene ExampleTransformation
 //#define ActiveScene ExampleTransformationSG
 //#define ActiveScene ExampleSocket
-#define ActiveScene ExampleBird
+//#define ActiveScene ExampleBird
 //#define ActiveScene ExampleFlappyBird  
 //#define ActiveScene ExampleMapBuilderGrid
 //#define ActiveScene ExampleBirdMenu

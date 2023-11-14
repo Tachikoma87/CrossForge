@@ -627,9 +627,9 @@ namespace CForge {
 			// handle input for the skybox
 			Keyboard* pKeyboard = m_RenderWin.keyboard();
 
-			float AnimationSpeed = 1000 / 10.0f;
+			float AnimationSpeed = 1000.0f;
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_SPACE, true)) {
-				SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
+				SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed / 10.0f, 0.0f);
 				m_Bird.activeAnimation(pAnim);
 				m_speed.y() += 0.3;
 			}
@@ -707,7 +707,7 @@ namespace CForge {
 
 				// dive
 				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) {
-					SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(1, AnimationSpeed, 0.0f);
+					SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(1, AnimationSpeed / 60.0f, 0.0f);
 					m_Bird.activeAnimation(pAnim);
 					m_speed.y() -= 0.01f;
 					
