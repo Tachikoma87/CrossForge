@@ -69,6 +69,7 @@ namespace CForge {
 
 		void pauseAnimation(Animation* pAnim);
 		void resumeAnimation(Animation* pAnim);
+		void reverseAnimation(Animation* pAnim);
 
 		void destroyAnimation(Animation* pAnim);
 		void applyAnimation(Animation* pAnim, bool UpdateUBO = true);

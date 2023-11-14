@@ -227,6 +227,22 @@ namespace CForge {
 		}
 	}
 
+	void SkeletalAnimationController::reverseAnimation(Animation* pAnim) {
+		if (pAnim != nullptr) {
+			if (pAnim->Speed == 0.0f && pAnim->oldSpeed == 0.0f) {
+				pAnim->Speed = 0.0f;
+			}
+			else if (pAnim->Speed == 0.0f) {
+				pAnim->Speed = -pAnim->oldSpeed;
+			}
+			else {
+				pAnim->oldSpeed = pAnim->Speed;
+				pAnim->Speed = -pAnim->oldSpeed; // Set the animation speed back to - to reverse it
+			}
+			
+		}
+	}
+
 	void SkeletalAnimationController::destroyAnimation(Animation* pAnim) {
 
 		for (auto& i : m_ActiveAnimations) {
