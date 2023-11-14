@@ -19,6 +19,8 @@
 #define __CFORGE_EXAMPLEBIRDSKELETALTESTANIMATION_HPP__
 
 #include "../crossforge/Graphics/Actors/SkeletalActor.h"
+#include "../crossforge/Graphics/Actors/SkyboxActor.h"
+#include "../crossforge/MeshProcessing/PrimitiveShapeFactory.h"
 
 #include "ExampleSceneBase.hpp"
 
@@ -66,7 +68,7 @@ namespace CForge {
 			M.clear();
 
 			//SAssetIO::load("MyAssets/Eagle_Animated/EagleFallFinal/EagleFall.gltf", &M);
-			SAssetIO::load("MyAssets/Eagle_Animated/EagleFallSym/EagleFall.gltf", &M);
+			SAssetIO::load("MyAssets/Eagle_Animated/EagleFallSymHalf/EagleFall.gltf", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 			//m_BipedController.init(&M);
 			M.computePerVertexNormals();
@@ -112,61 +114,90 @@ namespace CForge {
 		void mainLoop(void)override {
 			m_RenderWin.update();
 			m_SG.update(60.0f / m_FPS);
-
+			bool isKey1Pressed = false;
+			bool isKey2Pressed = false;
+			bool isKey3Pressed = false;
+			bool isKey4Pressed = false;
+			bool isKey5Pressed = false;
+			bool isKey6Pressed = false;
+			bool isKey7Pressed = false;
 			// this will progress all active skeletal animations for this controller
 			m_BipedController.update(60.0f / m_FPS);
 			if (m_RepeatAnimation && nullptr != m_CesiumMan.activeAnimation()) {
 				auto* pAnim = m_CesiumMan.activeAnimation();
 				if (pAnim->t >= pAnim->Duration) pAnim->t -= pAnim->Duration;
 			}
-			if (nullptr != m_CesiumMan.activeAnimation()) {
+			/*if (nullptr != m_CesiumMan.activeAnimation()) {
 				//Quaternionf Q;
-
+				if (m_CesiumMan.activeAnimation()->AnimationID == 1 && m_CesiumMan.activeAnimation()->t > m_CesiumMan.activeAnimation()->Duration - 1.0f)
+				{
+					if (m_CesiumMan.activeAnimation()->Speed != 0.0f) {
+						//m_CesiumMan.pauseActiveAnimation();
+						//m_CesiumMan.reverseActiveAnimation();
+					}
+					m_CesiumMan.reverseActiveAnimation();
+				}
+				
 				//float Deg = m_CesiumMan.activeAnimation()->Speed / 50.0f;
 				//Q = AngleAxisf(CForgeMath::degToRad(-Deg), Vector3f::UnitY());
 				//m_CesiumManTransformSGN.rotation(Q * m_CesiumManTransformSGN.rotation());
 			}
+			*/
 
 			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
-			bool isKey3Pressed = false;
+			//bool isKey6Pressed = false;
 			// if user hits key 1, animation will be played
 			// if user also presses shift, animation speed is doubled
-			float AnimationSpeed = 1000 / 60.0f;
+			float AnimationSpeed = 1000 / 60;
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_SHIFT)) AnimationSpeed *= 2.0f;
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL)) AnimationSpeed *= 0.25f;
+
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_1, true)) {
+				isKey1Pressed = true;
 				SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
 				m_CesiumMan.activeAnimation(pAnim);
-				//m_EagleFall.activeAnimation(pAnim);
+				
 			}
-			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
-				isKey3Pressed = true;
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2)) {
+				isKey2Pressed = true;
 				SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(1, AnimationSpeed, 0.0f);
 				m_CesiumMan.activeAnimation(pAnim);
+				
 				//m_CesiumMan.pauseActiveAnimation();
 				//m_EagleFall.activeAnimation(pAnim);
 			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_5)) {
+				printf("Key5");
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_6, true)) {
+				printf("Key6True");
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_7, false)) {
+				printf("Key7False");
+			}
+			if (m_RenderWin.keyboard()->keyReleased(Keyboard::KEY_8, true)) {
+				
+				printf("Key8");
+				
+				//cout << "Key6COUT " << endl; 
+				
+			}
+			
+			
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F1, true)) {
+				m_CesiumMan.pauseActiveAnimation();
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
+				m_CesiumMan.resumeActiveAnimation();
+			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F3, true)) {
+				m_CesiumMan.reverseActiveAnimation();
+			}
 
-			if (isKey3Pressed && !m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
-				isKey3Pressed = false;
-				// Hier können Sie die Animation fortsetzen, wenn die Taste 3 losgelassen wurde
-				//SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(1, AnimationSpeed, 0.0f);
-				//if (pAnim && pAnim->t >= pAnim->Duration / 2) {
-				//	m_BipedController.resumeAnimation(pAnim);
-				//}
-				
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_R, true)) {
+				m_RepeatAnimation = !m_RepeatAnimation;
 			}
-			if (m_RenderWin.keyboard()->keyState(Keyboard::KEY_5) == m_RenderWin.keyboard()->KEY_PRESSED)
-			{
-				//std::cout << "main function\n";
-				
-				printf("main");
-				if (m_RenderWin.keyboard()->keyState(Keyboard::KEY_5) == m_RenderWin.keyboard()->KEY_RELEASED)
-				{
-					printf("hub");
-				}
-			}
-			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2, true)) {
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_E, true)) {
 				bool Enabled = true;
 				m_CesiumManSGN.enabled(nullptr, &Enabled);
 				if (Enabled) {
@@ -179,15 +210,26 @@ namespace CForge {
 				}
 			}
 
-			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F1, true)) {
-				m_CesiumMan.pauseActiveAnimation();
-			}
-			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F2, true)) {
-				m_CesiumMan.resumeActiveAnimation();
-			}
+			if (nullptr != m_CesiumMan.activeAnimation()) {
+				//Quaternionf Q;
+				if (m_CesiumMan.activeAnimation()->AnimationID == 1 && m_CesiumMan.activeAnimation()->t > m_CesiumMan.activeAnimation()->Duration - 15.0f)
+				{
+					if (m_CesiumMan.activeAnimation()->Speed != 0.0f) {
+						//m_CesiumMan.pauseActiveAnimation();
+						//m_CesiumMan.reverseActiveAnimation();
+					}
+					//m_CesiumMan.reverseActiveAnimation();
+					m_CesiumMan.pauseActiveAnimation();
 
-			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_R, true)) {
-				m_RepeatAnimation = !m_RepeatAnimation;
+				}
+				
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
+					m_CesiumMan.reverseActiveAnimation();
+				}
+
+				//float Deg = m_CesiumMan.activeAnimation()->Speed / 50.0f;
+				//Q = AngleAxisf(CForgeMath::degToRad(-Deg), Vector3f::UnitY());
+				//m_CesiumManTransformSGN.rotation(Q * m_CesiumManTransformSGN.rotation());
 			}
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
