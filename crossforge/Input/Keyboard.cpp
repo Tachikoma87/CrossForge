@@ -7,7 +7,7 @@ namespace CForge {
 
 	Keyboard::Keyboard(void): CForgeObject("Keyboard") {
 		m_pWin = nullptr;
-		CForgeUtility::memset(&m_KeyStates[0], KEY_RELEASED, KEY_COUNT);
+		CForgeUtility::memset(&m_KeyStates[0], KEYSTATE_UNKNOWN, KEY_COUNT);
 	}//Constructor
 
 	Keyboard::~Keyboard(void) {
@@ -22,18 +22,18 @@ namespace CForge {
 
 	void Keyboard::clear(void) {
 		m_pWin = nullptr;
-		CForgeUtility::memset(&m_KeyStates[0], KEY_RELEASED, KEY_COUNT);
+		CForgeUtility::memset(&m_KeyStates[0], KEYSTATE_UNKNOWN, KEY_COUNT);
 	}//clear
 
 	bool Keyboard::keyPressed(Key K)const {
 		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
-		return (m_KeyStates[K] != KEY_RELEASED);
+		return (m_KeyStates[K] == KEY_PRESSED);
 	}//keyPressed
 	
 	bool Keyboard::keyPressed(Key K, bool Reset) {
 		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
-		const bool Rval = (m_KeyStates[K] != KEY_RELEASED);
-		if (Reset) m_KeyStates[K] = KEY_RELEASED;
+		const bool Rval = (m_KeyStates[K] == KEY_PRESSED);
+		if (Reset) m_KeyStates[K] = KEYSTATE_UNKNOWN;
 		return Rval;
 	}//keyPressed
 
@@ -44,7 +44,7 @@ namespace CForge {
 		// Überprüfe, ob die Taste vorher gedrückt war
 		if (m_KeyStates[K] == KEY_RELEASED) {
 			const bool Rval = true; // Die Taste ist jetzt losgelassen
-			if (Reset) m_KeyStates[K] = KEY_PRESSED;
+			if (Reset) m_KeyStates[K] = KEYSTATE_UNKNOWN;
 			return Rval;
 		}
 		else {

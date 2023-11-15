@@ -26,6 +26,10 @@ namespace CForge {
 
 	}//release
 
+	void SShaderManager::reset(void) {
+		clear();
+	}
+
 	ShaderCode* SShaderManager::createShaderCode(std::string Code, std::string VersionTag, uint8_t ConfigOptions, std::string PrecisionTag) {
 		ShaderCode* pRval = nullptr;
 

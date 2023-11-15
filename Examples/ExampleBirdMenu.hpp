@@ -161,6 +161,7 @@ namespace CForge {
 			ExampleMinimumGraphicsSetup* mScene = new ExampleMinimumGraphicsSetup();
 			m_RenderWin.closeWindow();
 			ImGuiUtility::shutdownImGui();
+			SShaderManager::instance()->reset();
 			mScene->init();
 			while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
 			if (nullptr != mScene) delete mScene;
@@ -173,6 +174,7 @@ namespace CForge {
 			ExampleBird* mScene = new ExampleBird();
 			m_RenderWin.closeWindow();
 			ImGuiUtility::shutdownImGui();
+			SShaderManager::instance()->reset();
 			mScene->init();
 			while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
 			if (nullptr != mScene) delete mScene;
@@ -185,6 +187,7 @@ namespace CForge {
 			ExampleFlappyBird* mScene = new ExampleFlappyBird();
 			m_RenderWin.closeWindow();
 			ImGuiUtility::shutdownImGui();
+			SShaderManager::instance()->reset();
 			mScene->init();
 			while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
 			if (nullptr != mScene) delete mScene;

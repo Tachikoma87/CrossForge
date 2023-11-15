@@ -105,6 +105,8 @@ namespace CForge {
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
 
 			m_RepeatAnimation = false;
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_8, true));
 		}//initialize
 
 		void clear(void) override{

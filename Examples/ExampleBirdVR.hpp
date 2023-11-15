@@ -628,14 +628,14 @@ namespace CForge {
 			Keyboard* pKeyboard = m_RenderWin.keyboard();
 
 			float AnimationSpeed = 1000.0f;
-			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_SPACE, true)) {
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_UP, true) && !m_paused) {
 				SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed / 10.0f, 0.0f);
 				m_Bird.activeAnimation(pAnim);
 				m_speed.y() += 0.3;
 			}
 
 
-			float Step = (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) ? -0.05f : 0.05f;
+			float Step = (pKeyboard->keyPressed(Keyboard::KEY_RIGHT_SHIFT)) ? -0.05f : 0.05f;
 			if (pKeyboard->keyPressed(Keyboard::KEY_1, true)) m_Skybox.brightness(m_Skybox.brightness() + Step);
 			if (pKeyboard->keyPressed(Keyboard::KEY_2, true)) m_Skybox.saturation(m_Skybox.saturation() + Step);
 			if (pKeyboard->keyPressed(Keyboard::KEY_3, true)) m_Skybox.contrast(m_Skybox.contrast() + Step);
@@ -665,19 +665,25 @@ namespace CForge {
 				m_BirdTransformSGN.translationDelta(Vector3f(0.0f, 0.0f, 0.0f));
 				timeUpdate();
 			}
-			if (!m_paused)
-			{
+			if (!m_paused) {
 				timeUpdate();
+
 				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) {
-					if (m_rollSpeed < 3.0f) m_rollSpeed += 1.0f;
+					if (m_rollSpeed < 3.0f) {
+						m_rollSpeed += 1.0f;
+					}
+				}
+				else if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT)) {
+					if (m_rollSpeed > -3.0f) {
+						m_rollSpeed -= 1.0f;
+					}
 				}
 				else {
-					if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT)) {
-						if (m_rollSpeed > -3.0f) m_rollSpeed -= 1.0f;
+					if (m_rollSpeed < 0.0f) {
+						m_rollSpeed += 1.0f;
 					}
-					else {
-						if (m_rollSpeed < 0.0f) m_rollSpeed += 1.0f;
-						if (m_rollSpeed > 0.0f) m_rollSpeed -= 1.0f;
+					else if (m_rollSpeed > 0.0f) {
+						m_rollSpeed -= 1.0f;
 					}
 				}
 				Quaternionf To_Y;
@@ -695,8 +701,8 @@ namespace CForge {
 				Vector3f dir;
 
 				// gain and loose speed
-				if (pKeyboard->keyPressed(Keyboard::KEY_UP) && m_speed.z() <= 0.5f)m_speed.z() += 0.01f;
-				if (pKeyboard->keyPressed(Keyboard::KEY_DOWN) && m_speed.z() >= 0.3f)m_speed.z() -= 0.01f;
+				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT) && m_speed.z() <= 0.5f)m_speed.z() += 0.01f;
+				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL) && m_speed.z() >= 0.3f)m_speed.z() -= 0.01f;
 
 				// the bird sinks during normal flight and gains altitude when pressed space
 				//if (pKeyboard->keyPressed(Keyboard::KEY_SPACE, true)) m_speed.y() += 0.3;
@@ -706,7 +712,7 @@ namespace CForge {
 				if (m_BirdTransformSGN.translation().y() < 0.05) m_speed.y() += 0.1f;
 
 				// dive
-				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT_CONTROL)) {
+				if (pKeyboard->keyPressed(Keyboard::KEY_DOWN)) {
 					SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(1, AnimationSpeed / 60.0f, 0.0f);
 					m_Bird.activeAnimation(pAnim);
 					m_speed.y() -= 0.01f;
