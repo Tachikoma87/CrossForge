@@ -177,10 +177,18 @@ namespace CForge {
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_7, false)) {
 				printf("Key7False");
 			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_8)) {
+				isKey2Pressed = true;
+				SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(1, AnimationSpeed, 0.0f);
+				m_CesiumMan.activeAnimation(pAnim);
+
+				//m_CesiumMan.pauseActiveAnimation();
+				//m_EagleFall.activeAnimation(pAnim);
+			}
 			if (m_RenderWin.keyboard()->keyReleased(Keyboard::KEY_8, true)) {
 				
 				printf("Key8");
-				
+				m_CesiumMan.reverseActiveAnimation();
 				//cout << "Key6COUT " << endl; 
 				
 			}
@@ -227,6 +235,13 @@ namespace CForge {
 				
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
 					m_CesiumMan.reverseActiveAnimation();
+				}
+				if (m_RenderWin.keyboard()->keyReleased(Keyboard::KEY_8, true)) {
+
+					
+					m_CesiumMan.reverseActiveAnimation();
+					//cout << "Key6COUT " << endl; 
+
 				}
 
 				//float Deg = m_CesiumMan.activeAnimation()->Speed / 50.0f;
