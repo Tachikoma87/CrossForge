@@ -532,10 +532,10 @@ namespace CForge {
 			
 			
 			// Handle left and right movement
-			if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) {
+			if (pKeyboard->keyPressedConst(Keyboard::KEY_LEFT)) {
 				m_speed.x() += 0.01f; // Move left
 			}
-			else if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT)) {
+			else if (pKeyboard->keyPressedConst(Keyboard::KEY_RIGHT)) {
 				m_speed.x() -= 0.01f; // Move right
 			}
 			else {
