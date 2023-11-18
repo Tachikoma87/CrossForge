@@ -52,6 +52,13 @@ namespace CForge {
 			return false;
 		}
 	}
+	//for repeated key and initial press
+	bool Keyboard::keyPressedConst(Key K) {
+		if (K <= KEY_UNKNOWN || K >= KEY_COUNT) throw IndexOutOfBoundsExcept("K");
+		const bool Rval = (m_KeyStates[K] == KEY_REPEATED || m_KeyStates[K] == KEY_PRESSED);
+		
+		return Rval;
+	}//keyPressed
 
 
 	bool Keyboard::keyPressed(Key K1, Key K2, Key K3)const {

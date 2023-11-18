@@ -668,12 +668,12 @@ namespace CForge {
 			if (!m_paused) {
 				timeUpdate();
 
-				if (pKeyboard->keyPressed(Keyboard::KEY_LEFT)) {
+				if (pKeyboard->keyPressedConst(Keyboard::KEY_LEFT)) {
 					if (m_rollSpeed < 3.0f) {
 						m_rollSpeed += 1.0f;
 					}
 				}
-				else if (pKeyboard->keyPressed(Keyboard::KEY_RIGHT)) {
+				else if (pKeyboard->keyPressedConst(Keyboard::KEY_RIGHT)) {
 					if (m_rollSpeed > -3.0f) {
 						m_rollSpeed -= 1.0f;
 					}
@@ -712,7 +712,7 @@ namespace CForge {
 				if (m_BirdTransformSGN.translation().y() < 0.05) m_speed.y() += 0.1f;
 
 				// dive
-				if (pKeyboard->keyPressed(Keyboard::KEY_DOWN)) {
+				if (pKeyboard->keyPressedConst(Keyboard::KEY_DOWN)) {
 					SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(1, AnimationSpeed / 60.0f, 0.0f);
 					m_Bird.activeAnimation(pAnim);
 					m_speed.y() -= 0.01f;
