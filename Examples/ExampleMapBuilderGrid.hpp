@@ -28,7 +28,7 @@ namespace CForge {
 		void init(void) override {
 			initWindowAndRenderDevice();
 			initCameraAndLights();
-
+			
 			srand(static_cast <unsigned> (time(0)));
 
 			// build scene graph	
@@ -99,7 +99,12 @@ namespace CForge {
 			//placeBuilding(1, 120.0f, 1.0f, 1.0f);
 			//placeBuilding(2, 180.0f, 1.0f, 1.0f);
 			
-
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement Camera: W,A,S,D  | Create grid: G | Change active cell: Up,Down,Left,Right | Place on Cell: B | Toggle Help: F3");
+			pKeybindings->color(0.0f, 0.0f, 0.0f, 1.0f);
+			m_HelpTexts.push_back(pKeybindings);
+			m_DrawHelpTexts = true;
 
 			std::string GLError = "";
 			CForgeUtility::checkGLError(&GLError);
@@ -331,7 +336,10 @@ namespace CForge {
 			//SKYBOX SWITCH
 			if (pKeyboard->keyPressed(Keyboard::KEY_F1, true)) m_Skybox.init(m_City1[0], m_City1[1], m_City1[2], m_City1[3], m_City1[4], m_City1[5]);
 			if (pKeyboard->keyPressed(Keyboard::KEY_F2, true)) m_Skybox.init(m_City2[0], m_City2[1], m_City2[2], m_City2[3], m_City2[4], m_City2[5]);
-
+			//Toggle Help Text
+			if (pKeyboard->keyPressed(Keyboard::KEY_F3, true)) {
+				m_DrawHelpTexts = !m_DrawHelpTexts;
+			}
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_G, true)) {
 				// Erstelle das Grid, wenn die Leertaste gedrückt wird
 				createGrid();
@@ -355,10 +363,13 @@ namespace CForge {
 				}
 			}
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL) && m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_UP, true)) {
-				float currentX = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().x();
-				float currentY = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().y();
-				float currentZ = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().z();
-				gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation(Vector3f(currentX, currentY + 1.0f, currentZ));
+				if (gridBuildingSGNs[activeTileRow][activeTileCol].first == true) {
+					float currentX = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().x();
+					float currentY = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().y();
+					float currentZ = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().z();
+					gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation(Vector3f(currentX, currentY + 1.0f, currentZ));
+				}
+				
 			}
 			else if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_UP, true)) {
 				// Bewege das aktive Tile nach oben (row verringern)
@@ -368,10 +379,12 @@ namespace CForge {
 				}
 			}
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_LEFT_CONTROL) && m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_DOWN, true)) {
+				if (gridBuildingSGNs[activeTileRow][activeTileCol].first == true) {
 				float currentX = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().x();
 				float currentY = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().y();
 				float currentZ = gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation().z();
 				gridBuildingSGNSs[activeTileRow][activeTileCol].first->translation(Vector3f(currentX, currentY - 1.0f, currentZ));
+				}
 			}
 			else if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_DOWN, true)) {
 				// Bewege das aktive Tile nach unten (row erhöhen)
@@ -410,6 +423,7 @@ namespace CForge {
 
 			// Skybox should be last thing to render
 			m_SkyboxSG.render(&m_RenderDev);
+			if (m_DrawHelpTexts) drawHelpTexts();
 
 			m_RenderWin.swapBuffers();
 
