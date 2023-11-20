@@ -78,7 +78,7 @@ namespace CForge {
 			birdBBSphereR = birdBBSphereR > birdAABB.Min.norm() ? birdBBSphereR : birdAABB.Max.norm();
 			M.clear();
 
-			SAssetIO::load("MyAssets/Eagle_Animated/EagleFallSym/EagleFall.gltf", &M);
+			SAssetIO::load("MyAssets/Eagle_Animated/EagleFallSymHalf/EagleFall.gltf", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
 			m_BipedController.addAnimationData(M.getSkeletalAnimation(0)),
@@ -633,6 +633,26 @@ namespace CForge {
 				m_Bird.activeAnimation(pAnim);
 				m_speed.y() += 0.3;
 			}
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_DOWN) && !m_paused) {
+				SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(1, AnimationSpeed / 60.0f, 0.0f);
+				m_Bird.activeAnimation(pAnim);
+			}
+			if (m_RenderWin.keyboard()->keyPressedConst(Keyboard::KEY_DOWN) && !m_paused) {
+				m_speed.y() -= 0.01f;
+			}
+
+			if (nullptr != m_Bird.activeAnimation()) {
+
+				if (m_Bird.activeAnimation()->AnimationID == 1 && m_Bird.activeAnimation()->t > m_Bird.activeAnimation()->Duration - 15.0f)
+				{
+					if (m_Bird.activeAnimation()->Speed != 0.0f) {
+						m_Bird.pauseActiveAnimation();
+					}
+				}
+				if (m_RenderWin.keyboard()->keyReleased(Keyboard::KEY_DOWN, true) && !m_paused) {
+					m_Bird.reverseActiveAnimation();
+				}
+			}
 
 
 			float Step = (pKeyboard->keyPressed(Keyboard::KEY_RIGHT_SHIFT)) ? -0.05f : 0.05f;
@@ -712,11 +732,8 @@ namespace CForge {
 				if (m_BirdTransformSGN.translation().y() < 0.05) m_speed.y() += 0.1f;
 
 				// dive
-				if (pKeyboard->keyPressedConst(Keyboard::KEY_DOWN)) {
-					SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(1, AnimationSpeed / 60.0f, 0.0f);
-					m_Bird.activeAnimation(pAnim);
+				if (m_RenderWin.keyboard()->keyPressedConst(Keyboard::KEY_DOWN) && !m_paused) {
 					m_speed.y() -= 0.01f;
-					
 				}
 				else if (m_speed.y() < -0.01f) m_speed.y() += 0.02f;
 
@@ -741,6 +758,8 @@ namespace CForge {
 				//printf("%f - %f - %f | %f\n", m_BirdTransformSGN.translation().x(), m_BirdTransformSGN.translation().y(), m_BirdTransformSGN.translation().z(), m_speed.y());
 
 				m_BirdTransformSGN.translationDelta(dir);
+
+				
 
 
 				//defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());

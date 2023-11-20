@@ -161,13 +161,15 @@ namespace CForge {
 				
 			}
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_2)) {
-				isKey2Pressed = true;
 				SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(1, AnimationSpeed, 0.0f);
 				m_CesiumMan.activeAnimation(pAnim);
-				
-				//m_CesiumMan.pauseActiveAnimation();
-				//m_EagleFall.activeAnimation(pAnim);
 			}
+			/*if (m_RenderWin.keyboard()->keyReleased(Keyboard::KEY_2, true)) {
+				//m_CesiumMan.reverseActiveAnimation();
+				//printf("Key2");
+				//m_CesiumMan.reverseActiveAnimation();
+			}*/
+
 			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_5)) {
 				printf("Key5");
 			}
@@ -219,27 +221,29 @@ namespace CForge {
 					//m_EagleFallSGN.enable(true, false);
 				}
 			}
-
+		
 			if (nullptr != m_CesiumMan.activeAnimation()) {
-				//Quaternionf Q;
+				
 				if (m_CesiumMan.activeAnimation()->AnimationID == 1 && m_CesiumMan.activeAnimation()->t > m_CesiumMan.activeAnimation()->Duration - 15.0f)
 				{
 					if (m_CesiumMan.activeAnimation()->Speed != 0.0f) {
-						//m_CesiumMan.pauseActiveAnimation();
+						m_CesiumMan.pauseActiveAnimation();
 						//m_CesiumMan.reverseActiveAnimation();
 					}
 					//m_CesiumMan.reverseActiveAnimation();
-					m_CesiumMan.pauseActiveAnimation();
+					
+					//m_CesiumMan.pauseActiveAnimation();
+					
 
 				}
-				
+				if (m_RenderWin.keyboard()->keyReleased(Keyboard::KEY_2, true)) {
+					m_CesiumMan.reverseActiveAnimation();
+				}
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_3, true)) {
 					m_CesiumMan.reverseActiveAnimation();
 				}
 				if (m_RenderWin.keyboard()->keyReleased(Keyboard::KEY_8, true)) {
-
-					
-					m_CesiumMan.reverseActiveAnimation();
+					//m_CesiumMan.reverseActiveAnimation();
 					//cout << "Key6COUT " << endl; 
 
 				}

@@ -232,12 +232,14 @@ namespace CForge {
 			if (pAnim->Speed == 0.0f && pAnim->oldSpeed == 0.0f) {
 				pAnim->Speed = 0.0f;
 			}
-			else if (pAnim->Speed == 0.0f) {
+			else if (pAnim->Speed == 0.0f && pAnim->oldSpeed != 0.0f) {
 				pAnim->Speed = -pAnim->oldSpeed;
+				pAnim->oldSpeed = 0.0f;
 			}
-			else {
+			else if (pAnim->Speed != 0.0f) {
 				pAnim->oldSpeed = pAnim->Speed;
 				pAnim->Speed = -pAnim->oldSpeed; // Set the animation speed back to - to reverse it
+				pAnim->oldSpeed = 0.0f;
 			}
 			
 		}
