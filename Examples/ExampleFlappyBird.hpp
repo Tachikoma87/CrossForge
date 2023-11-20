@@ -186,7 +186,7 @@ namespace CForge {
 
 			// create help text
 			LineOfText* pKeybindings = new LineOfText();
-			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: W,A,S,D  | Pause/Unpause: P | F3: Toggle help text");
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: Up,Down,Left,Right  | Pause/Unpause: P | F3: Toggle help text");
 			pKeybindings->color(1.0f, 1.0f, 1.0f, 1.0f);
 			m_HelpTexts.push_back(pKeybindings);
 			m_DrawHelpTexts = true;
