@@ -31,6 +31,7 @@
 #include <Examples/ExampleFlappyBird.hpp>
 #include <Examples/ExampleMapBuilderGrid.hpp>
 #include <Examples/ExampleBirdMenu.hpp>
+#include <Examples/ExampleFlappyBirdCollision.hpp>
 
 using namespace CForge;
 using namespace Eigen;
@@ -51,10 +52,11 @@ using namespace Eigen;
 //#define ActiveScene ExampleTransformation
 //#define ActiveScene ExampleTransformationSG
 //#define ActiveScene ExampleSocket
-#define ActiveScene ExampleBird
+//#define ActiveScene ExampleBird
 //#define ActiveScene ExampleFlappyBird  
+//#define ActiveScene ExampleFlappyBirdCollision
 //#define ActiveScene ExampleMapBuilderGrid
-//#define ActiveScene ExampleBirdMenu
+#define ActiveScene ExampleBirdMenu
 //#define ActiveScene ExampleTextRendering
 
 
