@@ -21,8 +21,8 @@ namespace CForge {
 	public:
 		ExampleFlappyBirdCollision(void) {
 			m_WindowTitle = "CrossForge Example - Bird";
-			
-			
+
+
 		}//Constructor
 
 		~ExampleFlappyBirdCollision(void) {
@@ -38,18 +38,27 @@ namespace CForge {
 			// build scene graph	
 			m_RootSGN.init(nullptr);
 			m_SG.init(&m_RootSGN);
-			
+
+
 			T3DMesh<float> M;
+			SAssetIO::load("MyAssets/Ground/cloud.gltf", &M);
+			setMeshShader(&M, 0.8f, 0.04f);
+			for (uint8_t i = 0; i < 4; ++i) M.textureCoordinate(i) *= 50.0f;
+			M.computePerVertexNormals();
+			M.computePerVertexTangents();
+			m_Ground.init(&M);
+			M.clear();
 			//SAssetIO::load("MyAssets/Bird/bird.fbx", &M);
 			//setMeshShader(&M, 0.1f, 0.04f);
 			//M.computePerVertexNormals();
 			//m_Bird.init(&M);
+			//T3DMesh<float> M;
 			SAssetIO::load("MyAssets/Kolibri/Kolibri.gltf", &M);
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
 			m_BipedController.init(&M);
 			m_Bird.init(&M, &m_BipedController);
-			
+
 			M.computeAxisAlignedBoundingBox();
 			T3DMesh<float>::AABB birdAABB = M.aabb();
 			float birdBBSphereR = birdAABB.Min.norm();
@@ -65,23 +74,14 @@ namespace CForge {
 			//M.clear();
 
 			m_RepeatAnimation = true;
-
-			SAssetIO::load("MyAssets/Ground/cloud.gltf", &M);
-			setMeshShader(&M, 0.8f, 0.04f);
-			for (uint8_t i = 0; i < 4; ++i) M.textureCoordinate(i) *= 50.0f;
-			M.computePerVertexNormals();
-			M.computePerVertexTangents();
-			m_Ground.init(&M);
-			M.clear();
-
 			Quaternionf Rot;
 			Rot = AngleAxisf(CForgeMath::degToRad(90.0f), Vector3f::UnitY());
 			//m_BirdTransformSGN.rotation(Rot);
 			// raven
 			m_BirdTransformSGN.init(&m_RootSGN, m_startPosition);
 			m_BirdTransformSGN.scale(Vector3f(3.0f, 3.0f, 3.0f));
-			
-			
+
+
 			//m_BirdTransformSGN.rotation(Rot);
 			m_BirdPitchSGN.init(&m_BirdTransformSGN, Vector3f(0.0f, 0.0f, 0.0f));
 			m_BirdRollSGN.init(&m_BirdPitchSGN, Vector3f(0.0f, 0.0f, 0.0f));
@@ -98,7 +98,7 @@ namespace CForge {
 
 			//different birds
 			//SAssetIO::load("MyAssets/Bird/bird.fbx", &BirdMesh1);
-			
+
 
 			//SAssetIO::load("MyAssets/Eagle_Animated/EagleFlapFINAL/EagleFlap.gltf", &BirdMesh2); 
 			
@@ -110,8 +110,8 @@ namespace CForge {
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
 			M.computeAxisAlignedBoundingBox();
-			T3DMesh<float>::AABB buildingAABB = M.aabb();
-			setBuildingAABB(buildingAABB, 0);
+			T3DMesh<float>::AABB buildingAABBs = M.aabb();
+			//setBuildingAABB(buildingAABB, 0);
 			m_Buildings[0].init(&M);
 			building_1.init(&M);
 			M.clear();
@@ -121,8 +121,8 @@ namespace CForge {
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
 			M.computeAxisAlignedBoundingBox();
-			buildingAABB = M.aabb();
-			setBuildingAABB(buildingAABB, 1);
+			buildingAABBs = M.aabb();
+			//setBuildingAABB(buildingAABBs, 1);
 			m_Buildings[1].init(&M);
 			building_2.init(&M);
 			M.clear();
@@ -130,10 +130,10 @@ namespace CForge {
 			//rot klein
 			SAssetIO::load("MyAssets/Buildings/building_08/scene.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
-			M.computePerVertexNormals(); 
+			M.computePerVertexNormals();
 			M.computeAxisAlignedBoundingBox();
-			buildingAABB = M.aabb();
-			setBuildingAABB(buildingAABB, 2);
+			buildingAABBs = M.aabb();
+			//setBuildingAABB(buildingAABBs, 2);
 			m_Buildings[2].init(&M);
 			building_3.init(&M);
 			M.clear();
@@ -149,6 +149,7 @@ namespace CForge {
 			M.computePerVertexNormals();
 			m_Cube.init(&M);
 			M.clear();
+
 
 			//Textures for Skybox City 1
 
@@ -167,8 +168,8 @@ namespace CForge {
 			m_City2.push_back("MyAssets/FlappyAssets/skybox/down.bmp");
 			m_City2.push_back("MyAssets/FlappyAssets/skybox/back.bmp");
 			m_City2.push_back("MyAssets/FlappyAssets/skybox/front.bmp");
-			
-			
+
+
 
 			// create actor and initialize
 			m_Skybox.init(m_City1[0], m_City1[1], m_City1[2], m_City1[3], m_City1[4], m_City1[5]);
@@ -229,17 +230,31 @@ namespace CForge {
 			LabelPos.x() = m_RenderWin.width() / 2 - pFont->computeStringWidth("Score: XXX");
 			LabelPos.y() = 34;
 			scoreLabel.position(LabelPos);
-			
-			
+
+
 			std::string GLError = "";
 			CForgeUtility::checkGLError(&GLError);
 			if (!GLError.empty()) printf("GLError occurred: %s\n", GLError.c_str());
-			
+
 		}//initialize
 
 		void setBuildingAABB(T3DMesh<float>::AABB buildingAABB, int i) {
 			m_buildingDiag[i] = buildingAABB.diagonal();
-			m_buildingOrigin[i] = buildingAABB.Min + (m_buildingDiag[i] * 0.5f);
+			//m_buildingOrigin[i] = buildingAABB.Min + (m_buildingDiag[i] * 0.5f);
+			//m_buildingOrigin[i].y() = m_buildingOrigin[i].y() + 5.0f;
+			/* m_buildingOrigin[i] = Eigen::Vector3f(
+				(buildingAABB.Min.x() + buildingAABB.Max.x()) * 0.5f,
+				(buildingAABB.Min.y() + buildingAABB.Max.y()) * 0.5f,
+				(buildingAABB.Min.z() + buildingAABB.Max.z()) * 0.5f
+			);*/
+			m_buildingOrigin[i] = Eigen::Vector3f(
+				buildingAABB.Min.x() + m_buildingDiag[i].x() * 0.5f,
+				buildingAABB.Min.y() + m_buildingDiag[i].y() * 0.5f - 0.5f,
+				buildingAABB.Min.z() + m_buildingDiag[i].z() * 0.5f -1.0f
+			);
+
+			// Optionally, adjust the origin if needed (e.g., add height)
+			//m_buildingOrigin[i].y() += 1.0f; // Adjusted for height
 			m_box_building[i] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z());
 		}
 
@@ -272,7 +287,7 @@ namespace CForge {
 			collision_request.gjk_solver_type = solver_type;
 
 			fcl::Transform3f bMat = fcl::Transform3f::Identity();
-			bMat.translate(BirdPos); 
+			bMat.translate(BirdPos);
 			bMat.rotate(BirdRot);
 
 			m_birdTestCollision = bMat.matrix();
@@ -292,7 +307,7 @@ namespace CForge {
 						//GTEST_ASSERT_EQ(contacts.size(), collision_request.num_max_contacts);
 						*col = true;
 					}
-			};
+				};
 
 			// vector<SGNTransformation*> m_BuildingSGNs; // List to hold building SGNs
 			// vector<SGNGeometry*> m_BuildingGeoSGNs;
@@ -304,7 +319,7 @@ namespace CForge {
 				// TODO: specify model in order to get origin//
 				///////////////////////////////////////////////
 				int model = std::get<1>(m_BuildingGeoModels[i]);
-				
+
 
 				// get transformnode - m_BuildingTransformationSGNs[i];
 				auto buildingTSGN = std::get<0>(m_BuildingGeoModels[i]);
@@ -327,9 +342,9 @@ namespace CForge {
 				mat.translate(posBuilding + m_buildingOrigin[model].cwiseProduct(scaleBuilding));
 				rotBuilding = Quaternionf(rotBuilding.w(), rotBuilding.x(), rotBuilding.y(), rotBuilding.z());
 				mat.rotate(rotBuilding);
-				
+
 				// can be used as l-value because it is a reference
-				std::get<2>(m_BuildingGeoModels[i]) = mat.matrix() *CForgeMath::scaleMatrix(Vector3f(buildingDiag.x(), buildingDiag.y(), buildingDiag.z()));
+				std::get<2>(m_BuildingGeoModels[i]) = mat.matrix() * CForgeMath::scaleMatrix(Vector3f(buildingDiag.x(), buildingDiag.y(), buildingDiag.z()));
 				building_collisoin_geometry.setTransform(mat);
 
 				evaluate_collision(&bird_collision_geometry, &building_collisoin_geometry, &m_col);
@@ -343,13 +358,13 @@ namespace CForge {
 			GroundTransformSGN->init(&m_RootSGN);
 			GroundTransformSGN->translation(Vector3f(0.0f, -0.5f, xOffset));
 			// ... Weitere Transformationsoperationen für die linke Seitenwand ...
-			m_BuildingSGNs.push_back(GroundTransformSGN);
+			m_GroundBuildingSGNs.push_back(GroundTransformSGN);
 
 			// Boden-Geometrie-SGN 
 			SGNGeometry* GroundGeoSGN = new SGNGeometry();
 			GroundGeoSGN->init(GroundTransformSGN, &m_Ground);
 			GroundGeoSGN->scale(Vector3f(0.75f, 0.75f, 0.835f)); // Nur Skalierung entlang der z-Achse
-			m_BuildingGeoSGNs.push_back(GroundGeoSGN);
+			m_GroundBuildingGeoSGNs.push_back(GroundGeoSGN);
 
 			////////////////////////////////////////////////////////////////////////////////
 			// Erstelle linke Seitenwand-Transformation-SGN
@@ -357,13 +372,13 @@ namespace CForge {
 			leftSidewallTransformSGN->init(&m_RootSGN);
 			leftSidewallTransformSGN->translation(Vector3f(17.0f, 0.0f, xOffset));
 			// ... Weitere Transformationsoperationen für die linke Seitenwand ...
-			m_BuildingSGNs.push_back(leftSidewallTransformSGN);
+			m_SideBuildingSGNs.push_back(leftSidewallTransformSGN);
 
 			// Geometrie-SGN für die linke Seitenwand
 			SGNGeometry* leftSidewallGeoSGN = new SGNGeometry();
 			leftSidewallGeoSGN->init(leftSidewallTransformSGN, &building_2);
 			leftSidewallGeoSGN->scale(Vector3f(5.0f, 5.0f, 50.0f)); // Nur Skalierung entlang der z-Achse
-			m_BuildingGeoSGNs.push_back(leftSidewallGeoSGN);
+			m_SideBuildingGeoSGNs.push_back(leftSidewallGeoSGN);
 
 			////////////////////////////////////////////////////////////////////////////////
 			// Erstelle rechte Seitenwand-Transformation-SGN
@@ -371,15 +386,15 @@ namespace CForge {
 			rightSidewallTransformSGN->init(&m_RootSGN);
 			rightSidewallTransformSGN->translation(Vector3f(-11.0f, 0.0f, xOffset));
 			// ... Weitere Transformationsoperationen für die rechte Seitenwand ...
-			m_BuildingSGNs.push_back(rightSidewallTransformSGN);
+			m_SideBuildingSGNs.push_back(rightSidewallTransformSGN);
 
 			// Geometrie-SGN für die rechte Seitenwand
 			SGNGeometry* rightSidewallGeoSGN = new SGNGeometry();
 			rightSidewallGeoSGN->init(rightSidewallTransformSGN, &building_2);
 			rightSidewallGeoSGN->scale(Vector3f(5.0f, 5.0f, 50.0f)); // Nur Skalierung entlang der z-Achse
-			m_BuildingGeoSGNs.push_back(rightSidewallGeoSGN);
+			m_SideBuildingGeoSGNs.push_back(rightSidewallGeoSGN);
 		}
-		 
+
 		void ExampleFlappyBirdCollision::createBuildingRow(float xOffset) {
 			float buildingSpacing = 5.0f; // Abstand zwischen den Gebäuden in einer Reihe
 			float buildingWidth = 3.0f; // Breite eines Gebäudes
@@ -396,13 +411,13 @@ namespace CForge {
 			GroundTransformSGN->init(&m_RootSGN);
 			GroundTransformSGN->translation(Vector3f(0.0f, -0.5f, xOffset));
 			// ... Weitere Transformationsoperationen für die linke Seitenwand ...
-			m_BuildingSGNs.push_back(GroundTransformSGN);
+			m_GroundBuildingSGNs.push_back(GroundTransformSGN);
 
 			// Boden-Geometrie-SGN 
 			SGNGeometry* GroundGeoSGN = new SGNGeometry();
 			GroundGeoSGN->init(GroundTransformSGN, &m_Ground);
 			GroundGeoSGN->scale(Vector3f(0.75f, 0.75f, 0.835f)); // Nur Skalierung entlang der z-Achse
-			m_BuildingGeoSGNs.push_back(GroundGeoSGN);
+			m_GroundBuildingGeoSGNs.push_back(GroundGeoSGN);
 
 			////////////////////////////////////////////////////////////////////////////////
 			// Erstelle linke Seitenwand-Transformation-SGN
@@ -410,13 +425,13 @@ namespace CForge {
 			leftSidewallTransformSGN->init(&m_RootSGN);
 			leftSidewallTransformSGN->translation(Vector3f(17.0f, 0.0f, xOffset));
 			// ... Weitere Transformationsoperationen für die linke Seitenwand ...
-			m_BuildingSGNs.push_back(leftSidewallTransformSGN);
+			m_SideBuildingSGNs.push_back(leftSidewallTransformSGN);
 
 			// Geometrie-SGN für die linke Seitenwand
 			SGNGeometry* leftSidewallGeoSGN = new SGNGeometry();
 			leftSidewallGeoSGN->init(leftSidewallTransformSGN, &building_2);
 			leftSidewallGeoSGN->scale(Vector3f(5.0f, 5.0f, 50.0f)); // Nur Skalierung entlang der z-Achse
-			m_BuildingGeoSGNs.push_back(leftSidewallGeoSGN);
+			m_SideBuildingGeoSGNs.push_back(leftSidewallGeoSGN);
 
 			////////////////////////////////////////////////////////////////////////////////
 			// Erstelle rechte Seitenwand-Transformation-SGN
@@ -424,13 +439,13 @@ namespace CForge {
 			rightSidewallTransformSGN->init(&m_RootSGN);
 			rightSidewallTransformSGN->translation(Vector3f(-11.0f, 0.0f, xOffset));
 			// ... Weitere Transformationsoperationen für die rechte Seitenwand ...
-			m_BuildingSGNs.push_back(rightSidewallTransformSGN);
+			m_SideBuildingSGNs.push_back(rightSidewallTransformSGN);
 
 			// Geometrie-SGN für die rechte Seitenwand
 			SGNGeometry* rightSidewallGeoSGN = new SGNGeometry();
 			rightSidewallGeoSGN->init(rightSidewallTransformSGN, &building_2);
 			rightSidewallGeoSGN->scale(Vector3f(5.0f, 5.0f, 50.0f)); // Nur Skalierung entlang der z-Achse
-			m_BuildingGeoSGNs.push_back(rightSidewallGeoSGN);
+			m_SideBuildingGeoSGNs.push_back(rightSidewallGeoSGN);
 
 
 			for (int i = 0; i < 3; ++i) {
@@ -438,7 +453,7 @@ namespace CForge {
 				SGNTransformation* buildingTransformSGN = new SGNTransformation();
 				buildingTransformSGN->init(&m_RootSGN);
 				//buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 5.0f, 0.0f, xOffset));
-				
+
 				if (i == building2Position) {
 					int Version = rand() % 3;
 					if (Version == 1) {
@@ -447,8 +462,9 @@ namespace CForge {
 						buildingTransformSGN->scale(Vector3f(5.0f, 5.0f, 5.0f));
 						buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 5.0, 5.0f, xOffset));
 						buildingTransformSGN->rotation(querRot);
+
 					}
-					else if(Version == 2) {
+					else if (Version == 2) {
 						Quaternionf querRot;
 						querRot = AngleAxisf(CForgeMath::degToRad(90.0f), Vector3f::UnitZ());
 						buildingTransformSGN->scale(Vector3f(0.75f, 0.75f, 0.75f).cwiseProduct(Vector3f(5.0f, 5.0f, 5.0f)));
@@ -459,7 +475,7 @@ namespace CForge {
 						buildingTransformSGN->scale(Vector3f(5.0f, 5.0f, 5.0f));
 						buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 5.0f, -10.0f, xOffset));
 					}
-					
+
 
 				}
 				else {
@@ -473,6 +489,7 @@ namespace CForge {
 				// Füge die Transformationen zur aktuellen Gebäudereihe hinzu
 				m_BuildingSGNs.push_back(buildingTransformSGN);
 
+
 				// Hier die Geometrie-SGN für das Gebäude erstellen und in der Liste speichern
 				SGNGeometry* buildingGeoSGN = new SGNGeometry();
 				//buildingGeoSGN->init(buildingTransformSGN, &building_1);
@@ -482,24 +499,29 @@ namespace CForge {
 					buildingGeoSGN->init(buildingTransformSGN, &building_2);
 					//buildingTransformSGN->translation(Vector3f(0.0f, -5.0f, 0.0f));
 					m_BuildingGeoModels.push_back({ buildingTransformSGN,2, Eigen::Matrix4f() });
+
 				}
 				else {
 					buildingGeoSGN->init(buildingTransformSGN, &building_1);
 					m_BuildingGeoModels.push_back({ buildingTransformSGN,1, Eigen::Matrix4f() });
 				}
 
-				//buildingGeoSGN->scale(Vector3f(5.0f, 5.0f, 5.0f)); // Keine Skalierung
+				buildingGeoSGN->scale(Vector3f(1.0f, 1.0f, 1.0f)); // Keine Skalierung
 
 				// Geometrie-SGN zur Liste hinzufügen
 				//m_BuildingSGNs.push_back(buildingTransformSGN);
 				m_BuildingGeoSGNs.push_back(buildingGeoSGN);
+				// Setze AABB-Informationen für das aktuelle Gebäude
+				auto buildingAABB = buildingGeoSGN->actor()->getAABB();
+				setBuildingAABB(buildingAABB, i);
 				
+
 
 			}
 		}
 
 		void ExampleFlappyBirdCollision::removePassedBuildingRow() {
-			
+
 		}
 
 		void clear(void) override {
@@ -514,9 +536,27 @@ namespace CForge {
 				delete buildingTransformSGN;
 			}
 			m_BuildingSGNs.clear();
+			for (SGNGeometry* buildingGeoSGN : m_SideBuildingGeoSGNs) {
+				delete buildingGeoSGN;
+			}
+			m_SideBuildingGeoSGNs.clear();
+
+			for (SGNTransformation* buildingTransformSGN : m_SideBuildingSGNs) {
+				delete buildingTransformSGN;
+			}
+			m_SideBuildingSGNs.clear();
+			for (SGNGeometry* buildingGeoSGN : m_GroundBuildingGeoSGNs) {
+				delete buildingGeoSGN;
+			}
+			m_GroundBuildingGeoSGNs.clear();
+
+			for (SGNTransformation* buildingTransformSGN : m_GroundBuildingSGNs) {
+				delete buildingTransformSGN;
+			}
+			m_GroundBuildingSGNs.clear();
 			// GUI-Aufräumen (Kopiere den entsprechenden Code aus GUITestScene)
 			m_RenderWin.closeWindow();
-			
+
 		}//clear
 
 		void translate_bird(Vector3f move) {
@@ -633,7 +673,7 @@ namespace CForge {
 			Keyboard* pKeyboard = m_RenderWin.keyboard();
 			//float AnimationSpeed = 1000 / 60.0f;
 			float Step = (pKeyboard->keyPressed(Keyboard::KEY_LEFT_SHIFT)) ? -0.05f : 0.05f;
-			
+
 			//if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_G, true)) {
 			//	SkeletalAnimationController::Animation* pAnim = m_BipedController.createAnimation(0, AnimationSpeed, 0.0f);
 			//	m_Bird.activeAnimation(pAnim);
@@ -652,16 +692,16 @@ namespace CForge {
 			}
 			//Toggle Help Text
 			if (pKeyboard->keyPressed(Keyboard::KEY_F3, true)) {
-			m_DrawHelpTexts = !m_DrawHelpTexts;
-		}
+				m_DrawHelpTexts = !m_DrawHelpTexts;
+			}
 			//CAMERA SWITCH 
 			updateCamera(pKeyboard);
 			//SKYBOX SWITCH
 			if (pKeyboard->keyPressed(Keyboard::KEY_F1, true)) m_Skybox.init(m_City1[0], m_City1[1], m_City1[2], m_City1[3], m_City1[4], m_City1[5]);
 			if (pKeyboard->keyPressed(Keyboard::KEY_F2, true)) m_Skybox.init(m_City2[0], m_City2[1], m_City2[2], m_City2[3], m_City2[4], m_City2[5]);
 
-			
-			
+
+
 			// Handle left and right movement
 			if (pKeyboard->keyPressedConst(Keyboard::KEY_LEFT)) {
 				m_speed.x() += 0.01f; // Move left
@@ -672,7 +712,7 @@ namespace CForge {
 			else {
 				m_speed.x() = 0.0f; // Stop horizontal movement when no keys are pressed
 			}
-			
+
 
 
 			// Calculate and limit roll angle based on speed
@@ -716,7 +756,7 @@ namespace CForge {
 
 			// Calculate and limit pitch angle based on speed
 			float pitchAngle = m_speed.y() * 40.0f;
-			
+
 
 			// Calculate additional pitch angle based on bird's forward speed
 			float forwardPitchAngle = m_speed.z() * -20.0f; // Adjust the multiplier as needed
@@ -734,7 +774,7 @@ namespace CForge {
 			pitchRotation = AngleAxis(-CForgeMath::degToRad(pitchAngle), Vector3f::UnitX());
 			m_BirdPitchSGN.rotation(pitchRotation);
 
-			
+
 			// Calculate the new horizontal position based on the speed
 			float newHorizontalPosition = m_BirdTransformSGN.translation().x() + m_speed.x();
 
@@ -775,7 +815,7 @@ namespace CForge {
 			m_BirdTransformSGN.translation(Vector3f(m_BirdTransformSGN.translation().x(), newVerticalPosition, m_BirdTransformSGN.translation().z()));
 			if (pKeyboard->keyPressed(Keyboard::KEY_P, true)) {
 				m_paused = !m_paused;
-				if(m_paused != true) m_speed.z() = oldSpeed + 0.01f;
+				if (m_paused != true) m_speed.z() = oldSpeed + 0.01f;
 			}
 			if (m_paused) {
 				m_speed.z() = pauseSpeed;
@@ -795,15 +835,17 @@ namespace CForge {
 				}
 			}
 
-			
 
-			
+
+
 			////
 			//Gebäude Check und Score anpassen
 			////
-			if (m_BuildingSGNs.size() > 0) {
+			if (m_BuildingSGNs.size() > 0 && m_GroundBuildingSGNs.size() > 0 && m_SideBuildingSGNs.size() > 0) {
 				float birdZ = m_BirdTransformSGN.translation().z();
-				float firstBuildingZ = m_BuildingSGNs[0]->translation().z();
+				float firstBuildingZ = m_GroundBuildingSGNs[0]->translation().z();
+				//float firstBuildingZ = m_SideBuildingSGNs[0]->translation().z();
+				//float firstBuildingZ = m_BuildingSGNs[0]->translation().z();
 
 				// Überprüfen, ob der Vogel die erste Reihe passiert hat
 				if (birdZ > firstBuildingZ + 105.0f) {
@@ -811,20 +853,36 @@ namespace CForge {
 					cout << "Score: " << score << endl;
 					if (m_speed.z() < 0.80) m_speed.z() += 0.01f;
 					cout << "Aktueller Speed: " << m_speed.z() << endl;
-					
+
 					// Löschen der ersten Reihe
-					
-					for (int i = 0; i < 6; ++i) {
-						delete m_BuildingGeoSGNs.front();
-						delete m_BuildingSGNs.front();
-						m_BuildingGeoSGNs.erase(m_BuildingGeoSGNs.begin());
-						m_BuildingSGNs.erase(m_BuildingSGNs.begin());
+					if (birdZ > m_BuildingSGNs[0]->translation().z() + 105.0f) {
+						for (int i = 0; i < 3; ++i) {
+							delete m_BuildingGeoSGNs.front();
+							delete m_BuildingSGNs.front();
+							m_BuildingGeoSGNs.erase(m_BuildingGeoSGNs.begin());
+							m_BuildingSGNs.erase(m_BuildingSGNs.begin());
+						}
 					}
-					m_BuildingGeoModels.erase(m_BuildingGeoModels.begin(), m_BuildingGeoModels.begin() + 3); // the fancy way
 					
+					for (int j = 0; j < 2; ++j) {
+						delete m_SideBuildingGeoSGNs.front();
+						delete m_SideBuildingSGNs.front();
+						m_SideBuildingGeoSGNs.erase(m_SideBuildingGeoSGNs.begin());
+						m_SideBuildingSGNs.erase(m_SideBuildingSGNs.begin());
+					}
+					
+					delete m_GroundBuildingGeoSGNs.front();
+					delete m_GroundBuildingSGNs.front();
+					m_GroundBuildingGeoSGNs.erase(m_GroundBuildingGeoSGNs.begin());
+					m_GroundBuildingSGNs.erase(m_GroundBuildingSGNs.begin());
+					
+					m_BuildingGeoModels.erase(m_BuildingGeoModels.begin(), m_BuildingGeoModels.begin() + 3); // the fancy way
+
 
 					// Hinzufügen von zwei neuen Reihen hinten
-					float lastBuildingZ = m_BuildingSGNs.back()->translation().z();
+					//float lastBuildingZ = m_BuildingSGNs.back()->translation().z();
+					float lastBuildingZ = m_GroundBuildingSGNs.back()->translation().z();
+
 					float newRowsStartZ = lastBuildingZ + 50.0f; // Abstand zwischen den neuen Reihen
 					createBuildingRow(newRowsStartZ);
 					//createBuildingRow(newRowsStartZ + 50.0f); // Abstand zwischen den neuen Reihen
@@ -891,11 +949,11 @@ namespace CForge {
 				m_RenderDev.modelUBO()->modelMatrix(m_birdTestCollision * scaleMatrix);
 				m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 
-				
 
-				
+
+
 			}*/
-			
+
 			/*if (m_colCP)
 				glColorMask(false, false, true, true);
 			else
@@ -903,7 +961,7 @@ namespace CForge {
 			*/
 
 			glEnable(GL_BLEND);
-			glDisable(GL_DEPTH_TEST);
+			//glDisable(GL_DEPTH_TEST);
 			glBlendFunc(GL_ONE, GL_ONE);
 
 			Eigen::Vector3f posBird;
@@ -917,8 +975,8 @@ namespace CForge {
 				glColorMask(true, false, false, true);
 			else
 				glColorMask(false, true, false, true);
-			
-			m_RenderDev.modelUBO()->modelMatrix(m_birdTestCollision* scaleMatrix);
+
+			m_RenderDev.modelUBO()->modelMatrix(m_birdTestCollision * scaleMatrix);
 			m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 
 			int model = 0;
@@ -934,9 +992,9 @@ namespace CForge {
 				m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 
 			}
-			
+
 			glColorMask(true, true, true, true);
-			glEnable(GL_DEPTH_TEST);
+			//glEnable(GL_DEPTH_TEST);
 			glDisable(GL_BLEND);
 
 			// Skybox should be last thing to render
@@ -967,7 +1025,7 @@ namespace CForge {
 
 			// we have to notify the labels if canvas size changes
 			if (GLWindowMsg::MC_RESIZE == Msg.Code) {
-				
+
 				scoreLabel.canvasSize(m_RenderWin.width(), m_RenderWin.height());
 
 				// reposition score Label
@@ -1020,17 +1078,23 @@ namespace CForge {
 
 		vector<SGNTransformation*> m_BuildingSGNs; // List to hold building SGNs
 		vector<SGNGeometry*> m_BuildingGeoSGNs;   // List to hold building geometry SGNs
-		
+
+		vector<SGNTransformation*> m_SideBuildingSGNs; // List to hold building SGNs
+		vector<SGNGeometry*> m_SideBuildingGeoSGNs;   // List to hold building geometry SGNs
+
+		vector<SGNTransformation*> m_GroundBuildingSGNs; // List to hold building SGNs
+		vector<SGNGeometry*> m_GroundBuildingGeoSGNs;   // List to hold building geometry SGNs
+
 		bool m_paused = true;
 		bool m_RepeatAnimation = true;
 
 		bool glLoaded = false;
-		
-		
+
+
 		//Speed für Vogel
 		float oldSpeed = 0.3f;
 		float pauseSpeed = 0.0f;
-		
+
 		Vector3f m_speed = Vector3f(0.0f, 0.0f, 0.1f);
 		Vector3f m_startPosition = Vector3f(0.0f, 10.0f, -100.0f);
 
@@ -1067,7 +1131,7 @@ namespace CForge {
 		Eigen::Matrix4f m_matSphere = Eigen::Matrix4f::Identity();
 		bool m_col = false;
 
-		int m_CPCollisonCurrent = 0; 
+		int m_CPCollisonCurrent = 0;
 		//std::vector<UINT32> m_BuildingGeoModels;
 		//std::vector<std::pair<SGNTransformation*, UINT32>> m_BuildingGeoModels;
 		std::vector<std::tuple<SGNTransformation*, UINT32, Eigen::Matrix4f>> m_BuildingGeoModels;
