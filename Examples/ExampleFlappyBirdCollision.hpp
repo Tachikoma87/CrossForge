@@ -128,7 +128,8 @@ namespace CForge {
 			M.clear();
 
 			//rot klein
-			SAssetIO::load("MyAssets/Buildings/building_08/scene.gltf", &M);
+			//SAssetIO::load("MyAssets/Buildings/building_08/scene.gltf", &M);
+			SAssetIO::load("MyAssets/Buildings/building_07/scene.gltf", &M);
 			setMeshShader(&M, 0.1f, 0.04f);
 			M.computePerVertexNormals();
 			M.computeAxisAlignedBoundingBox();
@@ -239,25 +240,59 @@ namespace CForge {
 		}//initialize
 
 		void setBuildingAABB(T3DMesh<float>::AABB buildingAABB, int i) {
-			m_buildingDiag[i] = buildingAABB.diagonal();
+			/*m_buildingDiag[i] = buildingAABB.diagonal();
 			//m_buildingOrigin[i] = buildingAABB.Min + (m_buildingDiag[i] * 0.5f);
 			//m_buildingOrigin[i].y() = m_buildingOrigin[i].y() + 5.0f;
 			/* m_buildingOrigin[i] = Eigen::Vector3f(
 				(buildingAABB.Min.x() + buildingAABB.Max.x()) * 0.5f,
 				(buildingAABB.Min.y() + buildingAABB.Max.y()) * 0.5f,
 				(buildingAABB.Min.z() + buildingAABB.Max.z()) * 0.5f
-			);*/
+			);
 			m_buildingOrigin[i] = Eigen::Vector3f(
 				buildingAABB.Min.x() + m_buildingDiag[i].x() * 0.5f,
 				buildingAABB.Min.y() + m_buildingDiag[i].y() * 0.5f - 0.5f,
 				buildingAABB.Min.z() + m_buildingDiag[i].z() * 0.5f -1.0f
 			);
-
+			
 			// Optionally, adjust the origin if needed (e.g., add height)
 			//m_buildingOrigin[i].y() += 1.0f; // Adjusted for height
+			m_box_building[i] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z()); */
+
+			m_buildingDiag[i] = buildingAABB.diagonal();
+
+			// Calculate the translation vector to shift the AABB origin
+			Eigen::Vector3f translationVector = buildingAABB.Min;
+			
+			// Update the translation part of the AABB's transformation matrix
+			if (i == 2) {
+				m_buildingOrigin[i] = Eigen::Vector3f(
+					-0.5,
+					1.1,
+					m_buildingDiag[i].z() * 0.5f
+				);
+				
+			}
+			else if (i == 3) {
+				m_buildingOrigin[i] = Eigen::Vector3f(
+					-1,
+					-0.5,
+					m_buildingDiag[i].z() * 0.5f
+				);
+				m_buildingDiag[3].x() -= 1.5f;
+				m_buildingDiag[3].z() -= 1.5f;
+			}
+			else {
+				m_buildingOrigin[i] = Eigen::Vector3f(
+					-0.55,
+					1,
+					m_buildingDiag[i].z() * 0.5f
+				);
+			}
+			
+			
 			m_box_building[i] = std::make_shared<fcl::Box<float>>(m_buildingDiag->x(), m_buildingDiag->y(), m_buildingDiag->z());
 		}
-
+		
 		void CollisionTest() {
 			// setup for collision detections
 			auto solver_type = fcl::GJKSolverType::GST_LIBCCD;
@@ -269,6 +304,7 @@ namespace CForge {
 			const Vector3<float> half_size_building6{ m_buildingDiag[0] * 0.5 };
 			const Vector3<float> half_size_building7{ m_buildingDiag[1] * 0.5 };
 			const Vector3<float> half_size_building8{ m_buildingDiag[2] * 0.5 };
+			const Vector3<float> half_size_building9{ m_buildingDiag[3] * 0.5 };
 
 			Eigen::Vector3f BirdPos;
 			Eigen::Quaternionf BirdRot;
@@ -453,23 +489,35 @@ namespace CForge {
 				SGNTransformation* buildingTransformSGN = new SGNTransformation();
 				buildingTransformSGN->init(&m_RootSGN);
 				//buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 5.0f, 0.0f, xOffset));
-
+				bool querTest = false;
 				if (i == building2Position) {
 					int Version = rand() % 3;
+					
 					if (Version == 1) {
 						Quaternionf querRot;
 						querRot = AngleAxisf(CForgeMath::degToRad(90.0f), Vector3f::UnitZ());
-						buildingTransformSGN->scale(Vector3f(5.0f, 5.0f, 5.0f));
-						buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 5.0, 5.0f, xOffset));
+						buildingTransformSGN->scale(Vector3f(4.0f, 4.0f, 4.0f));
+						buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 3.0, 5.0f, xOffset));
 						buildingTransformSGN->rotation(querRot);
+						querTest = true;
 
+					}
+					else if (Version == 2 && (building2Position == 2 || building2Position == 1 || building2Position == 0)) {
+						Quaternionf querRot;
+						querRot = AngleAxisf(CForgeMath::degToRad(90.0f), Vector3f::UnitZ());
+						buildingTransformSGN->scale(Vector3f(0.75f, 0.75f, 0.75f).cwiseProduct(Vector3f(5.0f, 5.0f, 5.0f)));
+						buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 4.0, 12.0f, xOffset));
+						buildingTransformSGN->rotation(querRot);
+						querTest = true;
+						
 					}
 					else if (Version == 2) {
 						Quaternionf querRot;
 						querRot = AngleAxisf(CForgeMath::degToRad(90.0f), Vector3f::UnitZ());
 						buildingTransformSGN->scale(Vector3f(0.75f, 0.75f, 0.75f).cwiseProduct(Vector3f(5.0f, 5.0f, 5.0f)));
-						buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 3.0, 12.0f, xOffset));
+						buildingTransformSGN->translation(Vector3f(i * (buildingWidth + buildingSpacing) - 5.0, 12.0f, xOffset));
 						buildingTransformSGN->rotation(querRot);
+						querTest = true;
 					}
 					else {
 						buildingTransformSGN->scale(Vector3f(5.0f, 5.0f, 5.0f));
@@ -496,9 +544,16 @@ namespace CForge {
 
 				// Entscheiden, ob das Gebäude building_2 ist oder nicht
 				if (i == building2Position) {
-					buildingGeoSGN->init(buildingTransformSGN, &building_2);
-					//buildingTransformSGN->translation(Vector3f(0.0f, -5.0f, 0.0f));
-					m_BuildingGeoModels.push_back({ buildingTransformSGN,2, Eigen::Matrix4f() });
+					if (querTest) {
+						buildingGeoSGN->init(buildingTransformSGN, &building_3);
+						//buildingTransformSGN->translation(Vector3f(0.0f, -5.0f, 0.0f));
+						m_BuildingGeoModels.push_back({ buildingTransformSGN,3, Eigen::Matrix4f() });
+					}
+					else {
+						buildingGeoSGN->init(buildingTransformSGN, &building_2);
+						//buildingTransformSGN->translation(Vector3f(0.0f, -5.0f, 0.0f));
+						m_BuildingGeoModels.push_back({ buildingTransformSGN,2, Eigen::Matrix4f() });
+					}
 
 				}
 				else {
@@ -513,7 +568,13 @@ namespace CForge {
 				m_BuildingGeoSGNs.push_back(buildingGeoSGN);
 				// Setze AABB-Informationen für das aktuelle Gebäude
 				auto buildingAABB = buildingGeoSGN->actor()->getAABB();
-				setBuildingAABB(buildingAABB, i);
+				if (querTest) {
+					setBuildingAABB(buildingAABB, 3);
+				}
+				else {
+					setBuildingAABB(buildingAABB, i);
+				}
+				//setBuildingAABB(buildingAABB, i);
 				
 
 
@@ -1117,10 +1178,10 @@ namespace CForge {
 		const float rollDecayRate = 0.05f; // Rate at which roll speed decays (adjust as needed)
 
 		// --- Collision --- //
-		StaticActor m_Buildings[3]; // theoretisch kann das auch weglassen
-		Vector3f m_buildingOrigin[3];
-		Vector3f m_buildingDiag[3];
-		std::shared_ptr<fcl::Box<float>> m_box_building[3];
+		StaticActor m_Buildings[4]; // theoretisch kann das auch weglassen
+		Vector3f m_buildingOrigin[4];
+		Vector3f m_buildingDiag[4];
+		std::shared_ptr<fcl::Box<float>> m_box_building[4];
 
 		StaticActor m_Cube;
 		StaticActor m_Sphere;
