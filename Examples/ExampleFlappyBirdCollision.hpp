@@ -79,7 +79,7 @@ namespace CForge {
 			//m_BirdTransformSGN.rotation(Rot);
 			// raven
 			m_BirdTransformSGN.init(&m_RootSGN, m_startPosition);
-			m_BirdTransformSGN.scale(Vector3f(3.0f, 3.0f, 3.0f));
+			m_BirdTransformSGN.scale(Vector3f(6.0f, 6.0f, 6.0f));
 
 
 			//m_BirdTransformSGN.rotation(Rot);
@@ -624,6 +624,20 @@ namespace CForge {
 			m_BirdTransformSGN.translation(Vector3f(m_BirdTransformSGN.translation().x() + move.x(), m_BirdTransformSGN.translation().y() + move.y(), m_BirdTransformSGN.translation().z() + move.z()));
 		}
 
+		void checkCollisionBuilding() {
+			// penalty for colding with building
+			if (!m_colLastFrame && m_col) {
+				// first instance of collision
+				m_colLastFrame = true;
+				score -= 2;
+				cout << "Ouch that hurts :("<< endl;
+			}
+			if (m_colLastFrame && !m_col) {
+				// do not collide anymore
+				m_colLastFrame = false;
+			}
+		}
+
 		void defaultCameraUpdateBird(VirtualCamera* pCamera, Keyboard* pKeyboard, Mouse* pMouse, Vector3f m, Vector3f posBird, Vector3f up, Matrix3f bird) {
 			if (nullptr == pCamera) throw NullpointerExcept("pCamera");
 			if (nullptr == pKeyboard) throw NullpointerExcept("pKeyboard");
@@ -720,6 +734,7 @@ namespace CForge {
 
 			CollisionTest();
 
+			checkCollisionBuilding();
 			//Animation
 			static uint64_t lastFrameTime = CForgeUtility::timestamp();
 
@@ -1165,8 +1180,8 @@ namespace CForge {
 		const float maxHorizontalPosition = 10.0f; // Adjust as needed
 		const float minHorizontalPosition = -10.0f; // Adjust as needed
 
-		const float maxVerticalPosition = 15.0f; // Adjust as needed
-		const float minVerticalPosition = 0.0f; // Adjust as needed
+		const float maxVerticalPosition = 14.0f; // Adjust as needed
+		const float minVerticalPosition = 1.0f; // Adjust as needed
 
 		float m_rollSpeed = 0.0f;
 		float m_pitchSpeed = 0.0f;
@@ -1191,7 +1206,7 @@ namespace CForge {
 		Eigen::Matrix4f m_birdTestCollision = Eigen::Matrix4f::Identity();
 		Eigen::Matrix4f m_matSphere = Eigen::Matrix4f::Identity();
 		bool m_col = false;
-
+		bool m_colLastFrame = false;
 		int m_CPCollisonCurrent = 0;
 		//std::vector<UINT32> m_BuildingGeoModels;
 		//std::vector<std::pair<SGNTransformation*, UINT32>> m_BuildingGeoModels;
