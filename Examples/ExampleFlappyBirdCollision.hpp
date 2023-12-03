@@ -232,6 +232,39 @@ namespace CForge {
 			LabelPos.y() = 34;
 			scoreLabel.position(LabelPos);
 
+			Font* pFont2 = CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 30, true, false);
+			DeadLabel.init(pFont2, "Puhhh that was a close one, almost deadly...");
+			DeadLabel.color(1.0f, 0.0f, 0.0f, 1.0f);
+			Vector2f Label2Pos;
+			Label2Pos.x() = m_RenderWin.width() / 2 - pFont2->computeStringWidth("Puhhh that was a close one, almost deadly...") / 2;
+			Label2Pos.y() = 80;
+			DeadLabel.position(Label2Pos);
+
+			Font* pFontC = CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 24, true, false);
+			ContinueLabel.init(pFontC, "Press P to continue!");
+			//RestartLabel.color(1.0f, 0.0f, 0.0f, 1.0f);
+			Vector2f CLabelPos;
+			CLabelPos.x() = m_RenderWin.width() / 2 - pFontC->computeStringWidth("Press P to continue!") / 2;
+			CLabelPos.y() = (m_RenderWin.height() / 5) * 4;
+			ContinueLabel.position(CLabelPos);
+
+			Font* pFont3 = CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 32, true, false);
+			GameOverLabel.init(pFont3, "PLATSCH that is one bird less on the planet...");
+			GameOverLabel.color(1.0f, 0.0f, 0.0f, 1.0f);
+			Vector2f Label3Pos;
+			Label3Pos.x() = m_RenderWin.width() / 2 - pFont3->computeStringWidth("PLATSCH that is one bird less on the planet...") / 2;
+			Label3Pos.y() = 80;
+			GameOverLabel.position(Label3Pos);
+
+			Font* pFont4 = CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 24, true, false);
+			RestartLabel.init(pFont4, "Press SPACE to restart!");
+			//RestartLabel.color(1.0f, 0.0f, 0.0f, 1.0f);
+			Vector2f Label4Pos;
+			Label4Pos.x() = m_RenderWin.width() / 2 - pFont4->computeStringWidth("Press SPACE to restart!") / 2;
+			Label4Pos.y() = (m_RenderWin.height() / 5) * 4;
+			RestartLabel.position(Label4Pos);
+
+			m_CPCollisonCurrent = 0;
 
 			std::string GLError = "";
 			CForgeUtility::checkGLError(&GLError);
@@ -629,8 +662,25 @@ namespace CForge {
 			if (!m_colLastFrame && m_col) {
 				// first instance of collision
 				m_colLastFrame = true;
-				score -= 2;
-				cout << "Ouch that hurts :("<< endl;
+				if (m_CPCollisonCurrent < 2) {
+					
+					m_CPCollisonCurrent += 1;
+					m_paused = !m_paused;
+					m_collision = !m_collision;
+					if (m_paused != true) m_speed.z() = oldSpeed + 0.01f;
+					translate_bird(Vector3f(0.0f, 0.0f, -25.0f));
+
+				}
+				else {
+					//Game Over
+					m_paused = !m_paused;
+					m_gameOver = !m_gameOver;
+					translate_bird(Vector3f(0.0f, 0.0f, -25.0f));
+					//cout << "PLATSCH, thats one bird less on the planet :(" << endl;
+				}
+				//m_CPCollisonCurrent += 1;
+				//score -= 2;
+				//cout << "Ouch that hurts :("<< endl;
 			}
 			if (m_colLastFrame && !m_col) {
 				// do not collide anymore
@@ -721,6 +771,23 @@ namespace CForge {
 			}
 		}
 
+		void restartGame(void) {
+			
+			// Erstellen der Start-Area
+			//createStartingArea(-100.0f);
+			//createStartingArea(-50.0f);
+			// Erstellen von Gebäude-Reihen
+			//for (int row = 0; row < 5; ++row) {
+			//	float xOffset = row * 50.0f; // Abstand zwischen den Reihen
+			//	createBuildingRow(xOffset);   // Methode zum Erstellen einer Gebäude-Reihe aufrufen
+			//}
+			score = 0;
+			m_BirdTransformSGN.translation(Vector3f(0.0f, 10.0f, m_BirdTransformSGN.translation().z()));
+			m_CPCollisonCurrent = 0;
+			m_gameOver = false;
+			m_speed.z() = 0.3;
+			
+		}
 
 		void mainLoop(void)override {
 			if (!glLoaded) {
@@ -801,15 +868,15 @@ namespace CForge {
 			m_BirdRollSGN.rotation(rollRotation);
 
 			// Handle up and down movement
-			if (pKeyboard->keyPressed(Keyboard::KEY_DOWN)) {
+			if (pKeyboard->keyPressedConst(Keyboard::KEY_DOWN)) {
 				m_speed.y() -= 0.01f; // Move down
 			}
-			else if (pKeyboard->keyPressed(Keyboard::KEY_UP)) {
+			else if (pKeyboard->keyPressedConst(Keyboard::KEY_UP)) {
 				m_speed.y() += 0.03f; // Move up
 			}
 			else {
 				if (m_BirdTransformSGN.translation().y() <= maxVerticalPosition) {
-					m_speed.y() += 0.01f; // Apply a small upward force when not pressing up
+					m_speed.y() = 0.0f; // Apply a small upward force when not pressing up
 				}
 
 				if (m_BirdTransformSGN.translation().y() >= maxVerticalPosition && m_speed.y() > 0.0f) {
@@ -889,8 +956,9 @@ namespace CForge {
 
 			// Update the bird's vertical position
 			m_BirdTransformSGN.translation(Vector3f(m_BirdTransformSGN.translation().x(), newVerticalPosition, m_BirdTransformSGN.translation().z()));
-			if (pKeyboard->keyPressed(Keyboard::KEY_P, true)) {
+			if (pKeyboard->keyPressed(Keyboard::KEY_P, true) && !m_gameOver) {
 				m_paused = !m_paused;
+				m_collision = false;
 				if (m_paused != true) m_speed.z() = oldSpeed + 0.01f;
 			}
 			if (m_paused) {
@@ -910,8 +978,9 @@ namespace CForge {
 					m_speed.y() -= 0.02f;
 				}
 			}
-
-
+			if (pKeyboard->keyPressed(Keyboard::KEY_SPACE) && m_gameOver) {
+				restartGame();
+			}
 
 
 			////
@@ -926,8 +995,8 @@ namespace CForge {
 				// Überprüfen, ob der Vogel die erste Reihe passiert hat
 				if (birdZ > firstBuildingZ + 105.0f) {
 					score++;
-					cout << "Score: " << score << endl;
-					if (m_speed.z() < 0.80) m_speed.z() += 0.01f;
+					//cout << "Score: " << score << endl;
+					if (m_speed.z() < 0.80 && !m_paused) m_speed.z() += 0.01f;
 					cout << "Aktueller Speed: " << m_speed.z() << endl;
 
 					// Löschen der ersten Reihe
@@ -939,19 +1008,19 @@ namespace CForge {
 							m_BuildingSGNs.erase(m_BuildingSGNs.begin());
 						}
 					}
-					
+
 					for (int j = 0; j < 2; ++j) {
 						delete m_SideBuildingGeoSGNs.front();
 						delete m_SideBuildingSGNs.front();
 						m_SideBuildingGeoSGNs.erase(m_SideBuildingGeoSGNs.begin());
 						m_SideBuildingSGNs.erase(m_SideBuildingSGNs.begin());
 					}
-					
+
 					delete m_GroundBuildingGeoSGNs.front();
 					delete m_GroundBuildingSGNs.front();
 					m_GroundBuildingGeoSGNs.erase(m_GroundBuildingGeoSGNs.begin());
 					m_GroundBuildingSGNs.erase(m_GroundBuildingSGNs.begin());
-					
+
 					m_BuildingGeoModels.erase(m_BuildingGeoModels.begin(), m_BuildingGeoModels.begin() + 3); // the fancy way
 
 
@@ -977,22 +1046,7 @@ namespace CForge {
 			m_SG.render(&m_RenderDev);
 
 
-			//GUI gui2 = GUI();
-			//gui2.init(&m_RenderWin);
-			// Erstellen eines Text-Widgets und Festlegen des Texts
 
-			//TextWidget* fpsWidget = gui.createPlainText();
-			//fpsWidget->setTextAlign(TextWidget::ALIGN_RIGHT);
-			//wchar_t text_wstring[10] = { 0 };
-			//int charcount = swprintf(text_wstring, 10, L"Score: %d\nZweite Zeile", score);
-			//std::u32string text;
-			//ugly cast to u32string from wchar[]
-			//for (int i = 0; i < charcount; i++) {
-			//	text.push_back((char32_t)text_wstring[i]);
-			//}
-
-			//fpsWidget->setText(text);
-			//fpsWidget->setPosition(RenderWin.width() - fpsWidget->getWidth(), 0);
 
 			//gui.render(&m_RenderDev);
 
@@ -1080,6 +1134,43 @@ namespace CForge {
 			std::string LabelText = "Score: " + std::to_string(int32_t(score));
 			scoreLabel.text(LabelText);
 			scoreLabel.render(&m_RenderDev);
+			if (m_paused) {
+
+			std::string DeadText = "Puhhh that was a close one, almost deadly...";
+			std::string DeadText2 = "Another one and you probably end up as a trophy on someones building...";
+			DeadLabel.text(DeadText2);
+			if (m_CPCollisonCurrent == 1) {
+				DeadLabel.text(DeadText);
+			}
+			std::string ContinueText = "Press P to continue!";
+			ContinueLabel.text(ContinueText);
+
+			if (m_collision) {
+				DeadLabel.render(&m_RenderDev);
+				ContinueLabel.render(&m_RenderDev);
+			}
+
+			DeadLabel.canvasSize(m_RenderWin.width(), m_RenderWin.height());
+			// reposition Dead Label
+			Vector2f DLabelPos;
+			DLabelPos.x() = m_RenderWin.width() / 2 - DeadLabel.font()->computeStringWidth("Another one and you probably end up as a trophy on someones building...") / 2;
+			if (m_CPCollisonCurrent == 1) {
+				DLabelPos.x() = m_RenderWin.width() / 2 - DeadLabel.font()->computeStringWidth("Puhhh that was a close one, almost deadly...") / 2;
+			}
+			DLabelPos.y() = 80;
+			DeadLabel.position(DLabelPos);
+
+			std::string GameOverText = "PLATSCH that is one bird less on the planet...";
+			GameOverLabel.text(GameOverText);
+			std::string RestartText = "Press SPACE to restart!";
+			RestartLabel.text(RestartText);
+			if (m_gameOver) {
+				GameOverLabel.render(&m_RenderDev);
+				RestartLabel.render(&m_RenderDev);
+			}
+		}
+
+			//DeadLabel.render(&m_RenderDev);
 			if (m_DrawHelpTexts) drawHelpTexts();
 
 			m_RenderWin.swapBuffers();
@@ -1103,12 +1194,42 @@ namespace CForge {
 			if (GLWindowMsg::MC_RESIZE == Msg.Code) {
 
 				scoreLabel.canvasSize(m_RenderWin.width(), m_RenderWin.height());
-
 				// reposition score Label
-				Vector2f LabelPos;
-				LabelPos.x() = m_RenderWin.width() / 2 - scoreLabel.font()->computeStringWidth("Score: XXX");
-				LabelPos.y() = 34;
-				scoreLabel.position(LabelPos);
+				Vector2f SLabelPos;
+				SLabelPos.x() = m_RenderWin.width() / 2 - scoreLabel.font()->computeStringWidth("Score: XXX");
+				SLabelPos.y() = 34;
+				scoreLabel.position(SLabelPos);
+
+				DeadLabel.canvasSize(m_RenderWin.width(), m_RenderWin.height());
+				// reposition Dead Label
+				Vector2f DLabelPos;
+				DLabelPos.x() = m_RenderWin.width() / 2 - DeadLabel.font()->computeStringWidth("Another one and you probably end up as a trophy on someones building...") / 2;
+				if (m_CPCollisonCurrent == 1) {
+					DLabelPos.x() = m_RenderWin.width() / 2 - DeadLabel.font()->computeStringWidth("Puhhh that was a close one, almost deadly...") / 2;
+				}
+				DLabelPos.y() = 80;
+				DeadLabel.position(DLabelPos);
+
+				ContinueLabel.canvasSize(m_RenderWin.width(), m_RenderWin.height());
+				// reposition Continue Label
+				Vector2f CLabelPos;
+				CLabelPos.x() = m_RenderWin.width() / 2 - ContinueLabel.font()->computeStringWidth("Press P to continue!") / 2;
+				CLabelPos.y() = (m_RenderWin.height() / 5) * 4;
+				ContinueLabel.position(CLabelPos);
+
+				GameOverLabel.canvasSize(m_RenderWin.width(), m_RenderWin.height());
+				// reposition GameOver Label
+				Vector2f GOLabelPos;
+				GOLabelPos.x() = m_RenderWin.width() / 2 - GameOverLabel.font()->computeStringWidth("PLATSCH that is one bird less on the planet...") / 2;
+				GOLabelPos.y() = 80;
+				GameOverLabel.position(GOLabelPos);
+
+				RestartLabel.canvasSize(m_RenderWin.width(), m_RenderWin.height());
+				// reposition Restart Label
+				Vector2f RLabelPos;
+				RLabelPos.x() = m_RenderWin.width() / 2 - RestartLabel.font()->computeStringWidth("Press SPACE to restart!") / 2;
+				RLabelPos.y() = (m_RenderWin.height() / 5) * 4;
+				RestartLabel.position(RLabelPos);
 			}
 
 		}//listen[GLWindow]
@@ -1163,6 +1284,8 @@ namespace CForge {
 
 		bool m_paused = true;
 		bool m_RepeatAnimation = true;
+		bool m_collision = false;
+		bool m_gameOver = false;
 
 		bool glLoaded = false;
 
@@ -1176,6 +1299,10 @@ namespace CForge {
 
 		int score = 0; // Anfangswert des Scores
 		LineOfText scoreLabel;
+		LineOfText DeadLabel;
+		LineOfText ContinueLabel;
+		LineOfText GameOverLabel;
+		LineOfText RestartLabel;
 
 		const float maxHorizontalPosition = 10.0f; // Adjust as needed
 		const float minHorizontalPosition = -10.0f; // Adjust as needed
