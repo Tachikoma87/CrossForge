@@ -23,7 +23,8 @@
 #include <Examples/ExampleMinimumGraphicsSetup.hpp>
 #include <Examples/ExampleBirdVR.hpp>
 #include <Examples/ExampleCollisionTest.hpp>
-#include <Examples/ExampleFlappyBird.hpp>
+#include <Examples/ExampleFlappyBirdCollision.hpp>
+#include <Examples/ExampleMapBuilderGrid.hpp>
 #include <Examples/ExampleMapBuilderGrid.hpp>
 #include "Examples/ImGui/ImGuiUtility.h"
 
@@ -59,14 +60,18 @@ namespace CForge {
 			}
 			*/
 			AssetIO::load("MyAssets/Menu/example.png", &ExampleImage);
-			AssetIO::load("MyAssets/Menu/bird_sample.png", &BirdImage);
+			AssetIO::load("MyAssets/Menu/bird_example.png", &BirdImage);
 			AssetIO::load("MyAssets/Menu/flappy_sample.png", &FlappyImage);
+			AssetIO::load("MyAssets/Menu/MapBuilder1.png", &MapBuilderImage);
+
 
 			ExampleTexture.init(&ExampleImage);
 
 			BirdTexture.init(&BirdImage);
 
 			FlappyTexture.init(&FlappyImage);
+
+			MapBuilderTexture.init(&MapBuilderImage);
 
 			m_ActiveTool = true;
 			m_DemoWindow = true;
@@ -140,12 +145,25 @@ namespace CForge {
 				//ImGui::End();
 				return;
 			}
+			ImGui::SameLine((ImGui::GetContentRegionAvail().x * 2 / 3) - (image_size.x / 3));
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 40); 
+			if (ImGui::ImageButton((void*)MapBuilderTexture.handle(), image_size, ImVec2(0, 1), ImVec2(1, 0))) {
+				ImGui::PopStyleVar();
+				startBuilder();
+				//ImGui::End();
+				return;
+			}
 
 			ImGui::NewLine();
 			text = "Flappy";
 			textwidth = ImGui::CalcTextSize(text.c_str()).x;
 			ImGui::SameLine((ImGui::GetContentRegionAvail().x / 3) - (image_size.x / 6) - (textwidth / 2));
 			ImGui::Text("Flappy");
+
+			text = "Map-Builder";
+			textwidth = ImGui::CalcTextSize(text.c_str()).x;
+			ImGui::SameLine((ImGui::GetContentRegionAvail().x * 2 / 3) + (image_size.x / 6) - (textwidth / 2));
+			ImGui::Text("Map-Builder");
 
 			ImGui::PopStyleVar();
 
@@ -184,7 +202,20 @@ namespace CForge {
 		}
 
 		void startFlappy(void) {
-			ExampleFlappyBird* mScene = new ExampleFlappyBird();
+			ExampleFlappyBirdCollision* mScene = new ExampleFlappyBirdCollision();
+			m_RenderWin.closeWindow();
+			ImGuiUtility::shutdownImGui();
+			SShaderManager::instance()->reset();
+			mScene->init();
+			while (!mScene->renderWindow()->shutdown()) mScene->mainLoop();
+			if (nullptr != mScene) delete mScene;
+			mScene = nullptr;
+			init();
+			return;
+		}
+
+		void startBuilder(void) {
+			ExampleMapBuilderGrid* mScene = new ExampleMapBuilderGrid();
 			m_RenderWin.closeWindow();
 			ImGuiUtility::shutdownImGui();
 			SShaderManager::instance()->reset();
@@ -227,6 +258,10 @@ namespace CForge {
 				startFlappy();
 			}
 
+			if (pKeyboard->keyPressed(Keyboard::KEY_4, true)) {
+				startBuilder();
+			}
+
 			m_RenderWin.swapBuffers();
 			
 			updateFPS();
@@ -247,10 +282,12 @@ namespace CForge {
 		T2DImage<uint8_t> ExampleImage;
 		T2DImage<uint8_t> BirdImage;
 		T2DImage<uint8_t> FlappyImage;
+		T2DImage<uint8_t> MapBuilderImage;
 
 		GLTexture2D ExampleTexture;
 		GLTexture2D BirdTexture;
 		GLTexture2D FlappyTexture;
+		GLTexture2D MapBuilderTexture;
 
 		bool m_DemoWindow;
 		bool m_ActiveTool;

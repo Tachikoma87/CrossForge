@@ -268,12 +268,18 @@ namespace CForge {
 			m_BuildingGeoSGNs.clear();
 
 			// Setzen Sie gridBuildingSGNs zurück, um anzuzeigen, dass auf keinem Rasterfeld ein Gebäude vorhanden ist
-			for (int row = 0; row < numRows; ++row) {
+
+			/*for (int row = 0; row < numRows; ++row) {
 				for (int col = 0; col < numCols; ++col) {
-					gridBuildingSGNs[row][col].first = false;
-					gridBuildingSGNs[row][col].second = -1;
+					if (gridBuildingSGNs[row][col].first != false && gridBuildingSGNs[row][col].second != -1) {
+						gridBuildingSGNs[row][col].first = false;
+						gridBuildingSGNs[row][col].second = -1;
+					}
 				}
-			}
+			}*/
+			gridBuildingSGNs.clear();
+			ExampleSceneBase::clear();
+			m_RenderWin.closeWindow();
 		}
 
 
