@@ -1033,7 +1033,9 @@ namespace CForge {
 					//createBuildingRow(newRowsStartZ + 50.0f); // Abstand zwischen den neuen Reihen
 				}
 			}
-
+			if (pKeyboard->keyPressed(Keyboard::KEY_9, true)) {
+				debugmode = !debugmode;
+			}
 
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
@@ -1101,13 +1103,16 @@ namespace CForge {
 
 			Eigen::Matrix4f scaleMatrix = CForgeMath::scaleMatrix(Eigen::Vector3f(m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius()), m_max_scale_bird * (2 * m_birdSphere.radius())));
 
-			if (m_col)
+			if (m_col) 
 				glColorMask(true, false, false, true);
 			else
 				glColorMask(false, true, false, true);
 
-			m_RenderDev.modelUBO()->modelMatrix(m_birdTestCollision * scaleMatrix);
-			m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
+			if (debugmode) {
+				m_RenderDev.modelUBO()->modelMatrix(m_birdTestCollision * scaleMatrix);
+				m_Sphere.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
+			}
+			
 
 			int model = 0;
 			int buildingCollisionIdx = 0;
@@ -1117,9 +1122,12 @@ namespace CForge {
 				buildingCollisionIdx++;
 
 				//auto building = std::get<0>(m_BuildingGeoModels[i]);
-
-				m_RenderDev.modelUBO()->modelMatrix(std::get<2>(m_BuildingGeoModels[i]));
-				m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
+				if (debugmode) {
+					m_RenderDev.modelUBO()->modelMatrix(std::get<2>(m_BuildingGeoModels[i]));
+					m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
+				}
+				//m_RenderDev.modelUBO()->modelMatrix(std::get<2>(m_BuildingGeoModels[i]));
+				//m_Cube.render(&m_RenderDev, Eigen::Quaternionf(), Eigen::Vector3f(), Eigen::Vector3f());
 
 			}
 
@@ -1334,6 +1342,7 @@ namespace CForge {
 		Eigen::Matrix4f m_matSphere = Eigen::Matrix4f::Identity();
 		bool m_col = false;
 		bool m_colLastFrame = false;
+		bool debugmode = false;
 		int m_CPCollisonCurrent = 0;
 		//std::vector<UINT32> m_BuildingGeoModels;
 		//std::vector<std::pair<SGNTransformation*, UINT32>> m_BuildingGeoModels;
