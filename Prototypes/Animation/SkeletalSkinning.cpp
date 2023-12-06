@@ -11,6 +11,10 @@ namespace CForge {
 	}//Destructor
 
 	void SkeletalSkinning::init(T3DMesh<float>* pMesh, SkeletalAnimationController* pController) {
+		for (auto& i : m_SkinVertexes) {
+			if (nullptr != i) delete i;
+		}
+		m_SkinVertexes.clear();
 
 		// create vertexes
 		for (uint32_t i = 0; i < pMesh->vertexCount(); ++i) {

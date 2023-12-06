@@ -18,7 +18,6 @@
 #ifndef __CFORGE_VIDEOPLAYER_H__
 #define __CFORGE_VIDEOPLAYER_H__
 
-#ifdef INCLUDE_OPENCV
 
 #include <crossforge/Core/CForgeObject.h>
 #include <crossforge/Graphics/Actors/ScreenQuad.h>
@@ -93,5 +92,4 @@ namespace CForge {
 	};//VideoPlayer
 }
 
-#endif 
 #endif

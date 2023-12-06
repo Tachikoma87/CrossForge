@@ -46,7 +46,9 @@ namespace CForge {
 		bool isRecording(void)const;
 
 	protected:
-		struct Frame {
+		struct VideoData* m_pData;
+
+		/*struct Frame {
 			T2DImage<uint8_t> Img;
 			uint64_t Timestamp;
 		};
@@ -65,7 +67,7 @@ namespace CForge {
 		File m_VideoFile;
 		void* m_pCodecCtx;
 		void* m_pPkt;
-		int32_t m_FrameCounter;
+		int32_t m_FrameCounter;*/
 	};//VideoRecorder
 		
 }//name-space

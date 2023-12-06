@@ -46,7 +46,7 @@ namespace CForge {
         }//alloc_picture
 
 		static void freeAVFrame(AVFrame* pFrame) {
-			if (nullptr != pFrame) av_free(pFrame);
+			if (nullptr != pFrame) av_frame_free(&pFrame);
 		}//freeAVFrame
 
         static AVFrame* convertPixelFormat(AVFrame* pSrc, AVPixelFormat DstFormat) {
@@ -75,11 +75,43 @@ namespace CForge {
             return pRval;
         }//convertPixelFormat
 
+        static void convertPixelFormat(AVFrame* pSrc, AVFrame **ppTarget, AVPixelFormat DstFormat) {
+            const int32_t Width = pSrc->width;
+            const int32_t Height = pSrc->height;
+
+            
+            AVFrame* pRval = ((*ppTarget) == nullptr) ? allocAVFrame(Width, Height, DstFormat) : (*ppTarget);
+            if (nullptr == pRval) return;
+
+            SwsContext* pConversionCtx = sws_getContext(Width, Height,
+                (AVPixelFormat)pSrc->format,
+                Width,
+                Height,
+                DstFormat,
+                SWS_FAST_BILINEAR,
+                NULL,
+                NULL,
+                NULL);
+            sws_scale(pConversionCtx, pSrc->data, pSrc->linesize, 0, Height, pRval->data, pRval->linesize);
+            sws_freeContext(pConversionCtx);
+
+            pRval->format = DstFormat;
+            pRval->width = pSrc->width;
+            pRval->height = pSrc->height;
+
+        }//convertPixelFormat
+
         static AVFrame* toAVFrame(const T2DImage<uint8_t>* pSource) {
             AVFrame* pRval = allocAVFrame(pSource->width(), pSource->height(), AV_PIX_FMT_RGB24);
             uint32_t Size = pSource->width() * pSource->height() * pSource->componentsPerPixel();
             memcpy(pRval->data[0], pSource->data(), Size);
             return pRval;
+        }//toAVFrame
+
+        static void toAVFrame(AVFrame** ppFrame, const T2DImage<uint8_t>* pSource) {
+            if(nullptr == *ppFrame) (*ppFrame) = allocAVFrame(pSource->width(), pSource->height(), AV_PIX_FMT_RGB24);
+            uint32_t Size = pSource->width() * pSource->height() * pSource->componentsPerPixel();
+            memcpy((*ppFrame)->data[0], pSource->data(), Size);
         }//toAVFrame
 
         static void to2DImage(const AVFrame* pSource, T2DImage<uint8_t>* pTarget) {

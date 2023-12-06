@@ -33,7 +33,53 @@ namespace CForge {
 
 		struct SwsContext* pSwsCtx;
 		struct SwrContext* pSwrCtx;
+
+		OutputStream() {
+			pStream = nullptr;
+			pEnc = nullptr;
+			NextPts = 0;
+			SamplesCount = 0;
+			
+			pFrame = nullptr;
+			pTmpFrame = nullptr;
+			pTmpPkt = nullptr;
+			t = tincr = tincr2 = 0;
+			pSwsCtx = nullptr;
+			pSwrCtx = nullptr;
+		}
 	};//OutputStream
+
+	typedef struct VideoData {
+		OutputStream VideoStream;
+		OutputStream AudioStream;
+
+		const AVOutputFormat* pFmt;
+		AVFormatContext* pFmtCtx;
+		const AVCodec* pAudioCodec;
+		const AVCodec* pVideoCodec;
+		AVDictionary* pAVDict;
+
+		int32_t HasAudio;
+		int32_t HasVideo;
+
+		std::string Filename;
+		FILE* pOutputFile;
+
+		int32_t FrameWidth;
+		int32_t FrameHeight;
+		int32_t FPS;
+
+		VideoData() {
+			HasAudio = 0;
+			HasVideo = 0;
+
+			pFmt = nullptr;
+			pFmtCtx = nullptr;
+			pAudioCodec = nullptr;
+			pVideoCodec = nullptr;
+			pAVDict = nullptr;
+		}
+	};
 
 	int32_t writeFrame(AVFormatContext* pFmtCtx, AVCodecContext* pCodecCtx, AVStream* pStream, AVFrame* pFrame, AVPacket* pPkt) {
 		int32_t Rval = 0;
@@ -119,11 +165,30 @@ namespace CForge {
 		return pStream->pFrame;
 	}//getVideoFrame
 
+	AVFrame* getVideoFrame(OutputStream* pStream, const T2DImage<uint8_t> *pImg) {
+		AVCodecContext* pCodecCtx = pStream->pEnc;
+
+		// check if we want to generate more frames
+		AVRational tbb;
+		tbb.num = tbb.den = 1;
+
+		// when we pass a frame to the encoder, it may keep a reference to it internally
+		// make sure we do not overwrite it here
+		if (av_frame_make_writable(pStream->pFrame) < 0) throw CForgeExcept("Unable to make frame writable!");
+
+		AVFrame* pSourceImg = FFMpegUtility::toAVFrame(pImg);
+		FFMpegUtility::convertPixelFormat(pSourceImg, &pStream->pFrame, AV_PIX_FMT_YUV420P);
+		FFMpegUtility::freeAVFrame(pSourceImg);
+
+		pStream->pFrame->pts = pStream->NextPts++;
+		return pStream->pFrame;
+	}//getVideoFrame
+
 	int32_t writeVideoFrame(AVFormatContext* pFormatCtx, OutputStream* pStream) {
 		return writeFrame(pFormatCtx, pStream->pEnc, pStream->pStream, getVideoFrame(pStream), pStream->pTmpPkt);
 	}//writeVideoFrame
 
-	void addStream(OutputStream* pStream, AVFormatContext* pFormatCtx, const AVCodec** ppCodec, enum AVCodecID CodecID) {
+	void addStream(OutputStream* pStream, AVFormatContext* pFormatCtx, const AVCodec** ppCodec, enum AVCodecID CodecID, VideoData *pData) {
 		AVCodecContext *pCodecCtx = nullptr;
 		char ErrorBuffer[AV_ERROR_MAX_STRING_SIZE];
 
@@ -167,12 +232,12 @@ namespace CForge {
 		}break;
 		case AVMEDIA_TYPE_VIDEO: {
 			pCodecCtx->codec_id = CodecID;
-			pCodecCtx->width = 352;
-			pCodecCtx->height = 288;
+			pCodecCtx->width = pData->FrameWidth; // 352;
+			pCodecCtx->height = pData->FrameHeight; // 288;
 			// timebase: This is the fundamental unit of time (in seconds) in terms of which frame timestamps are represented
 			// For fixed-fps content, timebase should be 1/framerate and timestamp increments should be identical to 1
 			pStream->pStream->time_base.num = 1;
-			pStream->pStream->time_base.den = STREAM_FRAME_RATE;
+			pStream->pStream->time_base.den = pData->FPS;
 			pCodecCtx->time_base = pStream->pStream->time_base;
 			pCodecCtx->gop_size = 12; // emit one intra frame every twelve frames at most
 			pCodecCtx->pix_fmt = STREAM_PIX_FMT;
@@ -237,8 +302,8 @@ namespace CForge {
 
 	void muxTest() {
 
-		OutputStream VideoStream = { 0 };
-		OutputStream AudioStream = { 0 };
+		OutputStream VideoStream; // = { 0 };
+		OutputStream AudioStream; // = { 0 };
 
 		const AVOutputFormat* pFmt = nullptr;
 		AVFormatContext* pFormatCtx = nullptr;
@@ -271,7 +336,7 @@ namespace CForge {
 
 		// Add the audio and video streams using the default format codecs and initialize the codecs
 		if (pFmt->video_codec != AV_CODEC_ID_NONE) {
-			addStream(&VideoStream, pFormatCtx, &pVideoCodec, pFmt->video_codec);
+			addStream(&VideoStream, pFormatCtx, &pVideoCodec, pFmt->video_codec, nullptr);
 			HasVideo = 1;
 			EncodeVideo = 1;
 		}
@@ -328,35 +393,11 @@ namespace CForge {
 		avformat_free_context(pFormatCtx);
 	}//muxTest
 
-	void encode(AVCodecContext* pContext, AVFrame *pFrame, AVPacket *pPkt, File *pOutFile) {
-
-		av_frame_make_writable(pFrame);
-
-		int RVal = avcodec_send_frame(pContext, pFrame);
-		if (RVal < 0) throw CForgeExcept("Error sending a frame for encoding!");
-
-		while (RVal >= 0) {
-			RVal = avcodec_receive_packet(pContext, pPkt);
-			if(RVal == AVERROR(EAGAIN) || RVal == AVERROR_EOF) break;
-			else if (RVal < 0) {
-				char Buffer[AV_ERROR_MAX_STRING_SIZE];
-				av_make_error_string(Buffer, sizeof(Buffer), RVal);
-				throw CForgeExcept("Error during encoding: " + std::string(Buffer));
-			}
-
-			pOutFile->write(pPkt->data, pPkt->size);
-		}
-
-	}//encode
+	
 
 
 	VideoRecorder::VideoRecorder(void): CForgeObject("VideoRecorder") {
-		m_FrameWidth = 0;
-		m_FrameHeight = 0;
-		m_FPS = 0.0f;
-
-		m_pCodecCtx = nullptr;
-		m_pPkt = nullptr;
+		m_pData = nullptr;
 	}//Constructor
 
 	VideoRecorder::~VideoRecorder(void) {
@@ -368,80 +409,110 @@ namespace CForge {
 	}//initialize
 
 	void VideoRecorder::startRecording(const std::string Filename, uint32_t Width, uint32_t Height, const float FPS) {
+		int32_t EncodeVideo;
+		int32_t EncodeAudio;
+		/*muxTest();
+		return;*/
 
-		muxTest();
+		int32_t Rval = 0;
 
-		//clear();
-		//m_Filename = Filename;
-		//m_FPS = FPS;
+		if (nullptr != m_pData) delete m_pData;
+		m_pData = new VideoData();
 
-		//AVCodecID Codec = AV_CODEC_ID_MPEG2VIDEO;
-		//AVCodecContext* pCodecCtx = nullptr;
-		//AVPacket* pPkt = nullptr;
+		m_pData->FrameWidth = Width;
+		m_pData->FrameHeight = Height;
+		m_pData->FPS = FPS;
+		m_pData->Filename = Filename;
 
-		//const AVCodec* pCodec = avcodec_find_encoder(Codec);
-		//if (nullptr == pCodec) throw CForgeExcept("Unable to find video codec!");
-		//pCodecCtx = avcodec_alloc_context3(pCodec);
-		//if (nullptr == pCodecCtx) throw CForgeExcept("Unable to allocate video context!");
+		char ErrorBuffer[AV_ERROR_MAX_STRING_SIZE];
 
-		//pPkt = av_packet_alloc();
-		//if (nullptr == pPkt) throw CForgeExcept("Unable to allocate packet!");
+		// allocate the output media context
+		avformat_alloc_output_context2(&m_pData->pFmtCtx, nullptr, nullptr, m_pData->Filename.c_str());
 
-		//pCodecCtx->bit_rate = 26500*1000;
-		//// resolution
-		//pCodecCtx->width = Width;
-		//pCodecCtx->height = Height;
-		//// frames per second
-		//pCodecCtx->time_base.num = 1;
-		//pCodecCtx->time_base.den = FPS;
+		if (nullptr == m_pData->pFmtCtx) {
+			printf("Could not deduce output format from file extension: using MPEG.\n");
+			avformat_alloc_output_context2(&m_pData->pFmtCtx, nullptr, "mp4", m_pData->Filename.c_str());
+		}
+		if (nullptr == m_pData->pFmtCtx) throw CForgeExcept("Unable to allocate format context!");
 
-		//pCodecCtx->framerate.num = FPS;
-		//pCodecCtx->framerate.den = 1;
+		m_pData->pFmt = m_pData->pFmtCtx->oformat;
 
-		//pCodecCtx->gop_size = 10;
-		//pCodecCtx->max_b_frames = 1;
-		//pCodecCtx->pix_fmt = AV_PIX_FMT_YUV420P;
+		// ...
+
+		// Add the audio and video streams using the default format codecs and initialize the codecs
+		if (m_pData->pFmt->video_codec != AV_CODEC_ID_NONE) {
+			addStream(&m_pData->VideoStream, m_pData->pFmtCtx, &m_pData->pVideoCodec, m_pData->pFmt->video_codec, m_pData);
+			m_pData->HasVideo = 1;
+			EncodeVideo = 1;
+		}
+		// audio not yet implemented
+		if (m_pData->pFmt->audio_codec != AV_CODEC_ID_NONE) {
+			//addStream(&AudioStream, pFormatCtx, &pAudioCodec, pFmt->audio_codec);
+			m_pData->HasAudio = 0;
+			EncodeAudio = 0;
+		}
+
+		// Now that all the parameters are set, we can open the audio and video codecs and allocate the necessary encode buffers
+		if (m_pData->HasVideo) openVideo(m_pData->pFmtCtx, m_pData->pVideoCodec, &m_pData->VideoStream, m_pData->pAVDict);
+		//if (HasAudio) openAudio(pFormatCtx, pAudioCodec, &AudioStream, pAVDict);
+
+		av_dump_format(m_pData->pFmtCtx, 0, m_pData->Filename.c_str(), 1);
+
+		// open the output file, if needed
+		if (!(m_pData->pFmt->flags & AVFMT_NOFILE)) {
+			Rval = avio_open(&m_pData->pFmtCtx->pb, m_pData->Filename.c_str(), AVIO_FLAG_WRITE);
+			if (Rval < 0) {
+				av_make_error_string(ErrorBuffer, sizeof(ErrorBuffer), Rval);
+				throw CForgeExcept("Could not open file " + m_pData->Filename + ": " + ErrorBuffer);
+			}
+		}
+
+		// write the stream header, if any
+		Rval = avformat_write_header(m_pData->pFmtCtx, &m_pData->pAVDict);
+		if (Rval < 0) {
+			av_make_error_string(ErrorBuffer, sizeof(ErrorBuffer), Rval);
+			throw CForgeExcept("Error occurred when writing format header: " + std::string(ErrorBuffer));
+		}
 
 
-		//// open it
-		//int32_t RVal = avcodec_open2(pCodecCtx, pCodec, nullptr);
-		//char Buffer[AV_ERROR_MAX_STRING_SIZE];
-		//
-		//if (RVal < 0) {
-		//	av_make_error_string(Buffer, sizeof(Buffer), RVal);
-		//	throw CForgeExcept(std::string("Could not open codec: ") + Buffer);
+		//while (EncodeVideo || EncodeAudio) {
+		//	// select the stream to encode
+		//	if (EncodeVideo && (!EncodeAudio || av_compare_ts(
+		//		m_pData->VideoStream.NextPts,
+		//		m_pData->VideoStream.pEnc->time_base, 
+		//		m_pData->AudioStream.NextPts, 
+		//		m_pData->AudioStream.pEnc->time_base) <= 0)) {
+		//		EncodeVideo = !writeVideoFrame(m_pData->pFmtCtx, &m_pData->VideoStream);
+		//	}
+		//	else {
+		//		//EncodeAudio = !write_audio_frame(pFormatCtx, &AudioStream);
+		//	}
 		//}
-
-		//m_pCodecCtx = pCodecCtx;
-		//m_pPkt = pPkt;
-		//m_FrameCounter = 0;
-
-		//// open File
-		//m_VideoFile.begin(Filename, "wb");
 
 	}//startRecording
 
 	void VideoRecorder::stopRecording() {
-		//AVCodecContext* pCodecCtx = (AVCodecContext*)(m_pCodecCtx);
-		//AVPacket* pPkt = (AVPacket*)(m_pPkt);
-		//// write endcode
-		//uint8_t Endcode[] = { 0, 0, 1, 0xb7 };
-		//// flush the encoder
+		if (nullptr == m_pData) throw CForgeExcept("Video recording not running!");
+		av_write_trailer(m_pData->pFmtCtx);
 
-		//m_VideoFile.write(Endcode, sizeof(Endcode));
-		//m_VideoFile.end();
-		//
-		//avcodec_free_context(&pCodecCtx);
-		//av_packet_free(&pPkt);
+		// close each codec
+		if (m_pData->HasVideo) closeStream(m_pData->pFmtCtx, &m_pData->VideoStream);
+		if (m_pData->HasAudio) closeStream(m_pData->pFmtCtx, &m_pData->AudioStream);
 
-		
+		// close the output file
+		if (!(m_pData->pFmt->flags & AVFMT_NOFILE)) {
+			avio_close(m_pData->pFmtCtx->pb);
+		}
+
+		// free the stream
+		avformat_free_context(m_pData->pFmtCtx);
+
+		delete m_pData;
+		m_pData = nullptr;
 	}//stopRecording
 
 	void VideoRecorder::clear(void) {
 		
-		m_FrameWidth = 0;
-		m_FrameHeight = 0;
-		m_FPS = 0.0f;
 
 	}//clear
 
@@ -450,20 +521,10 @@ namespace CForge {
 	}//release
 
 	void VideoRecorder::addFrame(const T2DImage<uint8_t>* pImg, uint64_t Timestamp) {
-		/*if (nullptr == pImg) throw NullpointerExcept("pImg");
-		if (pImg->width() == 0 || pImg->height() == 0) throw CForgeExcept("Empty image specified!");
+		if (nullptr == m_pData) throw CForgeExcept("Video recording not running!");
 
-		AVCodecContext* pCodecCtx = (AVCodecContext*)(m_pCodecCtx);
-		AVPacket* pPkt = (AVPacket*)(m_pPkt);
+		writeFrame(m_pData->pFmtCtx, m_pData->VideoStream.pEnc, m_pData->VideoStream.pStream, getVideoFrame(&m_pData->VideoStream, pImg), m_pData->VideoStream.pTmpPkt);
 
-		AVFrame *pFrame = FFMpegUtility::toAVFrame(pImg);
-		AVFrame *pEncoderFrame = FFMpegUtility::convertPixelFormat(pFrame, AV_PIX_FMT_YUV420P);
-		pEncoderFrame->pts = m_FrameCounter++;
-
-		encode(pCodecCtx, pEncoderFrame, pPkt, &m_VideoFile);
-		
-		FFMpegUtility::freeAVFrame(pFrame);
-		FFMpegUtility::freeAVFrame(pEncoderFrame);*/
 	}//addFrame
 
 	void VideoRecorder::finish(void) {
@@ -471,19 +532,41 @@ namespace CForge {
 	}//finish
 
 	float VideoRecorder::fps(void)const {
-		return m_FPS;
+		return m_pData->FPS;
 	}//fps
 
 	uint32_t VideoRecorder::width(void)const {
-		return m_FrameWidth;
+		return m_pData->FrameWidth;
 	}//width
 
 	uint32_t VideoRecorder::height(void)const {
-		return m_FrameHeight;
+		return m_pData->FrameHeight;
 	}//height
 
 	bool VideoRecorder::isRecording(void)const {
-		return (m_FrameWidth != 0);
+		return (m_pData->FrameWidth != 0);
 	}//isRecording
+
+	// old method, delete if other methods work fine
+	//void encode(AVCodecContext* pContext, AVFrame *pFrame, AVPacket *pPkt, File *pOutFile) {
+
+	//	av_frame_make_writable(pFrame);
+
+	//	int RVal = avcodec_send_frame(pContext, pFrame);
+	//	if (RVal < 0) throw CForgeExcept("Error sending a frame for encoding!");
+
+	//	while (RVal >= 0) {
+	//		RVal = avcodec_receive_packet(pContext, pPkt);
+	//		if(RVal == AVERROR(EAGAIN) || RVal == AVERROR_EOF) break;
+	//		else if (RVal < 0) {
+	//			char Buffer[AV_ERROR_MAX_STRING_SIZE];
+	//			av_make_error_string(Buffer, sizeof(Buffer), RVal);
+	//			throw CForgeExcept("Error during encoding: " + std::string(Buffer));
+	//		}
+
+	//		pOutFile->write(pPkt->data, pPkt->size);
+	//	}
+
+	//}//encode
 
 }//name space

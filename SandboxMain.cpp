@@ -49,24 +49,17 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
-
 //#define ActiveScene ExampleSocket
 
 //#define ActiveScene ImuInputDeviceTestScene	 
 //#define ActiveScene SkelAnimTestScene
 //#define ActiveScene SurfaceSamplerTestScene
-//#define ActiveScene ForwardTestScene
-//#define ActiveScene PrimitiveFactoryTestScene
 //#define ActiveScene FrustumCullingTestScene
-//#define ActiveScene StickFigureTestScene
 //#define ActiveScene AssetGLTFTestScene
-//#define ActiveScene ImGUITestScene
-//#define ActiveScene B02DemonstratorScene
-//#define ActiveScene SideBySideMotionScene
-//#define ActiveScene VideoPlayerTestScene
+#define ActiveScene B02DemonstratorScene
 //#define ActiveScene StripPhotoTestScene
 //#define ActiveScene CPUSkinningTestScene
-#define ActiveScene CameraCaptureTestScene
+//#define ActiveScene CameraCaptureTestScene
 
 
 

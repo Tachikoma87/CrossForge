@@ -2,6 +2,7 @@
 
 #ifdef INCLUDE_OPENCV
 #include <opencv2/opencv.hpp>
+#endif
 
 #include <crossforge/Utility/CForgeUtility.h>
 
@@ -22,8 +23,10 @@ Plan:
 	5. test and see if that fulfills all requirements
 */ 
 
+
 namespace CForge {
 
+#ifdef INCLUDE_OPENCV
 	void convertCVImageToCFImageRGB(const cv::Mat* pCVImg, T2DImage<uint8_t>* pImg) {
 		// convert to Image2D
 		uint8_t* pImgData = new uint8_t[pCVImg->rows * pCVImg->cols * 3];
@@ -46,6 +49,8 @@ namespace CForge {
 		pImgData = nullptr;
 
 	}//convertCVImageToCFImageRGB
+
+#endif
 
 
 	VideoPlayer::VideoPlayer(void): CForgeObject("VideoPlayer") {
@@ -107,6 +112,7 @@ namespace CForge {
 
 	}//update
 
+#ifdef INCLUDE_OPENCV
 	void VideoPlayer::cacheVideo(void) {
 		
 		// clear Video Buffer
@@ -138,21 +144,6 @@ namespace CForge {
 
 	}//cacheVideo
 
-	void VideoPlayer::getNextFrame(void) {
-		if (m_FinishedPlaying) return;
-
-		m_CurrentFrame++;
-		if (m_CurrentFrame >= m_VideoBuffer.size()) {
-			m_FinishedPlaying = true;
-		}
-		else {
-			m_Tex.init(&m_VideoBuffer[m_CurrentFrame]->Img, false);
-			m_FrameTimestamp = m_VideoBuffer[m_CurrentFrame]->Timestamp;
-		}
-
-
-	}//getNextFrame
-
 	void VideoPlayer::play(const std::string VideoFile) {
 		// open video file
 		cv::VideoCapture* pVideoCapture = new cv::VideoCapture(VideoFile.c_str());
@@ -164,15 +155,6 @@ namespace CForge {
 		m_CurrentFrame = -1;
 		m_VideoStart = CForgeUtility::timestamp();
 		m_FinishedPlaying = false;
-	}//play
-
-	void VideoPlayer::play(void) {
-		if (m_VideoBuffer.size() > 0) {
-			m_FinishedPlaying = false;
-			m_CurrentFrame = -1;
-			getNextFrame();
-			m_VideoStart = CForgeUtility::timestamp();
-		}
 	}//play
 
 	void VideoPlayer::readNextFrame(void) {
@@ -188,12 +170,51 @@ namespace CForge {
 		}
 		else {
 			T2DImage<uint8_t> Img;
-			convertCVImageToCFImageRGB(&Frame, &Img);	
+			convertCVImageToCFImageRGB(&Frame, &Img);
 			m_Tex.init(&Img, false);
 			m_FrameTimestamp = static_cast<uint64_t>(pVC->get(cv::CAP_PROP_POS_MSEC));
 		}
 
 	}//readNextFrame
+
+#else
+	void VideoPlayer::cacheVideo(void) {
+
+		
+
+	}//cacheVideo
+
+	void VideoPlayer::play(const std::string VideoFile) {
+		// open video file
+		
+	}//play
+
+	void VideoPlayer::readNextFrame(void) {	
+
+	}//readNextFrame
+#endif
+
+	void VideoPlayer::getNextFrame(void) {
+		if (m_FinishedPlaying) return;
+
+		m_CurrentFrame++;
+		if (m_CurrentFrame >= m_VideoBuffer.size()) {
+			m_FinishedPlaying = true;
+		}
+		else {
+			m_Tex.init(&m_VideoBuffer[m_CurrentFrame]->Img, false);
+			m_FrameTimestamp = m_VideoBuffer[m_CurrentFrame]->Timestamp;
+		}
+	}//getNextFrame
+
+	void VideoPlayer::play(void) {
+		if (m_VideoBuffer.size() > 0) {
+			m_FinishedPlaying = false;
+			m_CurrentFrame = -1;
+			getNextFrame();
+			m_VideoStart = CForgeUtility::timestamp();
+		}
+	}//play
 
 	void VideoPlayer::render(RenderDevice* pRDev) {
 		if (m_Tex.width() == 0) return; // no valid image frame
@@ -266,5 +287,3 @@ namespace CForge {
 	}//finished
 	
 }//name space
-
-#endif

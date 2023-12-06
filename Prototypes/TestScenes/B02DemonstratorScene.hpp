@@ -17,12 +17,13 @@
 \****************************************************************************/
 #ifndef __CFORGE_B02DEMONSTRATORSCENE_HPP__
 #define __CFORGE_B02DEMONSTRATORSCENE_HPP__
-#ifdef INCLUDE_OPENCV
 
 #include <Examples/ExampleSceneBase.hpp>
 #include <crossforge/Math/Rectangle.hpp>
 #include "../ImGuiUtility.h"
 #include "../Camera/VideoPlayer.h"
+#include "../Camera/VideoRecorder.h"
+#include "../Actor/AdaptiveSkeletalActor.h"
 using namespace Eigen;
 using namespace std;
 
@@ -31,7 +32,7 @@ namespace CForge {
 	class B02DemonstratorScene : public ExampleSceneBase {
 	public:
 		B02DemonstratorScene(void) {
-			m_WindowTitle = "B02 Demonstrator - Disguising Undesired Cues in Motion";
+			m_WindowTitle = "Synthesizing Gait Movements using Motion Signatures";
 			m_WinWidth = 1280;
 			m_WinHeight = 720;
 
@@ -41,6 +42,9 @@ namespace CForge {
 
 			m_TrialCountPart1 = 6;
 			m_TrialCountPart2 = 5;
+
+			m_pSimulation = nullptr;
+			m_DrawTitle = true;
 		}//Constructor
 
 		~B02DemonstratorScene(void) {
@@ -72,7 +76,8 @@ namespace CForge {
 
 			initFPSLabel();
 
-			CForgeMath::randSeed(CForgeUtility::timestamp());
+			CForgeMath::randSeed(CForgeUtility::timestamp() * CForgeUtility::timestamp());
+			m_pSimulation = CForgeSimulation::instance();
 
 			// build scene graph
 			m_RootSGN.init(nullptr);
@@ -112,7 +117,7 @@ namespace CForge {
 
 			m_TitleText.init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SERIF, 40, true, false), "Text");
 			m_TitleText.color(0.0f, 0.0f, 0.0f);
-			m_TitleText.text("B02 - Synthesizing Gait Movements using Motion Signatures");
+			m_TitleText.text("Synthesizing Gait Movements using Motion Signatures");
 			m_TitleText.position(m_RenderWin.width() / 2 - m_TitleText.textWidth()/2, 15);
 
 			T3DMesh<float> M;
@@ -158,7 +163,7 @@ namespace CForge {
 			initDisplayModels();
 
 			// create background characters
-			for (uint32_t i = 0; i < 15; ++i) {
+			for (uint32_t i = 0; i < 30; ++i) {
 				Actor* pA = new Actor();
 
 				pA->TransformSGN.init(&m_RootSGN);
@@ -194,7 +199,8 @@ namespace CForge {
 			}//for[background characters]
 
 			// try to spawn new character?
-			if (CForgeUtility::timestamp() - m_LastCharacterSpawn > 2500) {
+
+			if (m_pSimulation->timestamp() - m_LastCharacterSpawn > 1250) {
 
 				for (auto i : m_BackgroundCharacters) {
 					if (i->Character.activeAnimation() == nullptr || i->Character.activeAnimation()->Finished) {
@@ -208,15 +214,18 @@ namespace CForge {
 						Quaternionf Rot = Quaternionf::Identity();
 						Rot = AngleAxisf(CForgeMath::degToRad(60.0f + CForgeMath::randRange(-5.0f, 5.0f)), Vector3f::UnitY());
 
-						int32_t Z = CForgeMath::randRange(0, 50000);
+						//int32_t Z = CForgeMath::randRange(0, 50000);
+						//uint64_t Z = CForgeMath::rand();
 						
-						i->DisplayModel = (CForgeMath::rand() % 2);
-						if (Z%11 == 0) i->DisplayModel = 2;
+						//i->DisplayModel = (CForgeMath::rand() % 3);
+						//if (Z%5 == 0) i->DisplayModel = 2;
+
+						i->DisplayModel = rand() % 3;
 
 						spawnCharacter(i, File, Pos, Rot);
 						i->GeomSGN.enable(true, true);
 
-						m_LastCharacterSpawn = CForgeUtility::timestamp();
+						m_LastCharacterSpawn = m_pSimulation->timestamp();
 						break;
 					}
 				}//for[background characters
@@ -690,6 +699,7 @@ namespace CForge {
 				m_RenderWin.update();
 				m_SG.update(60.0f / m_FPS);
 				m_SkyboxSG.update(60.0f / m_FPS);
+				(m_IsVideoRecording) ? m_pSimulation->advanceTime(1000.0f/60.0f) : m_pSimulation->advanceTime(0);
 
 				defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
 
@@ -713,10 +723,10 @@ namespace CForge {
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr, false);
 				m_SkyboxSG.render(&m_RenderDev);
 
-				if(m_DrawFPSLabel) m_FPSLabel.render(&m_RenderDev);
+				if (m_DrawFPSLabel) m_FPSLabel.render(&m_RenderDev);
 				if (m_DrawHelpTexts) drawHelpTexts();
 
-				m_TitleText.render(&m_RenderDev);
+				if (m_DrawTitle) m_TitleText.render(&m_RenderDev);
 
 				if (IdleTime < 60.0f) {
 					updateDashboardGui();
@@ -733,18 +743,29 @@ namespace CForge {
 
 				m_RenderWin.swapBuffers();
 
+				if (m_IsVideoRecording) {
+					T2DImage<uint8_t> Screenshot;
+					CForgeUtility::retrieveFrameBuffer(&Screenshot);
+					m_VideoRecorder.addFrame(&Screenshot, 0);
+				}
+
 				updateFPS();
 
 				defaultKeyboardUpdate(m_RenderWin.keyboard());
 
+				
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F4, true)) m_LastInteraction = CForgeUtility::timestamp() - static_cast<uint64_t>(60000);
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F6, true)) m_DemoState = STATE_SCREENSAVER;
 				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F7, true))  m_DrawFPSLabel = !m_DrawFPSLabel;
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F8, true)) {
+					(m_IsVideoRecording) ? stopVideoRecording() : startVideoRecording();
+				}
+				if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_T, true)) m_DrawTitle = !m_DrawTitle;
 
-				if ((IdleTime > 75.0f && (CForgeUtility::timestamp() - m_LastB03VideoPlay) > 150000) || (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F5, true)) ) {
+				/*if ((IdleTime > 75.0f && (CForgeUtility::timestamp() - m_LastB03VideoPlay) > 150000) || (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_F5, true)) ) {
 					for (auto i : m_BackgroundCharacters) i->Character.activeAnimation(nullptr);
 					startB03Video();
-				}
+				}*/
 			}break;
 			case STATE_STUDYPART1: {
 				m_RenderWin.update();
@@ -928,6 +949,17 @@ namespace CForge {
 			std::vector<StudyPart2Item> ExperimentData;
 		};//StudyPart2Data
 
+		void startVideoRecording() {
+			m_VideoRecorder.startRecording("MyAssets/ScreenRecording.mp4", 1280, 720, 60.0f);
+			m_IsVideoRecording = true;
+		}//startVideoRecording
+
+		void stopVideoRecording() {
+			m_VideoRecorder.stopRecording();
+			m_IsVideoRecording = false;
+		}//isVideoRecording
+
+
 		void initDisplayModels(void) {
 
 			DisplayModel* pM = new DisplayModel();
@@ -968,7 +1000,8 @@ namespace CForge {
 
 		struct Actor {
 			SkeletalAnimationController AnimationController;
-			SkeletalActor Character;
+			//SkeletalActor Character;
+			AdaptiveSkeletalActor Character;
 
 			SGNTransformation TransformSGN;
 			SGNGeometry GeomSGN;
@@ -1488,6 +1521,7 @@ namespace CForge {
 		std::vector<std::string> m_StudyVideos;
 
 		bool m_DrawFPSLabel;
+		bool m_DrawTitle;
 
 		int32_t m_TrialCountPart1;
 		int32_t m_TrialCountPart2;
@@ -1506,9 +1540,15 @@ namespace CForge {
 		bool m_B03VidoeInitialized;
 		uint64_t m_LastB03VideoPlay;
 
+		CForgeSimulation* m_pSimulation;
+
+		VideoRecorder m_VideoRecorder;
+		bool m_IsVideoRecording;
+
+		
+
 	};//ExampleMinimumGraphicsSetup
 
 }//name space
 
-#endif
 #endif
