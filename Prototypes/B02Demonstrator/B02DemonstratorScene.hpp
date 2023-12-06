@@ -23,7 +23,7 @@
 #include "../ImGuiUtility.h"
 #include "../Camera/VideoPlayer.h"
 #include "../Camera/VideoRecorder.h"
-#include "../Actor/AdaptiveSkeletalActor.h"
+#include "AdaptiveSkeletalActor.h"
 using namespace Eigen;
 using namespace std;
 

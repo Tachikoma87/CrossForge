@@ -110,35 +110,11 @@ add_executable(CForgeSandbox
 	Prototypes/Camera/VideoPlayer.cpp
 
 	Prototypes/Camera/CameraCapture.cpp
-
-	Prototypes/Animation/SkeletalSkinning.cpp
-	Prototypes/Actor/AdaptiveSkeletalActor.cpp
+	Prototypes/B02Demonstrator/AdaptiveSkeletalActor.cpp
 
 	Prototypes/Multimedia/SMediaDeviceManager.cpp
 	Prototypes/Multimedia/CameraDevice.cpp
 	Prototypes/Multimedia/FFMPEG.cpp
-
-	
-
-	# GUI
-#	Prototypes/GUI/Font.cpp
-#	Prototypes/GUI/GUI.cpp
-#	Prototypes/GUI/Widget.cpp
-#	Prototypes/GUI/WidgetBackground.cpp
-#	Prototypes/GUI/Widgets/Form.cpp
-#	Prototypes/GUI/Widgets/InputCheckbox.cpp
-#	Prototypes/GUI/Widgets/InputDropDown.cpp
-#	Prototypes/GUI/Widgets/InputNumber.cpp
-#	Prototypes/GUI/Widgets/InputSlider.cpp
-#	Prototypes/GUI/Widgets/InputText.cpp
-#	Prototypes/GUI/Widgets/Label.cpp
-#	Prototypes/GUI/Widgets/Window.cpp
-
-	# new GUI
-#	"Prototypes/Graphics/Font.cpp" 
-#	"Prototypes/Graphics/LineOfText.cpp"
-#	Prototypes/Graphics/SFontManager.cpp
-#	Prototypes/Graphics/UBOTextData.cpp
 
 	)
 	

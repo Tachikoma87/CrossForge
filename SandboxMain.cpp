@@ -30,9 +30,8 @@
 #include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
 #include "Prototypes/TestScenes/FrustumCullingTestScene.hpp"
 #include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
-#include "Prototypes/TestScenes/B02DemonstratorScene.hpp"
+#include "Prototypes/B02Demonstrator/B02DemonstratorScene.hpp"
 #include "Prototypes/TestScenes/StripPhotoTestScene.hpp"
-#include "Prototypes/TestScenes/CPUSkinningTestScene.hpp"
 #include "Prototypes/TestScenes/CameraCaptureTestScene.hpp"
 
 using namespace CForge;
@@ -58,7 +57,6 @@ using namespace Eigen;
 //#define ActiveScene AssetGLTFTestScene
 #define ActiveScene B02DemonstratorScene
 //#define ActiveScene StripPhotoTestScene
-//#define ActiveScene CPUSkinningTestScene
 //#define ActiveScene CameraCaptureTestScene
 
 

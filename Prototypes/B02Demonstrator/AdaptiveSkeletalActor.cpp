@@ -17,15 +17,15 @@ namespace CForge {
 
 	}//Destructor
 
-	void AdaptiveSkeletalActor::init(T3DMesh<float>* pMesh, SkeletalAnimationController* pController) {
+	void AdaptiveSkeletalActor::init(T3DMesh<float>* pMesh, SkeletalAnimationController* pController, bool PrepareCPUSkinning) {
 
 		m_FeetAlignmentToggle = true;
 		m_LastAdaptationAngle = 0.0f;
 		m_MaxAdaptationDelta = 0.2f;
 
-		SkeletalActor::init(pMesh, pController);
+		SkeletalActor::init(pMesh, pController, true);
 
-		m_SkeletalSkinning.init(pMesh, pController);
+		//m_SkeletalSkinning.init(pMesh, pController);
 		m_Joints = pController->retrieveSkeleton();
 
 		// estimate control parameters
@@ -65,12 +65,7 @@ namespace CForge {
 			if (m_Joints[i]->Name.compare("Hips") == 0) m_ControlParams.HipJointID = i;
 		}
 
-		/*printf("ControlParams: %d %d - %d %d | %d %d\n",
-			m_ControlParams.VertexIDLeftHeel, m_ControlParams.VertexIDRightHeel,
-			m_ControlParams.VertexIDLeftForefoot, m_ControlParams.VertexIDRightForefoot,
-			m_ControlParams.LeftAnkleJointID, m_ControlParams.RightAnkleJointID);*/
-
-			// find lowest y coordinate of heels over the course of the animation
+		// find lowest y coordinate of heels over the course of the animation
 		float MinYLeftHeel = 100.0f;
 		float MinYRightHeel = 100.0f;
 
@@ -80,9 +75,11 @@ namespace CForge {
 			m_pAnimationController->applyAnimation(m_pActiveAnimation, false);
 			m_pAnimationController->retrieveSkeleton(&m_Joints);
 
-			Vector3f P = m_SkeletalSkinning.transformVertex(m_ControlParams.VertexIDLeftHeel);
+			//Vector3f P = m_SkeletalSkinning.transformVertex(m_ControlParams.VertexIDLeftHeel);
+			Vector3f P = transformVertex(m_ControlParams.VertexIDLeftHeel);
 			if (P.y() < MinYLeftHeel) MinYLeftHeel = P.y();
-			P = m_SkeletalSkinning.transformVertex(m_ControlParams.VertexIDRightHeel);
+			//P = m_SkeletalSkinning.transformVertex(m_ControlParams.VertexIDRightHeel);
+			P = transformVertex(m_ControlParams.VertexIDRightHeel);
 			if (P.y() < MinYRightHeel) MinYRightHeel = P.y();
 		}
 
@@ -161,15 +158,15 @@ namespace CForge {
 	}//render
 
 
-	Eigen::Vector3f AdaptiveSkeletalActor::getTransformedVertex(int32_t ID) {
-		return m_SkeletalSkinning.transformVertex(ID);
-	}//getTransformedVertex
-
 	void AdaptiveSkeletalActor::alignFeetToGround(void) {
+		if (m_ControlParams.HipJointID < 0) return;
+		if (m_ControlParams.LeftAnkleJointID < 0) return;
+		if (m_ControlParams.RightAnkleJointID < 0) return;
+
 		static int32_t c = 0;
 		// align feet with ground
 		// check left foot heel
-		Vector3f HeelPos = m_SkeletalSkinning.transformVertex(m_ControlParams.VertexIDLeftHeel);
+		Vector3f HeelPos = transformVertex(m_ControlParams.VertexIDLeftHeel);
 		if (HeelPos.y() < 0.0f) {
 			m_Joints[m_ControlParams.HipJointID]->LocalPosition.y() -= HeelPos.y();
 			m_pAnimationController->setSkeletonValues(&m_Joints, true);
@@ -177,7 +174,7 @@ namespace CForge {
 
 		}
 		// check right heel
-		HeelPos = m_SkeletalSkinning.transformVertex(m_ControlParams.VertexIDRightHeel);
+		HeelPos = transformVertex(m_ControlParams.VertexIDRightHeel);
 		if (HeelPos.y() < 0.0f) {
 			m_Joints[m_ControlParams.HipJointID]->LocalPosition.y() -= HeelPos.y();
 			m_pAnimationController->setSkeletonValues(&m_Joints, true);
@@ -189,7 +186,7 @@ namespace CForge {
 
 		Vector2f SearchRange = Vector2f(0.0f, 0.0f);
 		Quaternionf R = Quaternionf::Identity();
-		Vector3f FFPos = m_SkeletalSkinning.transformVertex(m_ControlParams.VertexIDLeftForefoot);
+		Vector3f FFPos = transformVertex(m_ControlParams.VertexIDLeftForefoot);
 		Quaternionf OriginalRotation = m_Joints[m_ControlParams.LeftAnkleJointID]->LocalRotation;
 		float Angle = 0.0f;
 		//m_LastFootAdaptation = 0;
@@ -205,7 +202,7 @@ namespace CForge {
 				R = AngleAxisf(CForgeMath::degToRad(SearchRange.y()), Eigen::Vector3f::UnitX());
 				m_Joints[m_ControlParams.LeftAnkleJointID]->LocalRotation = R * OriginalRotation;
 				m_pAnimationController->setSkeletonValues(&m_Joints, false);
-				FFPos = m_SkeletalSkinning.transformVertex(m_ControlParams.VertexIDLeftForefoot);
+				FFPos = transformVertex(m_ControlParams.VertexIDLeftForefoot);
 			}
 
 			// binary search steps
@@ -215,7 +212,7 @@ namespace CForge {
 				R = AngleAxisf(CForgeMath::degToRad(Angle), Eigen::Vector3f::UnitX());
 				m_Joints[m_ControlParams.LeftAnkleJointID]->LocalRotation = R * OriginalRotation;
 				m_pAnimationController->setSkeletonValues(&m_Joints, false);
-				FFPos = m_SkeletalSkinning.transformVertex(m_ControlParams.VertexIDLeftForefoot);
+				FFPos = transformVertex(m_ControlParams.VertexIDLeftForefoot);
 
 				(FFPos.y() < 0.0f) ? SearchRange.x() = Angle : SearchRange.y() = Angle;
 			}
@@ -228,7 +225,7 @@ namespace CForge {
 
 		SearchRange = Vector2f(0.0f, 0.0f);
 		R = Quaternionf::Identity();
-		FFPos = m_SkeletalSkinning.transformVertex(m_ControlParams.VertexIDRightForefoot);
+		FFPos = transformVertex(m_ControlParams.VertexIDRightForefoot);
 		OriginalRotation = m_Joints[m_ControlParams.RightAnkleJointID]->LocalRotation;
 
 		// correct left forefoot
@@ -241,7 +238,7 @@ namespace CForge {
 				R = AngleAxisf(CForgeMath::degToRad(SearchRange.y()), Eigen::Vector3f::UnitX());
 				m_Joints[m_ControlParams.RightAnkleJointID]->LocalRotation = R * OriginalRotation;
 				m_pAnimationController->setSkeletonValues(&m_Joints, false);
-				FFPos = m_SkeletalSkinning.transformVertex(m_ControlParams.VertexIDRightForefoot);
+				FFPos = transformVertex(m_ControlParams.VertexIDRightForefoot);
 			}
 
 			// binary search steps
@@ -251,7 +248,7 @@ namespace CForge {
 				R = AngleAxisf(CForgeMath::degToRad(Angle), Eigen::Vector3f::UnitX());
 				m_Joints[m_ControlParams.RightAnkleJointID]->LocalRotation = R * OriginalRotation;
 				m_pAnimationController->setSkeletonValues(&m_Joints, false);
-				FFPos = m_SkeletalSkinning.transformVertex(m_ControlParams.VertexIDRightForefoot);
+				FFPos = transformVertex(m_ControlParams.VertexIDRightForefoot);
 
 				(FFPos.y() < 0.0f) ? SearchRange.x() = Angle : SearchRange.y() = Angle;
 			}

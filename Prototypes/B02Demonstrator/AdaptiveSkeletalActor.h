@@ -19,7 +19,6 @@
 #define __CFORGE_ADAPTIVESKELETALACTOR_H__
 
 #include <crossforge/Graphics/Actors/SkeletalActor.h>
-#include "../Animation/SkeletalSkinning.h"
 
 namespace CForge {
 	class AdaptiveSkeletalActor : public SkeletalActor {
@@ -54,10 +53,10 @@ namespace CForge {
 		AdaptiveSkeletalActor(void);
 		~AdaptiveSkeletalActor(void);
 
-		void init(T3DMesh<float>* pMesh, SkeletalAnimationController* pController) override;
+		void init(T3DMesh<float>* pMesh, SkeletalAnimationController* pController, bool PrepareCPUSkinning = true) override;
 		void render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) override;
 
-		Eigen::Vector3f getTransformedVertex(int32_t ID);
+		//Eigen::Vector3f getTransformedVertex(int32_t ID);
 
 		void feetAlignment(bool Active);
 		bool feetAlignment(void)const;
@@ -68,7 +67,7 @@ namespace CForge {
 
 		ControlParameters m_ControlParams;
 
-		SkeletalSkinning m_SkeletalSkinning;
+		//SkeletalSkinning m_SkeletalSkinning;
 		std::vector<SkeletalAnimationController::SkeletalJoint*> m_Joints;
 
 		float m_GlobalYCorrection;
