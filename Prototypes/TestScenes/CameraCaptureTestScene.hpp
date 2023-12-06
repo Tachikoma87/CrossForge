@@ -92,7 +92,7 @@ namespace CForge {
 				m_pCamDevice->findOptimalCaptureFormats(1280, 720, &Formats);
 				m_pCamDevice->changeCaptureFormat(Formats[1]);
 
-				printf("Found %d suitable capture formats:\n", Formats.size());
+				printf("Found %d suitable capture formats:\n", uint32_t(Formats.size()));
 				for (auto i : Formats) {
 					CameraDevice::CaptureFormat F = m_pCamDevice->captureFormat(i);
 					printf("\t%dx%d - %s\n", F.FrameSize.x(), F.FrameSize.y(), F.DataFormat.c_str());

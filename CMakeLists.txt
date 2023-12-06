@@ -87,7 +87,7 @@ add_executable(CForgeSandbox
 
 	Prototypes/Camera/PhotoFinish.cpp
 	Prototypes/Camera/StripPhoto.cpp 
-	Prototypes/Camera/StripPhotoCamera.cpp
+	
 
 	Prototypes/Misc/IMUCameraController.cpp
 

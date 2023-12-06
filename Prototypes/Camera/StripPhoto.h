@@ -23,7 +23,6 @@
 #include <inttypes.h>
 #include <vector>
 #include <crossforge/AssetIO/T2DImage.hpp>
-//#include "TImage2D.hpp"
 
 namespace CForge {
 

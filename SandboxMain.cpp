@@ -28,10 +28,8 @@
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
 #include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
-#include "Prototypes/TestScenes/FrustumCullingTestScene.hpp"
 #include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
 #include "Prototypes/B02Demonstrator/B02DemonstratorScene.hpp"
-#include "Prototypes/TestScenes/StripPhotoTestScene.hpp"
 #include "Prototypes/TestScenes/CameraCaptureTestScene.hpp"
 
 using namespace CForge;
@@ -55,9 +53,9 @@ using namespace Eigen;
 //#define ActiveScene SurfaceSamplerTestScene
 //#define ActiveScene FrustumCullingTestScene
 //#define ActiveScene AssetGLTFTestScene
-#define ActiveScene B02DemonstratorScene
+//#define ActiveScene B02DemonstratorScene
 //#define ActiveScene StripPhotoTestScene
-//#define ActiveScene CameraCaptureTestScene
+#define ActiveScene CameraCaptureTestScene
 
 
 

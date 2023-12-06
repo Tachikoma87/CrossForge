@@ -387,7 +387,7 @@ namespace CForge {
 				float CenteringOffset = (ImGui::GetWindowWidth() - Offset - 275) / 2.0f;
 
 				ImGui::SetCursorPosX(CenteringOffset + Offset - 10);
-				ImGui::Image((void*)m_Part1Data.ScaleImg.handle(), ImVec2(275, 50));
+				ImGui::Image((ImTextureID)m_Part1Data.ScaleImg.handle(), ImVec2(275, 50));
 
 				ImGui::SetCursorPosX(CenteringOffset + Offset + 20 - 10);
 				ImGui::Text("artificial"); ImGui::SameLine();
