@@ -18,7 +18,7 @@
 #ifndef __CFORGE_UBOINSTANCEDDATA_H__
 #define __CFORGE_UBOINSTANCEDDATA_H__
 
-#include "../crossforge/Graphics/GLBuffer.h"
+#include <crossforge/Graphics/GLBuffer.h>
 
 namespace CForge {
 	/**

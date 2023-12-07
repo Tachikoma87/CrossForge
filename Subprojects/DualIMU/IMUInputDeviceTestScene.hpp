@@ -19,7 +19,7 @@
 #define __CFORGE_IMUINPUTDEVICETESTSCENE_HPP__
 
 #include "../../Examples/ExampleSceneBase.hpp"
-#include "../Misc/IMUCameraController.h"
+#include "IMUCameraController.h"
 #include <crossforge/Graphics/Actors/SkyboxActor.h>
 
 

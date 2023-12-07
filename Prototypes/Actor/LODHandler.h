@@ -2,7 +2,7 @@
 
 #include "SLOD.h"
 #include <crossforge/AssetIO/T3DMesh.hpp>
-#include "Actor/LODActor.h"
+#include "LODActor.h"
 
 namespace CForge {
 	

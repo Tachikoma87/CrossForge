@@ -80,41 +80,43 @@ endif(INCLUDE_OPENCV)
 add_executable(CForgeSandbox 
 	SandboxMain.cpp
 
+	# Hardware stuff (used with Raspberry Pi)
 	crossforge/Core/SGPIO.cpp
 	Prototypes/Hardware/I2C.cpp 
 	Prototypes/Hardware/MPU6050.cpp
 	Prototypes/Hardware/RotaryEncoder.cpp
 
+	# Camera related
 	Prototypes/Camera/PhotoFinish.cpp
 	Prototypes/Camera/StripPhoto.cpp 
-	
-
-	Prototypes/Misc/IMUCameraController.cpp
-
-	Prototypes/Assets/GLTFIO.cpp
-
-	Prototypes/MeshProcessing/SurfaceSampler.cpp
-	
-
-	Prototypes/Actor/LODActor.cpp
-	Prototypes/SLOD.cpp
-	Prototypes/LODHandler.cpp
-	Prototypes/UBOInstancedData.cpp
-	Prototypes/MeshDecimate.cpp
-
-	Prototypes/Graphics/GLRenderbuffer.cpp
-
-	Prototypes/ImGuiUtility.cpp
-
 	Prototypes/Camera/VideoRecorder.cpp
 	Prototypes/Camera/VideoPlayer.cpp
-
 	Prototypes/Camera/CameraCapture.cpp
-	Prototypes/B02Demonstrator/AdaptiveSkeletalActor.cpp
-
 	Prototypes/Multimedia/SMediaDeviceManager.cpp
 	Prototypes/Multimedia/CameraDevice.cpp
 	Prototypes/Multimedia/FFMPEG.cpp
+	
+	# Misc
+	Prototypes/Assets/GLTFIO.cpp
+	Prototypes/MeshProcessing/SurfaceSampler.cpp
+	Prototypes/Graphics/GLRenderbuffer.cpp
+	"Prototypes/GUI/ImGuiUtility.cpp"
+	
+
+	# Subprojects
+	# B02 Demonstrator
+	Subprojects/B02Demonstrator/AdaptiveSkeletalActor.cpp
+	# Dual IMU
+	Subprojects/DualIMU/IMUCameraController.cpp
+
+	# Other
+	Prototypes/Actor/LODActor.cpp
+	"Prototypes/Actor/SLOD.cpp"
+	"Prototypes/Actor/LODHandler.cpp"
+	"Prototypes/Actor/UBOInstancedData.cpp"
+	"Prototypes/MeshProcessing/MeshDecimate.cpp"
+
+	
 
 	)
 	

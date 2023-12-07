@@ -65,9 +65,6 @@ namespace CForge {
 		if (nullptr == pFaces) throw NullpointerExcept("pFaces");
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 
-
-		
-
 		pVertices->resize(pMesh->vertexCount(), 3);
 		uint64_t FaceCount = 0;
 		for (uint64_t i = 0; i < pMesh->submeshCount(); ++i) FaceCount += pMesh->getSubmesh(i)->Faces.size();

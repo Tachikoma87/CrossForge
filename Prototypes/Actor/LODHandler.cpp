@@ -2,7 +2,7 @@
 #include <crossforge/Core/SLogger.h>
 #include <tinyxml2.h>
 #include <crossforge/AssetIO/SAssetIO.h>
-#include "MeshDecimate.h"
+#include "../MeshProcessing/MeshDecimate.h"
 //#include "Examples/SceneUtilities.hpp"
 
 //#include <filesystem>

@@ -20,9 +20,9 @@
 
 #include <Examples/ExampleSceneBase.hpp>
 #include <crossforge/Math/Rectangle.hpp>
-#include "../ImGuiUtility.h"
-#include "../Camera/VideoPlayer.h"
-#include "../Camera/VideoRecorder.h"
+#include "../../Prototypes/GUI/ImGuiUtility.h"
+#include "../../Prototypes/Camera/VideoPlayer.h"
+#include "../../Prototypes/Camera/VideoRecorder.h"
 #include "AdaptiveSkeletalActor.h"
 using namespace Eigen;
 using namespace std;

@@ -26,11 +26,12 @@
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
-#include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
 #include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
-#include "Prototypes/B02Demonstrator/B02DemonstratorScene.hpp"
 #include "Prototypes/TestScenes/CameraCaptureTestScene.hpp"
+
+#include "Subprojects/DualIMU/IMUInputDeviceTestScene.hpp"
+#include "Subprojects/B02Demonstrator/B02DemonstratorScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;

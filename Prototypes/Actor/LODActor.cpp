@@ -2,9 +2,9 @@
 #include "LODActor.h"
 #include <crossforge/Graphics/RenderDevice.h>
 #include <crossforge/Core/SLogger.h>
-#include "../MeshDecimate.h"
+#include "../MeshProcessing/MeshDecimate.h"
 #include <crossforge/Graphics/Shader/SShaderManager.h>
-#include "../LODHandler.h"
+#include "LODHandler.h"
 #include <iostream>
 
 //#define SKIP_INSTANCED_QUERIES // TODO make changeable using SLOD
