@@ -47,18 +47,15 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
-//#define ActiveScene ExampleSocket
+#define ActiveScene ExampleSocket
 
-//#define ActiveScene ImuInputDeviceTestScene	 
 //#define ActiveScene SkelAnimTestScene
 //#define ActiveScene SurfaceSamplerTestScene
-//#define ActiveScene FrustumCullingTestScene
 //#define ActiveScene AssetGLTFTestScene
+//#define ActiveScene CameraCaptureTestScene
+
+//#define ActiveScene ImuInputDeviceTestScene	
 //#define ActiveScene B02DemonstratorScene
-//#define ActiveScene StripPhotoTestScene
-#define ActiveScene CameraCaptureTestScene
-
-
 
 ActiveScene* pScene = nullptr;
 
@@ -66,13 +63,73 @@ void mainLoop(void *pArg) {
 	static_cast<ActiveScene*>(pArg)->mainLoop();
 }//mainLoop
 
+template<class T>
+void executeScene() {
+	T* pScene = nullptr;
+	try {
+		pScene = new T();
+		pScene->init();
+
+		#if defined(__EMSCRIPTEN__)
+				emscripten_set_main_loop_arg(mainLoop, pScene, 0, true);
+		#else
+				while (!pScene->renderWindow()->shutdown()) pScene->mainLoop();
+		#endif
+
+		if (nullptr != pScene) delete pScene;
+		pScene = nullptr;
+	}
+	catch (const CrossForgeException& e) {
+		SLogger::logException(e);
+		printf("Exception occurred. See Log. \n %s\n", e.msg().c_str());
+	}
+	catch (...) {
+		printf("A not handled exception occurred during execution of scene!\n");
+	}
+}//executeScene
+
+void testAllExamples(SCrossForgeDevice *pDevice) {
+	SShaderManager* pShaderMan = SShaderManager::instance();
+	executeScene<ExampleMinimumGraphicsSetup>();
+	pShaderMan->reset();
+
+	executeScene<ExampleSkybox>();
+	pShaderMan->reset();
+
+	executeScene<ExampleTextRendering>();
+	pShaderMan->reset();
+
+	executeScene<ExampleShapesAndMaterials>();
+	pShaderMan->reset();
+
+	executeScene<ExampleLighting>();
+	pShaderMan->reset();
+
+	executeScene<ExampleSceneGraph>();
+	pShaderMan->reset();
+
+	executeScene<ExampleSkeletalAnimation>();
+	pShaderMan->reset();
+
+	executeScene<ExampleMorphTargetAnimation>();
+	pShaderMan->reset();
+
+	executeScene<ExampleMultiViewport>();
+	pShaderMan->reset();
+
+	executeScene<ExampleSocket>();
+	pShaderMan->reset();
+
+
+	pShaderMan->release();
+
+}//testAllExamples
 
 int main(int argc, char* argv[]) {
 #ifdef WIN32
 	_CrtMemState S1, S2, S3;
 	_CrtMemCheckpoint(&S1);
 #endif
-
 
 	SCrossForgeDevice* pDev = nullptr;
 
@@ -95,49 +152,15 @@ int main(int argc, char* argv[]) {
 		return -1;	
 	}
 
-	try {
-		pScene = new ActiveScene();
-		pScene->init();
+	executeScene<ActiveScene>();
 
-#if defined(__EMSCRIPTEN__)
-		emscripten_set_main_loop_arg(mainLoop, pScene, 0, true);
-#else
-		while (!pScene->renderWindow()->shutdown()) pScene->mainLoop();
-#endif
+	//testAllExamples(pDev);
 
-		if (nullptr != pScene) delete pScene;
-		pScene = nullptr;
-
-
-		/*auto *pScene2 = new ExampleLighting();
-		pScene2->init();
-
-#if defined(__EMSCRIPTEN__)
-		emscripten_set_main_loop_arg(mainLoop, pScene, 0, true);
-#else
-		while (!pScene2->renderWindow()->shutdown()) pScene2->mainLoop();
-#endif
-
-		if (nullptr != pScene2) delete pScene2;
-		pScene2 = nullptr;*/
-
-
-		//exportLibrary();
-	}
-	catch (const CrossForgeException & e) {
-		SLogger::logException(e);
-		printf("Exception occurred. See Log. \n %s\n", e.msg().c_str());
-	}
-	catch (...) {
-		printf("A not handled exception occurred!\n");
-	}
+	//exportLibrary();
 
 
 	if(nullptr != pDev) pDev->release();
 	
-	char c;
-	//scanf("%c", &c);
-
 #ifdef WIN32
 	// dump memory statics
 	_CrtMemCheckpoint(&S2);

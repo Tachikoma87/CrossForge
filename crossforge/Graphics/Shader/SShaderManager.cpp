@@ -26,6 +26,20 @@ namespace CForge {
 
 	}//release
 
+	void SShaderManager::reset(void) {
+		for (auto& i : m_Shader) {
+			delete i;
+			i = nullptr;
+		}
+		for (auto& i : m_ShaderCodes) {
+			delete i;
+			i = nullptr;
+		}
+
+		m_Shader.clear();
+		m_ShaderCodes.clear();
+	}//reset
+
 	ShaderCode* SShaderManager::createShaderCode(std::string Code, std::string VersionTag, uint8_t ConfigOptions, std::string PrecisionTag) {
 		ShaderCode* pRval = nullptr;
 
@@ -162,6 +176,18 @@ namespace CForge {
 
 		m_Shader.clear();
 		m_ShaderCodes.clear();
+
+		m_LightConfig = ShaderCode::LightConfig();
+		m_PostProcessingConfig = ShaderCode::PostProcessingConfig();
+
+		m_DefVSGeometry.clear();
+		m_DefFSGeometry.clear();
+		m_DefVSShadow.clear();
+		m_DefFSShadow.clear();
+		m_DefVSForward.clear();
+		m_DefFSForward.clear();
+		m_DefVSText.clear();
+		m_DefFSText.clear();
 	}//clear
 
 	bool SShaderManager::find(ShaderCode* pSC, std::vector<ShaderCode*>* pCodes) {
