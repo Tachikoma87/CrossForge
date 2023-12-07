@@ -102,9 +102,6 @@ namespace CForge {
 		m_RenderGroupUtility.clear();
 	}//Clear
 
-	void StaticActor::release(void) {
-		delete this;
-	}//release
 
 	void StaticActor::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");

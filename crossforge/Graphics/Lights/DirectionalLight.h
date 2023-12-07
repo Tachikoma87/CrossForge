@@ -23,8 +23,6 @@
 
 namespace CForge {
 
-	
-
 	/**
 	* \brief A simple directional light. Has only a direction and position for shadow casting.
 	*

@@ -72,9 +72,6 @@ namespace CForge {
 		m_MorphTargetTexture = GL_INVALID_INDEX;
 	}//clear
 
-	void MorphTargetActor::release(void) {
-		delete this;
-	}//release
 
 	void MorphTargetActor::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");

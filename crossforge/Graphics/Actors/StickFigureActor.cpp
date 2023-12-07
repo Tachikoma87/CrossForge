@@ -106,9 +106,6 @@ namespace CForge {
 		m_BoneSize = 0.0f;
 	}//clear
 
-	void StickFigureActor::release(void) {
-		delete this;
-	}//release
 
 	void StickFigureActor::jointMaterial(const T3DMesh<float>::Material Mat) {
 		for (uint32_t i = 0; i < m_Joint.materialCount(); ++i) {

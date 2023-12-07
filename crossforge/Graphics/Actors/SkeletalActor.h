@@ -31,7 +31,6 @@ namespace CForge {
 		virtual void activeAnimation(SkeletalAnimationController::Animation* pAnim);
 		virtual SkeletalAnimationController::Animation* activeAnimation(void)const;
 		virtual void clear(void);
-		virtual void release(void);
 
 		virtual void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 

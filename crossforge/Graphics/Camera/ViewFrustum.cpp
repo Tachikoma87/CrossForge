@@ -23,9 +23,6 @@ namespace CForge {
 		m_pCamera = nullptr;
 	}//clear
 
-	void ViewFrustum::release(void) {
-		delete this;
-	}//release
 
 	void ViewFrustum::update(void) {
 

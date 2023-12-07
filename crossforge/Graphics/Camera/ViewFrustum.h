@@ -42,7 +42,6 @@ namespace CForge {
 
 		void init(class VirtualCamera* pCamera);
 		void clear(void);
-		void release(void);
 
 		// thanks to: https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
 		void update(void);

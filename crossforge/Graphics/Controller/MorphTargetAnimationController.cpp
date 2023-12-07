@@ -51,9 +51,6 @@ namespace CForge {
 		m_AnimationSequences.clear();
 	}//clear
 
-	void MorphTargetAnimationController::release(void) {
-		delete this;
-	}//release
 
 	void MorphTargetAnimationController::update(float FPSScale) {
 		for (auto i : m_ActiveAnimations) progress(i, FPSScale);
