@@ -675,6 +675,7 @@ namespace CForge {
 					//Game Over
 					m_paused = !m_paused;
 					m_gameOver = !m_gameOver;
+					m_BirdSGN.enable(true, false);
 					translate_bird(Vector3f(0.0f, 0.0f, -25.0f));
 					//cout << "PLATSCH, thats one bird less on the planet :(" << endl;
 				}
@@ -781,6 +782,7 @@ namespace CForge {
 			//	float xOffset = row * 50.0f; // Abstand zwischen den Reihen
 			//	createBuildingRow(xOffset);   // Methode zum Erstellen einer Gebäude-Reihe aufrufen
 			//}
+			m_BirdSGN.enable(true, true);
 			score = 0;
 			m_BirdTransformSGN.translation(Vector3f(0.0f, 10.0f, m_BirdTransformSGN.translation().z()));
 			m_CPCollisonCurrent = 0;
