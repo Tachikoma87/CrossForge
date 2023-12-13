@@ -47,27 +47,6 @@ namespace CForge {
 
 	protected:
 		struct VideoData* m_pData;
-
-		/*struct Frame {
-			T2DImage<uint8_t> Img;
-			uint64_t Timestamp;
-		};
-
-		std::list<Frame*> m_FrameBuffer;
-
-		std::string m_Filename;
-		float m_FPS;
-
-		uint64_t m_LastTimestamp;
-		uint32_t m_FrameWidth;
-		uint32_t m_FrameHeight; 
-
-
-
-		File m_VideoFile;
-		void* m_pCodecCtx;
-		void* m_pPkt;
-		int32_t m_FrameCounter;*/
 	};//VideoRecorder
 		
 }//name-space

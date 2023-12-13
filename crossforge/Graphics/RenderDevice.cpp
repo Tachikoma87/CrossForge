@@ -391,6 +391,14 @@ namespace CForge {
 			m_MaterialUBO.metallic(m_pActiveMaterial->metallic());
 			m_MaterialUBO.roughness(m_pActiveMaterial->roughness());
 			m_MaterialUBO.ambientOcclusion(m_pActiveMaterial->ambientOcclusion());
+
+			if (m_ActiveRenderPass == RENDERPASS_FORWARD && m_pActiveMaterial->color().w() < 1.0f) {
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			}
+			else {
+				glDisable(GL_BLEND);
+			}
 		}
 	}//updateMaterial
 

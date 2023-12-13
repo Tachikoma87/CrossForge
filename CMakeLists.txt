@@ -67,16 +67,6 @@ find_package(FFMPEG REQUIRED)
 #FIND_PACKAGE(OpenXR CONFIG REQUIRED)
 endif()
 
-
-# enable OpenCV support
-if(INCLUDE_OPENCV)
-	FIND_PACKAGE(OpenCV CONFIG REQUIRED)	# Open computer vision library
-	include_directories(
-		"${OpenCV_INCLUDE_DIRS}"
-	)
-	add_compile_definitions(INCLUDE_OPENCV)
-endif(INCLUDE_OPENCV)
-
 add_executable(CForgeSandbox 
 	SandboxMain.cpp
 

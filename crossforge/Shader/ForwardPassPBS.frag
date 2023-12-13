@@ -342,5 +342,5 @@ void main(){
 
 	Col = adjustColorAttributes(Col, Saturation, Brightness, Contrast);
 		
-	FragColor = vec4(Col, 1.0);
+	FragColor = vec4(Col, Material.Color.a);
 }//main

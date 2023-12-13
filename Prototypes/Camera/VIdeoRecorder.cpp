@@ -547,26 +547,5 @@ namespace CForge {
 		return (m_pData->FrameWidth != 0);
 	}//isRecording
 
-	// old method, delete if other methods work fine
-	//void encode(AVCodecContext* pContext, AVFrame *pFrame, AVPacket *pPkt, File *pOutFile) {
-
-	//	av_frame_make_writable(pFrame);
-
-	//	int RVal = avcodec_send_frame(pContext, pFrame);
-	//	if (RVal < 0) throw CForgeExcept("Error sending a frame for encoding!");
-
-	//	while (RVal >= 0) {
-	//		RVal = avcodec_receive_packet(pContext, pPkt);
-	//		if(RVal == AVERROR(EAGAIN) || RVal == AVERROR_EOF) break;
-	//		else if (RVal < 0) {
-	//			char Buffer[AV_ERROR_MAX_STRING_SIZE];
-	//			av_make_error_string(Buffer, sizeof(Buffer), RVal);
-	//			throw CForgeExcept("Error during encoding: " + std::string(Buffer));
-	//		}
-
-	//		pOutFile->write(pPkt->data, pPkt->size);
-	//	}
-
-	//}//encode
 
 }//name space

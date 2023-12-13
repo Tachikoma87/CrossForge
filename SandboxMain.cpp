@@ -29,6 +29,7 @@
 #include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
 #include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
 #include "Prototypes/TestScenes/CameraCaptureTestScene.hpp"
+#include "Prototypes/TestScenes/TransparencyTestScene.hpp"
 
 #include "Subprojects/DualIMU/IMUInputDeviceTestScene.hpp"
 #include "Subprojects/B02Demonstrator/B02DemonstratorScene.hpp"
@@ -45,14 +46,15 @@ using namespace Eigen;
 //#define ActiveScene ExampleLighting
 //#define ActiveScene ExampleSceneGraph
 //#define ActiveScene ExampleSkeletalAnimation
-//#define ActiveScene ExampleMorphTargetAnimation
+#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
-#define ActiveScene ExampleSocket
+//#define ActiveScene ExampleSocket
 
 //#define ActiveScene SkelAnimTestScene
 //#define ActiveScene SurfaceSamplerTestScene
 //#define ActiveScene AssetGLTFTestScene
 //#define ActiveScene CameraCaptureTestScene
+//#define ActiveScene TransparencyTestScene
 
 //#define ActiveScene ImuInputDeviceTestScene	
 //#define ActiveScene B02DemonstratorScene
@@ -158,7 +160,6 @@ int main(int argc, char* argv[]) {
 
 	//exportLibrary();
 
-
 	if(nullptr != pDev) pDev->release();
 	
 #ifdef WIN32
@@ -172,6 +173,7 @@ int main(int argc, char* argv[]) {
 	Tmp &= ~_CRTDBG_LEAK_CHECK_DF;
 	_CrtSetDbgFlag(Tmp);
 #endif
+
 
 	printf("QUtting now!");
 	return 0;
