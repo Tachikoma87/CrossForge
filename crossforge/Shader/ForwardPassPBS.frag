@@ -245,20 +245,19 @@ void main(){
 
 	vec4 TexColor = texture(TexAlbedo, UV);
 
+	float Alpha = TexColor.a * Material.Color.a;
+
 	// and the diffuse per-fragment color 
-	if(TexColor.a < 0.01) discard;
+	if(Alpha < 0.01) discard;
 	
 	#ifdef VERTEX_COLORS
-	vec3 Albedo = TexColor.a * (Color * Material.Color.rgb * TexColor.rgb);
+	vec3 Albedo = Color * Material.Color.rgb * TexColor.rgb;
 	#else
-	vec3 Albedo = TexColor.a * (Material.Color.rgb * TexColor.rgb);
+	vec3 Albedo = Material.Color.rgb * TexColor.rgb;
 	#endif
 	Albedo = pow(Albedo, vec3(Gamma));
 
-	// store the framgent position vector in the first gBuffer texture 
-	//gPosition = vec4(Pos, Material.AO);
-
-	// also store the per-fragment normals into the gBuffer 
+	// compute normals 
 	#ifdef NORMAL_MAPPING 
 	vec3 Norm = texture(TexNormal, UV).rgb * 2.0 - 1.0;
 	vec3 Normal = normalize(TBN * Norm);
@@ -342,5 +341,5 @@ void main(){
 
 	Col = adjustColorAttributes(Col, Saturation, Brightness, Contrast);
 		
-	FragColor = vec4(Col, Material.Color.a);
+	FragColor = vec4(Col, Alpha);
 }//main

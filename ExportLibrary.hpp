@@ -216,7 +216,9 @@ void exportLibrary(void) {
 	BinaryFiles.push_back("x64-Debug/libpng16d.dll");
 	BinaryFiles.push_back("x64-Debug/libwebp.dll");
 	BinaryFiles.push_back("x64-Debug/zlibd1.dll");
-	BinaryFiles.push_back("X64-Debug/pugixml.dll");
+	BinaryFiles.push_back("x64-Debug/pugixml.dll");
+	BinaryFiles.push_back("x64-Debug/turbojpeg.dll");
+	BinaryFiles.push_back("x64-Debug/libsharpyuv.dll");
 
 	// only required by OpenCV
 	//	BinaryFiles.push_back("x64-Debug/Irrlicht.dll");
@@ -245,6 +247,8 @@ void exportLibrary(void) {
 	BinaryFiles.push_back("x64-Release/libwebp.dll");
 	BinaryFiles.push_back("x64-Release/zlib1.dll");
 	BinaryFiles.push_back("x64-Release/pugixml.dll");
+	BinaryFiles.push_back("x64-Release/turbojpeg.dll");
+	BinaryFiles.push_back("x64-Release/libsharpyuv.dll");
 	
 	// only required by OpenCV
 //	BinaryFiles.push_back("x64-Release/lzma.dll");

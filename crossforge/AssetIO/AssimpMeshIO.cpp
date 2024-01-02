@@ -227,7 +227,7 @@ namespace CForge {
 				else Mat.TexDepth = File::absolute(Directory + Filepath.C_Str());
 			}
 
-			ai_real Buffer[4];
+			ai_real Buffer[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 			pMat->Get(AI_MATKEY_COLOR_DIFFUSE, (ai_real*)Buffer, nullptr);
 			Mat.Color = Eigen::Vector4f(Buffer[0], Buffer[1], Buffer[2], Buffer[3]);
 				

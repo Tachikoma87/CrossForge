@@ -46,7 +46,7 @@ using namespace Eigen;
 //#define ActiveScene ExampleLighting
 //#define ActiveScene ExampleSceneGraph
 //#define ActiveScene ExampleSkeletalAnimation
-#define ActiveScene ExampleMorphTargetAnimation
+//#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
 //#define ActiveScene ExampleSocket
 
@@ -54,7 +54,7 @@ using namespace Eigen;
 //#define ActiveScene SurfaceSamplerTestScene
 //#define ActiveScene AssetGLTFTestScene
 //#define ActiveScene CameraCaptureTestScene
-//#define ActiveScene TransparencyTestScene
+#define ActiveScene TransparencyTestScene
 
 //#define ActiveScene ImuInputDeviceTestScene	
 //#define ActiveScene B02DemonstratorScene
@@ -159,6 +159,8 @@ int main(int argc, char* argv[]) {
 	//testAllExamples(pDev);
 
 	//exportLibrary();
+
+
 
 	if(nullptr != pDev) pDev->release();
 	
