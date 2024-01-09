@@ -128,10 +128,8 @@ namespace CForge {
 
 			if (keyValuePair.first.find("TEXCOORD") != std::string::npos) {
 				int n = -1;
-
 				auto s = keyValuePair.first.substr(9);
-
-				sscanf(s.c_str(), "%d", &n);
+				n = std::stoi(s);
 
 				//TODO: support multiple textures
 				if (n != 0) continue;
@@ -153,10 +151,8 @@ namespace CForge {
 
 			if (keyValuePair.first.find("JOINTS") != std::string::npos) {
 				int n = -1;
-
 				auto s = keyValuePair.first.substr(7);
-
-				sscanf(s.c_str(), "%d", &n);
+				n = std::stoi(s);
 
 				//TODO: support multiple joints
 				if (n != 0) continue;
@@ -173,10 +169,8 @@ namespace CForge {
 
 			if (keyValuePair.first.find("WEIGHTS") != std::string::npos) {
 				int n = -1;
-
 				auto s = keyValuePair.first.substr(8);
-
-				sscanf(s.c_str(), "%d", &n);
+				n = std::stoi(s);
 
 				//TODO: support multiple weights
 				if (n != 0) continue;
@@ -193,10 +187,8 @@ namespace CForge {
 
 			if (keyValuePair.first.find("COLOR") != std::string::npos) {
 				int n = -1;
-
-				auto s = keyValuePair.first.substr(8);
-
-				sscanf(s.c_str(), "%d", &n);
+				auto s = keyValuePair.first.substr(6);
+				n = std::stoi(s);
 
 				//TODO: support multiple colors
 				if (n != 0) continue;
@@ -242,7 +234,8 @@ namespace CForge {
 		for (int i = 0; i < m_joint.size(); i++) {
 			for (int j = 0; j < 4; j++) {
 				int32_t index = (int32_t)m_joint[i](j);
-				if (index < 0) continue;
+				if (index < 0 || m_weight[i](j) == 0.f)
+					continue;
 				auto pBone = m_pMesh->getBone(index);
 				pBone->VertexInfluences.push_back(i);
 				pBone->VertexWeights.push_back(m_weight[i](j));
@@ -407,7 +400,7 @@ namespace CForge {
 				//A new BoneKeyFrames object is needed for every BoneID and Timestamps vector.
 
 				for (int i = 0; i < keyframes.size(); i++) {
-					if (keyframes[i]->BoneID == channel.target_node && inputAccessors[i] == input) {
+					if (keyframes[i]->BoneID == channel.target_node) { // && inputAccessors[i] == input) { //TODO no correlation?
 						pBoneKF = keyframes[i];
 						break;
 					}
@@ -415,7 +408,8 @@ namespace CForge {
 
 				if (pBoneKF == nullptr) {
 					pBoneKF = new T3DMesh<float>::BoneKeyframes;
-					pBoneKF->BoneID = channel.target_node;
+					pBoneKF->BoneID = channel.target_node; //TODO is this correct?
+					pBoneKF->BoneName = m_model.nodes[channel.target_node].name;
 					pBoneKF->ID = id_counter++;
 					keyframes.push_back(pBoneKF);
 					inputAccessors.push_back(input);
@@ -465,6 +459,103 @@ namespace CForge {
 
 			if (pure_morph_target_animation) continue;
 
+	
+			//TODO better fix
+			// CF expects length of Position Rotation Scale and Time to be the same
+			auto lerp3f = [](Eigen::Vector3f a, Eigen::Vector3f b, float p) {
+				Eigen::Vector3f r;
+				for (uint32_t i=0;i<3;++i)
+					r[i] = a[i]+(b[i]-a[i])*p;
+				return r;
+			};
+			auto lerpf = [](float a,float b, float p) {
+				return a+(b-a)*p;
+			};
+			for (T3DMesh<float>::BoneKeyframes* kf : keyframes) {
+				int len = 0;
+				len = std::max(len,(int) kf->Positions.size());
+				len = std::max(len,(int) kf->Rotations.size());
+				len = std::max(len,(int) kf->Scalings.size());
+				len = std::max(len,(int) kf->Timestamps.size());
+				if (kf->Positions.size() == 0) {
+					for (uint32_t i=0;i<len;++i)
+						kf->Positions.emplace_back();
+				} else if (kf->Positions.size() < len) {
+					std::vector<Eigen::Vector3f> nv;
+					for (uint32_t i = 0; i < len; ++i) {
+						// corresponding index on old range
+						float r = (float)i/len;
+						float or = r*kf->Positions.size();
+						int idxf = (int) std::floor(or);
+						int idxc = (int) std::ceil(or);
+						float itp = (or-idxf)/(idxc-idxf); // prog
+						if (idxc < kf->Positions.size())
+							nv.push_back(lerp3f(kf->Positions[idxf],kf->Positions[idxc],itp));
+						else
+							nv.push_back(kf->Positions[idxf]);
+					}
+					kf->Positions = nv;
+				}
+				if (kf->Rotations.size() == 0) {
+					for (uint32_t i=0;i<len;++i)
+						kf->Rotations.emplace_back();
+				} else if (kf->Rotations.size() < len) {
+					std::vector<Eigen::Quaternionf> nv;
+					for (uint32_t i = 0; i < len; ++i) {
+						// corresponding index on old range
+						float r = (float)i/len;
+						float or = r*kf->Rotations.size();
+						int idxf = (int) std::floor(or);
+						int idxc = (int) std::ceil(or);
+						float itp = (or-idxf)/(idxc-idxf); // prog
+						if (idxc < kf->Rotations.size())
+							nv.push_back((kf->Rotations[idxf].slerp(itp,kf->Rotations[idxc])).normalized());
+						else
+							nv.push_back(kf->Rotations[idxf]);
+					}
+					kf->Rotations = nv;
+				}
+				if (kf->Scalings.size() == 0) {
+					for (uint32_t i=0;i<len;++i)
+						kf->Scalings.emplace_back();
+				} else if (kf->Scalings.size() < len) {
+					std::vector<Eigen::Vector3f> nv;
+					for (uint32_t i = 0; i < len; ++i) {
+						// corresponding index on old range
+						float r = (float)i/len;
+						float or = r*kf->Scalings.size();
+						int idxf = (int) std::floor(or);
+						int idxc = (int) std::ceil(or);
+						float itp = (or-idxf)/(idxc-idxf); // prog
+						if (idxc < kf->Scalings.size())
+							nv.push_back(lerp3f(kf->Scalings[idxf],kf->Scalings[idxc],itp));
+						else
+							nv.push_back(kf->Scalings[idxf]);
+					}
+					kf->Scalings = nv;
+				}
+				if (kf->Timestamps.size() == 0) {
+					for (uint32_t i=0;i<len;++i)
+						kf->Timestamps.emplace_back();
+				} else if (kf->Timestamps.size() < len) {
+					std::vector<float> nv;
+					for (uint32_t i = 0; i < len; ++i) {
+						// corresponding index on old range
+						float r = (float)i/len;
+						float or = r*kf->Timestamps.size();
+						int idxf = (int) std::floor(or);
+						int idxc = (int) std::ceil(or);
+						float itp = (or-idxf)/(idxc-idxf); // prog
+						if (idxc < kf->Timestamps.size())
+							nv.push_back(lerpf(kf->Timestamps[idxf],kf->Timestamps[idxc],itp));
+						else
+							nv.push_back(kf->Timestamps[idxf]);
+					}
+					kf->Timestamps = nv;
+				}
+			}
+			//END //TODO better fix
+
 			pAnim = new T3DMesh<float>::SkeletalAnimation;
 
 			pAnim->Name = animation.name;
@@ -495,6 +586,7 @@ namespace CForge {
 				auto pBone = new T3DMesh<float>::Bone;
 				pBone->OffsetMatrix = offsetMatrices[counter];
 				pBone->ID = i;
+				pBone->Name = m_model.nodes[i].name;
 				pBones->push_back(pBone);
 
 				bones_by_indices.emplace(i, pBone);
@@ -515,6 +607,11 @@ namespace CForge {
 					childBone->pParent = pBone;
 				}
 			}
+
+			//TODOm
+			//// to load the correct bone from gltf node IDs have been used, internally bone IDs have to start at 0
+			for (uint32_t i=0;i<pBones->size();++i)
+				pBones->at(i)->ID = i;
 		}
 
 		m_pMesh->bones(pBones, false);

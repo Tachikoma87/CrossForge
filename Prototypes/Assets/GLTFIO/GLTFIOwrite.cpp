@@ -479,11 +479,17 @@ namespace CForge {
 
 		//TODO this is dirty
 		T3DMesh<float>::Bone* p_cRoot = const_cast<T3DMesh<float>::Bone*>(m_pCMesh->rootBone());
-		
+	
+
+		//TODO OffsetMatrix to Relative Hierarchy tries to reconstruct relative positions with inverse on matrices
+		//                                                                                     -> not always inversible
+		//TODO add option to allow for lossless import export?
 		SkeletonConverter sc;
 		sc.OMtoRH(p_cRoot);
 
 		std::vector<T3DMesh<float>::Bone*> RHskeleton = sc.getSkeleton();
+		//std::vector<T3DMesh<float>::Bone*> RHskeleton;
+		//SkeletonConverter::collectBones(&RHskeleton,p_cRoot);
 
 		for (int i = 0; i < m_pCMesh->boneCount(); i++) {
 			auto pBone = m_pCMesh->getBone(i);
@@ -939,13 +945,16 @@ namespace CForge {
 	void GLTFIO::getAccessorDataFloat(const int accessor, std::vector<std::vector<float>>* pData) {
 		Accessor acc = m_model.accessors[accessor];
 
+		//TODO getAccessorData is wrong? conversion from unsigned byte range 0-255 to 0-1
+
 		if (acc.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) getAccessorData(accessor, pData);
 		else if (acc.componentType == TINYGLTF_COMPONENT_TYPE_BYTE) {
 			std::vector<std::vector<char>> normalizedData;
 			getAccessorData(accessor, &normalizedData);
 			for (auto e : normalizedData) {
 				std::vector<float> toAdd;
-				for (auto d : e) toAdd.push_back(std::max(d / 127.0f, -1.0f));
+				//for (auto d : e) toAdd.push_back(std::max(d / 127.0f, -1.0f));
+				for (auto d : e) toAdd.push_back(float(d));
 				pData->push_back(toAdd);
 			}
 		}
@@ -954,7 +963,8 @@ namespace CForge {
 			getAccessorData(accessor, &normalizedData);
 			for (auto e : normalizedData) {
 				std::vector<float> toAdd;
-				for (auto d : e) toAdd.push_back(d / 255.0f);
+				//for (auto d : e) toAdd.push_back(d / 255.0f);
+				for (auto d : e) toAdd.push_back(float(d));
 				pData->push_back(toAdd);
 			}
 		}
@@ -963,7 +973,8 @@ namespace CForge {
 			getAccessorData(accessor, &normalizedData);
 			for (auto e : normalizedData) {
 				std::vector<float> toAdd;
-				for (auto d : e) toAdd.push_back(std::max(d / 32767.0f, -1.0f));
+				//for (auto d : e) toAdd.push_back(std::max(d / 32767.0f, -1.0f));
+				for (auto d : e) toAdd.push_back(float(d));
 				pData->push_back(toAdd);
 			}
 		}
@@ -972,7 +983,8 @@ namespace CForge {
 			getAccessorData(accessor, &normalizedData);
 			for (auto e : normalizedData) {
 				std::vector<float> toAdd;
-				for (auto d : e) toAdd.push_back(d / 65535.0f);
+				//for (auto d : e) toAdd.push_back(d / 65535.0f);
+				for (auto d : e) toAdd.push_back(float(d));
 				pData->push_back(toAdd);
 			}
 		}

@@ -15,8 +15,7 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_AUTORIGGINGTESTSCENE_HPP__
-#define __CFORGE_AUTORIGGINGTESTSCENE_HPP__
+#pragma once
 
 #include "../../crossforge/AssetIO/SAssetIO.h"
 #include "../../crossforge/Graphics/Shader/SShaderManager.h"
@@ -109,11 +108,23 @@ namespace CForge {
 
 			/////////////////////////////////////////////////////////////////
 
-			SAssetIO::load("MyAssets/ExampleScenes/Eric_Anim.fbx", &M);
 			//SAssetIO::load("AssetOut/outModel1.fbx", &M);
+
+			T3DMesh<float> MB;
+			SAssetIO::load("MyAssets/ExampleScenes/Eric_Anim.fbx", &MB);
+
+			//SAssetIO::load("MyAssets/ExampleScenes/Eric_Anim.fbx", &M);
+			//gltfio.load("MyAssets/ExampleScenes/eric.gltf",&M);
+			gltfio.load("MyAssets/ExampleScenes/CesiumMan/glTF/CesiumMan.gltf",&M);
+			M.computePerVertexNormals();
+			gltfio.store("MyAssets/AssetOut/out_ces.gltf",&M);
+			exit(0);
+
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
 			
+#define AUTORIG 0
+#if AUTORIG // autorig
 			T3DMesh<float> MT;
 			std::filesystem::path modelPath;
 			//modelPath = std::filesystem::path("MyAssets/muppetshow/Model1.obj");
@@ -199,8 +210,9 @@ namespace CForge {
 			
 			std::string outName = "MyAssets/AssetOut/out" + modelName + "3.gltf";
 			gltfio.store(outName,&MT);
+#endif
 			//__debugbreak();
-			exit(0);
+			//exit(0);
 			//std::string outNameEric = "MyAssets/AssetOut/eric.gltf";
 			//gltfio.store(outNameEric,&M);
 			//*/
@@ -221,23 +233,25 @@ namespace CForge {
 			EricSGN.init(&EricTransformSGN, &Eric);
 			//EricSGN.init(&EricTransformSGN, &Spock);
 			EricTransformSGN.scale(Eigen::Vector3f(10.0f,10.0f,10.0f));
+			EricTransformSGN.scale(Eigen::Vector3f(1000.0f,1000.0f,1000.0f));
 			
-			/**/
+			/*/
 			Controller.init(&MT);
 			Eric.init(&MT, &Controller);
 			/**/
-			/*/
+			/**/
 			Controller.init(&M);
 			Eric.init(&M, &Controller);
+			Eric.boundingVolume(CForge::BoundingVolume()); // Turn off frustum culling
 			EricSGN.scale(Vector3f(0.005f, 0.005f, 0.005f));
-			//EricTransformSGN.rotation((Quaternionf) AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX()));
+			EricTransformSGN.rotation((Quaternionf) AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX()));
 			/**/
 			M.clear();
 
 			// add skydome
 			SGNGeometry SkydomeSGN;
-			//SkydomeSGN.init(&RootSGN, &Skydome);
-			//SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
+			SkydomeSGN.init(&RootSGN, &Skydome);
+			SkydomeSGN.scale(Vector3f(5.0f, 5.0f, 5.0f));
 
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CForgeUtility::timestamp();
@@ -262,9 +276,11 @@ namespace CForge {
 			boneMesh.computePerVertexNormals();
 			boneVis.init(&boneMesh);
 
+#if AUTORIG
 			SkeletonConverter sc;
 			sc.OMtoRH(MT.rootBone());
 			T3DMesh<float>::Bone* sklHroot = sc.getRoot();
+#endif
 
 			// start main loop
 			while (!m_RenderWin.shutdown()) {
@@ -289,13 +305,19 @@ namespace CForge {
 				//SG.render(&m_RenderDev);
 
 				m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
+				SG.render(&m_RenderDev);
+				
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+
+				m_RenderDev.activePass(RenderDevice::RENDERPASS_FORWARD, nullptr,false);
+				glDisable(GL_DEPTH_TEST);
 
 				//autoRigger.renderGrid(&m_RenderDev, CForgeMath::translationMatrix(Eigen::Vector3f(0.0,0.0,0.0)),
 				//	CForgeMath::rotationMatrix((Quaternionf) AngleAxisf(CForgeMath::degToRad(-90.0f), Vector3f::UnitX()))
 				//	*CForgeMath::scaleMatrix(Vector3f(0.05f, 0.05f, 0.05f)));
 
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_ONE, GL_ONE);
+				//glEnable(GL_BLEND);
+				//glBlendFunc(GL_ONE, GL_ONE);
 				/*/ // render embedded joints
 				for (uint32_t i = 0; i < (uint32_t) rig.embedding.size(); i++) {
 					Eigen::Matrix4f cubeTransform = CForgeMath::translationMatrix(Eigen::Vector3f(rig.embedding[i][0],rig.embedding[i][1],rig.embedding[i][2]));
@@ -309,6 +331,7 @@ namespace CForge {
 				}
 				/**/
 				
+#if AUTORIG
 				// Render Offset Matrix
 				glColorMask(true,false,false,true);
 				std::vector<T3DMesh<float>::Bone*> MTbones;
@@ -342,7 +365,9 @@ namespace CForge {
 					m_RenderDev.modelUBO()->modelMatrix(CForgeMath::scaleMatrix(Eigen::Vector3f(10.,10.,10.))*rep*CForgeMath::scaleMatrix(Eigen::Vector3f(.01,.1,.01)));
 					boneVis.render(&m_RenderDev,rot,Eigen::Vector3f(),Eigen::Vector3f());
 				}
+#endif
 				glColorMask(true,true,true,true);
+				glEnable(GL_DEPTH_TEST);
 				/**/ // render sphere packing
 				//for (uint32_t i = 0; i < (uint32_t) poss.size(); i++) {
 				//	Eigen::Matrix4f cubeTransform = CForgeMath::translationMatrix(poss[i]);
@@ -365,10 +390,10 @@ namespace CForge {
 				}
 				/**/
 				
-				SG.render(&m_RenderDev);
-				glDisable(GL_BLEND);
-				
-				m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+				//SG.render(&m_RenderDev);
+				//glDisable(GL_BLEND);
+				//
+				//m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
 
 				m_RenderWin.swapBuffers();
 
@@ -495,5 +520,3 @@ namespace CForge {
 		float FPS = 60.0f;
 	};
 }
-
-#endif

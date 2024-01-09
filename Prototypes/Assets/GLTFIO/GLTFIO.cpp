@@ -61,6 +61,7 @@ namespace CForge {
 		std::string warn;
 
 		bool res = loader.LoadASCIIFromFile(&m_model, &err, &warn, Filepath);
+		//TODO look for glb in filepath and load binary instead.
 
 		if (warn.size()) std::cout << "tinygltf warning: " << warn << std::endl;
 		if (err.size()) std::cout << "tinygltf error: " << err << std::endl;

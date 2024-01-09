@@ -8,21 +8,36 @@ std::vector<T3DMesh<float>::Bone*> SkeletonConverter::copyBones(std::vector<T3DM
 	std::vector<T3DMesh<float>::Bone*> bones;
 	if (nullptr != pBones) {
 		// create bones
-		for (size_t i = 0; i < pBones->size(); ++i) bones.push_back(new T3DMesh<float>::Bone());
+		for (size_t i = 0; i < pBones->size(); ++i)
+			bones.push_back(new T3DMesh<float>::Bone());
 
 		for (size_t i = 0; i < pBones->size(); ++i) {
 			// copy data
-			bones[i]->ID = i;
+			bones[i]->ID = pBones->at(i)->ID;
 			bones[i]->Name = pBones->at(i)->Name;
 			bones[i]->Position = pBones->at(i)->Position;
 			bones[i]->OffsetMatrix = pBones->at(i)->OffsetMatrix;
 			bones[i]->VertexInfluences = pBones->at(i)->VertexInfluences;
 			bones[i]->VertexWeights = pBones->at(i)->VertexWeights;
+			
+		}//for[bones]
+			
+		for (size_t i = 0; i < pBones->size(); ++i) {
 			// create links
-			if (pBones->at(i)->pParent)
-				bones[i]->pParent = bones[pBones->at(i)->pParent->ID];
+			if (pBones->at(i)->pParent) {
+				for (auto b : bones) {
+					if (b->Name == pBones->at(i)->pParent->Name)
+						bones[i]->pParent = b;
+				}
+				//bones[i]->pParent = bones[pBones->at(i)->pParent->ID];
+			}
+			
 			for (size_t k = 0; k < pBones->at(i)->Children.size(); ++k) {
-				bones[i]->Children.push_back(bones[pBones->at(i)->Children[k]->ID]);
+				for (auto b : bones) {
+					if (b->Name == pBones->at(i)->Children[k]->Name)
+					bones[i]->Children.push_back(b);
+				}
+				//bones[i]->Children.push_back(bones[pBones->at(i)->Children[k]->ID]);
 			}//for[children]
 		}//for[bones]
 	}
@@ -33,7 +48,6 @@ void SkeletonConverter::OMtoRH(T3DMesh<float>::Bone* root)
 {
 	// Collect all Bones in a std::vector for copy
 	std::vector<T3DMesh<float>::Bone*> m_rootSkeleton;
-	m_rootSkeleton.push_back(root);
 	collectBones(&m_rootSkeleton,root);
 	
 	m_skeleton = copyBones(&m_rootSkeleton);
@@ -62,6 +76,8 @@ SkeletonConverter::~SkeletonConverter() {
 }
 
 void SkeletonConverter::collectBones(std::vector<T3DMesh<float>::Bone*>* ret,T3DMesh<float>::Bone* bone) {
+	if (bone->pParent == nullptr)
+		ret->push_back(bone);
 	for (uint32_t i = 0; i < bone->Children.size(); ++i) {
 		ret->push_back(bone->Children[i]);
 		collectBones(ret,bone->Children[i]);
