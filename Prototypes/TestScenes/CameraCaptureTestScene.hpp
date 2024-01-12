@@ -18,6 +18,8 @@
 #ifndef __CFORGE_CAMERACAPTURETESTSCENE_HPP__
 #define __CFORGE_CAMERACAPTURETESTSCENE_HPP__
 
+#ifdef __WIN32__
+
 #include "../Multimedia/SMediaDeviceManager.h"
 #include "../../Examples/ExampleSceneBase.hpp"
 #include "../Camera/CameraCapture.h"
@@ -204,5 +206,7 @@ namespace CForge {
 	};//CameraCaptureTestScene
 
 }//name space
+
+#endif
 
 #endif

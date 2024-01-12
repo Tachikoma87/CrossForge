@@ -110,7 +110,7 @@ else()
 	FIND_PACKAGE(libigl CONFIG REQUIRED)# mesh processing library
 	FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp
 	find_package(JPEG REQUIRED)			# jpeg loader (required by libjpeg turbo)
-	find_package(libjpeg-turbo)			# jpeg-turbo library to compress/decompress jpeg
+	find_package(libjpeg-turbo CONFIG REQUIRED)			# jpeg-turbo library to compress/decompress jpeg
 
 endif()
 
@@ -283,7 +283,7 @@ elseif(UNIX)
 	${FREETYPE_LIBRARIES}	# for Text rendering
 	freetype
 	PRIVATE stdc++fs
-	libjpeg-turbo::turbojpeg
+	PRIVATE libjpeg-turbo::turbojpeg-static
 	PRIVATE ${JPEG_LIBRARIES}
 	)
 endif()

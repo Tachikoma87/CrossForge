@@ -19,8 +19,8 @@
 #define __CFORGE_CAMERACAPTURE_H__
 #include <crossforge/Core/CForgeObject.h>
 
+#ifdef __WIN32__
 #include <Windows.h>
-
 
 namespace CForge {
 	class CameraCapture {
@@ -36,6 +36,8 @@ namespace CForge {
 
 	};//CameraCapture
 }//name-space
+
+#endif
 
 
 #endif 

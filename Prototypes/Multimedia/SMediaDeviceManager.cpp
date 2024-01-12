@@ -1,3 +1,5 @@
+#ifdef __WIN32__
+
 #include <crossforge/Core/SLogger.h>
 #include <crossforge/Utility/CForgeUtility.h>
 
@@ -145,3 +147,5 @@ namespace CForge {
 	}//camera
 
 }//name space
+
+#endif

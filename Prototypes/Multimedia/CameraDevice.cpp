@@ -1,3 +1,5 @@
+#ifdef __WIN32__
+
 #include <crossforge/Core/SLogger.h>
 #include <crossforge/Math/CForgeMath.h>
 #include <crossforge/AssetIO/SAssetIO.h>
@@ -336,3 +338,5 @@ namespace CForge {
 	}//retrieveImage
 
 }//name space
+
+#endif

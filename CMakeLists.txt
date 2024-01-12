@@ -60,11 +60,9 @@ else()
 # Additional packages not alreday included in the core library
 FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
 FIND_PACKAGE(imgui CONFIG REQUIRED) # dear-imgui
-find_package(JPEG REQUIRED)
-find_package(libjpeg-turbo)
-find_package(FFMPEG REQUIRED)
-
-#FIND_PACKAGE(OpenXR CONFIG REQUIRED)
+FIND_PACKAGE(JPEG REQUIRED)
+FIND_PACKAGE(libjpeg-turbo)
+FIND_PACKAGE(FFMPEG REQUIRED)
 endif()
 
 add_executable(CForgeSandbox 
@@ -134,13 +132,8 @@ elseif(WIN32)
 	ws2_32
 	PRIVATE tinyxml2::tinyxml2
 	PRIVATE imgui::imgui
-#	PRIVATE OpenXR::headers
-#	PRIVATE OpenXR::openxr_loader
-    libjpeg-turbo::turbojpeg
 	PRIVATE ${FFMPEG_LIBRARIES}
-	PRIVATE ${JPEG_LIBRARIES}
 	${FREETYPE_LIBRARIES}
-	${OpenCV_LIBS}
 	)
 	
 elseif(__arm__)
@@ -155,14 +148,24 @@ elseif(__arm__)
 		PRIVATE dl	
 		)
 elseif(UNIX)
+	target_include_directories(CForgeSandbox 
+	PRIVATE ${JPEG_INCLUDE_DIR}
+	PRIVATE ${FFMPEG_INCLUDE_DIRS}
+	)
+
+	target_link_directories(CForgeSandbox
+		PRIVATE ${FFMPEG_LIBRARY_DIRS}
+	)
+
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
 		PRIVATE glfw
 		PRIVATE glad::glad
 		PRIVATE tinyxml2::tinyxml2
 		PRIVATE imgui::imgui
-#		PRIVATE assimp
 		PRIVATE dl	
+		PRIVATE ${FFMPEG_LIBRARIES}
+		${FREETYPE_LIBRARIES}
 		${OpenCV_LIBS}
 		)
 endif()

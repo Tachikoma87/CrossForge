@@ -1,3 +1,5 @@
+#ifdef __WIN32__
+
 #include <crossforge/Utility/CForgeUtility.h>
 #include <crossforge/AssetIO/SAssetIO.h>
 #include "CameraCapture.h"
@@ -378,3 +380,5 @@ namespace CForge {
 		delete this;
 	}//release
 }
+
+#endif
