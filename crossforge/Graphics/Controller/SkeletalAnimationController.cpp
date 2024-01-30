@@ -1,6 +1,8 @@
 #include "SkeletalAnimationController.h"
 #include "../Shader/SShaderManager.h"
 #include "../../Math/CForgeMath.h"
+#include "../../Utility/CForgeUtility.h"
+#include "../../Core/SCForgeSimulation.h"
 
 using namespace Eigen;
 using namespace std;
@@ -129,11 +131,10 @@ namespace CForge {
 	void SkeletalAnimationController::addAnimationData(T3DMesh<float>::SkeletalAnimation* pAnimation) {
 		if (nullptr == pAnimation) throw NullpointerExcept("pAnimation");
 
-		
 		T3DMesh<float>::SkeletalAnimation* pAnim = new T3DMesh<float>::SkeletalAnimation();
 		pAnim->Duration = pAnimation->Duration;
 		pAnim->Name = pAnimation->Name;
-		pAnim->Speed = pAnimation->Speed;
+		pAnim->SamplesPerSecond = pAnimation->SamplesPerSecond;
 
 		// keyframes and join names have to match
 		for (uint32_t i = 0; i < pAnimation->Keyframes.size(); ++i) {
@@ -170,6 +171,20 @@ namespace CForge {
 			while (pKeyFrame->Scalings.size() < MaxTimestamps) pKeyFrame->Scalings.push_back(Scale);
 			while (pKeyFrame->Rotations.size() < MaxTimestamps) pKeyFrame->Rotations.push_back(Rot);
 		}
+
+		// scale all timestamps to unit scale
+		for (uint32_t i = 0; i < pAnim->Keyframes.size(); ++i) {
+			auto* pKeyFrame = pAnim->Keyframes[i];
+			for (auto& k : pKeyFrame->Timestamps) k /= pAnim->SamplesPerSecond;
+		}//for[all keyframes]
+		pAnim->Duration = pAnim->Keyframes[0]->Timestamps[pAnim->Keyframes[0]->Timestamps.size()-1];
+		// now we count the sample per second
+		auto Timestamps = pAnim->Keyframes[0]->Timestamps;
+		pAnim->SamplesPerSecond = 0;
+		for (auto i : Timestamps) {
+			pAnim->SamplesPerSecond++;
+			if (i >= 1.0f) break;
+		}
 	
 	}//addAnimation
 
@@ -190,6 +205,8 @@ namespace CForge {
 		pRval->t = Offset;
 		pRval->Finished = false;
 		pRval->Duration = m_SkeletalAnimations[AnimationID]->Duration;
+		pRval->TicksPerSecond = m_SkeletalAnimations[AnimationID]->SamplesPerSecond;
+		pRval->LastTimestamp = CForgeSimulation::simulationTime();
 		Animation* pTemp = pRval;
 		for (uint32_t i = 0; i < m_ActiveAnimations.size(); ++i) {
 			if (m_ActiveAnimations[i] == nullptr) {
@@ -207,7 +224,10 @@ namespace CForge {
 	void SkeletalAnimationController::update(float FPSScale) {
 		for (auto i : m_ActiveAnimations) {
 			if (nullptr != i && !i->Finished) {
-				i->t += FPSScale * i->Speed;
+				float TimePassed = (CForgeSimulation::simulationTime() - i->LastTimestamp) / 1000.0f; // time passed in seconds since last update
+				i->t += (TimePassed * i->Speed);
+				i->LastTimestamp = CForgeSimulation::simulationTime();
+				if (i->t > i->Duration) i->Finished = true;
 			}
 		}//for[active animations]
 	}//update
@@ -328,7 +348,7 @@ namespace CForge {
 		return Rval;
 	}//retrieveSkeleton
 
-	void SkeletalAnimationController::updateSkeletonValues(std::vector<SkeletalAnimationController::SkeletalJoint*>* pSkeleton) {
+	void SkeletalAnimationController::retrieveSkeleton(std::vector<SkeletalAnimationController::SkeletalJoint*>* pSkeleton) {
 		if (nullptr == pSkeleton) throw NullpointerExcept("pSkeleton");
 
 		for (auto i : (*pSkeleton)) {
@@ -338,6 +358,35 @@ namespace CForge {
 			i->LocalScale = m_Joints[i->ID]->LocalScale;
 			i->SkinningMatrix = m_Joints[i->ID]->SkinningMatrix;
 		}
+
+		
 	}//updateSkeleton
+
+	void SkeletalAnimationController::setSkeletonValues(std::vector<SkeletalJoint*>* pSkeleton, bool UpdateUBO) {
+		if (nullptr == pSkeleton) throw NullpointerExcept("pSkeleton");
+
+		for (auto i : (*pSkeleton)) {
+			m_Joints[i->ID]->OffsetMatrix = i->OffsetMatrix;;
+			m_Joints[i->ID]->LocalPosition = i->LocalPosition;
+			m_Joints[i->ID]->LocalRotation = i->LocalRotation;
+			m_Joints[i->ID]->LocalScale = i->LocalScale;
+			m_Joints[i->ID]->SkinningMatrix = i->SkinningMatrix;
+		}
+
+		transformSkeleton(m_pRoot, Matrix4f::Identity());
+
+		if (UpdateUBO) {
+			for (uint32_t i = 0; i < m_Joints.size(); ++i) m_UBO.skinningMatrix(i, m_Joints[i]->SkinningMatrix);
+		}
+
+	}//setSkeletonValues
+
+	Eigen::Vector3f SkeletalAnimationController::transformVertex(Eigen::Vector3f V, Eigen::Vector4i BoneInfluences, Eigen::Vector4f BoneWeights) {
+		Eigen::Matrix4f T = Eigen::Matrix4f::Zero();
+		for (uint8_t i = 0; i < 4; ++i) T += BoneWeights[i] * m_Joints[BoneInfluences[i]]->SkinningMatrix;
+
+		Vector4f VPrime = T * Vector4f(V.x(), V.y(), V.z(), 1.0f);
+		return Vector3f(VPrime.x(), VPrime.y(), VPrime.z());
+	}//transformVertex
 
 }//name space

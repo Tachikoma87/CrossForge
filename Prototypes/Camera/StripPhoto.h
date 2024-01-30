@@ -22,7 +22,7 @@
 #include <Eigen/Eigen>
 #include <inttypes.h>
 #include <vector>
-#include "TImage2D.hpp"
+#include <crossforge/AssetIO/T2DImage.hpp>
 
 namespace CForge {
 
@@ -35,17 +35,17 @@ namespace CForge {
         void startRecording(int32_t StartTime);
         void clear(void);
 
-        void addStrip(Image2D *pImg, uint32_t Timestamp, bool CopyImage = true);
+        void addStrip(T2DImage<uint8_t> *pImg, uint32_t Timestamp, bool CopyImage = true);
 
         void calibrate(bool DeleteCurrentStrips);
         void buildStripPhoto(void);
 
-        void retrieveStripPhoto(Image2D* pImgData, int32_t** ppTimestamps);
+        void retrieveStripPhoto(T2DImage<uint8_t>* pImgData, int32_t** ppTimestamps);
 
     private:
 
         struct Strip {
-            Image2D* pImgData;
+            T2DImage<uint8_t>* pImgData;
             uint32_t Timestamp; ////< Timestamp at CENTER of the image
             bool LightBarrierTriggered;
             bool State; ///< False if state is unknown.
@@ -88,7 +88,7 @@ namespace CForge {
         float m_NoiseValue;
         float m_Sensitivity;
 
-
+        T2DImage<uint8_t> m_StripPhoto;
     };//StripPhoto
 
 }//name-space

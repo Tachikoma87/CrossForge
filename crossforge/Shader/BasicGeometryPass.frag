@@ -34,15 +34,17 @@ in vec2 UV;
 void main(){
 	
 	vec4 TexColor = texture(TexAlbedo, UV);
+	float Alpha = TexColor.a * Material.Color.a;
 
 	// and the diffuse per-fragment color 
-	if(TexColor.a < 0.01) discard;
+	if(Alpha < 0.01) discard;
 	
 	#ifdef VERTEX_COLORS
-	gAlbedoSpec.rgb = TexColor.a * (Color * Material.Color.rgb * TexColor.rgb);
+	gAlbedoSpec.rgb = Color * Material.Color.rgb * TexColor.rgb;
 	#else
-	gAlbedoSpec.rgb = TexColor.a * (Material.Color.rgb * TexColor.rgb);
+	gAlbedoSpec.rgb = Material.Color.rgb * TexColor.rgb;
 	#endif
+	
 
 	// store the framgent position vector in the first gBuffer texture 
 	gPosition = vec4(Pos, Material.AO);

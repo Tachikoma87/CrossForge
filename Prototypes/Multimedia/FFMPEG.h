@@ -1,9 +1,9 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): UBOModelData.h and UBOModelData.cpp                       *
+* File(s): FFMPEG.h and FFMPEG.cpp                *
 *                                                                           *
-* Content:    *
-*          .                                         *
+* Content: Test file for ffmpeg library   *
+*                        *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,40 +15,24 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_UBOINSTANCEDDATA_H__
-#define __CFORGE_UBOINSTANCEDDATA_H__
+#ifndef __CFORGE_FFMPEG_H__
+#define __CFORGE_FFMPEG_H__
 
-#include "../crossforge/Graphics/GLBuffer.h"
+#include <crossforge/AssetIO/T2DImage.hpp>
 
 namespace CForge {
-	/**
-	* \brief Uniform buffer object for model related data.
-	*
-	* \todo Do full documentation.
-	*/
-	class CFORGE_API UBOInstancedData : public CForgeObject {
+	class FFMPEG {
 	public:
-		UBOInstancedData(void);
-		~UBOInstancedData(void);
+		FFMPEG();
+		~FFMPEG();
 
-		void init();
-		void clear(void);
-		void bind(uint32_t BindingPoint);
-		uint32_t size(void)const;
-
-		//void setInstance(uint32_t index, Eigen::Matrix3f rotation, Eigen::Vector3f translation);
-		//void setInstance(uint32_t index, Eigen::Matrix4f mat);
-		void setInstances(const std::vector<Eigen::Matrix4f>* mats, Eigen::Vector2i range);
-		void setInstance(const Eigen::Matrix4f* mat, uint32_t index);
-		uint32_t getMaxInstanceCount();
+		void firstTest();
+		void convertNV12(uint8_t* pImgData, uint32_t BufferSize, uint32_t Width, uint32_t Height, T2DImage<uint8_t>* pDest);
 
 	protected:
-		uint32_t m_maxInstanceCount = 0;
-		GLBuffer m_Buffer;
-		uint32_t m_instanceCount;
-	};//UBOModelData
 
+	};//FMPEG
 
 }//name space
 
-#endif
+#endif 

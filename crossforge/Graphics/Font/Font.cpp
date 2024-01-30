@@ -69,9 +69,6 @@ namespace CForge {
         }
     }//clear
 
-    void Font::release(void) {
-        delete this;
-    }//release
 
     int Font::renderString(std::u32string text, CForge::GLBuffer* vbo, CForge::GLVertexArray* vao)
     {

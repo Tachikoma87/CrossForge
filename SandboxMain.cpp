@@ -26,17 +26,15 @@
 
 #include "Prototypes/TestScenes/ShadowTestScene.hpp"
 #include "Prototypes/TestScenes/SkelAnimTestScene.hpp"
-#include "Prototypes/TestScenes/IMUInputDeviceTestScene.hpp"
 #include "Prototypes/TestScenes/SurfaceSamplerTestScene.hpp"
-#include "Prototypes/TestScenes/ImageTestScene.hpp"
-#include "Prototypes/TestScenes/FrustumCullingTestScene.hpp"
-#include "Prototypes/TestScenes/StickFigureTestScene.hpp"
 #include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
-#include "Prototypes/TestScenes/GUITestScene.hpp"
-#include "Prototypes/TestScenes/ImGUITestScene.hpp"
+#include "Prototypes/TestScenes/CameraCaptureTestScene.hpp"
+#include "Prototypes/TestScenes/TransparencyTestScene.hpp"
 
 #include "Prototypes/TestScenes/AutoRiggingTestScene.hpp"
 
+#include "Subprojects/DualIMU/IMUInputDeviceTestScene.hpp"
+#include "Subprojects/B02Demonstrator/B02DemonstratorScene.hpp"
 
 using namespace CForge;
 using namespace Eigen;
@@ -52,27 +50,86 @@ using namespace Eigen;
 //#define ActiveScene ExampleSkeletalAnimation
 //#define ActiveScene ExampleMorphTargetAnimation
 //#define ActiveScene ExampleMultiViewport
-
 //#define ActiveScene ExampleSocket
 
-//#define ActiveScene ImuInputDeviceTestScene	 
 //#define ActiveScene SkelAnimTestScene
 //#define ActiveScene SurfaceSamplerTestScene
-//#define ActiveScene ForwardTestScene
-//#define ActiveScene PrimitiveFactoryTestScene
-//#define ActiveScene FrustumCullingTestScene
-//#define ActiveScene StickFigureTestScene
 //#define ActiveScene AssetGLTFTestScene
-//#define ActiveScene ImGUITestScene
+//#define ActiveScene CameraCaptureTestScene
+//#define ActiveScene TransparencyTestScene
 
 #define ActiveScene AutoRiggingTestScene
 
+//#define ActiveScene ImuInputDeviceTestScene	
+//#define ActiveScene B02DemonstratorScene
 
 ActiveScene* pScene = nullptr;
 
 void mainLoop(void *pArg) {
 	static_cast<ActiveScene*>(pArg)->mainLoop();
 }//mainLoop
+
+template<class T>
+void executeScene() {
+	T* pScene = nullptr;
+	try {
+		pScene = new T();
+		pScene->init();
+
+		#if defined(__EMSCRIPTEN__)
+				emscripten_set_main_loop_arg(mainLoop, pScene, 0, true);
+		#else
+				while (!pScene->renderWindow()->shutdown()) pScene->mainLoop();
+		#endif
+
+		if (nullptr != pScene) delete pScene;
+		pScene = nullptr;
+	}
+	catch (const CrossForgeException& e) {
+		SLogger::logException(e);
+		printf("Exception occurred. See Log. \n %s\n", e.msg().c_str());
+	}
+	catch (...) {
+		printf("A not handled exception occurred during execution of scene!\n");
+	}
+}//executeScene
+
+void testAllExamples(SCrossForgeDevice *pDevice) {
+	SShaderManager* pShaderMan = SShaderManager::instance();
+	executeScene<ExampleMinimumGraphicsSetup>();
+	pShaderMan->reset();
+
+	executeScene<ExampleSkybox>();
+	pShaderMan->reset();
+
+	executeScene<ExampleTextRendering>();
+	pShaderMan->reset();
+
+	executeScene<ExampleShapesAndMaterials>();
+	pShaderMan->reset();
+
+	executeScene<ExampleLighting>();
+	pShaderMan->reset();
+
+	executeScene<ExampleSceneGraph>();
+	pShaderMan->reset();
+
+	executeScene<ExampleSkeletalAnimation>();
+	pShaderMan->reset();
+
+	executeScene<ExampleMorphTargetAnimation>();
+	pShaderMan->reset();
+
+	executeScene<ExampleMultiViewport>();
+	pShaderMan->reset();
+
+	executeScene<ExampleSocket>();
+	pShaderMan->reset();
+
+
+	pShaderMan->release();
+
+}//testAllExamples
 
 int main(int argc, char* argv[]) {
 #ifdef WIN32
@@ -101,34 +158,16 @@ int main(int argc, char* argv[]) {
 		return -1;	
 	}
 
-	try {
-		pScene = new ActiveScene();
-		pScene->init();
+	executeScene<ActiveScene>();
 
-#if defined(__EMSCRIPTEN__)
-		emscripten_set_main_loop_arg(mainLoop, pScene, 0, true);
-#else
-		while (!pScene->renderWindow()->shutdown()) pScene->mainLoop();
-#endif
+	//testAllExamples(pDev);
 
-		if (nullptr != pScene) delete pScene;
-		pScene = nullptr;
-		//exportLibrary();
-	}
-	catch (const CrossForgeException & e) {
-		SLogger::logException(e);
-		printf("Exception occurred. See Log. \n %s\n", e.msg().c_str());
-	}
-	catch (...) {
-		printf("A not handled exception occurred!\n");
-	}
+	//exportLibrary();
+
 
 
 	if(nullptr != pDev) pDev->release();
 	
-	char c;
-	//scanf("%c", &c);
-
 #ifdef WIN32
 	// dump memory statics
 	_CrtMemCheckpoint(&S2);
@@ -140,6 +179,7 @@ int main(int argc, char* argv[]) {
 	Tmp &= ~_CRTDBG_LEAK_CHECK_DF;
 	_CrtSetDbgFlag(Tmp);
 #endif
+
 
 	printf("Qutting now!");
 	return 0;

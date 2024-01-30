@@ -14,7 +14,7 @@ namespace CForge {
 		clear();
 	}//Destructor
 
-	void SkeletalActor::init(T3DMesh<float>* pMesh, SkeletalAnimationController *pController) {
+	void SkeletalActor::init(T3DMesh<float>* pMesh, SkeletalAnimationController *pController, bool PrepareCPUSkinning) {
 		clear();
 		if (nullptr == pMesh) throw NullpointerExcept("pMesh");
 
@@ -25,6 +25,8 @@ namespace CForge {
 		if (pMesh->normalCount() > 0) VProps |= VertexUtility::VPROP_NORMAL;
 		if (pMesh->tangentCount() > 0) VProps |= VertexUtility::VPROP_TANGENT;
 		if (pMesh->textureCoordinatesCount() > 0) VProps |= VertexUtility::VPROP_UVW;
+
+		if (PrepareCPUSkinning) prepareCPUSkinning(pMesh);
 
 		m_VertexUtility.init(VProps);
 		uint8_t* pBuffer = nullptr;
@@ -55,14 +57,49 @@ namespace CForge {
 		m_BV.init(pMesh, BoundingVolume::TYPE_AABB);
 	}//initialize
 
+	void SkeletalActor::prepareCPUSkinning(const T3DMesh<float>* pMesh) {
+		// clean up old data
+		for (auto& i : m_SkinVertexes) {
+			if (nullptr != i) delete i;
+		}
+		m_SkinVertexes.clear();
+
+		// create vertexes
+		for (uint32_t i = 0; i < pMesh->vertexCount(); ++i) {
+			SkinVertex* pSV = new SkinVertex();
+			pSV->V = pMesh->vertex(i);
+			m_SkinVertexes.push_back(pSV);
+		}//for[vertices]
+
+		// go through bones and store influences/weights
+		for (uint32_t i = 0; i < pMesh->boneCount(); ++i) {
+			auto* pBone = pMesh->getBone(i);
+
+			for (uint32_t k = 0; k < pBone->VertexInfluences.size(); ++k) {
+				auto* pAffectedSF = m_SkinVertexes[pBone->VertexInfluences[k]];
+				pAffectedSF->BoneInfluences.push_back(i);
+				pAffectedSF->BoneWeights.push_back(pBone->VertexWeights[k]);
+			}//for[vertex influences]
+		}//for[all bones]
+
+		// make sure we have at least 4 influences per vertex
+		for (auto i : m_SkinVertexes) {
+			while (i->BoneInfluences.size() < 4) {
+				i->BoneInfluences.push_back(0);
+				i->BoneWeights.push_back(0.0f);
+			}
+		}//for[skin vertexes]
+	}//prepareCPUSkinning
+
 	void SkeletalActor::clear(void) {
+		for (auto& i : m_SkinVertexes) {
+			if (nullptr != i) delete i;
+		}
+		m_SkinVertexes.clear();
+
 		m_pAnimationController = nullptr;
 		m_pActiveAnimation = nullptr;
 	}//clear
-
-	void SkeletalActor::release(void) {
-		delete this;
-	}//release
 
 	void SkeletalActor::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
 		if (nullptr == pRDev) throw NullpointerExcept("pRDev");
@@ -124,5 +161,17 @@ namespace CForge {
 	SkeletalAnimationController::Animation* SkeletalActor::activeAnimation(void)const {
 		return m_pActiveAnimation;
 	}//activeAnimation
+
+	Eigen::Vector3f SkeletalActor::transformVertex(int32_t Index) {
+		if (0 == m_SkinVertexes.size()) throw CForgeExcept("Class not prepared for CPU skinning!");
+		if (0 > Index || Index >= m_SkinVertexes.size()) throw IndexOutOfBoundsExcept("Index");
+		
+		auto* pV = m_SkinVertexes[Index];
+
+		const Eigen::Vector4i I = Eigen::Vector4i(pV->BoneInfluences[0], pV->BoneInfluences[1], pV->BoneInfluences[2], pV->BoneInfluences[3]);
+		const Eigen::Vector4f W = Eigen::Vector4f(pV->BoneWeights[0], pV->BoneWeights[1], pV->BoneWeights[2], pV->BoneWeights[3]);
+
+		return m_pAnimationController->transformVertex(m_SkinVertexes[Index]->V, I, W);
+	}//transformVertex
 
 }//name-space

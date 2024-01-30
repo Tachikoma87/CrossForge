@@ -40,6 +40,8 @@
 #include <crossforge/Graphics/Font/LineOfText.h>
 #include <crossforge/MeshProcessing/PrimitiveShapeFactory.h>
 
+#include <crossforge/Core/SCForgeSimulation.h>
+
 #ifdef __EMSCRIPTEN__
 #include <crossforge/Graphics/OpenGLHeader.h>
 #else
@@ -65,6 +67,7 @@ namespace CForge {
 			m_LastFPSPrint = CForgeUtility::timestamp();
 			m_CameraRotation = false;
 			m_FPSLabelActive = false;
+			m_pSimulation = CForgeSimulation::instance();
 		}//Constructor
 
 		~ExampleSceneBase(void) {
@@ -84,7 +87,9 @@ namespace CForge {
 		virtual void clear(void) {
 			m_RenderWin.stopListening(this);
 			if (nullptr != m_pShaderMan) m_pShaderMan->release();
+			if (nullptr != m_pSimulation) m_pSimulation->release();
 			m_pShaderMan = nullptr;
+			m_pSimulation = nullptr;
 		}//clear
 
 		virtual void release(void) {
@@ -116,12 +121,15 @@ namespace CForge {
 			VP.Size = Vector2i(Msg.iParam[0], Msg.iParam[1]);
 			VP.Position = Vector2i(0, 0);
 
+			VP.Size.x() = std::max(8, VP.Size.x());
+			VP.Size.y() = std::max(8, VP.Size.y());
+
 			// change all viewports to new resolution
 			m_RenderDev.viewport(RenderDevice::RENDERPASS_COUNT, VP);
 
 			// change GBuffer resolution
-			m_RenderDev.gBuffer()->init(Msg.iParam[0]/m_RenderBufferScale, Msg.iParam[1]/m_RenderBufferScale);
-			m_Cam.projectionMatrix(Msg.iParam[0]/m_RenderBufferScale, Msg.iParam[1]/m_RenderBufferScale, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
+			m_RenderDev.gBuffer()->init(VP.Size.x()/m_RenderBufferScale, VP.Size.y()/m_RenderBufferScale);
+			m_Cam.projectionMatrix(VP.Size.x()/m_RenderBufferScale, VP.Size.y()/m_RenderBufferScale, CForgeMath::degToRad(45.0f), 0.1f, 1000.0f);
 
 			// re-position label to bottom right of screen
 			if (GLWindowMsg::MC_RESIZE == Msg.Code && m_FPSLabelActive) {
@@ -316,6 +324,11 @@ namespace CForge {
 				takeScreenshot(ScreenshotURI);
 			}
 
+			if (pKeyboard->keyPressed(Keyboard::KEY_F11, true)) {
+				m_RenderWin.toggleFullscreen();
+				m_RenderWin.vsync(true);
+			}
+
 
 
 			if (pKeyboard->keyPressed(Keyboard::KEY_ESCAPE)) {
@@ -411,6 +424,8 @@ namespace CForge {
 
 		std::vector<LineOfText*> m_HelpTexts;
 		bool m_DrawHelpTexts;
+
+		CForgeSimulation* m_pSimulation;
 	};//ExampleMinimumGraphicsSetup
 
 }

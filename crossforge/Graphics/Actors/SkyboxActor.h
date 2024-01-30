@@ -30,7 +30,6 @@ namespace CForge {
 
 		void init(std::string Right, std::string Left, std::string Top, std::string Bottom, std::string Back, std::string Front);
 		void clear(void);
-		void release(void);
 
 		void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 

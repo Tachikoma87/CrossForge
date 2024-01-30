@@ -112,7 +112,7 @@ namespace CForge {
 
         void init(const FontStyle Style);
         void clear(void);
-        void release(void);
+ 
 
         /**
          * \brief Loads one glyph (character) from the font.

@@ -46,12 +46,12 @@ namespace CForge {
         m_Sensitivity = 1.25; // default Sensitivity
     }//clear
 
-    void StripPhoto::addStrip(Image2D *pImg, uint32_t Timestamp, bool CopyImage) {
+    void StripPhoto::addStrip(T2DImage<uint8_t> *pImg, uint32_t Timestamp, bool CopyImage) {
         Strip* pStrip = new Strip();
         // initialize the new strip
         if (CopyImage) {
-            pStrip->pImgData = new Image2D();
-            pStrip->pImgData->init(pImg);
+            pStrip->pImgData = new T2DImage<uint8_t>();
+            pStrip->pImgData->init(pImg->width(), pImg->height(), pImg->colorSpace(), pImg->data());
         }
         else {
             pStrip->pImgData = pImg;
@@ -59,6 +59,7 @@ namespace CForge {
         pStrip->Timestamp = Timestamp;
         // if it was not too long ago that the barrier was triggered, the new strip is definitely valid
         m_Strips.push_back(pStrip);
+        return;
 
         if (Timestamp - m_LastBarrierTrigger < m_DiscardThreshold) {
             pStrip->State = true;
@@ -142,8 +143,10 @@ namespace CForge {
 
         for (uint16_t y = 0; y < pLeft->pImgData->height(); ++y) {
             for (uint16_t x = 0; x < pLeft->pImgData->width(); ++x) {
-                const uint8_t* pPixelLeft = pLeft->pImgData->pixelAt(x, y);
-                const uint8_t* pPixelRight = pRight->pImgData->pixelAt(x, y);
+               /* const uint8_t* pPixelLeft = pLeft->pImgData->pixelAt(x, y);
+                const uint8_t* pPixelRight = pRight->pImgData->pixelAt(x, y);*/
+                const uint8_t* pPixelLeft = pLeft->pImgData->pixel(x, y);
+                const uint8_t* pPixelRight = pRight->pImgData->pixel(x, y);
 
                 const int32_t RedDiff = abs((int16_t)pPixelLeft[0] - (int16_t)pPixelRight[0]);
                 const int32_t GreenDiff = abs((int16_t)pPixelLeft[1] - (int16_t)pPixelRight[1]);
@@ -172,62 +175,97 @@ namespace CForge {
 
     void StripPhoto::buildStripPhoto(void) {
         // collect valid strips
- /*       std::vector<Strip*> FinalStrips;
-        m_StripPhoto.clear();
-        generateFinalStrips(&FinalStrips);
-        if (FinalStrips.size() == 0) return;
-
-        // size of final image?
+         // size of final image?
         uint32_t Width = 0;
-        for (auto i : FinalStrips) Width += i->Width;
-        uint32_t Height = FinalStrips[0]->Height;
-#ifdef __ANDROID__
-        __android_log_print(ANDROID_LOG_INFO, "StripPhoto", "Building strip photo with resolution %d x %d.", Width, Height);
-#endif
+        for (auto i : m_Strips) Width += i->pImgData->width();
+        uint32_t Height = m_Strips[0]->pImgData->height();
 
         uint8_t* pData = new uint8_t[Width * Height * 3]; // final image data
-        int32_t* pTimestamps = new int32_t[Width]; // timestamps for each pixel, "precise" to the millisecond :-P
         memset(pData, 0, Width * Height * 3 * sizeof(uint8_t));
-        memset(pTimestamps, 0, Width * sizeof(int32_t));
         uint32_t CurrentX = 0; // x cursor (width)
 
         // now we copy the image data
-        for (uint32_t i = 0; i < FinalStrips.size(); ++i) {
-            Strip* pS = FinalStrips[i];
-            for (uint32_t y = 0; y < pS->Height; ++y) {
+        for (uint32_t i = 0; i < m_Strips.size(); ++i) {
+            Strip* pS = m_Strips[i];
+            for (uint32_t y = 0; y < pS->pImgData->height(); ++y) {
                 const int32_t RowIndex = y * Width * 3; // start of row (final image)
-                for (uint32_t x = 0; x < pS->Width; ++x) {
+                for (uint32_t x = 0; x < pS->pImgData->width(); ++x) {
                     const int32_t Index = RowIndex + (CurrentX + x) * 3; // start of pixel (final image)
-                    const int32_t StripIndex = (y * pS->Width + x) * 3; // current pixel (strip)
-                    pData[Index + 0] = pS->pData[StripIndex + 0];
-                    pData[Index + 1] = pS->pData[StripIndex + 1];
-                    pData[Index + 2] = pS->pData[StripIndex + 2];
+                    const int32_t StripIndex = (y * pS->pImgData->width() + x) * 3; // current pixel (strip)
+                    pData[Index + 0] = pS->pImgData->data()[StripIndex + 0];
+                    pData[Index + 1] = pS->pImgData->data()[StripIndex + 1];
+                    pData[Index + 2] = pS->pImgData->data()[StripIndex + 2];
                 }//for[rows]
             }//for[all columns]
 
-            const float Step = pS->Width / (float)(pS->RelativeTimeInterval[1] - pS->RelativeTimeInterval[0]);
+            const float Step = pS->pImgData->width() / (float)(pS->RelativeTimeInterval[1] - pS->RelativeTimeInterval[0]);
 
-            for (uint32_t x = 0; x < pS->Width; ++x) {
-                pTimestamps[CurrentX + x] = pS->RelativeTimeInterval[0] + (int32_t)round(Step * x);
-            }//for[all columns]
+            //for (uint32_t x = 0; x < pS->pImgData->width(); ++x) {
+            //    pTimestamps[CurrentX + x] = pS->RelativeTimeInterval[0] + (int32_t)round(Step * x);
+            //}//for[all columns]
 
-            CurrentX += pS->Width;
+            CurrentX += pS->pImgData->width();
         }//for[all strips]
 
-        // now create the timings table
-#ifdef __ANDROID__
-        __android_log_print(ANDROID_LOG_INFO, "StripPhoto", "Strip photo generation finished.");
-#endif
-
-        m_StripPhoto.Height = Height;
-        m_StripPhoto.Width = Width;
-        m_StripPhoto.pColorData = pData;
-        m_StripPhoto.pTimestamps = pTimestamps;
-
-        // delete generated final strips
-        for (auto& i : FinalStrips) delete i;
-        FinalStrips.clear();
-        */
+        m_StripPhoto.init(Width, Height, T2DImage<uint8_t>::COLORSPACE_RGB, pData);
+        
+        
+//        std::vector<Strip*> FinalStrips;
+//        m_StripPhoto.clear();
+//        generateFinalStrips(&FinalStrips);
+//        if (FinalStrips.size() == 0) return;
+//
+//        // size of final image?
+//        uint32_t Width = 0;
+//        for (auto i : FinalStrips) Width += i->Width;
+//        uint32_t Height = FinalStrips[0]->Height;
+//#ifdef __ANDROID__
+//        __android_log_print(ANDROID_LOG_INFO, "StripPhoto", "Building strip photo with resolution %d x %d.", Width, Height);
+//#endif
+//
+//        uint8_t* pData = new uint8_t[Width * Height * 3]; // final image data
+//        int32_t* pTimestamps = new int32_t[Width]; // timestamps for each pixel, "precise" to the millisecond :-P
+//        memset(pData, 0, Width * Height * 3 * sizeof(uint8_t));
+//        memset(pTimestamps, 0, Width * sizeof(int32_t));
+//        uint32_t CurrentX = 0; // x cursor (width)
+//
+//        // now we copy the image data
+//        for (uint32_t i = 0; i < FinalStrips.size(); ++i) {
+//            Strip* pS = FinalStrips[i];
+//            for (uint32_t y = 0; y < pS->Height; ++y) {
+//                const int32_t RowIndex = y * Width * 3; // start of row (final image)
+//                for (uint32_t x = 0; x < pS->Width; ++x) {
+//                    const int32_t Index = RowIndex + (CurrentX + x) * 3; // start of pixel (final image)
+//                    const int32_t StripIndex = (y * pS->Width + x) * 3; // current pixel (strip)
+//                    pData[Index + 0] = pS->pData[StripIndex + 0];
+//                    pData[Index + 1] = pS->pData[StripIndex + 1];
+//                    pData[Index + 2] = pS->pData[StripIndex + 2];
+//                }//for[rows]
+//            }//for[all columns]
+//
+//            const float Step = pS->Width / (float)(pS->RelativeTimeInterval[1] - pS->RelativeTimeInterval[0]);
+//
+//            for (uint32_t x = 0; x < pS->Width; ++x) {
+//                pTimestamps[CurrentX + x] = pS->RelativeTimeInterval[0] + (int32_t)round(Step * x);
+//            }//for[all columns]
+//
+//            CurrentX += pS->Width;
+//        }//for[all strips]
+//
+//        // now create the timings table
+//#ifdef __ANDROID__
+//        __android_log_print(ANDROID_LOG_INFO, "StripPhoto", "Strip photo generation finished.");
+//#endif
+//
+//        m_StripPhoto.Height = Height;
+//        m_StripPhoto.Width = Width;
+//        m_StripPhoto.pColorData = pData;
+//        m_StripPhoto.pTimestamps = pTimestamps;
+//
+//        // delete generated final strips
+//        for (auto& i : FinalStrips) delete i;
+//        FinalStrips.clear();
+        
     }//buildStripPhoto
 
     void StripPhoto::buildInterpolatedStrip(Strip* pPast, Strip* pPresent, Strip* pInterpolated) {
@@ -314,6 +352,12 @@ namespace CForge {
         }//for[all strips]
         */
     }//generateFinalStrips
+
+    void StripPhoto::retrieveStripPhoto(T2DImage<uint8_t>* pImgData, int32_t** ppTimestamps) {
+        if (nullptr == pImgData) throw NullpointerExcept("pImgData");
+        buildStripPhoto();
+        pImgData->init(m_StripPhoto.width(), m_StripPhoto.height(), m_StripPhoto.colorSpace(), m_StripPhoto.data());
+    }//retrieveStripPhoto
 
 
 }//names-space

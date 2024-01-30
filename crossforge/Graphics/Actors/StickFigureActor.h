@@ -32,7 +32,6 @@ namespace CForge {
 
 		void init(T3DMesh<float>* pMesh, SkeletalAnimationController* pController);
 		void clear(void);
-		void release(void);
 
 		void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 

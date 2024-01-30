@@ -54,12 +54,21 @@ namespace CForge {
 		void update(void);
 		void swapBuffers(void);
 
+		Eigen::Vector2i position(void)const;
+		Eigen::Vector2i size(void)const;
+
+		void position(const int32_t X, const int32_t Y);
+		void size(const int32_t Width, const int32_t Height);
+
 		uint32_t width(void)const;
 		uint32_t height(void)const;
 		void* handle(void)const;
 
 		bool shutdown(void)const;	
 		void closeWindow(void);
+
+		void toggleFullscreen(void);
+		bool fullscreen(void);
 
 		Keyboard* keyboard(void);
 		Mouse* mouse(void);
@@ -74,6 +83,9 @@ namespace CForge {
 
 		void makeCurrent(void)const;
 
+		void hideMouseCursor(bool Hide);
+		bool isMouseCursorHidden(void)const;
+
 	private:
 		struct GLFWwindow *createGLWindow(uint32_t Width, uint32_t Height, std::string Title, uint32_t GLMajorVersion, uint32_t GLMinorVersion);
 
@@ -84,6 +96,11 @@ namespace CForge {
 
 		bool m_VSync;
 		int8_t m_ThrottleFactor;
+		bool m_Fullscreen;
+
+		bool m_MouseHidden;
+
+		Eigen::Vector4i m_WindowPosBackup;
 
 		std::string m_Title; ///< The windows title
 

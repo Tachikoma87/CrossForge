@@ -1,9 +1,9 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): StripPhoto.h and StripPhoto.cpp                                  *
+* File(s): CameraDevice.h and CameraDevice.cpp                *
 *                                                                           *
 * Content:    *
-*                                                   *
+*                        *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,41 +15,46 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
+#ifndef __CFORGE_CAMERADEVICE_H__
+#define __CFORGE_CAMERADEVICE_H__
 
-#ifndef __CFORGE_STRIPPHOTOCAMERA_H__
-#define __CFORGE_STRIPPHOTOCAMERA_H__
-
-#ifdef USE_OPENCV
-#include <opencv2/opencv.hpp>
-#include <Eigen/Eigen>
-#include "../../CForge/Core/CrossForgeException.h"
-#include "StripPhoto.h"
+#include <crossforge/Core/CForgeObject.h>
+#include <crossforge/AssetIO/T2DImage.hpp>
 
 namespace CForge {
-
-	class StripPhotoCamera {
+	class CameraDevice {
 	public:
-		StripPhotoCamera(void);
-		~StripPhotoCamera(void);
+		struct CaptureFormat {
+			Eigen::Vector2i FrameSize;
+			std::string DataFormat;
+			uint32_t StreamIndex;
+			std::vector<uint32_t> FPS;
+		};
 
-		void init(void);
-		void clear(void);
+		CameraDevice();
+		~CameraDevice();
 
-		void update(void);
-		cv::Mat lastFrame(void);
+		void init(void *pDeviceHandle);
+		void clear();
+		void release();
+
+		uint32_t captureFormatCount()const;
+		CaptureFormat captureFormat(int32_t ID)const;
+		void findOptimalCaptureFormats(int32_t Width, int32_t Height, std::vector<int32_t> *pFormatIDs);
+		void changeCaptureFormat(int32_t FormatID, int32_t FPS = -1);
+
+		void retrieveImage(T2DImage<uint8_t>* pImg);
 
 	protected:
-		StripPhoto m_StripPhoto;
-		cv::VideoCapture m_Camera;
-		cv::Mat m_ImageFrame;
+		void enumerateCaptureFormats();
+		
 
-		cv::Mat m_LastFrame;
+		void* m_pDeviceHandle;
 
-		uint16_t m_FPSCounter;
-		uint64_t m_LastFPSPrint;
-	};//StripPhotoCamera
+		std::vector<CaptureFormat> m_CaptureFormats;
+		int32_t m_ActiveCaptureFormat;
+	};//CameraDevice
 
-}//name-space
+}//name space
 
-#endif
-#endif // Header guards
+#endif 

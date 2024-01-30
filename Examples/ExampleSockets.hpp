@@ -46,31 +46,23 @@ namespace CForge {
 		void init(void) override{
 			initWindowAndRenderDevice();
 			initCameraAndLights();
-
-			T3DMesh<float> M;
-			
-			SAssetIO::load("Assets/ExampleScenes/SimpleSkydome.glb", &M);
-			setMeshShader(&M, 0.8f, 0.04f);
-			M.computePerVertexNormals();
-			m_Skydome.init(&M);
-			M.clear();
-
-			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
-			setMeshShader(&M, 0.1f, 0.04f);
-			M.computePerVertexNormals();
-			m_Duck.init(&M);
-			M.clear();
-
+			initFPSLabel();
+	
 			// build scene graph	
 			m_RootSGN.init(nullptr);
 			m_SG.init(&m_RootSGN);
 
-			// add skydome	
-			m_SkydomeSGN.init(&m_RootSGN, &m_Skydome);
-			m_SkydomeSGN.scale(Vector3f(50.0f, 50.0f, 50.0f));
+			initGroundPlane(&m_RootSGN, 100.0f, 20.0f);
 
-			// add cube
-			m_DuckTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 3.0f, 0.0f));
+			T3DMesh<float> M;
+
+			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
+			for (uint32_t i = 0; i < M.materialCount(); ++i) CForgeUtility::defaultMaterial(M.getMaterial(i), CForgeUtility::PLASTIC_YELLOW);
+			M.computePerVertexNormals();
+			m_Duck.init(&M);
+			M.clear();
+
+			m_DuckTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 1.5f, 0.0f));
 			m_DuckSGN.init(&m_DuckTransformSGN, &m_Duck);
 			m_DuckSGN.scale(Vector3f(0.02f, 0.02f, 0.02f));
 
@@ -78,6 +70,18 @@ namespace CForge {
 			Quaternionf R;
 			R = AngleAxisf(CForgeMath::degToRad(45.0f / 60.0f), Vector3f::UnitY());
 			m_DuckTransformSGN.rotationDelta(R);
+
+			// create help text
+			LineOfText* pKeybindings = new LineOfText();
+			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: (Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
+			m_HelpTexts.push_back(pKeybindings);
+			LineOfText* pSceneControlsUDP = new LineOfText();
+			pSceneControlsUDP->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Start UDP Test: 1 | Send UDP Client 1 Message: 2 | Send UPD Client 2 Message: 3");
+			m_HelpTexts.push_back(pSceneControlsUDP);
+			LineOfText* pSceneControlsTCP = new LineOfText();
+			pSceneControlsTCP->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Start TCP Test: 4 | Send TCP Client 1 Message: 5 | Send TCP Client 2 Message: 6");
+			m_HelpTexts.push_back(pSceneControlsTCP);
+			m_DrawHelpTexts = true;
 
 			// stuff for performance monitoring
 			uint64_t LastFPSPrint = CForgeUtility::timestamp();
@@ -217,6 +221,9 @@ namespace CForge {
 			m_SG.render(&m_RenderDev);
 
 			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
+
+			m_FPSLabel.render(&m_RenderDev);
+			if (m_DrawHelpTexts) drawHelpTexts();
 
 			m_RenderWin.swapBuffers();
 

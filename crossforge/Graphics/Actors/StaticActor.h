@@ -40,7 +40,6 @@ namespace CForge {
 
 		void init(const T3DMesh<float>* pMesh);
 		void clear(void);
-		void release(void);
 
 		void render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 

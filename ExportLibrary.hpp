@@ -79,6 +79,7 @@ void exportLibrary(void) {
 	IncludeFiles.push_back("Core/CrossForgeException.h");
 	IncludeFiles.push_back("Core/ITCaller.hpp");
 	IncludeFiles.push_back("Core/ITListener.hpp");
+	IncludeFiles.push_back("Core/SCForgeSimulation.h");
 	IncludeFiles.push_back("Core/SCrossForgeDevice.h");
 	IncludeFiles.push_back("Core/SGPIO.h");
 	IncludeFiles.push_back("Core/SLogger.h");
@@ -181,6 +182,7 @@ void exportLibrary(void) {
 	IncludeFiles.push_back("Math/Box.hpp");
 	IncludeFiles.push_back("Math/CForgeMath.h");
 	IncludeFiles.push_back("Math/Plane.hpp");
+	IncludeFiles.push_back("Math/Rectangle.hpp");
 	IncludeFiles.push_back("Math/Sphere.hpp");
 	
 	// Mesh Processing
@@ -207,13 +209,16 @@ void exportLibrary(void) {
 	BinaryFiles.push_back("x64-Debug/brotlicommon.dll");
 	BinaryFiles.push_back("x64-Debug/brotlidec.dll");
 	BinaryFiles.push_back("x64-Debug/bz2d.dll");
+	BinaryFiles.push_back("x64-Debug/minizip.dll");
 	BinaryFiles.push_back("x64-Debug/crossforge.dll");
 	BinaryFiles.push_back("x64-Debug/freetyped.dll");
 	BinaryFiles.push_back("x64-Debug/glfw3.dll");
 	BinaryFiles.push_back("x64-Debug/libpng16d.dll");
-	BinaryFiles.push_back("x64-Debug/webp.dll");
+	BinaryFiles.push_back("x64-Debug/libwebp.dll");
 	BinaryFiles.push_back("x64-Debug/zlibd1.dll");
-	BinaryFiles.push_back("X64-Debug/pugixml.dll");
+	BinaryFiles.push_back("x64-Debug/pugixml.dll");
+	BinaryFiles.push_back("x64-Debug/turbojpeg.dll");
+	BinaryFiles.push_back("x64-Debug/libsharpyuv.dll");
 
 	// only required by OpenCV
 	//	BinaryFiles.push_back("x64-Debug/Irrlicht.dll");
@@ -234,14 +239,16 @@ void exportLibrary(void) {
 	BinaryFiles.push_back("x64-Release/brotlicommon.dll");
 	BinaryFiles.push_back("x64-Release/brotlidec.dll");
 	BinaryFiles.push_back("x64-Release/bz2.dll");
+	BinaryFiles.push_back("x64-Release/minizip.dll");
 	BinaryFiles.push_back("x64-Release/crossforge.dll");
 	BinaryFiles.push_back("x64-Release/freetype.dll");
 	BinaryFiles.push_back("x64-Release/glfw3.dll");
 	BinaryFiles.push_back("x64-Release/libpng16.dll");
-	BinaryFiles.push_back("x64-Release/webp.dll");
-//	BinaryFiles.push_back("x64-Release/webpdecoder.dll");
+	BinaryFiles.push_back("x64-Release/libwebp.dll");
 	BinaryFiles.push_back("x64-Release/zlib1.dll");
 	BinaryFiles.push_back("x64-Release/pugixml.dll");
+	BinaryFiles.push_back("x64-Release/turbojpeg.dll");
+	BinaryFiles.push_back("x64-Release/libsharpyuv.dll");
 	
 	// only required by OpenCV
 //	BinaryFiles.push_back("x64-Release/lzma.dll");
@@ -258,8 +265,12 @@ void exportLibrary(void) {
 	Directories.push_back("crossforge/Shader/");
 	ShaderFiles.push_back("Shader/BasicGeometryPass.frag");
 	ShaderFiles.push_back("Shader/BasicGeometryPass.vert");
+	ShaderFiles.push_back("Shader/CFText.frag");
+	ShaderFiles.push_back("Shader/CFText.vert");
 	ShaderFiles.push_back("Shader/DRLightingPassPBS.frag");
 	ShaderFiles.push_back("Shader/DRLightingPassPBS.vert");
+	ShaderFiles.push_back("Shader/ForwardPassPBS.frag");
+	ShaderFiles.push_back("Shader/ForwardPassPBS.vert");
 	ShaderFiles.push_back("Shader/ScreenQuad.frag");
 	ShaderFiles.push_back("Shader/ScreenQuad.vert");
 	ShaderFiles.push_back("Shader/ShadowPassShader.frag");

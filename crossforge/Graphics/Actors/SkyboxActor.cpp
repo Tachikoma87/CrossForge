@@ -173,9 +173,6 @@ namespace CForge {
         m_Cubemap.clear();
 	}//clear
 
-	void SkyboxActor::release(void) {
-		delete this;
-	}
 
 	void SkyboxActor::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
         if (pRDev->activePass() != RenderDevice::RENDERPASS_FORWARD) return;

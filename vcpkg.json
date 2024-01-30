@@ -1,20 +1,38 @@
 {
-	"name": "crossforge",
-	"version": "0.1",
-	"dependencies": [
-		"eigen3",
-		"glad",
-		"glfw3",
-		"assimp",
-		"freetype",
-		"libigl",
-		"libwebp",
-		"tinyxml2",
-		"tinygltf",
-		{
-			"name": "imgui",
-			"default-features": false,
-			"features": [ "opengl3-binding", "glfw-binding" ]
-		}
-	]
+  "name": "crossforge",
+  "version": "0.1",
+  "dependencies": [
+    "eigen3",
+    "glad",
+    "glfw3",
+    "assimp",
+    "freetype",
+    "libigl",
+    "libwebp",
+    "tinyxml2",
+    "tinygltf",
+    "libjpeg-turbo",
+    {
+      "name": "ffmpeg",
+      "default-features": true,
+      "features": [
+        "x264"
+      ]
+    },
+    {
+      "name": "imgui",
+      "default-features": false,
+      "features": [
+        "opengl3-binding",
+        "glfw-binding"
+      ]
+    }
+  ],
+  "builtin-baseline": "3b7578831da081ba164be30da8d9382a64841059",
+  "overrides": [
+    {
+      "name": "libjpeg-turbo",
+      "version": "2.1.5.1"
+    }
+  ]
 }

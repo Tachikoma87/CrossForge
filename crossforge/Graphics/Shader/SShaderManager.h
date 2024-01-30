@@ -46,6 +46,8 @@ namespace CForge {
 		static SShaderManager* instance(void);
 		void release(void);
 
+		void reset(void);
+
 		// Code can be path or actual GLSL code
 		ShaderCode* createShaderCode(std::string Code, std::string VersionTag, uint8_t ConfigOptions, std::string precisionTag);
 //		GLShader* buildShader(const std::vector<std::string>* pVSSources, const std::vector<std::string>* pFSSources, std::string *pErrorLog = nullptr);

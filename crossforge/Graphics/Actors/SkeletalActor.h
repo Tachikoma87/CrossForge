@@ -27,17 +27,30 @@ namespace CForge {
 		SkeletalActor(void);
 		~SkeletalActor(void);
 
-		virtual void init(T3DMesh<float>* pMesh, SkeletalAnimationController* pController);
+		virtual void init(T3DMesh<float>* pMesh, SkeletalAnimationController* pController, bool PrepareCPUSkinning = false);
 		virtual void activeAnimation(SkeletalAnimationController::Animation* pAnim);
 		virtual SkeletalAnimationController::Animation* activeAnimation(void)const;
 		virtual void clear(void);
-		virtual void release(void);
 
 		virtual void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 
+		virtual Eigen::Vector3f transformVertex(int32_t Index);
+
 	protected:
+		virtual void prepareCPUSkinning(const T3DMesh<float>* pMesh);
+
+		/**
+		* \brief Structure that holds data for CPU skinning.
+		*/
+		struct SkinVertex {
+			Eigen::Vector3f V;
+			std::vector<int32_t> BoneInfluences;
+			std::vector<float> BoneWeights;
+		};//SkinVertex
+
 		SkeletalAnimationController* m_pAnimationController;
 		SkeletalAnimationController::Animation* m_pActiveAnimation;
+		std::vector<SkinVertex*> m_SkinVertexes;
 
 	};//SkeletalActor
 

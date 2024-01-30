@@ -25,6 +25,11 @@ namespace CForge {
 		return STD_FS::absolute(P).string();
 	}//absolute
 
+	std::string File::retrieveFilename(const std::string Path) {
+		STD_FS::path P = Path;
+		return P.filename().string();
+	}//retrieveFilename
+
 	void File::createDirectory(const std::string Path) {
 		STD_FS::create_directory(Path);
 	}//createDirectory

@@ -31,7 +31,6 @@ namespace CForge {
 
 		void init(T3DMesh<float>* pMesh, MorphTargetAnimationController *pController);
 		void clear(void);
-		void release(void);
 
 		void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 		void update(float fpsScale = 1.0f);

@@ -37,7 +37,6 @@ namespace CForge {
 
 		void init(float left, float top, float right, float bottom, GLShader *pShader = nullptr);
 		void clear(void);
-		void release(void);
 
 		void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale);
 

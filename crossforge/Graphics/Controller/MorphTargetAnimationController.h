@@ -58,7 +58,6 @@ namespace CForge {
 
 		void init(T3DMesh<float>* pMesh);
 		void clear(void);
-		void release(void);
 		void update(float FPSScale);
 
 		int32_t addAnimationSequence(AnimationSequence* pSequence);

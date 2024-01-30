@@ -9,6 +9,7 @@
 #include "../Graphics/STextureManager.h"
 #include "../Graphics/Shader/SShaderManager.h"
 #include "../Graphics/Font/SFontManager.h"
+#include "SCForgeSimulation.h"
 
 
 using namespace std;
@@ -50,6 +51,7 @@ namespace CForge {
 		m_pSMan = nullptr;
 		m_pTexMan = nullptr;
 		m_pFontMan = nullptr;
+		m_pSimulation = nullptr;
 	}//Constructor
 
 	SCrossForgeDevice::~SCrossForgeDevice(void) {	
@@ -80,6 +82,7 @@ namespace CForge {
 		m_pSMan = SShaderManager::instance();
 		m_pTexMan = STextureManager::instance();
 		m_pFontMan = SFontManager::instance();
+		m_pSimulation = SCForgeSimulation::instance();
 
 
 #if defined(__linux_) && defined(__arm__)
@@ -98,6 +101,7 @@ namespace CForge {
 		if (nullptr != m_pTexMan) m_pTexMan->release();
 		if (nullptr != m_pSMan) m_pSMan->release();
 		if (nullptr != m_pFontMan) m_pFontMan->release();
+		if (nullptr != m_pSimulation) m_pSimulation->release();
 		if (nullptr != m_pLogger) {
 			MemLeakFile = SLogger::logFile(SLogger::LOGTYPE_DEBUG);
 			m_pLogger->release();
@@ -108,31 +112,32 @@ namespace CForge {
 		m_pAssIO = nullptr;
 		m_pTexMan = nullptr;
 		m_pSMan = nullptr;
+		m_pSimulation = nullptr;
 
 		// log all objects that have not been release properly
 		uint32_t UnreleasedObjects = 0;
 		string MemleakMsg = "";
-		for (uint32_t i = 0; i < m_RegisteredObjects.size(); ++i) {
-			if (m_RegisteredObjects[i] != nullptr) {
-				UnreleasedObjects++;
-				CForgeObject* pObj = m_RegisteredObjects[i];
-				MemleakMsg += "Object with internal class name \"" + pObj->className() + "\"[ID: " + to_string(pObj->objectID()) + "] was not released properly!\n";
-			}
-		}//for[registered objects]
+		//for (uint32_t i = 0; i < m_RegisteredObjects.size(); ++i) {
+		//	if (m_RegisteredObjects[i] != nullptr) {
+		//		UnreleasedObjects++;
+		//		CForgeObject* pObj = m_RegisteredObjects[i];
+		//		MemleakMsg += "Object with internal class name \"" + pObj->className() + "\"[ID: " + to_string(pObj->objectID()) + "] was not released properly!\n";
+		//	}
+		//}//for[registered objects]
 
-		if (0 == UnreleasedObjects) printf("All CForge objects have been released properly!\n");
-		else {
-			printf("A total of %d objects have not been released properly. See log for details!\n", UnreleasedObjects);
-		}
-		if(!MemLeakFile.empty()){
-			FILE* pF = fopen(MemLeakFile.c_str(), "a");
-			//fopen_s(&pF, MemLeakFile.c_str(), "a");
-			if (nullptr != pF) {
-				fprintf(pF, "%s", MemleakMsg.c_str());
-				fclose(pF);
-				pF = nullptr;
-			}
-		}
+		//if (0 == UnreleasedObjects) printf("All CForge objects have been released properly!\n");
+		//else {
+		//	printf("A total of %d objects have not been released properly. See log for details!\n", UnreleasedObjects);
+		//}
+		//if(!MemLeakFile.empty()){
+		//	FILE* pF = fopen(MemLeakFile.c_str(), "a");
+		//	//fopen_s(&pF, MemLeakFile.c_str(), "a");
+		//	if (nullptr != pF) {
+		//		fprintf(pF, "%s", MemleakMsg.c_str());
+		//		fclose(pF);
+		//		pF = nullptr;
+		//	}
+		//}
 
 		m_FreeObjSlots.clear();
 		m_RegisteredObjects.clear();
@@ -162,23 +167,23 @@ namespace CForge {
 	void SCrossForgeDevice::unregisterObject(CForgeObject* pObj) {
 		if (nullptr == pObj) throw NullpointerExcept("pObj");
 
-		m_Mutex.lock();
+		//m_Mutex.lock();
 
-		uint32_t Index = pObj->objectID();
-		if (Index >= m_RegisteredObjects.size()) {
-			m_Mutex.unlock();
-			throw IndexOutOfBoundsExcept("Index of registered object!");
-		}
+		//uint32_t Index = pObj->objectID();
+		//if (Index >= m_RegisteredObjects.size()) {
+		//	m_Mutex.unlock();
+		//	throw IndexOutOfBoundsExcept("Index of registered object!");
+		//}
 
-		if (m_RegisteredObjects[Index] == nullptr || m_RegisteredObjects[Index]->objectID() != pObj->objectID()) {
-			//printf("That should not happen!\n");
-		}
-		else {
-			m_RegisteredObjects[Index] = nullptr;
-			m_FreeObjSlots.push_back(Index);
-		}
+		//if (m_RegisteredObjects[Index] == nullptr || m_RegisteredObjects[Index]->objectID() != pObj->objectID()) {
+		//	//printf("That should not happen!\n");
+		//}
+		//else {
+		//	m_RegisteredObjects[Index] = nullptr;
+		//	m_FreeObjSlots.push_back(Index);
+		//}
 
-		m_Mutex.unlock();
+		//m_Mutex.unlock();
 	}//unregisterObject
 
 

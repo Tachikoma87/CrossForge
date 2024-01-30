@@ -41,6 +41,7 @@ namespace CForge {
 
 		static void store(const std::string Filepath, const T2DImage<uint8_t>* pImage);
 		static void load(const std::string Filepath, T2DImage<uint8_t>* pImage);
+		static void load(const uint8_t* pBuffer, uint32_t BufferLength, T2DImage<uint8_t>* pImage);
 
 		static std::string readTextFile(const std::string Filepath);
 
@@ -58,6 +59,7 @@ namespace CForge {
 		
 		void storeImage(const std::string Filepath, const T2DImage<uint8_t>* pImage);
 		void loadImage(const std::string Filepath, T2DImage<uint8_t>* pImage);
+		void loadImage(const uint8_t* pBuffer, uint32_t BufferLength, T2DImage<uint8_t>* pImage);
 
 	private:
 		struct ModelIOPlugin {

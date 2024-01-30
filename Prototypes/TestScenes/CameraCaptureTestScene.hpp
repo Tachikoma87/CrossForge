@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): ImGUITestScene.hpp                                            *
+* File(s): exampleMinimumGraphicsSetup.hpp                                            *
 *                                                                           *
 * Content: Example scene that shows minimum setup with an OpenGL capable   *
 *          window, lighting setup, and a single moving object.              *
@@ -15,50 +15,31 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_IMGUITESTSCENE_HPP__
-#define __CFORGE_IMGUITESTSCENE_HPP__
+#ifndef __CFORGE_CAMERACAPTURETESTSCENE_HPP__
+#define __CFORGE_CAMERACAPTURETESTSCENE_HPP__
 
+#ifdef __WIN32__
 
-#include <Examples/ExampleSceneBase.hpp>
-#include "../ImGuiUtility.h"
-//#include <imgui.h>
-//#include <imgui_impl_glfw.h>
-//#include <imgui_impl_opengl3.h>
-//#include <GLFW/glfw3.h>
+#include "../Multimedia/SMediaDeviceManager.h"
+#include "../../Examples/ExampleSceneBase.hpp"
+#include "../Camera/CameraCapture.h"
+#include "../Multimedia/FFMPEG.h"
+#include "../Camera/VideoRecorder.h"
 
 using namespace Eigen;
 using namespace std;
 
-
-//void initImgui(void *pGLFWWindow) {
-//	IMGUI_CHECKVERSION();
-//	ImGui::CreateContext();
-//
-//	ImGuiIO& io = ImGui::GetIO();
-//
-//	ImGui::StyleColorsDark();
-//
-//	io.Fonts->AddFontDefault();
-//
-//	ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(pGLFWWindow), true);
-//	ImGui_ImplOpenGL3_Init("#version 330");
-//
-//	ImGui_ImplOpenGL3_NewFrame();
-//	ImGui_ImplGlfw_NewFrame();
-//	ImGui::NewFrame();
-//}
-
 namespace CForge {
 
-	class ImGUITestScene : public ExampleSceneBase {
+	class CameraCaptureTestScene : public ExampleSceneBase {
 	public:
-		ImGUITestScene(void) {
-			m_WindowTitle = "CrossForge Example - ImGUITestScene";
+		CameraCaptureTestScene(void) {
+			m_WindowTitle = "CrossForge Example - Camera Capture Test Scene";
 			m_WinWidth = 1280;
 			m_WinHeight = 720;
 		}//Constructor
 
-		~ImGUITestScene(void) {
+		~CameraCaptureTestScene(void) {
 			clear();
 		}//Destructor
 
@@ -105,30 +86,31 @@ namespace CForge {
 				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
 			}
 
-			m_ActiveTool = true;
-			m_DemoWindow = true;
-
-			ImGuiUtility::initImGui(&m_RenderWin);
+			m_pMediaDevMan = SMediaDeviceManager::instance();
 			
-			//initImgui(m_RenderWin.handle());
-			
+			if (m_pMediaDevMan->cameraCount() > 0) {
+				m_pCamDevice = m_pMediaDevMan->camera(0);
+				std::vector<int32_t> Formats;
+				m_pCamDevice->findOptimalCaptureFormats(1280, 720, &Formats);
+				m_pCamDevice->changeCaptureFormat(Formats[1]);
 
-			/*ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
+				printf("Found %d suitable capture formats:\n", uint32_t(Formats.size()));
+				for (auto i : Formats) {
+					CameraDevice::CaptureFormat F = m_pCamDevice->captureFormat(i);
+					printf("\t%dx%d - %s\n", F.FrameSize.x(), F.FrameSize.y(), F.DataFormat.c_str());
+				}
+			}
 
-			ImGui::ShowDemoWindow(&m_DemoWindow);*/
-
-			
-			
+			m_CaptureActive = false;
+			m_RecordingActive = false;
 		}//initialize
 
 		void clear(void) override {
 			m_RenderWin.stopListening(this);
 			if (nullptr != m_pShaderMan) m_pShaderMan->release();
 			m_pShaderMan = nullptr;
-
-			ImGuiUtility::shutdownImGui();
+			if(nullptr != m_pMediaDevMan) m_pMediaDevMan->release();
+			m_pMediaDevMan = nullptr;
 		}//clear
 
 
@@ -150,41 +132,63 @@ namespace CForge {
 			m_FPSLabel.render(&m_RenderDev);
 			if (m_DrawHelpTexts) drawHelpTexts();
 
-
-			
-			/*ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();*/
-
-			ImGuiUtility::newFrame();
-			
-			ImGui::Begin("My first Tool", &m_ActiveTool, ImGuiWindowFlags_MenuBar);
-			ImGui::SetWindowPos(ImVec2(0, 0), ImGuiCond_Once);
-			if (ImGui::BeginMenuBar()) {
-				if (ImGui::BeginMenu("File")) {
-					if (ImGui::MenuItem("Open..", "Ctrl+O")) {}
-					if (ImGui::MenuItem("Close", "Ctrl+W")) { m_ActiveTool = false; printf("Close\n"); }
-					ImGui::EndMenu();
-				}
-				ImGui::EndMenuBar();
-			}
-			else {
-				SLogger::log("Problem creating ImGui window!");
-			}
-
-			/*ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
-			ImGuiUtility::render();
-
 			m_RenderWin.swapBuffers();
 
 			updateFPS();
 
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
 
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_5, true)) {
+				m_CaptureActive = !m_CaptureActive;
+				m_CaptureStart = CForgeUtility::timestamp();	
+			}
+
+			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_6, true)) {
+
+				if (m_RecordingActive) {
+					m_VideoRecorder.stopRecording();
+					m_RecordingActive = false;
+				}
+				else {
+					try {
+						m_VideoRecorder.startRecording("MyAssets/VideoTest.mp4", 1280, 720, 25.0f);
+						m_RecordingActive = true;
+					}
+					catch (CrossForgeException& e) {
+						printf("Exception occurred on starting the video recorder: %s\n", e.msg().c_str());
+					}
+				}
+				
+			}
+
+			if (m_RecordingActive) {
+				T2DImage<uint8_t> Img;
+				m_pCamDevice->retrieveImage(&Img);
+
+				if(Img.width() > 0) m_VideoRecorder.addFrame(&Img, 0);
+			}
+
+			if (m_CaptureActive) {
+				T2DImage<uint8_t> Img;
+				m_pCamDevice->retrieveImage(&Img);
+
+				if (Img.width() > 0) {
+					static int32_t c = 0;
+					std::string Filename = "MyAssets/Webcam/" + std::to_string(c++) + ".jpg";
+					SAssetIO::store(Filename, &Img);
+				}
+			}
 		}//mainLoop
 
 	protected:
+
+		bool m_CaptureActive;
+		uint64_t m_CaptureStart;
+
+		void initCamera() {
+			m_CameraCapture.init();
+			m_CameraCapture.clear();
+		}//initCamera
 
 		// Scene Graph
 		SGNTransformation m_RootSGN;
@@ -193,10 +197,16 @@ namespace CForge {
 		SGNGeometry m_DuckSGN;
 		SGNTransformation m_DuckTransformSGN;
 
-		bool m_DemoWindow;
-		bool m_ActiveTool;
-	};//ImGUITestScene
+		CameraCapture m_CameraCapture;
+		SMediaDeviceManager* m_pMediaDevMan;
+		CameraDevice* m_pCamDevice;
+
+		VideoRecorder m_VideoRecorder;
+		bool m_RecordingActive;
+	};//CameraCaptureTestScene
 
 }//name space
+
+#endif
 
 #endif

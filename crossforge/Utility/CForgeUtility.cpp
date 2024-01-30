@@ -29,7 +29,6 @@ namespace CForge {
 		int32_t TexWidth = 0;
 		int32_t TexHeight = 0;
 
-
 		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WIDTH, &TexWidth);
 		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_HEIGHT, &TexHeight);
 
@@ -37,6 +36,8 @@ namespace CForge {
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 
 		pImg->init(TexWidth, TexHeight, T2DImage<uint8_t>::COLORSPACE_RGB, pBuffer);
+		// imagme is flipped
+		pImg->flipRows();
 
 		delete[] pBuffer;
 #endif
@@ -72,6 +73,7 @@ namespace CForge {
 			pBuffer[i * 3 + 2] = pDepthBuffer[i] * 255.0f;
 		}
 		pImg->init(TexWidth, TexHeight, T2DImage<uint8_t>::COLORSPACE_RGB, pBuffer);
+		pImg->flipRows();
 
 		delete[] pBuffer;
 		delete[] pDepthBuffer;
@@ -151,6 +153,7 @@ namespace CForge {
 			uint8_t* pBuffer = new uint8_t[Width * Height * 4];
 			glReadPixels(x, y, Width, Height, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 			pColor->init(Width, Height, T2DImage<uint8_t>::COLORSPACE_RGB, pBuffer);
+			pColor->flipRows();
 			delete[] pBuffer;
 		}
 
@@ -170,6 +173,7 @@ namespace CForge {
 
 			for (uint32_t i = 0; i < Width * Height; ++i) pDepthBuffer[i] = (uint8_t)(pBuffer[i] * 255.0f);
 			pDepth->init(Width, Height, T2DImage<uint8_t>::COLORSPACE_GRAYSCALE, pDepthBuffer);
+			pDepth->flipRows();
 
 			delete[] pBuffer;
 			delete[] pDepthBuffer;
@@ -369,6 +373,16 @@ namespace CForge {
 		return Rval;
 	}//convertToString
 
+	std::string CForgeUtility::convertToString(const std::wstring String) {
+		std::string Rval;
+		char C;
+		for (auto i : String) {
+			std::c16rtomb(&C, i, nullptr);
+			Rval.push_back(C);
+		}
+		return Rval;
+	}//convertToString
+
 	std::u32string CForgeUtility::convertTou32String(const std::string String) {
 		std::u32string UString;
 		char32_t C;
@@ -377,6 +391,15 @@ namespace CForge {
 		}
 		return UString;
 	}//convertTou32String
+
+	std::wstring CForgeUtility::convertToWString(const std::string String) {
+		std::wstring Rval;
+		char16_t C;
+		for (auto i : String) {
+			if (0 <= std::mbrtoc16(&C, &i, 1, nullptr)) Rval.push_back(C);
+		}
+		return Rval;
+	}//convertToWString
 
 	Font* CForgeUtility::defaultFont(DefaultFontType FontType, uint32_t FontSize, bool Bold, bool Italic, std::u32string CharSet) {
 

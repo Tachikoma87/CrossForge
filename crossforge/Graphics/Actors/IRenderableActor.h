@@ -41,7 +41,6 @@ namespace CForge {
 			ATYPE_SCREENQUAD = 2,
 		};
 
-		virtual void release(void) = 0;
 		virtual void render(class RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) = 0;
 		
 		int32_t typeID(void)const;

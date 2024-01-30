@@ -106,9 +106,6 @@ namespace CForge {
 		m_BoneSize = 0.0f;
 	}//clear
 
-	void StickFigureActor::release(void) {
-		delete this;
-	}//release
 
 	void StickFigureActor::jointMaterial(const T3DMesh<float>::Material Mat) {
 		for (uint32_t i = 0; i < m_Joint.materialCount(); ++i) {
@@ -177,7 +174,7 @@ namespace CForge {
 		// set current animation data 
 		// if active animation is nullptr bind pose will be set
 		m_pAnimationController->applyAnimation(m_pActiveAnimation, true);
-		m_pAnimationController->updateSkeletonValues(&m_JointValues);
+		m_pAnimationController->retrieveSkeleton(&m_JointValues);
 
 		for (auto i : m_JointValues) {
 			m_JointTransformSGNs[i->ID]->translation(Scale.cwiseProduct(i->LocalPosition));

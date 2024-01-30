@@ -1,9 +1,9 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): OpenCVImageIO.h and OpenCVImageIO.cpp                             *
+* File(s): JPEGTurboIO.h and JPEGTurboIO.cpp                                            *
 *                                                                           *
-* Content:    *
-*          .                                         *
+* Content: Import/Export class for jpeg images using libjpeg-turbo   *
+*                                                   *
 *                                                                           *
 *                                                                           *
 * Author(s): Tom Uhlmann                                                    *
@@ -15,46 +15,31 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_OPENCVIMAGEIO_H__
-#define __CFORGE_OPENCVIMAGEIO_H__
-#ifdef USE_OPENCV
+#ifndef __CFORGE_JPEGTURBOIO_H__
+#define __CFORGE_JPEGTURBOIO_H__
 
-#include <opencv2/core.hpp>
-#include "I2DImageIO.h"
+#include <crossforge/AssetIO/I2DImageIO.h>
 
 namespace CForge {
-
-	/**
-	* \brief Image import/export plugin that employs OpenCV
-	*
-	* \todo Implement all conversion methods
-	* \todo Full documentation
-	*/
-	class OpenCVImageIO : public I2DImageIO {
+	class JPEGTurboIO : public I2DImageIO {
 	public:
-		OpenCVImageIO(void);
-		~OpenCVImageIO(void);
+		JPEGTurboIO();
+		~JPEGTurboIO();
 
-		void init(void);
+		void init();
 		void clear();
-		
+
 		void load(const std::string Filepath, T2DImage<uint8_t>* pImgData);
+		void load(const uint8_t* pBuffer, const uint32_t BufferLength, T2DImage<uint8_t>* pImgData);
 		void store(const std::string Filepath, const T2DImage<uint8_t>* pImgData);
 		bool accepted(const std::string Filepath, Operation Op);
-
 		void release(void);
+
 	protected:
-		void convertCVImageToCFImageGrayscale(const cv::Mat* pCVImg, T2DImage<uint8_t>* pImg);
-		void convertCVImageToCFImageRGB(const cv::Mat* pCVImg, T2DImage<uint8_t>* pImg);
-		void convertCVImageToCFImageRBBA(const cv::Mat* pCVImg, T2DImage<uint8_t>* pImg);
+		int32_t pixelFormat(const T2DImage<uint8_t>::ColorSpace CS);
+		T2DImage<uint8_t>::ColorSpace pixelFormat(int32_t CS);
+	};//JPEGTurboIO
 
-		void convertCFImageToCVImageGrayscale(cv::Mat* pCVImg, const T2DImage<uint8_t>* pImg);
-		void convertCFImageToCVImageRGB(cv::Mat* pCVImg, const T2DImage<uint8_t>* pImg);
-		void convertCFImageToCVImageRGBA(cv::Mat* pCVImg, const T2DImage<uint8_t>* pImg);
+}//name-space
 
-	};//OpenCVImageIO
-
-}//name space
-
-#endif
 #endif 

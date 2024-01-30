@@ -68,9 +68,6 @@ namespace CForge {
 		m_pShader = nullptr;
 	}//clear
 
-	void ScreenQuad::release(void) {
-		delete this;
-	}//release
 
 	void ScreenQuad::render(RenderDevice* pRDev, Eigen::Quaternionf Rotation, Eigen::Vector3f Translation, Eigen::Vector3f Scale) {
 		if (nullptr != m_pShader) pRDev->activeShader(m_pShader);

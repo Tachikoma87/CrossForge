@@ -30,7 +30,7 @@ namespace CForge {
 	*
 	*/
 	template <typename T>
-	class T2DImage: public CForgeObject {
+	class T2DImage {
 	public:
 		enum ColorSpace : int8_t {
 			COLORSPACE_UNKNOWN = -1,
@@ -40,7 +40,7 @@ namespace CForge {
 		};//ColorSpace
 
 
-		T2DImage(uint32_t Width = 0, uint32_t Height = 0, ColorSpace CS = COLORSPACE_UNKNOWN, const T* pData = nullptr): CForgeObject("T2Dimage") {
+		T2DImage(uint32_t Width = 0, uint32_t Height = 0, ColorSpace CS = COLORSPACE_UNKNOWN, const T* pData = nullptr) {
 			m_Width = 0;
 			m_Height = 0;
 			m_pData = nullptr;
@@ -70,7 +70,7 @@ namespace CForge {
 		}//initialize
 
 		void clear(void) {
-			delete[] m_pData;
+			if(nullptr != m_pData)	delete[] m_pData;
 			m_pData = nullptr;
 			m_Width = 0;
 			m_Height = 0;

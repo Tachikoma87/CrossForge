@@ -24,6 +24,9 @@ file(MAKE_DIRECTORY "Prototypes/Shader")
 #################################################################
 project (CForgeSandbox)
 
+option(INCLUDE_OPENCV "Include OpenCV in build" OFF)
+
+
 if(EMSCRIPTEN)
 	include(FetchContent)
 	
@@ -57,69 +60,54 @@ else()
 # Additional packages not alreday included in the core library
 FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
 FIND_PACKAGE(imgui CONFIG REQUIRED) # dear-imgui
+FIND_PACKAGE(JPEG REQUIRED)
+FIND_PACKAGE(libjpeg-turbo)
+FIND_PACKAGE(FFMPEG REQUIRED)
 endif()
-
-
-# enable OpenCV support
-if(USE_OPENCV)
-	FIND_PACKAGE(OpenCV CONFIG REQUIRED)	# Open computer vision library
-	include_directories(
-		"${OpenCV_INCLUDE_DIRS}"
-	)
-	add_compile_definitions(USE_OPENCV)
-endif(USE_OPENCV)
 
 add_executable(CForgeSandbox 
 	SandboxMain.cpp
 
+	# Hardware stuff (used with Raspberry Pi)
 	crossforge/Core/SGPIO.cpp
 	Prototypes/Hardware/I2C.cpp 
 	Prototypes/Hardware/MPU6050.cpp
 	Prototypes/Hardware/RotaryEncoder.cpp
 
+	# Camera related
 	Prototypes/Camera/PhotoFinish.cpp
 	Prototypes/Camera/StripPhoto.cpp 
-	Prototypes/Camera/StripPhotoCamera.cpp
-
-	Prototypes/Misc/IMUCameraController.cpp
-
+	Prototypes/Camera/VideoRecorder.cpp
+	Prototypes/Camera/VideoPlayer.cpp
+	Prototypes/Camera/CameraCapture.cpp
+	Prototypes/Multimedia/SMediaDeviceManager.cpp
+	Prototypes/Multimedia/CameraDevice.cpp
+	Prototypes/Multimedia/FFMPEG.cpp
+	
+	# Misc
 	Prototypes/Assets/GLTFIO/GLTFIOutil.cpp
 	Prototypes/Assets/GLTFIO/GLTFIOread.cpp
 	Prototypes/Assets/GLTFIO/GLTFIOwrite.cpp
 	Prototypes/Assets/GLTFIO/GLTFIO.cpp
-
 	Prototypes/MeshProcessing/SurfaceSampler.cpp
+	Prototypes/Graphics/GLRenderbuffer.cpp
+	"Prototypes/GUI/ImGuiUtility.cpp"
 	
 
+	# Subprojects
+	# B02 Demonstrator
+	Subprojects/B02Demonstrator/AdaptiveSkeletalActor.cpp
+	# Dual IMU
+	Subprojects/DualIMU/IMUCameraController.cpp
+
+	# Other
 	Prototypes/Actor/LODActor.cpp
-	Prototypes/SLOD.cpp
-	Prototypes/LODHandler.cpp
-	Prototypes/UBOInstancedData.cpp
-	Prototypes/MeshDecimate.cpp
+	"Prototypes/Actor/SLOD.cpp"
+	"Prototypes/Actor/LODHandler.cpp"
+	"Prototypes/Actor/UBOInstancedData.cpp"
+	"Prototypes/MeshProcessing/MeshDecimate.cpp"
 
-	Prototypes/Graphics/GLRenderbuffer.cpp
-
-	Prototypes/ImGuiUtility.cpp
-
-	# GUI
-#	Prototypes/GUI/Font.cpp
-#	Prototypes/GUI/GUI.cpp
-#	Prototypes/GUI/Widget.cpp
-#	Prototypes/GUI/WidgetBackground.cpp
-#	Prototypes/GUI/Widgets/Form.cpp
-#	Prototypes/GUI/Widgets/InputCheckbox.cpp
-#	Prototypes/GUI/Widgets/InputDropDown.cpp
-#	Prototypes/GUI/Widgets/InputNumber.cpp
-#	Prototypes/GUI/Widgets/InputSlider.cpp
-#	Prototypes/GUI/Widgets/InputText.cpp
-#	Prototypes/GUI/Widgets/Label.cpp
-#	Prototypes/GUI/Widgets/Window.cpp
-
-	# new GUI
-#	"Prototypes/Graphics/Font.cpp" 
-#	"Prototypes/Graphics/LineOfText.cpp"
-#	Prototypes/Graphics/SFontManager.cpp
-#	Prototypes/Graphics/UBOTextData.cpp
+	
 
 	Prototypes/SkeletonConvertion.cpp
 
@@ -133,6 +121,15 @@ if(EMSCRIPTEN)
 	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} ${Optimization_Flag} -sEXIT_RUNTIME=1 -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -fwasm-exceptions -sUSE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader --preload-file MyAssets")
 
 elseif(WIN32)
+	target_include_directories(CForgeSandbox 
+	PRIVATE ${JPEG_INCLUDE_DIR}
+	PRIVATE ${FFMPEG_INCLUDE_DIRS}
+	)
+
+	target_link_directories(CForgeSandbox
+		PRIVATE ${FFMPEG_LIBRARY_DIRS}
+	)
+
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
 	PRIVATE Pinocchio
@@ -141,8 +138,8 @@ elseif(WIN32)
 	ws2_32
 	PRIVATE tinyxml2::tinyxml2
 	PRIVATE imgui::imgui
+	PRIVATE ${FFMPEG_LIBRARIES}
 	${FREETYPE_LIBRARIES}
-
 	)
 	
 elseif(__arm__)
@@ -157,14 +154,25 @@ elseif(__arm__)
 		PRIVATE dl
 		)
 elseif(UNIX)
+	target_include_directories(CForgeSandbox 
+	PRIVATE ${JPEG_INCLUDE_DIR}
+	PRIVATE ${FFMPEG_INCLUDE_DIRS}
+	)
+
+	target_link_directories(CForgeSandbox
+		PRIVATE ${FFMPEG_LIBRARY_DIRS}
+	)
+
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
 		PRIVATE glfw
 		PRIVATE glad::glad
 		PRIVATE tinyxml2::tinyxml2
 		PRIVATE imgui::imgui
-#		PRIVATE assimp
-		PRIVATE dl
+		PRIVATE dl	
+		PRIVATE ${FFMPEG_LIBRARIES}
+		${FREETYPE_LIBRARIES}
+		${OpenCV_LIBS}
 		)
 endif()
 

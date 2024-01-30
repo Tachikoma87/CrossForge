@@ -503,7 +503,7 @@ namespace CForge {
 			auto* pAnim = m_CapturedMeshOrig.getSkeletalAnimation(0);
 			auto* pAnimStyle = M.getSkeletalAnimation(0);
 			pAnimStyle->Duration = pAnim->Duration;
-			pAnimStyle->Speed = pAnim->Speed;
+			pAnimStyle->SamplesPerSecond = pAnim->SamplesPerSecond;
 			for (uint32_t i = 0; i < pAnimStyle->Keyframes.size(); ++i) {		
 				for (uint32_t k = 0; k < pAnimStyle->Keyframes[i]->Timestamps.size(); ++k) {
 					pAnimStyle->Keyframes[i]->Timestamps[k] = (k+1) * 1000.0f/60.0f;//pAnim->Keyframes[i]->Timestamps[k];
@@ -1054,7 +1054,7 @@ namespace CForge {
 
 			pMerged->Duration = pAnimNew->Duration;
 			pMerged->Keyframes.clear();
-			pMerged->Speed = pAnimNew->Speed;
+			pMerged->SamplesPerSecond = pAnimNew->SamplesPerSecond;
 			pMerged->Name = pAnimNew->Name;
 
 			for (uint32_t i = 0; i < pAnimOrig->Keyframes.size(); ++i) {

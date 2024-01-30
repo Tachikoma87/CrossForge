@@ -39,8 +39,13 @@ namespace CForge {
 		void bind(void);
 		void unbind(void);
 		uint32_t handle(void)const;
+
+		int32_t width(void)const;
+		int32_t height(void)const;
 	private:
 		uint32_t m_TexObj;
+		int32_t m_Width;
+		int32_t m_Height;
 	};//GLTexture2D
 }//name space
 
