@@ -721,8 +721,8 @@ namespace CForge {
 
 				std::vector<float> Timestamps;
 				for (int k = 0; k < pBoneKf->Timestamps.size(); k++) {
-					if (pAnim->Speed != 0.0)
-						Timestamps.push_back(pBoneKf->Timestamps[k] / pAnim->Speed);
+					if (pAnim->SamplesPerSecond != 0.0)
+						Timestamps.push_back(pBoneKf->Timestamps[k] / pAnim->SamplesPerSecond);
 					else
 						Timestamps.push_back(pBoneKf->Timestamps[k]);
 				}

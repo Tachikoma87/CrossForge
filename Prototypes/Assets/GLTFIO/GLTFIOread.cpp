@@ -561,7 +561,7 @@ namespace CForge {
 			pAnim->Name = animation.name;
 			pAnim->Keyframes = keyframes;
 			pAnim->Duration = duration;
-			pAnim->Speed = 1.0;
+			pAnim->SamplesPerSecond = 1.0;
 
 			m_pMesh->addSkeletalAnimation(pAnim, false);
 		}

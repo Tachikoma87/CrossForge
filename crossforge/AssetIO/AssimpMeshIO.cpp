@@ -526,7 +526,7 @@ namespace CForge {
 				}
 				
 				nAnim->mDuration = anim->Duration;
-				nAnim->mTicksPerSecond = anim->Speed;
+				nAnim->mTicksPerSecond = anim->SamplesPerSecond;
 				nAnim->mName = anim->Name;
 				
 				nAnim->mNumChannels = aKeyf.size();//anim->Keyframes.size();

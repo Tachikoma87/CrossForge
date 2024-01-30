@@ -4,7 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <functional>
-#include "SLOD.h"
+#include <Prototypes/Actor/SLOD.h>
 #include <igl/decimate.h>
 
 using namespace Eigen;

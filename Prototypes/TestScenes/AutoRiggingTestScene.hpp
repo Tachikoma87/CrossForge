@@ -117,8 +117,8 @@ namespace CForge {
 			//gltfio.load("MyAssets/ExampleScenes/eric.gltf",&M);
 			gltfio.load("MyAssets/ExampleScenes/CesiumMan/glTF/CesiumMan.gltf",&M);
 			M.computePerVertexNormals();
-			gltfio.store("MyAssets/AssetOut/out_ces.gltf",&M);
-			exit(0);
+			//gltfio.store("MyAssets/AssetOut/out_ces.gltf",&M);
+			//exit(0);
 
 			setMeshShader(&M, 0.7f, 0.04f);
 			M.computePerVertexNormals();
