@@ -221,13 +221,25 @@ namespace CForge {
 		return pRval;
 	}//createAnimation
 
-	void SkeletalAnimationController::update(float FPSScale) {
+	void SkeletalAnimationController::update() {
 		for (auto i : m_ActiveAnimations) {
 			if (nullptr != i && !i->Finished) {
 				float TimePassed = (CForgeSimulation::simulationTime() - i->LastTimestamp) / 1000.0f; // time passed in seconds since last update
 				i->t += (TimePassed * i->Speed);
 				i->LastTimestamp = CForgeSimulation::simulationTime();
-				if (i->t > i->Duration) i->Finished = true;
+				if (i->t > i->Duration)
+					i->Finished = true;
+			}
+		}//for[active animations]
+	}//update
+
+	void SkeletalAnimationController::update(float FPSScale) {
+		for (auto i : m_ActiveAnimations) {
+			if (nullptr != i && !i->Finished) {
+				float TimePassed = FPSScale/60.f; // time passed in seconds since last update
+				i->t += (TimePassed * i->Speed);
+				if (i->t > i->Duration)
+					i->Finished = true;
 			}
 		}//for[active animations]
 	}//update

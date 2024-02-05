@@ -60,6 +60,7 @@ namespace CForge {
 
 		// pMesh has to hold skeletal definition
 		void init(T3DMesh<float>* pMesh, bool CopyAnimationData = true);
+		void update();
 		void update(float FPSScale);
 		void clear(void);
 
