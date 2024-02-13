@@ -12,6 +12,7 @@
     "tinyxml2",
     "tinygltf",
     "libjpeg-turbo",
+    "tinyfiledialogs",
     {
       "name": "ffmpeg",
       "default-features": true,
@@ -26,13 +27,6 @@
         "opengl3-binding",
         "glfw-binding"
       ]
-    }
-  ],
-  "builtin-baseline": "3b7578831da081ba164be30da8d9382a64841059",
-  "overrides": [
-    {
-      "name": "libjpeg-turbo",
-      "version": "2.1.5.1"
     }
   ]
 }

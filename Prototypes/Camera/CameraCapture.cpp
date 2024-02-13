@@ -1,4 +1,4 @@
-#ifdef __WIN32__
+#ifdef _WIN32
 
 #include <crossforge/Utility/CForgeUtility.h>
 #include <crossforge/AssetIO/SAssetIO.h>

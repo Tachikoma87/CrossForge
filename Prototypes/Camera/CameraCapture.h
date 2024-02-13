@@ -19,7 +19,7 @@
 #define __CFORGE_CAMERACAPTURE_H__
 #include <crossforge/Core/CForgeObject.h>
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #include <Windows.h>
 
 namespace CForge {

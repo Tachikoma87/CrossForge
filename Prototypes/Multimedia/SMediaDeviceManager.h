@@ -18,7 +18,7 @@
 #ifndef __CFORGE_SMEDIADEVICEMANAGER_H__
 #define __CFORGE_SMEDIADEVICEMANAGER_H__
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #include <crossforge/Core/CForgeObject.h>
 #include "CameraDevice.h"
 

@@ -63,6 +63,8 @@ FIND_PACKAGE(imgui CONFIG REQUIRED) # dear-imgui
 FIND_PACKAGE(JPEG REQUIRED)
 FIND_PACKAGE(libjpeg-turbo)
 FIND_PACKAGE(FFMPEG REQUIRED)
+FIND_PACKAGE(tinyfiledialogs CONFIG REQUIRED)
+
 endif()
 
 add_executable(CForgeSandbox 
@@ -134,6 +136,7 @@ elseif(WIN32)
 	PRIVATE imgui::imgui
 	PRIVATE ${FFMPEG_LIBRARIES}
 	${FREETYPE_LIBRARIES}
+	tinyfiledialogs::tinyfiledialogs
 	)
 	
 elseif(__arm__)

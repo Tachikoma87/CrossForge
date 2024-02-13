@@ -15,31 +15,26 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_CAMERACAPTURETESTSCENE_HPP__
-#define __CFORGE_CAMERACAPTURETESTSCENE_HPP__
+#ifndef __CFORGE_FILEDIALOGTESTSCENE_HPP__
+#define __CFORGE_FILEDIALOGTESTSCENE_HPP__
 
-#ifdef _WIN32
 
-#include "../Multimedia/SMediaDeviceManager.h"
-#include "../../Examples/ExampleSceneBase.hpp"
-#include "../Camera/CameraCapture.h"
-#include "../Multimedia/FFMPEG.h"
-#include "../Camera/VideoRecorder.h"
+#include <Examples/ExampleSceneBase.hpp>
 
 using namespace Eigen;
 using namespace std;
 
 namespace CForge {
 
-	class CameraCaptureTestScene : public ExampleSceneBase {
+	class FileDialogTestScene : public ExampleSceneBase {
 	public:
-		CameraCaptureTestScene(void) {
-			m_WindowTitle = "CrossForge Example - Camera Capture Test Scene";
+		FileDialogTestScene(void) {
+			m_WindowTitle = "CrossForge Example - File Dialog Test Scene";
 			m_WinWidth = 1280;
 			m_WinHeight = 720;
 		}//Constructor
 
-		~CameraCaptureTestScene(void) {
+		~FileDialogTestScene(void) {
 			clear();
 		}//Destructor
 
@@ -86,31 +81,12 @@ namespace CForge {
 				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
 			}
 
-			m_pMediaDevMan = SMediaDeviceManager::instance();
-			
-			if (m_pMediaDevMan->cameraCount() > 0) {
-				m_pCamDevice = m_pMediaDevMan->camera(0);
-				std::vector<int32_t> Formats;
-				m_pCamDevice->findOptimalCaptureFormats(1280, 720, &Formats);
-				m_pCamDevice->changeCaptureFormat(Formats[1]);
-
-				printf("Found %d suitable capture formats:\n", uint32_t(Formats.size()));
-				for (auto i : Formats) {
-					CameraDevice::CaptureFormat F = m_pCamDevice->captureFormat(i);
-					printf("\t%dx%d - %s\n", F.FrameSize.x(), F.FrameSize.y(), F.DataFormat.c_str());
-				}
-			}
-
-			m_CaptureActive = false;
-			m_RecordingActive = false;
 		}//initialize
 
 		void clear(void) override {
 			m_RenderWin.stopListening(this);
 			if (nullptr != m_pShaderMan) m_pShaderMan->release();
 			m_pShaderMan = nullptr;
-			if(nullptr != m_pMediaDevMan) m_pMediaDevMan->release();
-			m_pMediaDevMan = nullptr;
 		}//clear
 
 
@@ -138,57 +114,9 @@ namespace CForge {
 
 			defaultKeyboardUpdate(m_RenderWin.keyboard());
 
-			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_5, true)) {
-				m_CaptureActive = !m_CaptureActive;
-				m_CaptureStart = CForgeUtility::timestamp();	
-			}
-
-			if (m_RenderWin.keyboard()->keyPressed(Keyboard::KEY_6, true)) {
-
-				if (m_RecordingActive) {
-					m_VideoRecorder.stopRecording();
-					m_RecordingActive = false;
-				}
-				else {
-					try {
-						m_VideoRecorder.startRecording("MyAssets/VideoTest.mp4", 1280, 720, 25.0f);
-						m_RecordingActive = true;
-					}
-					catch (CrossForgeException& e) {
-						printf("Exception occurred on starting the video recorder: %s\n", e.msg().c_str());
-					}
-				}
-				
-			}
-
-			if (m_RecordingActive) {
-				T2DImage<uint8_t> Img;
-				m_pCamDevice->retrieveImage(&Img);
-
-				if(Img.width() > 0) m_VideoRecorder.addFrame(&Img, 0);
-			}
-
-			if (m_CaptureActive) {
-				T2DImage<uint8_t> Img;
-				m_pCamDevice->retrieveImage(&Img);
-
-				if (Img.width() > 0) {
-					static int32_t c = 0;
-					std::string Filename = "MyAssets/Webcam/" + std::to_string(c++) + ".jpg";
-					SAssetIO::store(Filename, &Img);
-				}
-			}
 		}//mainLoop
 
 	protected:
-
-		bool m_CaptureActive;
-		uint64_t m_CaptureStart;
-
-		void initCamera() {
-			m_CameraCapture.init();
-			m_CameraCapture.clear();
-		}//initCamera
 
 		// Scene Graph
 		SGNTransformation m_RootSGN;
@@ -197,16 +125,8 @@ namespace CForge {
 		SGNGeometry m_DuckSGN;
 		SGNTransformation m_DuckTransformSGN;
 
-		CameraCapture m_CameraCapture;
-		SMediaDeviceManager* m_pMediaDevMan;
-		CameraDevice* m_pCamDevice;
-
-		VideoRecorder m_VideoRecorder;
-		bool m_RecordingActive;
-	};//CameraCaptureTestScene
+	};//ExampleMinimumGraphicsSetup
 
 }//name space
-
-#endif
 
 #endif

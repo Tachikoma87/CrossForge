@@ -1,4 +1,4 @@
-#ifdef __WIN32__
+#ifdef _WIN32
 
 #include <crossforge/Core/SLogger.h>
 #include <crossforge/Utility/CForgeUtility.h>

@@ -30,9 +30,11 @@
 #include "Prototypes/TestScenes/AssetGLTFTestScene.hpp"
 #include "Prototypes/TestScenes/CameraCaptureTestScene.hpp"
 #include "Prototypes/TestScenes/TransparencyTestScene.hpp"
+#include "Prototypes/TestScenes/FileDialogTestScene.hpp"
 
 #include "Subprojects/DualIMU/IMUInputDeviceTestScene.hpp"
 #include "Subprojects/B02Demonstrator/B02DemonstratorScene.hpp"
+
 
 using namespace CForge;
 using namespace Eigen;
@@ -53,8 +55,9 @@ using namespace Eigen;
 //#define ActiveScene SkelAnimTestScene
 //#define ActiveScene SurfaceSamplerTestScene
 //#define ActiveScene AssetGLTFTestScene
-//#define ActiveScene CameraCaptureTestScene
-#define ActiveScene TransparencyTestScene
+#define ActiveScene CameraCaptureTestScene
+//#define ActiveScene TransparencyTestScene
+//#define ActiveScene FileDialogTestScene
 
 //#define ActiveScene ImuInputDeviceTestScene	
 //#define ActiveScene B02DemonstratorScene
