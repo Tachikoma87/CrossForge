@@ -35,6 +35,7 @@ namespace CForge {
 	class CFORGE_API SAssetIO: public CForgeObject {
 	public:
 		static SAssetIO* instance(void);
+		void release(void);
 
 		static void store(const std::string Filepath, const T3DMesh<float>* pMesh);
 		static void load(const std::string Filepath, T3DMesh<float>* pMesh);
@@ -44,8 +45,6 @@ namespace CForge {
 		static void load(const uint8_t* pBuffer, uint32_t BufferLength, T2DImage<uint8_t>* pImage);
 
 		static std::string readTextFile(const std::string Filepath);
-
-		void release(void);
 
 	protected:
 		SAssetIO(void);
