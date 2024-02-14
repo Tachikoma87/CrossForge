@@ -1,23 +1,19 @@
 
 extern "C" {
-#include <libavutil/channel_layout.h>
-#include <libavutil/opt.h>
-#include <libswresample/swresample.h>
-#include <libavutil/channel_layout.h>
+	#include <libavutil/channel_layout.h>
+	#include <libavutil/opt.h>
+	#include <libswresample/swresample.h>
+	#include <libavutil/channel_layout.h>
 }
 
-#include "../Multimedia/FFMpegUtility.hpp"
-
+#include "../Utility/FFMpegUtility.hpp"
 #include "VideoRecorder.h"
 
-#define STREAM_DURATION 10.0
-#define STREAM_FRAME_RATE 25
 #define STREAM_PIX_FMT AV_PIX_FMT_YUV420P
-#define SCALE_FLAGS SWS_BICUBIC
 
 namespace CForge {
 
-	typedef struct OutputStream {
+	struct OutputStream {
 		AVStream* pStream;
 		AVCodecContext* pEnc;
 
@@ -39,7 +35,7 @@ namespace CForge {
 			pEnc = nullptr;
 			NextPts = 0;
 			SamplesCount = 0;
-			
+
 			pFrame = nullptr;
 			pTmpFrame = nullptr;
 			pTmpPkt = nullptr;
@@ -49,7 +45,7 @@ namespace CForge {
 		}
 	};//OutputStream
 
-	typedef struct VideoData {
+	struct VideoData {
 		OutputStream VideoStream;
 		OutputStream AudioStream;
 
@@ -116,56 +112,7 @@ namespace CForge {
 		return (Rval == AVERROR_EOF) ? 1 : 0;
 	}//writeFrame
 
-	// prepare a dummy image
-	void fillYUVImage(AVFrame* pPict, int32_t FrameIndex, int32_t Width, int32_t Height) {
-		int32_t i = FrameIndex;
-
-		// y plane
-		for (int32_t y = 0; y < Height; y++) {
-			for (int32_t x = 0; x < Width; ++x) {
-				pPict->data[0][y * pPict->linesize[0] + x] = x + y + i * 3;
-			}
-		}
-
-		// cb and cr
-		for (int32_t y = 0; y < Height / 2; ++y) {
-			for (int32_t x = 0; x < Width / 2; ++x) {
-				pPict->data[1][y * pPict->linesize[1] + x] = 128 + y + i * 2;
-				pPict->data[2][y * pPict->linesize[2] + x] = 64 + x + i * 5;
-			}
-		}
-	}//fillYUVImage
-
-	AVFrame* getVideoFrame(OutputStream* pStream) {
-		AVCodecContext* pCodecCtx = pStream->pEnc;
-
-		// check if we want to generate more frames
-		AVRational tbb;
-		tbb.num = tbb.den = 1;
-		if (av_compare_ts(pStream->NextPts, pCodecCtx->time_base, STREAM_DURATION, tbb) > 0) return nullptr;
-
-		// when we pass a frame to the encoder, it may keep a reference to it intenally
-		// make sure we do not overwrite it here
-		if (av_frame_make_writable(pStream->pFrame) < 0) throw CForgeExcept("Unable to make frame writable!");
-
-		if (pCodecCtx->pix_fmt != AV_PIX_FMT_YUV420P) {
-			// as we only generate a YUV420P picture, we must convert it o the codec pixel format if needed
-			if (nullptr == pStream->pSwrCtx) {
-				pStream->pSwsCtx = sws_getContext(pCodecCtx->width, pCodecCtx->height, AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt, SCALE_FLAGS, nullptr, nullptr, nullptr);
-				if (nullptr == pStream->pSwsCtx) throw CForgeExcept("Could not initialize the conversion context!");
-			}
-
-			fillYUVImage(pStream->pTmpFrame, pStream->NextPts, pCodecCtx->width, pCodecCtx->height);
-			sws_scale(pStream->pSwsCtx, (const uint8_t* const*)pStream->pTmpFrame->data, pStream->pTmpFrame->linesize, 0, pCodecCtx->height, pStream->pFrame->data, pStream->pFrame->linesize);
-		}
-		else {
-			fillYUVImage(pStream->pFrame, pStream->NextPts, pCodecCtx->width, pCodecCtx->height);
-		}
-		pStream->pFrame->pts = pStream->NextPts++;
-		return pStream->pFrame;
-	}//getVideoFrame
-
-	AVFrame* getVideoFrame(OutputStream* pStream, const T2DImage<uint8_t> *pImg) {
+	AVFrame* getVideoFrame(OutputStream* pStream, const T2DImage<uint8_t>* pImg) {
 		AVCodecContext* pCodecCtx = pStream->pEnc;
 
 		// check if we want to generate more frames
@@ -177,6 +124,14 @@ namespace CForge {
 		if (av_frame_make_writable(pStream->pFrame) < 0) throw CForgeExcept("Unable to make frame writable!");
 
 		AVFrame* pSourceImg = FFMpegUtility::toAVFrame(pImg);
+
+		if (pSourceImg->width != pStream->pFrame->width || pSourceImg->height != pStream->pFrame->height) {
+			AVFrame* pDstFrame = nullptr;
+			FFMpegUtility::resizeFrame(pSourceImg, &pDstFrame, pStream->pFrame->width, pStream->pFrame->height);
+			FFMpegUtility::freeAVFrame(pSourceImg);
+			pSourceImg = pDstFrame;
+		}
+
 		FFMpegUtility::convertPixelFormat(pSourceImg, &pStream->pFrame, AV_PIX_FMT_YUV420P);
 		FFMpegUtility::freeAVFrame(pSourceImg);
 
@@ -184,12 +139,9 @@ namespace CForge {
 		return pStream->pFrame;
 	}//getVideoFrame
 
-	int32_t writeVideoFrame(AVFormatContext* pFormatCtx, OutputStream* pStream) {
-		return writeFrame(pFormatCtx, pStream->pEnc, pStream->pStream, getVideoFrame(pStream), pStream->pTmpPkt);
-	}//writeVideoFrame
 
-	void addStream(OutputStream* pStream, AVFormatContext* pFormatCtx, const AVCodec** ppCodec, enum AVCodecID CodecID, VideoData *pData) {
-		AVCodecContext *pCodecCtx = nullptr;
+	void addStream(OutputStream* pStream, AVFormatContext* pFormatCtx, const AVCodec** ppCodec, enum AVCodecID CodecID, VideoData* pData) {
+		AVCodecContext* pCodecCtx = nullptr;
 		char ErrorBuffer[AV_ERROR_MAX_STRING_SIZE];
 
 		// find the encoder
@@ -224,7 +176,7 @@ namespace CForge {
 			Layout.nb_channels = 2;
 			Layout.order = AV_CHANNEL_ORDER_NATIVE;
 			Layout.u.mask = ((1ul << AV_CHAN_FRONT_LEFT) | (1ul << AV_CHAN_FRONT_RIGHT));
-	
+
 			av_channel_layout_copy(&pCodecCtx->ch_layout, &Layout);
 			pStream->pStream->time_base.num = 1;
 			pStream->pStream->time_base.den = pCodecCtx->sample_rate;
@@ -232,8 +184,8 @@ namespace CForge {
 		}break;
 		case AVMEDIA_TYPE_VIDEO: {
 			pCodecCtx->codec_id = CodecID;
-			pCodecCtx->width = pData->FrameWidth; // 352;
-			pCodecCtx->height = pData->FrameHeight; // 288;
+			pCodecCtx->width = pData->FrameWidth;
+			pCodecCtx->height = pData->FrameHeight;
 			// timebase: This is the fundamental unit of time (in seconds) in terms of which frame timestamps are represented
 			// For fixed-fps content, timebase should be 1/framerate and timestamp increments should be identical to 1
 			pStream->pStream->time_base.num = 1;
@@ -300,103 +252,7 @@ namespace CForge {
 		swr_free(&pStream->pSwrCtx);
 	}//closeStream
 
-	void muxTest() {
-
-		OutputStream VideoStream; // = { 0 };
-		OutputStream AudioStream; // = { 0 };
-
-		const AVOutputFormat* pFmt = nullptr;
-		AVFormatContext* pFormatCtx = nullptr;
-		const AVCodec* pAudioCodec = nullptr;
-		const AVCodec* pVideoCodec = nullptr;
-
-		int32_t HasAudio = 0;
-		int32_t HasVideo = 0;
-		int32_t EncodeVideo = 0;
-		int32_t EncodeAudio = 0;
-
-		AVDictionary* pAVDict = nullptr;
-
-		int32_t Rval = 0;
-
-		std::string Filename = "MyAssets/MuxTestVideo.mp4";
-
-		char ErrorBuffer[AV_ERROR_MAX_STRING_SIZE];
-
-		// allocate the output media context
-		avformat_alloc_output_context2(&pFormatCtx, nullptr, nullptr, Filename.c_str());
-		
-		if (nullptr == pFormatCtx) {
-			printf("Could not deduce output format from file extension: using MPEG.\n");
-			avformat_alloc_output_context2(&pFormatCtx, nullptr, "mpeg", Filename.c_str());
-		}
-		if (nullptr == pFormatCtx) throw CForgeExcept("Unable to allocate format context!");
-		
-		pFmt = pFormatCtx->oformat;
-
-		// Add the audio and video streams using the default format codecs and initialize the codecs
-		if (pFmt->video_codec != AV_CODEC_ID_NONE) {
-			addStream(&VideoStream, pFormatCtx, &pVideoCodec, pFmt->video_codec, nullptr);
-			HasVideo = 1;
-			EncodeVideo = 1;
-		}
-		if (pFmt->audio_codec != AV_CODEC_ID_NONE) {
-			//addStream(&AudioStream, pFormatCtx, &pAudioCodec, pFmt->audio_codec);
-			HasAudio = 0;
-			EncodeAudio = 0;
-		}
-
-		// Now that all the parameters are set, we can open the audio and video codecs and allocate the necessary encode buffers
-		if (HasVideo) openVideo(pFormatCtx, pVideoCodec, &VideoStream, pAVDict);
-		//if (HasAudio) openAudio(pFormatCtx, pAudioCodec, &AudioStream, pAVDict);
-
-		av_dump_format(pFormatCtx, 0, Filename.c_str(), 1);
-
-		// open the output file, if needed
-		if (!(pFmt->flags & AVFMT_NOFILE)) {
-			Rval = avio_open(&pFormatCtx->pb, Filename.c_str(), AVIO_FLAG_WRITE);
-			if (Rval < 0) {	
-				av_make_error_string(ErrorBuffer, sizeof(ErrorBuffer), Rval);
-				throw CForgeExcept("Could not open file " + Filename + ": " + ErrorBuffer);
-			}
-		}
-
-		// write the stream header, if any
-		Rval = avformat_write_header(pFormatCtx, &pAVDict);
-		if (Rval < 0) {
-			av_make_error_string(ErrorBuffer, sizeof(ErrorBuffer), Rval);
-			throw CForgeExcept("Error occurred when writing format header: " + std::string(ErrorBuffer));
-		}
-
-		while (EncodeVideo || EncodeAudio) {
-			// select the stream to encode
-			if (EncodeVideo && (!EncodeAudio || av_compare_ts(VideoStream.NextPts, VideoStream.pEnc->time_base, AudioStream.NextPts, AudioStream.pEnc->time_base) <= 0)) {
-				EncodeVideo = !writeVideoFrame(pFormatCtx, &VideoStream);
-			}
-			else {
-				//EncodeAudio = !write_audio_frame(pFormatCtx, &AudioStream);
-			}
-		}
-		
-		av_write_trailer(pFormatCtx);
-
-		// close each codec
-		if (HasVideo) closeStream(pFormatCtx, &VideoStream);
-		if (HasAudio) closeStream(pFormatCtx, &AudioStream);
-
-		// close the output file
-		if (!(pFmt->flags & AVFMT_NOFILE)) {
-			avio_close(pFormatCtx->pb);
-		}
-
-		// free the stream
-		avformat_free_context(pFormatCtx);
-	}//muxTest
-
-	
-
-
-	VideoRecorder::VideoRecorder(void): CForgeObject("VideoRecorder") {
+	VideoRecorder::VideoRecorder(void) : CForgeObject("VideoRecorder") {
 		m_pData = nullptr;
 	}//Constructor
 
@@ -473,22 +329,6 @@ namespace CForge {
 			av_make_error_string(ErrorBuffer, sizeof(ErrorBuffer), Rval);
 			throw CForgeExcept("Error occurred when writing format header: " + std::string(ErrorBuffer));
 		}
-
-
-		//while (EncodeVideo || EncodeAudio) {
-		//	// select the stream to encode
-		//	if (EncodeVideo && (!EncodeAudio || av_compare_ts(
-		//		m_pData->VideoStream.NextPts,
-		//		m_pData->VideoStream.pEnc->time_base, 
-		//		m_pData->AudioStream.NextPts, 
-		//		m_pData->AudioStream.pEnc->time_base) <= 0)) {
-		//		EncodeVideo = !writeVideoFrame(m_pData->pFmtCtx, &m_pData->VideoStream);
-		//	}
-		//	else {
-		//		//EncodeAudio = !write_audio_frame(pFormatCtx, &AudioStream);
-		//	}
-		//}
-
 	}//startRecording
 
 	void VideoRecorder::stopRecording() {
@@ -512,7 +352,7 @@ namespace CForge {
 	}//stopRecording
 
 	void VideoRecorder::clear(void) {
-		
+
 
 	}//clear
 

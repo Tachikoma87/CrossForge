@@ -15,21 +15,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(Optimization_Flag "-O2")
 
-#[[
-## download and install pmp
-FetchContent_Declare(
-	pmp 
-	GIT_REPOSITORY https://github.com/pmp-library/pmp-library.git
-	GIT_TAG 2.0.1
-)
-FetchContent_MakeAvailable(pmp)
-set(PMP_BUILD_APPS OFF CACHE INTERNAL "Build the PMP applications")
-set(PMP_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the PMP examples")
-set(PMP_BUILD_TESTS OFF CACHE INTERNAL "Build the PMP test programs")
-set(PMP_BUILD_DOCS OFF CACHE INTERNAL "Build the PMP documentation")
-set(PMP_BUILD_VIS OFF CACHE INTERNAL "Build the PMP visualization tools")
-set(PMP_INSTALL OFF CACHE INTERNAL "Install the PMP library and headers")
-]]
 
 include(FetchContent)
 FetchContent_Declare(
@@ -111,6 +96,8 @@ else()
 	FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp
 	find_package(JPEG REQUIRED)			# jpeg loader (required by libjpeg turbo)
 	find_package(libjpeg-turbo CONFIG REQUIRED)			# jpeg-turbo library to compress/decompress jpeg
+	FIND_PACKAGE(tinyfiledialogs CONFIG REQUIRED)		# tiny filedialogs for simple user dialogs
+	FIND_PACKAGE(FFMPEG REQUIRED)
 
 endif()
 
@@ -133,10 +120,13 @@ add_library(crossforge SHARED
 	crossforge/AssetIO/AssimpMeshIO.cpp
 	crossforge/AssetIO/I2DImageIO.cpp
 	crossforge/AssetIO/I3DMeshIO.cpp
+	crossforge/AssetIO/JPEGTurboIO.cpp
 	crossforge/AssetIO/StbImageIO.cpp 
+	crossforge/AssetIO/UserDialog.cpp
+	crossforge/AssetIO/VideoRecorder.cpp
 	crossforge/AssetIO/WebPImageIO.cpp
 	crossforge/AssetIO/SAssetIO.cpp
-	crossforge/AssetIO/JPEGTurboIO.cpp
+
 
 	# Graphics related
 	crossforge/Graphics/GBuffer.cpp 
@@ -240,6 +230,16 @@ if(EMSCRIPTEN)
 elseif(WIN32)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W1 -wd4251")
 add_compile_definitions(CFORGE_EXPORTS)
+
+target_include_directories(crossforge 
+	PRIVATE ${JPEG_INCLUDE_DIR}
+	PRIVATE ${FFMPEG_INCLUDE_DIRS}
+	)
+
+	target_link_directories(crossforge
+		PRIVATE ${FFMPEG_LIBRARY_DIRS}
+	)
+
 target_link_libraries(crossforge 
 	PRIVATE Eigen3::Eigen
 	PRIVATE glfw 
@@ -252,7 +252,8 @@ target_link_libraries(crossforge
 	${FREETYPE_LIBRARIES}	# for Text rendering
 	libjpeg-turbo::turbojpeg
 	PRIVATE ${JPEG_LIBRARIES}
-	#	pmp # not used yet
+	tinyfiledialogs::tinyfiledialogs
+	PRIVATE ${FFMPEG_LIBRARIES}
 	)
 elseif(__arm__)
 	add_compile_definitions(USE_SYSFS_GPIO)

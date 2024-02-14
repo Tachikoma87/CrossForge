@@ -45,6 +45,13 @@ namespace CForge {
 		float jointSize(void)const;
 		float boneSize(void)const;
 
+		uint32_t jointCount(void)const;
+		uint32_t boneCount(void)const;
+		bool jointActive(uint32_t ID)const;
+		bool boneActive(uint32_t ID)const;
+		void jointActive(uint32_t ID, bool Active);
+		void boneActive(uint32_t ID, bool Active);
+
 
 	protected:
 		void buildMaterial(T3DMesh<float>::Material* pMat);

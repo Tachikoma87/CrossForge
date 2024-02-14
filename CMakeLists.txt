@@ -63,7 +63,7 @@ FIND_PACKAGE(imgui CONFIG REQUIRED) # dear-imgui
 FIND_PACKAGE(JPEG REQUIRED)
 FIND_PACKAGE(libjpeg-turbo)
 FIND_PACKAGE(FFMPEG REQUIRED)
-FIND_PACKAGE(tinyfiledialogs CONFIG REQUIRED)
+
 
 endif()
 
@@ -79,7 +79,6 @@ add_executable(CForgeSandbox
 	# Camera related
 	Prototypes/Camera/PhotoFinish.cpp
 	Prototypes/Camera/StripPhoto.cpp 
-	Prototypes/Camera/VideoRecorder.cpp
 	Prototypes/Camera/VideoPlayer.cpp
 	Prototypes/Camera/CameraCapture.cpp
 	Prototypes/Multimedia/SMediaDeviceManager.cpp
@@ -89,6 +88,7 @@ add_executable(CForgeSandbox
 	# Misc
 	Prototypes/Assets/GLTFIO.cpp
 	Prototypes/MeshProcessing/SurfaceSampler.cpp
+	
 	
 	"Prototypes/GUI/ImGuiUtility.cpp"
 	
@@ -136,7 +136,7 @@ elseif(WIN32)
 	PRIVATE imgui::imgui
 	PRIVATE ${FFMPEG_LIBRARIES}
 	${FREETYPE_LIBRARIES}
-	tinyfiledialogs::tinyfiledialogs
+	
 	)
 	
 elseif(__arm__)

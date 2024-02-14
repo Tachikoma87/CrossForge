@@ -18,13 +18,10 @@
 #ifndef __CFORGE_VIDEORECORDER_H__
 #define __CFORGE_VIDEORECORDER_H__
 
-#include <crossforge/AssetIO/File.h>
-#include <crossforge/Core/CForgeObject.h>
-#include <crossforge/AssetIO/T2DImage.hpp>
-#include <list>
+#include "T2DImage.hpp"
 
 namespace CForge {
-	class VideoRecorder : public CForgeObject {
+	class CFORGE_API VideoRecorder : public CForgeObject {
 	public:
 		VideoRecorder(void);
 		~VideoRecorder(void);
@@ -48,7 +45,7 @@ namespace CForge {
 	protected:
 		struct VideoData* m_pData;
 	};//VideoRecorder
-		
+
 }//name-space
 
 #endif 

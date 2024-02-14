@@ -210,6 +210,40 @@ namespace CForge {
 		m_SG.render(pRDev);
 	}//render
 
+
+	uint32_t StickFigureActor::jointCount(void)const {
+		return m_JointSGNs.size();
+	}//jointCount
+
+	uint32_t StickFigureActor::boneCount(void)const {
+		return m_BoneSGNs.size();
+	}//boneCount
+
+	bool StickFigureActor::jointActive(uint32_t ID)const {
+		if (ID >= m_JointSGNs.size()) throw IndexOutOfBoundsExcept("ID");
+		bool Rval;
+		m_JointSGNs[ID]->enabled(nullptr, &Rval);
+		return Rval;
+	}//jointActive
+
+	bool StickFigureActor::boneActive(uint32_t ID)const {
+		if (ID >= m_BoneSGNs.size()) throw IndexOutOfBoundsExcept("ID");
+		bool Rval;
+		m_BoneSGNs[ID]->enabled(nullptr, &Rval);
+		return Rval;
+	}//boneActive
+
+	void StickFigureActor::jointActive(uint32_t ID, bool Active) {
+		if (ID >= m_JointSGNs.size()) throw IndexOutOfBoundsExcept("ID");
+		m_JointSGNs[ID]->enable(Active, Active);
+	}//jointActive
+
+	void StickFigureActor::boneActive(uint32_t ID, bool Active) {
+		if (ID >= m_BoneSGNs.size()) throw IndexOutOfBoundsExcept("ID");
+		m_BoneSGNs[ID]->enable(Active, Active);
+	}//boneActive
+
+
 	void StickFigureActor::buildMaterial(T3DMesh<float>::Material* pMat) {
 		pMat->Color = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
 		pMat->Metallic = 0.3f;

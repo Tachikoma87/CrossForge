@@ -19,67 +19,46 @@
 #define __CFORGE_FFMPEGUTILITY_HPP__
 
 extern "C" {
-	#include <libswscale/swscale.h>
-	#include <libavcodec/avcodec.h>
-	#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
 }
 
-#include <crossforge/AssetIO/T2DImage.hpp>
+#include "../AssetIO/T2DImage.hpp"
 
 namespace CForge {
 
-	class FFMpegUtility {
-	public:
+    class FFMpegUtility {
+    public:
 
         static AVFrame* allocAVFrame(const int32_t Width, const int32_t Height, const AVPixelFormat PixelFormat) {
             AVFrame* pRval = nullptr;
 
-			pRval = av_frame_alloc();
-			pRval->format = PixelFormat;
-			pRval->width = Width;
-			pRval->height = Height;
+            pRval = av_frame_alloc();
+            pRval->format = PixelFormat;
+            pRval->width = Width;
+            pRval->height = Height;
             av_frame_get_buffer(pRval, 0);
 
-			if (nullptr == pRval) throw CForgeExcept("Unable to allocate AVFrame!");
-			
+            if (nullptr == pRval) throw CForgeExcept("Unable to allocate AVFrame!");
+
             return pRval;
         }//alloc_picture
 
-		static void freeAVFrame(AVFrame* pFrame) {
-			if (nullptr != pFrame) av_frame_free(&pFrame);
-		}//freeAVFrame
+        static void freeAVFrame(AVFrame* pFrame) {
+            if (nullptr != pFrame) av_frame_free(&pFrame);
+        }//freeAVFrame
 
         static AVFrame* convertPixelFormat(AVFrame* pSrc, AVPixelFormat DstFormat) {
-            const int32_t Width = pSrc->width;
-            const int32_t Height = pSrc->height;
-
-            AVFrame* pRval = allocAVFrame(Width, Height, DstFormat);
-            if (nullptr == pRval) return pRval;
-
-            SwsContext* pConversionCtx = sws_getContext(Width, Height,
-                (AVPixelFormat)pSrc->format,
-                Width,
-                Height,
-                DstFormat,
-                SWS_FAST_BILINEAR,
-                NULL,
-                NULL,
-                NULL);
-            sws_scale(pConversionCtx, pSrc->data, pSrc->linesize, 0, Height, pRval->data, pRval->linesize);
-            sws_freeContext(pConversionCtx);
-
-            pRval->format = DstFormat;
-            pRval->width = pSrc->width;
-            pRval->height = pSrc->height;
-
+            AVFrame* pRval = nullptr;
+            convertPixelFormat(pSrc, &pRval, DstFormat);
             return pRval;
         }//convertPixelFormat
 
-        static void convertPixelFormat(AVFrame* pSrc, AVFrame **ppTarget, AVPixelFormat DstFormat) {
+        static void convertPixelFormat(AVFrame* pSrc, AVFrame** ppTarget, AVPixelFormat DstFormat) {
             const int32_t Width = pSrc->width;
             const int32_t Height = pSrc->height;
 
-            
             AVFrame* pRval = ((*ppTarget) == nullptr) ? allocAVFrame(Width, Height, DstFormat) : (*ppTarget);
             if (nullptr == pRval) return;
 
@@ -99,7 +78,31 @@ namespace CForge {
             pRval->width = pSrc->width;
             pRval->height = pSrc->height;
 
+            if (nullptr != ppTarget) (*ppTarget) = pRval;
         }//convertPixelFormat
+
+        static void resizeFrame(AVFrame* pSrc, AVFrame** ppTarget, uint32_t Width, uint32_t Height) {
+            AVFrame* pRval = ((*ppTarget) == nullptr) ? allocAVFrame(Width, Height, AVPixelFormat(pSrc->format)) : (*ppTarget);
+            if (nullptr == pRval) return;
+
+            SwsContext* pConversionCtx = sws_getContext(pSrc->width, pSrc->height,
+                (AVPixelFormat)pSrc->format,
+                Width,
+                Height,
+                AVPixelFormat(pRval->format),
+                SWS_BICUBIC,
+                NULL,
+                NULL,
+                NULL);
+            sws_scale(pConversionCtx, pSrc->data, pSrc->linesize, 0, pSrc->height, pRval->data, pRval->linesize);
+            sws_freeContext(pConversionCtx);
+
+            pRval->format = pSrc->format;
+            pRval->width = Width;
+            pRval->height = Height;
+
+            if (nullptr != ppTarget) (*ppTarget) = pRval;
+        }//resizeImage
 
         static AVFrame* toAVFrame(const T2DImage<uint8_t>* pSource) {
             AVFrame* pRval = allocAVFrame(pSource->width(), pSource->height(), AV_PIX_FMT_RGB24);
@@ -109,7 +112,7 @@ namespace CForge {
         }//toAVFrame
 
         static void toAVFrame(AVFrame** ppFrame, const T2DImage<uint8_t>* pSource) {
-            if(nullptr == *ppFrame) (*ppFrame) = allocAVFrame(pSource->width(), pSource->height(), AV_PIX_FMT_RGB24);
+            if (nullptr == *ppFrame) (*ppFrame) = allocAVFrame(pSource->width(), pSource->height(), AV_PIX_FMT_RGB24);
             uint32_t Size = pSource->width() * pSource->height() * pSource->componentsPerPixel();
             memcpy((*ppFrame)->data[0], pSource->data(), Size);
         }//toAVFrame
@@ -130,16 +133,16 @@ namespace CForge {
 
         }//to2DImage
 
-		FFMpegUtility() {
+    protected:
+        FFMpegUtility() {
 
-		}//Constructor
+        }//Constructor
 
-		~FFMpegUtility() {
+        ~FFMpegUtility() {
 
-		}//Destructor
-	protected:
+        }//Destructor
 
-	};//FFMpegUtility
+    };//FFMpegUtility
 
 }
 

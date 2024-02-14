@@ -22,7 +22,7 @@
 #include <crossforge/Math/Rectangle.hpp>
 #include "../../Prototypes/GUI/ImGuiUtility.h"
 #include "../../Prototypes/Camera/VideoPlayer.h"
-#include "../../Prototypes/Camera/VideoRecorder.h"
+#include <crossforge/AssetIO/VideoRecorder.h>
 #include "AdaptiveSkeletalActor.h"
 using namespace Eigen;
 using namespace std;

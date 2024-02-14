@@ -161,7 +161,7 @@ int main(int argc, char* argv[]) {
 
 	//testAllExamples(pDev);
 
-	//exportLibrary();
+	exportLibrary();
 
 
 

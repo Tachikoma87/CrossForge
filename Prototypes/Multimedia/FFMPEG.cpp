@@ -4,7 +4,7 @@
 //#include <libavformat/avformat.h>
 //}
 
-#include "FFMpegUtility.hpp"
+#include <crossforge/Utility/FFMpegUtility.hpp>
 
 
 #include <crossforge/Utility/CForgeUtility.h>

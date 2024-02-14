@@ -24,7 +24,7 @@
 #include "../../Examples/ExampleSceneBase.hpp"
 #include "../Camera/CameraCapture.h"
 #include "../Multimedia/FFMPEG.h"
-#include "../Camera/VideoRecorder.h"
+#include <crossforge/AssetIO/VideoRecorder.h>
 
 using namespace Eigen;
 using namespace std;
@@ -151,7 +151,7 @@ namespace CForge {
 				}
 				else {
 					try {
-						m_VideoRecorder.startRecording("MyAssets/VideoTest.mp4", 1280, 720, 25.0f);
+						m_VideoRecorder.startRecording("MyAssets/VideoTest.mp4", 1920, 1080, 25.0f);
 						m_RecordingActive = true;
 					}
 					catch (CrossForgeException& e) {
