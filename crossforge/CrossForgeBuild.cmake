@@ -249,7 +249,7 @@ target_link_libraries(crossforge
 	PRIVATE WebP::webp 
 	PRIVATE WebP::webpdecoder
 	ws2_32					#winsock2
-	${FREETYPE_LIBRARIES}	# for Text rendering
+	PRIVATE Freetype::Freetype
 	libjpeg-turbo::turbojpeg
 	PRIVATE ${JPEG_LIBRARIES}
 	tinyfiledialogs::tinyfiledialogs

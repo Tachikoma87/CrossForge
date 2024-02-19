@@ -31,6 +31,7 @@
 #include "Prototypes/TestScenes/CameraCaptureTestScene.hpp"
 #include "Prototypes/TestScenes/TransparencyTestScene.hpp"
 #include "Prototypes/TestScenes/FileDialogTestScene.hpp"
+#include "Prototypes/TestScenes/BackgroundRemovalTestScene.hpp"
 
 #include "Subprojects/DualIMU/IMUInputDeviceTestScene.hpp"
 #include "Subprojects/B02Demonstrator/B02DemonstratorScene.hpp"
@@ -55,9 +56,10 @@ using namespace Eigen;
 //#define ActiveScene SkelAnimTestScene
 //#define ActiveScene SurfaceSamplerTestScene
 //#define ActiveScene AssetGLTFTestScene
-#define ActiveScene CameraCaptureTestScene
+//#define ActiveScene CameraCaptureTestScene
 //#define ActiveScene TransparencyTestScene
 //#define ActiveScene FileDialogTestScene
+#define ActiveScene BackgroundRemovalTestScene
 
 //#define ActiveScene ImuInputDeviceTestScene	
 //#define ActiveScene B02DemonstratorScene
@@ -161,7 +163,7 @@ int main(int argc, char* argv[]) {
 
 	//testAllExamples(pDev);
 
-	exportLibrary();
+	//exportLibrary();
 
 
 
