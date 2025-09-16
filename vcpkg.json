@@ -16,7 +16,7 @@
       "name": "ffmpeg",
       "default-features": true,
       "features": [
-        "x264"
+        "openh264"
       ]
     },
     {

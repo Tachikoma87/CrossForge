@@ -106,6 +106,31 @@ add_executable(CForgeSandbox
 	"Prototypes/Actor/UBOInstancedData.cpp"
 	"Prototypes/MeshProcessing/MeshDecimate.cpp"
 
+	# ECS
+	"Prototypes/ECS/ComponentBase.cpp"
+	"Prototypes/ECS/EntityBase.cpp"
+	"Prototypes/ECS/SystemBase.cpp"
+	"Prototypes/ECS/SSystemManager.cpp"
+	"Prototypes/ECS/SEntityManager.cpp"
+
+	"Prototypes/ECS/PrototypeComponents/PositionComponent2D.cpp"
+	"Prototypes/ECS/PrototypeComponents/MovementSystem.cpp"
+
+	# AssetIO ECS
+	"Prototypes/AssetIO/Components/NormalDataComponent.cpp"
+	"Prototypes/AssetIO/Components/PositionDataComponent.cpp"
+	"Prototypes/AssetIO/Components/TriangleDataComponent.cpp"
+
+	"Prototypes/AssetIO/Entities/FileEntity.cpp"
+	"Prototypes/AssetIO/Entities/Image2DEntity.cpp"
+	"Prototypes/AssetIO/Entities/Mesh3DEntity.cpp"
+
+	"Prototypes/AssetIO/Managers/SAssetIOManager.cpp"
+
+	"Prototypes/AssetIO/Systems/TriangleMeshIOSystemBase.cpp"
+	"Prototypes/AssetIO/Systems/AssimpMeshIOSystem.cpp"
+
+
 	
 
 	)

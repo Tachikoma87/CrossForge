@@ -60,6 +60,9 @@ namespace CForge {
 		*/
 		static void log(const std::string Msg, const std::string Tag = "", LogType Type = LOGTYPE_INFO);
 
+
+		static void log(const std::string msg, const std::string Tag, LogType Type, std::string file, int32_t line, std::string functionName);
+
 		/**
 		* \brief Specify a new log file.
 		*
@@ -153,6 +156,20 @@ namespace CForge {
 	};//SLogger
 
 	typedef SLogger Logger;	///< Convenience definition.
+
+#ifdef WIN32
+#define LogInfo(Msg, Tag) CForge::SLogger::log(Msg, Tag, SLogger::LOGTYPE_INFO, __FILE__, __LINE__, __FUNCTION__) 
+#define LogDebug(Msg, Tag) CForge::SLogger::log(Msg, Tag, SLogger::LOGTYPE_DEBUG, __FILE__, __LINE__, __FUNCTION__) 
+#define LogWarning(Msg, Tag) CForge::SLogger::log(Msg,Tag, SLogger::LOGTYPE_WARNING, __FILE__, __LINE__, __FUNCTION__) 
+#define LogError(Msg, Tag) CForge::SLogger::log(Msg, Tag, SLogger::LOGTYPE_ERROR, __FILE__, __LINE__, __FUNCTION__) 
+
+#else
+//#define CForgeExcept(Msg) CForge::CrossForgeException(CForge::CrossForgeException::Type::GENERAL, Msg, "", "", __FILE__, __LINE__, __PRETTY_FUNCTION__)
+//#define NullpointerExcept(Variable) CForge::CrossForgeException(CForge::CrossForgeException::Type::NULLPOINTER, Variable, "", "", __FILE__, __LINE__, __PRETTY_FUNCTION__)
+//#define NotInitializedExcept(What) CForge::CrossForgeException(CForge::CrossForgeException::Type::NOT_INITIALIZED, What, "", "", __FILE__, __LINE__, __PRETTY_FUNCTION__)
+//#define IndexOutOfBoundsExcept(Variable) CForge::CrossForgeException(CForge::CrossForgeException::Type::INDEX_OUT_OF_BOUNDS, Variable, "", "", __FILE__,__LINE__, __PRETTY_FUNCTION__)
+//#define OutOfMemoryExcept(Variable) CForge::CrossForgeException(CForge::CrossForgeException::Type::OUT_OF_MEMORY, Variable, "", "", __FILE__, __LINE__, __PRETTY_FUNCTION__)
+#endif
 	
 
 	

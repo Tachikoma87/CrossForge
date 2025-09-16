@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): CoreDefinitions.h                                                *
+* File(s): SystemManager.h and SystemManager.cpp                            *
 *                                                                           *
-* Content: API definition and important includes.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,17 +15,43 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
+#ifndef __CFORGE_SSYSTEMMANAGER_H__
+#define __CFORGE_SSYSTEMMANAGER_H__
 
-#include <inttypes.h>
-#include <vector>
-#include <string>
-#include <memory>
-#include <unordered_map>
+#include <crossforge/Core/SLogger.h>
+#include "SystemBase.h"
 
-#ifdef CFORGE_EXPORTS
-#define CFORGE_API __declspec(dllexport)
-#elif defined __WINDLL
-#define CFORGE_API __declspec(dllimport)
-#else
-#define CFORGE_API
-#endif
+namespace CForge {
+	class SSystemManager {
+	public:
+		static std::shared_ptr<SSystemManager> GetInstance();
+		void Clear();
+
+		bool HasSystem(const std::string identification);
+		bool AddSystem(SystemBasePtr pSystem);
+		bool RemoveSystem(const std::string identification);
+
+		template<typename T>
+		std::shared_ptr<T> GetSystem(const std::string identification) {
+			auto sys = m_systemsMap.find(identification);
+			return (m_systemsMap.end() == sys) ? nullptr : std::static_pointer_cast<T>(sys->second);
+		}
+
+		~SSystemManager();
+
+	protected:
+		static std::shared_ptr<SSystemManager> m_instance;
+
+		SSystemManager();
+
+		void initialiize();
+
+		std::unordered_map<std::string, SystemBasePtr> m_systemsMap;
+	};
+
+	typedef SSystemManager SystemManager;
+	typedef std::shared_ptr<SSystemManager> SystemManagerPtr;
+}
+
+
+#endif 

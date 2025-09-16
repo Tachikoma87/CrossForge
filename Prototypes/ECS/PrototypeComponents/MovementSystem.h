@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): CoreDefinitions.h                                                *
+* File(s): MovementSystem.h and MovementSystem.cpp                    *
 *                                                                           *
-* Content: API definition and important includes.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,17 +15,34 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
+#ifndef __CFORGE_MOVEMENTSYSTEM_H__
+#define __CFORGE_MOVEMENTSYSTEM_H__
 
-#include <inttypes.h>
-#include <vector>
-#include <string>
-#include <memory>
-#include <unordered_map>
+#include "../SystemBase.h"
 
-#ifdef CFORGE_EXPORTS
-#define CFORGE_API __declspec(dllexport)
-#elif defined __WINDLL
-#define CFORGE_API __declspec(dllimport)
-#else
-#define CFORGE_API
-#endif
+namespace CForge {
+	class MovementSystem : public SystemBase {
+	public:
+		inline static const std::string identification = "MovementSystem";
+
+		MovementSystem();
+		~MovementSystem();
+
+		void Initialize() override;
+		void Clear() override;
+		void Update() override;
+
+		bool IsEntityValid(EntityBasePtr entity)const override;
+		bool IsEntityRegistered(EntityBasePtr entity)const override;
+
+		bool AddEntity(EntityBasePtr pEntity);
+
+
+	protected:
+		std::vector<EntityBasePtr> m_entities;
+	};
+
+	typedef std::shared_ptr<MovementSystem> MovementSystemPtr;
+}
+
+#endif 

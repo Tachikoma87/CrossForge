@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): CoreDefinitions.h                                                *
+* File(s): ComponentBase.h and ComponentBase.cpp                              *
 *                                                                           *
-* Content: API definition and important includes.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,17 +15,27 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
+#ifndef __CFORGE_COMPONENTBASE_H__
+#define __CFORGE_COMPONENTBASE_H__
 
-#include <inttypes.h>
-#include <vector>
-#include <string>
-#include <memory>
-#include <unordered_map>
+#include <crossforge/Core/CoreDefinitions.h>
 
-#ifdef CFORGE_EXPORTS
-#define CFORGE_API __declspec(dllexport)
-#elif defined __WINDLL
-#define CFORGE_API __declspec(dllimport)
-#else
-#define CFORGE_API
+namespace CForge {
+	class ComponentBase {
+	public:
+		inline static const std::string identification = "ComponentBase";
+
+		ComponentBase(const std::string identification);
+		~ComponentBase();
+
+		const std::string GetIdentification();
+
+
+	protected:
+		std::string m_identification;
+	};
+
+	typedef std::shared_ptr<ComponentBase> ComponentBasePtr;
+}
+
 #endif

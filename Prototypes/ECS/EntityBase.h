@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): CoreDefinitions.h                                                *
+* File(s): EntityBase.h and EntityBase.cpp                                  *
 *                                                                           *
-* Content: API definition and important includes.                           *
+* Content: Base class for all entities.                           *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,17 +15,45 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
+#ifndef __CFORGE_ENTITYBASE_H__
+#define __CFORGE_ENTITYBASE_H__
 
-#include <inttypes.h>
-#include <vector>
-#include <string>
+#include <crossforge/Core/SLogger.h>
+#include "ComponentBase.h"
 #include <memory>
 #include <unordered_map>
 
-#ifdef CFORGE_EXPORTS
-#define CFORGE_API __declspec(dllexport)
-#elif defined __WINDLL
-#define CFORGE_API __declspec(dllimport)
-#else
-#define CFORGE_API
+namespace CForge {
+
+	class EntityBase {
+	public:
+		inline static const std::string identification = "EntityBase";
+
+		EntityBase(const std::string identification, int64_t entityId = -1);
+		~EntityBase();
+
+		
+
+		bool HasComponent(const std::string identification)const;
+		bool AddComponent(ComponentBasePtr component);
+		bool RemoveComponent(const std::string identification);
+		template<typename T> std::shared_ptr<T> GetComponent(std::string identification) {
+			auto result = m_componentMap.find(identification);
+			return (m_componentMap.end() == result) ? nullptr : std::static_pointer_cast<T>(result->second);
+		}
+
+		int64_t GetEntityId()const;
+		void SetEntityId(int64_t entityId);
+		const std::string GetIdentification()const;
+
+	protected:
+		int64_t m_entityId;
+		std::string m_identification;
+		std::unordered_map<std::string, ComponentBasePtr> m_componentMap;
+	};
+
+	typedef std::shared_ptr<EntityBase> EntityBasePtr;
+
+}
+
 #endif

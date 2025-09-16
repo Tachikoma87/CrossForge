@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): CoreDefinitions.h                                                *
+* File(s): Image2DEntity.h and Image2DEntity.cpp                            *
 *                                                                           *
-* Content: API definition and important includes.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,17 +15,7 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
+#ifndef __CFORGE_IMAGE2DENTITY_H__
+#define __CFORGE_IMAGE2DENTITY_H__
 
-#include <inttypes.h>
-#include <vector>
-#include <string>
-#include <memory>
-#include <unordered_map>
-
-#ifdef CFORGE_EXPORTS
-#define CFORGE_API __declspec(dllexport)
-#elif defined __WINDLL
-#define CFORGE_API __declspec(dllimport)
-#else
-#define CFORGE_API
 #endif

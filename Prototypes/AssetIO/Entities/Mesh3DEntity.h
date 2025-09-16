@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): CoreDefinitions.h                                                *
+* File(s): Mesh3DEntity.h and Mesh3DEntity.cpp                              *
 *                                                                           *
-* Content: API definition and important includes.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,17 +15,8 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
+#ifndef __CFORGE_MESH3DENTITY_H__
+#define __CFORGE_MESH3DENTITY_H__
 
-#include <inttypes.h>
-#include <vector>
-#include <string>
-#include <memory>
-#include <unordered_map>
 
-#ifdef CFORGE_EXPORTS
-#define CFORGE_API __declspec(dllexport)
-#elif defined __WINDLL
-#define CFORGE_API __declspec(dllimport)
-#else
-#define CFORGE_API
 #endif

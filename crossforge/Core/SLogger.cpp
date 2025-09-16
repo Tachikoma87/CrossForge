@@ -53,6 +53,10 @@ namespace CForge {
 		}//switch[Type]
 	}//log
 
+	void SLogger::log(const std::string msg, const std::string tag, LogType type, std::string file, int32_t line, std::string functionName) {
+		log(file + ":" + std::to_string(line) + " - " + functionName + " " + msg, tag, type);
+	}
+
 	void SLogger::logFile(const string URI, LogType Type, bool ResetFile, bool LogImmediately ) {
 		if (nullptr == m_pInstance) throw NotInitializedExcept("SLogger not initialized!");
 

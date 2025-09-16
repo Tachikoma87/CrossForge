@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): CoreDefinitions.h                                                *
+* File(s): PositionComponent.h and PositionComponent.cpp                    *
 *                                                                           *
-* Content: API definition and important includes.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,17 +15,31 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
+#ifndef __CFORGE_POSITIONCOMPONENT_H__
+#define __CFORGE_POSITIONCOMPONENT_H__
 
-#include <inttypes.h>
-#include <vector>
-#include <string>
-#include <memory>
-#include <unordered_map>
+#include <crossforge/Math/CForgeMath.h>
+#include "../ComponentBase.h"
 
-#ifdef CFORGE_EXPORTS
-#define CFORGE_API __declspec(dllexport)
-#elif defined __WINDLL
-#define CFORGE_API __declspec(dllimport)
-#else
-#define CFORGE_API
+
+namespace CForge {
+	class PositionComponent2D : public ComponentBase {
+	public:
+		inline static const std::string identification = "PositionComponent2D";
+
+		PositionComponent2D(const Eigen::Vector2f pos = Eigen::Vector2f::Zero());
+		~PositionComponent2D();
+
+		Eigen::Vector2f GetPosition()const;
+		Eigen::Vector2f& GetPosition();
+		void SetPosition(const Eigen::Vector2f pos);
+
+	protected:
+		Eigen::Vector2f m_position;
+	};
+
+	typedef std::shared_ptr<PositionComponent2D> PositionComponent2DPtr;
+}
+
+
 #endif

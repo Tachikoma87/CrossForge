@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): CoreDefinitions.h                                                *
+* File(s): SystemBase.h and SystemBase.cpp                              *
 *                                                                           *
-* Content: API definition and important includes.                           *
+* Content: Mesh import/export class using AssImp.                           *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,17 +15,36 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
+#ifndef __CFORGE_SYSTEMBASE_H__
+#define __CFORGE_SYSTEMBASE_H__
 
-#include <inttypes.h>
-#include <vector>
-#include <string>
-#include <memory>
-#include <unordered_map>
+#include <crossforge/Core/CoreDefinitions.h>
+#include "EntityBase.h"
 
-#ifdef CFORGE_EXPORTS
-#define CFORGE_API __declspec(dllexport)
-#elif defined __WINDLL
-#define CFORGE_API __declspec(dllimport)
-#else
-#define CFORGE_API
+
+namespace CForge {
+	class SystemBase {
+	public:
+		inline static const std::string identification = "SystemBase";
+
+		const std::string GetIdentification()const;
+
+		virtual void Initialize() = 0;
+		virtual void Clear() = 0;
+		virtual void Update() = 0;
+
+		virtual bool IsEntityValid(EntityBasePtr entity)const = 0;
+		virtual bool IsEntityRegistered(EntityBasePtr entity)const = 0;
+
+		~SystemBase();
+
+	protected:
+		SystemBase(const std::string identification);
+		
+		std::string m_identification;
+	};
+
+	typedef std::shared_ptr<SystemBase> SystemBasePtr;
+}
+
 #endif

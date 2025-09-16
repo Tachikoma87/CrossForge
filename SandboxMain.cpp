@@ -32,6 +32,7 @@
 #include "Prototypes/TestScenes/TransparencyTestScene.hpp"
 #include "Prototypes/TestScenes/FileDialogTestScene.hpp"
 #include "Prototypes/TestScenes/BackgroundRemovalTestScene.hpp"
+#include "Prototypes/TestScenes/ECSTestScene.hpp"
 
 #include "Subprojects/DualIMU/IMUInputDeviceTestScene.hpp"
 #include "Subprojects/B02Demonstrator/B02DemonstratorScene.hpp"
@@ -58,8 +59,9 @@ using namespace Eigen;
 //#define ActiveScene AssetGLTFTestScene
 //#define ActiveScene CameraCaptureTestScene
 //#define ActiveScene TransparencyTestScene
-#define ActiveScene FileDialogTestScene
+//#define ActiveScene FileDialogTestScene
 //#define ActiveScene BackgroundRemovalTestScene
+#define ActiveScene ECSTestScene
 
 //#define ActiveScene ImuInputDeviceTestScene	
 //#define ActiveScene B02DemonstratorScene

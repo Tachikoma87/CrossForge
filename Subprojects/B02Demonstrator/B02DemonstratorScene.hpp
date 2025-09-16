@@ -282,7 +282,7 @@ namespace CForge {
 			drawTextCentered("Evaluation of Naturalness");
 			ImGui::PopFont();
 			ImgScale = float(std::min(375, TileWidth-20)) / float(m_ImgStudyPart1.width());
-			ImGui::Image((void*)(intptr_t)m_ImgStudyPart1.handle(), ImVec2(m_ImgStudyPart1.width()*ImgScale, m_ImgStudyPart1.height()*ImgScale));
+			//ImGui::Image((void*)(intptr_t)m_ImgStudyPart1.handle(), ImVec2(m_ImgStudyPart1.width()*ImgScale, m_ImgStudyPart1.height()*ImgScale));
 			ImGui::PushFont(m_pFontTileText);
 			ImGui::Text("Evaluate the naturalness of motion captured\nand synthesized Motions.");
 			ImGui::PopFont();
@@ -298,7 +298,7 @@ namespace CForge {
 			drawTextCentered("Evaluation of Synthesis Quality");
 			ImGui::PopFont();
 			ImgScale = float(std::min(375, TileWidth-20)) / float(m_ImgStudyPart2.width());
-			ImGui::Image((void*)(intptr_t)m_ImgStudyPart2.handle(), ImVec2(m_ImgStudyPart2.width()*ImgScale, m_ImgStudyPart2.height()*ImgScale));
+			//ImGui::Image((void*)(intptr_t)m_ImgStudyPart2.handle(), ImVec2(m_ImgStudyPart2.width()*ImgScale, m_ImgStudyPart2.height()*ImgScale));
 			ImGui::PushFont(m_pFontTileText);
 			ImGui::Text("Find the matching motion to a given one.\nCan you distinct between motion captured\nand synthesized? Check your performance\nin relation to our study results.");
 			ImGui::PopFont();
@@ -315,7 +315,7 @@ namespace CForge {
 			drawTextCentered("Gait Motion Editor");
 			ImGui::PopFont();
 			ImgScale = float(std::min(375, TileWidth-20)) / float(m_ImgMotionEditor.width());
-			ImGui::Image((void*)(intptr_t)m_ImgMotionEditor.handle(), ImVec2(m_ImgMotionEditor.width()*ImgScale, m_ImgMotionEditor.height()*ImgScale));
+			//ImGui::Image((void*)(intptr_t)m_ImgMotionEditor.handle(), ImVec2(m_ImgMotionEditor.width()*ImgScale, m_ImgMotionEditor.height()*ImgScale));
 			ImGui::PushFont(m_pFontTileText);
 			ImGui::Text("Try our motion editor to generate gait\nmotions by adjusting various parameters\nand explore motion signatures.");
 			ImGui::PopFont();
