@@ -11,7 +11,7 @@ namespace CForge {
 
 	}
 
-	const std::string ComponentBase::GetIdentification() {
+	const std::string ComponentBase::getIdentification() {
 		return m_identification;
 	}
 }

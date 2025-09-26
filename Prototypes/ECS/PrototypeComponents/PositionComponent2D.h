@@ -30,9 +30,9 @@ namespace CForge {
 		PositionComponent2D(const Eigen::Vector2f pos = Eigen::Vector2f::Zero());
 		~PositionComponent2D();
 
-		Eigen::Vector2f GetPosition()const;
-		Eigen::Vector2f& GetPosition();
-		void SetPosition(const Eigen::Vector2f pos);
+		Eigen::Vector2f getPosition()const;
+		Eigen::Vector2f& getPosition();
+		void setPosition(const Eigen::Vector2f pos);
 
 	protected:
 		Eigen::Vector2f m_position;

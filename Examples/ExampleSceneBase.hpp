@@ -74,6 +74,10 @@ namespace CForge {
 			clear();
 		}//Destructor
 
+		virtual bool isActive() {
+			return !m_RenderWin.shutdown();
+		}
+
 		virtual void init() {
 			initWindowAndRenderDevice();
 			initCameraAndLights();

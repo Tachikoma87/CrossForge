@@ -13,38 +13,38 @@ namespace CForge {
 
 	}
 
-	void MovementSystem::Initialize() {
-		Clear();
+	void MovementSystem::initialize() {
+		clear();
 	}
 
-	void MovementSystem::Clear() {
+	void MovementSystem::clear() {
 		m_entities.clear();
 	}
 
-	void MovementSystem::Update() {
+	void MovementSystem::update() {
 		for (EntityBasePtr pEntity : m_entities) {
 			if (nullptr == pEntity) continue;
 
-			PositionComponent2DPtr position = pEntity->GetComponent<PositionComponent2D>(PositionComponent2D::identification);
+			PositionComponent2DPtr position = pEntity->getComponent<PositionComponent2D>(PositionComponent2D::identification);
 			Eigen::Vector2f delta = Eigen::Vector2f::Zero();
 
 			delta.x() = CForgeMath::randRange(-10.0f, 10.0f);
 			delta.y() = CForgeMath::randRange(-5.0f, 10.0f);
 
-			position->GetPosition() += delta;
+			position->getPosition() += delta;
 
 		}
 	}
 
-	bool MovementSystem::IsEntityValid(EntityBasePtr pEntity)const {
-		return (nullptr != pEntity && pEntity->HasComponent(PositionComponent2D::identification));
+	bool MovementSystem::isEntityValid(EntityBasePtr pEntity)const {
+		return (nullptr != pEntity && pEntity->hasComponent(PositionComponent2D::identification));
 	}
 
-	bool MovementSystem::IsEntityRegistered(EntityBasePtr entity)const {
+	bool MovementSystem::isEntityRegistered(EntityBasePtr entity)const {
 		bool result = false;
 		for (EntityBasePtr pEntity : m_entities) {
 			if (nullptr == pEntity) continue;
-			if (pEntity->GetEntityId() == entity->GetEntityId()) {
+			if (pEntity->getEntityId() == entity->getEntityId()) {
 				result = true;
 				break;
 			}
@@ -52,9 +52,9 @@ namespace CForge {
 		return result;
 	}
 
-	bool MovementSystem::AddEntity(EntityBasePtr pEntity) {
+	bool MovementSystem::addEntity(EntityBasePtr pEntity) {
 		bool result = false;
-		if (!IsEntityRegistered(pEntity)) {
+		if (!isEntityRegistered(pEntity)) {
 			m_entities.push_back(pEntity);
 		}
 		return result;

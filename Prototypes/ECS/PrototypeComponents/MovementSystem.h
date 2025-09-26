@@ -28,14 +28,14 @@ namespace CForge {
 		MovementSystem();
 		~MovementSystem();
 
-		void Initialize() override;
-		void Clear() override;
-		void Update() override;
+		void initialize() override;
+		void clear() override;
+		void update();
 
-		bool IsEntityValid(EntityBasePtr entity)const override;
-		bool IsEntityRegistered(EntityBasePtr entity)const override;
+		bool isEntityValid(EntityBasePtr entity)const;
+		bool isEntityRegistered(EntityBasePtr entity)const;
 
-		bool AddEntity(EntityBasePtr pEntity);
+		bool addEntity(EntityBasePtr pEntity);
 
 
 	protected:

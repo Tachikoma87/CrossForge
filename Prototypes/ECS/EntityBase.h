@@ -34,17 +34,17 @@ namespace CForge {
 
 		
 
-		bool HasComponent(const std::string identification)const;
-		bool AddComponent(ComponentBasePtr component);
-		bool RemoveComponent(const std::string identification);
-		template<typename T> std::shared_ptr<T> GetComponent(std::string identification) {
+		bool hasComponent(const std::string identification)const;
+		bool addComponent(ComponentBasePtr component);
+		bool removeComponent(const std::string identification);
+		template<typename T> std::shared_ptr<T> getComponent(std::string identification) {
 			auto result = m_componentMap.find(identification);
 			return (m_componentMap.end() == result) ? nullptr : std::static_pointer_cast<T>(result->second);
 		}
 
-		int64_t GetEntityId()const;
-		void SetEntityId(int64_t entityId);
-		const std::string GetIdentification()const;
+		int64_t getEntityId()const;
+		void setEntityId(int64_t entityId);
+		const std::string getIdentification()const;
 
 	protected:
 		int64_t m_entityId;

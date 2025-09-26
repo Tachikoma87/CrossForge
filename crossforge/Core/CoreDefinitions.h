@@ -24,7 +24,7 @@
 
 #ifdef CFORGE_EXPORTS
 #define CFORGE_API __declspec(dllexport)
-#elif defined __WINDLL
+#elif defined _WIN32
 #define CFORGE_API __declspec(dllimport)
 #else
 #define CFORGE_API

@@ -4,36 +4,36 @@
 namespace CForge {
 	std::shared_ptr<SSystemManager> SSystemManager::m_instance = nullptr;
 
-	std::shared_ptr<SSystemManager> SSystemManager::GetInstance() {
+	std::shared_ptr<SSystemManager> SSystemManager::getInstance() {
 		if (nullptr == m_instance) {
 			SSystemManager* pSysMan = new SystemManager();
 			m_instance = std::make_shared<SSystemManager>(*pSysMan);
 		}
 		return m_instance;
 	}
-	void SSystemManager::Clear() {
+	void SSystemManager::clear() {
 		m_instance = nullptr;
 	}
 
-	bool SSystemManager::HasSystem(const std::string identification) {
+	bool SSystemManager::hasSystem(const std::string identification) {
 		return (m_systemsMap.end() != m_systemsMap.find(identification));
 	}
 
-	bool SSystemManager::AddSystem(SystemBasePtr pSystem) {
+	bool SSystemManager::addSystem(SystemBasePtr pSystem) {
 		if (nullptr == pSystem) throw NullpointerExcept("pSystem");
 
 		bool result = false;
-		if (HasSystem(pSystem->GetIdentification())) {
-			LogError("System manager already contains " + pSystem->GetIdentification(), "");
+		if (hasSystem(pSystem->getIdentification())) {
+			LogError("System manager already contains " + pSystem->getIdentification(), "");
 		}
 		else {
-			m_systemsMap.insert(std::make_pair(pSystem->GetIdentification(), pSystem));
+			m_systemsMap.insert(std::make_pair(pSystem->getIdentification(), pSystem));
 			result = true;
 		}
 		return result;
 	}
 
-	bool SSystemManager::RemoveSystem(const std::string identification) {
+	bool SSystemManager::removeSystem(const std::string identification) {
 		return (1 == m_systemsMap.erase(identification));
 	}
 

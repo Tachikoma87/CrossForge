@@ -24,15 +24,15 @@
 namespace CForge {
 	class SSystemManager {
 	public:
-		static std::shared_ptr<SSystemManager> GetInstance();
-		void Clear();
+		static std::shared_ptr<SSystemManager> getInstance();
+		void clear();
 
-		bool HasSystem(const std::string identification);
-		bool AddSystem(SystemBasePtr pSystem);
-		bool RemoveSystem(const std::string identification);
+		bool hasSystem(const std::string identification);
+		bool addSystem(SystemBasePtr pSystem);
+		bool removeSystem(const std::string identification);
 
 		template<typename T>
-		std::shared_ptr<T> GetSystem(const std::string identification) {
+		std::shared_ptr<T> getSystem(const std::string identification) {
 			auto sys = m_systemsMap.find(identification);
 			return (m_systemsMap.end() == sys) ? nullptr : std::static_pointer_cast<T>(sys->second);
 		}

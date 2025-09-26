@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SystemBase.h and SystemBase.cpp                              *
+* File(s): MeshDefinition.h and MeshDefiniton.cpp            *
 *                                                                           *
-* Content: Mesh import/export class using AssImp.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,38 +15,41 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SYSTEMBASE_H__
-#define __CFORGE_SYSTEMBASE_H__
+#ifndef __CFORGE_MESHDEFINITION_H__
+#define __CFORGE_MESHDEFINITION_H__
 
-#include <crossforge/Core/CoreDefinitions.h>
-#include "EntityBase.h"
-
+#include <crossforge/Core/SLogger.h>
 
 namespace CForge {
-	class SystemBase {
+	class MeshDefinition {
 	public:
-		const std::string getIdentification()const;
+		MeshDefinition();
+		~MeshDefinition();
 
-		virtual void initialize() = 0;
-		virtual void clear() = 0;
-		virtual void update() = 0;
-		virtual bool isEntityValid(EntityBasePtr pEntity)const = 0;
+		void initialize();
+		void clear();
 
-		virtual bool isEntityRegistered(EntityBasePtr pEntity)const;
-		virtual bool registerEntity(EntityBasePtr pEntity);
-		virtual bool unregisterEntity(EntityBasePtr pEntity);
-		virtual uint32_t getEntityCount()const;
+		Eigen::Vector3i operator[](uint32_t index)const;
+		Eigen::Vector3i& operator[](uint32_t index);
 
-		~SystemBase();
+		void setFaces(std::vector<Eigen::Vector3i> faces);
+		void setFace(Eigen::Vector3i face, uint32_t index);
+		std::vector<Eigen::Vector3i>& getFaces();
+		std::vector<Eigen::Vector3i> getFaces()const;
+		Eigen::Vector3i getFace(uint32_t index)const;
+		Eigen::Vector3i& getFace(uint32_t index);
+
+		uint32_t getFaceCount()const;
+
+		void setMaterialIndex(int32_t index);
+		int32_t getMaterialindex(void)const;
 
 	protected:
-		SystemBase(const std::string identification);
-		
-		std::vector<EntityBasePtr> m_entities;
-		std::string m_identification;
+		std::vector<Eigen::Vector3i> m_faces;
+		int32_t m_materialIndex;
 	};
 
-	typedef std::shared_ptr<SystemBase> SystemBasePtr;
+	typedef std::shared_ptr<MeshDefinition> MeshDefinitionPtr;
 }
 
-#endif
+#endif 

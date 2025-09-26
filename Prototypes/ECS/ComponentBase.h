@@ -28,7 +28,7 @@ namespace CForge {
 		ComponentBase(const std::string identification);
 		~ComponentBase();
 
-		const std::string GetIdentification();
+		const std::string getIdentification();
 
 
 	protected:

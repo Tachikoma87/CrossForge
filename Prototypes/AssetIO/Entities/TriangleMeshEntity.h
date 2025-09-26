@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SystemBase.h and SystemBase.cpp                              *
+* File(s): TriangleMeshEntity.h and TriangleMeshEntity.cpp                              *
 *                                                                           *
-* Content: Mesh import/export class using AssImp.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,38 +15,39 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SYSTEMBASE_H__
-#define __CFORGE_SYSTEMBASE_H__
+#ifndef __CFORGE_TRIANGLEMESHENTITY_H__
+#define __CFORGE_TRIANGLEMESHENTITY_H__
 
-#include <crossforge/Core/CoreDefinitions.h>
-#include "EntityBase.h"
+#include <crossforge/Core/SLogger.h>
+#include "../../ECS/EntityBase.h"
 
+#include "../Components/PositionDataComponent.h"
+#include "../Components/NormalDataComponent.h"
+#include "../Components/MeshDefinitionsComponent.h"
+#include "../Components/TextureCoordinatesComponent.h"
 
 namespace CForge {
-	class SystemBase {
+	class TriangleMeshEntity : public EntityBase {
 	public:
-		const std::string getIdentification()const;
+		inline static std::string identification = "TriangleMeshEntity";
 
-		virtual void initialize() = 0;
-		virtual void clear() = 0;
-		virtual void update() = 0;
-		virtual bool isEntityValid(EntityBasePtr pEntity)const = 0;
+		TriangleMeshEntity();
+		~TriangleMeshEntity();
 
-		virtual bool isEntityRegistered(EntityBasePtr pEntity)const;
-		virtual bool registerEntity(EntityBasePtr pEntity);
-		virtual bool unregisterEntity(EntityBasePtr pEntity);
-		virtual uint32_t getEntityCount()const;
+		void initialize();
+		void clear();
 
-		~SystemBase();
+		PositionDataComponentPtr getPositionDataComponent();
+		NormalDataComponentPtr getNormalDataComponent();
+		MeshDefinitionsComponentPtr getMeshDefinitionsComponent();
+		TextureCoordinateComponentPtr getTextureCoordinatesComponent();
+
 
 	protected:
-		SystemBase(const std::string identification);
-		
-		std::vector<EntityBasePtr> m_entities;
-		std::string m_identification;
+
 	};
 
-	typedef std::shared_ptr<SystemBase> SystemBasePtr;
+	typedef std::shared_ptr<TriangleMeshEntity> TriangleMeshEntityPtr;
 }
 
 #endif

@@ -27,14 +27,14 @@ namespace CForge {
 
 	class SEntityManager {
 	public:
-		static std::shared_ptr<SEntityManager> Instance();
-		static void Clear();
+		static std::shared_ptr<SEntityManager> instance();
+		static void clear();
 
 
-		int64_t RegisterEntity(EntityBasePtr entity);
-		bool UnregisterEntity(EntityBasePtr entity);
+		int64_t registerEntity(EntityBasePtr entity);
+		bool unregisterEntity(EntityBasePtr entity);
 
-		template<typename T> std::shared_ptr<T> GetEntity(uint64_t entityId) {
+		template<typename T> std::shared_ptr<T> getEntity(uint64_t entityId) {
 			if (entityId < 1 || entityId >= m_entities.size()) throw IndexOutOfBoundsExcept("entityId");
 			std::shared_ptr<T> result = nullptr;
 			if (nullptr != m_entities[entityId]) {
@@ -43,11 +43,11 @@ namespace CForge {
 			return result;
 		}
 
-		template<typename T> std::vector<std::shared_ptr<T>> GetEntities() {
+		template<typename T> std::vector<std::shared_ptr<T>> getEntities() {
 			std::vector<std::shared_ptr<T>> result;
 			for (EntityBasePtr pEntity : m_entities) {
 				if (nullptr == pEntity) continue;
-				if (0 == pEntity->GetIdentification().compare(T::identification)) {
+				if (0 == pEntity->getIdentification().compare(T::identification)) {
 					result.push_back(pEntity);
 				}
 			}
@@ -62,7 +62,7 @@ namespace CForge {
 		SEntityManager();
 		
 
-		void Initialize();
+		void initialize();
 		
 
 		//std::unordered_map<std::string, std::list<EntityBasePtr>> m_entityListMap;

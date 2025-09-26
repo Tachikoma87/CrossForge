@@ -3,7 +3,7 @@
 namespace CForge {
 	std::shared_ptr<SEntityManager> SEntityManager::m_instance = nullptr;
 
-	std::shared_ptr<SEntityManager> SEntityManager::Instance() {
+	std::shared_ptr<SEntityManager> SEntityManager::instance() {
 		if (nullptr == m_instance) {
 			SEntityManager* pMan = new SEntityManager();
 			m_instance = std::make_shared<SEntityManager>(*pMan);
@@ -11,15 +11,15 @@ namespace CForge {
 		return m_instance;
 	}
 
-	void SEntityManager::Clear() {
+	void SEntityManager::clear() {
 		m_instance = nullptr;
 	}
 
 
-	int64_t SEntityManager::RegisterEntity(EntityBasePtr entity) {
+	int64_t SEntityManager::registerEntity(EntityBasePtr entity) {
 		int64_t result = -1;
-		if (entity->GetEntityId() >= 0) {
-			LogError("Entity " + std::to_string(entity->GetEntityId()) + " of type " + entity->GetIdentification() + " is already registered!", "");
+		if (entity->getEntityId() >= 0) {
+			LogError("Entity " + std::to_string(entity->getEntityId()) + " of type " + entity->getIdentification() + " is already registered!", "");
 		}
 		else {
 			result = (int64_t) m_entities.size();
@@ -28,16 +28,16 @@ namespace CForge {
 		return result;
 	}
 
-	bool SEntityManager::UnregisterEntity(EntityBasePtr entity) {
+	bool SEntityManager::unregisterEntity(EntityBasePtr entity) {
 		bool result = false;
-		if (entity->GetEntityId() < 0) {
-			LogWarning("Given entity of type " + entity->GetIdentification() + " has entity id of -1 and can not be unregistered!", "");
+		if (entity->getEntityId() < 0) {
+			LogWarning("Given entity of type " + entity->getIdentification() + " has entity id of -1 and can not be unregistered!", "");
 		}
-		else if (nullptr == m_entities[entity->GetEntityId()]) {
-			LogWarning("Entity " + std::to_string(entity->GetEntityId()) + " of type " + entity->GetIdentification() + " is already unregistered!", "");
+		else if (nullptr == m_entities[entity->getEntityId()]) {
+			LogWarning("Entity " + std::to_string(entity->getEntityId()) + " of type " + entity->getIdentification() + " is already unregistered!", "");
 		}
 		else {
-			m_entities[entity->GetEntityId()] = nullptr;
+			m_entities[entity->getEntityId()] = nullptr;
 			result = true;
 		}
 		return result;
@@ -52,7 +52,7 @@ namespace CForge {
 		m_entities.clear();
 	}
 
-	void SEntityManager::Initialize() {
+	void SEntityManager::initialize() {
 		m_entities.clear();
 
 	}

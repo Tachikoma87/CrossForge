@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SystemBase.h and SystemBase.cpp                              *
+* File(s): WindowPropertiesComponent.h and WindowPropertiesComponent.cpp            *
 *                                                                           *
-* Content: Mesh import/export class using AssImp.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,38 +15,51 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SYSTEMBASE_H__
-#define __CFORGE_SYSTEMBASE_H__
+#ifndef __CFORGE_WindowPropertiesComponent_H__
+#define __CFORGE_WindowPropertiesComponent_H__
 
-#include <crossforge/Core/CoreDefinitions.h>
-#include "EntityBase.h"
-
+#include <crossforge/Core/SLogger.h>
+#include "../../ECS/ComponentBase.h"
 
 namespace CForge {
-	class SystemBase {
+	class WindowPropertiesComponent : public ComponentBase {
 	public:
-		const std::string getIdentification()const;
+		inline static std::string identification = "WindowPropertiesComponent";
 
-		virtual void initialize() = 0;
-		virtual void clear() = 0;
-		virtual void update() = 0;
-		virtual bool isEntityValid(EntityBasePtr pEntity)const = 0;
+		WindowPropertiesComponent();
+		~WindowPropertiesComponent();
 
-		virtual bool isEntityRegistered(EntityBasePtr pEntity)const;
-		virtual bool registerEntity(EntityBasePtr pEntity);
-		virtual bool unregisterEntity(EntityBasePtr pEntity);
-		virtual uint32_t getEntityCount()const;
+		void initialize();
+		void clear();
 
-		~SystemBase();
+		uint32_t& width();
+		uint32_t& height();
+		std::string& title();
+		Eigen::Vector2i position();
+
+		uint32_t &glMinorVersion();
+		uint32_t& glMajorVersion();
+		uint32_t &multisampling();
+		uint32_t vsync();
+
+		void* getGlfwWindow();
+		void setGlfwWindow(void* pGlfwWindow);
 
 	protected:
-		SystemBase(const std::string identification);
-		
-		std::vector<EntityBasePtr> m_entities;
-		std::string m_identification;
+		uint32_t m_width;
+		uint32_t m_height;
+		std::string m_title;
+		Eigen::Vector2i m_position;
+
+		uint32_t m_glMinorVersion;
+		uint32_t m_glMajorVersion;
+		uint32_t m_multisampling;
+		uint32_t m_vsync;
+
+		void* m_pGlfwWindow;
 	};
 
-	typedef std::shared_ptr<SystemBase> SystemBasePtr;
+	typedef std::shared_ptr<WindowPropertiesComponent> WindowPropertiesComponentPtr;
 }
 
-#endif
+#endif 

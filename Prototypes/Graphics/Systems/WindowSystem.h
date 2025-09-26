@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SystemBase.h and SystemBase.cpp                              *
+* File(s): WindowSystem.h and WindowSystem.cpp                              *
 *                                                                           *
-* Content: Mesh import/export class using AssImp.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,38 +15,36 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SYSTEMBASE_H__
-#define __CFORGE_SYSTEMBASE_H__
+#ifndef __CFORGE_WINDOWSYSTEM_H__
+#define __COFRGE_WINDOWSYSTEM_H__
 
-#include <crossforge/Core/CoreDefinitions.h>
-#include "EntityBase.h"
-
+#include <crossforge/Core/SLogger.h>
+#include "../../ECS/SystemBase.h"
+#include "../Entities/WindowEntity.h"
 
 namespace CForge {
-	class SystemBase {
+	class WindowSystem : public SystemBase {
 	public:
-		const std::string getIdentification()const;
+		inline static std::string identification = "WindowSystem";
 
-		virtual void initialize() = 0;
-		virtual void clear() = 0;
-		virtual void update() = 0;
-		virtual bool isEntityValid(EntityBasePtr pEntity)const = 0;
+		WindowSystem();
+		~WindowSystem();
 
-		virtual bool isEntityRegistered(EntityBasePtr pEntity)const;
-		virtual bool registerEntity(EntityBasePtr pEntity);
-		virtual bool unregisterEntity(EntityBasePtr pEntity);
-		virtual uint32_t getEntityCount()const;
+		void initialize() override;
+		void clear() override;
+		void update() override;
 
-		~SystemBase();
+		bool isEntityValid(EntityBasePtr pEntity) const override;
+		bool initOpenGLWindow(WindowEntityPtr pWinEntity);
+		void changeVsync(WindowEntityPtr pEntity, int8_t vsyncFactor);
+
+		void swapBuffers();
 
 	protected:
-		SystemBase(const std::string identification);
-		
-		std::vector<EntityBasePtr> m_entities;
-		std::string m_identification;
+
 	};
 
-	typedef std::shared_ptr<SystemBase> SystemBasePtr;
+	typedef std::shared_ptr<WindowSystem> WindowSystemPtr;
 }
 
-#endif
+#endif 

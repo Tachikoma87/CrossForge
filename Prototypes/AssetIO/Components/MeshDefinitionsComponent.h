@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SystemBase.h and SystemBase.cpp                              *
+* File(s): MeshDefinitionsComponent.h and MeshDefinitionsComponent.cpp            *
 *                                                                           *
-* Content: Mesh import/export class using AssImp.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,38 +15,35 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SYSTEMBASE_H__
-#define __CFORGE_SYSTEMBASE_H__
+#ifndef __CFORGE_TRIANGLEDATACOMPONENT_H__
+#define __CFORGE_TRIANGLEDATACOMPONENT_H__
 
-#include <crossforge/Core/CoreDefinitions.h>
-#include "EntityBase.h"
+#include <crossforge/Core/SLogger.h>
+#include "../../ECS/ComponentBase.h"
+#include "../TriangleMesh/MeshDefinition.h"
 
 
 namespace CForge {
-	class SystemBase {
+	class MeshDefinitionsComponent: public ComponentBase {
 	public:
-		const std::string getIdentification()const;
+		inline static const std::string identification = "MeshDefinitionsComponent";
 
-		virtual void initialize() = 0;
-		virtual void clear() = 0;
-		virtual void update() = 0;
-		virtual bool isEntityValid(EntityBasePtr pEntity)const = 0;
+		MeshDefinitionsComponent();
+		~MeshDefinitionsComponent();
 
-		virtual bool isEntityRegistered(EntityBasePtr pEntity)const;
-		virtual bool registerEntity(EntityBasePtr pEntity);
-		virtual bool unregisterEntity(EntityBasePtr pEntity);
-		virtual uint32_t getEntityCount()const;
+		void initialize();
+		void clear();
 
-		~SystemBase();
+		void addMeshDefinition(MeshDefinitionPtr pMeshDefinition);
+		MeshDefinitionPtr getMeshDefinition(uint32_t index);
+
+		uint32_t getMeshDefinitionsCount()const;
 
 	protected:
-		SystemBase(const std::string identification);
-		
-		std::vector<EntityBasePtr> m_entities;
-		std::string m_identification;
+		std::vector<MeshDefinitionPtr> m_meshes;
 	};
 
-	typedef std::shared_ptr<SystemBase> SystemBasePtr;
+	typedef std::shared_ptr<MeshDefinitionsComponent> MeshDefinitionsComponentPtr;
 }
 
-#endif
+#endif 

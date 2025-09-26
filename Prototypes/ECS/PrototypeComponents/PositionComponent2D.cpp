@@ -10,15 +10,15 @@ namespace CForge {
 
 	}
 
-	Eigen::Vector2f PositionComponent2D::GetPosition()const {
+	Eigen::Vector2f PositionComponent2D::getPosition()const {
 		return m_position;
 	}
 
-	Eigen::Vector2f& PositionComponent2D::GetPosition() {
+	Eigen::Vector2f& PositionComponent2D::getPosition() {
 		return m_position;
 	}
 
-	void PositionComponent2D::SetPosition(const Eigen::Vector2f pos) {
+	void PositionComponent2D::setPosition(const Eigen::Vector2f pos) {
 		m_position = pos;
 	}
 

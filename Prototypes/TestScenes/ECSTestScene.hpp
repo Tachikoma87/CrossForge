@@ -31,6 +31,10 @@
 
 #include "../ECS/SSystemManager.h"
 
+#include "../AssetIO/Systems/AssimpMeshIOSystem.h"
+
+#include "../Graphics/Systems/WindowSystem.h"
+
 using namespace Eigen;
 using namespace std;
 
@@ -48,32 +52,36 @@ namespace CForge {
 			clear();
 		}//Destructor
 
+		bool isActive()override {
+			return true;
+		}
+
 		void initECS() {
 
-			EntityManagerPtr entityMan = EntityManager::Instance();
+			EntityManagerPtr entityMan = EntityManager::instance();
 
 			uint64_t startTimestamp = CForgeUtility::timestamp();
 
 			for (int i = 0; i < 50; ++i) {
 				EntityBasePtr pEntity = std::make_shared<EntityBase>(EntityBase::identification);
-				pEntity->SetEntityId(entityMan->RegisterEntity(pEntity));
+				pEntity->setEntityId(entityMan->registerEntity(pEntity));
 
 				if ( (i % 20) != 0) {
 					PositionComponent2DPtr pPos = std::make_shared<PositionComponent2D>();
-					pEntity->AddComponent(pPos);
+					pEntity->addComponent(pPos);
 				}
 				
 			}
 
-			auto entityList = entityMan->GetEntities<EntityBase>();
+			auto entityList = entityMan->getEntities<EntityBase>();
 
 			for (EntityBasePtr pEntity : entityList) {
-				std::string message = "I found entity with id " + std::to_string(pEntity->GetEntityId()) + " of type " + pEntity->GetIdentification() + "\n";
+				std::string message = "I found entity with id " + std::to_string(pEntity->getEntityId()) + " of type " + pEntity->getIdentification() + "\n";
 				//printf(message.c_str());
 
-				PositionComponent2DPtr pPos = pEntity->GetComponent<PositionComponent2D>(PositionComponent2D::identification);
+				PositionComponent2DPtr pPos = pEntity->getComponent<PositionComponent2D>(PositionComponent2D::identification);
 				if (nullptr != pPos) {
-					message = "Entity " + std::to_string(pEntity->GetEntityId()) + " has position component\n";
+					message = "Entity " + std::to_string(pEntity->getEntityId()) + " has position component\n";
 					//printf(message.c_str());
 				}
 			}
@@ -81,62 +89,53 @@ namespace CForge {
 			// create movement system
 			MovementSystemPtr movementSystem = std::make_shared<MovementSystem>();
 			for (EntityBasePtr pEntity : entityList) {
-				if (movementSystem->IsEntityValid(pEntity)) {
-					movementSystem->AddEntity(pEntity);
+				if (movementSystem->isEntityValid(pEntity)) {
+					movementSystem->addEntity(pEntity);
 				}
 			}
 
-			SystemManagerPtr pSysMan = SystemManager::GetInstance();
-			pSysMan->AddSystem(movementSystem);
+			SystemManagerPtr pSysMan = SystemManager::getInstance();
+			pSysMan->addSystem(movementSystem);
 
 			std::string msg = "Method took " + std::to_string(CForgeUtility::timestamp() - startTimestamp) + "ms to complete.\n";
 			printf(msg.c_str());
 		}
 
+		void testSystems() {
+			AssimpMeshIOSystemPtr pAssimp = std::make_shared<AssimpMeshIOSystem>();
+
+			TriangleMeshEntityPtr pDuck = std::make_shared<TriangleMeshEntity>();
+
+			pAssimp->loadMesh("./Assets/ExampleScenes/Duck/Duck.gltf", pDuck);
+			pAssimp->storeMesh("./Assets/duck.obj", pDuck);
+
+			printf("Loaded duck ...");
+
+		}
+
 		void init() override {
 
-			initWindowAndRenderDevice();
-			initCameraAndLights();
-			initFPSLabel();
+			// initialize manager
+			m_pEntityManager = EntityManager::instance();
 
-			initECS();
+			// initialize systems
+			m_pWindowSystem = std::make_shared<WindowSystem>();
 
-			// build scene graph
-			m_RootSGN.init(nullptr);
-			m_SG.init(&m_RootSGN);
+			// create a windows
+			WindowEntityPtr pMainWin = std::make_shared<WindowEntity>();
+			WindowPropertiesComponentPtr pMainWinProps = std::make_shared<WindowPropertiesComponent>();
+			pMainWin->addComponent(pMainWinProps);
 
-			// load skydome and a textured cube
-			T3DMesh<float> M;
-
-			initGroundPlane(&m_RootSGN, 100.0f, 20.0f);
-
-			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
-			for (uint32_t i = 0; i < M.materialCount(); ++i) CForgeUtility::defaultMaterial(M.getMaterial(i), CForgeUtility::PLASTIC_YELLOW);
-			M.computePerVertexNormals();
-			m_Duck.init(&M);
-			M.clear();
-
-
-			// add cube
-			m_DuckTransformSGN.init(&m_RootSGN, Vector3f(0.0f, 1.5f, 0.0f));
-			m_DuckSGN.init(&m_DuckTransformSGN, &m_Duck);
-			m_DuckSGN.scale(Vector3f(0.02f, 0.02f, 0.02f));
-
-			// rotate about the y-axis at 45 degree every second
-			Quaternionf R;
-			R = AngleAxisf(CForgeMath::degToRad(45.0f / 60.0f), Vector3f::UnitY());
-			m_DuckTransformSGN.rotationDelta(R);
-
-			// create help text
-			LineOfText* pKeybindings = new LineOfText();
-			pKeybindings->init(CForgeUtility::defaultFont(CForgeUtility::FONTTYPE_SANSERIF, 18), "Movement: (Shift) + W,A,S,D  | Rotation: LMB/RMB + Mouse | F1: Toggle help text");
-			m_HelpTexts.push_back(pKeybindings);
-			m_DrawHelpTexts = true;
-
-			std::string ErrorMsg;
-			if (0 != CForgeUtility::checkGLError(&ErrorMsg)) {
-				SLogger::log("OpenGL Error" + ErrorMsg, "PrimitiveFactoryTestScene", SLogger::LOGTYPE_ERROR);
+			if (m_pWindowSystem->initOpenGLWindow(pMainWin)) {
+				LogInfo("Successfully created main OpenGL window.", "");
+				m_pWindowSystem->registerEntity(pMainWin);
 			}
+			else {
+				LogError("Failed to create main OpenGL window.", "");
+			}
+
+			
+			
 
 		}//initialize
 
@@ -148,61 +147,22 @@ namespace CForge {
 
 
 		void mainLoop(void)override {
-			m_RenderWin.update();
-			m_SG.update(60.0f / m_FPS);
+			
+		
+			m_pWindowSystem->update();
+			m_pWindowSystem->swapBuffers();
 
-			defaultCameraUpdate(&m_Cam, m_RenderWin.keyboard(), m_RenderWin.mouse());
-
-			m_RenderDev.activePass(RenderDevice::RENDERPASS_SHADOW, &m_Sun);
-			m_RenderDev.activeCamera(const_cast<VirtualCamera*>(m_Sun.camera()));
-			m_SG.render(&m_RenderDev);
-
-			m_RenderDev.activePass(RenderDevice::RENDERPASS_GEOMETRY);
-			m_RenderDev.activeCamera(&m_Cam);
-			m_SG.render(&m_RenderDev);
-
-			m_RenderDev.activePass(RenderDevice::RENDERPASS_LIGHTING);
-			m_FPSLabel.render(&m_RenderDev);
-			if (m_DrawHelpTexts) drawHelpTexts();
-
-			m_RenderWin.swapBuffers();
-
-			updateFPS();
-
-			defaultKeyboardUpdate(m_RenderWin.keyboard());
-
-
-			// update ECS
-			uint64_t timestamp = CForgeUtility::timestamp();
-			MovementSystemPtr pMovementSystem = SystemManager::GetInstance()->GetSystem<MovementSystem>(MovementSystem::identification);
-			pMovementSystem->Update();
-
-			auto entityList = EntityManager::Instance()->GetEntities<EntityBase>();
-
-			for (EntityBasePtr pEntity : entityList) {
-				if (pEntity->HasComponent(PositionComponent2D::identification) && pEntity->GetEntityId() == 9) {
-					auto pos = pEntity->GetComponent<PositionComponent2D>(PositionComponent2D::identification)->GetPosition();
-
-					std::string msg = "Entity " + std::to_string(pEntity->GetEntityId()) + ": " +
-						std::to_string(pos.x()) + "   " + std::to_string(pos.y()) + "\n";
-					printf(msg.c_str());
-
-				}
-			}
-
-			std::string msg = "Movement system update took " + std::to_string(CForgeUtility::timestamp() - timestamp) + " ms\n";
-			//printf(msg.c_str());
+			
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			
 
 		}//mainLoop
 
 	protected:
 
-		// Scene Graph
-		SGNTransformation m_RootSGN;
-
-		StaticActor m_Duck;
-		SGNGeometry m_DuckSGN;
-		SGNTransformation m_DuckTransformSGN;
+		EntityManagerPtr m_pEntityManager;
+		WindowSystemPtr m_pWindowSystem;
+		
 
 	};//ExampleMinimumGraphicsSetup
 

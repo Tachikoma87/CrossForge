@@ -7,11 +7,8 @@
 #else 
 
 #endif
-
+/*
 #include "ExportLibrary.hpp"
-
-#include "crossforge/Core/SCrossForgeDevice.h"
-#include "crossforge/Core/SLogger.h"
 
 #include <Examples/ExampleMinimumGraphicsSetup.hpp>
 #include <Examples/ExampleMorphTargetAnimation.hpp>
@@ -37,6 +34,7 @@
 #include "Subprojects/DualIMU/IMUInputDeviceTestScene.hpp"
 #include "Subprojects/B02Demonstrator/B02DemonstratorScene.hpp"
 
+#include <crossforge/core/SLogger.h>
 
 using namespace CForge;
 using namespace Eigen;
@@ -82,7 +80,7 @@ void executeScene() {
 		#if defined(__EMSCRIPTEN__)
 				emscripten_set_main_loop_arg(mainLoop, pScene, 0, true);
 		#else
-				while (!pScene->renderWindow()->shutdown()) pScene->mainLoop();
+				while (pScene->isActive()) pScene->mainLoop();
 		#endif
 
 		if (nullptr != pScene) delete pScene;
@@ -135,6 +133,11 @@ void testAllExamples(SCrossForgeDevice *pDevice) {
 }//testAllExamples
 
 int main(int argc, char* argv[]) {
+
+	testCrossForgeMk2();
+	return 0;
+
+
 #ifdef WIN32
 	_CrtMemState S1, S2, S3;
 	_CrtMemCheckpoint(&S1);
@@ -187,3 +190,35 @@ int main(int argc, char* argv[]) {
 	printf("QUtting now!");
 	return 0;
 }//main
+
+*/
+
+#include "Prototypes/TestScenes/CForge2Test.hpp"
+#include <crossforge/ecs/ComponentBase.h>
+#include <crossforge/ecs/EntityBase.h>
+
+using namespace crossforge;
+
+
+int main(int argc, char* argv[]) {
+	
+	try {
+		test();
+		EntityBase entity("TestEntity");
+		ComponentBase cp("TestIdent");
+		printf("s\n", cp.getIdentification().c_str());
+		entity.addComponent(std::make_shared<ComponentBase>("HelloComponent"));
+
+
+
+	}
+	catch (crossforge::CrossForgeException e) {
+		printf("%s\n", e.message().c_str());
+	}
+	
+
+
+
+
+	return 0;
+}

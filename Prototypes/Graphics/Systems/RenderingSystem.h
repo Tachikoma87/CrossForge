@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SystemBase.h and SystemBase.cpp                              *
+* File(s): RenderingSystem.h and RenderingSystem.cpp                        *
 *                                                                           *
-* Content: Mesh import/export class using AssImp.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,38 +15,8 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SYSTEMBASE_H__
-#define __CFORGE_SYSTEMBASE_H__
-
-#include <crossforge/Core/CoreDefinitions.h>
-#include "EntityBase.h"
+#ifndef __CFORGE_RENDERINGSYSTEM_H__
+#define __CFORGE_RENDERINGSYSTEM_H__
 
 
-namespace CForge {
-	class SystemBase {
-	public:
-		const std::string getIdentification()const;
-
-		virtual void initialize() = 0;
-		virtual void clear() = 0;
-		virtual void update() = 0;
-		virtual bool isEntityValid(EntityBasePtr pEntity)const = 0;
-
-		virtual bool isEntityRegistered(EntityBasePtr pEntity)const;
-		virtual bool registerEntity(EntityBasePtr pEntity);
-		virtual bool unregisterEntity(EntityBasePtr pEntity);
-		virtual uint32_t getEntityCount()const;
-
-		~SystemBase();
-
-	protected:
-		SystemBase(const std::string identification);
-		
-		std::vector<EntityBasePtr> m_entities;
-		std::string m_identification;
-	};
-
-	typedef std::shared_ptr<SystemBase> SystemBasePtr;
-}
-
-#endif
+#endif 
