@@ -1,6 +1,6 @@
 #include "PositionComponent2D.h"
 
-namespace CForge {
+namespace crossforge {
 
 	PositionComponent2D::PositionComponent2D(const Eigen::Vector2f pos): ComponentBase(PositionComponent2D::identification) {
 		m_position = pos;

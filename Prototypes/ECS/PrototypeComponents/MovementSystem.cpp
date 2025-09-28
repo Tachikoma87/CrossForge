@@ -22,7 +22,7 @@ namespace CForge {
 	}
 
 	void MovementSystem::update() {
-		for (EntityBasePtr pEntity : m_entities) {
+		/*for (EntityBasePtr pEntity : m_entities) {
 			if (nullptr == pEntity) continue;
 
 			PositionComponent2DPtr position = pEntity->getComponent<PositionComponent2D>(PositionComponent2D::identification);
@@ -33,30 +33,30 @@ namespace CForge {
 
 			position->getPosition() += delta;
 
-		}
+		}*/
 	}
 
 	bool MovementSystem::isEntityValid(EntityBasePtr pEntity)const {
-		return (nullptr != pEntity && pEntity->hasComponent(PositionComponent2D::identification));
+		return false; // (nullptr != pEntity && pEntity->hasComponent(PositionComponent2D::identification));
 	}
 
 	bool MovementSystem::isEntityRegistered(EntityBasePtr entity)const {
 		bool result = false;
-		for (EntityBasePtr pEntity : m_entities) {
+		/*for (EntityBasePtr pEntity : m_entities) {
 			if (nullptr == pEntity) continue;
 			if (pEntity->getEntityId() == entity->getEntityId()) {
 				result = true;
 				break;
 			}
-		}
+		}*/
 		return result;
 	}
 
 	bool MovementSystem::addEntity(EntityBasePtr pEntity) {
 		bool result = false;
-		if (!isEntityRegistered(pEntity)) {
+		/*if (!isEntityRegistered(pEntity)) {
 			m_entities.push_back(pEntity);
-		}
+		}*/
 		return result;
 	}
 

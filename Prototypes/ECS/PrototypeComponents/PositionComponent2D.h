@@ -18,11 +18,10 @@
 #ifndef __CFORGE_POSITIONCOMPONENT_H__
 #define __CFORGE_POSITIONCOMPONENT_H__
 
-#include <crossforge/Math/CForgeMath.h>
-#include "../ComponentBase.h"
+#include <crossforge/ecs/ComponentBase.h>
 
 
-namespace CForge {
+namespace crossforge {
 	class PositionComponent2D : public ComponentBase {
 	public:
 		inline static const std::string identification = "PositionComponent2D";

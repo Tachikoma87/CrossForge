@@ -208,17 +208,10 @@ int main(int argc, char* argv[]) {
 		ComponentBase cp("TestIdent");
 		printf("s\n", cp.getIdentification().c_str());
 		entity.addComponent(std::make_shared<ComponentBase>("HelloComponent"));
-
-
-
 	}
 	catch (crossforge::CrossForgeException e) {
 		printf("%s\n", e.message().c_str());
 	}
-	
-
-
-
 
 	return 0;
 }

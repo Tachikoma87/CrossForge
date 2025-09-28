@@ -1,12 +1,12 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SystemManager.h and SystemManager.cpp                            *
+* File(s): InputDeviceEntity.h and InputDeviceEntity.cpp                       *
 *                                                                           *
 * Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
-* Author(s): Tom Uhlmann                                                    *
+* Author(s): Tachikoma87                                                    *
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
@@ -15,43 +15,41 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SSYSTEMMANAGER_H__
-#define __CFORGE_SSYSTEMMANAGER_H__
+#ifndef __CROSSFORGE_INPUTDEVICEENTITY_H__
+#define __CROSSFORGE_INPUTDEVICEENTITY_H__
 
-#include <crossforge/Core/SLogger.h>
-#include "SystemBase.h"
+#include <crossforge/ecs/EntityBase.h>
+#include "../components/KeyboardDataComponent.h"
+#include "../components/MouseDataComponent.h"
+#include "../components/AssociatedWindowComponent.h"
 
-namespace CForge {
-	class SSystemManager {
+namespace crossforge {
+	class InputDeviceEntity : public EntityBase {
 	public:
-		static std::shared_ptr<SSystemManager> getInstance();
+		inline static std::string identificaiton = "InputDeviceEntity";
+
+		enum InputDeviceComponents: uint8_t {
+			KEYBOARD_DATA_COMPONENT = 0x01,
+			MOUSE_DATA_COMPONENT = 0x02,
+			ASSOCIATED_WINDOW_COMPONENT = 0x04
+		};
+
+		InputDeviceEntity(uint8_t componentBitMask = 0);
+		~InputDeviceEntity();
+
+		void initialize(uint8_t componentBitMask);
 		void clear();
 
-		bool hasSystem(const std::string identification);
-		bool addSystem(SystemBasePtr pSystem);
-		bool removeSystem(const std::string identification);
+		MouseDataComponentPtr getMouseDataComponent();
+		KeyboardDataComponentPtr getKeyboardDataComponent();
+		AssociatedWindowComponentPtr getAssociatedWindowComponent();
 
-		template<typename T>
-		std::shared_ptr<T> getSystem(const std::string identification) {
-			auto sys = m_systemsMap.find(identification);
-			return (m_systemsMap.end() == sys) ? nullptr : std::static_pointer_cast<T>(sys->second);
-		}
-
-		~SSystemManager();
 
 	protected:
-		static std::shared_ptr<SSystemManager> m_instance;
 
-		SSystemManager();
-
-		void initialiize();
-
-		std::unordered_map<std::string, SystemBasePtr> m_systemsMap;
 	};
 
-	typedef SSystemManager SystemManager;
-	typedef std::shared_ptr<SSystemManager> SystemManagerPtr;
+	typedef std::shared_ptr<InputDeviceEntity> InputDeviceEntityPtr;
 }
 
-
-#endif 
+#endif

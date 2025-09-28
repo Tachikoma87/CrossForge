@@ -1,12 +1,12 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): SystemBase.h and SystemBase.cpp                              *
+* File(s): AssociatedWindowComponent.h and AssociatedWindowComponent.cpp    *
 *                                                                           *
-* Content: Mesh import/export class using AssImp.                           *
+* Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
-* Author(s): Tom Uhlmann                                                    *
+* Author(s): Tachikoma87                                                    *
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
@@ -15,38 +15,27 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SYSTEMBASE_H__
-#define __CFORGE_SYSTEMBASE_H__
+#ifndef __CROSSFORGE_ASSOCIATEDWINDOWCOMPONENT_H__
+#define __CROSSFORGE_ASSOCIATEDWINDOWCOMPONENT_H__
 
-#include <crossforge/Core/CoreDefinitions.h>
-#include "EntityBase.h"
+#include <crossforge/ecs/ComponentBase.h>
 
-
-namespace CForge {
-	class SystemBase {
+namespace crossforge {
+	class AssociatedWindowComponent : public ComponentBase {
 	public:
-		const std::string getIdentification()const;
+		inline static std::string identification = "AssociatedWindowComponent";
 
-		virtual void initialize() = 0;
-		virtual void clear() = 0;
-		virtual void update() = 0;
-		virtual bool isEntityValid(EntityBasePtr pEntity)const = 0;
+		AssociatedWindowComponent();
+		~AssociatedWindowComponent();
 
-		virtual bool isEntityRegistered(EntityBasePtr pEntity)const;
-		virtual bool registerEntity(EntityBasePtr pEntity);
-		virtual bool unregisterEntity(EntityBasePtr pEntity);
-		virtual uint32_t getEntityCount()const;
-
-		~SystemBase();
+		int64_t &windowEntityId();
 
 	protected:
-		SystemBase(const std::string identification);
-		
-		std::vector<EntityBasePtr> m_entities;
-		std::string m_identification;
+
+		int64_t m_windowEntityId;
 	};
 
-	typedef std::shared_ptr<SystemBase> SystemBasePtr;
+	typedef std::shared_ptr<AssociatedWindowComponent> AssociatedWindowComponentPtr;
 }
 
-#endif
+#endif 

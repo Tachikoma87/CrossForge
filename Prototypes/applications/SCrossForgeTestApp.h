@@ -1,12 +1,12 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): WindowEntity.h and WindowEntity.cpp                              *
+* File(s): SCrossForgeTestApp.h and SCrossForgeTestApp.cpp                       *
 *                                                                           *
 * Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
-* Author(s): Tom Uhlmann                                                    *
+* Author(s): Tachikoma87                                                    *
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
@@ -15,29 +15,42 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_WINDOWENTITY_H__
-#define __CFORGE_WINDOWENTITY_H__
+#ifndef __CROSSFORGE_SCROSSFORGETESTAPP_H__
+#define __CROSSFORGE_SCROSSFORGETESTAPP_H__
 
-#include <crossforge/Core/SLogger.h>
-#include "../../ECS/EntityBase.h"
-#include "../Components/WindowPropertiesComponent.h"
+#include <crossforge/graphics/systems/WindowSystem.h>
+#include <crossforge/core/ApplicationBase.h>
 
-namespace CForge {
-	class WindowEntity : public EntityBase {
+#include <crossforge/graphics/entities/WindowEntity.h>
+
+#include "../InputDevice/systems/KeyboardInputSystem.h"
+#include "../InputDevice/entities/InputDeviceEntity.h"
+
+namespace crossforge {
+	class SCrossForgeTestApp : public ApplicationBase {
 	public:
-		inline static std::string identification = "WindowEntity";
+		static std::shared_ptr<SCrossForgeTestApp> instance();
+		static void destory();
 
-		WindowEntity();
-		~WindowEntity();
-
-		WindowPropertiesComponentPtr getWindowPropertiesComponent();
+		void initialize() override;
+		void update() override;
 
 
+		~SCrossForgeTestApp();
 	protected:
+		static std::shared_ptr<SCrossForgeTestApp> m_pInstance;
 
+		SCrossForgeTestApp();
+
+		uint64_t m_startTimestamp;
+		uint64_t m_lastPrint;
+
+		WindowEntityPtr m_pMainWin;
+		InputDeviceEntityPtr m_pInputDevice;
 	};
 
-	typedef std::shared_ptr<WindowEntity> WindowEntityPtr;
+	typedef SCrossForgeTestApp CrossForgeTestApp;
+	typedef std::shared_ptr<SCrossForgeTestApp> CrossForgeTestAppPtr;
 }
 
-#endif
+#endif 
