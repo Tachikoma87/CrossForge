@@ -163,17 +163,10 @@ add_executable(CForgeSandbox
 	  
 	 "Prototypes/applications/SCrossForgeTestApp.cpp"
 
-	  
-	  
-	  
-	  
-	 
-	 "Prototypes/Graphics/Systems/RenderingSystem.cpp"
-
-  
-
+	"Prototypes/Graphics/Systems/RenderingSystem.cpp"
 	"Prototypes/ECS/PrototypeComponents/PositionComponent2D.cpp"
- "Prototypes/InputDevice/systems/MouseInputSystem.h" "Prototypes/InputDevice/systems/MouseInputSystem.cpp" "Prototypes/InputDevice/systems/KeyboardInputSystem.h" "Prototypes/InputDevice/systems/KeyboardInputSytem.cpp" "Prototypes/InputDevice/entities/InputDeviceEntity.h" "Prototypes/InputDevice/entities/InputDeviceEntity.cpp" "Prototypes/InputDevice/components/MouseDataComponent.h" "Prototypes/InputDevice/components/MouseDataComponent.cpp" "Prototypes/InputDevice/components/KeyboardDataComponent.h" "Prototypes/InputDevice/components/KeyboardDataComponent.cpp" "Prototypes/InputDevice/components/AssociatedWindowComponent.h" "Prototypes/InputDevice/components/AssociatedWindowComponent.cpp")
+
+    )
 	
 if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox

@@ -20,11 +20,10 @@
 
 #include <crossforge/graphics/systems/WindowSystem.h>
 #include <crossforge/core/ApplicationBase.h>
-
 #include <crossforge/graphics/entities/WindowEntity.h>
-
-#include "../InputDevice/systems/KeyboardInputSystem.h"
-#include "../InputDevice/entities/InputDeviceEntity.h"
+#include <crossforge/input/systems/KeyboardInputSystem.h>
+#include <crossforge/input/systems/MouseInputSystem.h>
+#include <crossforge/input/entities/InputDeviceEntity.h>
 
 namespace crossforge {
 	class SCrossForgeTestApp : public ApplicationBase {

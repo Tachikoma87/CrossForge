@@ -20,8 +20,7 @@
 
 #include <crossforge/Core/SLogger.h>
 #include <crossforge/ecs/ComponentBase.h>
-//#include "../../ECS/ComponentBase.h"
-#include "../TriangleMesh/MeshMaterial.h"
+#include "TriangleMesh/MeshMaterial.h"
 
 namespace CForge {
 	class MaterialDataComponent : public crossforge::ComponentBase {

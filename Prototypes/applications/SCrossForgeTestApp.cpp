@@ -7,8 +7,7 @@
 #include "../Graphics/Systems/RenderingSystem.h"
 #include <crossforge/graphics/entities/SceneEntity.h>
 #include "../ECS/PrototypeComponents/PositionComponent2D.h"
-#include "../InputDevice/systems/MouseInputSystem.h"
-#include "../InputDevice/components/MouseDataComponent.h"
+#include <crossforge/graphics/controller/WindowEntityController.h>
 
 namespace crossforge {
 	std::shared_ptr<SCrossForgeTestApp> SCrossForgeTestApp::m_pInstance = nullptr;
@@ -40,7 +39,7 @@ namespace crossforge {
 		pWinProps->position() = Eigen::Vector2i(200, 200);
 		m_pMainWin->addComponent(pWinProps);
 		
-		if (pWindowSystem->initOpenGLWindow(m_pMainWin)) {
+		if (WindowEntityController::initOpenGLWindow(m_pMainWin)) {
 			LogInfo("Successfully created main window with OpenGL functionality!");
 			pWindowSystem->registerEntity(m_pMainWin);
 			gladLoadGL();
@@ -134,9 +133,9 @@ namespace crossforge {
 		auto pWinSys = m_pSystemManager->getSystem<WindowSystem>();
 		auto pRenderSys = m_pSystemManager->getSystem<RenderingSystem>();
 		pWinSys->update();
-		pWinSys->clearBuffer(m_pMainWin);
+		WindowEntityController::clearBuffer(m_pMainWin);
 		pRenderSys->update();
-		m_pSystemManager->getSystem<WindowSystem>()->swapBuffers();
+		pWinSys->swapBuffers();
 
 
 		if (GeneralUtility::getTimestamp() - m_lastPrint > 1000) {
