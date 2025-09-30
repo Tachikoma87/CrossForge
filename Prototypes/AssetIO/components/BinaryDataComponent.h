@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): MeshDefinitionsComponent.h and MeshDefinitionsComponent.cpp            *
+* File(s): BinaryDataComponent.h and BinaryDataComponent.cpp            *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,34 +15,30 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_TRIANGLEDATACOMPONENT_H__
-#define __CROSSFORGE_TRIANGLEDATACOMPONENT_H__
+#ifndef __CROSSFORGE_BINARYDATACOMPONENT_H__
+#define __CROSSFORGE_BINARYDATACOMPONENT_H__
 
 #include <crossforge/ecs/ComponentBase.h>
-#include "trianglemesh/MeshDefinition.h"
-
 
 namespace crossforge {
-	class MeshDefinitionsComponent: public ComponentBase {
+	class BinaryDataComponent : public ComponentBase {
 	public:
-		inline static const std::string identification = "MeshDefinitionsComponent";
+		inline static std::string identification = "BinaryDataComponent";
 
-		MeshDefinitionsComponent();
-		~MeshDefinitionsComponent();
+		BinaryDataComponent();
+		~BinaryDataComponent();
 
 		void initialize();
 		void clear();
 
-		void addMeshDefinition(MeshDefinitionPtr pMeshDefinition);
-		MeshDefinitionPtr getMeshDefinition(uint32_t index);
-
-		uint32_t getMeshDefinitionsCount()const;
+		std::vector<uint8_t> &binaryData();
+		uint64_t getSize()const;
 
 	protected:
-		std::vector<MeshDefinitionPtr> m_meshes;
-	};
+		std::vector<uint8_t> m_binaryData;
 
-	typedef std::shared_ptr<MeshDefinitionsComponent> MeshDefinitionsComponentPtr;
+	};
+	typedef std::shared_ptr<BinaryDataComponent> BinaryDataComponentPtr;
 }
 
 #endif 

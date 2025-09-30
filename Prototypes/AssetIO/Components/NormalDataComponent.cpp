@@ -1,6 +1,6 @@
 #include "NormalDataComponent.h"
 
-namespace CForge {
+namespace crossforge {
 	NormalDataComponent::NormalDataComponent(): ComponentBase(NormalDataComponent::identification) {
 
 	}
@@ -19,7 +19,7 @@ namespace CForge {
 	const Eigen::Vector3f NormalDataComponent::operator[](const uint32_t index)const {
 		Eigen::Vector3f result = Eigen::Vector3f::Zero();
 		if (index >= getNormalCount()) {
-			LogError("Index " + std::to_string(index) + " is out of bounds!", "");
+			LogError("Index " + std::to_string(index) + " is out of bounds!");
 		}
 		else {
 			result = m_normals[index];

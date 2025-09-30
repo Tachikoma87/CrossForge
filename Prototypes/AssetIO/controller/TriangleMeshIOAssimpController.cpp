@@ -1,67 +1,58 @@
 
 #include <filesystem>
-#include <crossforge/Utility/CForgeUtility.h>
 #include <assimp/postprocess.h>
-#include "AssimpMeshIOSystem.h"
-#include <crossforge/AssetIO/File.h>
-#include "../TriangleMesh/MeshDefinition.h"
-#include "../TriangleMesh/MeshMaterial.h"
+#include <crossforge/utility/GeneralUtility.hpp>
 
+#include "../../utility/FileUtility.h"
+#include "TriangleMeshIOAssimpController.h"
+
+#include "../components/TriangleMesh/MeshDefinition.h"
+#include "../components/TriangleMesh/MeshMaterial.h"
 #include "../Components/MaterialDataComponent.h"
 
 
 using namespace Assimp;
 
-namespace CForge {
+namespace crossforge {
 
-	AssimpMeshIOSystem::AssimpMeshIOSystem(): TriangleMeshIOSystemBase(AssimpMeshIOSystem::identification) {
-
-	}
-
-	AssimpMeshIOSystem::~AssimpMeshIOSystem() {
+	TriangleMeshIOAssimpController::TriangleMeshIOAssimpController(): TriangleMeshIOControllerBase(TriangleMeshIOAssimpController::identification) {
 
 	}
 
-	void AssimpMeshIOSystem::initialize(){
-
-	}
-	void AssimpMeshIOSystem::clear() {
+	TriangleMeshIOAssimpController::~TriangleMeshIOAssimpController() {
 
 	}
 
-	void AssimpMeshIOSystem::update() {
-
+	TriangleMeshIOAssimpController::TriangleMeshIOAssimpController(const std::string childIdentification) : TriangleMeshIOControllerBase(TriangleMeshIOAssimpController::identification) {
+		m_inheritance.push_back(childIdentification);
 	}
-	bool AssimpMeshIOSystem::isEntityValid(EntityBasePtr pEntity) const {
-		// this system does not accept continuous running
-		return false; 
-	}
+	
 
 
 
 	// overriding methods from parent class
-	bool AssimpMeshIOSystem::canAcceptFile(const std::string filePath, const Operation operation) const {
+	bool TriangleMeshIOAssimpController::canAcceptFile(const std::string filePath, const Operation operation) const {
 		std::filesystem::path path = filePath;
 		bool result = false;
 
-		std::string extension = CForgeUtility::toLowerCase(path.extension().string());
+		std::string extension = GeneralUtility::toLowerCase(path.extension().string());
 
 		switch (operation) {
 		case OP_LOAD:
-			if (0 == extension.compare("fbx")) result = true;
-			else if (0 == extension.compare("obj")) result = true;
-			else if (0 == extension.compare("ply")) result = true;
-			else if (0 == extension.compare("gltf")) result = true;
-			else if (0 == extension.compare("stl")) result = true;
-			else if (0 == extension.compare("glb")) result = true;
+			if (0 == extension.compare(".fbx")) result = true;
+			else if (0 == extension.compare(".obj")) result = true;
+			else if (0 == extension.compare(".ply")) result = true;
+			else if (0 == extension.compare(".gltf")) result = true;
+			else if (0 == extension.compare(".stl")) result = true;
+			else if (0 == extension.compare(".glb")) result = true;
 			break;
 
 		case OP_STORE:
-			if (0 == extension.compare("fbx")) result = true;
-			else if (0 == extension.compare("obj")) result = true;
-			else if (0 == extension.compare("ply")) result = true;
-			else if (0 == extension.compare("stl")) result = true;
-			else if (0 == extension.compare("x")) result = true;
+			if (0 == extension.compare(".fbx")) result = true;
+			else if (0 == extension.compare(".obj")) result = true;
+			else if (0 == extension.compare(".ply")) result = true;
+			else if (0 == extension.compare(".stl")) result = true;
+			else if (0 == extension.compare(".x")) result = true;
 			break;
 		default: break;
 		}
@@ -70,18 +61,18 @@ namespace CForge {
 	}
 
 
-	bool AssimpMeshIOSystem::loadMesh(const std::string filepath, TriangleMeshEntityPtr pEntity) {
+	bool TriangleMeshIOAssimpController::load(TriangleMeshEntityPtr pEntity, const std::string filepath) {
 		const aiScene* pScene = m_Importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_LimitBoneWeights | aiProcess_OptimizeGraph | aiProcess_ValidateDataStructure);
 
 		if (nullptr == pScene) {
 			std::string ErrorMsg = m_Importer.GetErrorString();
-			throw CForgeExcept("Failed to load model from resource " + filepath + "\n\t" + ErrorMsg);
+			throw CrossForgeExcept("Failed to load model from resource " + filepath + "\n\t" + ErrorMsg);
 		}
 
 		bool result = false;
 
 		try {
-			aiSceneToTriangleMeshEntity(pScene, pEntity, File::removeFilename(filepath));
+			aiSceneToTriangleMeshEntity(pScene, pEntity, FileUtility::removeFilename(filepath));
 			result = true;
 		}
 		catch (CrossForgeException& e) {
@@ -92,11 +83,11 @@ namespace CForge {
 		return result;
 	}//load
 
-	bool AssimpMeshIOSystem::storeMesh(const std::string Filepath, TriangleMeshEntityPtr pEntity) {
-		if (Filepath.empty()) throw CForgeExcept("Empty filepath specified!");
+	bool TriangleMeshIOAssimpController::store(TriangleMeshEntityPtr pEntity, const std::string Filepath) {
+		if (Filepath.empty()) throw CrossForgeExcept("Empty filepath specified!");
 		if (nullptr == pEntity) throw NullpointerExcept("pEntity");
 
-		std::string Str = CForgeUtility::toLowerCase(Filepath);
+		std::string Str = GeneralUtility::toLowerCase(Filepath);
 
 		std::string fileType = "";
 		if (Str.find(".fbx") != std::string::npos) fileType = "fbx";
@@ -113,7 +104,7 @@ namespace CForge {
 
 	
 
-	void AssimpMeshIOSystem::aiSceneToTriangleMeshEntity(const aiScene* pScene, TriangleMeshEntityPtr pEntity, const std::string Directory) {
+	void TriangleMeshIOAssimpController::aiSceneToTriangleMeshEntity(const aiScene* pScene, TriangleMeshEntityPtr pEntity, const std::string Directory) {
 		if (nullptr == pEntity) throw NullpointerExcept("pEntity");
 		if (nullptr == pScene) throw NullpointerExcept("pScene");
 
@@ -237,25 +228,25 @@ namespace CForge {
 
 			if (pMat->GetTextureCount(aiTextureType_AMBIENT) > 0) {
 				pMat->GetTexture(aiTextureType_AMBIENT, 0, &filepath);
-				if (File::exists(filepath.C_Str())) texAmbientFilepath = std::string(filepath.C_Str());
-				else texAmbientFilepath = File::absolute(Directory + filepath.C_Str());
+				if (FileUtility::exists(filepath.C_Str())) texAmbientFilepath = std::string(filepath.C_Str());
+				else texAmbientFilepath = FileUtility::absolute(Directory + filepath.C_Str());
 			}
 			if (pMat->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
 				pMat->GetTexture(aiTextureType_DIFFUSE, 0, &filepath);
 				
-				if (File::exists(filepath.C_Str())) texDiffuseFilepath = std::string(filepath.C_Str());
-				else texDiffuseFilepath = File::absolute(Directory + filepath.C_Str());
+				if (FileUtility::exists(filepath.C_Str())) texDiffuseFilepath = std::string(filepath.C_Str());
+				else texDiffuseFilepath = FileUtility::absolute(Directory + filepath.C_Str());
 			}
 			if (pMat->GetTextureCount(aiTextureType_NORMALS) > 0) {
 				pMat->GetTexture(aiTextureType_NORMALS, 0, &filepath);
-				if (File::exists(filepath.C_Str())) texNormalFilepath = std::string(filepath.C_Str());
-				else texNormalFilepath = File::absolute(Directory + filepath.C_Str());
+				if (FileUtility::exists(filepath.C_Str())) texNormalFilepath = std::string(filepath.C_Str());
+				else texNormalFilepath = FileUtility::absolute(Directory + filepath.C_Str());
 			}
 
 			if (pMat->GetTextureCount(aiTextureType_HEIGHT) > 0) {
 				pMat->GetTexture(aiTextureType_HEIGHT, 0, &filepath);
-				if (File::exists(filepath.C_Str())) texHeightFilepath = std::string(filepath.C_Str());
-				else texHeightFilepath = File::absolute(Directory + filepath.C_Str());
+				if (FileUtility::exists(filepath.C_Str())) texHeightFilepath = std::string(filepath.C_Str());
+				else texHeightFilepath = FileUtility::absolute(Directory + filepath.C_Str());
 			}
 
 			pMeshMat->setTexturePath(texAmbientFilepath, MeshMaterial::TEXTURE_TYPE_AMBIENT);
@@ -279,7 +270,7 @@ namespace CForge {
 			}
 	
 			if (!pEntity->hasComponent(MaterialDataComponent::identification)) pEntity->addComponent(std::make_shared<MaterialDataComponent>());
-			auto pMaterialComponent = pEntity->getComponent<MaterialDataComponent>(MaterialDataComponent::identification);
+			auto pMaterialComponent = pEntity->getComponent<MaterialDataComponent>();
 			pMaterialComponent->addMaterial(pMeshMat);
 
 		
@@ -380,7 +371,7 @@ namespace CForge {
 
 	}//aiMeshTo3DMesh
 
-	void AssimpMeshIOSystem::triangleMeshEntityToAiScene(TriangleMeshEntityPtr pEntity, aiScene* pScene) {
+	void TriangleMeshIOAssimpController::triangleMeshEntityToAiScene(TriangleMeshEntityPtr pEntity, aiScene* pScene) {
 		if (nullptr == pEntity) throw NullpointerExcept("pMesh");
 		if (nullptr == pScene) throw NullpointerExcept("pScene");
 
@@ -507,7 +498,7 @@ namespace CForge {
 		}//for[subMeshes]
 
 		//// store materials
-		auto pMatComponent = pEntity->getComponent<MaterialDataComponent>(MaterialDataComponent::identification);
+		auto pMatComponent = pEntity->getComponent<MaterialDataComponent>();
 		if (nullptr != pMatComponent && pMatComponent->getMaterialCount() > 0) {
 			pScene->mNumMaterials = pMatComponent->getMaterialCount();
 			pScene->mMaterials = new aiMaterial * [pScene->mNumMaterials];
@@ -625,11 +616,11 @@ namespace CForge {
 	//	return pRval;
 	//}//
 
-	Eigen::Vector3f AssimpMeshIOSystem::toEigenVec(const aiVector3D Vec)const {
+	Eigen::Vector3f TriangleMeshIOAssimpController::toEigenVec(const aiVector3D Vec)const {
 		return Eigen::Vector3f(Vec.x, Vec.y, Vec.z);
 	}//toEigenVec
 
-	Eigen::Matrix4f AssimpMeshIOSystem::toEigenMat(const aiMatrix4x4 Mat)const {
+	Eigen::Matrix4f TriangleMeshIOAssimpController::toEigenMat(const aiMatrix4x4 Mat)const {
 		Eigen::Matrix4f Rval;
 		Rval(0, 0) = Mat.a1;
 		Rval(0, 1) = Mat.a2;
@@ -654,7 +645,7 @@ namespace CForge {
 		return Rval;
 	}//toEigenMat
 
-	Eigen::Quaternionf AssimpMeshIOSystem::toEigenQuat(const aiQuaternion Q)const {
+	Eigen::Quaternionf TriangleMeshIOAssimpController::toEigenQuat(const aiQuaternion Q)const {
 		Eigen::Quaternionf Rval;
 		Rval.x() = Q.x;
 		Rval.y() = Q.y;
@@ -663,7 +654,7 @@ namespace CForge {
 		return Rval;
 	}//toEigenQuat
 
-	aiVector3D AssimpMeshIOSystem::toAiVector(const Eigen::Vector3f Vec)const {
+	aiVector3D TriangleMeshIOAssimpController::toAiVector(const Eigen::Vector3f Vec)const {
 		aiVector3D Rval;
 		Rval.x = Vec.x();
 		Rval.y = Vec.y();
@@ -671,7 +662,7 @@ namespace CForge {
 		return Rval;
 	}//toAiVector
 
-	aiMatrix4x4 AssimpMeshIOSystem::toAiMatrix(const Eigen::Matrix4f Mat)const {
+	aiMatrix4x4 TriangleMeshIOAssimpController::toAiMatrix(const Eigen::Matrix4f Mat)const {
 		aiMatrix4x4 Rval;
 		Rval.a1 = Mat(0, 0);
 		Rval.a2 = Mat(0, 1);
@@ -697,7 +688,7 @@ namespace CForge {
 
 	}//toAiMatrix
 
-	aiQuaternion AssimpMeshIOSystem::toAiQuat(const Eigen::Quaternionf Q)const {
+	aiQuaternion TriangleMeshIOAssimpController::toAiQuat(const Eigen::Quaternionf Q)const {
 		aiQuaternion Rval;
 		Rval.x = Q.x();
 		Rval.y = Q.y();
@@ -706,7 +697,7 @@ namespace CForge {
 		return Rval;
 	}//toAiQuat
 
-	aiColor4D AssimpMeshIOSystem::toAiColor(const Eigen::Vector4f color)const {
+	aiColor4D TriangleMeshIOAssimpController::toAiColor(const Eigen::Vector4f color)const {
 		aiColor4D result;
 		result.r = color.x();
 		result.g = color.y();

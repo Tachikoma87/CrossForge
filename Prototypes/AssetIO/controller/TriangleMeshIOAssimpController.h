@@ -1,12 +1,12 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): AssimpMeshIOSystem.h and AssimpMeshIOSystem.cpp                  *
+* File(s): TriangleMeshIOAssimpController.h and TriangleMeshIOAssimpController.cpp                  *
 *                                                                           *
 * Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
-* Author(s): Tom Uhlmann                                                    *
+* Author(s): Tachikoma87                                                    *
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
@@ -15,35 +15,31 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_SASSIMPMESHIOSYSTEM_H__
-#define __CFORGE_SASSIMPMESHIOSYSTEM_H__
+#ifndef __CROSSFORGE_TRIANGLEMESHIOASSIMPCONTROLLER_H__
+#define __CROSSFORGE_TRIANGLEMESHIOASSIMPCONTROLLER_H__
 
-#include "TriangleMeshIOSystemBase.h"
+#include "TriangleMeshIOControllerBase.h"
 #include <assimp/Importer.hpp>
 #include <assimp/Exporter.hpp>
 #include <assimp/scene.h>
 
-namespace CForge {
-	class AssimpMeshIOSystem : public TriangleMeshIOSystemBase {
+namespace crossforge {
+	class TriangleMeshIOAssimpController : public TriangleMeshIOControllerBase {
 	public:
-		inline static std::string identification = "AssimpMeshIOSystem";
+		inline static std::string identification = "TriangleMeshIOAssimpController";
 
-		// Constructor/Destructor
-		AssimpMeshIOSystem();
-		~AssimpMeshIOSystem();
+		TriangleMeshIOAssimpController();
+		~TriangleMeshIOAssimpController();
 
-		void initialize() override;
-		void clear() override;
-		void update() override;
-		bool isEntityValid(EntityBasePtr pEntity) const override;
-
+	
 		// overriding methods from parent class
 		bool canAcceptFile(const std::string filePath, const Operation operation) const override;
-		bool loadMesh(const std::string filePath, TriangleMeshEntityPtr meshEntity) override;
-		bool storeMesh(const std::string filePath, TriangleMeshEntityPtr meshEntity) override;
-
+		bool load(TriangleMeshEntityPtr meshEntity, const std::string filePath) override;
+		bool store(TriangleMeshEntityPtr meshEntity, const std::string filePath) override;
+		
 	protected:
-
+		TriangleMeshIOAssimpController(const std::string childIdentification);
+		
 		void aiSceneToTriangleMeshEntity(const aiScene* pScene, TriangleMeshEntityPtr pEntity, const std::string Directory);
 		void triangleMeshEntityToAiScene(TriangleMeshEntityPtr pEntity, aiScene* pScene);
 
@@ -103,7 +99,7 @@ namespace CForge {
 
 	};
 
-	typedef std::shared_ptr<AssimpMeshIOSystem> AssimpMeshIOSystemPtr;
+	typedef std::shared_ptr<TriangleMeshIOAssimpController> TriangleMeshIOAssimpControllerPtr;
 
 }
 

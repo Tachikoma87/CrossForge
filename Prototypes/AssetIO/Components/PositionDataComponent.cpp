@@ -1,6 +1,6 @@
 #include "PositionDataComponent.h"
 
-namespace CForge {
+namespace crossforge {
 
 	PositionDataComponent::PositionDataComponent(): ComponentBase(PositionDataComponent::identification) {
 

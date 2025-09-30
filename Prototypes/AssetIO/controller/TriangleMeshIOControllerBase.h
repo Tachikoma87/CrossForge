@@ -1,12 +1,12 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): TriangleMeshIOSystemBase.h and TriangleMeshIOSystemBase.cpp      *
+* File(s): TriangleMeshIOControllerBase.h and TriangleMeshIOControllerBase.cpp      *
 *                                                                           *
 * Content:                            *
 *                                                                           *
 *                                                                           *
 *                                                                           *
-* Author(s): Tom Uhlmann                                                    *
+* Author(s): Tachikoma87                                                    *
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
@@ -15,15 +15,17 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_TRIANGLEMESHIOSYSTEMBASE_H__
-#define __CFORGE_TRIANGLEMESHIOSYSTEMBASE_H__
+#ifndef __CROSSFORGE_TRIANGLEMESHIOCONTROLLERBASE_H__
+#define __CROSSFORGE_TRIANGLEMESHIOCONTROLLERBASE_H__
 
-#include "../../ECS/SystemBase.h"
-#include "../Entities/TriangleMeshEntity.h"
+#include "../../ECS/ControllerBase.h"
+#include "../entities/TriangleMeshEntity.h"
 
-namespace CForge {
-	class TriangleMeshIOSystemBase : public SystemBase {
+namespace crossforge {
+	class TriangleMeshIOControllerBase : public ControllerBase {
 	public:
+		inline static std::string identification = "TriangleMeshIOControllerBase";
+
 		/**
 		* \brief Available file operations.
 		*/
@@ -33,13 +35,16 @@ namespace CForge {
 		};
 
 		virtual bool canAcceptFile(std::string filePath, const Operation operation)const = 0;
-		virtual bool loadMesh(const std::string filePath, TriangleMeshEntityPtr pEntity) = 0;
-		virtual bool storeMesh(const std::string filepath, TriangleMeshEntityPtr pEntity) = 0;
+		virtual bool load(TriangleMeshEntityPtr pEntity, const std::string filePath) = 0;
+		virtual bool store(TriangleMeshEntityPtr pEntity, const std::string filepath) = 0;
 
+		~TriangleMeshIOControllerBase();
 	protected:
-		TriangleMeshIOSystemBase(std::string identification);
-		~TriangleMeshIOSystemBase();
+		TriangleMeshIOControllerBase(std::string childIdentification);
+		
 	};
+
+	typedef std::shared_ptr<TriangleMeshIOControllerBase> TriangleMeshIOControllerBasePtr;
 }
 
 #endif

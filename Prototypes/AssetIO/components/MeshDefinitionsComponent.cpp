@@ -1,7 +1,7 @@
 #include "MeshDefinitionsComponent.h"
 
 
-namespace CForge {
+namespace crossforge {
 
 	MeshDefinitionsComponent::MeshDefinitionsComponent(): ComponentBase(MeshDefinitionsComponent::identification) {
 

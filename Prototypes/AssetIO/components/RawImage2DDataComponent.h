@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): MeshDefinitionsComponent.h and MeshDefinitionsComponent.cpp            *
+* File(s): RawImage2DDataComponent.h and RawImage2DDataComponent.cpp        *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,34 +15,47 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_TRIANGLEDATACOMPONENT_H__
-#define __CROSSFORGE_TRIANGLEDATACOMPONENT_H__
+#ifndef __CROSSFORGE_RAWIMAGE2DDATACOMPONENT_H__
+#define __CROSSFORGE_RAWIMAGE2DDATACOMPONENT_H__
 
 #include <crossforge/ecs/ComponentBase.h>
-#include "trianglemesh/MeshDefinition.h"
-
 
 namespace crossforge {
-	class MeshDefinitionsComponent: public ComponentBase {
+	class RawImage2DDataComponent : public ComponentBase {
 	public:
-		inline static const std::string identification = "MeshDefinitionsComponent";
+		inline static std::string identification = "RawImage2DDataComponent";
 
-		MeshDefinitionsComponent();
-		~MeshDefinitionsComponent();
+		enum ColorSpace : int8_t {
+			COLORSPACE_UNKNOWN = -1,	///< Default value.
+			COLORSPACE_GRAYSCALE = 0,	///< Grayscale.
+			COLORSPACE_RGB,				///< Red-Green-Blue (RGB).
+			COLORSPACE_RGBA,			///< Red-green-blue-alpha (RGBA).
+		};//ColorSpace
+
+		RawImage2DDataComponent();
+		~RawImage2DDataComponent();
 
 		void initialize();
 		void clear();
 
-		void addMeshDefinition(MeshDefinitionPtr pMeshDefinition);
-		MeshDefinitionPtr getMeshDefinition(uint32_t index);
+		int32_t& width();
+		int32_t& height();
+		ColorSpace& colorSpace();
+		std::vector<uint8_t>& rawPixelData();
 
-		uint32_t getMeshDefinitionsCount()const;
+
+		int8_t getBitsPerPixel()const;
+		int8_t getBytesPerPixel()const;
+		uint64_t getImageSize()const;
 
 	protected:
-		std::vector<MeshDefinitionPtr> m_meshes;
+		int32_t m_width;
+		int32_t m_height;
+		ColorSpace m_colorSpace;
+		std::vector<uint8_t> m_rawPixelData;
 	};
 
-	typedef std::shared_ptr<MeshDefinitionsComponent> MeshDefinitionsComponentPtr;
+	typedef std::shared_ptr<RawImage2DDataComponent> RawImage2DDataComponentptr;
 }
 
-#endif 
+#endif

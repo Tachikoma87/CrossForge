@@ -6,7 +6,7 @@
 *                                                                           *
 *                                                                           *
 *                                                                           *
-* Author(s): Tom Uhlmann                                                    *
+* Author(s): Tachikoma87                                                    *
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
@@ -15,14 +15,13 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_MATERIALDATACOMPONENT_H__
-#define __CFORGE_MATERIALDATACOMPONENT_H__
+#ifndef __CROSSFORGE_MATERIALDATACOMPONENT_H__
+#define __CROSSFORGE_MATERIALDATACOMPONENT_H__
 
-#include <crossforge/Core/SLogger.h>
 #include <crossforge/ecs/ComponentBase.h>
-#include "TriangleMesh/MeshMaterial.h"
+#include "trianglemesh/MeshMaterial.h"
 
-namespace CForge {
+namespace crossforge {
 	class MaterialDataComponent : public crossforge::ComponentBase {
 	public:
 		inline static std::string identification = "MaterialDataComponent";

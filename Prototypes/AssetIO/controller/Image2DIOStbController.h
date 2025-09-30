@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): MeshDefinitionsComponent.h and MeshDefinitionsComponent.cpp            *
+* File(s): Image2DIOStbController.h and Image2DIOStbController.cpp      *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,34 +15,29 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_TRIANGLEDATACOMPONENT_H__
-#define __CROSSFORGE_TRIANGLEDATACOMPONENT_H__
+#ifndef __CROSSFORGE_IMAGE2DIOSTBCONTROLLER_H__
+#define __CROSSFORGE_IMAGE2DIOSTBCONTROLLER_H__
 
-#include <crossforge/ecs/ComponentBase.h>
-#include "trianglemesh/MeshDefinition.h"
-
+#include "Image2DIOControllerBase.h"
 
 namespace crossforge {
-	class MeshDefinitionsComponent: public ComponentBase {
+	class Image2DIOStbController : public Image2DIOControllerBase {
 	public:
-		inline static const std::string identification = "MeshDefinitionsComponent";
+		inline static std::string identification = "Image2DIOStbController";
 
-		MeshDefinitionsComponent();
-		~MeshDefinitionsComponent();
+		virtual bool load(Image2DEntityPtr pImageEntity, const std::string filepath);
+		virtual bool store(Image2DEntityPtr pImageEntity, const std::string fielpath);
+		virtual bool canAcceptFile(std::string filePath, const Operation operation)const;
 
-		void initialize();
-		void clear();
-
-		void addMeshDefinition(MeshDefinitionPtr pMeshDefinition);
-		MeshDefinitionPtr getMeshDefinition(uint32_t index);
-
-		uint32_t getMeshDefinitionsCount()const;
+		Image2DIOStbController();
+		~Image2DIOStbController();
 
 	protected:
-		std::vector<MeshDefinitionPtr> m_meshes;
+		Image2DIOStbController(const std::string identification);
+
 	};
 
-	typedef std::shared_ptr<MeshDefinitionsComponent> MeshDefinitionsComponentPtr;
+	typedef std::shared_ptr<Image2DIOStbController> Image2DIOStbControllerPtr;
 }
 
 #endif 

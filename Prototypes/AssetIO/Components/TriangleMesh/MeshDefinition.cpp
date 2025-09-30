@@ -1,6 +1,6 @@
 #include "MeshDefinition.h"
 
-namespace CForge {
+namespace crossforge {
 
 	MeshDefinition::MeshDefinition() {
 

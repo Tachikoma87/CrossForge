@@ -41,6 +41,10 @@ namespace crossforge {
 
 		SCrossForgeTestApp();
 
+		void testFileIO();
+		void testImageIO();
+		void testTriangleMeshIO();
+
 		uint64_t m_startTimestamp;
 		uint64_t m_lastPrint;
 

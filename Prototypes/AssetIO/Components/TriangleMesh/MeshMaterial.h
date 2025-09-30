@@ -6,7 +6,7 @@
 *                                                                           *
 *                                                                           *
 *                                                                           *
-* Author(s): Tom Uhlmann                                                    *
+* Author(s): Tachikoma87                                                   *
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
@@ -15,12 +15,12 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_MESHMATERIAL_H__
-#define __CFORGE_MESHMATERIAL_H__
+#ifndef __CROSSFORGE_MESHMATERIAL_H__
+#define __CROSSFORGE_MESHMATERIAL_H__
 
-#include <crossforge/Core/SLogger.h>
+#include <crossforge/core/CoreDefinitions.h>
 
-namespace CForge {
+namespace crossforge {
 	class MeshMaterial {
 	public:
 		enum TextureType: uint8_t {

@@ -120,28 +120,33 @@ add_executable(CForgeSandbox
 #	"Prototypes/Actor/UBOInstancedData.cpp"
 #	"Prototypes/MeshProcessing/MeshDecimate.cpp"
 
-	# ECS
-#	"Prototypes/ECS/ComponentBase.cpp"
-#	"Prototypes/ECS/EntityBase.cpp"
-#	"Prototypes/ECS/SystemBase.cpp"
-#	"Prototypes/ECS/SSystemManager.cpp"
-#	"Prototypes/ECS/SEntityManager.cpp"
+	################################
+	#### New CrossForge ############
+	################################
 
-#	"Prototypes/ECS/PrototypeComponents/PositionComponent2D.cpp"
-#	"Prototypes/ECS/PrototypeComponents/MovementSystem.cpp"
 
-	# AssetIO ECS
-#	"Prototypes/AssetIO/Components/MaterialDataComponent.cpp"
-#	"Prototypes/AssetIO/Components/NormalDataComponent.cpp"
-#	"Prototypes/AssetIO/Components/PositionDataComponent.cpp"
-#	"Prototypes/AssetIO/Components/MeshDefinitionsComponen.cpp"
-#	"Prototypes/AssetIO/Components/TextureCoordinatesComponent.cpp"
+	 ### AssetIO ECS ####
+	"Prototypes/AssetIO/entities/FileEntity.cpp"
+	"Prototypes/AssetIO/entities/Image2DEntity.cpp"
+	"Prototypes/AssetIO/entities/TriangleMeshEntity.cpp"
 
-#	"Prototypes/AssetIO/Entities/FileEntity.cpp"
-#	"Prototypes/AssetIO/Entities/Image2DEntity.cpp"
-#	"Prototypes/AssetIO/Entities/TriangleMeshEntity.cpp"
+	"Prototypes/AssetIO/controller/TriangleMeshIOControllerBase.cpp"
+	"Prototypes/AssetIO/controller/FileIOControllerBase.cpp"
 
-#	"Prototypes/AssetIO/Managers/SAssetIOManager.cpp"
+	"Prototypes/AssetIO/controller/TriangleMeshIOAssimpController.cpp"
+	
+
+	"Prototypes/AssetIO/components/MaterialDataComponent.cpp"
+	"Prototypes/AssetIO/components/NormalDataComponent.cpp"
+	"Prototypes/AssetIO/components/PositionDataComponent.cpp"
+	"Prototypes/AssetIO/components/MeshDefinitionsComponent.cpp"
+	"Prototypes/AssetIO/components/TextureCoordinatesComponent.cpp"
+
+	"Prototypes/AssetIO/components/trianglemesh/MeshDefinition.cpp"
+	"Prototypes/AssetIO/components/trianglemesh/MeshMaterial.cpp"
+
+
+
 #
 #	"Prototypes/AssetIO/Systems/TriangleMeshIOSystemBase.cpp"
 #	"Prototypes/AssetIO/Systems/AssimpMeshIOSystem.cpp"
@@ -155,18 +160,33 @@ add_executable(CForgeSandbox
 #	"Prototypes/Graphics/Systems/RenderingSystem.cpp"
 #	"Prototypes/Graphics/Systems/WindowSystem.cpp"
 	
-	################################
-	#### New CrossForge ############
-	################################
 
-	 "CrossForgeSandbox.cpp" 
-	  
-	 "Prototypes/applications/SCrossForgeTestApp.cpp"
+	"Prototypes/utility/FileUtility.cpp"
+	
+	"Prototypes/AssetIO/SAssetIOProvider.cpp"
 
+	"CrossForgeSandbox.cpp" 
+	"Prototypes/applications/SCrossForgeTestApp.cpp"
 	"Prototypes/Graphics/Systems/RenderingSystem.cpp"
+
 	"Prototypes/ECS/PrototypeComponents/PositionComponent2D.cpp"
 
-    )
+  "Prototypes/AssetIO/components/RawImage2DDataComponent.h" 
+  "Prototypes/AssetIO/components/RawImage2DDataComponent.cpp" 
+  "Prototypes/AssetIO/components/FileSystemResourceComponent.h"
+  "Prototypes/AssetIO/components/FileSystemResourceComponent.cpp" 
+  "Prototypes/AssetIO/components/StringDataComponent.h" 
+  "Prototypes/AssetIO/components/StringDataComponent.cpp" 
+  "Prototypes/AssetIO/components/BinaryDataComponent.h" 
+  "Prototypes/AssetIO/components/BinaryDataComponent.cpp" 
+  "Prototypes/AssetIO/controller/FileIOSystemController.h" 
+  "Prototypes/AssetIO/controller/FileIOSystemController.cpp" 
+  "Prototypes/AssetIO/controller/Image2DIOControllerBase.h" 
+  "Prototypes/AssetIO/controller/Image2DIOControllerBase.cpp" 
+  "Prototypes/AssetIO/controller/Image2DIOStbController.h" 
+  "Prototypes/AssetIO/controller/Image2DIOStbController.cpp" 
+  "Prototypes/ECS/ControllerBase.h" 
+  "Prototypes/ECS/ControllerBase.cpp"  )
 	
 if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox
@@ -194,12 +214,12 @@ elseif(WIN32)
 	PRIVATE Eigen3::Eigen
 	PRIVATE glfw 
 	PRIVATE glad::glad
-#	ws2_32
+	ws2_32
 #	PRIVATE tinyxml2::tinyxml2
 #	PRIVATE imgui::imgui
 #	PRIVATE ${FFMPEG_LIBRARIES}
 #	${FREETYPE_LIBRARIES}
-#	PRIVATE assimp::assimp
+	PRIVATE assimp::assimp
 	
 	)
 	

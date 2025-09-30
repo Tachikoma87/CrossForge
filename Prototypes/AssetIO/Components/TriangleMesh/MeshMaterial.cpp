@@ -1,6 +1,6 @@
 #include "MeshMaterial.h"
 
-namespace CForge {
+namespace crossforge {
 
 	MeshMaterial::MeshMaterial() {
 		initialize();

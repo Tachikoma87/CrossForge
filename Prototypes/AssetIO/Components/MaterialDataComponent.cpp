@@ -1,6 +1,6 @@
 #include "MaterialDataComponent.h"
 
-namespace CForge {
+namespace crossforge {
 
 	MaterialDataComponent::MaterialDataComponent(): ComponentBase(MaterialDataComponent::identification) {
 

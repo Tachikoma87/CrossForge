@@ -6,7 +6,7 @@
 *                                                                           *
 *                                                                           *
 *                                                                           *
-* Author(s): Tom Uhlmann                                                    *
+* Author(s): Tachhikoma87                                                    *
 *                                                                           *
 *                                                                           *
 * The file(s) mentioned above are provided as is under the terms of the     *
@@ -15,32 +15,42 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CFORGE_TRIANGLEMESHENTITY_H__
-#define __CFORGE_TRIANGLEMESHENTITY_H__
+#ifndef __CROSSFORGE_TRIANGLEMESHENTITY_H__
+#define __CROSSFORGE_TRIANGLEMESHENTITY_H__
 
-#include <crossforge/Core/SLogger.h>
-#include "../../ECS/EntityBase.h"
+#include <crossforge/ecs/EntityBase.h>
 
 #include "../Components/PositionDataComponent.h"
 #include "../Components/NormalDataComponent.h"
 #include "../Components/MeshDefinitionsComponent.h"
 #include "../Components/TextureCoordinatesComponent.h"
+#include "../components/MaterialDataComponent.h"
 
-namespace CForge {
+namespace crossforge {
 	class TriangleMeshEntity : public EntityBase {
 	public:
 		inline static std::string identification = "TriangleMeshEntity";
 
-		TriangleMeshEntity();
+		enum TriangleMeshComponents: uint8_t {
+			POSITION_DATA_COMPONENT = 0x01,
+			NORMAL_DATA_COMPONENT = 0x02,
+			MESH_DEFINITIONS_COMPONENT = 0x04,
+			TEXTURE_COORDINATES_COMPONENT = 0x08,
+			MATERIAL_DATA_COMPONENT = 0x10,
+			ALL_BASIC_COMPONENTS = 0xFF
+		};
+
+		TriangleMeshEntity(uint8_t componentBitmask = 0);
 		~TriangleMeshEntity();
 
-		void initialize();
+		void initialize(uint8_t compoonentBitmask);
 		void clear();
 
 		PositionDataComponentPtr getPositionDataComponent();
 		NormalDataComponentPtr getNormalDataComponent();
 		MeshDefinitionsComponentPtr getMeshDefinitionsComponent();
 		TextureCoordinateComponentPtr getTextureCoordinatesComponent();
+		MaterialDataComponentPtr getMaterialDataComponent();
 
 
 	protected:

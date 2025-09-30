@@ -9,6 +9,12 @@
 #include "../ECS/PrototypeComponents/PositionComponent2D.h"
 #include <crossforge/graphics/controller/WindowEntityController.h>
 
+#include "../AssetIO/controller/FileIOSystemController.h"
+#include "../AssetIO/controller/Image2DIOStbController.h"
+#include "../AssetIO/controller/TriangleMeshIOAssimpController.h"
+
+#include "../AssetIO/SAssetIOProvider.h"
+
 namespace crossforge {
 	std::shared_ptr<SCrossForgeTestApp> SCrossForgeTestApp::m_pInstance = nullptr;
 
@@ -125,9 +131,111 @@ namespace crossforge {
 		pMouseSys->registerEntity(m_pInputDevice);
 		m_pSystemManager->addSystem(pMouseSys);
 		
-
+		testFileIO();
+		testImageIO();
+		testTriangleMeshIO();
 
 	}
+
+	void SCrossForgeTestApp::testImageIO() {
+		LogInfo("Starting ImageIO test");
+		uint64_t start = GeneralUtility::getTimestamp();
+
+		std::string imageFileIn = "./Assets/ExampleScenes/Duck/DuckCM.png";
+		std::vector<std::string> filesOut;
+		filesOut.push_back("./Assets/Duck.jpg");
+		filesOut.push_back("./Assets/Duck.png");
+
+		AssetIOProviderPtr pAssetIO = AssetIOProvider::instance();
+
+		for (int32_t i = 0; i < 100; ++i) {
+
+			Image2DEntityPtr pImageEntity = std::make_shared<Image2DEntity>(Image2DEntity::COMPONENTS_ALL);
+
+			if (!pAssetIO->loadImage2D(pImageEntity, imageFileIn)) {
+				LogError("Failed to load image " + imageFileIn);
+				return;
+			}
+
+			for (std::string fileOut : filesOut) {
+				try {
+					if (!pAssetIO->storeImage2D(pImageEntity, fileOut)) LogError("Failed to store file " + fileOut);
+				}
+				catch (CrossForgeException e) {
+					LogError(e.message());
+				}
+			}
+		}
+
+		uint64_t duration = GeneralUtility::getTimestamp() - start;
+		LogInfo("Image IO test took " + std::to_string(duration) + " milliseconds.");
+
+	}
+
+	void SCrossForgeTestApp::testFileIO() {
+		LogInfo("Starting to test AssetIO!");
+
+		uint64_t start = GeneralUtility::getTimestamp();
+		AssetIOProviderPtr pAssetIO = AssetIOProvider::instance();
+		
+		std::string shaderFileOut = "./Assets/Temp.txt";
+
+
+		for (uint32_t i = 0; i < 10; ++i) {
+			FileEntityPtr pEntity = std::make_shared<FileEntity>(FileEntity::ALL_COMPONENTS);
+			std::string shaderFile = "./Assets/Shader/BasicGeometryPass.frag";
+		
+			if (!pAssetIO->loadFile(pEntity, shaderFile, false)) {
+				LogError("Failed to load file " + shaderFile);
+			}
+			
+			pAssetIO->storeFile(pEntity, shaderFileOut, false);
+
+			//LogInfo("Testing of AssetIO finished!");
+
+			pEntity->initialize(FileEntity::ALL_COMPONENTS);
+			std::string shaderFile2 = "./Assets/Shader/DrLightingPassPBS.frag";
+			pAssetIO->loadFile(pEntity, shaderFile2, true);
+			pAssetIO->storeFile(pEntity, shaderFileOut, true);
+		}
+		uint64_t duration = GeneralUtility::getTimestamp() - start;
+		LogInfo("Test reading and writing files took " + std::to_string(duration) + " milliseconds.");
+	}
+
+	void SCrossForgeTestApp::testTriangleMeshIO() {
+		std::string fileIn = "./Assets/ExampleScenes/Helmet/DamagedHelmet.gltf";
+		std::string fileOut = "./Assets/Helmet.obj";
+
+		LogInfo("Starting Triangle Mesh IO test");
+		uint64_t start = GeneralUtility::getTimestamp();
+
+
+		TriangleMeshEntityPtr pMeshEntity = std::make_shared<TriangleMeshEntity>(TriangleMeshEntity::ALL_BASIC_COMPONENTS);
+		AssetIOProviderPtr pAssetIO = AssetIOProvider::instance();
+
+		if (pAssetIO->loadMesh(pMeshEntity, fileIn)) {
+			LogInfo("Successfully loaded mesh " + fileIn);
+		}
+		else {
+			LogError("Failed to load mesh " + fileIn);
+			return;
+		}
+		uint64_t durationLoad = GeneralUtility::getTimestamp() - start;
+		LogInfo("Loading took " + std::to_string(durationLoad) + " milliseconds");
+
+		if (pAssetIO->storeMesh(pMeshEntity, fileOut)) {
+			LogInfo("Successfully stored mesh " + fileOut);
+		}
+		else {
+			LogError("Failed to store mesh " + fileOut);
+		}
+
+		uint64_t duration = GeneralUtility::getTimestamp() - start;
+		LogInfo("Finished Triangle Mesh IO test in " + std::to_string(duration) + " milliseconds.");
+	}
+
+
+
 	void SCrossForgeTestApp::update() {
 
 		auto pWinSys = m_pSystemManager->getSystem<WindowSystem>();
@@ -162,11 +270,9 @@ namespace crossforge {
 			LogInfo("Middle mouse button pressed at position: " + mousePos);
 			pMouseData->buttonState(MouseDataComponent::BUTTON_MIDDLE) = MouseDataComponent::STATE_OFF;
 		}
-		
-
-
 	}
 
+	
 
 	SCrossForgeTestApp::~SCrossForgeTestApp() {
 

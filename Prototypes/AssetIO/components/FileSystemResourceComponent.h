@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): MeshDefinitionsComponent.h and MeshDefinitionsComponent.cpp            *
+* File(s): FileSystemResourceComponent.h and FileSystemResourceComponent.cpp            *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,34 +15,44 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_TRIANGLEDATACOMPONENT_H__
-#define __CROSSFORGE_TRIANGLEDATACOMPONENT_H__
+#ifndef __CROSSFORGE_FILESYSTEMRESOURCECOMPONENT_H__
+#define __CROSSFORGE_FILESYSTEMRESOURCECOMPONENT_H__
 
 #include <crossforge/ecs/ComponentBase.h>
-#include "trianglemesh/MeshDefinition.h"
-
 
 namespace crossforge {
-	class MeshDefinitionsComponent: public ComponentBase {
+	class FileSystemResourceComponent : public ComponentBase {
 	public:
-		inline static const std::string identification = "MeshDefinitionsComponent";
+		inline static std::string identification = "FileSystemResourceComponent";
 
-		MeshDefinitionsComponent();
-		~MeshDefinitionsComponent();
+		enum AccessMode : int8_t {
+			MODE_UNKNOWN = -1,
+			MODE_READ = 0,
+			MODE_WRITE,
+			MODE_APPEND,
+			MODE_READ_EXTENDED,
+			MODE_WRITE_EXTENED,
+			MODE_APPEND_EXTENDED
+		};
+
+		FileSystemResourceComponent();
+		~FileSystemResourceComponent();
 
 		void initialize();
 		void clear();
-
-		void addMeshDefinition(MeshDefinitionPtr pMeshDefinition);
-		MeshDefinitionPtr getMeshDefinition(uint32_t index);
-
-		uint32_t getMeshDefinitionsCount()const;
+		
+		std::unique_ptr<FILE*> &handle();
+		bool& binaryMode();
+		AccessMode& accessMode();
+		std::string &originalFilepath();
 
 	protected:
-		std::vector<MeshDefinitionPtr> m_meshes;
+		std::unique_ptr<FILE*> m_pHandle;
+		AccessMode m_accessMode;
+		bool m_binaryMode;
+		std::string m_originalFilepath;
 	};
-
-	typedef std::shared_ptr<MeshDefinitionsComponent> MeshDefinitionsComponentPtr;
+	typedef std::shared_ptr<FileSystemResourceComponent> FileSystemResourceComponentPtr;
 }
 
-#endif 
+#endif

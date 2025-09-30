@@ -1,6 +1,6 @@
 #include "TextureCoordinatesComponent.h"
 
-namespace CForge {
+namespace crossforge {
 
 	TextureCoordinateComponent::TextureCoordinateComponent(): ComponentBase(TextureCoordinateComponent::identification) {
 

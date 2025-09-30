@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): MeshDefinitionsComponent.h and MeshDefinitionsComponent.cpp            *
+* File(s): ControllerBase.h and ControllerBase.cpp      *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,34 +15,27 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_TRIANGLEDATACOMPONENT_H__
-#define __CROSSFORGE_TRIANGLEDATACOMPONENT_H__
+#ifndef __CROSSFORGE_CONTROLLERBASE_H__
+#define __CROSSFORGE_CONTROLLERBASE_H__
 
-#include <crossforge/ecs/ComponentBase.h>
-#include "trianglemesh/MeshDefinition.h"
-
+#include <crossforge/core/CoreDefinitions.h>
 
 namespace crossforge {
-	class MeshDefinitionsComponent: public ComponentBase {
+	class ControllerBase {
 	public:
-		inline static const std::string identification = "MeshDefinitionsComponent";
+		inline static std::string identification = "ControllerBase";
 
-		MeshDefinitionsComponent();
-		~MeshDefinitionsComponent();
+		std::string getIdentification()const;
+		bool isInstanceOf(const std::string identification);
+		std::vector<std::string> getInheritance()const;
 
-		void initialize();
-		void clear();
-
-		void addMeshDefinition(MeshDefinitionPtr pMeshDefinition);
-		MeshDefinitionPtr getMeshDefinition(uint32_t index);
-
-		uint32_t getMeshDefinitionsCount()const;
-
+		~ControllerBase();
 	protected:
-		std::vector<MeshDefinitionPtr> m_meshes;
-	};
+		ControllerBase(const std::string identification);
 
-	typedef std::shared_ptr<MeshDefinitionsComponent> MeshDefinitionsComponentPtr;
+		std::vector<std::string> m_inheritance;
+
+	};
 }
 
 #endif 
