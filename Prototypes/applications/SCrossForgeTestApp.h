@@ -44,6 +44,7 @@ namespace crossforge {
 		void testFileIO();
 		void testImageIO();
 		void testTriangleMeshIO();
+		void testRandom();
 
 		uint64_t m_startTimestamp;
 		uint64_t m_lastPrint;

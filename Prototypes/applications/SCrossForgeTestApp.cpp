@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include <Windows.h>
 
 #include <glad/glad.h>
@@ -9,11 +10,9 @@
 #include "../ECS/PrototypeComponents/PositionComponent2D.h"
 #include <crossforge/graphics/controller/WindowEntityController.h>
 
-#include "../AssetIO/controller/FileIOSystemController.h"
-#include "../AssetIO/controller/Image2DIOStbController.h"
-#include "../AssetIO/controller/TriangleMeshIOAssimpController.h"
 
-#include "../AssetIO/SAssetIOProvider.h"
+#include <crossforge/assetio/SAssetIOProvider.h>
+#include <crossforge/math/CrossForgeMath.h>
 
 namespace crossforge {
 	std::shared_ptr<SCrossForgeTestApp> SCrossForgeTestApp::m_pInstance = nullptr;
@@ -131,9 +130,10 @@ namespace crossforge {
 		pMouseSys->registerEntity(m_pInputDevice);
 		m_pSystemManager->addSystem(pMouseSys);
 		
-		testFileIO();
-		testImageIO();
-		testTriangleMeshIO();
+		//testFileIO();
+		//testImageIO();
+		//testTriangleMeshIO();
+		testRandom();
 
 	}
 
@@ -148,15 +148,12 @@ namespace crossforge {
 
 		AssetIOProviderPtr pAssetIO = AssetIOProvider::instance();
 
-		for (int32_t i = 0; i < 100; ++i) {
-
+		for (int32_t i = 0; i < 1; ++i) {
 			Image2DEntityPtr pImageEntity = std::make_shared<Image2DEntity>(Image2DEntity::COMPONENTS_ALL);
-
 			if (!pAssetIO->loadImage2D(pImageEntity, imageFileIn)) {
 				LogError("Failed to load image " + imageFileIn);
 				return;
 			}
-
 			for (std::string fileOut : filesOut) {
 				try {
 					if (!pAssetIO->storeImage2D(pImageEntity, fileOut)) LogError("Failed to store file " + fileOut);
@@ -179,9 +176,7 @@ namespace crossforge {
 		AssetIOProviderPtr pAssetIO = AssetIOProvider::instance();
 		
 		std::string shaderFileOut = "./Assets/Temp.txt";
-
-
-		for (uint32_t i = 0; i < 10; ++i) {
+		for (uint32_t i = 0; i < 1; ++i) {
 			FileEntityPtr pEntity = std::make_shared<FileEntity>(FileEntity::ALL_COMPONENTS);
 			std::string shaderFile = "./Assets/Shader/BasicGeometryPass.frag";
 		
@@ -234,7 +229,41 @@ namespace crossforge {
 		LogInfo("Finished Triangle Mesh IO test in " + std::to_string(duration) + " milliseconds.");
 	}
 
+	void SCrossForgeTestApp::testRandom() {
 
+		std::unordered_map<uint64_t, uint32_t> rndCounter;
+		uint64_t start = GeneralUtility::getTimestamp();
+
+		uint64_t generationCount = 50000000;
+
+		for (uint64_t i = 0; i < generationCount; ++i) {
+			uint64_t rndNumber = CrossForgeMath::rand<uint16_t>();
+
+			if (rndCounter.end() == rndCounter.find(rndNumber)) {
+				rndCounter.insert(std::pair(rndNumber, 1));
+			}
+			else {
+				rndCounter[rndNumber]++;
+			}
+		}
+
+		uint64_t time = GeneralUtility::getTimestamp() - start;
+		printf("Generating random numbers took: %d ms\n", (int32_t)time);
+
+		int32_t expectedOccurrence = generationCount / std::numeric_limits<uint16_t>::max();
+
+		int32_t overCounter = 0;
+		int32_t underCounter = 0;
+		for (auto x : rndCounter) {
+			if (x.second > expectedOccurrence*1.1) {
+				overCounter++;
+			}
+			else if (x.second < expectedOccurrence*0.9) {
+				underCounter++;
+			}
+		}
+		printf("Expected occurence: %d. Over counter is at %d and unter counter at %d\n",expectedOccurrence, overCounter, underCounter);
+	}
 
 	void SCrossForgeTestApp::update() {
 

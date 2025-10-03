@@ -125,28 +125,6 @@ add_executable(CForgeSandbox
 	################################
 
 
-	 ### AssetIO ECS ####
-	"Prototypes/AssetIO/entities/FileEntity.cpp"
-	"Prototypes/AssetIO/entities/Image2DEntity.cpp"
-	"Prototypes/AssetIO/entities/TriangleMeshEntity.cpp"
-
-	"Prototypes/AssetIO/controller/TriangleMeshIOControllerBase.cpp"
-	"Prototypes/AssetIO/controller/FileIOControllerBase.cpp"
-
-	"Prototypes/AssetIO/controller/TriangleMeshIOAssimpController.cpp"
-	
-
-	"Prototypes/AssetIO/components/MaterialDataComponent.cpp"
-	"Prototypes/AssetIO/components/NormalDataComponent.cpp"
-	"Prototypes/AssetIO/components/PositionDataComponent.cpp"
-	"Prototypes/AssetIO/components/MeshDefinitionsComponent.cpp"
-	"Prototypes/AssetIO/components/TextureCoordinatesComponent.cpp"
-
-	"Prototypes/AssetIO/components/trianglemesh/MeshDefinition.cpp"
-	"Prototypes/AssetIO/components/trianglemesh/MeshMaterial.cpp"
-
-
-
 #
 #	"Prototypes/AssetIO/Systems/TriangleMeshIOSystemBase.cpp"
 #	"Prototypes/AssetIO/Systems/AssimpMeshIOSystem.cpp"
@@ -160,33 +138,16 @@ add_executable(CForgeSandbox
 #	"Prototypes/Graphics/Systems/RenderingSystem.cpp"
 #	"Prototypes/Graphics/Systems/WindowSystem.cpp"
 	
-
-	"Prototypes/utility/FileUtility.cpp"
 	
-	"Prototypes/AssetIO/SAssetIOProvider.cpp"
+	
 
 	"CrossForgeSandbox.cpp" 
 	"Prototypes/applications/SCrossForgeTestApp.cpp"
 	"Prototypes/Graphics/Systems/RenderingSystem.cpp"
 
 	"Prototypes/ECS/PrototypeComponents/PositionComponent2D.cpp"
-
-  "Prototypes/AssetIO/components/RawImage2DDataComponent.h" 
-  "Prototypes/AssetIO/components/RawImage2DDataComponent.cpp" 
-  "Prototypes/AssetIO/components/FileSystemResourceComponent.h"
-  "Prototypes/AssetIO/components/FileSystemResourceComponent.cpp" 
-  "Prototypes/AssetIO/components/StringDataComponent.h" 
-  "Prototypes/AssetIO/components/StringDataComponent.cpp" 
-  "Prototypes/AssetIO/components/BinaryDataComponent.h" 
-  "Prototypes/AssetIO/components/BinaryDataComponent.cpp" 
-  "Prototypes/AssetIO/controller/FileIOSystemController.h" 
-  "Prototypes/AssetIO/controller/FileIOSystemController.cpp" 
-  "Prototypes/AssetIO/controller/Image2DIOControllerBase.h" 
-  "Prototypes/AssetIO/controller/Image2DIOControllerBase.cpp" 
-  "Prototypes/AssetIO/controller/Image2DIOStbController.h" 
-  "Prototypes/AssetIO/controller/Image2DIOStbController.cpp" 
-  "Prototypes/ECS/ControllerBase.h" 
-  "Prototypes/ECS/ControllerBase.cpp"  )
+   
+     "Prototypes/Graphics/Entities/ShaderEntity.h" "Prototypes/Graphics/entities/ShaderEntity.cpp" "Prototypes/Graphics/controllers/ShaderEntityController.h" "Prototypes/Graphics/controllers/ShaderEntityController.cpp")
 	
 if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox
@@ -205,9 +166,6 @@ elseif(WIN32)
 		PRIVATE ${FFMPEG_LIBRARY_DIRS}
 	)
 
-
-
-
 	target_link_libraries(CForgeSandbox 
 	#PRIVATE crossforge
 	PRIVATE crossforge
@@ -219,7 +177,7 @@ elseif(WIN32)
 #	PRIVATE imgui::imgui
 #	PRIVATE ${FFMPEG_LIBRARIES}
 #	${FREETYPE_LIBRARIES}
-	PRIVATE assimp::assimp
+#	PRIVATE assimp::assimp
 	
 	)
 	

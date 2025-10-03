@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): MeshDefinitionsComponent.h and MeshDefinitionsComponent.cpp            *
+* File(s): ShaderEntity.h and ShaderEntity.cpp                        *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,34 +15,31 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_TRIANGLEDATACOMPONENT_H__
-#define __CROSSFORGE_TRIANGLEDATACOMPONENT_H__
+#ifndef __CROSSFORGE_SHADERENTITY_H__
+#define __CROSSFORGE_SHADERENTITY_H__
 
-#include <crossforge/ecs/ComponentBase.h>
-#include "trianglemesh/MeshDefinition.h"
-
+#include <crossforge/ecs/EntityBase.h>
 
 namespace crossforge {
-	class MeshDefinitionsComponent: public ComponentBase {
+	class ShaderEntity : public EntityBase {
 	public:
-		inline static const std::string identification = "MeshDefinitionsComponent";
+		static inline std::string identification = "ShaderEntity";
+		enum ShaderEntityComponents: uint8_t {
+			COMPONENTS_ALL = 0xFF
+		};
 
-		MeshDefinitionsComponent();
-		~MeshDefinitionsComponent();
+		ShaderEntity(uint8_t componentsBitmask = 0);
+		~ShaderEntity();
 
-		void initialize();
+		void initialize(uint8_t componentsBitmask);
 		void clear();
 
-		void addMeshDefinition(MeshDefinitionPtr pMeshDefinition);
-		MeshDefinitionPtr getMeshDefinition(uint32_t index);
-
-		uint32_t getMeshDefinitionsCount()const;
-
 	protected:
-		std::vector<MeshDefinitionPtr> m_meshes;
+		ShaderEntity(const std::string childIdentification);
+
 	};
 
-	typedef std::shared_ptr<MeshDefinitionsComponent> MeshDefinitionsComponentPtr;
+	typedef std::shared_ptr<ShaderEntity*> ShaderEntityPtr;
 }
 
 #endif 

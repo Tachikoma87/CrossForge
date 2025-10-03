@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): PositionDataComponent.h and PositionDataComponent.cpp            *
+* File(s): ShaderEntityController.h and ShaderEntityController.cpp                        *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,41 +15,27 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_POSITIONDATACOMPONENT_H__
-#define __CROSSFORGE_POSITIONDATACOMPONENT_H__
+#ifndef __CROSSFORGE_SHADERENTITYCONTROLLER_H__
+#define __CROSSFORGE_SHADERENTITYCONTROLLER_H__
 
-#include <crossforge/ecs/ComponentBase.h>
-
+#include <crossforge/ecs/ControllerBase.h>
+#include "../entities/ShaderEntity.h"
 
 namespace crossforge {
-	class PositionDataComponent: public ComponentBase {
+	class ShaderEntityController : public ControllerBase {
 	public:
-		inline static std::string identification = "PositionDataComponent";
+		static inline std::string identification = "ShaderEntityController";
 
-		PositionDataComponent();
-		~PositionDataComponent();
-
-		void initialize(std::vector<Eigen::Vector3f> positions);
-		void clear();
-
-		Eigen::Vector3f operator[](const uint32_t index)const;
-		Eigen::Vector3f& operator[](const uint32_t index);
-
-		void setPositions(std::vector<Eigen::Vector3f> positions);
-		void setPosition(Eigen::Vector3f position, uint32_t index);
-		std::vector<Eigen::Vector3f> getPositions()const;
-		std::vector<Eigen::Vector3f>& getPositions();
-		Eigen::Vector3f getPosition(uint32_t index)const;
-		Eigen::Vector3f& getPosition(uint32_t index);
-
-		uint32_t getPositionCount()const;
+		
+		~ShaderEntityController();
 
 	protected:
-		std::vector<Eigen::Vector3f> m_positions;
-	};
+		ShaderEntityController();
+		ShaderEntityController(const std::string childIdentification);
 
-	typedef std::shared_ptr<PositionDataComponent> PositionDataComponentPtr;
+
+	};
+	typedef std::shared_ptr<ShaderEntityController> ShaderEntityControllerPtr;
 }
 
-
-#endif
+#endif 
