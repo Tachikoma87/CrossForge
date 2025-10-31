@@ -1,9 +1,10 @@
 #version 330 core 
 
-#define MULTIPLE_SHADOWS
-#define DIRECTIONAL_LIGHTS 
-#define POINT_LIGHTS 
-#define SPOT_LIGHTS
+#define CROSSFORGE_FEATURE_CONFIG
+//#define MULTIPLE_SHADOWS
+//#define DIRECTIONAL_LIGHTS 
+//#define POINT_LIGHTS 
+//#define SPOT_LIGHTS
 
 // just PI
 const float PI = 3.14159265359;
@@ -16,9 +17,13 @@ const float Brightness = 1.05;
 const float Contrast = 1.05;
 
 // light defines
-const uint DirLightCount = 2U;
-const uint PointLightCount = 2U;
-const uint SpotLightCount = 1U;
+const uint DirLightSize = 2U;
+const uint PointLightSize = 10U;
+const uint SpotLightSize = 5U;
+
+const uint ActiveDirLights = 1U;
+const uint ActivePointLights = 1U;
+const uint ActiveSpotLights = 1U;
 
 // shadow defines
 #define PCF_SHADOWS // enable percentage closer filtering (PCF)
@@ -34,32 +39,32 @@ layout(std140) uniform CameraData{
 
 #ifdef DIRECTIONAL_LIGHTS
 layout(std140) uniform DirectionalLightsData{
-	vec4 Directions[DirLightCount];
-	vec4 Colors[DirLightCount]; ///< a component is intensity
-	mat4 LightSpaceMatrices[DirLightCount];
-	ivec4 ShadowIDs[DirLightCount];
+	vec4 Directions[DirLightSize];
+	vec4 Colors[DirLightSize]; ///< a component is intensity
+	mat4 LightSpaceMatrices[DirLightSize];
+	ivec4 ShadowIDs[DirLightSize];
 }DirLights;
 #endif
 
 #ifdef POINT_LIGHTS
 layout(std140) uniform PointLightsData{
-	vec4 Position[PointLightCount];	
-	vec4 Color[PointLightCount];
-	vec4 Attenuation[PointLightCount];
-	vec4 Direction[PointLightCount];
-	mat4 LightSpaceMatrices[PointLightCount];
-	ivec4 ShadowIDs[PointLightCount];
+	vec4 Position[PointLightSize];	
+	vec4 Color[PointLightSize];
+	vec4 Attenuation[PointLightSize];
+	vec4 Direction[PointLightSize];
+	mat4 LightSpaceMatrices[PointLightSize];
+	ivec4 ShadowIDs[PointLightSize];
 }PointLights;
 #endif
 
 #ifdef SPOT_LIGHTS
 layout(std140) uniform SpotLightsData{
-	vec4 Position[SpotLightCount];
-	vec4 Direction[SpotLightCount]; // Direction.w is outer cutoff
-	vec4 Color[SpotLightCount];	// Color.w is intensity 
-	vec4 Attenuation[SpotLightCount]; // Attenuation.w is inner cutoff
-	mat4 LightSpaceMatrices[SpotLightCount];
-	ivec4 ShadowIDs[SpotLightCount];
+	vec4 Position[SpotLightSize];
+	vec4 Direction[SpotLightSize]; // Direction.w is outer cutoff
+	vec4 Color[SpotLightSize];	// Color.w is intensity 
+	vec4 Attenuation[SpotLightSize]; // Attenuation.w is inner cutoff
+	mat4 LightSpaceMatrices[SpotLightSize];
+	ivec4 ShadowIDs[SpotLightSize];
 }SpotLights;
 #endif
 
@@ -277,7 +282,7 @@ void main(){
 
 	#ifdef DIRECTIONAL_LIGHTS
 	// compute directional lights contribution
-	for(uint i=0U; i < DirLightCount; ++i){
+	for(uint i=0U; i < ActiveDirLights; ++i){
 		// calculate per-light radiance
 		vec3 L = normalize(-DirLights.Directions[i].xyz);
 		vec3 H = normalize(V + L);
@@ -289,7 +294,7 @@ void main(){
 
 	#ifdef POINT_LIGHTS
 	// compute point lights contribution
-	for(uint i=0U; i < PointLightCount; ++i){
+	for(uint i=0U; i < ActivePointLights; ++i){
 		vec3 L = PointLights.Position[i].xyz - WorldPos;
 		float Distance = length(L);
 
@@ -308,7 +313,7 @@ void main(){
 
 	#ifdef SPOT_LIGHTS
 	// compute spot lights contribution
-	for(uint i=0U; i < SpotLightCount; ++i){
+	for(uint i=0U; i < ActiveSpotLights; ++i){
 		vec3 L = SpotLights.Position[i].xyz - WorldPos;
 		float Distance = length(L);
 		vec3 Atten = SpotLights.Attenuation[i].xyz;

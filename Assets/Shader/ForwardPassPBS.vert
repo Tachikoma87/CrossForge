@@ -1,5 +1,7 @@
 #version 330 core
 
+#define CROSSFORGE_FEATURE_CONFIG
+
 #ifdef SKELETAL_ANIMATION
 const uint BoneCount = 40U;
 

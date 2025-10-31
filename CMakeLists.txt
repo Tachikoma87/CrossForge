@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.21)
 
 SET(VCPKG_BOOTSTRAP_OPTIONS "-disableMetrics")    # Disable telemetry for vcpkg.
 SET(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)             # Install vcpkg dependencies automatically(experimental - might be changed or removed later; see: https://github.com/microsoft/vcpkg/issues/1653). 
+SET(X_VCPKG_APPINSTALL_DEPS_INSTALL ON)
 
 # Forbid in-source builds.
 IF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
@@ -32,8 +33,6 @@ FetchContent_Declare(
 	SOURCE_DIR "C:/Projects/libcrossforge"
 )
 FetchContent_MakeAvailable(libcrossforge)
-include_directories(${libcrossforge_SOURCE_DIR}/include)
-
 
 
 if(EMSCRIPTEN)
@@ -76,6 +75,8 @@ FIND_PACKAGE(assimp REQUIRED)
 FIND_PACKAGE(glad CONFIG REQUIRED)	# GL extension library
 FIND_PACKAGE(glfw3 CONFIG REQUIRED)	# cross-plattform window management
 FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
+FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp
+
 endif()
 
 add_executable(CForgeSandbox 
@@ -143,11 +144,100 @@ add_executable(CForgeSandbox
 
 	"CrossForgeSandbox.cpp" 
 	"Prototypes/applications/SCrossForgeTestApp.cpp"
-	"Prototypes/Graphics/Systems/RenderingSystem.cpp"
-
-	"Prototypes/ECS/PrototypeComponents/PositionComponent2D.cpp"
+	"Prototypes/Graphics/controllers/RenderingController.cpp"
    
-     "Prototypes/Graphics/Entities/ShaderEntity.h" "Prototypes/Graphics/entities/ShaderEntity.cpp" "Prototypes/Graphics/controllers/ShaderEntityController.h" "Prototypes/Graphics/controllers/ShaderEntityController.cpp")
+     "Prototypes/Graphics/Entities/ShaderEntity.h"
+	 "Prototypes/Graphics/entities/ShaderEntity.cpp"
+	 "Prototypes/Graphics/controllers/ShaderEntityController.h"
+	 "Prototypes/Graphics/controllers/ShaderEntityController.cpp"
+	 "Prototypes/Graphics/entities/ActorPrefabEntity.h"
+	 "Prototypes/Graphics/entities/ActorPrefabEntity.cpp"
+	 "Prototypes/Graphics/controllers/ActorPrefabEntityController.h"
+	 "Prototypes/Graphics/controllers/ActorPrefabEntityController.cpp"
+	 
+	 
+	 "Prototypes/scene/controllers/LightEntityController.h"
+	 "Prototypes/scene/controllers/LightEntityController.cpp"
+	 "Prototypes/scene/entities/CameraEntity.h"
+	 "Prototypes/scene/entities/CameraEntity.cpp"
+	 "Prototypes/scene/entities/LightEntity.cpp"
+	 "Prototypes/scene/controllers/CameraEntityController.h"
+	 "Prototypes/scene/controllers/CameraEntityController.cpp"
+	 "Prototypes/utility/GraphicsUtility.h"
+	 "Prototypes/utility/GraphicsUtility.cpp"
+	 "Prototypes/Graphics/components/shader/ShaderSourceComponent.h"
+	 "Prototypes/Graphics/components/shader/RenderingShaderComponent.h"
+	 "Prototypes/Graphics/components/shader/RenderingShaderComponent.cpp"
+	 "Prototypes/Graphics/components/shader/ShaderSourceComponent.cpp"
+	 "Prototypes/Graphics/components/actorprefab/VertexBufferComponent.h"
+	 "Prototypes/Graphics/components/actorprefab/IndexBufferComponent.h"
+	 "Prototypes/Graphics/components/actorprefab/VertexBufferComponent.cpp"
+	 "Prototypes/Graphics/components/actorprefab/IndexBufferComponent.cpp"
+	 "Prototypes/Graphics/components/actorprefab/RenderGroupsComponent.h"
+	 "Prototypes/Graphics/components/actorprefab/RenderGroupsComponent.cpp"
+	 "Prototypes/Graphics/components/actorprefab/PbrMaterialsComponent.h"
+	 "Prototypes/Graphics/components/actorprefab/PbrMaterialsComponent.cpp" 
+	 "Prototypes/Graphics/components/actorprefab/VertexArrayComponent.h" 
+	 "Prototypes/Graphics/components/actorprefab/VertexArrayComponent.cpp" 
+	 "Prototypes/scene/entities/SceneObjectEntity.h" 
+	 "Prototypes/scene/entities/SceneObjectEntity.cpp" 
+	 "Prototypes/scene/entities/ActorInstanceEntity.h" 
+	 "Prototypes/scene/entities/ActorInstanceEntity.cpp" 
+	 "Prototypes/scene/components/Transformation3DComponent.h" 
+	 "Prototypes/scene/components/Transformation3DComponent.cpp" 
+	 "Prototypes/scene/components/Movement3DComponent.h" 
+	 "Prototypes/scene/components/Movement3DComponent.cpp" 
+	 "Prototypes/Graphics/components/uniformbuffer/UBOCameraDataComponent.h" 
+	 "Prototypes/Graphics/components/uniformbuffer/UBOCameraDataComponent.cpp" 
+	 "Prototypes/Graphics/components/uniformbuffer/UBOTransformationDataComponent.h" 
+	 "Prototypes/Graphics/components/uniformbuffer/UBOTransformationDataComponent.cpp" 
+	 "Prototypes/Graphics/components/uniformbuffer/UniformBufferComponent.h" 
+	 "Prototypes/Graphics/components/uniformbuffer/UniformBufferComponent.cpp"    
+	 "Prototypes/Graphics/components/ColorComponent.h" 
+	 "Prototypes/Graphics/components/ColorComponent.cpp" 
+	 "Prototypes/applications/SCrossForgeSimpleSceneApp.h" 
+	 "Prototypes/applications/SCrossForgeSimpleSceneApp.cpp" 
+	 "Prototypes/scene/components/CameraPropertiesComponent.h" 
+	 "Prototypes/scene/components/CameraPropertiesComponent.cpp" 
+	 "Prototypes/Graphics/entities/TextureEntity.h" 
+	 "Prototypes/Graphics/entities/TextureEntity.cpp" 
+	 "Prototypes/Graphics/components/Texture2DComponent.h" 
+	 "Prototypes/Graphics/components/Texture2DComponent.cpp" 
+	 "Prototypes/Graphics/controllers/TextureEntityController.h" 
+	 "Prototypes/Graphics/controllers/TextureEntityController.cpp"
+	 "Prototypes/Graphics/controllers/Image2DController.h" 
+	 "Prototypes/Graphics/controllers/Image2DController.cpp" 
+
+	 "Prototypes/Graphics/components/LightsConfigComponent.cpp"
+ "Prototypes/Graphics/components/uniformbuffer/UBODirectionalLightsComponent.h"
+ "Prototypes/Graphics/components/uniformbuffer/UBODirectionalLightsComponent.cpp"
+ "Prototypes/Graphics/components/uniformbuffer/UBOPbrMaterialComponent.h"
+ "Prototypes/Graphics/components/uniformbuffer/UBOPbrMaterialComponent.cpp"
+ "Prototypes/Graphics/entities/LightsEntity.h"
+ "Prototypes/Graphics/entities/LightsEntity.cpp"
+ "Prototypes/Graphics/controllers/TriangleMeshController.h"
+ "Prototypes/Graphics/controllers/TriangleMeshController.cpp"
+ "Prototypes/Graphics/components/uniformbuffer/UBOPointLightsComponent.h"
+ "Prototypes/Graphics/components/uniformbuffer/UBOSpotLightsComponent.h"
+ "Prototypes/Graphics/components/uniformbuffer/UBOSpotLightsComponent.cpp"
+ "Prototypes/Graphics/components/uniformbuffer/UBOPointLightsComponent.cpp"
+ "Prototypes/scene/components/ChildObjectsComponent.h"
+ "Prototypes/scene/components/ChildObjectsComponent.cpp"
+ "Prototypes/Graphics/provider/STextureProvider.h"
+ "Prototypes/Graphics/provider/STextureProvider.cpp"
+ "Prototypes/Graphics/provider/SShaderProvider.h"
+ "Prototypes/Graphics/provider/SShaderProvider.cpp"
+ "Prototypes/scene/controllers/SceneObjectEntityController.h"
+ "Prototypes/scene/controllers/SceneObjectEntityController.cpp"
+ "Prototypes/scene/components/PrefabComponent.h"
+ "Prototypes/scene/components/PrefabComponent.cpp"
+ "Prototypes/scene/controllers/ActorInstanceEntityController.h"
+ "Prototypes/scene/controllers/ActorInstanceEntityController.cpp"
+ "Prototypes/scene/systems/MovementSystem.h"
+ "Prototypes/scene/systems/MovementSystem.cpp"
+ "Prototypes/Graphics/components/shader/ShaderPropertiesComponent.h"
+ "Prototypes/Graphics/components/shader/ShaderPropertiesComponent.cpp"
+ "Prototypes/utility/MiscUtility.hpp" "Prototypes/scene/entities/SceneEntity.h" "Prototypes/scene/entities/SceneEntity.cpp" "Prototypes/Graphics/components/actorprefab/ActorPrefabPropertiesComponent.h" "Prototypes/Graphics/components/actorprefab/ActorPrefabPropertiesComponent.cpp")
 	
 if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox
@@ -173,6 +263,9 @@ elseif(WIN32)
 	PRIVATE glfw 
 	PRIVATE glad::glad
 	ws2_32
+#	PRIVATE libjpeg-turbo::turbojpeg
+#	PRIVATE WebP::webp
+#	PRIVATE WebP::webpdecoder
 #	PRIVATE tinyxml2::tinyxml2
 #	PRIVATE imgui::imgui
 #	PRIVATE ${FFMPEG_LIBRARIES}
@@ -215,19 +308,6 @@ elseif(UNIX)
 		)
 endif()
 
-#copy shaders
-#add_custom_command(
-#	TARGET CForgeSandbox PRE_BUILD 
-#	COMMAND ${CMAKE_COMMAND} -E copy_directory
-#	${CMAKE_SOURCE_DIR}/crossforge/Shader
-#	${CMAKE_CURRENT_BINARY_DIR}/Shader
-#)
-#add_custom_command(
-#	TARGET CForgeSandbox PRE_BUILD 
-#	COMMAND ${CMAKE_COMMAND} -E copy_directory 
-#	${CMAKE_SOURCE_DIR}/Prototypes/Shader 
-#	${CMAKE_CURRENT_BINARY_DIR}/Shader
-#
 
 #copy assets
 add_custom_command(
@@ -257,8 +337,9 @@ add_custom_command(
 endforeach(i)
 endif(EMSCRIPTEN)
 
-add_custom_command(
-    TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    COMMAND_EXPAND_LISTS
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${crossforge_BINARY_DIR}"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
 )

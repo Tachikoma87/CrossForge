@@ -15,8 +15,21 @@ namespace crossforge {
 
 	void ShaderEntity::initialize(uint8_t componentsBitmask) {
 		clear();
+		if (componentsBitmask & SHADER_SOURCE_COMPONENT) addComponent(std::make_shared<ShaderSourceComponent>());
+		if (componentsBitmask & RENDERING_SHADER_COMPONENT) addComponent(std::make_shared<RenderingShaderComponent>());
+		if (componentsBitmask & SHADER_PROPERTIES_COMPONENT) addComponent(std::make_shared<ShaderPropertiesComponent>());
 	}
 	void ShaderEntity::clear() {
 		m_componentMap.clear();
+	}
+
+	ShaderSourceComponentPtr  ShaderEntity::getShaderSourceComponent() {
+		return getComponent<ShaderSourceComponent>();
+	}
+	RenderingShaderComponentPtr  ShaderEntity::getRenderingShaderComponent() {
+		return getComponent<RenderingShaderComponent>();
+	}
+	ShaderPropertiesComponentPtr ShaderEntity::getShaderPropertiesComponent() {
+		return getComponent<ShaderPropertiesComponent>();
 	}
 }

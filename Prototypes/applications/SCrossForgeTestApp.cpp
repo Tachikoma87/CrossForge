@@ -5,14 +5,26 @@
 #include <GLFW/glfw3.h>
 #include <crossforge/utility/GeneralUtility.hpp>
 #include "SCrossForgeTestApp.h"
-#include "../Graphics/Systems/RenderingSystem.h"
-#include <crossforge/graphics/entities/SceneEntity.h>
-#include "../ECS/PrototypeComponents/PositionComponent2D.h"
+#include "../Graphics/controllers/RenderingController.h"
+#include <crossforge/graphics/entities/CanvasEntity.h>
 #include <crossforge/graphics/controller/WindowEntityController.h>
 
 
 #include <crossforge/assetio/SAssetIOProvider.h>
 #include <crossforge/math/CrossForgeMath.h>
+
+#include "../Graphics/controllers/ShaderEntityController.h"
+#include "../Graphics/components/shader/ShaderSourceComponent.h"
+
+#include "../Graphics/entities/ActorPrefabEntity.h"
+#include "../Graphics/controllers/ActorPrefabEntityController.h"
+
+#include "../Graphics/components/ColorComponent.h"
+
+#include "../Graphics/controllers/ShaderEntityController.h"
+
+#include "../Graphics/components/shader/ShaderPropertiesComponent.h"
+#include "../Graphics/provider/SShaderProvider.h"
 
 namespace crossforge {
 	std::shared_ptr<SCrossForgeTestApp> SCrossForgeTestApp::m_pInstance = nullptr;
@@ -54,61 +66,59 @@ namespace crossforge {
 		}
 
 		// create rendering system
-
 		m_startTimestamp = GeneralUtility::getTimestamp();
 		m_lastPrint = GeneralUtility::getTimestamp();
 		this->setSleepInterval(0);
 
-		RenderingSystemPtr pRenderSys = std::make_shared<RenderingSystem>();
-		m_pSystemManager->addSystem(pRenderSys);
 
 		// bottom left
-		SceneEntityPtr pScene = std::make_shared<SceneEntity>();
-		SceneSettingsComponentPtr pSceneSettings = std::make_shared<SceneSettingsComponent>();
-		PositionComponent2DPtr pPos = std::make_shared<PositionComponent2D>();
+		CanvasEntityPtr pScene = std::make_shared<CanvasEntity>();
+		CanvasSettingsComponentPtr pSceneSettings = std::make_shared<CanvasSettingsComponent>();
+		ColorComponentPtr pColor = std::make_shared<ColorComponent>();
 		pSceneSettings->viewportPosition() = Eigen::Vector2i(0, 0);
 		pSceneSettings->viewportSize() = Eigen::Vector2i(1280 / 2, 720 / 2);
-		pPos->setPosition(Eigen::Vector2f(0.25, 0.5));
+		pColor->color() = Eigen::Vector4f(0.5f, 0.5f, 0.0f, 1.0f);
 		pScene->addComponent(pSceneSettings);
-		pScene->addComponent(pPos);
+		pScene->addComponent(pColor);
 		m_pEntityManager->registerEntity(pScene);
-		pRenderSys->registerEntity(pScene);
+		m_canvases.push_back(pScene);
+
 
 		// top left
-		pScene = std::make_shared<SceneEntity>();
-		pSceneSettings = std::make_shared<SceneSettingsComponent>();
-		pPos = std::make_shared<PositionComponent2D>();
+		pScene = std::make_shared<CanvasEntity>();
+		pSceneSettings = std::make_shared<CanvasSettingsComponent>();
+		pColor = std::make_shared<ColorComponent>();
 		pSceneSettings->viewportPosition() = Eigen::Vector2i(0, 720 / 2);
 		pSceneSettings->viewportSize() = Eigen::Vector2i(1280 / 2, 720 / 2);
-		pPos->setPosition(Eigen::Vector2f(0.8, 0.0));
+		pColor->color() = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
 		pScene->addComponent(pSceneSettings);
-		pScene->addComponent(pPos);
+		pScene->addComponent(pColor);
 		m_pEntityManager->registerEntity(pScene);
-		pRenderSys->registerEntity(pScene);
+		m_canvases.push_back(pScene);
 
 		// top right
-		pScene = std::make_shared<SceneEntity>();
-		pSceneSettings = std::make_shared<SceneSettingsComponent>();
-		pPos = std::make_shared<PositionComponent2D>();
+		pScene = std::make_shared<CanvasEntity>();
+		pSceneSettings = std::make_shared<CanvasSettingsComponent>();
+		pColor = std::make_shared<ColorComponent>();
 		pSceneSettings->viewportPosition() = Eigen::Vector2i(1280/2, 720/2);
 		pSceneSettings->viewportSize() = Eigen::Vector2i(1280 / 2, 720 / 2);
-		pPos->setPosition(Eigen::Vector2f(0.15, 0.25));
+		pColor->color() = Eigen::Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
 		pScene->addComponent(pSceneSettings);
-		pScene->addComponent(pPos);
+		pScene->addComponent(pColor);
 		m_pEntityManager->registerEntity(pScene);
-		pRenderSys->registerEntity(pScene);
+		m_canvases.push_back(pScene);
 
 		// bottom right
-		pScene = std::make_shared<SceneEntity>();
-		pSceneSettings = std::make_shared<SceneSettingsComponent>();
-		pPos = std::make_shared<PositionComponent2D>();
+		pScene = std::make_shared<CanvasEntity>();
+		pSceneSettings = std::make_shared<CanvasSettingsComponent>();
+		pColor = std::make_shared<ColorComponent>();
 		pSceneSettings->viewportPosition() = Eigen::Vector2i(1280/2, 0);
 		pSceneSettings->viewportSize() = Eigen::Vector2i(1280 / 2, 720 / 2);
-		pPos->setPosition(Eigen::Vector2f(0.0, 0.8));
+		//pColor->color() = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
 		pScene->addComponent(pSceneSettings);
-		pScene->addComponent(pPos);
+		pScene->addComponent(pColor);
 		m_pEntityManager->registerEntity(pScene);
-		pRenderSys->registerEntity(pScene);
+		m_canvases.push_back(pScene);
 
 		// add input stuff
 		m_pInputDevice = std::make_shared<InputDeviceEntity>(InputDeviceEntity::KEYBOARD_DATA_COMPONENT | InputDeviceEntity::ASSOCIATED_WINDOW_COMPONENT | InputDeviceEntity::MOUSE_DATA_COMPONENT);
@@ -133,18 +143,82 @@ namespace crossforge {
 		//testFileIO();
 		//testImageIO();
 		//testTriangleMeshIO();
-		testRandom();
+		//testRandom();
+		//testShader();
+		//testActorCreation();
+		//testShaderGeneration();
+		for (uint32_t i = 0; i < 10; ++i) {
+			uint64_t timestampStart = GeneralUtility::getTimestamp();
+			testShaderProvider();
+			uint64_t time = GeneralUtility::getTimestamp() - timestampStart;
+			LogInfo("Shader test run took " + std::to_string(time) + " milliseconds");
+		}
+
+		
+		
 
 	}
+
+	void SCrossForgeTestApp::testShaderProvider() {
+		ShaderPropertiesComponentPtr pShaderPropComp = std::make_shared<ShaderPropertiesComponent>();
+		pShaderPropComp->addFeatures(ShaderPropertiesComponent::SHADER_FEATURE_DIRECTIONAL_LIGHTS);
+		pShaderPropComp->directionalLightsSize() = 5;
+		pShaderPropComp->activeDirectionalLightsCount() = 1;
+
+		ShaderEntityPtr pShader = ShaderProvider::instance()->getShader(SShaderProvider::RENDER_PASS_FORWARD, pShaderPropComp);
+		if (nullptr == pShader) LogError("Failed to get shader from shader provider!");
+		else LogInfo("Seems like shader provider is working.");
+
+		pShaderPropComp->pointLightsSize() = 5;
+		pShaderPropComp->activePointLightsCount() = 3;
+		pShaderPropComp->addFeatures(ShaderPropertiesComponent::SHADER_FEATURE_POINT_LIGHTS);
+		pShader = ShaderProvider::instance()->getShader(SShaderProvider::RENDER_PASS_FORWARD, pShaderPropComp);
+		if (nullptr == pShader) LogError("Failed to get shader from shader provider!");
+		else LogInfo("Seems like shader provider is working.");
+
+
+	}
+
+	void SCrossForgeTestApp::testShaderGeneration() {
+
+		ShaderEntityPtr pShader = std::make_shared<ShaderEntity>(ShaderEntity::COMPONENTS_ALL);
+		pShader->addComponent(std::make_shared<ShaderPropertiesComponent>());
+		auto pShaderSource = pShader->getShaderSourceComponent();
+		auto pShaderProperties = pShader->getComponent<ShaderPropertiesComponent>();
+
+		FileEntityPtr pFileEntity = std::make_shared<FileEntity>();
+		AssetIOProvider::instance()->loadFile(pFileEntity, "./Assets/Shader/ForwardPassPBS.vert", false);
+		pShaderSource->vertexShaderSources().push_back(pFileEntity->getStringDataComponent()->stringData());
+		AssetIOProvider::instance()->loadFile(pFileEntity, "./Assets/Shader/ForwardPassPBS.frag", false);
+		pShaderSource->fragmentShaderSources().push_back(pFileEntity->getStringDataComponent()->stringData());
+
+		pShaderProperties->addFeatures(ShaderPropertiesComponent::SHADER_FEATURE_DIRECTIONAL_LIGHTS | ShaderPropertiesComponent::SHADER_FEATURE_NORMAL_MAPPING);
+
+		try {
+			ShaderEntityController::configureShaderSource(pShader);
+		}
+		catch (CrossForgeException& e) {
+			LogError("Exception while configuring shader source: " + e.getMessage());
+		}
+
+		// store shader files
+		pFileEntity->getStringDataComponent()->stringData() = pShader->getShaderSourceComponent()->vertexShaderSources()[0];
+		AssetIOProvider::instance()->storeFile(pFileEntity, "./Assets/ConfiguredShader.vert", false);
+		pFileEntity->getStringDataComponent()->stringData() = pShader->getShaderSourceComponent()->fragmentShaderSources()[0];
+		AssetIOProvider::instance()->storeFile(pFileEntity, "./Assets/ConfiguredShader.frag", false);
+
+	}
+
 
 	void SCrossForgeTestApp::testImageIO() {
 		LogInfo("Starting ImageIO test");
 		uint64_t start = GeneralUtility::getTimestamp();
 
-		std::string imageFileIn = "./Assets/ExampleScenes/Duck/DuckCM.png";
+		std::string imageFileIn = "./Assets/Archangel_1920.png";
 		std::vector<std::string> filesOut;
-		filesOut.push_back("./Assets/Duck.jpg");
-		filesOut.push_back("./Assets/Duck.png");
+		filesOut.push_back("./Assets/Archangel.jpg");
+		//filesOut.push_back("./Assets/Archangel.png");
+		filesOut.push_back("./Assets/Archangel.webp");
 
 		AssetIOProviderPtr pAssetIO = AssetIOProvider::instance();
 
@@ -164,8 +238,8 @@ namespace crossforge {
 			}
 		}
 
-		uint64_t duration = GeneralUtility::getTimestamp() - start;
-		LogInfo("Image IO test took " + std::to_string(duration) + " milliseconds.");
+		uint64_t runtime = GeneralUtility::getTimestamp() - start;
+		LogInfo("Image test IO took " + std::to_string(runtime / 1000.0f) + " seconds.");
 
 	}
 
@@ -265,13 +339,50 @@ namespace crossforge {
 		printf("Expected occurence: %d. Over counter is at %d and unter counter at %d\n",expectedOccurrence, overCounter, underCounter);
 	}
 
+	void SCrossForgeTestApp::testShader() {
+
+		ShaderEntityPtr pShader = std::make_shared<ShaderEntity>();
+		pShader->addComponent(std::make_shared<ShaderSourceComponent>());
+		auto pShaderSource = pShader->getComponent<ShaderSourceComponent>();
+
+		FileEntityPtr pShaderFile = std::make_shared<FileEntity>();
+		if (AssetIOProvider::instance()->loadFile(pShaderFile, "./Assets/Shader/BasicGeometryPass.vert", false)) {
+			pShaderSource->vertexShaderSources().push_back(pShaderFile->getStringDataComponent()->stringData());
+		}
+		if (AssetIOProvider::instance()->loadFile(pShaderFile, "./Assets/Shader/BasicGeometryPass.frag", false)) {
+			pShaderSource->fragmentShaderSources().push_back(pShaderFile->getStringDataComponent()->stringData());
+		}
+
+		if (ShaderEntityController::buildRenderingShader(pShader)) {
+			LogInfo("Shader build successfully!");
+		}
+		else {
+			LogInfo("Shader building gone wrong");
+		}
+
+
+
+	}
+
+	void SCrossForgeTestApp::testActorCreation() {
+
+		// load model
+		TriangleMeshEntityPtr pDuckMesh = std::make_shared<TriangleMeshEntity>(TriangleMeshEntity::ALL_BASIC_COMPONENTS);
+		AssetIOProvider::instance()->loadMesh(pDuckMesh, "./Assets/ExampleScenes/Duck/Duck.gltf");
+
+		ActorPrefabEntityPtr pDuckPrefabActor = std::make_shared<ActorPrefabEntity>(ActorPrefabEntity::COMPONENTS_ALL);
+
+		ActorPrefabEntityController::buildStaticActor(pDuckPrefabActor, pDuckMesh);
+
+	}
+
 	void SCrossForgeTestApp::update() {
 
 		auto pWinSys = m_pSystemManager->getSystem<WindowSystem>();
-		auto pRenderSys = m_pSystemManager->getSystem<RenderingSystem>();
 		pWinSys->update();
 		WindowEntityController::clearBuffer(m_pMainWin);
-		pRenderSys->update();
+
+		for (auto pCanvas : m_canvases) RenderingController::activateCanvas(pCanvas);
 		pWinSys->swapBuffers();
 
 

@@ -24,6 +24,7 @@
 #include <crossforge/input/systems/KeyboardInputSystem.h>
 #include <crossforge/input/systems/MouseInputSystem.h>
 #include <crossforge/input/entities/InputDeviceEntity.h>
+#include <crossforge/graphics/entities/CanvasEntity.h>
 
 namespace crossforge {
 	class SCrossForgeTestApp : public ApplicationBase {
@@ -45,12 +46,19 @@ namespace crossforge {
 		void testImageIO();
 		void testTriangleMeshIO();
 		void testRandom();
+		void testShader();
+		void testActorCreation();
+
+		void testShaderGeneration();
+		void testShaderProvider();
 
 		uint64_t m_startTimestamp;
 		uint64_t m_lastPrint;
 
 		WindowEntityPtr m_pMainWin;
 		InputDeviceEntityPtr m_pInputDevice;
+
+		std::vector<CanvasEntityPtr> m_canvases;
 	};
 
 	typedef SCrossForgeTestApp CrossForgeTestApp;

@@ -13,12 +13,14 @@
 /******************************/
 #include <stdio.h>
 #include "Prototypes/applications/SCrossForgeTestApp.h"
+#include "Prototypes/applications/SCrossForgeSimpleSceneApp.h"
 
 using namespace crossforge;
 
 int main(int argc, char* argv[]) {
 
-	CrossForgeTestAppPtr pApp = CrossForgeTestApp::instance();
+	CrossForgeSimpleSceneAppPtr pApp = CrossForgeSimpleSceneApp::instance();
+	//CrossForgeTestAppPtr pApp = CrossForgeTestApp::instance();
 	try {
 		pApp->initialize();
 		pApp->start();
@@ -27,9 +29,10 @@ int main(int argc, char* argv[]) {
 		printf("Something went wrong with crossforge: %s\n", e.getMessage().c_str());
 	}
 	catch (std::exception& e) {
-		printf("Something unexpetected happened: %s\n", e.what());
+		printf("Something unexpected happened: %s\n", e.what());
 	}
 	
+
 
 	return 0;
 }
