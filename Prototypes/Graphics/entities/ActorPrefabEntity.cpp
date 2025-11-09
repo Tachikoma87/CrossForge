@@ -40,4 +40,7 @@ namespace crossforge {
 	VertexArrayComponentPtr ActorPrefabEntity::getVertexArrayComponent() {
 		return getComponent<VertexArrayComponent>();
 	}
+	ActorPrefabPropertiesComponentPtr ActorPrefabEntity::getActorPrefabPropertiesComponent() {
+		return getComponent<ActorPrefabPropertiesComponent>();
+	}
 }

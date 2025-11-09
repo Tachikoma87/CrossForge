@@ -28,16 +28,29 @@ project (CForgeSandbox)
 option(INCLUDE_OPENCV "Include OpenCV in build" OFF)
 include(FetchContent)
 
+if(UNIX)
+FetchContent_Declare(
+	libcrossforge
+	SOURCE_DIR "/mnt/c/Projects/libcrossforge"
+)
+else()
 FetchContent_Declare(
 	libcrossforge
 	SOURCE_DIR "C:/Projects/libcrossforge"
 )
+endif()
 FetchContent_MakeAvailable(libcrossforge)
 
 
+FetchContent_Declare(
+	stb 
+	GIT_REPOSITORY https://github.com/nothings/stb.git
+)
+FetchContent_MakeAvailable(stb)
+include_directories(${stb_SOURCE_DIR})
+
+
 if(EMSCRIPTEN)
-	
-	
 	### Eigen3
 	FetchContent_Declare(
 		tinyxml2 
@@ -76,6 +89,7 @@ FIND_PACKAGE(glad CONFIG REQUIRED)	# GL extension library
 FIND_PACKAGE(glfw3 CONFIG REQUIRED)	# cross-plattform window management
 FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
 FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp
+FIND_PACKAGE(tinyfiledialogs CONFIG REQUIRED)
 
 endif()
 
@@ -237,7 +251,20 @@ add_executable(CForgeSandbox
  "Prototypes/scene/systems/MovementSystem.cpp"
  "Prototypes/Graphics/components/shader/ShaderPropertiesComponent.h"
  "Prototypes/Graphics/components/shader/ShaderPropertiesComponent.cpp"
- "Prototypes/utility/MiscUtility.hpp" "Prototypes/scene/entities/SceneEntity.h" "Prototypes/scene/entities/SceneEntity.cpp" "Prototypes/Graphics/components/actorprefab/ActorPrefabPropertiesComponent.h" "Prototypes/Graphics/components/actorprefab/ActorPrefabPropertiesComponent.cpp")
+ "Prototypes/utility/MiscUtility.hpp" "Prototypes/scene/entities/SceneEntity.h"
+ "Prototypes/scene/entities/SceneEntity.cpp"
+ "Prototypes/Graphics/components/actorprefab/ActorPrefabPropertiesComponent.h"
+ "Prototypes/Graphics/components/actorprefab/ActorPrefabPropertiesComponent.cpp"
+ "Prototypes/utility/MiscUtility.cpp" 
+ "Prototypes/input/controllers/InputDeviceController.h"
+ "Prototypes/input/controllers/InputDeviceController.cpp"
+ 
+ "Prototypes/input/components/UserDialogComponent.h"
+ "Prototypes/input/components/UserDialogComponent.cpp"
+ "Prototypes/input/components/UserInputComponent.h"
+ "Prototypes/input/components/UserInputComponent.cpp"
+ "Prototypes/utility/FFMpegUtility.hpp"
+ "Prototypes/assetio/entities/VideoEntity.h" "Prototypes/assetio/entities/VideoEntity.cpp" "Prototypes/assetio/components/VideoDataComponent.h" "Prototypes/assetio/components/VideoDataComponent.cpp" "Prototypes/assetio/controllers/VideoController.h" "Prototypes/assetio/controllers/VideoController.cpp")
 	
 if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox
@@ -247,28 +274,28 @@ if(EMSCRIPTEN)
 	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} ${Optimization_Flag} -sEXIT_RUNTIME=1 -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -fwasm-exceptions -sUSE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader --preload-file MyAssets")
 
 elseif(WIN32)
-#	target_include_directories(CForgeSandbox 
+	target_include_directories(CForgeSandbox 
 #	PRIVATE ${JPEG_INCLUDE_DIR}
-#	PRIVATE ${FFMPEG_INCLUDE_DIRS}
-#	)
+	PRIVATE ${FFMPEG_INCLUDE_DIRS}
+	)
 
 	target_link_directories(CForgeSandbox
 		PRIVATE ${FFMPEG_LIBRARY_DIRS}
 	)
 
 	target_link_libraries(CForgeSandbox 
-	#PRIVATE crossforge
 	PRIVATE crossforge
 	PRIVATE Eigen3::Eigen
 	PRIVATE glfw 
 	PRIVATE glad::glad
 	ws2_32
+	PRIVATE tinyfiledialogs::tinyfiledialogs
 #	PRIVATE libjpeg-turbo::turbojpeg
 #	PRIVATE WebP::webp
 #	PRIVATE WebP::webpdecoder
 #	PRIVATE tinyxml2::tinyxml2
 #	PRIVATE imgui::imgui
-#	PRIVATE ${FFMPEG_LIBRARIES}
+	PRIVATE ${FFMPEG_LIBRARIES}
 #	${FREETYPE_LIBRARIES}
 #	PRIVATE assimp::assimp
 	
@@ -297,14 +324,10 @@ elseif(UNIX)
 
 	target_link_libraries(CForgeSandbox 
 		PRIVATE crossforge
-		PRIVATE glfw
+		PRIVATE Eigen3::Eigen
+		PRIVATE glfw 
 		PRIVATE glad::glad
-		PRIVATE tinyxml2::tinyxml2
-		PRIVATE imgui::imgui
 		PRIVATE dl	
-		PRIVATE ${FFMPEG_LIBRARIES}
-		${FREETYPE_LIBRARIES}
-		${OpenCV_LIBS}
 		)
 endif()
 

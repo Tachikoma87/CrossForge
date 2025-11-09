@@ -1,5 +1,8 @@
+#ifdef __WIN32
 #define NOMINMAX
 #include <Windows.h>
+#endif
+
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -147,17 +150,16 @@ namespace crossforge {
 		//testShader();
 		//testActorCreation();
 		//testShaderGeneration();
-		for (uint32_t i = 0; i < 10; ++i) {
+		/*for (uint32_t i = 0; i < 10; ++i) {
 			uint64_t timestampStart = GeneralUtility::getTimestamp();
 			testShaderProvider();
 			uint64_t time = GeneralUtility::getTimestamp() - timestampStart;
 			LogInfo("Shader test run took " + std::to_string(time) + " milliseconds");
-		}
-
-		
-		
+		}*/
 
 	}
+
+	
 
 	void SCrossForgeTestApp::testShaderProvider() {
 		ShaderPropertiesComponentPtr pShaderPropComp = std::make_shared<ShaderPropertiesComponent>();

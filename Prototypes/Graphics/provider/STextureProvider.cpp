@@ -3,6 +3,7 @@
 #include <crossforge/utility/FileUtility.h>
 #include <crossforge/assetio/SAssetIOProvider.h>
 #include <crossforge/ecs/SEntityManager.h>
+#include "../controllers/Image2DController.h"
 
 namespace crossforge {
 
@@ -79,5 +80,78 @@ namespace crossforge {
 	TextureEntityPtr STextureProvider::getTexture(std::string textureName) {
 		auto pItem = m_textureMap.find(textureName);
 		return (m_textureMap.end() == pItem) ? nullptr : pItem->second;
+	}
+
+	TextureEntityPtr STextureProvider::getTexture(BasicTexture basicTexture) {
+		if (BASIC_TEXTURE_UNKNOWN >= basicTexture || basicTexture >= BASIC_TEXTURE_COUNT) throw IndexOutOfBoundsExcept("basicTexture");
+		TextureEntityPtr pResult = nullptr;
+		switch (basicTexture) {
+		case BASIC_TEXTURE_8X8_RED: {
+			pResult = getTexture("BASIC_TEXTURE_8X8_RED");
+			if (nullptr == pResult) {
+				pResult = generateBasicTexture(BASIC_TEXTURE_8X8_RED);
+				registerTexture("BASIC_TEXTURE_8X8_RED", pResult);
+			}
+		}break;
+		case BASIC_TEXTURE_8X8_GREEN: {
+			pResult = getTexture("BASIC_TEXTURE_8X8_GREEN");
+			if (nullptr == pResult) {
+				pResult = generateBasicTexture(BASIC_TEXTURE_8X8_GREEN);
+				registerTexture("BASIC_TEXTURE_8X8_GREEN", pResult);
+			}
+		}break;
+		case  BASIC_TEXTURE_8X8_BLUE: {
+			pResult = getTexture("BASIC_TEXTURE_8X8_BLUE");
+			if (nullptr == pResult) {
+				pResult = generateBasicTexture(BASIC_TEXTURE_8X8_BLUE);
+				registerTexture("BASIC_TEXTURE_8X8_BLUE", pResult);
+			}
+		}break;
+		case  BASIC_TEXTURE_8X8_WHITE: {
+			pResult = getTexture("BASIC_TEXTURE_8X8_WHITE");
+			if (nullptr == pResult) {
+				pResult = generateBasicTexture(BASIC_TEXTURE_8X8_WHITE);
+				registerTexture("BASIC_TEXTURE_8X8_WHITE", pResult);
+			}
+		}break;
+		case  BASIC_TEXTURE_8X8_BLACK: {
+			pResult = getTexture("BASIC_TEXTURE_8X8_BLACK");
+			if (nullptr == pResult) {
+				pResult = generateBasicTexture(BASIC_TEXTURE_8X8_BLACK);
+				registerTexture("BASIC_TEXTURE_8X8_BLACK", pResult);
+			}
+		}break;
+		default: {
+			LogError("Not handled basic texture encountered: " + std::to_string(basicTexture));
+		}break;
+		}
+
+		return pResult;
+	}
+
+	TextureEntityPtr STextureProvider::generateBasicTexture(BasicTexture basicTexture) {
+		if (BASIC_TEXTURE_UNKNOWN >= basicTexture || basicTexture >= BASIC_TEXTURE_COUNT) throw IndexOutOfBoundsExcept("basicTexture");
+
+		Image2DEntityPtr pImage2D = std::make_shared<Image2DEntity>();
+		switch (basicTexture) {
+		case BASIC_TEXTURE_8X8_RED: Image2DController::generateBasicImage(pImage2D, Image2DController::BASIC_IMAGE_8X8_RED); break;
+		case BASIC_TEXTURE_8X8_GREEN: Image2DController::generateBasicImage(pImage2D, Image2DController::BASIC_IMAGE_8X8_GREEN); break;
+		case BASIC_TEXTURE_8X8_BLUE: Image2DController::generateBasicImage(pImage2D, Image2DController::BASIC_IMAGE_8X8_BLUE); break;
+		case BASIC_TEXTURE_8X8_WHITE: Image2DController::generateBasicImage(pImage2D, Image2DController::BASIC_IMAGE_8X8_WHITE); break;
+		case BASIC_TEXTURE_8X8_BLACK: Image2DController::generateBasicImage(pImage2D, Image2DController::BASIC_IMAGE_8X8_BLACK); break;
+		default: {
+			LogError("Not handled BasicTexture enumerate encountered.");
+			return false;
+		}break;
+		}
+
+		auto pTexture = std::make_shared<TextureEntity>();
+		if (!TextureEntityController::buildTexture2D(pTexture, pImage2D, false)) {
+			LogError("Failed to create texture.");
+			pTexture = nullptr;
+		}
+
+		return pTexture;
+
 	}
 }

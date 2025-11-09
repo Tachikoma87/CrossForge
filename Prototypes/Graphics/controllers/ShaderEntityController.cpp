@@ -260,7 +260,8 @@ namespace crossforge {
 	bool ShaderEntityController::bindCameraDataUBO(ShaderEntityPtr pShaderEntity, UBOCameraDataComponentPtr pUBOCameraDataComp) {
 		bool result = false;
 		try {
-			bindBaseUbo(pShaderEntity, pUBOCameraDataComp, RenderingShaderComponent::BASE_UBO_CAMERADATA) ? result = true :	LogError("Binding camera ubo failed!");
+			if (bindBaseUbo(pShaderEntity, pUBOCameraDataComp, RenderingShaderComponent::BASE_UBO_CAMERADATA)) result = true;
+			else LogError("Binding camera ubo failed!");
 		}
 		catch (CrossForgeException& e) {
 			Logger::logException(e);
@@ -272,7 +273,8 @@ namespace crossforge {
 	bool ShaderEntityController::bindTransformationDataUBO(ShaderEntityPtr pShaderEntity, UBOTransformationDataComponentPtr pUBOTransformData) {
 		bool result = false;
 		try {
-			bindBaseUbo(pShaderEntity, pUBOTransformData, RenderingShaderComponent::BASE_UBO_MODELDATA) ? result = true : LogError("Binding camera ubo failed!");
+			if(bindBaseUbo(pShaderEntity, pUBOTransformData, RenderingShaderComponent::BASE_UBO_MODELDATA))	result = true;
+			else LogError("Binding camera ubo failed!");
 		}
 		catch (CrossForgeException& e) {
 			Logger::logException(e);
@@ -312,7 +314,7 @@ namespace crossforge {
 	std::string configShaderCode(std::string code, std::vector<std::string> featureList, ShaderPropertiesComponentPtr pShaderProperties) {
 		if (nullptr == pShaderProperties) throw NullpointerExcept("pShaderProperties");
 
-		auto shaderLines = MiscUtility::splitIntoLines(code);
+		auto shaderLines = MiscUtility::splitString(code);
 		std::string result = "";
 		bool featuresAdded = false;
 

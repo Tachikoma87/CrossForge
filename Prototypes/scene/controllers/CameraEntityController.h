@@ -31,6 +31,8 @@ namespace crossforge {
 		static void computeCameraMatrixFromTransformation(CameraEntityPtr pCameraEntity);
 		static void computeCameraMatrixLookAt(CameraEntityPtr pCameraEntity, Eigen::Vector3f targetPosition);
 
+		
+
 		~CameraEntityController();
 	protected:
 		CameraEntityController();

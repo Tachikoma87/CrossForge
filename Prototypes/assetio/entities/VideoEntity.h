@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): ActorPrefabPropertiesComponent.h and ActorPrefabPropertiesComponent.cpp                      *
+* File(s): VideoEntity.h and VideoEntity.cpp                                                *
 *                                                                           *
-* Content:                            *
+* Content:           *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,35 +15,35 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_ACTORPREFABPROPERTIESCOMPONENT_H__
-#define __CORSSFORGE_ACTORPREFABPROPERTIESCOMPONENT_H__
+#ifndef __CROSSFORGE_VIDEOENTITY_H__
+#define __CROSSFORGE_VIDEOENTITY_H__
 
-#include <crossforge/ecs/ComponentBase.h>
+#include <crossforge/ecs/EntityBase.h>
+#include "../components/VideoDataComponent.h"
 
 namespace crossforge {
-	class ActorPrefabPropertiesComponent : public ComponentBase {
+	class VideoEntity : public EntityBase {
 	public:
-		static inline std::string identification = "ActorPrefabPropertiesComponent";
-		
-		ActorPrefabPropertiesComponent();
-		~ActorPrefabPropertiesComponent();
+		static inline std::string identification = "VideoEntity";
 
-		void initialize(std::shared_ptr<ActorPrefabPropertiesComponent> pRef = nullptr);
+		enum VideoEntityComponents: uint8_t {
+			COMPONENT_VIDEO_DATA = 0x01,
+			COMPONENTS_ALL = 0xFF,
+		};
+
+		VideoEntity(uint8_t componentsMap = 0);
+		~VideoEntity();
+
+		void initialize(uint8_t componentsMap);
 		void clear();
 
-		bool& propertyNormalMapping();
-		bool& propertySkeltalAnimation();
-		bool& propertyMorphTargetAnimation();
+		VideoDataComponentPtr getVideoDataComponent();
 
 	protected:
-		ActorPrefabPropertiesComponent(const std::string childIdentification);
-
-		bool m_propertyNormalMapping;
-		bool m_propertySkeletalAnimation;
-		bool m_propertyMorphTargetAnimation;
+		VideoEntity(const std::string childIdentification);
 	};
 
-	typedef std::shared_ptr<ActorPrefabPropertiesComponent> ActorPrefabPropertiesComponentPtr;
+	typedef std::shared_ptr<VideoEntity> VideoEntityPtr;
 }
 
 #endif 

@@ -54,6 +54,8 @@ namespace crossforge {
 		static std::shared_ptr<SCrossForgeSimpleSceneApp> m_pInstance;
 		SCrossForgeSimpleSceneApp();
 
+		void testGraphicsUtility();
+
 
 		WindowEntityPtr m_pMainWin;
 		CanvasEntityPtr m_pMainCanvas;
@@ -65,10 +67,13 @@ namespace crossforge {
 
 		ActorPrefabEntityPtr m_pDuckActorPrefab;
 		ActorPrefabEntityPtr m_pHelmetActorPrefab;
+		ActorPrefabEntityPtr m_pGroundPlanePrefab;
 
 		ActorInstanceEntityPtr m_pDuckActorInstance;
 		ActorInstanceEntityPtr m_pDuckActorInstance2;
 		ActorInstanceEntityPtr m_pHelmetActorInstance;
+
+		ActorInstanceEntityPtr m_pGroundPlaneInstance;
 
 		std::vector<ActorInstanceEntityPtr> m_pActorInstances;
 

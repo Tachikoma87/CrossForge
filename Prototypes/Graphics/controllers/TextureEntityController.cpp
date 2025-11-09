@@ -47,7 +47,7 @@ namespace crossforge {
 		pRawImgData->width() = pRawImage->width();
 		pRawImgData->height() = pRawImage->height();
 		pRawImgData->rawPixelData() = pRawImage->rawPixelData();
-		Image2DController::fliprRows(pFlippedImg);
+		Image2DController::flipRows(pFlippedImg);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace,pRawImgData->width(), pRawImgData->height(), 0, glColorSpace, GL_UNSIGNED_BYTE, (const void*)pRawImgData->rawPixelData().data());
 

@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): ActorPrefabPropertiesComponent.h and ActorPrefabPropertiesComponent.cpp                      *
+* File(s): UserInputComponent.h and UserInputComponent.cpp                  *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,35 +15,47 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_ACTORPREFABPROPERTIESCOMPONENT_H__
-#define __CORSSFORGE_ACTORPREFABPROPERTIESCOMPONENT_H__
+#ifndef __CROSSFORGE_USERINPUTCOMPONENT_H__
+#define __CROSSFORGE_USERINPUTCOMPONENT_H__
 
 #include <crossforge/ecs/ComponentBase.h>
 
 namespace crossforge {
-	class ActorPrefabPropertiesComponent : public ComponentBase {
+	class UserInputComponent : public ComponentBase {
 	public:
-		static inline std::string identification = "ActorPrefabPropertiesComponent";
-		
-		ActorPrefabPropertiesComponent();
-		~ActorPrefabPropertiesComponent();
+		static inline std::string identification = "UserInputComponent";
+		enum UserAnswer : int8_t {
+			USER_ANSWER_UNKNOWN = -1,
+			USER_ANSWER_OK,
+			USER_ANSWER_YES,
+			USER_ANSWER_NO,
+			USER_ANSWER_CANCEL,
+			USER_ANSWER_COUNT,
+		};
 
-		void initialize(std::shared_ptr<ActorPrefabPropertiesComponent> pRef = nullptr);
+		UserInputComponent();
+		~UserInputComponent();
+
+		void initialize();
 		void clear();
 
-		bool& propertyNormalMapping();
-		bool& propertySkeltalAnimation();
-		bool& propertyMorphTargetAnimation();
+		Eigen::Vector3f& rgbColor();
+		std::string& string();
+		UserAnswer& userAnswer();
+		std::vector<std::string>& fileList();
+		std::string& directory();
 
 	protected:
-		ActorPrefabPropertiesComponent(const std::string childIdentification);
+		UserInputComponent(const std::string childIdentification);
 
-		bool m_propertyNormalMapping;
-		bool m_propertySkeletalAnimation;
-		bool m_propertyMorphTargetAnimation;
+		Eigen::Vector3f m_rgbColor;
+		std::string m_string;
+		UserAnswer m_userAnswer;
+		std::vector<std::string> m_fileList;
+		std::string m_directory;
 	};
 
-	typedef std::shared_ptr<ActorPrefabPropertiesComponent> ActorPrefabPropertiesComponentPtr;
+	typedef std::shared_ptr<UserInputComponent> UserInputComponentPtr;
 }
 
 #endif 

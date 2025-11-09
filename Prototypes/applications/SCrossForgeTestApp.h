@@ -51,6 +51,7 @@ namespace crossforge {
 
 		void testShaderGeneration();
 		void testShaderProvider();
+		void testGraphicsUtility();
 
 		uint64_t m_startTimestamp;
 		uint64_t m_lastPrint;

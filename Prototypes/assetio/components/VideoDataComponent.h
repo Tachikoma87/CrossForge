@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): ActorPrefabPropertiesComponent.h and ActorPrefabPropertiesComponent.cpp                      *
+* File(s): VideoDataComponent.h and VideoDataComponent.cpp                                                *
 *                                                                           *
-* Content:                            *
+* Content:           *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,35 +15,36 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_ACTORPREFABPROPERTIESCOMPONENT_H__
-#define __CORSSFORGE_ACTORPREFABPROPERTIESCOMPONENT_H__
+#ifndef __CROSSFORGE_VIDEODATACOMPONENT_H__
+#define __CROSSFORGE_VIDEODATACOMPONENT_H__
 
 #include <crossforge/ecs/ComponentBase.h>
 
 namespace crossforge {
-	class ActorPrefabPropertiesComponent : public ComponentBase {
+	class VideoDataComponent : public ComponentBase {
 	public:
-		static inline std::string identification = "ActorPrefabPropertiesComponent";
-		
-		ActorPrefabPropertiesComponent();
-		~ActorPrefabPropertiesComponent();
+		static inline std::string identification = "VideoDataComponent";
 
-		void initialize(std::shared_ptr<ActorPrefabPropertiesComponent> pRef = nullptr);
-		void clear();
+		VideoDataComponent();
+		~VideoDataComponent();
 
-		bool& propertyNormalMapping();
-		bool& propertySkeltalAnimation();
-		bool& propertyMorphTargetAnimation();
+		float& framerate();
+		uint32_t& width();
+		uint32_t& height();
+		std::string& filename();
+		bool& isRecording();
 
 	protected:
-		ActorPrefabPropertiesComponent(const std::string childIdentification);
+		VideoDataComponent(const std::string childIdentification);
 
-		bool m_propertyNormalMapping;
-		bool m_propertySkeletalAnimation;
-		bool m_propertyMorphTargetAnimation;
+		float m_framefrate;
+		uint32_t m_width;
+		uint32_t m_height;
+		std::string m_filename;
+		bool m_isRecording;
 	};
 
-	typedef std::shared_ptr<ActorPrefabPropertiesComponent> ActorPrefabPropertiesComponentPtr;
+	typedef std::shared_ptr<VideoDataComponent> VideoDataComponentPtr;
 }
 
 #endif 

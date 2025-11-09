@@ -1,8 +1,8 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): ActorPrefabPropertiesComponent.h and ActorPrefabPropertiesComponent.cpp                      *
+* File(s): VideoController.h and VideoController.cpp                                               *
 *                                                                           *
-* Content:                            *
+* Content:          *
 *                                                                           *
 *                                                                           *
 *                                                                           *
@@ -15,35 +15,22 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_ACTORPREFABPROPERTIESCOMPONENT_H__
-#define __CORSSFORGE_ACTORPREFABPROPERTIESCOMPONENT_H__
+#ifndef __CROSSFORGE_VIDEOCONTROLLER_H__
+#define __CROSSFORGE_VIDEOCONTROLLER_H__
 
-#include <crossforge/ecs/ComponentBase.h>
+#include <crossforge/ecs/ControllerBase.h>
 
 namespace crossforge {
-	class ActorPrefabPropertiesComponent : public ComponentBase {
+	class VideoController : public ControllerBase {
 	public:
-		static inline std::string identification = "ActorPrefabPropertiesComponent";
-		
-		ActorPrefabPropertiesComponent();
-		~ActorPrefabPropertiesComponent();
-
-		void initialize(std::shared_ptr<ActorPrefabPropertiesComponent> pRef = nullptr);
-		void clear();
-
-		bool& propertyNormalMapping();
-		bool& propertySkeltalAnimation();
-		bool& propertyMorphTargetAnimation();
+		static inline std::string identification = "VideoController";
 
 	protected:
-		ActorPrefabPropertiesComponent(const std::string childIdentification);
-
-		bool m_propertyNormalMapping;
-		bool m_propertySkeletalAnimation;
-		bool m_propertyMorphTargetAnimation;
+		VideoController(const std::string identification);
+		~VideoController();
 	};
 
-	typedef std::shared_ptr<ActorPrefabPropertiesComponent> ActorPrefabPropertiesComponentPtr;
+	typedef std::shared_ptr<VideoController> VideoControllerPtr;
 }
 
 #endif 

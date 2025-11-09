@@ -25,6 +25,16 @@
 namespace crossforge {
 	class STextureProvider {
 	public:	
+		enum BasicTexture : int8_t {
+			BASIC_TEXTURE_UNKNOWN = -1,
+			BASIC_TEXTURE_8X8_RED = 0,
+			BASIC_TEXTURE_8X8_GREEN,
+			BASIC_TEXTURE_8X8_BLUE,
+			BASIC_TEXTURE_8X8_WHITE,
+			BASIC_TEXTURE_8X8_BLACK,
+			BASIC_TEXTURE_COUNT
+		};
+
 		static inline std::string identification = "STextureProvider";
 		static std::shared_ptr<STextureProvider> instance();
 		static void destroy();
@@ -37,6 +47,7 @@ namespace crossforge {
 		uint32_t getTextureCount()const;
 		TextureEntityPtr getTexture(uint32_t index);
 		TextureEntityPtr getTexture(std::string textureName);
+		TextureEntityPtr getTexture(BasicTexture basicTexture);
 	
 		~STextureProvider();
 
@@ -44,6 +55,8 @@ namespace crossforge {
 		static std::shared_ptr<STextureProvider> m_pInstance;
 
 		STextureProvider();
+
+		TextureEntityPtr generateBasicTexture(BasicTexture basicTexture);
 
 		std::unordered_map<std::string, TextureEntityPtr> m_textureMap ;
 

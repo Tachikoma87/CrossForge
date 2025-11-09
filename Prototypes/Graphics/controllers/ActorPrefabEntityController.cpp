@@ -42,8 +42,11 @@ namespace crossforge {
 
 		// generate materials
 		buildPbrMaterials(pActorPrefab, pTriangleMeshEntity);
-		// set shader
-		// @ToDo ...
+		// set properties
+		if (!pActorPrefab->hasComponent(ActorPrefabPropertiesComponent::identification)) pActorPrefab->addComponent(std::make_shared<ActorPrefabPropertiesComponent>());
+		auto pProperties = pActorPrefab->getActorPrefabPropertiesComponent();
+		/// @ToOd No usefully features available yet
+
 
 		std::string glErrorLog = "";
 		uint32_t error = GraphicsUtility::checkGLError(&glErrorLog);

@@ -17,8 +17,8 @@ const float Brightness = 1.05;
 const float Contrast = 1.05;
 
 // light defines
-const uint DirLightSize = 2U;
-const uint PointLightSize = 10U;
+const uint DirLightSize = 5U;
+const uint PointLightSize = 5U;
 const uint SpotLightSize = 5U;
 
 const uint ActiveDirLights = 1U;
@@ -284,7 +284,7 @@ void main(){
 	// compute directional lights contribution
 	for(uint i=0U; i < ActiveDirLights; ++i){
 		// calculate per-light radiance
-		vec3 L = normalize(-DirLights.Directions[i].xyz);
+		vec3 L = normalize(DirLights.Directions[i].xyz);
 		vec3 H = normalize(V + L);
 		float Shadow = shadowCalculationDirectionalLight(WorldPos, Normal, L, i);
 		vec3 Radiance = DirLights.Colors[i].w * DirLights.Colors[i].xyz; // color * intensity
@@ -337,14 +337,14 @@ void main(){
 	}//for[spot lights]
 	#endif
 
-	vec3 Ambient = vec3(0.1) * Albedo * 1.0;
+	vec3 Ambient = vec3(0.1) * Albedo * 0.25;
 	vec3 Col = Ambient + /*(1.0 - Ao)**/ Lo;
 
 	// Tone Mapping (Reinhardt operator)
 	Col = vec3(1.0) - exp(-Col * Exposure);
 	Col = pow(Col, vec3(1.0/Gamma));
-
 	Col = adjustColorAttributes(Col, Saturation, Brightness, Contrast);
+
 		
-	FragColor = vec4(Col, Alpha);
+	FragColor = vec4(Col, 1.0);
 }//main

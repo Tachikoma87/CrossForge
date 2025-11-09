@@ -24,6 +24,7 @@
 #include "../components/actorprefab/RenderGroupsComponent.h"
 #include "../components/actorprefab/PBRMaterialsComponent.h"
 #include "../components/actorprefab/VertexArrayComponent.h"
+#include "../components/actorprefab/ActorPrefabPropertiesComponent.h"
 
 namespace crossforge {
 	class ActorPrefabEntity : public EntityBase {
@@ -36,6 +37,7 @@ namespace crossforge {
 			RENDER_GROUPS_COMPONENT = 0x04,
 			PBR_MATERIALS_COMPONENT = 0x08,
 			VERTEX_ARRAY_COMPONENT = 0x10,
+			COMPONENT_ACTOR_PREFAB_PROPERTIES = 0x20,
 			COMPONENTS_ALL = 0xFF,
 		};
 
@@ -50,6 +52,7 @@ namespace crossforge {
 		RenderGroupsComponentPtr getRenderGroupsComponent();
 		PbrMaterialsComponentPtr getPBRMaterialsComponent();
 		VertexArrayComponentPtr getVertexArrayComponent();
+		ActorPrefabPropertiesComponentPtr getActorPrefabPropertiesComponent();
 
 
 	protected:
