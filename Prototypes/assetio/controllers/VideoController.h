@@ -19,11 +19,19 @@
 #define __CROSSFORGE_VIDEOCONTROLLER_H__
 
 #include <crossforge/ecs/ControllerBase.h>
+#include "../entities/VideoEntity.h"
 
 namespace crossforge {
+	/**
+	* https://friendlyuser.github.io/posts/tech/cpp/Using_FFmpeg_in_C++_A_Comprehensive_Guide/
+	*/
 	class VideoController : public ControllerBase {
 	public:
 		static inline std::string identification = "VideoController";
+
+		static bool startRecording(VideoEntityPtr pVideo);
+		static bool stopRecording(VideoEntityPtr pVideo);
+		static bool addFrame(VideoEntityPtr pVideo, Image2DEntityPtr pFrame);
 
 	protected:
 		VideoController(const std::string identification);

@@ -15,8 +15,8 @@ namespace crossforge {
 
 	bool Image2DController::flipRows(Image2DEntityPtr pImage2D) {
 		if (nullptr == pImage2D) throw NullpointerExcept("pImage2D");
-		auto pRawData = pImage2D->getRawImage2DDataComponent();
-		if (nullptr == pRawData) throw MissingComponentException(RawImage2DDataComponent::identification);
+		auto pRawData = pImage2D->getImage2DComponent();
+		if (nullptr == pRawData) throw MissingComponentException(Image2DComponent::identification);
 
 		std::vector<uint8_t> newPixelData;
 		uint32_t rowSize = pRawData->width() * pRawData->getBytesPerPixel();
@@ -25,16 +25,16 @@ namespace crossforge {
 		for (uint32_t i = 0; i < pRawData->height(); ++i) {
 			uint32_t indexOrig = i * rowSize;
 			uint32_t indexNew = (pRawData->height() - i - 1) * rowSize;
-			memcpy(&newPixelData.data()[indexNew], &pRawData->rawPixelData()[indexOrig], rowSize * sizeof(uint8_t));
+			memcpy(&newPixelData.data()[indexNew], &pRawData->pixelData()[indexOrig], rowSize * sizeof(uint8_t));
 		}
-		pRawData->rawPixelData() = newPixelData;
+		pRawData->pixelData() = newPixelData;
 		return true;
 	}
 
 	bool Image2DController::rotate90Degree(Image2DEntityPtr pImage2D) {
 		if (nullptr == pImage2D) throw NullpointerExcept("pImage2D");
-		auto pRawImgData = pImage2D->getRawImage2DDataComponent();
-		if (nullptr == pRawImgData) throw MissingComponentException(RawImage2DDataComponent::identification);
+		auto pRawImgData = pImage2D->getImage2DComponent();
+		if (nullptr == pRawImgData) throw MissingComponentException(Image2DComponent::identification);
 
 		std::vector<uint8_t> newPixelData;
 		newPixelData.resize( pRawImgData->getImageSize());
@@ -46,14 +46,14 @@ namespace crossforge {
 		for (uint32_t r = 0; r < width; ++r) {
 			for (uint32_t c = 0; c < height; ++c) {
 				for (uint8_t p = 0; p < bpp; ++p) {
-					newPixelData[((width - r - 1) * height + c) * bpp + p] = pRawImgData->rawPixelData()[(c * width + r) * bpp + p];
+					newPixelData[((width - r - 1) * height + c) * bpp + p] = pRawImgData->pixelData()[(c * width + r) * bpp + p];
 				}
 			}
 		}
 
 		pRawImgData->width() = height;
 		pRawImgData->height() = width;
-		pRawImgData->rawPixelData() = newPixelData;
+		pRawImgData->pixelData() = newPixelData;
 
 		return true;
 
@@ -90,13 +90,13 @@ namespace crossforge {
 			LogError("Width and/or height is 0. Not a valid image");
 		}
 		else {
-			if (!pImage2D->hasComponent(RawImage2DDataComponent::identification)) pImage2D->addComponent(std::make_shared<RawImage2DDataComponent>());
-			auto pRawImageData = pImage2D->getRawImage2DDataComponent();
+
+			auto pRawImageData = pImage2D->getImage2DComponent(true);
 			pRawImageData->clear();
-			pRawImageData->colorSpace() = RawImage2DDataComponent::COLORSPACE_RGB;
+			pRawImageData->colorSpace() = Image2DComponent::COLORSPACE_RGB;
 			pRawImageData->width() = width;
 			pRawImageData->height() = height;
-			auto &buffer = pRawImageData->rawPixelData();
+			auto &buffer = pRawImageData->pixelData();
 			buffer.resize(width * height * 3);
 			for (uint32_t i = 0; i < width * height; ++i) {
 				buffer[i * 3 + 0] = (uint8_t)(color.x()*255.0f);
@@ -133,18 +133,18 @@ namespace crossforge {
 
 	bool Image2DController::resize(Image2DEntityPtr pImage2D, uint32_t width, uint32_t height) {
 		if (nullptr == pImage2D) throw NullpointerExcept("pImage2D");
-		auto pRawImageComp = pImage2D->getRawImage2DDataComponent();
-		if (nullptr == pRawImageComp) throw MissingComponentException(RawImage2DDataComponent::identification);
+		auto pRawImageComp = pImage2D->getImage2DComponent();
+		if (nullptr == pRawImageComp) throw MissingComponentException(Image2DComponent::identification);
 		bool result = false;
 
 		if (0 == pRawImageComp->width() || 0 == pRawImageComp->height()) LogError("Width of height of image is 0. Can not resize it.");
-		else if (0 == pRawImageComp->rawPixelData().size()) LogError("Image does not cotain any data!");
+		else if (0 == pRawImageComp->pixelData().size()) LogError("Image does not cotain any data!");
 		else {
 			stbir_pixel_layout pixelLayout;
 			switch (pRawImageComp->colorSpace()) {
-			case RawImage2DDataComponent::COLORSPACE_GRAYSCALE: pixelLayout = stbir_pixel_layout::STBIR_1CHANNEL; break;
-			case RawImage2DDataComponent::COLORSPACE_RGB: pixelLayout = stbir_pixel_layout::STBIR_RGB; break;
-			case RawImage2DDataComponent::COLORSPACE_RGBA: pixelLayout = stbir_pixel_layout::STBIR_RGBA; break;
+			case Image2DComponent::COLORSPACE_GRAYSCALE: pixelLayout = stbir_pixel_layout::STBIR_1CHANNEL; break;
+			case Image2DComponent::COLORSPACE_RGB: pixelLayout = stbir_pixel_layout::STBIR_RGB; break;
+			case Image2DComponent::COLORSPACE_RGBA: pixelLayout = stbir_pixel_layout::STBIR_RGBA; break;
 			default: {
 				LogError("Not handled color space of " + std::to_string(pRawImageComp->colorSpace()) + " encountered.");
 				return result;
@@ -153,32 +153,33 @@ namespace crossforge {
 
 			std::vector<uint8_t> buffer;
 			buffer.resize(width * height * pRawImageComp->getBytesPerPixel());
-			stbir_resize_uint8_linear(pRawImageComp->rawPixelData().data(), pRawImageComp->width(), pRawImageComp->height(), 0,
+			stbir_resize_uint8_linear(pRawImageComp->pixelData().data(), pRawImageComp->width(), pRawImageComp->height(), 0,
 				buffer.data(), width, height, 0, pixelLayout);
 
 			pRawImageComp->width() = width;
 			pRawImageComp->height() = height;
-			pRawImageComp->rawPixelData() = buffer;
+			pRawImageComp->pixelData() = buffer;
+			result = true;
 		}
 
 		return result;
 	}
 
-	bool Image2DController::changeColorSpace(Image2DEntityPtr pImage2D, RawImage2DDataComponent::ColorSpace colorSpace) {
+	bool Image2DController::changeColorSpace(Image2DEntityPtr pImage2D, Image2DComponent::ColorSpace colorSpace) {
 		if (nullptr == pImage2D) throw NullpointerExcept("pImage2D");
-		if (RawImage2DDataComponent::COLORSPACE_UNKNOWN >= colorSpace || colorSpace >= RawImage2DDataComponent::COLORSPACE_COUNT) throw IndexOutOfBoundsExcept("colorSpace");
-		auto pRawImageComp = pImage2D->getRawImage2DDataComponent();
-		if (nullptr == pRawImageComp) throw MissingComponentException(RawImage2DDataComponent::identification);
+		if (Image2DComponent::COLORSPACE_UNKNOWN >= colorSpace || colorSpace >= Image2DComponent::COLORSPACE_COUNT) throw IndexOutOfBoundsExcept("colorSpace");
+		auto pRawImageComp = pImage2D->getImage2DComponent();
+		if (nullptr == pRawImageComp) throw MissingComponentException(Image2DComponent::identification);
 
 		bool result = false;
 		std::vector<uint8_t> buffer;
-		std::vector<uint8_t>& origBuffer = pRawImageComp->rawPixelData();
+		std::vector<uint8_t>& origBuffer = pRawImageComp->pixelData();
 		uint32_t width = pRawImageComp->width();
 		uint32_t height = pRawImageComp->height();
 		if (0 == pRawImageComp->width() || 0 == pRawImageComp->height()) LogError("Image width or height is 0.");
-		else if (0 == pRawImageComp->rawPixelData().size()) LogError("Image contains no data.");
-		else if (RawImage2DDataComponent::COLORSPACE_UNKNOWN == pRawImageComp->colorSpace()) LogError("Image has invalid colors space specified.");
-		else if (pRawImageComp->colorSpace() == RawImage2DDataComponent::COLORSPACE_RGBA && colorSpace == RawImage2DDataComponent::COLORSPACE_RGB) {
+		else if (0 == pRawImageComp->pixelData().size()) LogError("Image contains no data.");
+		else if (Image2DComponent::COLORSPACE_UNKNOWN == pRawImageComp->colorSpace()) LogError("Image has invalid colors space specified.");
+		else if (pRawImageComp->colorSpace() == Image2DComponent::COLORSPACE_RGBA && colorSpace == Image2DComponent::COLORSPACE_RGB) {
 			buffer.resize(width * height * 3);
 			for (uint32_t i = 0; i < width * height; ++i) {
 				buffer[i * 3 + 0] = origBuffer[i * 4 + 0];
@@ -186,14 +187,14 @@ namespace crossforge {
 				buffer[i * 3 + 2] = origBuffer[i * 4 + 2];
 			}
 		}
-		else if (pRawImageComp->colorSpace() == RawImage2DDataComponent::COLORSPACE_RGBA && colorSpace == RawImage2DDataComponent::COLORSPACE_GRAYSCALE) {
+		else if (pRawImageComp->colorSpace() == Image2DComponent::COLORSPACE_RGBA && colorSpace == Image2DComponent::COLORSPACE_GRAYSCALE) {
 			buffer.resize(width * height);
 			for (uint32_t i = 0; i < width * height; ++i) {
 				Eigen::Vector3f color(origBuffer[i * 4 + 0] / 255.0f, origBuffer[i * 4 + 1] / 255.0f, origBuffer[i * 4 + 2] / 255.0f);
 				buffer[i] = MiscUtility::rgbToGrayscale(color)*255.0f;
 			}
 		}
-		else if (pRawImageComp->colorSpace() == RawImage2DDataComponent::COLORSPACE_RGB && colorSpace == RawImage2DDataComponent::COLORSPACE_RGBA) {
+		else if (pRawImageComp->colorSpace() == Image2DComponent::COLORSPACE_RGB && colorSpace == Image2DComponent::COLORSPACE_RGBA) {
 			buffer.resize(width * height * 4);
 			for (uint32_t i = 0; i < width * height; ++i) {
 				buffer[i * 4 + 0] = origBuffer[i * 3 + 0];
@@ -202,14 +203,14 @@ namespace crossforge {
 				buffer[i * 4 + 3] = 255;
 			}
 		}
-		else if (pRawImageComp->colorSpace() == RawImage2DDataComponent::COLORSPACE_RGB && colorSpace == RawImage2DDataComponent::COLORSPACE_GRAYSCALE) {
+		else if (pRawImageComp->colorSpace() == Image2DComponent::COLORSPACE_RGB && colorSpace == Image2DComponent::COLORSPACE_GRAYSCALE) {
 			buffer.resize(width * height);
 			for (uint32_t i = 0; i < width * height; ++i) {
 				Eigen::Vector3f color(origBuffer[i * 3 + 0] / 255.0f, origBuffer[i * 3 + 1] / 255.0f, origBuffer[i * 3 + 2] / 255.0f);
 				buffer[i] = MiscUtility::rgbToGrayscale(color) * 255.0f;
 			}
 		}
-		else if (pRawImageComp->colorSpace() == RawImage2DDataComponent::COLORSPACE_GRAYSCALE && colorSpace == RawImage2DDataComponent::COLORSPACE_RGBA) {
+		else if (pRawImageComp->colorSpace() == Image2DComponent::COLORSPACE_GRAYSCALE && colorSpace == Image2DComponent::COLORSPACE_RGBA) {
 			buffer.resize(width * height * 4);
 			for (uint32_t i = 0; i < width * height; ++i) {
 				buffer[i * 4 + 0] = origBuffer[i];
@@ -218,7 +219,7 @@ namespace crossforge {
 				buffer[i * 4 + 3] = 255;
 			}
 		}
-		else if (pRawImageComp->colorSpace() == RawImage2DDataComponent::COLORSPACE_GRAYSCALE && colorSpace == RawImage2DDataComponent::COLORSPACE_RGB) {
+		else if (pRawImageComp->colorSpace() == Image2DComponent::COLORSPACE_GRAYSCALE && colorSpace == Image2DComponent::COLORSPACE_RGB) {
 			buffer.resize(width * height * 3);
 			for (uint32_t i = 0; i < width * height; ++i) {
 				buffer[i * 3 + 0] = origBuffer[i];
@@ -231,7 +232,7 @@ namespace crossforge {
 		}
 
 		if (buffer.size() > 0) {
-			pRawImageComp->rawPixelData() = buffer;
+			pRawImageComp->pixelData() = buffer;
 			pRawImageComp->colorSpace() = colorSpace;
 			result = true;
 		}

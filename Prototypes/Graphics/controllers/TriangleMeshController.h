@@ -27,6 +27,7 @@ namespace crossforge {
 		static inline std::string identification = "TriangleMeshController";
 
 		static bool recomputeVertexNormals(TriangleMeshEntityPtr pTriangleMesh);
+		static bool recomputeVertexTangents(TriangleMeshEntityPtr pTriangleMesh);
 
 		/**
 		* \brief A two dimensional plane.

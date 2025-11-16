@@ -40,6 +40,9 @@
 #include "../scene/systems/MovementSystem.h"
 #include "../scene/entities/SceneEntity.h"
 
+#include "../assetio/entities/VideoEntity.h"
+#include "../scene/systems/CameraSystem.h"
+
 namespace crossforge {
 	class SCrossForgeSimpleSceneApp : public ApplicationBase {
 	public:
@@ -87,6 +90,10 @@ namespace crossforge {
 		MovementSystemPtr m_pMovementSystem;
 
 		SceneEntityPtr m_pSceneEntity;
+
+		VideoEntityPtr m_pVideoRecorder;
+
+		CameraSystemPtr m_pCameraSystem;
 	};
 
 	typedef SCrossForgeSimpleSceneApp CrossForgeSimpleSceneApp;

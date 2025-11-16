@@ -28,6 +28,9 @@ namespace crossforge {
 		Texture2DComponent();
 		~Texture2DComponent();
 
+		void initialize();
+		void clear();
+
 		uint32_t& glTextureHandle();
 		uint32_t& width();
 		uint32_t& height();

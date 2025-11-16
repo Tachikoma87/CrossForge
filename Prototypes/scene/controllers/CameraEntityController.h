@@ -29,7 +29,7 @@ namespace crossforge {
 
 		static void computePerspectiveProjectionMatrix(CameraEntityPtr pCameraEntity, CanvasEntityPtr pCanvasEntity, float fieldOfView = 45.0f, float near = 0.1f, float far = 1000.0f);
 		static void computeCameraMatrixFromTransformation(CameraEntityPtr pCameraEntity);
-		static void computeCameraMatrixLookAt(CameraEntityPtr pCameraEntity, Eigen::Vector3f targetPosition);
+		
 
 		
 

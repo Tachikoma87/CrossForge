@@ -264,7 +264,7 @@ add_executable(CForgeSandbox
  "Prototypes/input/components/UserInputComponent.h"
  "Prototypes/input/components/UserInputComponent.cpp"
  "Prototypes/utility/FFMpegUtility.hpp"
- "Prototypes/assetio/entities/VideoEntity.h" "Prototypes/assetio/entities/VideoEntity.cpp" "Prototypes/assetio/components/VideoDataComponent.h" "Prototypes/assetio/components/VideoDataComponent.cpp" "Prototypes/assetio/controllers/VideoController.h" "Prototypes/assetio/controllers/VideoController.cpp")
+ "Prototypes/assetio/entities/VideoEntity.h" "Prototypes/assetio/entities/VideoEntity.cpp" "Prototypes/assetio/components/VideoDataComponent.h" "Prototypes/assetio/components/VideoDataComponent.cpp" "Prototypes/assetio/controllers/VideoController.h" "Prototypes/assetio/controllers/VideoController.cpp" "Prototypes/scene/components/SphericalTransformationComponent.h" "Prototypes/scene/components/SphericalTransformationComponent.cpp" "Prototypes/scene/systems/CameraSystem.h" "Prototypes/scene/systems/CameraSystem.cpp" "Prototypes/scene/components/TargetObjectComponent.h" "Prototypes/scene/components/TargetObjectComponent.cpp"   "Prototypes/miscellaneous/controllers/MiscellaneousController.h" "Prototypes/miscellaneous/controllers/MiscellaneousController.cpp")
 	
 if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox

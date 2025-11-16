@@ -86,6 +86,15 @@ namespace crossforge {
 		pTransform->localRotation() = rotation * pTransform->localRotation();
 	}
 
+	void SceneObjectEntityController::rotate(SceneObjectEntityPtr pSceneObject, const float theta, const Eigen::Vector3f axis) {
+		if (nullptr == pSceneObject) throw NullpointerExcept("pSceneObject");
+		auto pTransformComp = pSceneObject->getTransformation3DComponent();
+		if (nullptr == pTransformComp) throw MissingComponentException(Transformation3DComponent::identification);
+		Quaternionf rot;
+		rot = AngleAxisf(theta, axis);
+		pTransformComp->localRotation() = rot * pTransformComp->localRotation();
+	}
+
 	void SceneObjectEntityController::moveForward(SceneObjectEntityPtr pSceneObjectEntity, const float delta) {
 		if (nullptr == pSceneObjectEntity) throw NullpointerExcept("pSceneObjectEntity");
 		auto pTransformComp = pSceneObjectEntity->getTransformation3DComponent();
@@ -139,5 +148,31 @@ namespace crossforge {
 		Quaternionf rot;
 		rot = AngleAxisf(theta, right);
 		pTransformComp->localRotation() = rot * pTransformComp->localRotation();
+	}
+
+	void SceneObjectEntityController::lookAt(SceneObjectEntityPtr pSceneObject, Eigen::Vector3f origin, Eigen::Vector3f target, Eigen::Vector3f up) {
+		if (nullptr == pSceneObject) throw NullpointerExcept("pCameraEntity");
+		auto pTransform = pSceneObject->getTransformation3DComponent();
+		if (nullptr == pTransform) throw MissingComponentException(Transformation3DComponent::identification);
+
+		Vector3f z = (target - origin).normalized();
+		Vector3f x = (z.cross(up)).normalized();
+		Vector3f y = x.cross(z);
+		z = -z;
+
+		Matrix3f rot;
+		rot(0, 0) = x.x();
+		rot(0, 1) = x.y();
+		rot(0, 2) = x.z();
+		rot(1, 0) = y.x();
+		rot(1, 1) = y.y();
+		rot(1, 2) = y.z();
+		rot(2, 0) = z.x();
+		rot(2, 1) = z.y();
+		rot(2, 2) = z.z();
+		rot.transposeInPlace();
+
+		pTransform->localPosition() = origin;
+		pTransform->localRotation() = rot;
 	}
 }

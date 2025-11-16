@@ -40,7 +40,7 @@ namespace crossforge {
 		~VertexBufferComponent();
 
 		void initialize();
-		void clear();
+		void clear() override;
 
 		bool hasAttribute(VertexAttribute attrib)const;
 		uint16_t& attributeMask();

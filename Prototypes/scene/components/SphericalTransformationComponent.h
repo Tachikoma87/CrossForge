@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): IndexBufferComponent.h and IndexBufferComponent.cpp                      *
+* File(s): SphericalTransformationComponent.h and SphericalTransformationComponent.cpp               *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,35 +15,41 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_INDEXBUFFERCOMPONENT_H__
-#define __CROSSFORGE_INDEXBUFFERCOMPONENT_H__
+#ifndef __CROSSFORGE_SPHERICALTRANSFORMATIONCOMPONENT_H__
+#define __CROSSFORGE_SPHERICALTRANSFORMATIONCOMPONENT_H__
 
 #include <crossforge/ecs/ComponentBase.h>
 
 namespace crossforge {
-	class IndexBufferComponent : public ComponentBase {
+	class SphericalTransformationComponent : public ComponentBase {
 	public:
-		static inline std::string identification = "IndexBufferComponent";
+		static inline std::string identification = "SphericalTransformationComponent";
 
-		IndexBufferComponent();
-		~IndexBufferComponent();
+		SphericalTransformationComponent();
+		~SphericalTransformationComponent();
 
 		void initialize();
-		void clear();
+		void clear() override;
 
-		uint32_t& glBufferHandle();
-		uint64_t& indexCount();
-		uint64_t& bufferSize();
+		Eigen::Vector3f& origin();
+		float& rho();
+		float& theta();
+		float& phi();
+
+		Eigen::Vector3f getPosition();
 
 	protected:
-		IndexBufferComponent(const std::string childIdentification);
+		SphericalTransformationComponent(const std::string childIdentification);
 
-		uint32_t m_glBufferHandle;
-		uint64_t m_indexCount;
-		uint64_t m_bufferSize;
+		Eigen::Vector3f m_origin;
+		float m_rho;	// radius or distance from origin
+		float m_theta;	// azimuthal angle
+		float m_phi;	// polar angle
+
 	};
 
-	typedef std::shared_ptr<IndexBufferComponent> IndexBufferComponentPtr;
+	typedef std::shared_ptr<SphericalTransformationComponent> SphericalTransformationComponentPtr;
 }
+
 
 #endif

@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): IndexBufferComponent.h and IndexBufferComponent.cpp                      *
+* File(s): CameraSystem.h and CameraSystem.cpp                        *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,35 +15,38 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_INDEXBUFFERCOMPONENT_H__
-#define __CROSSFORGE_INDEXBUFFERCOMPONENT_H__
+#ifndef __CROSSFORGE_CAMERASYSTEM_H__
+#define __CROSSFORGE_CAMERASYSTEM_H__
 
-#include <crossforge/ecs/ComponentBase.h>
+#include <crossforge/ecs/SystemBase.h>
+#include <crossforge/input/entities/InputDeviceEntity.h>
+#include <crossforge/input/systems/KeyboardInputSystem.h>
+#include <crossforge/input/systems/MouseInputSystem.h>
+#include <crossforge/ecs/SSystemManager.h>
+#include <crossforge/graphics/entities/WindowEntity.h>
 
 namespace crossforge {
-	class IndexBufferComponent : public ComponentBase {
+	class CameraSystem : public SystemBase {
 	public:
-		static inline std::string identification = "IndexBufferComponent";
+		static inline std::string identification = "CameraSystem";
 
-		IndexBufferComponent();
-		~IndexBufferComponent();
+		CameraSystem();
+		~CameraSystem();
 
 		void initialize();
+		void initialize(WindowEntityPtr pAssociatedWindow);
 		void clear();
-
-		uint32_t& glBufferHandle();
-		uint64_t& indexCount();
-		uint64_t& bufferSize();
+		void update();
+		bool isEntityValid(EntityBasePtr pEntity)const;
 
 	protected:
-		IndexBufferComponent(const std::string childIdentification);
+		CameraSystem(const std::string childIdentification);
 
-		uint32_t m_glBufferHandle;
-		uint64_t m_indexCount;
-		uint64_t m_bufferSize;
+		SystemManagerPtr m_pSystemManager;
+		InputDeviceEntityPtr m_pInputDevice;
 	};
 
-	typedef std::shared_ptr<IndexBufferComponent> IndexBufferComponentPtr;
+	typedef std::shared_ptr<CameraSystem> CameraSystemPtr;
 }
 
-#endif
+#endif 

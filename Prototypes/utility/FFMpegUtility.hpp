@@ -44,13 +44,13 @@ namespace crossforge {
         * \return New AVFrame. Use freeAVFrame to delete the structure when not needed anymore.
         * \throws CrossForgeException Exception thrown if frame could not be allocated.
         */
-        static AVFrame* allocAVFrame(const int32_t Width, const int32_t Height, const AVPixelFormat PixelFormat) {
+        static AVFrame* allocAVFrame(const int32_t width, const int32_t height, const AVPixelFormat pixelFormat) {
             AVFrame* pRval = nullptr;
 
             pRval = av_frame_alloc();
-            pRval->format = PixelFormat;
-            pRval->width = Width;
-            pRval->height = Height;
+            pRval->format = pixelFormat;
+            pRval->width = width;
+            pRval->height = height;
             av_frame_get_buffer(pRval, 0);
 
             if (nullptr == pRval) throw CrossForgeExcept("Unable to allocate AVFrame!");
@@ -78,10 +78,10 @@ namespace crossforge {
         * \param[in] DstFormat Destination format.
         * \return Converted AVFrame. Use freeAVFrame to clear once it is not needed anymore.
         */
-        static AVFrame* convertPixelFormat(const AVFrame* pSrc, AVPixelFormat DstFormat) {
-            AVFrame* pRval = nullptr;
-            convertPixelFormat(pSrc, &pRval, DstFormat);
-            return pRval;
+        static AVFrame* convertPixelFormat(const AVFrame* pSrc, AVPixelFormat dstFormat) {
+            AVFrame* pResult = nullptr;
+            convertPixelFormat(pSrc, &pResult, dstFormat);
+            return pResult;
         }//convertPixelFormat
 
         /**
@@ -91,26 +91,26 @@ namespace crossforge {
         * \param[in, out] ppTarget Target frame. If it does no exist it will be created. You have to clean up.
         * \param[in] DstFormat Format to convert to.
         */
-        static void convertPixelFormat(const AVFrame* pSrc, AVFrame** ppTarget, AVPixelFormat DstFormat) {
-            const int32_t Width = pSrc->width;
-            const int32_t Height = pSrc->height;
+        static void convertPixelFormat(const AVFrame* pSrc, AVFrame** ppTarget, AVPixelFormat dstFormat) {
+            const int32_t width = pSrc->width;
+            const int32_t height = pSrc->height;
 
-            AVFrame* pRval = ((*ppTarget) == nullptr) ? allocAVFrame(Width, Height, DstFormat) : (*ppTarget);
+            AVFrame* pRval = ((*ppTarget) == nullptr) ? allocAVFrame(width, height, dstFormat) : (*ppTarget);
             if (nullptr == pRval) return;
 
-            SwsContext* pConversionCtx = sws_getContext(Width, Height,
+            SwsContext* pConversionCtx = sws_getContext(width, height,
                 (AVPixelFormat)pSrc->format,
-                Width,
-                Height,
-                DstFormat,
+                width,
+                height,
+                dstFormat,
                 SWS_FAST_BILINEAR,
                 NULL,
                 NULL,
                 NULL);
-            sws_scale(pConversionCtx, pSrc->data, pSrc->linesize, 0, Height, pRval->data, pRval->linesize);
+            sws_scale(pConversionCtx, pSrc->data, pSrc->linesize, 0, height, pRval->data, pRval->linesize);
             sws_freeContext(pConversionCtx);
 
-            pRval->format = DstFormat;
+            pRval->format = dstFormat;
             pRval->width = pSrc->width;
             pRval->height = pSrc->height;
 
@@ -125,10 +125,10 @@ namespace crossforge {
         * \param[in] Target height.
         * \return Resizes frame. You have to clean up.
         */
-        static AVFrame* resizeFrame(const AVFrame* pSrc, uint32_t Width, uint32_t Height) {
-            AVFrame* pRval = nullptr;
-            resizeFrame(pSrc, &pRval, Width, Height);
-            return pRval;
+        static AVFrame* resizeFrame(const AVFrame* pSrc, uint32_t width, uint32_t height) {
+            AVFrame* pResult = nullptr;
+            resizeFrame(pSrc, &pResult, width, height);
+            return pResult;
         }//convertPixelFormat
 
         /**
@@ -140,27 +140,27 @@ namespace crossforge {
         * \param[in] Height Target height.
         *
         */
-        static void resizeFrame(const AVFrame* pSrc, AVFrame** ppTarget, uint32_t Width, uint32_t Height) {
-            AVFrame* pRval = ((*ppTarget) == nullptr) ? allocAVFrame(Width, Height, AVPixelFormat(pSrc->format)) : (*ppTarget);
-            if (nullptr == pRval) return;
+        static void resizeFrame(const AVFrame* pSrc, AVFrame** ppTarget, uint32_t width, uint32_t height) {
+            AVFrame* pResult = ((*ppTarget) == nullptr) ? allocAVFrame(width, height, AVPixelFormat(pSrc->format)) : (*ppTarget);
+            if (nullptr == pResult) return;
 
             SwsContext* pConversionCtx = sws_getContext(pSrc->width, pSrc->height,
                 (AVPixelFormat)pSrc->format,
-                Width,
-                Height,
-                AVPixelFormat(pRval->format),
+                width,
+                height,
+                AVPixelFormat(pResult->format),
                 SWS_BICUBIC,
                 NULL,
                 NULL,
                 NULL);
-            sws_scale(pConversionCtx, pSrc->data, pSrc->linesize, 0, pSrc->height, pRval->data, pRval->linesize);
+            sws_scale(pConversionCtx, pSrc->data, pSrc->linesize, 0, pSrc->height, pResult->data, pResult->linesize);
             sws_freeContext(pConversionCtx);
 
-            pRval->format = pSrc->format;
-            pRval->width = Width;
-            pRval->height = Height;
+            pResult->format = pSrc->format;
+            pResult->width = width;
+            pResult->height = height;
 
-            if (nullptr != ppTarget) (*ppTarget) = pRval;
+            if (nullptr != ppTarget) (*ppTarget) = pResult;
         }//resizeImage
 
         /**
@@ -171,13 +171,13 @@ namespace crossforge {
         */
         static AVFrame* toAVFrame(Image2DEntityPtr pImage) {
             if (nullptr == pImage) throw NullpointerExcept("pImage");
-            auto pRawImageComp = pImage->getRawImage2DDataComponent();
-            if (nullptr == pRawImageComp) throw MissingComponentException(RawImage2DDataComponent::identification);
+            auto pRawImageComp = pImage->getImage2DComponent();
+            if (nullptr == pRawImageComp) throw MissingComponentException(Image2DComponent::identification);
 
-            AVFrame* pRval = allocAVFrame(pRawImageComp->width(), pRawImageComp->height(), AV_PIX_FMT_RGB24);
+            AVFrame* pResult = allocAVFrame(pRawImageComp->width(), pRawImageComp->height(), AV_PIX_FMT_RGB24);
             uint32_t size = pRawImageComp->width() * pRawImageComp->height() * pRawImageComp->getBytesPerPixel();
-            memcpy(pRval->data[0], pRawImageComp->rawPixelData().data(), size);
-            return pRval;
+            memcpy(pResult->data[0], pRawImageComp->pixelData().data(), size);
+            return pResult;
         }//toAVFrame
 
         /**
@@ -188,12 +188,13 @@ namespace crossforge {
         */
         static void toAVFrame(AVFrame** ppFrame, Image2DEntityPtr pImage) {
             if (nullptr == pImage) throw NullpointerExcept("pImage");
-            auto pRawImageComp = pImage->getRawImage2DDataComponent();
-            if (nullptr == pRawImageComp) throw MissingComponentException(RawImage2DDataComponent::identification);
+            if (nullptr == ppFrame) throw NullpointerExcept("ppFrame");
+            auto pRawImageComp = pImage->getImage2DComponent();
+            if (nullptr == pRawImageComp) throw MissingComponentException(Image2DComponent::identification);
 
-            if (nullptr == ppFrame) (*ppFrame) = allocAVFrame(pRawImageComp->width(), pRawImageComp->height(), AV_PIX_FMT_RGB24);
+            if (nullptr == (*ppFrame)) *ppFrame = allocAVFrame(pRawImageComp->width(), pRawImageComp->height(), AV_PIX_FMT_RGB24);
             uint32_t size = pRawImageComp->width() * pRawImageComp->height() * pRawImageComp->getBytesPerPixel();
-            memcpy((*ppFrame)->data[0], pRawImageComp->rawPixelData().data(), size);
+            memcpy((*ppFrame)->data[0], pRawImageComp->pixelData().data(), size);
         }//toAVFrame
 
         /**
@@ -206,17 +207,15 @@ namespace crossforge {
             if (nullptr == pSource) throw NullpointerExcept("pSource");
             if (nullptr == pTarget) throw NullpointerExcept("pTarget");
            
-            auto pImageDataComp = pTarget->getRawImage2DDataComponent();
-            if (nullptr == pImageDataComp) throw MissingComponentException(RawImage2DDataComponent::identification);
+            auto pImageDataComp = pTarget->getImage2DComponent();
+            if (nullptr == pImageDataComp) throw MissingComponentException(Image2DComponent::identification);
             pImageDataComp->clear();
             uint32_t size = pSource->linesize[0] * pSource->height;
-            pImageDataComp->rawPixelData().resize(size);
-            memcpy(pImageDataComp->rawPixelData().data(), pSource->data[0], size);
+            pImageDataComp->pixelData().resize(size);
+            memcpy(pImageDataComp->pixelData().data(), pSource->data[0], size);
             pImageDataComp->width() = pSource->width;
             pImageDataComp->height() = pSource->height;
-            pImageDataComp->colorSpace() = RawImage2DDataComponent::COLORSPACE_RGB;
-
-
+            pImageDataComp->colorSpace() = Image2DComponent::COLORSPACE_RGB;
         }//to2DImage
 
     protected:

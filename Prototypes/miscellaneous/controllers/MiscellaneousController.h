@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): IndexBufferComponent.h and IndexBufferComponent.cpp                      *
+* File(s): MiscellaneousController.h and MiscellaneousController.cpp        *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,35 +15,27 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_INDEXBUFFERCOMPONENT_H__
-#define __CROSSFORGE_INDEXBUFFERCOMPONENT_H__
+#ifndef __CROSSFORGE_MISCELLANEOUSCONTROLLER_H__
+#define __CROSSFORGE_MISCELLANEOUSCONTROLLER_H__
 
-#include <crossforge/ecs/ComponentBase.h>
+#include <crossforge/ecs/ControllerBase.h>
+
+#include <crossforge/graphics/entities/WindowEntity.h>
 
 namespace crossforge {
-	class IndexBufferComponent : public ComponentBase {
+	class MiscellaneousController : public ControllerBase {
 	public:
-		static inline std::string identification = "IndexBufferComponent";
+		static inline std::string identification = "MiscellaneousController";
 
-		IndexBufferComponent();
-		~IndexBufferComponent();
+		static bool updateWindowTitle(WindowEntityPtr pWindow);
+		static bool updateVerticalSynchronization(WindowEntityPtr pWindow);
 
-		void initialize();
-		void clear();
-
-		uint32_t& glBufferHandle();
-		uint64_t& indexCount();
-		uint64_t& bufferSize();
-
+		~MiscellaneousController();
 	protected:
-		IndexBufferComponent(const std::string childIdentification);
-
-		uint32_t m_glBufferHandle;
-		uint64_t m_indexCount;
-		uint64_t m_bufferSize;
+		MiscellaneousController(const std::string childIdentification);
 	};
 
-	typedef std::shared_ptr<IndexBufferComponent> IndexBufferComponentPtr;
+	typedef std::shared_ptr<MiscellaneousController> MiscellaneousControllerPtr;
 }
 
-#endif
+#endif 

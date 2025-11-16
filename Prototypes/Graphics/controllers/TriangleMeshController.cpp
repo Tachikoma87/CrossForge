@@ -14,10 +14,10 @@ namespace crossforge {
 	bool TriangleMeshController::recomputeVertexNormals(TriangleMeshEntityPtr pTriangleMesh) {
 		if (nullptr == pTriangleMesh) throw NullpointerExcept("pTriangleMesh");
 
-		auto pPositions = pTriangleMesh->getPositionDataComponent();
+		auto pPositions = pTriangleMesh->getPositionsComponent();
 		auto pMeshDefinitions = pTriangleMesh->getMeshDefinitionsComponent();
 
-		if (nullptr == pPositions) throw MissingComponentException(PositionDataComponent::identification);
+		if (nullptr == pPositions) throw MissingComponentException(PositionsComponent::identification);
 		if (nullptr == pMeshDefinitions) throw MissingComponentException(MeshDefinitionsComponent::identification);
 
 		// compute per face normals
@@ -55,16 +55,67 @@ namespace crossforge {
 		// normalize normals
 		for (auto& normal : vertexNormals) normal.normalize();
 
-		if (!pTriangleMesh->hasComponent(NormalDataComponent::identification)) pTriangleMesh->addComponent(std::make_shared<NormalDataComponent>());
-		auto pNormalDataComponent = pTriangleMesh->getNormalDataComponent();
+		auto pNormalDataComponent = pTriangleMesh->getNormalsComponent(true);
 		pNormalDataComponent->setNormals(vertexNormals);
 		return true;
 	}
 
+	bool TriangleMeshController::recomputeVertexTangents(TriangleMeshEntityPtr pTriangleMesh) {
+		if (nullptr == pTriangleMesh) throw NullpointerExcept("pTriangleMesh");	
+		auto pPositionsComp = pTriangleMesh->getPositionsComponent();
+		auto pNormalsComp = pTriangleMesh->getNormalsComponent();
+		auto pTexCoordsComp = pTriangleMesh->getTextureCoordinatesComponent();
+		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent();
+
+		//// per face tangents
+		//if (m_UVWs.size() == 0) throw CForgeExcept("No UVW coordinates. Can not compute tangents.");
+
+		//for (auto i : m_Submeshes) {
+		//	i->FaceTangents.clear();
+		//	for (auto F : i->Faces) {
+		//		const Eigen::Vector3f Edge1 = m_Positions[F.Vertices[1]] - m_Positions[F.Vertices[0]];
+		//		const Eigen::Vector3f Edge2 = m_Positions[F.Vertices[2]] - m_Positions[F.Vertices[0]];
+		//		const Eigen::Vector3f DeltaUV1 = m_UVWs[F.Vertices[1]] - m_UVWs[F.Vertices[0]];
+		//		const Eigen::Vector3f DeltaUV2 = m_UVWs[F.Vertices[2]] - m_UVWs[F.Vertices[0]];
+
+		//		float f = DeltaUV1.x() * DeltaUV2.y() - DeltaUV2.x() + DeltaUV1.y();
+		//		f = (std::abs(f) > 0.0f) ? 1.0f / f : 1.0f;
+
+		//		Eigen::Vector3f Tangent;
+		//		Tangent.x() = f * (DeltaUV2.y() * Edge1.x() - DeltaUV1.y() * Edge2.x());
+		//		Tangent.y() = f * (DeltaUV2.y() * Edge1.y() - DeltaUV1.y() * Edge2.y());
+		//		Tangent.z() = f * (DeltaUV2.y() * Edge1.z() - DeltaUV1.y() * Edge2.z());
+		//		i->FaceTangents.push_back(Tangent);
+		//	}//for[all faces]
+		//}//for[all submeshes]
+
+		//// per vertex tangents
+		//if (ComputePerFaceTangents) computePerFaceTangents();
+		//m_Tangents.clear();
+		//// create tangents
+		//for (uint32_t i = 0; i < m_Positions.size(); ++i) m_Tangents.push_back(Eigen::Vector3f::Zero());
+
+		//// sum tangents
+		//for (auto i : m_Submeshes) {
+		//	for (uint32_t k = 0; k < i->Faces.size(); ++k) {
+		//		Face* pF = &(i->Faces[k]);
+		//		m_Tangents[pF->Vertices[0]] += i->FaceTangents[k];
+		//		m_Tangents[pF->Vertices[1]] += i->FaceTangents[k];
+		//		m_Tangents[pF->Vertices[2]] += i->FaceTangents[k];
+		//	}//for[all faces]
+		//}//for[submeshes]
+		//// normalize tangents
+		//for (auto& i : m_Tangents) i.normalize();
+
+
+
+	}
+
+
 	void TriangleMeshController::plane(TriangleMeshEntityPtr pTriangleMesh, Eigen::Vector2f dimensions, Eigen::Vector2i segments, bool twoSided) {
 		if (nullptr == pTriangleMesh) throw NullpointerExcept("pTriangleMesh");
 		pTriangleMesh->clear();
-		pTriangleMesh->initialize(TriangleMeshEntity::POSITION_DATA_COMPONENT | TriangleMeshEntity::MESH_DEFINITIONS_COMPONENT | TriangleMeshEntity::MATERIAL_DATA_COMPONENT | TriangleMeshEntity::TEXTURE_COORDINATES_COMPONENT);
+		pTriangleMesh->initialize();
 
 		std::vector<Vector3f> vertices;
 		std::vector<Vector3f> uvws;
@@ -107,10 +158,10 @@ namespace crossforge {
 			}
 		}
 
-		auto pPositionComp = pTriangleMesh->getPositionDataComponent();
-		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent();
-		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent();
-		auto pMaterials = pTriangleMesh->getMaterialDataComponent();
+		auto pPositionComp = pTriangleMesh->getPositionsComponent(true);
+		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent(true);
+		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent(true);
+		auto pMaterials = pTriangleMesh->getMeshMaterialsComponent(true);
 
 		pPositionComp->setPositions(vertices);
 		pTextureCoordinatesComp->setTextureCoordinates(uvws);
@@ -131,7 +182,7 @@ namespace crossforge {
 	void TriangleMeshController::circle(TriangleMeshEntityPtr pTriangleMesh, Eigen::Vector2f dimensions, uint32_t slices, float tipOffset, bool twoSided) {
 		if (nullptr == pTriangleMesh) throw NullpointerExcept("pTriangleMesh");
 		pTriangleMesh->clear();
-		pTriangleMesh->initialize(TriangleMeshEntity::POSITION_DATA_COMPONENT | TriangleMeshEntity::MESH_DEFINITIONS_COMPONENT | TriangleMeshEntity::MATERIAL_DATA_COMPONENT | TriangleMeshEntity::TEXTURE_COORDINATES_COMPONENT);
+		pTriangleMesh->initialize();
 
 		if (slices < 3) slices = 3;
 
@@ -165,10 +216,10 @@ namespace crossforge {
 			if (twoSided) faces.push_back(Eigen::Vector3i(face.x(), face.z(), face.y()));
 		}
 
-		auto pPositionComp = pTriangleMesh->getPositionDataComponent();
-		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent();
-		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent();
-		auto pMaterials = pTriangleMesh->getMaterialDataComponent();
+		auto pPositionComp = pTriangleMesh->getPositionsComponent(true);
+		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent(true);
+		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent(true);
+		auto pMaterials = pTriangleMesh->getMeshMaterialsComponent(true);
 
 		pPositionComp->setPositions(vertices);
 		pTextureCoordinatesComp->setTextureCoordinates(uvws);
@@ -191,7 +242,7 @@ namespace crossforge {
 	void TriangleMeshController::cuboid(TriangleMeshEntityPtr pTriangleMesh, Eigen::Vector3f dimensions, Eigen::Vector3i segments) {
 		if (nullptr == pTriangleMesh) throw NullpointerExcept("pMesh");
 		pTriangleMesh->clear();
-		pTriangleMesh->initialize(TriangleMeshEntity::POSITION_DATA_COMPONENT | TriangleMeshEntity::MESH_DEFINITIONS_COMPONENT | TriangleMeshEntity::MATERIAL_DATA_COMPONENT | TriangleMeshEntity::TEXTURE_COORDINATES_COMPONENT);
+		pTriangleMesh->initialize();
 
 		// create vertices
 		std::vector<Vector3f> vertices;
@@ -320,10 +371,10 @@ namespace crossforge {
 			}//for[y]
 		}//for[z]
 
-		auto pPositionComp = pTriangleMesh->getPositionDataComponent();
-		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent();
-		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent();
-		auto pMaterials = pTriangleMesh->getMaterialDataComponent();
+		auto pPositionComp = pTriangleMesh->getPositionsComponent(true);
+		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent(true);
+		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent(true);
+		auto pMaterials = pTriangleMesh->getMeshMaterialsComponent(true);
 
 		pPositionComp->setPositions(vertices);
 		pTextureCoordinatesComp->setTextureCoordinates(uvws);
@@ -340,7 +391,7 @@ namespace crossforge {
 	void TriangleMeshController::uvSphere(TriangleMeshEntityPtr pTriangleMesh, Eigen::Vector3f dimensions, uint32_t slices, uint32_t stacks) {
 		if (nullptr == pTriangleMesh) throw NullpointerExcept("pMesh");
 		pTriangleMesh->clear();
-		pTriangleMesh->initialize(TriangleMeshEntity::POSITION_DATA_COMPONENT | TriangleMeshEntity::MESH_DEFINITIONS_COMPONENT | TriangleMeshEntity::MATERIAL_DATA_COMPONENT | TriangleMeshEntity::TEXTURE_COORDINATES_COMPONENT);
+		pTriangleMesh->initialize();
 
 		if (stacks < 3) stacks = 3;
 		if (slices < 3) slices = 3;
@@ -403,10 +454,10 @@ namespace crossforge {
 			}
 		}//for[stacks]
 
-		auto pPositionComp = pTriangleMesh->getPositionDataComponent();
-		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent();
-		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent();
-		auto pMaterials = pTriangleMesh->getMaterialDataComponent();
+		auto pPositionComp = pTriangleMesh->getPositionsComponent(true);
+		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent(true);
+		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent(true);
+		auto pMaterials = pTriangleMesh->getMeshMaterialsComponent(true);
 
 		pPositionComp->setPositions(vertices);
 		pTextureCoordinatesComp->setTextureCoordinates(uvws);
@@ -427,7 +478,7 @@ namespace crossforge {
 	void TriangleMeshController::doubleCone(TriangleMeshEntityPtr pTriangleMesh, Eigen::Vector4f dimensions, uint32_t slices) {
 		if (nullptr == pTriangleMesh) throw NullpointerExcept("pMesh");
 		pTriangleMesh->clear();
-		pTriangleMesh->initialize(TriangleMeshEntity::POSITION_DATA_COMPONENT | TriangleMeshEntity::MESH_DEFINITIONS_COMPONENT | TriangleMeshEntity::MATERIAL_DATA_COMPONENT | TriangleMeshEntity::TEXTURE_COORDINATES_COMPONENT);
+		pTriangleMesh->initialize();
 
 		std::vector<Vector3f> vertices;
 		std::vector<Vector3f> uvws;
@@ -462,10 +513,10 @@ namespace crossforge {
 		}
 
 
-		auto pPositionComp = pTriangleMesh->getPositionDataComponent();
-		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent();
-		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent();
-		auto pMaterials = pTriangleMesh->getMaterialDataComponent();
+		auto pPositionComp = pTriangleMesh->getPositionsComponent(true);
+		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent(true);
+		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent(true);
+		auto pMaterials = pTriangleMesh->getMeshMaterialsComponent(true);
 
 		pPositionComp->setPositions(vertices);
 		pTextureCoordinatesComp->setTextureCoordinates(uvws);
@@ -481,7 +532,7 @@ namespace crossforge {
 	void TriangleMeshController::cylinder(TriangleMeshEntityPtr pTriangleMesh, Eigen::Vector2f topDimensions, Eigen::Vector2f bottomDimensions, float height, uint32_t slices, Eigen::Vector2f tipOffsets) {
 		if (nullptr == pTriangleMesh) throw NullpointerExcept("pMesh");
 		pTriangleMesh->clear();
-		pTriangleMesh->initialize(TriangleMeshEntity::POSITION_DATA_COMPONENT | TriangleMeshEntity::MESH_DEFINITIONS_COMPONENT | TriangleMeshEntity::MATERIAL_DATA_COMPONENT | TriangleMeshEntity::TEXTURE_COORDINATES_COMPONENT);
+		pTriangleMesh->initialize();
 
 		if (slices < 3) slices = 3;
 
@@ -538,10 +589,10 @@ namespace crossforge {
 
 		}//for[slices]
 
-		auto pPositionComp = pTriangleMesh->getPositionDataComponent();
-		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent();
-		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent();
-		auto pMaterials = pTriangleMesh->getMaterialDataComponent();
+		auto pPositionComp = pTriangleMesh->getPositionsComponent(true);
+		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent(true);
+		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent(true);
+		auto pMaterials = pTriangleMesh->getMeshMaterialsComponent(true);
 
 		pPositionComp->setPositions(vertices);
 		pTextureCoordinatesComp->setTextureCoordinates(uvws);
@@ -557,7 +608,7 @@ namespace crossforge {
 	void TriangleMeshController::torus(TriangleMeshEntityPtr pTriangleMesh, float radius, float thickness, uint32_t slices, uint32_t stacks) {
 		if (nullptr == pTriangleMesh) throw NullpointerExcept("pMesh");
 		pTriangleMesh->clear();
-		pTriangleMesh->initialize(TriangleMeshEntity::POSITION_DATA_COMPONENT | TriangleMeshEntity::MESH_DEFINITIONS_COMPONENT | TriangleMeshEntity::MATERIAL_DATA_COMPONENT | TriangleMeshEntity::TEXTURE_COORDINATES_COMPONENT);
+		pTriangleMesh->initialize();
 
 		std::vector<Vector3f> vertices;
 		std::vector<Vector3f> uvws;
@@ -596,10 +647,10 @@ namespace crossforge {
 			}
 		}
 
-		auto pPositionComp = pTriangleMesh->getPositionDataComponent();
-		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent();
-		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent();
-		auto pMaterials = pTriangleMesh->getMaterialDataComponent();
+		auto pPositionComp = pTriangleMesh->getPositionsComponent(true);
+		auto pTextureCoordinatesComp = pTriangleMesh->getTextureCoordinatesComponent(true);
+		auto pMeshDefinitionsComp = pTriangleMesh->getMeshDefinitionsComponent(true);
+		auto pMaterials = pTriangleMesh->getMeshMaterialsComponent(true);
 
 		pPositionComp->setPositions(vertices);
 		pTextureCoordinatesComp->setTextureCoordinates(uvws);

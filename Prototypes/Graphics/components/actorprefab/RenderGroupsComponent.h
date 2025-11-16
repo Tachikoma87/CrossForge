@@ -28,6 +28,9 @@ namespace crossforge {
 		RenderGroupsComponent();
 		~RenderGroupsComponent();
 
+		void initialize();
+		void clear()override;
+
 		std::vector<Eigen::Vector2i> &renderGroups(); 
 		std::vector<int32_t> &renderGroupsMaterial();
 

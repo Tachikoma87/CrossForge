@@ -60,7 +60,7 @@ namespace crossforge {
 		~UserDialogComponent();
 
 		void initialize();
-		void clear();
+		void clear() override;
 
 		std::string& title();
 		std::string& message();

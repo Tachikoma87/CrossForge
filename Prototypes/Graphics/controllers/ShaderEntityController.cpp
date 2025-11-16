@@ -77,7 +77,7 @@ namespace crossforge {
 			ShaderSourceComponentPtr pShaderSourceComp = pResult->getShaderSourceComponent();
 			for (auto filepath : vertexShaderFiles) {
 				if (AssetIOProvider::instance()->loadFile(pFileEntity, filepath, false)) {
-					pShaderSourceComp->vertexShaderSources().push_back(pFileEntity->getStringDataComponent()->stringData());
+					pShaderSourceComp->vertexShaderSources().push_back(pFileEntity->getStringComponent()->stringData());
 				}
 				else {
 					LogError("Failed to load file: " + filepath);
@@ -85,7 +85,7 @@ namespace crossforge {
 			}
 			for (auto filepath : fragmentShaderFiles) {
 				if (AssetIOProvider::instance()->loadFile(pFileEntity, filepath, false)) {
-					pShaderSourceComp->fragmentShaderSources().push_back(pFileEntity->getStringDataComponent()->stringData());
+					pShaderSourceComp->fragmentShaderSources().push_back(pFileEntity->getStringComponent()->stringData());
 				}
 				else {
 					LogError("Failed to load file: " + filepath);

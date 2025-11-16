@@ -75,7 +75,7 @@ namespace crossforge {
 		~RenderingShaderComponent();
 
 		void initialize();
-		void clear();
+		void clear() override;
 
 		
 		uint32_t& shaderProgram();

@@ -25,18 +25,29 @@ namespace crossforge {
 	public:
 		static inline std::string identification = "CameraPropertiesComponent";
 
+		enum CameraType : int8_t {
+			UNKNOWN = -1,
+			FIRST_PERSON = 0,
+			ORBITAL,
+			COUNT
+		};
+
 		CameraPropertiesComponent();
 		~CameraPropertiesComponent();
 
+		void initialize();
+		void clear()override;
+
 		Eigen::Matrix4f& projectionMatrix();
 		Eigen::Matrix4f& viewMatrix();
+		CameraType& cameraType();
 
 	protected:
 		CameraPropertiesComponent(const std::string childIdentification);
 
 		Eigen::Matrix4f m_projectionMatrix;
 		Eigen::Matrix4f m_viewMatrix;
-
+		CameraType m_cameraType;
 	};
 	typedef std::shared_ptr<CameraPropertiesComponent> CameraPropertiesComponentPtr;
 }

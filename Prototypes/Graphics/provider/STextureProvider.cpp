@@ -56,7 +56,7 @@ namespace crossforge {
 				pResult = nullptr;
 			}
 			else {
-				SEntityManager::getInstance()->registerEntity(pResult);
+				SEntityManager::instance()->registerEntity(pResult);
 				registerTexture(textureName, pResult);
 			}
 		}

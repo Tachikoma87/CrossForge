@@ -28,6 +28,9 @@ namespace crossforge {
 		ColorComponent();
 		~ColorComponent();
 
+		void initialize();
+		void clear()override;
+
 		Eigen::Vector4f& color();
 
 	protected:

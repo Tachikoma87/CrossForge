@@ -78,9 +78,9 @@ namespace crossforge {
 			// @ToDo: Retrieve sources based on render pass
 			FileEntityPtr pFileEntity = std::make_shared<FileEntity>();
 			AssetIOProvider::instance()->loadFile(pFileEntity, "./Assets/Shader/ForwardPassPBS.vert", false);
-			pShaderSourceComp->vertexShaderSources().push_back(pFileEntity->getStringDataComponent()->stringData());
+			pShaderSourceComp->vertexShaderSources().push_back(pFileEntity->getStringComponent()->stringData());
 			AssetIOProvider::instance()->loadFile(pFileEntity, "./Assets/Shader/ForwardPassPBS.frag", false);
-			pShaderSourceComp->fragmentShaderSources().push_back(pFileEntity->getStringDataComponent()->stringData());
+			pShaderSourceComp->fragmentShaderSources().push_back(pFileEntity->getStringComponent()->stringData());
 
 			try {
 				if (!ShaderEntityController::configureShaderSource(pResult)) {
@@ -91,7 +91,7 @@ namespace crossforge {
 					LogError("Failed to build render shader " + shaderId + "!");
 				}
 				else {
-					EntityManager::getInstance()->registerEntity(pResult);
+					EntityManager::instance()->registerEntity(pResult);
 					registerShader(shaderId, pResult);
 					LogInfo("Successfully build render shader " + shaderId);
 				}

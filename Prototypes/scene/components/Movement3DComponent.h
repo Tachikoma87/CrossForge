@@ -28,7 +28,7 @@ namespace crossforge {
 		~Movement3DComponent();
 
 		void initialize();
-		void clear();
+		void clear() override;
 
 		Eigen::Vector3f& positionDelta();
 		Eigen::Quaternionf& rotationDelta();

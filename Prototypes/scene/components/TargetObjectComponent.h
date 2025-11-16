@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): IndexBufferComponent.h and IndexBufferComponent.cpp                      *
+* File(s): TargetObjectComponent.h and TargetObjectComponent.cpp                *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,35 +15,31 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_INDEXBUFFERCOMPONENT_H__
-#define __CROSSFORGE_INDEXBUFFERCOMPONENT_H__
+#ifndef __CROSSFORGE_TARGETOBJECTCOMPONENT_H__
+#define __CROSSFORGE_TARGETOBJECTCOMPONENT_H__
 
+#include "../entities/SceneObjectEntity.h"
 #include <crossforge/ecs/ComponentBase.h>
 
 namespace crossforge {
-	class IndexBufferComponent : public ComponentBase {
+	class TargetObjectComponent : public ComponentBase {
 	public:
-		static inline std::string identification = "IndexBufferComponent";
+		static inline std::string identification = "TargetObjectComponent";
 
-		IndexBufferComponent();
-		~IndexBufferComponent();
+		TargetObjectComponent();
+		~TargetObjectComponent();
 
 		void initialize();
-		void clear();
+		void clear() override;
 
-		uint32_t& glBufferHandle();
-		uint64_t& indexCount();
-		uint64_t& bufferSize();
+		SceneObjectEntityPtr& targetSceneObject();
 
 	protected:
-		IndexBufferComponent(const std::string childIdentification);
+		TargetObjectComponent(const std::string childIdentification);
 
-		uint32_t m_glBufferHandle;
-		uint64_t m_indexCount;
-		uint64_t m_bufferSize;
+		SceneObjectEntityPtr m_pTargetEntity;
 	};
-
-	typedef std::shared_ptr<IndexBufferComponent> IndexBufferComponentPtr;
+	typedef std::shared_ptr<TargetObjectComponent> TargetObjectComponentPtr;
 }
 
-#endif
+#endif 

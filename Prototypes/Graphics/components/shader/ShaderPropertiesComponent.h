@@ -41,8 +41,7 @@ namespace crossforge {
 		~ShaderPropertiesComponent();
 
 		void initialize(std::shared_ptr<ShaderPropertiesComponent> pRef = nullptr);
-
-		void clear();
+		void clear() override;
 
 		uint32_t& directionalLightsSize();
 		uint32_t& pointLightsSize();

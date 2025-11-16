@@ -22,6 +22,7 @@
 #include "../../Graphics/components/uniformbuffer/UBOCameraDataComponent.h"
 #include "../components/Transformation3DComponent.h"
 #include "../components/CameraPropertiesComponent.h"
+#include "../components/TargetObjectComponent.h"
 
 namespace crossforge {
 	class CameraEntity : public SceneObjectEntity {
@@ -32,6 +33,7 @@ namespace crossforge {
 			COMPONENT_UBO_CAMERA_DATA	= 0x01,
 			COMPONENT_TRANSFORMATION_3D = 0x02,
 			COMPONENT_CAMERA_PROPERTIES = 0x04,
+			COMPONENT_TARGET_OBJECT		= 0x08,
 			COMPONENTS_ALL				= 0xFF,
 		};
 
@@ -42,8 +44,8 @@ namespace crossforge {
 		void clear();
 
 		UBOCameraDataComponentPtr getUboCameraDataComponent();
-		//Transformation3DComponentPtr getTransformation3DComponent();
 		CameraPropertiesComponentPtr getCameraPropertiesComponent();
+		TargetObjectComponentPtr getTargetObjectComponentPtr();
 
 
 	protected:

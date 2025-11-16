@@ -29,7 +29,7 @@ namespace crossforge {
 		~LightsConfigComponent();
 
 		void initialize();
-		void clear();
+		void clear() override;
 
 		uint32_t& activeDirectionalLights();
 		uint32_t& activePointLights();

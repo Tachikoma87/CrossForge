@@ -5,18 +5,34 @@ namespace crossforge {
 		m_ambientOcclusion = 0.0f;
 		m_metallic = 0.04f;
 		m_roughness = 0.1f;
-		for (uint32_t i = 0; i < COLOR_TYPE_COUNT; ++i) m_colors.push_back(Eigen::Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-		for (uint32_t i = 0; i < TEXTURE_TYPE_COUNT; ++i) m_textures.push_back(nullptr);
+		initialize();
+	}
+	PbrMaterial::~PbrMaterial() {
+		clear();
+	}
+
+	void PbrMaterial::initialize(std::shared_ptr<PbrMaterial> pRef) {
+		clear();
+		if (nullptr != pRef) {
+			m_ambientOcclusion = pRef->ambientOcclusion();
+			m_metallic = pRef->metallic();
+			m_roughness = pRef->roughness();
+			for (uint32_t i = 0; i < COLOR_TYPE_COUNT; ++i) m_colors.push_back(pRef->color(ColorType(i)));
+			for (uint32_t i = 0; i < TEXTURE_TYPE_COUNT; ++i) m_textures.push_back(pRef->texture(TextureType(i)));
+		}
 		m_pUbo = std::make_shared<UBOPbrMaterialComponent>();
 		m_pUbo->initialize();
 		updateUbo();
 
 	}
-	PbrMaterial::~PbrMaterial() {
-		m_textures.clear();
-		m_shaders.clear();
+	void PbrMaterial::clear() {
+		m_ambientOcclusion = 0.0f;
+		m_metallic = 0.04f;
+		m_roughness = 0.1f;
+		for (uint32_t i = 0; i < COLOR_TYPE_COUNT; ++i) m_colors.push_back(Eigen::Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+		for (uint32_t i = 0; i < TEXTURE_TYPE_COUNT; ++i) m_textures.push_back(nullptr);
+		m_pUbo = nullptr;
 	}
-
 	
 	float& PbrMaterial::ambientOcclusion() {
 		return m_ambientOcclusion;

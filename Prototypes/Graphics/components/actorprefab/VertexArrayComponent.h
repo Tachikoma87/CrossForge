@@ -28,6 +28,9 @@ namespace crossforge {
 		VertexArrayComponent();
 		~VertexArrayComponent();
 
+		void initialize();
+		void clear()override;
+
 		uint32_t& glVertexArrayHandle();
 
 	protected:

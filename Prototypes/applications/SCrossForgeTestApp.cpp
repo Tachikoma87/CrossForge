@@ -10,7 +10,7 @@
 #include "SCrossForgeTestApp.h"
 #include "../Graphics/controllers/RenderingController.h"
 #include <crossforge/graphics/entities/CanvasEntity.h>
-#include <crossforge/graphics/controller/WindowEntityController.h>
+#include <crossforge/graphics/controller/WindowController.h>
 
 
 #include <crossforge/assetio/SAssetIOProvider.h>
@@ -59,7 +59,7 @@ namespace crossforge {
 		pWinProps->position() = Eigen::Vector2i(200, 200);
 		m_pMainWin->addComponent(pWinProps);
 		
-		if (WindowEntityController::initOpenGLWindow(m_pMainWin)) {
+		if (WindowController::initOpenGLWindow(m_pMainWin)) {
 			LogInfo("Successfully created main window with OpenGL functionality!");
 			pWindowSystem->registerEntity(m_pMainWin);
 			gladLoadGL();
@@ -124,10 +124,10 @@ namespace crossforge {
 		m_canvases.push_back(pScene);
 
 		// add input stuff
-		m_pInputDevice = std::make_shared<InputDeviceEntity>(InputDeviceEntity::KEYBOARD_DATA_COMPONENT | InputDeviceEntity::ASSOCIATED_WINDOW_COMPONENT | InputDeviceEntity::MOUSE_DATA_COMPONENT);
+		m_pInputDevice = std::make_shared<InputDeviceEntity>();
 		m_pEntityManager->registerEntity(m_pInputDevice);
-		auto pKeyboardData = m_pInputDevice->getKeyboardDataComponent();
-		auto pAssociatedWindow = m_pInputDevice->getAssociatedWindowComponent();
+		auto pKeyboardData = m_pInputDevice->getKeyboardStateComponent(true);
+		auto pAssociatedWindow = m_pInputDevice->getAssociatedWindowComponent(true);
 		pAssociatedWindow->windowEntityId() = m_pMainWin->getEntityId();
 
 		KeyboardInputSystemPtr pKeyboardSys = std::make_shared<KeyboardInputSystem>();
@@ -190,9 +190,9 @@ namespace crossforge {
 
 		FileEntityPtr pFileEntity = std::make_shared<FileEntity>();
 		AssetIOProvider::instance()->loadFile(pFileEntity, "./Assets/Shader/ForwardPassPBS.vert", false);
-		pShaderSource->vertexShaderSources().push_back(pFileEntity->getStringDataComponent()->stringData());
+		pShaderSource->vertexShaderSources().push_back(pFileEntity->getStringComponent()->stringData());
 		AssetIOProvider::instance()->loadFile(pFileEntity, "./Assets/Shader/ForwardPassPBS.frag", false);
-		pShaderSource->fragmentShaderSources().push_back(pFileEntity->getStringDataComponent()->stringData());
+		pShaderSource->fragmentShaderSources().push_back(pFileEntity->getStringComponent()->stringData());
 
 		pShaderProperties->addFeatures(ShaderPropertiesComponent::SHADER_FEATURE_DIRECTIONAL_LIGHTS | ShaderPropertiesComponent::SHADER_FEATURE_NORMAL_MAPPING);
 
@@ -204,9 +204,9 @@ namespace crossforge {
 		}
 
 		// store shader files
-		pFileEntity->getStringDataComponent()->stringData() = pShader->getShaderSourceComponent()->vertexShaderSources()[0];
+		pFileEntity->getStringComponent()->stringData() = pShader->getShaderSourceComponent()->vertexShaderSources()[0];
 		AssetIOProvider::instance()->storeFile(pFileEntity, "./Assets/ConfiguredShader.vert", false);
-		pFileEntity->getStringDataComponent()->stringData() = pShader->getShaderSourceComponent()->fragmentShaderSources()[0];
+		pFileEntity->getStringComponent()->stringData() = pShader->getShaderSourceComponent()->fragmentShaderSources()[0];
 		AssetIOProvider::instance()->storeFile(pFileEntity, "./Assets/ConfiguredShader.frag", false);
 
 	}
@@ -225,7 +225,7 @@ namespace crossforge {
 		AssetIOProviderPtr pAssetIO = AssetIOProvider::instance();
 
 		for (int32_t i = 0; i < 1; ++i) {
-			Image2DEntityPtr pImageEntity = std::make_shared<Image2DEntity>(Image2DEntity::COMPONENTS_ALL);
+			Image2DEntityPtr pImageEntity = std::make_shared<Image2DEntity>();
 			if (!pAssetIO->loadImage2D(pImageEntity, imageFileIn)) {
 				LogError("Failed to load image " + imageFileIn);
 				return;
@@ -253,7 +253,7 @@ namespace crossforge {
 		
 		std::string shaderFileOut = "./Assets/Temp.txt";
 		for (uint32_t i = 0; i < 1; ++i) {
-			FileEntityPtr pEntity = std::make_shared<FileEntity>(FileEntity::ALL_COMPONENTS);
+			FileEntityPtr pEntity = std::make_shared<FileEntity>();
 			std::string shaderFile = "./Assets/Shader/BasicGeometryPass.frag";
 		
 			if (!pAssetIO->loadFile(pEntity, shaderFile, false)) {
@@ -264,7 +264,7 @@ namespace crossforge {
 
 			//LogInfo("Testing of AssetIO finished!");
 
-			pEntity->initialize(FileEntity::ALL_COMPONENTS);
+			pEntity->initialize();
 			std::string shaderFile2 = "./Assets/Shader/DrLightingPassPBS.frag";
 			pAssetIO->loadFile(pEntity, shaderFile2, true);
 			pAssetIO->storeFile(pEntity, shaderFileOut, true);
@@ -281,7 +281,7 @@ namespace crossforge {
 		uint64_t start = GeneralUtility::getTimestamp();
 
 
-		TriangleMeshEntityPtr pMeshEntity = std::make_shared<TriangleMeshEntity>(TriangleMeshEntity::ALL_BASIC_COMPONENTS);
+		TriangleMeshEntityPtr pMeshEntity = std::make_shared<TriangleMeshEntity>();
 		AssetIOProviderPtr pAssetIO = AssetIOProvider::instance();
 
 		if (pAssetIO->loadMesh(pMeshEntity, fileIn)) {
@@ -349,10 +349,10 @@ namespace crossforge {
 
 		FileEntityPtr pShaderFile = std::make_shared<FileEntity>();
 		if (AssetIOProvider::instance()->loadFile(pShaderFile, "./Assets/Shader/BasicGeometryPass.vert", false)) {
-			pShaderSource->vertexShaderSources().push_back(pShaderFile->getStringDataComponent()->stringData());
+			pShaderSource->vertexShaderSources().push_back(pShaderFile->getStringComponent()->stringData());
 		}
 		if (AssetIOProvider::instance()->loadFile(pShaderFile, "./Assets/Shader/BasicGeometryPass.frag", false)) {
-			pShaderSource->fragmentShaderSources().push_back(pShaderFile->getStringDataComponent()->stringData());
+			pShaderSource->fragmentShaderSources().push_back(pShaderFile->getStringComponent()->stringData());
 		}
 
 		if (ShaderEntityController::buildRenderingShader(pShader)) {
@@ -369,7 +369,7 @@ namespace crossforge {
 	void SCrossForgeTestApp::testActorCreation() {
 
 		// load model
-		TriangleMeshEntityPtr pDuckMesh = std::make_shared<TriangleMeshEntity>(TriangleMeshEntity::ALL_BASIC_COMPONENTS);
+		TriangleMeshEntityPtr pDuckMesh = std::make_shared<TriangleMeshEntity>();
 		AssetIOProvider::instance()->loadMesh(pDuckMesh, "./Assets/ExampleScenes/Duck/Duck.gltf");
 
 		ActorPrefabEntityPtr pDuckPrefabActor = std::make_shared<ActorPrefabEntity>(ActorPrefabEntity::COMPONENTS_ALL);
@@ -382,7 +382,7 @@ namespace crossforge {
 
 		auto pWinSys = m_pSystemManager->getSystem<WindowSystem>();
 		pWinSys->update();
-		WindowEntityController::clearBuffer(m_pMainWin);
+		WindowController::clearBuffer(m_pMainWin);
 
 		for (auto pCanvas : m_canvases) RenderingController::activateCanvas(pCanvas);
 		pWinSys->swapBuffers();
@@ -400,17 +400,17 @@ namespace crossforge {
 			m_lastPrint = GeneralUtility::getTimestamp();
 		}
 
-		if (m_pInputDevice->getKeyboardDataComponent()->isKeyRelease(KeyboardDataComponent::KEY_ESCAPE)) this->stop();
+		if (m_pInputDevice->getKeyboardStateComponent()->isKeyRelease(KeyboardStateComponent::KEY_ESCAPE)) this->stop();
 
-		MouseDataComponentPtr pMouseData = m_pInputDevice->getMouseDataComponent();
+		MouseStateComponentPtr pMouseData = m_pInputDevice->getMouseStateComponent();
 		std::string mousePos = "x: " + std::to_string(pMouseData->position().x()) + " | y:" + std::to_string(pMouseData->position().y());
-		if (pMouseData->buttonState(MouseDataComponent::BUTTON_MIDDLE) == MouseDataComponent::STATE_RELEASED) {
+		if (pMouseData->buttonState(MouseStateComponent::BUTTON_MIDDLE) == MouseStateComponent::STATE_RELEASED) {
 			LogInfo("Middle mouse button released at position: " + mousePos);
-			pMouseData->buttonState(MouseDataComponent::BUTTON_MIDDLE) = MouseDataComponent::STATE_OFF;
+			pMouseData->buttonState(MouseStateComponent::BUTTON_MIDDLE) = MouseStateComponent::STATE_OFF;
 		}
-		if (pMouseData->buttonState(MouseDataComponent::BUTTON_MIDDLE) == MouseDataComponent::STATE_PRESSED) {
+		if (pMouseData->buttonState(MouseStateComponent::BUTTON_MIDDLE) == MouseStateComponent::STATE_PRESSED) {
 			LogInfo("Middle mouse button pressed at position: " + mousePos);
-			pMouseData->buttonState(MouseDataComponent::BUTTON_MIDDLE) = MouseDataComponent::STATE_OFF;
+			pMouseData->buttonState(MouseStateComponent::BUTTON_MIDDLE) = MouseStateComponent::STATE_OFF;
 		}
 	}
 

@@ -65,14 +65,12 @@ namespace crossforge {
 				std::vector<uint8_t> buffer;
 				buffer.resize(texWidth * texHeight * 3);
 				glGetTexImage(GL_TEXTURE_2D, level, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
-
-				if (!pImage->hasComponent(RawImage2DDataComponent::identification)) pImage->addComponent(std::make_shared<RawImage2DDataComponent>());
-				auto pImgDataComp = pImage->getRawImage2DDataComponent();
+				auto pImgDataComp = pImage->getImage2DComponent(true);
 				pImgDataComp->clear();
-				pImgDataComp->colorSpace() = RawImage2DDataComponent::COLORSPACE_RGB;
+				pImgDataComp->colorSpace() = Image2DComponent::COLORSPACE_RGB;
 				pImgDataComp->width() = texWidth;
 				pImgDataComp->height() = texHeight;
-				pImgDataComp->rawPixelData() = buffer;
+				pImgDataComp->pixelData() = buffer;
 
 				Image2DController::flipRows(pImage);
 				result = true;
@@ -124,12 +122,11 @@ namespace crossforge {
 				imgBuffer[i * 3 + 2] = buffer[i] * 255.0f;
 			}
 
-			if (!pImage->hasComponent(RawImage2DDataComponent::identification)) pImage->addComponent(std::make_shared<RawImage2DDataComponent>());
-			auto pDataComp = pImage->getRawImage2DDataComponent();
-			pDataComp->colorSpace() = RawImage2DDataComponent::COLORSPACE_RGB;
+			auto pDataComp = pImage->getImage2DComponent(true);
+			pDataComp->colorSpace() = Image2DComponent::COLORSPACE_RGB;
 			pDataComp->width() = texWidth;
 			pDataComp->height() = texHeight;
-			pDataComp->rawPixelData() = imgBuffer;
+			pDataComp->pixelData() = imgBuffer;
 			Image2DController::flipRows(pImage);
 			result = true;
 		}
@@ -175,13 +172,12 @@ namespace crossforge {
 
 			glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
 
-			if (!pColorImage->hasComponent(RawImage2DDataComponent::identification)) pColorImage->addComponent(std::make_shared<RawImage2DDataComponent>());
-			auto pImgComp = pColorImage->getRawImage2DDataComponent();
+			auto pImgComp = pColorImage->getImage2DComponent(true);
 			pImgComp->clear();
-			pImgComp->colorSpace() = RawImage2DDataComponent::COLORSPACE_RGB;
+			pImgComp->colorSpace() = Image2DComponent::COLORSPACE_RGB;
 			pImgComp->width() = width;
 			pImgComp->height() = height;
-			pImgComp->rawPixelData() = buffer;
+			pImgComp->pixelData() = buffer;
 			Image2DController::flipRows(pColorImage);
 		}
 
@@ -204,13 +200,13 @@ namespace crossforge {
 
 			for (uint32_t i = 0; i < width * height; ++i) buffer[i] = (uint8_t)(depthBuffer[i] * 255.0f);
 
-			if (!pDepthImage->hasComponent(RawImage2DDataComponent::identification)) pDepthImage->addComponent(std::make_shared<RawImage2DDataComponent>());
-			auto pImgComp = pDepthImage->getRawImage2DDataComponent();
+
+			auto pImgComp = pDepthImage->getImage2DComponent(true);
 			pImgComp->clear();
-			pImgComp->colorSpace() = RawImage2DDataComponent::COLORSPACE_GRAYSCALE;
+			pImgComp->colorSpace() = Image2DComponent::COLORSPACE_GRAYSCALE;
 			pImgComp->width() = width;
 			pImgComp->height() = height;
-			pImgComp->rawPixelData() = buffer;
+			pImgComp->pixelData() = buffer;
 			Image2DController::flipRows(pDepthImage);
 		}
 

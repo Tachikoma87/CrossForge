@@ -43,7 +43,7 @@ namespace crossforge {
 		static bool generateImage(Image2DEntityPtr pImage2D, uint32_t width, uint32_t height, Eigen::Vector3f color);
 
 		static bool resize(Image2DEntityPtr pImage2D, uint32_t width, uint32_t height);
-		static bool changeColorSpace(Image2DEntityPtr pimage2D, RawImage2DDataComponent::ColorSpace colorSpace);
+		static bool changeColorSpace(Image2DEntityPtr pimage2D, Image2DComponent::ColorSpace colorSpace);
 
 		static bool generateBasicImage(Image2DEntityPtr pImage2D, BasicImage basicImage);
 		static Image2DEntityPtr generateBasicImage(BasicImage basicImage);

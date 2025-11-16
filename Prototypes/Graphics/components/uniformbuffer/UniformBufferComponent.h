@@ -33,8 +33,8 @@ namespace crossforge {
 	protected:
 		UniformBufferComponent(const std::string childIdentification);
 
-		bool initialize(uint32_t bufferSize);
-		void clear();
+		bool initialize(uint32_t bufferSize, bool clearData = false);
+		void clear() override;
 		void setSubData(const void* pData, uint32_t dataSize, uint32_t bufferOffset);
 
 		uint32_t m_glBufferHandle;

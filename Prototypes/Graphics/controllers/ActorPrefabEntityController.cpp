@@ -64,8 +64,8 @@ namespace crossforge {
 		uint16_t attributeMask = 0;
 		uint32_t vertexSize = 0;
 		uint64_t bufferSize = 0;
-		PositionDataComponentPtr pPositionData = nullptr;
-		NormalDataComponentPtr pNormalData = nullptr;
+		PositionsComponentPtr pPositionData = nullptr;
+		NormalsComponentPtr pNormalData = nullptr;
 		TextureCoordinatesComponentPtr pUvwData = nullptr;
 
 		uint32_t positionOffset = 0;
@@ -73,17 +73,17 @@ namespace crossforge {
 		uint32_t uvwOffset = 0;
 		
 
-		if (pMeshEntity->hasComponent(PositionDataComponent::identification)) {
+		if (pMeshEntity->hasComponent(PositionsComponent::identification)) {
 			attributeMask |= VertexBufferComponent::ATTRIBUTE_POSITION;
 			positionOffset = vertexSize;
 			vertexSize += sizeof(float) * 3;
-			pPositionData = pMeshEntity->getPositionDataComponent();
+			pPositionData = pMeshEntity->getPositionsComponent();
 		}
-		if (pMeshEntity->hasComponent(NormalDataComponent::identification)) {
+		if (pMeshEntity->hasComponent(NormalsComponent::identification)) {
 			attributeMask |= VertexBufferComponent::ATTRIBUTE_NORMAL;
 			normalOffset = vertexSize;
 			vertexSize += sizeof(float) * 3;
-			pNormalData = pMeshEntity->getNormalDataComponent();
+			pNormalData = pMeshEntity->getNormalsComponent();
 		}
 		if (pMeshEntity->hasComponent(TextureCoordinatesComponent::identification)) {
 			attributeMask |= VertexBufferComponent::ATTRIBUTE_UVW;
@@ -311,8 +311,8 @@ namespace crossforge {
 		if (nullptr == pActorEntity) throw NullpointerExcept("pActorEntity");
 		if (nullptr == pTriangleMeshEntity) throw NullpointerExcept("pTriangleMeshEntity");
 
-		auto pMaterialsComp = pTriangleMeshEntity->getMaterialDataComponent();
-		if (nullptr == pMaterialsComp) throw MissingComponentException(MaterialDataComponent::identification);
+		auto pMaterialsComp = pTriangleMeshEntity->getMeshMaterialsComponent();
+		if (nullptr == pMaterialsComp) throw MissingComponentException(MeshMaterialsComponent::identification);
 
 		if (!pActorEntity->hasComponent(PbrMaterialsComponent::identification)) pActorEntity->addComponent(std::make_shared<PbrMaterialsComponent>());
 		auto pPbrMaterialsComp = pActorEntity->getPBRMaterialsComponent();

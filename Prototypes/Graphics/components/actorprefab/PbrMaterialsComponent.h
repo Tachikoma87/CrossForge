@@ -51,6 +51,8 @@ namespace crossforge {
 		PbrMaterial();
 		~PbrMaterial();
 
+		void initialize(std::shared_ptr<PbrMaterial> pRef = nullptr);
+		void clear();
 		
 		float& ambientOcclusion();
 		float& metallic();
@@ -68,9 +70,7 @@ namespace crossforge {
 		float m_roughness;
 		std::vector<Eigen::Vector4f> m_colors;
 		std::vector<TextureEntityPtr> m_textures;
-		std::vector<ShaderEntityPtr> m_shaders;
 		UBOPBRMaterialComponentPtr m_pUbo;
-
 	};
 	typedef std::shared_ptr<PbrMaterial> PbrMaterialPtr;
 
@@ -83,7 +83,7 @@ namespace crossforge {
 		~PbrMaterialsComponent();
 
 		void initialize();
-		void clear();
+		void clear() override;
 
 
 		std::vector<PbrMaterialPtr>& pbrMaterials();

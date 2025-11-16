@@ -30,7 +30,7 @@ namespace crossforge {
 		~ChildObjectsComponent();
 
 		void initialize();
-		void clear();
+		void clear() override;
 
 		std::vector<SceneObjectEntityPtr> &childSceneObjects();
 

@@ -33,7 +33,7 @@ namespace crossforge {
 		Eigen::Vector3f& globalScale();
 
 		void initialize();
-		void clear();
+		void clear() override;
 
 		Transformation3DComponent();
 		~Transformation3DComponent();

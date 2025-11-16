@@ -32,13 +32,15 @@ namespace crossforge {
 
 		static void updateTransformationUbo(SceneObjectEntityPtr pSceneObject);
 
-		static void rotate(SceneObjectEntityPtr pSceneObjectEntity, const Eigen::Quaternionf rotation);
+		static void rotate(SceneObjectEntityPtr pSceneObject, const Eigen::Quaternionf rotation);
+		static void rotate(SceneObjectEntityPtr pSceneObject, const float theta, const Eigen::Vector3f axis);
 		static void moveForward(SceneObjectEntityPtr pSceneObjectEntity, const float delta);
 		static void moveRight(SceneObjectEntityPtr pSceneObjectEntity, const float delta);
 		static void moveUp(SceneObjectEntityPtr pSceneObjectEntity, const float delta);
 		static void yaw(SceneObjectEntityPtr pSceneObjectEntity, const float theta);
 		static void roll(SceneObjectEntityPtr pSceneObjectEntity, const float theta);
 		static void pitch(SceneObjectEntityPtr pSceneObjectEntity, const float theta);
+		static void lookAt(SceneObjectEntityPtr pSceneObject, Eigen::Vector3f origin, Eigen::Vector3f target, Eigen::Vector3f up = Eigen::Vector3f::UnitY());
 
 	protected:
 		SceneObjectEntityController(const std::string childIdentification);

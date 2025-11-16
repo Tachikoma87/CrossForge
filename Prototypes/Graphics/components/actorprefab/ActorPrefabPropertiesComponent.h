@@ -29,7 +29,7 @@ namespace crossforge {
 		~ActorPrefabPropertiesComponent();
 
 		void initialize(std::shared_ptr<ActorPrefabPropertiesComponent> pRef = nullptr);
-		void clear();
+		void clear() override;
 
 		bool& propertyNormalMapping();
 		bool& propertySkeltalAnimation();

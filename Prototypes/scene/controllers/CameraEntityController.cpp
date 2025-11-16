@@ -62,10 +62,7 @@ namespace crossforge {
 		
 
 	}
-	void CameraEntityController::computeCameraMatrixLookAt(CameraEntityPtr pCameraEntity, Eigen::Vector3f targetPosition) {
-		if (nullptr == pCameraEntity) throw NullpointerExcept("pCameraEntity");
-		throw CrossForgeExcept("Not implemented yet, sorry.");
-	}
+	
 
 	
 

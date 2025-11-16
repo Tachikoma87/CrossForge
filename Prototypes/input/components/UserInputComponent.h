@@ -37,7 +37,7 @@ namespace crossforge {
 		~UserInputComponent();
 
 		void initialize();
-		void clear();
+		void clear() override;
 
 		Eigen::Vector3f& rgbColor();
 		std::string& string();

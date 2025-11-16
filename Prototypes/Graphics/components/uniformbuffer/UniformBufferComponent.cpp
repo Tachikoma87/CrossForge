@@ -21,8 +21,8 @@ namespace crossforge {
 	}
 	
 
-	bool UniformBufferComponent::initialize(uint32_t bufferSize) {
-		this->clear();
+	bool UniformBufferComponent::initialize(uint32_t bufferSize, bool clearData) {
+		if(clearData) clear();
 		if (!glIsBuffer(m_glBufferHandle)) glGenBuffers(1, &m_glBufferHandle);
 		glBindBuffer(GL_UNIFORM_BUFFER, m_glBufferHandle);
 		glBufferData(GL_UNIFORM_BUFFER, bufferSize, nullptr, GL_STATIC_DRAW);

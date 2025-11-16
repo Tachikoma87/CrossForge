@@ -29,7 +29,7 @@ namespace crossforge {
 		~UBODirectionalLightsComponent();
 
 		bool initialize(const uint32_t lightCount);
-		void clear();
+		void clear() override;
 
 		uint32_t getLightCount()const;
 

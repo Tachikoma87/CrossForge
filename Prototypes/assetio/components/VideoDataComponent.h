@@ -28,20 +28,29 @@ namespace crossforge {
 		VideoDataComponent();
 		~VideoDataComponent();
 
+		void initialize();
+		void clear();
+
 		float& framerate();
 		uint32_t& width();
 		uint32_t& height();
 		std::string& filename();
 		bool& isRecording();
 
+		std::shared_ptr<void>& videoData();
+		std::shared_ptr<void>& outputStream();
+
 	protected:
 		VideoDataComponent(const std::string childIdentification);
 
-		float m_framefrate;
+		float m_framerate;
 		uint32_t m_width;
 		uint32_t m_height;
 		std::string m_filename;
 		bool m_isRecording;
+
+		std::shared_ptr<void> m_pVideoData;
+		std::shared_ptr<void> m_pOutputStream;
 	};
 
 	typedef std::shared_ptr<VideoDataComponent> VideoDataComponentPtr;

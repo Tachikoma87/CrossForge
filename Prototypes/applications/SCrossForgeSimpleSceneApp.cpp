@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 #include "SCrossForgeSimpleSceneApp.h"
 
-#include <crossforge/graphics/controller/WindowEntityController.h>
+#include <crossforge/graphics/controller/WindowController.h>
 #include <crossforge/graphics/systems/WindowSystem.h>
 #include <crossforge/input/systems/KeyboardInputSystem.h>
 #include <crossforge/input/systems/MouseInputSystem.h>
@@ -28,6 +28,10 @@
 #include "../Graphics/controllers/Image2DController.h"
 #include "../input/controllers/InputDeviceController.h"
 #include "../input/components/UserInputComponent.h"
+
+#include "../assetio/controllers/VideoController.h"
+#include "../scene/components/SphericalTransformationComponent.h"
+#include "../miscellaneous/controllers/MiscellaneousController.h"
 
 namespace crossforge {
 
@@ -69,7 +73,7 @@ namespace crossforge {
 		pWindowProperties->width() = 1280;
 		m_pMainWin->addComponent(pWindowProperties);
 
-		if (!WindowEntityController::initOpenGLWindow(m_pMainWin)) {
+		if (!WindowController::initOpenGLWindow(m_pMainWin)) {
 			LogError("Initializing OpenGL window failed!");
 			return;
 		}
@@ -168,7 +172,15 @@ namespace crossforge {
 		//pCameraTransform->globalPosition() = Eigen::Vector3f(0.0f, 100.0f, 250.0f);
 		pCameraTransform->globalPosition() = Eigen::Vector3f(0.0f, 0.0f, 25.0f);
 	
+		m_pCameraEntity->addComponent(std::make_shared<SphericalTransformationComponent>());
+		m_pCameraEntity->getComponent<SphericalTransformationComponent>()->rho() = 5.0f;
+		m_pCameraEntity->getComponent<SphericalTransformationComponent>()->theta() = EIGEN_PI / 2.0f;
 
+		m_pCameraSystem = std::make_shared<CameraSystem>();
+		m_pCameraSystem->initialize(m_pMainWin);
+
+		m_pSystemManager->addSystem(m_pCameraSystem);
+		m_pCameraSystem->registerEntity(m_pCameraEntity);
 
 		
 
@@ -205,9 +217,7 @@ namespace crossforge {
 		m_pGroundPlaneInstance->getMovement3DComponent()->rotationDelta() = Eigen::AngleAxisf(CrossForgeMath::degToRad(0.5f), Eigen::Vector3f::UnitX());
 		m_pEntityManager->registerEntity(m_pGroundPlaneInstance);
 
-
-
-
+		m_pCameraEntity->getTargetObjectComponentPtr()->targetSceneObject() = m_pHelmetActorInstance;
 
 		// initialize scene lights
 		m_pSceneLights = std::make_shared<LightsEntity>(LightsEntity::COMPONENTS_ALL);
@@ -257,7 +267,12 @@ namespace crossforge {
 		pChildObjectsComp->addChild(m_pDuckActorInstance);
 		pChildObjectsComp->addChild(m_pDuckActorInstance2);
 		pChildObjectsComp->addChild(m_pHelmetActorInstance);
+
 		pChildObjectsComp->addChild(m_pGroundPlaneInstance);
+
+		//m_pEntityManager->registerEntity(m_pCameraEntity);
+		//if (!m_pGroundPlaneInstance->hasComponent(ChildObjectsComponent::identification)) m_pGroundPlaneInstance->addComponent(std::make_shared<ChildObjectsComponent>());
+		//m_pGroundPlaneInstance->getChildObjectsComponent()->addChild(m_pCameraEntity);
 
 		for (auto pObj : m_pActorInstances) pChildObjectsComp->addChild(pObj);
 	
@@ -293,17 +308,34 @@ namespace crossforge {
 		pKeyboardSystem->update();
 
 		// clear window buffer and activate canvas
-		WindowEntityController::clearBuffer(m_pMainWin);
+		WindowController::clearBuffer(m_pMainWin);
 		RenderingController::activateCanvas(m_pMainCanvas, true);
+
+		auto pWindowMsgComp = m_pMainWin->getMessageComponent(true);
+		while (!pWindowMsgComp->messageQueue().empty()) {
+			auto pMsg = pWindowMsgComp->dequeu();
+			if (pMsg->messageIdentifier().compare("size_changed") == 0) {
+				int32_t width = m_pMainWin->getWindowPropertiesComponent()->width();
+				int32_t height = m_pMainWin->getWindowPropertiesComponent()->height();
+
+				// resize canvas
+				m_pMainCanvas->getCanvasSettingsComponent()->viewportSize() = Eigen::Vector2i(width, height);
+				// recompute projection matrix of camera
+				CameraEntityController::computePerspectiveProjectionMatrix(m_pCameraEntity, m_pMainCanvas);
+			}
+		}
 
 
 		// set the camera
-		SceneObjectEntityController::buildGlobalTransformation(m_pCameraEntity);
-		CameraEntityController::computeCameraMatrixFromTransformation(m_pCameraEntity);
-
 		m_pMovementSystem->update();
-	
+		m_pCameraSystem->update();
+
+		//SceneObjectEntityController::buildGlobalTransformation(m_pCameraEntity);
 		SceneObjectEntityController::buildGlobalTransformation(m_pRootNode);
+
+		/*auto sphericalTransform = m_pCameraEntity->getComponent<SphericalTransformationComponent>();	
+		SceneObjectEntityController::lookAt(m_pCameraEntity, sphericalTransform->getPosition(), sphericalTransform->origin());
+		CameraEntityController::computeCameraMatrixFromTransformation(m_pCameraEntity);*/
 
 		
 		// gather renderable models and draw them
@@ -328,29 +360,30 @@ namespace crossforge {
 		auto pos = m_pHelmetActorInstance->getTransformation3DComponent()->localPosition();
 		if (pos.y() < -5.0f || pos.y() > 5.0f) m_pHelmetActorInstance->getMovement3DComponent()->positionDelta() *= -1.0f;
 
-		auto pKeyboard = m_pInputDevice->getKeyboardDataComponent();
-		auto pMouse = m_pInputDevice->getMouseDataComponent();
+		auto pKeyboard = m_pInputDevice->getKeyboardStateComponent(true);
+		auto pMouse = m_pInputDevice->getMouseStateComponent(true);
 		auto pCameraTransform = m_pCameraEntity->getTransformation3DComponent();
-		if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_W)) {
-			//pCameraTransform->localPosition() += Eigen::Vector3f(0.0f, 0.0f, -0.25f);
-			SceneObjectEntityController::moveForward(m_pCameraEntity, 0.25f);
-		}
-		if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_S)) {
-			//pCameraTransform->localPosition().z() += 0.25f;
-			SceneObjectEntityController::moveForward(m_pCameraEntity, -0.25f);
-		}
-		if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_A)) {
-			//pCameraTransform->localPosition().x() -= 0.25f;
-			SceneObjectEntityController::moveRight(m_pCameraEntity, -0.25f);
-		}
-		if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_D)) {
-			//pCameraTransform->localPosition().x() += 0.25f;
-			SceneObjectEntityController::moveRight(m_pCameraEntity, 0.25f);
-		}
+		auto pSphericalComponent = m_pCameraEntity->getComponent<SphericalTransformationComponent>();
+		//if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_W)) {
+		//	//SceneObjectEntityController::moveForward(m_pCameraEntity, 0.25f);
+		//	pSphericalComponent->rho() += -0.05f;
+		//}
+		//if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_S)) {
+		//	//SceneObjectEntityController::moveForward(m_pCameraEntity, -0.25f);
+		//	pSphericalComponent->rho() += 0.05f;
+		//}
+		//if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_A)) {
+		//	//SceneObjectEntityController::moveRight(m_pCameraEntity, -0.25f);
+		//	pSphericalComponent->phi() += 0.01f;
+		//}
+		//if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_D)) {
+		//	//SceneObjectEntityController::moveRight(m_pCameraEntity, 0.25f);
+		//	pSphericalComponent->phi() -= 0.01f;
+		//}
 
-		if (pKeyboard->isKeyRelease(KeyboardDataComponent::KEY_1)) {
+		if (pKeyboard->isKeyRelease(KeyboardStateComponent::KEY_1)) {
 
-			InputDeviceEntityPtr pInputDevice = std::make_shared<InputDeviceEntity>();
+			/*InputDeviceEntityPtr pInputDevice = std::make_shared<InputDeviceEntity>();
 			auto pUserDialogComp = std::make_shared<UserDialogComponent>();
 			pUserDialogComp->dialogType() = UserDialogComponent::DIALOG_TYPE_MESSAGE_BOX;
 			pUserDialogComp->messageBoxType() = UserDialogComponent::MESSAGE_BOX_TYPE_YES_NO_CANCEL;
@@ -371,11 +404,16 @@ namespace crossforge {
 				output = "No idea what the user has done ...";
 			}break;
 			}
-			LogDebug(output);
+			LogDebug(output);*/
 
-			pKeyboard->keyState(KeyboardDataComponent::KEY_1) = KeyboardDataComponent::KEYSTATE_OFF;
+			auto pCameraPropComp = m_pCameraEntity->getCameraPropertiesComponent();
+			if (!pCameraPropComp->cameraType() == CameraPropertiesComponent::FIRST_PERSON) pCameraPropComp->cameraType() = CameraPropertiesComponent::FIRST_PERSON;
+			else pCameraPropComp->cameraType() = CameraPropertiesComponent::ORBITAL;
+
+
+			pKeyboard->keyState(KeyboardStateComponent::KEY_1) = KeyboardStateComponent::KEYSTATE_OFF;
 		}
-		if (pKeyboard->isKeyRelease(KeyboardDataComponent::KEY_2)) {
+		if (pKeyboard->isKeyRelease(KeyboardStateComponent::KEY_2)) {
 			InputDeviceEntityPtr pInputDevice = std::make_shared<InputDeviceEntity>();
 			auto pUserDialogComp = std::make_shared<UserDialogComponent>();
 			pUserDialogComp->dialogType() = UserDialogComponent::DIALOG_TYPE_INPUT_PASSWORD;
@@ -387,10 +425,10 @@ namespace crossforge {
 			auto pUserInput = pInputDevice->getComponent<UserInputComponent>();
 			LogDebug("User input was: " + pUserInput->string());
 
-			pKeyboard->keyState(KeyboardDataComponent::KEY_2) = KeyboardDataComponent::KEYSTATE_OFF;
+			pKeyboard->keyState(KeyboardStateComponent::KEY_2) = KeyboardStateComponent::KEYSTATE_OFF;
 		}
 
-		if (pKeyboard->isKeyRelease(KeyboardDataComponent::KEY_3)) {
+		if (pKeyboard->isKeyRelease(KeyboardStateComponent::KEY_3)) {
 
 			static InputDeviceEntityPtr pInputDevice = std::make_shared<InputDeviceEntity>();
 			if (!pInputDevice->hasComponent(UserDialogComponent::identification)) {
@@ -417,18 +455,22 @@ namespace crossforge {
 
 			LogDebug(outputMsg);
 
-			pKeyboard->keyState(KeyboardDataComponent::KEY_3) = KeyboardDataComponent::KEYSTATE_OFF;
+			pKeyboard->keyState(KeyboardStateComponent::KEY_3) = KeyboardStateComponent::KEYSTATE_OFF;
 		}
 
-		if (pMouse->buttonState(MouseDataComponent::BUTTON_LEFT) == MouseDataComponent::STATE_PRESSED) {
-			SceneObjectEntityController::yaw(m_pCameraEntity, -pMouse->positionDelta().x()/300.0f);
-			SceneObjectEntityController::pitch(m_pCameraEntity, -pMouse->positionDelta().y() / 300.0f);
-		}
-		pMouse->positionDelta() = Eigen::Vector2f::Zero();
+		//if (pMouse->buttonState(MouseDataComponent::BUTTON_LEFT) == MouseDataComponent::STATE_PRESSED) {
+		//	//SceneObjectEntityController::rotate(m_pCameraEntity, -pMouse->positionDelta().x()/300.0f, Eigen::Vector3f::UnitY());
+		//	//SceneObjectEntityController::pitch(m_pCameraEntity, -pMouse->positionDelta().y() / 300.0f);
+
+		//	pSphericalComponent->phi() += pMouse->positionDelta().x() / 300.0f;
+		//	pSphericalComponent->theta() += pMouse->positionDelta().y() / 300.0f;
+
+		//}
+		//pMouse->positionDelta() = Eigen::Vector2f::Zero();
 
 		m_pGroundPlaneInstance->getTransformation3DComponent()->localPosition() += Eigen::Vector3f(0.0f, 0.0f, -0.1f);
 
-		if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_9)) {
+		if (pKeyboard->isKeyPressed(KeyboardStateComponent::KEY_9)) {
 			auto pMaterialsComp = m_pDuckActorPrefab->getPBRMaterialsComponent();
 			for (auto pMat : pMaterialsComp->pbrMaterials()) {
 				if (pMat->metallic() <= 1.0f) pMat->metallic() += 0.01f;
@@ -436,7 +478,7 @@ namespace crossforge {
 				pMat->updateUbo();
 			}
 		}
-		if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_8)) {
+		if (pKeyboard->isKeyPressed(KeyboardStateComponent::KEY_8)) {
 			auto pMaterialsComp = m_pDuckActorPrefab->getPBRMaterialsComponent();
 			for (auto pMat : pMaterialsComp->pbrMaterials()) {
 				if (pMat->metallic() >= 0.0f) pMat->metallic() -= 0.01f;
@@ -444,7 +486,7 @@ namespace crossforge {
 				pMat->updateUbo();
 			}
 		}
-		if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_7)) {
+		if (pKeyboard->isKeyPressed(KeyboardStateComponent::KEY_7)) {
 			auto pMaterialsComp = m_pDuckActorPrefab->getPBRMaterialsComponent();
 			for (auto pMat : pMaterialsComp->pbrMaterials()) {
 				if (pMat->roughness() <= 1.0f) pMat->roughness() += 0.01f;
@@ -452,7 +494,7 @@ namespace crossforge {
 				pMat->updateUbo();
 			}
 		}
-		if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_6)) {
+		if (pKeyboard->isKeyPressed(KeyboardStateComponent::KEY_6)) {
 			auto pMaterialsComp = m_pDuckActorPrefab->getPBRMaterialsComponent();
 			for (auto pMat : pMaterialsComp->pbrMaterials()) {
 				if (pMat->roughness() >= 0.0f) pMat->roughness() -= 0.01f;
@@ -461,12 +503,59 @@ namespace crossforge {
 			}
 		}
 
-		if (pKeyboard->isKeyPressed(KeyboardDataComponent::KEY_5)) {
-			auto pLightsConfig = m_pSceneLights->getLightsConfigComponent();
-			pLightsConfig->activeDirectionalLights() = (pLightsConfig->activeDirectionalLights() + 1)%4;
-			pKeyboard->keyState(KeyboardDataComponent::KEY_5) = KeyboardDataComponent::KEYSTATE_OFF;
+		if (pKeyboard->isKeyRelease(KeyboardStateComponent::KEY_V)) {
+
+			auto pWindowPropsComp = m_pMainWin->getWindowPropertiesComponent();
+			pWindowPropsComp->vSyncInterval() += 1;
+			if (pWindowPropsComp->vSyncInterval() > 5) pWindowPropsComp->vSyncInterval() = 0;
+			MiscellaneousController::updateVerticalSynchronization(m_pMainWin);
+
+
+			pKeyboard->keyState(KeyboardStateComponent::KEY_V) = KeyboardStateComponent::KEYSTATE_OFF;
 		}
 
+		if (pKeyboard->isKeyPressed(KeyboardStateComponent::KEY_5)) {
+			auto pLightsConfig = m_pSceneLights->getLightsConfigComponent();
+			pLightsConfig->activeDirectionalLights() = (pLightsConfig->activeDirectionalLights() + 1)%4;
+			pKeyboard->keyState(KeyboardStateComponent::KEY_5) = KeyboardStateComponent::KEYSTATE_OFF;
+		}
+
+		if (nullptr != m_pVideoRecorder) {
+			Image2DEntityPtr pFrame = std::make_shared<Image2DEntity>();
+			if (!GraphicsUtility::retrieveFrameBuffer(pFrame)) LogError("Failed to retrieve frame buffer");
+			//else if (!Image2DController::resize(pFrame, 1920, 1080)) LogError("Failed to resize frame buffer");
+			else if(!VideoController::addFrame(m_pVideoRecorder, pFrame)) LogError("Failed to add video frame.");
+		}
+
+		if (pKeyboard->isKeyRelease(KeyboardStateComponent::KEY_R)) {
+
+			if (nullptr == m_pVideoRecorder) {
+				m_pVideoRecorder = std::make_shared<VideoEntity>(VideoEntity::COMPONENTS_ALL);
+				auto pVideoDataComp = m_pVideoRecorder->getVideoDataComponent();
+
+
+				pVideoDataComp->framerate() = 29;
+				pVideoDataComp->width() = 1280;
+				pVideoDataComp->height() = 720;
+				pVideoDataComp->filename() = "./Assets/ScreenRecording.mp4";
+				if (VideoController::startRecording(m_pVideoRecorder)) {
+					LogInfo("Video recording started ...");
+				}
+				else {
+					LogError("Starting video recording failed.");
+				}
+			}
+			else {
+				if (VideoController::stopRecording(m_pVideoRecorder)) LogInfo("Stopped video recording.");
+				else LogError("Stopping video recording failed.");
+				m_pVideoRecorder = nullptr;
+			}
+
+			pKeyboard->keyState(KeyboardStateComponent::KEY_R) = KeyboardStateComponent::KEYSTATE_OFF;
+		}
+
+		static uint64_t highPrecionsTiming = 0;
+		highPrecionsTiming += highPrecionsTime;
 		
 		if (GeneralUtility::getTimestamp() - m_timestampLastFpsPrint > 1000) {
 			int32_t runtimeSeconds = (GeneralUtility::getTimestamp() - m_timestampStart) / 1000;
@@ -476,14 +565,17 @@ namespace crossforge {
 				this->stop();
 			}
 
-			if (m_pInputDevice->getKeyboardDataComponent()->isKeyRelease(KeyboardDataComponent::KEY_ESCAPE)) {
+			if (m_pInputDevice->getKeyboardStateComponent(true)->isKeyRelease(KeyboardStateComponent::KEY_ESCAPE)) {
 				this->stop();
 			}
 
-			float FPS = m_frameCount / (float)((GeneralUtility::getTimestamp() - m_timestampLastFpsPrint) / 1000.0f);
+			
 
-			//LogInfo("FPS: " + std::to_string(FPS));
+			float fps = m_frameCount / (float)((GeneralUtility::getTimestamp() - m_timestampLastFpsPrint) / 1000.0f);
+			m_pMainWin->getWindowPropertiesComponent()->title() = "CrossForge Simple Test App [" + std::to_string(int32_t(std::round(fps))) + " fps | " + std::to_string(std::round(highPrecionsTiming/fps)/1000)  + " ms/frame]";
+			MiscellaneousController::updateWindowTitle(m_pMainWin);
 			m_frameCount = 0;
+			highPrecionsTiming = 0.0;
 
 			uint64_t timestamp = GeneralUtility::getTimestamp() % 100;
 			m_pMainWin->getWindowPropertiesComponent()->clearColor() = Eigen::Vector4f(timestamp / 100.0f, timestamp / 50.0f, timestamp / 60.0f, 1.0f);
@@ -491,7 +583,6 @@ namespace crossforge {
 
 			
 			//LogInfo("Update took " + std::to_string(highPrecionsTime) + " microseconds");
-
 			//testGraphicsUtility();
 
 		}

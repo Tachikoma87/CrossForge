@@ -3,16 +3,24 @@
 namespace crossforge {
 
 	CameraPropertiesComponent::CameraPropertiesComponent(): ComponentBase(CameraPropertiesComponent::identification) {
-		m_projectionMatrix = Eigen::Matrix4f::Identity();
-		m_viewMatrix = Eigen::Matrix4f::Identity();
+		initialize();
 	}
 	CameraPropertiesComponent::CameraPropertiesComponent(const std::string childIdentification): ComponentBase(CameraPropertiesComponent::identification) {
 		m_inheritance.push_back(childIdentification);
-		m_projectionMatrix = Eigen::Matrix4f::Identity();
-		m_viewMatrix = Eigen::Matrix4f::Identity();
+		initialize();
+		
 	}
 	CameraPropertiesComponent::~CameraPropertiesComponent() {
+		clear();
+	}
 
+	void CameraPropertiesComponent::initialize() {
+		clear();
+	}
+	void CameraPropertiesComponent::clear() {
+		m_projectionMatrix = Eigen::Matrix4f::Identity();
+		m_viewMatrix = Eigen::Matrix4f::Identity();
+		m_cameraType = CameraType::UNKNOWN;
 	}
 
 	Eigen::Matrix4f& CameraPropertiesComponent::projectionMatrix() {
@@ -21,6 +29,10 @@ namespace crossforge {
 
 	Eigen::Matrix4f& CameraPropertiesComponent::viewMatrix() {
 		return m_viewMatrix;
+	}
+
+	CameraPropertiesComponent::CameraType& CameraPropertiesComponent::cameraType() {
+		return m_cameraType;
 	}
 
 }

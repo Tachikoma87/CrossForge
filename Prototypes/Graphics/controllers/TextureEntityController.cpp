@@ -17,8 +17,8 @@ namespace crossforge {
 		if (nullptr == pTexture) throw NullpointerExcept("pTexture");
 		if (nullptr == pImage) throw NullpointerExcept("pImage");
 
-		auto pRawImage = pImage->getRawImage2DDataComponent();
-		if (nullptr == pRawImage) throw MissingComponentException(RawImage2DDataComponent::identification);
+		auto pRawImage = pImage->getImage2DComponent();
+		if (nullptr == pRawImage) throw MissingComponentException(Image2DComponent::identification);
 		if (pRawImage->width() == 0 || pRawImage->height() == 0) {
 			LogError("Image appears to have no valid data. Widtth and/or height are 0.");
 			return false;
@@ -27,9 +27,9 @@ namespace crossforge {
 		// get color space
 		uint32_t glColorSpace = 0;
 		switch (pRawImage->colorSpace()) {
-		case RawImage2DDataComponent::COLORSPACE_GRAYSCALE: glColorSpace = GL_R; break;
-		case RawImage2DDataComponent::COLORSPACE_RGB: glColorSpace = GL_RGB; break;
-		case RawImage2DDataComponent::COLORSPACE_RGBA: glColorSpace = GL_RGBA; break;
+		case Image2DComponent::COLORSPACE_GRAYSCALE: glColorSpace = GL_R; break;
+		case Image2DComponent::COLORSPACE_RGB: glColorSpace = GL_RGB; break;
+		case Image2DComponent::COLORSPACE_RGBA: glColorSpace = GL_RGBA; break;
 		default: {
 			LogError("Raw image has invalid color space " + std::to_string(pRawImage->colorSpace()));
 			return false;
@@ -41,15 +41,15 @@ namespace crossforge {
 		glGenTextures(1, &textureHandle);
 		glBindTexture(GL_TEXTURE_2D, textureHandle);
 
-		Image2DEntityPtr pFlippedImg = std::make_shared<Image2DEntity>(Image2DEntity::RAW_IMAGE_2D_DATA_COMPONENT);
-		auto pRawImgData = pFlippedImg->getRawImage2DDataComponent();
+		Image2DEntityPtr pFlippedImg = std::make_shared<Image2DEntity>();
+		auto pRawImgData = pFlippedImg->getImage2DComponent(true);
 		pRawImgData->colorSpace() = pRawImage->colorSpace();
 		pRawImgData->width() = pRawImage->width();
 		pRawImgData->height() = pRawImage->height();
-		pRawImgData->rawPixelData() = pRawImage->rawPixelData();
+		pRawImgData->pixelData() = pRawImage->pixelData();
 		Image2DController::flipRows(pFlippedImg);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace,pRawImgData->width(), pRawImgData->height(), 0, glColorSpace, GL_UNSIGNED_BYTE, (const void*)pRawImgData->rawPixelData().data());
+		glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace,pRawImgData->width(), pRawImgData->height(), 0, glColorSpace, GL_UNSIGNED_BYTE, (const void*)pRawImgData->pixelData().data());
 
 		if (generateMitmaps) {
 			glGenerateMipmap(GL_TEXTURE_2D);

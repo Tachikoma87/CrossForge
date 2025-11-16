@@ -29,6 +29,9 @@ namespace crossforge {
 		PrefabComponent();
 		~PrefabComponent();
 
+		void initialize();
+		void clear() override;
+
 		ActorPrefabEntityPtr& actorPrefab();
 
 	protected:
