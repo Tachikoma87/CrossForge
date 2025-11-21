@@ -215,7 +215,7 @@ namespace crossforge {
             memcpy(pImageDataComp->pixelData().data(), pSource->data[0], size);
             pImageDataComp->width() = pSource->width;
             pImageDataComp->height() = pSource->height;
-            pImageDataComp->colorSpace() = Image2DComponent::COLORSPACE_RGB;
+            pImageDataComp->colorSpace() = Image2DComponent::COLOR_SPACE_RGB;
         }//to2DImage
 
     protected:

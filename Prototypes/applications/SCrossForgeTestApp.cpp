@@ -128,7 +128,7 @@ namespace crossforge {
 		m_pEntityManager->registerEntity(m_pInputDevice);
 		auto pKeyboardData = m_pInputDevice->getKeyboardStateComponent(true);
 		auto pAssociatedWindow = m_pInputDevice->getAssociatedWindowComponent(true);
-		pAssociatedWindow->windowEntityId() = m_pMainWin->getEntityId();
+		pAssociatedWindow->associatedWindow() = m_pMainWin;
 
 		KeyboardInputSystemPtr pKeyboardSys = std::make_shared<KeyboardInputSystem>();
 		m_pSystemManager->addSystem(pKeyboardSys);
@@ -400,17 +400,17 @@ namespace crossforge {
 			m_lastPrint = GeneralUtility::getTimestamp();
 		}
 
-		if (m_pInputDevice->getKeyboardStateComponent()->isKeyRelease(KeyboardStateComponent::KEY_ESCAPE)) this->stop();
+		if (m_pInputDevice->getKeyboardStateComponent()->isKeyReleased(KeyboardStateComponent::KEY_ESCAPE)) this->stop();
 
 		MouseStateComponentPtr pMouseData = m_pInputDevice->getMouseStateComponent();
 		std::string mousePos = "x: " + std::to_string(pMouseData->position().x()) + " | y:" + std::to_string(pMouseData->position().y());
-		if (pMouseData->buttonState(MouseStateComponent::BUTTON_MIDDLE) == MouseStateComponent::STATE_RELEASED) {
+		if (pMouseData->buttonState(MouseStateComponent::BUTTON_MIDDLE) == MouseStateComponent::BUTTON_STATE_RELEASED) {
 			LogInfo("Middle mouse button released at position: " + mousePos);
-			pMouseData->buttonState(MouseStateComponent::BUTTON_MIDDLE) = MouseStateComponent::STATE_OFF;
+			pMouseData->buttonState(MouseStateComponent::BUTTON_MIDDLE) = MouseStateComponent::BUTTON_STATE_OFF;
 		}
-		if (pMouseData->buttonState(MouseStateComponent::BUTTON_MIDDLE) == MouseStateComponent::STATE_PRESSED) {
+		if (pMouseData->buttonState(MouseStateComponent::BUTTON_MIDDLE) == MouseStateComponent::BUTTON_STATE_PRESSED) {
 			LogInfo("Middle mouse button pressed at position: " + mousePos);
-			pMouseData->buttonState(MouseStateComponent::BUTTON_MIDDLE) = MouseStateComponent::STATE_OFF;
+			pMouseData->buttonState(MouseStateComponent::BUTTON_MIDDLE) = MouseStateComponent::BUTTON_STATE_OFF;
 		}
 	}
 

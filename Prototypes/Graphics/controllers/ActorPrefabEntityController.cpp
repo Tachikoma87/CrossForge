@@ -46,6 +46,7 @@ namespace crossforge {
 		if (!pActorPrefab->hasComponent(ActorPrefabPropertiesComponent::identification)) pActorPrefab->addComponent(std::make_shared<ActorPrefabPropertiesComponent>());
 		auto pProperties = pActorPrefab->getActorPrefabPropertiesComponent();
 		/// @ToOd No usefully features available yet
+		if (pTriangleMeshEntity->hasComponent(TangentsComponent::identification)) pProperties->propertyNormalMapping() = true;
 
 
 		std::string glErrorLog = "";
@@ -66,10 +67,12 @@ namespace crossforge {
 		uint64_t bufferSize = 0;
 		PositionsComponentPtr pPositionData = nullptr;
 		NormalsComponentPtr pNormalData = nullptr;
+		TangentsComponentPtr pTangentData = nullptr;
 		TextureCoordinatesComponentPtr pUvwData = nullptr;
 
 		uint32_t positionOffset = 0;
 		uint32_t normalOffset = 0;
+		uint32_t tangentOffset = 0;
 		uint32_t uvwOffset = 0;
 		
 
@@ -84,6 +87,12 @@ namespace crossforge {
 			normalOffset = vertexSize;
 			vertexSize += sizeof(float) * 3;
 			pNormalData = pMeshEntity->getNormalsComponent();
+		}
+		if (pMeshEntity->hasComponent(TangentsComponent::identification)) {
+			attributeMask |= VertexBufferComponent::ATTRIBUTE_TANGENT;
+			tangentOffset = vertexSize;
+			vertexSize += sizeof(float) * 3;
+			pTangentData = pMeshEntity->getComponent<TangentsComponent>();
 		}
 		if (pMeshEntity->hasComponent(TextureCoordinatesComponent::identification)) {
 			attributeMask |= VertexBufferComponent::ATTRIBUTE_UVW;
@@ -117,6 +126,17 @@ namespace crossforge {
 			}
 		}
 
+		// set tangent data
+		if (attributeMask & VertexBufferComponent::ATTRIBUTE_TANGENT) {
+			for(uint32_t i=0; i < pTangentData->getTangentCount(); ++i){
+				float* pTangent = (float*)&(vertexBuffer.data()[i * vertexSize + tangentOffset]);
+				Eigen::Vector3f tangent = pTangentData->tangents()[i];
+				pTangent[0] = tangent.x();
+				pTangent[1] = tangent.y();
+				pTangent[2] = tangent.z();
+			}
+		}
+
 		// set uvw data
 		if (attributeMask & VertexBufferComponent::ATTRIBUTE_UVW) {
 			for (uint32_t i = 0; i < pUvwData->getTextureCoorindatesCount(); ++i) {
@@ -135,6 +155,7 @@ namespace crossforge {
 		pVertexBufferComp->attributeMask() = attributeMask;
 		pVertexBufferComp->attributeOffset(VertexBufferComponent::ATTRIBUTE_POSITION) = positionOffset;
 		pVertexBufferComp->attributeOffset(VertexBufferComponent::ATTRIBUTE_NORMAL) = normalOffset;
+		pVertexBufferComp->attributeOffset(VertexBufferComponent::ATTRIBUTE_TANGENT) = tangentOffset;
 		pVertexBufferComp->attributeOffset(VertexBufferComponent::ATTRIBUTE_UVW) = uvwOffset;
 		pVertexBufferComp->vertexCount() = pPositionData->getPositionCount();
 		pVertexBufferComp->vertexSize() = vertexSize;

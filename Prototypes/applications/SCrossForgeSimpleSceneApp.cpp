@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include "SCrossForgeSimpleSceneApp.h"
+#include <crossforge/assetio/controller/TriangleMeshController.h>
 
 #include <crossforge/graphics/controller/WindowController.h>
 #include <crossforge/graphics/systems/WindowSystem.h>
@@ -9,14 +10,6 @@
 
 #include "../scene/controllers/CameraEntityController.h"
 #include "../Graphics/controllers/ActorPrefabEntityController.h"
-#include "../Graphics/controllers/ShaderEntityController.h"
-
-#include "../Graphics/controllers/TextureEntityController.h"
-
-#include "../Graphics/controllers/Image2DController.h"
-
-#include "../Graphics/controllers/TriangleMeshController.h"
-
 #include <crossforge/math/CrossForgeMath.h>
 #include "../scene/components/ChildObjectsComponent.h"
 
@@ -25,7 +18,6 @@
 #include "../utility/MiscUtility.hpp"
 #include "../utility/GraphicsUtility.h"
 
-#include "../Graphics/controllers/Image2DController.h"
 #include "../input/controllers/InputDeviceController.h"
 #include "../input/components/UserInputComponent.h"
 
@@ -96,7 +88,7 @@ namespace crossforge {
 		m_pInputDevice = std::make_shared<InputDeviceEntity>();
 		m_pEntityManager->registerEntity(m_pInputDevice);
 		AssociatedWindowComponentPtr pWindowComponent = std::make_shared<AssociatedWindowComponent>();
-		pWindowComponent->windowEntityId() = m_pMainWin->getEntityId();
+		pWindowComponent->associatedWindow() = m_pMainWin;
 		m_pInputDevice->addComponent(pWindowComponent);
 		m_pSystemManager->getSystem<KeyboardInputSystem>()->registerEntity(m_pInputDevice);
 		m_pSystemManager->getSystem<MouseInputSystem>()->registerEntity(m_pInputDevice);
@@ -105,7 +97,6 @@ namespace crossforge {
 
 		// initialize duck prefab
 		std::string modelFilepath = "./Assets/ExampleScenes/Duck/Duck.gltf";
-		
 		//modelFilepath = "./Assets/ExampleScenes/Sponza/Sponza.gltf";
 
 		TriangleMeshEntityPtr pDuckTriangleMesh = std::make_shared<TriangleMeshEntity>();
@@ -114,6 +105,7 @@ namespace crossforge {
 		}
 		else {
 			if (!TriangleMeshController::recomputeVertexNormals(pDuckTriangleMesh)) LogError("Recomputing vertex normals failed.");
+			//if (!TriangleMeshController::recomputeVertexTangents(pDuckTriangleMesh)) LogError("Recomputing vertex tangents failed.");
 			m_pDuckActorPrefab = std::make_shared<ActorPrefabEntity>(0);
 			if (!ActorPrefabEntityController::buildStaticActor(m_pDuckActorPrefab, pDuckTriangleMesh)) {
 				LogError("Failed to build duck static actor!");
@@ -131,6 +123,7 @@ namespace crossforge {
 		}
 		else {
 			if (!TriangleMeshController::recomputeVertexNormals(pHelmetTriangleMesh)) LogError("Recomputing vertex normals failed.");
+			if (!TriangleMeshController::recomputeVertexTangents(pHelmetTriangleMesh)) LogError("Recomputing vertex tangents failed.");
 			m_pHelmetActorPrefab = std::make_shared<ActorPrefabEntity>();
 			if (!ActorPrefabEntityController::buildStaticActor(m_pHelmetActorPrefab, pHelmetTriangleMesh)) {
 				LogError("Failed to build helmet static actor.");
@@ -139,6 +132,8 @@ namespace crossforge {
 				m_pEntityManager->registerEntity(m_pHelmetActorPrefab);
 			}
 		}
+
+
 
 		// initialize ground plane prefab
 		auto pPlaneTriangleMesh = std::make_shared<TriangleMeshEntity>();
@@ -188,7 +183,7 @@ namespace crossforge {
 		m_pDuckActorInstance = std::make_shared<ActorInstanceEntity>(ActorInstanceEntity::COMPONENTS_ALL);
 		m_pDuckActorInstance->addComponent(std::make_shared<PrefabComponent>());
 		m_pDuckActorInstance->getComponent<PrefabComponent>()->actorPrefab()= m_pDuckActorPrefab;
-		m_pDuckActorInstance->getMovement3DComponent()->rotationDelta() = Eigen::AngleAxisf(CrossForgeMath::degToRad(-5.0f), Eigen::Vector3f::UnitZ());
+		//m_pDuckActorInstance->getMovement3DComponent()->rotationDelta() = Eigen::AngleAxisf(CrossForgeMath::degToRad(-5.0f), Eigen::Vector3f::UnitZ());
 		m_pDuckActorInstance->getTransformation3DComponent()->localScale() = Eigen::Vector3f(0.01f, 0.01f, 0.01f);
 		m_pEntityManager->registerEntity(m_pDuckActorInstance);
 
@@ -300,7 +295,7 @@ namespace crossforge {
 
 	}
 	void SCrossForgeSimpleSceneApp::update() {
-		uint64_t startHighPrecision = MiscUtility::timestampHighPrecision();
+		uint64_t startHighPrecision = GeneralUtility::timestampHighPrecision();
 
 		auto pWinSystem = m_pSystemManager->getSystem<WindowSystem>();
 		auto pKeyboardSystem = m_pSystemManager->getSystem<KeyboardInputSystem>();
@@ -351,7 +346,7 @@ namespace crossforge {
 		}
 
 
-		uint64_t highPrecionsTime = MiscUtility::timestampHighPrecision() - startHighPrecision;
+		uint64_t highPrecionsTime = GeneralUtility::timestampHighPrecision() - startHighPrecision;
 
 		pWinSystem->swapBuffers();
 		m_frameCount++;
@@ -381,7 +376,7 @@ namespace crossforge {
 		//	pSphericalComponent->phi() -= 0.01f;
 		//}
 
-		if (pKeyboard->isKeyRelease(KeyboardStateComponent::KEY_1)) {
+		if (pKeyboard->isKeyReleased(KeyboardStateComponent::KEY_1)) {
 
 			/*InputDeviceEntityPtr pInputDevice = std::make_shared<InputDeviceEntity>();
 			auto pUserDialogComp = std::make_shared<UserDialogComponent>();
@@ -411,9 +406,9 @@ namespace crossforge {
 			else pCameraPropComp->cameraType() = CameraPropertiesComponent::ORBITAL;
 
 
-			pKeyboard->keyState(KeyboardStateComponent::KEY_1) = KeyboardStateComponent::KEYSTATE_OFF;
+			pKeyboard->keyState(KeyboardStateComponent::KEY_1) = KeyboardStateComponent::KEY_STATE_OFF;
 		}
-		if (pKeyboard->isKeyRelease(KeyboardStateComponent::KEY_2)) {
+		if (pKeyboard->isKeyReleased(KeyboardStateComponent::KEY_2)) {
 			InputDeviceEntityPtr pInputDevice = std::make_shared<InputDeviceEntity>();
 			auto pUserDialogComp = std::make_shared<UserDialogComponent>();
 			pUserDialogComp->dialogType() = UserDialogComponent::DIALOG_TYPE_INPUT_PASSWORD;
@@ -425,10 +420,10 @@ namespace crossforge {
 			auto pUserInput = pInputDevice->getComponent<UserInputComponent>();
 			LogDebug("User input was: " + pUserInput->string());
 
-			pKeyboard->keyState(KeyboardStateComponent::KEY_2) = KeyboardStateComponent::KEYSTATE_OFF;
+			pKeyboard->keyState(KeyboardStateComponent::KEY_2) = KeyboardStateComponent::KEY_STATE_OFF;
 		}
 
-		if (pKeyboard->isKeyRelease(KeyboardStateComponent::KEY_3)) {
+		if (pKeyboard->isKeyReleased(KeyboardStateComponent::KEY_3)) {
 
 			static InputDeviceEntityPtr pInputDevice = std::make_shared<InputDeviceEntity>();
 			if (!pInputDevice->hasComponent(UserDialogComponent::identification)) {
@@ -455,7 +450,7 @@ namespace crossforge {
 
 			LogDebug(outputMsg);
 
-			pKeyboard->keyState(KeyboardStateComponent::KEY_3) = KeyboardStateComponent::KEYSTATE_OFF;
+			pKeyboard->keyState(KeyboardStateComponent::KEY_3) = KeyboardStateComponent::KEY_STATE_OFF;
 		}
 
 		//if (pMouse->buttonState(MouseDataComponent::BUTTON_LEFT) == MouseDataComponent::STATE_PRESSED) {
@@ -503,7 +498,7 @@ namespace crossforge {
 			}
 		}
 
-		if (pKeyboard->isKeyRelease(KeyboardStateComponent::KEY_V)) {
+		if (pKeyboard->isKeyReleased(KeyboardStateComponent::KEY_V)) {
 
 			auto pWindowPropsComp = m_pMainWin->getWindowPropertiesComponent();
 			pWindowPropsComp->vSyncInterval() += 1;
@@ -511,13 +506,13 @@ namespace crossforge {
 			MiscellaneousController::updateVerticalSynchronization(m_pMainWin);
 
 
-			pKeyboard->keyState(KeyboardStateComponent::KEY_V) = KeyboardStateComponent::KEYSTATE_OFF;
+			pKeyboard->keyState(KeyboardStateComponent::KEY_V) = KeyboardStateComponent::KEY_STATE_OFF;
 		}
 
 		if (pKeyboard->isKeyPressed(KeyboardStateComponent::KEY_5)) {
 			auto pLightsConfig = m_pSceneLights->getLightsConfigComponent();
 			pLightsConfig->activeDirectionalLights() = (pLightsConfig->activeDirectionalLights() + 1)%4;
-			pKeyboard->keyState(KeyboardStateComponent::KEY_5) = KeyboardStateComponent::KEYSTATE_OFF;
+			pKeyboard->keyState(KeyboardStateComponent::KEY_5) = KeyboardStateComponent::KEY_STATE_OFF;
 		}
 
 		if (nullptr != m_pVideoRecorder) {
@@ -527,7 +522,7 @@ namespace crossforge {
 			else if(!VideoController::addFrame(m_pVideoRecorder, pFrame)) LogError("Failed to add video frame.");
 		}
 
-		if (pKeyboard->isKeyRelease(KeyboardStateComponent::KEY_R)) {
+		if (pKeyboard->isKeyReleased(KeyboardStateComponent::KEY_R)) {
 
 			if (nullptr == m_pVideoRecorder) {
 				m_pVideoRecorder = std::make_shared<VideoEntity>(VideoEntity::COMPONENTS_ALL);
@@ -551,7 +546,7 @@ namespace crossforge {
 				m_pVideoRecorder = nullptr;
 			}
 
-			pKeyboard->keyState(KeyboardStateComponent::KEY_R) = KeyboardStateComponent::KEYSTATE_OFF;
+			pKeyboard->keyState(KeyboardStateComponent::KEY_R) = KeyboardStateComponent::KEY_STATE_OFF;
 		}
 
 		static uint64_t highPrecionsTiming = 0;
@@ -565,7 +560,7 @@ namespace crossforge {
 				this->stop();
 			}
 
-			if (m_pInputDevice->getKeyboardStateComponent(true)->isKeyRelease(KeyboardStateComponent::KEY_ESCAPE)) {
+			if (m_pInputDevice->getKeyboardStateComponent(true)->isKeyReleased(KeyboardStateComponent::KEY_ESCAPE)) {
 				this->stop();
 			}
 

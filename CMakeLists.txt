@@ -219,8 +219,8 @@ add_executable(CForgeSandbox
 	 "Prototypes/Graphics/components/Texture2DComponent.cpp" 
 	 "Prototypes/Graphics/controllers/TextureEntityController.h" 
 	 "Prototypes/Graphics/controllers/TextureEntityController.cpp"
-	 "Prototypes/Graphics/controllers/Image2DController.h" 
-	 "Prototypes/Graphics/controllers/Image2DController.cpp" 
+	  
+	  
 
 	 "Prototypes/Graphics/components/LightsConfigComponent.cpp"
  "Prototypes/Graphics/components/uniformbuffer/UBODirectionalLightsComponent.h"
@@ -229,8 +229,8 @@ add_executable(CForgeSandbox
  "Prototypes/Graphics/components/uniformbuffer/UBOPbrMaterialComponent.cpp"
  "Prototypes/Graphics/entities/LightsEntity.h"
  "Prototypes/Graphics/entities/LightsEntity.cpp"
- "Prototypes/Graphics/controllers/TriangleMeshController.h"
- "Prototypes/Graphics/controllers/TriangleMeshController.cpp"
+ 
+ 
  "Prototypes/Graphics/components/uniformbuffer/UBOPointLightsComponent.h"
  "Prototypes/Graphics/components/uniformbuffer/UBOSpotLightsComponent.h"
  "Prototypes/Graphics/components/uniformbuffer/UBOSpotLightsComponent.cpp"
@@ -264,7 +264,24 @@ add_executable(CForgeSandbox
  "Prototypes/input/components/UserInputComponent.h"
  "Prototypes/input/components/UserInputComponent.cpp"
  "Prototypes/utility/FFMpegUtility.hpp"
- "Prototypes/assetio/entities/VideoEntity.h" "Prototypes/assetio/entities/VideoEntity.cpp" "Prototypes/assetio/components/VideoDataComponent.h" "Prototypes/assetio/components/VideoDataComponent.cpp" "Prototypes/assetio/controllers/VideoController.h" "Prototypes/assetio/controllers/VideoController.cpp" "Prototypes/scene/components/SphericalTransformationComponent.h" "Prototypes/scene/components/SphericalTransformationComponent.cpp" "Prototypes/scene/systems/CameraSystem.h" "Prototypes/scene/systems/CameraSystem.cpp" "Prototypes/scene/components/TargetObjectComponent.h" "Prototypes/scene/components/TargetObjectComponent.cpp"   "Prototypes/miscellaneous/controllers/MiscellaneousController.h" "Prototypes/miscellaneous/controllers/MiscellaneousController.cpp")
+ "Prototypes/assetio/entities/VideoEntity.h" 
+ "Prototypes/assetio/entities/VideoEntity.cpp" 
+ "Prototypes/assetio/components/VideoDataComponent.h" 
+ "Prototypes/assetio/components/VideoDataComponent.cpp" 
+ "Prototypes/assetio/controllers/VideoController.h" 
+ "Prototypes/assetio/controllers/VideoController.cpp" 
+ "Prototypes/scene/components/SphericalTransformationComponent.h" 
+ "Prototypes/scene/components/SphericalTransformationComponent.cpp" 
+ "Prototypes/scene/systems/CameraSystem.h" 
+ "Prototypes/scene/systems/CameraSystem.cpp" 
+ "Prototypes/scene/components/TargetObjectComponent.h" 
+ "Prototypes/scene/components/TargetObjectComponent.cpp"   
+ "Prototypes/miscellaneous/controllers/MiscellaneousController.h" 
+ "Prototypes/miscellaneous/controllers/MiscellaneousController.cpp" 
+  
+ 
+)
+
 	
 if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox

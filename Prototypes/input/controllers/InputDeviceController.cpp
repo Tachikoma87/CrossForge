@@ -135,7 +135,7 @@ namespace crossforge {
 		// if multiple files are selected then delimiter is |
 		fileList.clear();
 		if (nullptr != pResult) {
-			fileList = MiscUtility::splitString(pResult, '|');
+			fileList = GeneralUtility::splitString(pResult, '|');
 		}
 		return (nullptr != pResult);
 	}

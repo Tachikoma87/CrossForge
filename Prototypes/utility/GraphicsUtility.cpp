@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 #include "GraphicsUtility.h"
-#include "../Graphics/controllers/Image2DController.h"
+#include <crossforge/assetio/controller/Image2DController.h>
 
 using namespace Eigen;
 namespace crossforge {
@@ -67,7 +67,7 @@ namespace crossforge {
 				glGetTexImage(GL_TEXTURE_2D, level, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
 				auto pImgDataComp = pImage->getImage2DComponent(true);
 				pImgDataComp->clear();
-				pImgDataComp->colorSpace() = Image2DComponent::COLORSPACE_RGB;
+				pImgDataComp->colorSpace() = Image2DComponent::COLOR_SPACE_RGB;
 				pImgDataComp->width() = texWidth;
 				pImgDataComp->height() = texHeight;
 				pImgDataComp->pixelData() = buffer;
@@ -123,7 +123,7 @@ namespace crossforge {
 			}
 
 			auto pDataComp = pImage->getImage2DComponent(true);
-			pDataComp->colorSpace() = Image2DComponent::COLORSPACE_RGB;
+			pDataComp->colorSpace() = Image2DComponent::COLOR_SPACE_RGB;
 			pDataComp->width() = texWidth;
 			pDataComp->height() = texHeight;
 			pDataComp->pixelData() = imgBuffer;
@@ -174,7 +174,7 @@ namespace crossforge {
 
 			auto pImgComp = pColorImage->getImage2DComponent(true);
 			pImgComp->clear();
-			pImgComp->colorSpace() = Image2DComponent::COLORSPACE_RGB;
+			pImgComp->colorSpace() = Image2DComponent::COLOR_SPACE_RGB;
 			pImgComp->width() = width;
 			pImgComp->height() = height;
 			pImgComp->pixelData() = buffer;
@@ -203,7 +203,7 @@ namespace crossforge {
 
 			auto pImgComp = pDepthImage->getImage2DComponent(true);
 			pImgComp->clear();
-			pImgComp->colorSpace() = Image2DComponent::COLORSPACE_GRAYSCALE;
+			pImgComp->colorSpace() = Image2DComponent::COLOR_SPACE_GRAYSCALE;
 			pImgComp->width() = width;
 			pImgComp->height() = height;
 			pImgComp->pixelData() = buffer;

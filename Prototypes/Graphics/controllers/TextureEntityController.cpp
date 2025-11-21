@@ -1,7 +1,9 @@
 #include <glad/glad.h>
+#include <crossforge/assetio/controller/Image2DController.h>
+
 #include "TextureEntityController.h"
 #include "../../utility/GraphicsUtility.h"
-#include "Image2DController.h"
+
 
 namespace crossforge {
 
@@ -27,9 +29,9 @@ namespace crossforge {
 		// get color space
 		uint32_t glColorSpace = 0;
 		switch (pRawImage->colorSpace()) {
-		case Image2DComponent::COLORSPACE_GRAYSCALE: glColorSpace = GL_R; break;
-		case Image2DComponent::COLORSPACE_RGB: glColorSpace = GL_RGB; break;
-		case Image2DComponent::COLORSPACE_RGBA: glColorSpace = GL_RGBA; break;
+		case Image2DComponent::COLOR_SPACE_GRAYSCALE: glColorSpace = GL_R; break;
+		case Image2DComponent::COLOR_SPACE_RGB: glColorSpace = GL_RGB; break;
+		case Image2DComponent::COLOR_SPACE_RGBA: glColorSpace = GL_RGBA; break;
 		default: {
 			LogError("Raw image has invalid color space " + std::to_string(pRawImage->colorSpace()));
 			return false;

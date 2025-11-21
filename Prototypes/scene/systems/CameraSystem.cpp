@@ -38,7 +38,7 @@ namespace crossforge {
 
 			m_pInputDevice = std::make_shared<InputDeviceEntity>();
 			auto pWindowComp = m_pInputDevice->getAssociatedWindowComponent(true);
-			pWindowComp->windowEntityId() = pAssociatedWindow->getEntityId();
+			pWindowComp->associatedWindow() = pAssociatedWindow;
 			pKeyboardInputSystem->registerEntity(m_pInputDevice);
 			pMouseInputSystem->registerEntity(m_pInputDevice);
 		}
@@ -75,7 +75,7 @@ namespace crossforge {
 			moveRight = 1.0f;
 		}
 
-		if (pMouseData->buttonState(MouseStateComponent::BUTTON_LEFT) == MouseStateComponent::STATE_PRESSED) {
+		if (pMouseData->buttonState(MouseStateComponent::BUTTON_LEFT) == MouseStateComponent::BUTTON_STATE_PRESSED) {
 			rotYaw = pMouseData->positionDelta().x();
 			rotPitch = pMouseData->positionDelta().y();
 		}

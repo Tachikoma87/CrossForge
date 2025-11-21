@@ -314,7 +314,7 @@ namespace crossforge {
 	std::string configShaderCode(std::string code, std::vector<std::string> featureList, ShaderPropertiesComponentPtr pShaderProperties) {
 		if (nullptr == pShaderProperties) throw NullpointerExcept("pShaderProperties");
 
-		auto shaderLines = MiscUtility::splitString(code);
+		auto shaderLines = GeneralUtility::splitString(code);
 		std::string result = "";
 		bool featuresAdded = false;
 

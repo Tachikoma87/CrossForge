@@ -104,7 +104,9 @@ namespace crossforge {
 
 			ShaderEntityController::bindBaseUbo(pShader, pPbrMaterial->uboPbrMaterial(), RenderingShaderComponent::BASE_UBO_MATERIALDATA_PBR);
 			TextureEntityPtr pAlbedoTex = pPbrMaterial->texture(PbrMaterial::TEXTURE_TYPE_ALBEDO);
+			TextureEntityPtr pNormalTex = pPbrMaterial->texture(PbrMaterial::TEXTURE_TYPE_NORMAL);
 			if (nullptr != pAlbedoTex) ShaderEntityController::bindTexture(pShader, pAlbedoTex, RenderingShaderComponent::BASE_TEX_ALBEDO);
+			if (nullptr != pNormalTex) ShaderEntityController::bindTexture(pShader, pNormalTex, RenderingShaderComponent::BASE_TEX_NORMAL);
 			const uint64_t offset = renderGroup.x() * sizeof(uint32_t);
 			glDrawElements(GL_TRIANGLES, renderGroup.y() - renderGroup.x(), GL_UNSIGNED_INT, (const void*)offset);
 		}
