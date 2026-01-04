@@ -27,29 +27,24 @@ namespace crossforge {
 	class ShaderEntity : public EntityBase {
 	public:
 		static inline std::string identification = "ShaderEntity";
-		enum ShaderEntityComponents: uint8_t {
-			SHADER_SOURCE_COMPONENT = 0x01,
-			RENDERING_SHADER_COMPONENT = 0x02,
-			SHADER_PROPERTIES_COMPONENT = 0x04,
-			COMPONENTS_ALL = 0xFF
-		};
-
-		ShaderEntity(uint8_t componentsBitmask = 0);
+		
+		ShaderEntity();
 		~ShaderEntity();
 
-		void initialize(uint8_t componentsBitmask);
+		void initialize();
 		void clear();
 
-		ShaderSourceComponentPtr getShaderSourceComponent();
-		RenderingShaderComponentPtr getRenderingShaderComponent();
-		ShaderPropertiesComponentPtr getShaderPropertiesComponent();
+		ShaderSourceComponentPtr getShaderSourceComponent(bool createIfNotExists = false);
+		RenderingShaderComponentPtr getRenderingShaderComponent(bool createIfNotExists = false);
+		ShaderPropertiesComponentPtr getShaderPropertiesComponent(bool createIfNotExists = false);
 
 	protected:
 		ShaderEntity(const std::string childIdentification);
 
 	};
 
-	typedef std::shared_ptr<ShaderEntity> ShaderEntityPtr;
+	using ShaderEntityPtr = std::shared_ptr<ShaderEntity>;
+	using ShaderEntityCPtr = std::shared_ptr<const ShaderEntity>;
 }
 
 #endif 

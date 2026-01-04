@@ -28,11 +28,17 @@ namespace crossforge {
 		RenderGroupsComponent();
 		~RenderGroupsComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const RenderGroupsComponent> pRef = nullptr);
 		void clear()override;
 
 		std::vector<Eigen::Vector2i> &renderGroups(); 
 		std::vector<int32_t> &renderGroupsMaterial();
+
+		const std::vector<Eigen::Vector2i> getRenderGroups()const;
+		const std::vector<int32_t> getRenderGroupsMaterial()const;
+
+		void setRenderGroups(const std::vector<Eigen::Vector2i> renderGroups);
+		void setRenderGroupsMaterial(const std::vector<int32_t> renderGroupsMaterial);
 
 	protected:
 		RenderGroupsComponent(const std::string childIdentification);
@@ -41,7 +47,8 @@ namespace crossforge {
 		std::vector<int32_t> m_renderGroupsMaterial;
 	};
 
-	typedef std::shared_ptr<RenderGroupsComponent> RenderGroupsComponentPtr;
+	using RenderGroupsComponentPtr = std::shared_ptr<RenderGroupsComponent>;
+	using RenderGroupsComponentCPtr = std::shared_ptr<const RenderGroupsComponent>;
 }
 
 #endif 

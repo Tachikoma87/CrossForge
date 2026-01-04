@@ -12,7 +12,7 @@ ENDIF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 # builds the crossforge library
 #include("crossforge/CrossForgeBuild.cmake")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # create required directories if non existent 
@@ -25,7 +25,8 @@ file(MAKE_DIRECTORY "Prototypes/Shader")
 #################################################################
 project (CForgeSandbox)
 
-option(INCLUDE_OPENCV "Include OpenCV in build" OFF)
+option(CROSSFORGE_OPTION_FFMPEG "Features related to videos" OFF)
+
 include(FetchContent)
 
 if(UNIX)
@@ -48,6 +49,15 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(stb)
 include_directories(${stb_SOURCE_DIR})
+
+#FetchContent_Declare(
+#	oatpp
+#	GIT_REPOSITORY https://github.com/Tachikoma87/oatpp.git
+#	GIT_TAG 1.3.1
+#)
+#FetchContent_MakeAvailable(oatpp)
+#include_directories(${oatpp_SOURCE_DIR}/src)
+#link_directories(${oatpp_BINARY_DIR}/src)
 
 
 if(EMSCRIPTEN)
@@ -79,82 +89,31 @@ if(EMSCRIPTEN)
 	set(CMAKE_EXECUTABLE_SUFFIX .html)
 else()
 # Additional packages not alreday included in the core library
-FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
-FIND_PACKAGE(imgui CONFIG REQUIRED) # dear-imgui
-FIND_PACKAGE(JPEG REQUIRED)
-FIND_PACKAGE(libjpeg-turbo)
-FIND_PACKAGE(FFMPEG REQUIRED)
-FIND_PACKAGE(assimp REQUIRED)
-FIND_PACKAGE(glad CONFIG REQUIRED)	# GL extension library
-FIND_PACKAGE(glfw3 CONFIG REQUIRED)	# cross-plattform window management
-FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
-FIND_PACKAGE(WebP CONFIG REQUIRED)	# WebP to import/export webp
-FIND_PACKAGE(tinyfiledialogs CONFIG REQUIRED)
+	FIND_PACKAGE(tinyxml2 CONFIG REQUIRED)	# support for xml loading, storing, and processing
+	FIND_PACKAGE(imgui CONFIG REQUIRED) # dear-imgui
+	FIND_PACKAGE(glad CONFIG REQUIRED)	# GL extension library
+	FIND_PACKAGE(glfw3 CONFIG REQUIRED)	# cross-plattform window management
+	FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
+	find_package(libpqxx CONFIG REQUIRED)
+	find_package(Drogon CONFIG REQUIRED)
+
+
+#	FIND_PACKAGE(freetype REQUIRED)		# Library to load and process vector based fonts
+#	FIND_PACKAGE(libigl CONFIG REQUIRED)# mesh processing library
 
 endif()
 
 add_executable(CForgeSandbox 
-	
-
-	# SandboxMain.cpp
-	
-
-	# Hardware stuff (used with Raspberry Pi)
-#	crossforge/Core/SGPIO.cpp
-#	Prototypes/Hardware/I2C.cpp 
-#	Prototypes/Hardware/MPU6050.cpp
-#	Prototypes/Hardware/RotaryEncoder.cpp
-
-	# Camera related
-#	Prototypes/Camera/PhotoFinish.cpp
-#	Prototypes/Camera/StripPhoto.cpp 
-#	Prototypes/Camera/VideoPlayer.cpp
-#	Prototypes/Camera/CameraCapture.cpp
-#	Prototypes/Multimedia/SMediaDeviceManager.cpp
-#	Prototypes/Multimedia/CameraDevice.cpp
-#	Prototypes/Multimedia/FFMPEG.cpp
-	
-	# Misc
-#	Prototypes/Assets/GLTFIO.cpp
-#	Prototypes/MeshProcessing/SurfaceSampler.cpp
-	
-	
-#	"Prototypes/GUI/ImGuiUtility.cpp"
-	
-
 	# Subprojects
 	# B02 Demonstrator
 #	Subprojects/B02Demonstrator/AdaptiveSkeletalActor.cpp
 	# Dual IMU
 #	Subprojects/DualIMU/IMUCameraController.cpp
 
-	# Other
-#	Prototypes/Actor/LODActor.cpp
-#	"Prototypes/Actor/SLOD.cpp"
-#	"Prototypes/Actor/LODHandler.cpp"
-#	"Prototypes/Actor/UBOInstancedData.cpp"
-#	"Prototypes/MeshProcessing/MeshDecimate.cpp"
-
 	################################
 	#### New CrossForge ############
 	################################
 
-
-#
-#	"Prototypes/AssetIO/Systems/TriangleMeshIOSystemBase.cpp"
-#	"Prototypes/AssetIO/Systems/AssimpMeshIOSystem.cpp"
-
-#	"Prototypes/AssetIO/TriangleMesh/MeshDefinition.cpp"
-#	"Prototypes/AssetIO/TriangleMesh/MeshMaterial.cpp"
-
-	
-#	"Prototypes/Graphics/Components/WindowPropertiesComponent.cpp"
-#	"Prototypes/Graphics/Entities/WindowEntity.cpp"
-#	"Prototypes/Graphics/Systems/RenderingSystem.cpp"
-#	"Prototypes/Graphics/Systems/WindowSystem.cpp"
-	
-	
-	
 
 	"CrossForgeSandbox.cpp" 
 	"Prototypes/applications/SCrossForgeTestApp.cpp"
@@ -251,25 +210,13 @@ add_executable(CForgeSandbox
  "Prototypes/scene/systems/MovementSystem.cpp"
  "Prototypes/Graphics/components/shader/ShaderPropertiesComponent.h"
  "Prototypes/Graphics/components/shader/ShaderPropertiesComponent.cpp"
- "Prototypes/utility/MiscUtility.hpp" "Prototypes/scene/entities/SceneEntity.h"
+ "Prototypes/scene/entities/SceneEntity.h"
  "Prototypes/scene/entities/SceneEntity.cpp"
  "Prototypes/Graphics/components/actorprefab/ActorPrefabPropertiesComponent.h"
  "Prototypes/Graphics/components/actorprefab/ActorPrefabPropertiesComponent.cpp"
- "Prototypes/utility/MiscUtility.cpp" 
- "Prototypes/input/controllers/InputDeviceController.h"
- "Prototypes/input/controllers/InputDeviceController.cpp"
- 
- "Prototypes/input/components/UserDialogComponent.h"
- "Prototypes/input/components/UserDialogComponent.cpp"
- "Prototypes/input/components/UserInputComponent.h"
- "Prototypes/input/components/UserInputComponent.cpp"
- "Prototypes/utility/FFMpegUtility.hpp"
- "Prototypes/assetio/entities/VideoEntity.h" 
- "Prototypes/assetio/entities/VideoEntity.cpp" 
- "Prototypes/assetio/components/VideoDataComponent.h" 
- "Prototypes/assetio/components/VideoDataComponent.cpp" 
- "Prototypes/assetio/controllers/VideoController.h" 
- "Prototypes/assetio/controllers/VideoController.cpp" 
+ "Prototypes/miscellaneous/MiscUtility.cpp" 
+
+  
  "Prototypes/scene/components/SphericalTransformationComponent.h" 
  "Prototypes/scene/components/SphericalTransformationComponent.cpp" 
  "Prototypes/scene/systems/CameraSystem.h" 
@@ -278,9 +225,28 @@ add_executable(CForgeSandbox
  "Prototypes/scene/components/TargetObjectComponent.cpp"   
  "Prototypes/miscellaneous/controllers/MiscellaneousController.h" 
  "Prototypes/miscellaneous/controllers/MiscellaneousController.cpp" 
-  
  
-)
+ "Prototypes/applications/SCrossForgeRestTestApp.h"
+ "Prototypes/applications/SCrossForgeRestTestApp.cpp" 
+ "Prototypes/controller/TestController.h" 
+ "Prototypes/controller/TestController.cpp"
+
+ "Prototypes/database/components/PostgresConnectionComponent.cpp"
+ "Prototypes/database/components/DatabaseConnectionSettingsComponent.cpp"
+ "Prototypes/database/components/DatabaseConnectionSettingsComponent.h"
+ "Prototypes/database/controllers/DatabaseConnectionEntityController.cpp"
+ "Prototypes/database/entities/DatabaseConnectionEntity.cpp"
+ "Prototypes/database/providers/SDatabaseConnectionProvider.cpp"
+
+ "Prototypes/database/daos/DatabaseVersionDao.h"
+ "Prototypes/database/daos/DatabaseVersionDao.cpp"
+ "Prototypes/database/components/PostgresQueriesComponent.h"
+ "Prototypes/database/components/PostgresQueriesComponent.cpp"
+ "Prototypes/database/pocos/DatabaseVersionPoco.h"
+ "Prototypes/database/pocos/DatabaseVersionPoco.cpp"
+ "Prototypes/database/pocos/PocoBase.hpp"
+ "Prototypes/database/daos/DaoBase.hpp"
+  )
 
 	
 if(EMSCRIPTEN)
@@ -291,32 +257,24 @@ if(EMSCRIPTEN)
 	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} ${Optimization_Flag} -sEXIT_RUNTIME=1 -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -fwasm-exceptions -sUSE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader --preload-file MyAssets")
 
 elseif(WIN32)
-	target_include_directories(CForgeSandbox 
-#	PRIVATE ${JPEG_INCLUDE_DIR}
-	PRIVATE ${FFMPEG_INCLUDE_DIRS}
-	)
-
-	target_link_directories(CForgeSandbox
-		PRIVATE ${FFMPEG_LIBRARY_DIRS}
-	)
-
 	target_link_libraries(CForgeSandbox 
 	PRIVATE crossforge
 	PRIVATE Eigen3::Eigen
 	PRIVATE glfw 
 	PRIVATE glad::glad
+#	PRIVATE oatpp
+	PRIVATE libpqxx::pqxx
+	PRIVATE Drogon::Drogon
 	ws2_32
-	PRIVATE tinyfiledialogs::tinyfiledialogs
-#	PRIVATE libjpeg-turbo::turbojpeg
-#	PRIVATE WebP::webp
-#	PRIVATE WebP::webpdecoder
+	PRIVATE libpqxx::pqxx
+
 #	PRIVATE tinyxml2::tinyxml2
 #	PRIVATE imgui::imgui
-	PRIVATE ${FFMPEG_LIBRARIES}
 #	${FREETYPE_LIBRARIES}
-#	PRIVATE assimp::assimp
-	
+#	PRIVATE igl::igl_core 	
+#	PRIVATE Freetype::Freetype
 	)
+
 	
 elseif(__arm__)
 	target_link_libraries(CForgeSandbox 

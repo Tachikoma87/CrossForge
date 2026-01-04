@@ -2,8 +2,8 @@
 
 namespace crossforge {
 
-	ShaderEntity::ShaderEntity(uint8_t componentsBitmask) : EntityBase(ShaderEntity::identification) {
-		initialize(componentsBitmask);
+	ShaderEntity::ShaderEntity() : EntityBase(ShaderEntity::identification) {
+		initialize();
 	}
 	ShaderEntity::~ShaderEntity() {
 		clear();
@@ -13,23 +13,20 @@ namespace crossforge {
 		m_inheritance.push_back(childIdentification);
 	}
 
-	void ShaderEntity::initialize(uint8_t componentsBitmask) {
+	void ShaderEntity::initialize() {
 		clear();
-		if (componentsBitmask & SHADER_SOURCE_COMPONENT) addComponent(std::make_shared<ShaderSourceComponent>());
-		if (componentsBitmask & RENDERING_SHADER_COMPONENT) addComponent(std::make_shared<RenderingShaderComponent>());
-		if (componentsBitmask & SHADER_PROPERTIES_COMPONENT) addComponent(std::make_shared<ShaderPropertiesComponent>());
 	}
 	void ShaderEntity::clear() {
 		m_componentMap.clear();
 	}
 
-	ShaderSourceComponentPtr  ShaderEntity::getShaderSourceComponent() {
-		return getComponent<ShaderSourceComponent>();
+	ShaderSourceComponentPtr  ShaderEntity::getShaderSourceComponent(bool createIfNotExists) {
+		return getComponent<ShaderSourceComponent>(createIfNotExists);
 	}
-	RenderingShaderComponentPtr  ShaderEntity::getRenderingShaderComponent() {
-		return getComponent<RenderingShaderComponent>();
+	RenderingShaderComponentPtr  ShaderEntity::getRenderingShaderComponent(bool createIfNotExists) {
+		return getComponent<RenderingShaderComponent>(createIfNotExists);
 	}
-	ShaderPropertiesComponentPtr ShaderEntity::getShaderPropertiesComponent() {
-		return getComponent<ShaderPropertiesComponent>();
+	ShaderPropertiesComponentPtr ShaderEntity::getShaderPropertiesComponent(bool createIfNotExists) {
+		return getComponent<ShaderPropertiesComponent>(createIfNotExists);
 	}
 }

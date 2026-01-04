@@ -2,8 +2,8 @@
 
 namespace crossforge {
 
-	SceneEntity::SceneEntity(uint8_t componentsMask): EntityBase(SceneEntity::identification) {
-		initialize(componentsMask);
+	SceneEntity::SceneEntity(): EntityBase(SceneEntity::identification) {
+		initialize();
 	}
 	SceneEntity::~SceneEntity() {
 		clear();
@@ -12,7 +12,7 @@ namespace crossforge {
 		m_inheritance.push_back(childIdentification);
 	}
 
-	void SceneEntity::initialize(uint8_t componentsMask) {
+	void SceneEntity::initialize() {
 		clear();
 		
 	}

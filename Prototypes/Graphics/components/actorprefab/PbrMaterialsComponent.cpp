@@ -64,8 +64,51 @@ namespace crossforge {
 		return m_textures[type];
 	}
 
-	UBOPBRMaterialComponentPtr PbrMaterial::uboPbrMaterial() {
+	UBOPbrMaterialComponentPtr PbrMaterial::uboPbrMaterial() {
 		return m_pUbo;
+	}
+
+	const float PbrMaterial::getAmbientOcclusion()const {
+		return m_ambientOcclusion;
+	}
+	const float PbrMaterial::getMetallic()const {
+		return m_metallic;
+	}
+	const float PbrMaterial::getRoughness()const {
+		return m_roughness;
+	}
+	const Eigen::Vector4f PbrMaterial::getColor(const ColorType type)const {
+		if (COLOR_TYPE_UNKNOWN >= type || type >= COLOR_TYPE_COUNT) throw IndexOutOfBoundsExcept("type");
+		return m_colors[type];
+	}
+	TextureEntityCPtr PbrMaterial::getTexture(const TextureType type)const {
+		if (TEXTURE_TYPE_UNKNOWN >= type || type >= TEXTURE_TYPE_COUNT) throw IndexOutOfBoundsExcept("type");
+		return m_textures[type];
+	}
+	UBOPbrMaterialComponentCPtr PbrMaterial::getUboPbrMaterial()const {
+		return m_pUbo;
+	}
+
+
+	void PbrMaterial::setAmbientOcclusion(const float ambientOcclusion) {
+		m_ambientOcclusion = ambientOcclusion;
+	}
+	void PbrMaterial::setMetallic(const float metallic) {
+		m_metallic = metallic;
+	}
+	void PbrMaterial::setRoughness(const float roughness) {
+		m_roughness = roughness;
+	}
+	void PbrMaterial::setColor(const Eigen::Vector4f color, const ColorType type) {
+		if (COLOR_TYPE_UNKNOWN >= type || type >= COLOR_TYPE_COUNT) throw IndexOutOfBoundsExcept("type");
+		m_colors[type] = color;
+	}
+	void PbrMaterial::setTexture(const TextureEntityPtr pTexture, const TextureType type) {
+		if (TEXTURE_TYPE_UNKNOWN >= type || type >= TEXTURE_TYPE_COUNT) throw IndexOutOfBoundsExcept("tpye");
+		m_textures[type] = pTexture;
+	}
+	void PbrMaterial::setUboPbrMaterialComponent(const UBOPbrMaterialComponentPtr pUbo) {
+		m_pUbo = pUbo;
 	}
 
 
@@ -87,18 +130,30 @@ namespace crossforge {
 		m_pbrMaterials.clear();
 	}
 
-	std::vector<PbrMaterialPtr>& PbrMaterialsComponent::pbrMaterials() {
-		return m_pbrMaterials;
-	}
+	
 	void PbrMaterialsComponent::addPbrMaterial(PbrMaterialPtr pMaterial) {
 		// nullptr will be explicitly allowed here
 		m_pbrMaterials.push_back(pMaterial);
 	}
-	PbrMaterialPtr PbrMaterialsComponent::getMaterial(uint32_t index) {
-		if (0 >= m_pbrMaterials.size()) throw IndexOutOfBoundsExcept("index");
+
+	std::vector<PbrMaterialPtr>& PbrMaterialsComponent::pbrMaterials() {
+		return m_pbrMaterials;
+	}
+	PbrMaterialPtr& PbrMaterialsComponent::pbrMaterial(const uint32_t index) {
+		if (index >= m_pbrMaterials.size()) throw IndexOutOfBoundsExcept("index");
 		return m_pbrMaterials[index];
 	}
-	uint32_t PbrMaterialsComponent::getMaterialCount()const {
+
+	void PbrMaterialsComponent::setPbrMaterials(const std::vector<PbrMaterialPtr> pbrMaterials) {
+		m_pbrMaterials = pbrMaterials;
+	}
+
+	PbrMaterialCPtr PbrMaterialsComponent::getMaterial(const uint32_t index)const {
+		if (index >= m_pbrMaterials.size()) throw IndexOutOfBoundsExcept("index");
+		return m_pbrMaterials[index];
+	}
+
+	const uint32_t PbrMaterialsComponent::getMaterialCount()const {
 		return m_pbrMaterials.size();
 	}
 }

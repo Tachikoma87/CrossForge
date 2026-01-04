@@ -20,15 +20,10 @@
 
 #include <crossforge/ecs/ControllerBase.h>
 
-#include <crossforge/graphics/entities/WindowEntity.h>
-
 namespace crossforge {
 	class MiscellaneousController : public ControllerBase {
 	public:
 		static inline std::string identification = "MiscellaneousController";
-
-		static bool updateWindowTitle(WindowEntityPtr pWindow);
-		static bool updateVerticalSynchronization(WindowEntityPtr pWindow);
 
 		~MiscellaneousController();
 	protected:

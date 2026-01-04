@@ -56,8 +56,9 @@ namespace crossforge {
 		std::map<std::string, ShaderEntityPtr> m_shaderMap;
 	};
 
-	typedef SShaderProvider ShaderProvider;
-	typedef std::shared_ptr<SShaderProvider> ShaderProviderPtr;
+	using ShaderProvider = SShaderProvider;
+	using ShaderProviderPtr = std::shared_ptr<SShaderProvider>;
+	using ShaderProviderCPtr = std::shared_ptr<const SShaderProvider>;
 }
 
 #endif 

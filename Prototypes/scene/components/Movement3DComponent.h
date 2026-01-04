@@ -27,12 +27,23 @@ namespace crossforge {
 		Movement3DComponent();
 		~Movement3DComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const Movement3DComponent> pRef = nullptr);
 		void clear() override;
 
+		/** Accessor **/
 		Eigen::Vector3f& positionDelta();
 		Eigen::Quaternionf& rotationDelta();
 		Eigen::Vector3f& scaleDelta();
+
+		/** Getter **/
+		const Eigen::Vector3f getPositionDelta()const;
+		const Eigen::Quaternionf getRotationDelta()const;
+		const Eigen::Vector3f getScaleDelta()const;
+
+		/** Setter **/
+		void setPositionDelta(const Eigen::Vector3f positionDelta);
+		void setRotationDelta(const Eigen::Quaternionf rotationDelta);
+		void setScaleDelta(const Eigen::Vector3f scaleDelta);
 
 	protected:
 		Movement3DComponent(const std::string childIdentification);
@@ -41,7 +52,8 @@ namespace crossforge {
 		Eigen::Quaternionf m_rotationDetla;
 		Eigen::Vector3f m_scaleDelta;
 	};
-	typedef std::shared_ptr<Movement3DComponent> Movement3DComponentPtr;
+	using Movement3DComponentPtr = std::shared_ptr<Movement3DComponent>;
+	using Movement3DComponentCPtr = std::shared_ptr<const Movement3DComponent>;
 }
 
 #endif 

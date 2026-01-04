@@ -29,30 +29,25 @@ namespace crossforge {
 	public:
 		static inline std::string identification = "CameraEntity";
 
-		enum CameraEntityComponents: uint8_t {
-			COMPONENT_UBO_CAMERA_DATA	= 0x01,
-			COMPONENT_TRANSFORMATION_3D = 0x02,
-			COMPONENT_CAMERA_PROPERTIES = 0x04,
-			COMPONENT_TARGET_OBJECT		= 0x08,
-			COMPONENTS_ALL				= 0xFF,
-		};
+		
 
-		CameraEntity(uint8_t componentsBitmask);
+		CameraEntity();
 		~CameraEntity();
 
-		void initialize(uint8_t componentsBitmask);
+		void initialize();
 		void clear();
 
-		UBOCameraDataComponentPtr getUboCameraDataComponent();
-		CameraPropertiesComponentPtr getCameraPropertiesComponent();
-		TargetObjectComponentPtr getTargetObjectComponentPtr();
+		UBOCameraDataComponentPtr getUboCameraDataComponent(const bool createIfNotExists = false);
+		CameraPropertiesComponentPtr getCameraPropertiesComponent(const bool createIfNotExists = false);
+		TargetObjectComponentPtr getTargetObjectComponent(const bool createIfNotExists = false);
 
 
 	protected:
 		CameraEntity(const std::string childIdentification);
 	};
 
-	typedef std::shared_ptr<CameraEntity> CameraEntityPtr;
+	using CameraEntityPtr = std::shared_ptr<CameraEntity>;
+	using CameraEntityCPtr = std::shared_ptr<const CameraEntity>;
 }
 
 #endif

@@ -28,16 +28,33 @@ namespace crossforge {
 		LightsConfigComponent();
 		~LightsConfigComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const LightsConfigComponent> pRef = nullptr);
 		void clear() override;
 
+		/** Accessor **/
 		uint32_t& activeDirectionalLights();
 		uint32_t& activePointLights();
 		uint32_t& activeSpotLights();
+		uint32_t& directionalLightsSize();
+		uint32_t& pointLightsSize();
+		uint32_t& spotLightsSize();
 
-		uint32_t& directionalLightsUBOSize();
-		uint32_t& pointLightsUBOSize();
-		uint32_t& spotLightsUBSSize();
+		/** Getter **/
+		const uint32_t getActiveDirectionalLights()const;
+		const uint32_t getActivePointLights()const;
+		const uint32_t getActiveSpotLights()const;
+		const uint32_t getDirectionalLightsSize()const;
+		const uint32_t getPointLightsSize()const;
+		const uint32_t getSpotLightsSize()const;
+
+		/** Setter **/
+		void setActiveDirectionalLights(const uint32_t activeLights);
+		void setActivePointLights(const uint32_t activeLights);
+		void setActiveSpotLights(const uint32_t activeLights);
+		void setDirectionalLightsSize(const uint32_t size);
+		void setPointLightsSize(const uint32_t size);
+		void setSpotLightsSize(const uint32_t size);
+
 
 	protected:
 		LightsConfigComponent(const std::string childIdentification);
@@ -50,7 +67,8 @@ namespace crossforge {
 		uint32_t m_spotLightsSize;
 	};
 
-	typedef std::shared_ptr<LightsConfigComponent> SceneLightsConfigComponentPtr;
+	using LightsConfigComponentPtr = std::shared_ptr<LightsConfigComponent>;
+	using LightsConfigComponentCPtr = std::shared_ptr<const LightsConfigComponent>;
 }
 
 #endif

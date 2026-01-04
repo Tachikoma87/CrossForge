@@ -59,11 +59,11 @@ namespace crossforge {
 		TextureEntityPtr generateBasicTexture(BasicTexture basicTexture);
 
 		std::unordered_map<std::string, TextureEntityPtr> m_textureMap ;
-
 	};
 
-	typedef STextureProvider TextureProvider;
-	typedef std::shared_ptr<STextureProvider> TextureProviderPtr;
+	using TextureProvider = STextureProvider;
+	using TextureProviderPtr = std::shared_ptr<STextureProvider>;
+	using TextureProviderCPtr = std::shared_ptr<const STextureProvider>;
 }
 
 #endif 

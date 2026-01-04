@@ -64,7 +64,7 @@ namespace crossforge {
 		m_shadowIdOffsets.clear();
 	}
 
-	uint32_t UBODirectionalLightsComponent::getLightCount()const {
+	const uint32_t UBODirectionalLightsComponent::getLightCount()const {
 		return m_lightCount;
 	}
 

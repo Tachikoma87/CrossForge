@@ -74,13 +74,21 @@ namespace crossforge {
 		RenderingShaderComponent();
 		~RenderingShaderComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const RenderingShaderComponent> pRef = nullptr);
 		void clear() override;
 
-		
 		uint32_t& shaderProgram();
 		uint32_t &baseUboBindingPoint(BaseUBO baseUbo);
 		uint32_t &baseTextureLocation(BaseTexture baseTex);
+
+		const uint32_t getShaderProgram()const;
+		const uint32_t getBaseUboBindingPoint(BaseUBO baseUbo)const;
+		const uint32_t getBaseTextureLocation(BaseTexture baseTex)const;
+
+		void setShaderProgram(const uint32_t program);
+		void setBaseUboBindingPoint(const uint32_t bindingPoint, BaseUBO baseUbo);
+		void setBaseTextureLocation(const uint32_t location, BaseTexture baseTexture);
+
 
 	protected:
 		RenderingShaderComponent(const std::string childIdentification);
@@ -90,7 +98,8 @@ namespace crossforge {
 		uint32_t m_baseTextureLocations[BASE_TEX_COUNT];
 	};
 
-	typedef std::shared_ptr<RenderingShaderComponent> RenderingShaderComponentPtr;
+	using RenderingShaderComponentPtr = std::shared_ptr<RenderingShaderComponent>;
+	using RenderingShaderComponentCPtr = std::shared_ptr<const RenderingShaderComponent>;
 
 }
 

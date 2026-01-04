@@ -28,12 +28,20 @@ namespace crossforge {
 		ShaderSourceComponent();
 		~ShaderSourceComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const ShaderSourceComponent> pRef = nullptr);
 		void clear();
 
-		std::vector<std::string> &vertexShaderSources();
+		std::vector<std::string>& vertexShaderSources();
 		std::vector<std::string>& fragmentShaderSources();
 		std::vector<std::string>& computeShaderSources();
+
+		const std::vector<std::string> getVertexShaderSources()const;
+		const std::vector<std::string> getFragmentShaderSources()const;
+		const std::vector<std::string> getComputeShaderSources()const;
+
+		void setVertexShaderSources(const std::vector<std::string> sources);
+		void setFragmentShaderSources(const std::vector<std::string> sources);
+		void setComputeShaderSources(const std::vector<std::string> sources);
 
 	protected:
 		ShaderSourceComponent(const std::string childIdentification);
@@ -43,7 +51,8 @@ namespace crossforge {
 		std::vector<std::string> m_computeShaderSources;
 	};
 
-	typedef std::shared_ptr<ShaderSourceComponent> ShaderSourceComponentPtr;
+	using ShaderSourceComponentPtr = std::shared_ptr<ShaderSourceComponent>;
+	using ShaderSourceComponentCPtr = std::shared_ptr<const ShaderSourceComponent>;
 }
 
 #endif

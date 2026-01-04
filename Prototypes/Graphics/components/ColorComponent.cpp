@@ -14,8 +14,11 @@ namespace crossforge {
 		clear();
 	}
 
-	void ColorComponent::initialize() {
-		clear();
+	void ColorComponent::initialize(const std::shared_ptr<const ColorComponent> pRef) {
+		if (this != pRef.get()) clear();
+		if (nullptr != pRef) {
+			m_color = pRef->getColor();
+		}
 	}
 	void ColorComponent::clear() {
 		m_color = Eigen::Vector4f::Ones();
@@ -23,6 +26,13 @@ namespace crossforge {
 
 	Eigen::Vector4f& ColorComponent::color() {
 		return m_color;
+	}
+
+	const Eigen::Vector4f ColorComponent::getColor()const {
+		return m_color;
+	}
+	void ColorComponent::setColor(const Eigen::Vector4f color) {
+		m_color = color;
 	}
 
 

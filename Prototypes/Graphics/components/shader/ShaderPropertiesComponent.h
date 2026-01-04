@@ -40,9 +40,15 @@ namespace crossforge {
 		ShaderPropertiesComponent();
 		~ShaderPropertiesComponent();
 
-		void initialize(std::shared_ptr<ShaderPropertiesComponent> pRef = nullptr);
+		void initialize(const std::shared_ptr<const ShaderPropertiesComponent> pRef = nullptr);
 		void clear() override;
 
+		bool hasFeatures(uint16_t featureMask);
+		void addFeatures(uint16_t featureMask);
+		void removeFeatures(uint16_t featureMask);
+
+
+		/** Accessor **/
 		uint32_t& directionalLightsSize();
 		uint32_t& pointLightsSize();
 		uint32_t& spotLightsSize();
@@ -51,20 +57,53 @@ namespace crossforge {
 		uint32_t& activeSpotLightsCount();
 		uint32_t& shadowMapCount();
 
-		bool hasFeatures(uint16_t featureMask);
-		void addFeatures(uint16_t featureMask);
-		void removeFeatures(uint16_t featureMask);
-
-		std::string getFeatureName(ShaderFeature feature)const;
+		std::string& featureName(ShaderFeature feature);
 		std::string& directionalLightsSizeConstDefinition();
 		std::string& pointLightsSizeConstDefinition();
 		std::string& spotLightsSizeConstDefinition();
-
 		std::string& activeDirectionalLightsConstDefinition();
 		std::string& activePointLightsConstDefinition();
 		std::string& activeSpotLightsConstDefinition();
 
 		uint16_t& featureMask();
+
+		/** Getter **/
+		const uint32_t getDirectionalLightsSize()const;
+		const uint32_t getPointLightsSize()const;
+		const uint32_t getSpotLightsSize()const;
+		const uint32_t getActiveDirectionalLightsCount()const;
+		const uint32_t getActivePointLightsCount()const;
+		const uint32_t getActiveSpotLightsCount()const;
+		const uint32_t getShadowMapCount()const;
+
+		const std::string getFeatureName(const ShaderFeature feature)const;
+		const std::string getDirectionalLightsSizeConstDefinition()const;
+		const std::string getPointLightsSizeConstDefinition()const;
+		const std::string getSpotLightsSizeConstDefinition()const;
+		const std::string getActiveDirectionalLightsConstDefinition()const;
+		const std::string getActivePointLightsConstDefinition()const;
+		const std::string getActiveSpotLightsConstDefinition()const;
+
+		const uint16_t getFeatureMask()const;
+
+		/** Setter **/
+		void setDirectionalLightsSize(const uint32_t size);
+		void setPointLightsSize(const uint32_t size);
+		void setSpotLightsSize(const uint32_t size);
+		void setActiveDirectionalLightsCount(const uint32_t count);
+		void setActivePointLightsCount(const uint32_t count);
+		void setActiveSpotLightsCount(const uint32_t count);
+		void setShadowMapCount(const uint32_t count);
+
+		void setFeatureName(const std::string name, const ShaderFeature feature);
+		void setDirectionalLightsSizeConstDefinition(const std::string definition);
+		void setPointLightsSizeConstDefinition(const std::string definition);
+		void setSpotLightsSizeConstDefinition(const std::string definition);
+		void setActiveDirectionalLightsConstDefinition(const std::string definition);
+		void setActivePointLightsConstDefinition(const std::string definition);
+		void setActiveSpotLightsConstDefinition(const std::string definition);
+
+		void setFeatureMask(uint16_t featureMask);
 
 	protected:
 		ShaderPropertiesComponent(const std::string childIdentification);
@@ -90,7 +129,8 @@ namespace crossforge {
 		std::unordered_map<ShaderFeature, std::string> m_featureNamesMap;
 	};
 
-	typedef std::shared_ptr<ShaderPropertiesComponent> ShaderPropertiesComponentPtr;
+	using ShaderPropertiesComponentPtr = std::shared_ptr<ShaderPropertiesComponent>;
+	using ShaderPropertiesComponentCPtr = std::shared_ptr<const ShaderPropertiesComponent>;
 }
 
 #endif 

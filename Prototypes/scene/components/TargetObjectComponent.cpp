@@ -13,8 +13,11 @@ namespace crossforge {
 		clear();
 	}
 
-	void TargetObjectComponent::initialize() {
-		clear();
+	void TargetObjectComponent::initialize(const std::shared_ptr<const TargetObjectComponent> pRef) {
+		if(this != pRef.get()) clear();
+		if (nullptr != pRef) {
+			m_pTargetEntity = pRef->m_pTargetEntity;
+		}
 	}
 	void TargetObjectComponent::clear() {
 		m_pTargetEntity = nullptr;
@@ -22,5 +25,12 @@ namespace crossforge {
 
 	SceneObjectEntityPtr& TargetObjectComponent::targetSceneObject() {
 		return m_pTargetEntity;
+	}
+
+	const SceneObjectEntityCPtr TargetObjectComponent::getTargetSceneObject()const {
+		return m_pTargetEntity;
+	}
+	void TargetObjectComponent::setTargetSceneObject(const SceneObjectEntityPtr pObj) {
+		m_pTargetEntity = pObj;
 	}
 }

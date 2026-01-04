@@ -2,8 +2,8 @@
 
 namespace crossforge {
 
-	LightsEntity::LightsEntity(uint8_t componentsMap): EntityBase(LightsEntity::identification) {
-		initialize(componentsMap);
+	LightsEntity::LightsEntity(): EntityBase(LightsEntity::identification) {
+		initialize();
 	}
 	LightsEntity::LightsEntity(const std::string childIdentification): EntityBase(LightsEntity::identification) {
 		m_inheritance.push_back(childIdentification);
@@ -13,28 +13,23 @@ namespace crossforge {
 		clear();
 	}
 
-	void LightsEntity::initialize(uint8_t componentsMask) {
+	void LightsEntity::initialize() {
 		clear();
-		if (componentsMask & COMPONENT_LIGHTS_CONFIG) addComponent(std::make_shared<LightsConfigComponent>());
-		if (componentsMask & COMPONENT_DIRECTIONAL_LIGHTS_UBO) addComponent(std::make_shared<UBODirectionalLightsComponent>());
-		if (componentsMask & COMPONENT_POINT_LIGHTS_UBO) addComponent(std::make_shared<UBOPointLightsComponent>());
-		if (componentsMask & COMPONENT_SPOT_LIGHTS_UBO) addComponent(std::make_shared<UBOSpotLightsComponent>());
-
 	}
 	void LightsEntity::clear() {
 		m_componentMap.clear();
 	}
 
-	SceneLightsConfigComponentPtr LightsEntity::getLightsConfigComponent() {
-		return getComponent<LightsConfigComponent>();
+	LightsConfigComponentPtr LightsEntity::getLightsConfigComponent(bool createIfNotExists) {
+		return getComponent<LightsConfigComponent>(createIfNotExists);
 	}
-	UBODirectionalLightsComponentPtr LightsEntity::getUBODirectionalLightsComponent() {
-		return getComponent<UBODirectionalLightsComponent>();
+	UBODirectionalLightsComponentPtr LightsEntity::getUBODirectionalLightsComponent(bool createIfNotExists) {
+		return getComponent<UBODirectionalLightsComponent>(createIfNotExists);
 	}
-	UBOPointLightsComponentPtr LightsEntity::getUBOPointLightsComponent() {
-		return getComponent<UBOPointLightsComponent>();
+	UBOPointLightsComponentPtr LightsEntity::getUBOPointLightsComponent(bool createIfNotExists) {
+		return getComponent<UBOPointLightsComponent>(createIfNotExists);
 	}
-	UBOSpotLightsComponentPtr LightsEntity::getUBOSpotLightsComponent() {
-		return getComponent<UBOSpotLightsComponent>();
+	UBOSpotLightsComponentPtr LightsEntity::getUBOSpotLightsComponent(bool createIfNotExists) {
+		return getComponent<UBOSpotLightsComponent>(createIfNotExists);
 	}
 }

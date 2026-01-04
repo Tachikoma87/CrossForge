@@ -2,8 +2,8 @@
 
 namespace crossforge {
 
-	LightEntity::LightEntity(uint8_t componentsBitmask): SceneObjectEntity(LightEntity::identification) {
-		initialize(componentsBitmask);
+	LightEntity::LightEntity(): SceneObjectEntity(LightEntity::identification) {
+		initialize();
 	}
 	LightEntity::LightEntity(const std::string childIdentification): SceneObjectEntity(LightEntity::identification) {
 		m_inheritance.push_back(childIdentification);
@@ -12,7 +12,7 @@ namespace crossforge {
 		clear();
 	}
 
-	void LightEntity::initialize(uint8_t componentsBitmask) {
+	void LightEntity::initialize() {
 		clear();
 	}
 	void LightEntity::clear() {

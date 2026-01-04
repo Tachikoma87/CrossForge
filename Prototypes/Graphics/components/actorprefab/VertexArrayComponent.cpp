@@ -17,8 +17,11 @@ namespace crossforge {
 	}
 	
 
-	void VertexArrayComponent::initialize() {
-		clear();
+	void VertexArrayComponent::initialize(const std::shared_ptr<const VertexArrayComponent> pRef) {
+		if (this != pRef.get()) clear();
+		if (nullptr != pRef) {
+			m_glVertexArrayHandle = pRef->getGlVertexArrayHandle();
+		}
 
 	}
 	void VertexArrayComponent::clear() {
@@ -30,5 +33,12 @@ namespace crossforge {
 
 	uint32_t& VertexArrayComponent::glVertexArrayHandle() {
 		return m_glVertexArrayHandle;
+	}
+
+	const uint32_t VertexArrayComponent::getGlVertexArrayHandle()const {
+		return m_glVertexArrayHandle;
+	}
+	void VertexArrayComponent::setGlVertexArrayHandle(const uint32_t handle) {
+		m_glVertexArrayHandle = handle;
 	}
 }

@@ -12,8 +12,11 @@ namespace crossforge {
 		clear();
 	}
 
-	void ChildObjectsComponent::initialize() {
-		clear();
+	void ChildObjectsComponent::initialize(const std::shared_ptr<const ChildObjectsComponent> pRef) {
+		if(this != pRef.get()) clear();
+		if (nullptr != pRef) {
+			m_childSceneObjects = pRef->m_childSceneObjects;
+		}
 	}
 	void ChildObjectsComponent::clear() {
 		m_childSceneObjects.clear();
@@ -51,7 +54,7 @@ namespace crossforge {
 		else LogWarning("Scene object " + std::to_string(pSceneObject->getEntityId()) + " could not be found. Unable to delete.");
 		return result;
 	}
-	bool ChildObjectsComponent::hasChild(SceneObjectEntityPtr pSceneObject) {
+	bool ChildObjectsComponent::hasChild(SceneObjectEntityCPtr pSceneObject) {
 		if (nullptr == pSceneObject) throw NullpointerExcept("pSceneObject");
 		bool result = false;
 		for (auto i : m_childSceneObjects) {
@@ -61,5 +64,14 @@ namespace crossforge {
 			}
 		}
 		return result;
+	}
+
+	const std::vector<SceneObjectEntityCPtr> ChildObjectsComponent::getChildSceneObjects()const {
+		std::vector<SceneObjectEntityCPtr> result;
+		for (SceneObjectEntityCPtr obj : m_childSceneObjects) result.push_back(obj);
+		return result;
+	}
+	void ChildObjectsComponent::setChildSceneObjects(const std::vector<SceneObjectEntityPtr> objects) {
+		m_childSceneObjects = objects;
 	}
 }

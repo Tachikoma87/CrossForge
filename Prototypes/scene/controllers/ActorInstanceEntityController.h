@@ -30,7 +30,8 @@ namespace crossforge {
 		~ActorInstanceEntityController();
 	};
 
-	typedef std::shared_ptr<ActorInstanceEntityController> ActorInstanceEntityControllerPtr;
+	using ActorInstanceEntityControllerPtr = std::shared_ptr<ActorInstanceEntityController>;
+	using ActorInstanceEntityControllerCPtr = std::shared_ptr<const ActorInstanceEntityController>;
 }
 
 #endif 

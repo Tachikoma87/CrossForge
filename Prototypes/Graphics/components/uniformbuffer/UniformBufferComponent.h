@@ -24,8 +24,7 @@ namespace crossforge {
 	class UniformBufferComponent : public ComponentBase {
 	public:
 		static inline std::string identification = "UniformBufferComponent";
-
-		
+	
 		uint32_t getGlBufferHandle();
 		uint32_t getBufferSize();
 
@@ -42,7 +41,8 @@ namespace crossforge {
 
 	};
 
-	typedef std::shared_ptr<UniformBufferComponent> UniformBufferComponentPtr;
+	using UniformBufferComponentPtr = std::shared_ptr<UniformBufferComponent>;
+	using UniformBufferComponentCPtr = std::shared_ptr<const UniformBufferComponent>;
 }
 
 #endif 

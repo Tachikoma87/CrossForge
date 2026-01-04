@@ -29,10 +29,12 @@ namespace crossforge {
 		PrefabComponent();
 		~PrefabComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const PrefabComponent> pRef = nullptr);
 		void clear() override;
 
 		ActorPrefabEntityPtr& actorPrefab();
+		ActorPrefabEntityCPtr getActorPrefab()const;
+		void setActorPrefab(ActorPrefabEntityPtr pActorPrefab);
 
 	protected:
 		PrefabComponent(const std::string childIdentification);
@@ -40,7 +42,8 @@ namespace crossforge {
 		ActorPrefabEntityPtr m_pActorPrefab;
 
 	};
-	typedef std::shared_ptr<PrefabComponent> PrefabComponentPtr;
+	using PrefabComponentPtr = std::shared_ptr<PrefabComponent>;
+	using PrefabComponentCPtr = std::shared_ptr<const PrefabComponent>;
 }
 
 

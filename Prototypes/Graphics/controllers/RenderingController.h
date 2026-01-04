@@ -31,18 +31,18 @@ namespace crossforge {
 	public:
 		inline static std::string identification = "RenderingController";
 
-		RenderingController();
-		~RenderingController();
-
 		static void activateCanvas(CanvasEntityPtr pCanvas, bool clearBackground = false);
-
 		static void drawActor(ShaderProvider::RenderPass renderPass, ActorInstanceEntityPtr pActorInstance, ActorPrefabEntityPtr pActorPrefab, CameraEntityPtr pCamera, LightsEntityPtr pLights);
 
+		~RenderingController();
 	protected:
+		RenderingController(const std::string childIdentification);
 		static ShaderPropertiesComponentPtr m_pShaderProperties;
 	};
 
-	typedef std::shared_ptr<RenderingController> RenderingControllerPtr;
+	using RenderingControllerPtr = std::shared_ptr<RenderingController>;
+	using RenderingControllerCPtr = std::shared_ptr<const RenderingController>;
+
 }
 
 #endif 

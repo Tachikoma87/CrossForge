@@ -27,26 +27,20 @@ namespace crossforge {
 	public:
 		static inline std::string identification = "ActorInstanceEntity";
 
-		enum ActorInstanceComponents: uint8_t {
-			COMPONENT_TRANSFORMATION_3D			= 0x01,
-			COMPONENT_UBO_TRANSFORMATION_DATA	= 0x02,
-			COMPONENT_MOVEMENT_3D = 0x04,
-			COMPONENTS_ALL = 0xFF
-		};
-
-		ActorInstanceEntity(uint8_t componentsBitmask);
+		ActorInstanceEntity();
 		~ActorInstanceEntity();
 
-		void initialize(uint8_t componentsBitmask);
+		void initialize();
 		void clear();
 
-		UBOTransformationDataComponentPtr getUboTransformationDataComponent();
+		UBOTransformationDataComponentPtr getUboTransformationDataComponent(const bool createIfNotExists = false);
 
 	protected:
 		ActorInstanceEntity(const std::string childIdentification);
 
 	};
-	typedef std::shared_ptr<ActorInstanceEntity> ActorInstanceEntityPtr;
+	using ActorInstanceEntityPtr = std::shared_ptr<ActorInstanceEntity>;
+	using ActorInstanceEntityCPtr = std::shared_ptr<const ActorInstanceEntity>;
 }
 
 #endif 

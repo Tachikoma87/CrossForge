@@ -14,13 +14,13 @@ namespace crossforge {
 
 	}
 
-	Transformation3DComponentPtr SceneObjectEntity::getTransformation3DComponent() {
-		return getComponent<Transformation3DComponent>();
+	Transformation3DComponentPtr SceneObjectEntity::getTransformation3DComponent(const bool createIfNotExists) {
+		return getComponent<Transformation3DComponent>(createIfNotExists);
 	}
-	Movement3DComponentPtr SceneObjectEntity::getMovement3DComponent() {
-		return getComponent<Movement3DComponent>();
+	Movement3DComponentPtr SceneObjectEntity::getMovement3DComponent(const bool createIfNotExists) {
+		return getComponent<Movement3DComponent>(createIfNotExists);
 	}
-	ChildObjectsComponentPtr SceneObjectEntity::getChildObjectsComponent() {
-		return getComponent<ChildObjectsComponent>();
+	ChildObjectsComponentPtr SceneObjectEntity::getChildObjectsComponent(const bool createIfNotExists) {
+		return getComponent<ChildObjectsComponent>(createIfNotExists);
 	}
 }

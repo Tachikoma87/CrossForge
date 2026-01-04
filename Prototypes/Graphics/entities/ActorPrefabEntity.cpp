@@ -2,8 +2,8 @@
 
 namespace crossforge {
 
-	ActorPrefabEntity::ActorPrefabEntity(uint8_t componentsBitmask): EntityBase(ActorPrefabEntity::identification) {
-		initialize(componentsBitmask); 
+	ActorPrefabEntity::ActorPrefabEntity(): EntityBase(ActorPrefabEntity::identification) {
+		initialize(); 
 	}
 	ActorPrefabEntity::~ActorPrefabEntity() {
 		clear();
@@ -13,34 +13,29 @@ namespace crossforge {
 		m_inheritance.push_back(childIdentification);
 	}
 
-	void ActorPrefabEntity::initialize(uint8_t componentsBitmask) {
+	void ActorPrefabEntity::initialize() {
 		clear();
-		if (componentsBitmask & VERTEX_BUFFER_COMPONENT) addComponent(std::make_shared<VertexBufferComponent>());
-		if (componentsBitmask & INDEX_BUFFER_COMPONENT) addComponent(std::make_shared<IndexBufferComponent>());
-		if (componentsBitmask & RENDER_GROUPS_COMPONENT) addComponent(std::make_shared<RenderGroupsComponent>());
-		if (componentsBitmask & PBR_MATERIALS_COMPONENT) addComponent(std::make_shared<PbrMaterialsComponent>());
-		if (componentsBitmask & VERTEX_ARRAY_COMPONENT) addComponent(std::make_shared<VertexArrayComponent>());
 	}
 	void ActorPrefabEntity::clear() {
 		m_componentMap.clear();
 	}
 
-	VertexBufferComponentPtr ActorPrefabEntity::getVertexBufferComponent() {
-		return getComponent<VertexBufferComponent>();
+	VertexBufferComponentPtr ActorPrefabEntity::getVertexBufferComponent(bool createIfNotExists) {
+		return getComponent<VertexBufferComponent>(createIfNotExists);
 	}
-	IndexBufferComponentPtr ActorPrefabEntity::getIndexBufferComponent() {
-		return getComponent<IndexBufferComponent>();
+	IndexBufferComponentPtr ActorPrefabEntity::getIndexBufferComponent(bool createIfNotExists) {
+		return getComponent<IndexBufferComponent>(createIfNotExists);
 	}
-	RenderGroupsComponentPtr ActorPrefabEntity::getRenderGroupsComponent() {
-		return getComponent<RenderGroupsComponent>();
+	RenderGroupsComponentPtr ActorPrefabEntity::getRenderGroupsComponent(bool createIfNotExists) {
+		return getComponent<RenderGroupsComponent>(createIfNotExists);
 	}
-	PbrMaterialsComponentPtr ActorPrefabEntity::getPBRMaterialsComponent() {
-		return getComponent<PbrMaterialsComponent>();
+	PbrMaterialsComponentPtr ActorPrefabEntity::getPBRMaterialsComponent(bool createIfNotExists) {
+		return getComponent<PbrMaterialsComponent>(createIfNotExists);
 	}
-	VertexArrayComponentPtr ActorPrefabEntity::getVertexArrayComponent() {
-		return getComponent<VertexArrayComponent>();
+	VertexArrayComponentPtr ActorPrefabEntity::getVertexArrayComponent(bool createIfNotExists) {
+		return getComponent<VertexArrayComponent>(createIfNotExists);
 	}
-	ActorPrefabPropertiesComponentPtr ActorPrefabEntity::getActorPrefabPropertiesComponent() {
-		return getComponent<ActorPrefabPropertiesComponent>();
+	ActorPrefabPropertiesComponentPtr ActorPrefabEntity::getActorPrefabPropertiesComponent(bool createIfNotExists) {
+		return getComponent<ActorPrefabPropertiesComponent>(createIfNotExists);
 	}
 }

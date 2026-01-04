@@ -29,12 +29,14 @@ namespace crossforge {
 
 		static bool buildTexture2D(TextureEntityPtr pTexture, Image2DEntityPtr pImage, bool generateMitmaps = false);
 
+		~TextureEntityController();
 	protected:
 		TextureEntityController(const std::string childIdentification);
-		~TextureEntityController();
+		
 	};
 
-	typedef std::shared_ptr<TextureEntityController> TextureEntityControllerPtr;
+	using TextureEntityControllerPtr = std::shared_ptr<TextureEntityController>;
+	using TextureEntityControllerCPtr = std::shared_ptr<const TextureEntityController>;
 }
 
 #endif 

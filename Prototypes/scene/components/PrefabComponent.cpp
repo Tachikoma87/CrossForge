@@ -13,8 +13,11 @@ namespace crossforge {
 		initialize();
 	}
 
-	void PrefabComponent::initialize() {
-		clear();
+	void PrefabComponent::initialize(const std::shared_ptr<const PrefabComponent> pRef) {
+		if(this != pRef.get()) clear();
+		if (nullptr != pRef) {
+			m_pActorPrefab = pRef->m_pActorPrefab;
+		}
 	}
 	void PrefabComponent::clear() {
 		m_pActorPrefab = nullptr;
@@ -25,4 +28,10 @@ namespace crossforge {
 		return m_pActorPrefab;
 	}
 
+	ActorPrefabEntityCPtr PrefabComponent::getActorPrefab()const {
+		return m_pActorPrefab;
+	}
+	void PrefabComponent::setActorPrefab(ActorPrefabEntityPtr pActorPrefab) {
+		m_pActorPrefab = pActorPrefab;
+	}
 }

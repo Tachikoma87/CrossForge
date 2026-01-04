@@ -31,7 +31,8 @@ namespace crossforge {
 		LightEntityController(const std::string childIdentification);
 	};
 
-	typedef std::shared_ptr<LightEntityController> LightEntityControllerPtr;
+	using LightEntityControllerPtr = std::shared_ptr<LightEntityController>;
+	using LightEntityControllerCPtr = std::shared_ptr<const LightEntityController>;
 
 }
 

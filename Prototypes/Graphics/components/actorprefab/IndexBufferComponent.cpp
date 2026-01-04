@@ -16,8 +16,13 @@ namespace crossforge {
 		clear();
 	}
 
-	void IndexBufferComponent::initialize() {
-		clear();
+	void IndexBufferComponent::initialize(const std::shared_ptr<const IndexBufferComponent> pRef) {
+		if (this != pRef.get()) clear();
+		if (nullptr != pRef) {
+			m_glBufferHandle = pRef->getGlBufferHandle();
+			m_indexCount = pRef->getIndexCount();
+			m_bufferSize = pRef->getBufferSize();
+		}
 	}
 	void IndexBufferComponent::clear() {
 		if (glIsBuffer(m_glBufferHandle)) {
@@ -40,4 +45,23 @@ namespace crossforge {
 		return m_bufferSize;
 	}
 	
+	const uint32_t IndexBufferComponent::getGlBufferHandle()const {
+		return m_glBufferHandle;
+	}
+	const uint64_t IndexBufferComponent::getIndexCount()const {
+		return m_indexCount;
+	}
+	const uint64_t IndexBufferComponent::getBufferSize()const {
+		return m_bufferSize;
+	}
+
+	void IndexBufferComponent::setGlBufferHandle(const uint32_t handle) {
+		m_glBufferHandle = handle;
+	}
+	void IndexBufferComponent::setIndexCount(const uint64_t indexCount) {
+		m_indexCount = indexCount;
+	}
+	void IndexBufferComponent::setBufferSize(const uint64_t bufferSize) {
+		m_bufferSize = bufferSize;
+	}
 }

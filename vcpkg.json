@@ -5,14 +5,14 @@
     "eigen3",
     "glad",
     "glfw3",
-    "assimp",
     "freetype",
     "libigl",
-    "libwebp",
     "tinyxml2",
     "tinygltf",
-    "libjpeg-turbo",
+    "libwebp",
     "tinyfiledialogs",
+    "libjpeg-turbo",
+    "assimp",
     {
       "name": "ffmpeg",
       "default-features": true,
@@ -27,6 +27,15 @@
         "opengl3-binding",
         "glfw-binding"
       ]
-    }
+    },
+    {
+      "name": "libpq",
+      "default-features": false,
+      "features": [
+        "openssl"
+      ]
+    },
+    "libpqxx",
+    "drogon"
   ]
 }

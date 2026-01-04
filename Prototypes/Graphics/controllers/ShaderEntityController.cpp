@@ -4,15 +4,11 @@
 #include "../components/shader/RenderingShaderComponent.h"
 #include "../../utility/GraphicsUtility.h"
 #include "../components/shader/ShaderPropertiesComponent.h"
-#include "../../utility/MiscUtility.hpp"
+#include "../../miscellaneous/MiscUtility.hpp"
 #include <crossforge/assetio/SAssetIOProvider.h>
 
 namespace crossforge {
 
-
-	ShaderEntityController::ShaderEntityController(): ControllerBase(ShaderEntityController::identification) {
-
-	}
 	ShaderEntityController::ShaderEntityController(const std::string childIdentification): ControllerBase(ShaderEntityController::identification) {
 		m_inheritance.push_back(childIdentification);
 	}
@@ -72,9 +68,9 @@ namespace crossforge {
 		else if (fragmentShaderFiles.empty()) LogError("Fragment shader files list is empty.");
 		else {
 			// try to load specified shader files
-			pResult = std::make_shared<ShaderEntity>(ShaderEntity::SHADER_SOURCE_COMPONENT);
+			pResult = std::make_shared<ShaderEntity>();
 			auto pFileEntity = std::make_shared<FileEntity>();
-			ShaderSourceComponentPtr pShaderSourceComp = pResult->getShaderSourceComponent();
+			ShaderSourceComponentPtr pShaderSourceComp = pResult->getShaderSourceComponent(true);
 			for (auto filepath : vertexShaderFiles) {
 				if (AssetIOProvider::instance()->loadFile(pFileEntity, filepath, false)) {
 					pShaderSourceComp->vertexShaderSources().push_back(pFileEntity->getStringComponent()->stringData());

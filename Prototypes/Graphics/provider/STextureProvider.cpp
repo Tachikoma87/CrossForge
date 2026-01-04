@@ -143,7 +143,7 @@ namespace crossforge {
 		case BASIC_TEXTURE_8X8_BLACK: Image2DController::generateBasicImage(pImage2D, Image2DController::BASIC_IMAGE_8X8_BLACK); break;
 		default: {
 			LogError("Not handled BasicTexture enumerate encountered.");
-			return false;
+			return nullptr;
 		}break;
 		}
 

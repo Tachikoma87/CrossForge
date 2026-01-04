@@ -71,9 +71,9 @@ namespace crossforge {
 
 		pResult = m_shaderMap[shaderId];
 		if (nullptr == pResult) {
-			pResult = std::make_shared<ShaderEntity>(ShaderEntity::COMPONENTS_ALL);
-			pResult->getShaderPropertiesComponent()->initialize(pShaderProperties);
-			auto pShaderSourceComp = pResult->getShaderSourceComponent();
+			pResult = std::make_shared<ShaderEntity>();
+			pResult->getShaderPropertiesComponent(true)->initialize(pShaderProperties);
+			auto pShaderSourceComp = pResult->getShaderSourceComponent(true);
 
 			// @ToDo: Retrieve sources based on render pass
 			FileEntityPtr pFileEntity = std::make_shared<FileEntity>();

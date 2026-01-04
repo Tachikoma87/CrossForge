@@ -14,13 +14,15 @@
 #include <stdio.h>
 #include "Prototypes/applications/SCrossForgeTestApp.h"
 #include "Prototypes/applications/SCrossForgeSimpleSceneApp.h"
+#include "Prototypes/applications/SCrossForgeRestTestApp.h"
 
 using namespace crossforge;
 
 int main(int argc, char* argv[]) {
 
-	CrossForgeSimpleSceneAppPtr pApp = CrossForgeSimpleSceneApp::instance();
+	//CrossForgeSimpleSceneAppPtr pApp = CrossForgeSimpleSceneApp::instance();
 	//CrossForgeTestAppPtr pApp = CrossForgeTestApp::instance();
+	CrossForgeRestTestAppPtr pApp = SCrossForgeRestTestApp::instance();
 	try {
 		pApp->initialize();
 		pApp->start();

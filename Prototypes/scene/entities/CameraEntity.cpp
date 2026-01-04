@@ -2,8 +2,8 @@
 
 namespace crossforge {
 
-	CameraEntity::CameraEntity(uint8_t componentsBitmask) : SceneObjectEntity(CameraEntity::identification) {
-		initialize(componentsBitmask);
+	CameraEntity::CameraEntity() : SceneObjectEntity(CameraEntity::identification) {
+		initialize();
 	}
 	CameraEntity::CameraEntity(const std::string childIdentification): SceneObjectEntity(CameraEntity::identification) {
 		m_inheritance.push_back(childIdentification);
@@ -12,24 +12,20 @@ namespace crossforge {
 		clear();
 	}
 
-	void CameraEntity::initialize(uint8_t componentsBitmask) {
+	void CameraEntity::initialize() {
 		clear();
-		if (componentsBitmask & COMPONENT_UBO_CAMERA_DATA)		addComponent(std::make_shared<UBOCameraDataComponent>());
-		if (componentsBitmask & COMPONENT_TRANSFORMATION_3D)	addComponent(std::make_shared<Transformation3DComponent>());
-		if (componentsBitmask & COMPONENT_CAMERA_PROPERTIES)	addComponent(std::make_shared<CameraPropertiesComponent>());
-		if (componentsBitmask & COMPONENT_TARGET_OBJECT)			addComponent(std::make_shared<TargetObjectComponent>());
 	}
 	void CameraEntity::clear() {
 		m_componentMap.clear();
 	}
 
-	UBOCameraDataComponentPtr CameraEntity::getUboCameraDataComponent() {
-		return getComponent<UBOCameraDataComponent>();
+	UBOCameraDataComponentPtr CameraEntity::getUboCameraDataComponent(const bool createIfNotExists) {
+		return getComponent<UBOCameraDataComponent>(createIfNotExists);
 	}
-	CameraPropertiesComponentPtr CameraEntity::getCameraPropertiesComponent() {
-		return getComponent<CameraPropertiesComponent>();
+	CameraPropertiesComponentPtr CameraEntity::getCameraPropertiesComponent(const bool createIfNotExists) {
+		return getComponent<CameraPropertiesComponent>(createIfNotExists);
 	}
-	TargetObjectComponentPtr CameraEntity::getTargetObjectComponentPtr() {
-		return getComponent<TargetObjectComponent>();
+	TargetObjectComponentPtr CameraEntity::getTargetObjectComponent(const bool createIfNotExists) {
+		return getComponent<TargetObjectComponent>(createIfNotExists);
 	}
 }

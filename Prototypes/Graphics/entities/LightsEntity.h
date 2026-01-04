@@ -29,30 +29,23 @@ namespace crossforge{
 	public:
 		static inline std::string identification = "LightsEntity";
 
-		enum LightsEntityComponents: uint8_t {
-			COMPONENT_LIGHTS_CONFIG = 0x01,
-			COMPONENT_DIRECTIONAL_LIGHTS_UBO = 0x02,
-			COMPONENT_POINT_LIGHTS_UBO = 0x04,
-			COMPONENT_SPOT_LIGHTS_UBO = 0x08,
-			COMPONENTS_ALL = 0xFF,
-		};
-
-		LightsEntity(uint8_t componentsMap);
+		LightsEntity();
 		~LightsEntity();
 
-		virtual void initialize(uint8_t componentsMap);
+		virtual void initialize();
 		virtual void clear();
 
-		SceneLightsConfigComponentPtr getLightsConfigComponent();
-		UBODirectionalLightsComponentPtr getUBODirectionalLightsComponent();
-		UBOPointLightsComponentPtr getUBOPointLightsComponent();
-		UBOSpotLightsComponentPtr getUBOSpotLightsComponent();
+		LightsConfigComponentPtr getLightsConfigComponent(bool createIfNotExists = false);
+		UBODirectionalLightsComponentPtr getUBODirectionalLightsComponent(bool createIfNotExists = false);
+		UBOPointLightsComponentPtr getUBOPointLightsComponent(bool createIfNotExists = false);
+		UBOSpotLightsComponentPtr getUBOSpotLightsComponent(bool createIfNotExists = false);
 	
 	protected:
 		LightsEntity(const std::string childIdentification);
 	};
 
-	typedef std::shared_ptr<LightsEntity> LightsEntityPtr;
+	using LightsEntityPtr = std::shared_ptr<LightsEntity>;
+	using LightsEntityCPtr = std::shared_ptr<const LightsEntity>;
 }
 
 #endif 

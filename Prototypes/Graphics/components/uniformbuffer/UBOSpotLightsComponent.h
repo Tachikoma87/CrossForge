@@ -56,14 +56,8 @@ namespace crossforge {
 		std::vector<uint32_t> m_shadowIdOffsets;
 	};
 
-	typedef std::shared_ptr<UBOSpotLightsComponent> UBOSpotLightsComponentPtr;
+	using UBOSpotLightsComponentPtr = std::shared_ptr<UBOSpotLightsComponent>;
+	using UBOSpotLightsComponentCPtr = std::shared_ptr<const UBOSpotLightsComponent>;
 }
-
-//vec4 Position[SpotLightCount];
-//vec4 Direction[SpotLightCount]; // Direction.w is outer cutoff
-//vec4 Color[SpotLightCount];	// Color.w is intensity 
-//vec4 Attenuation[SpotLightCount]; // Attenuation.w is inner cutoff
-//mat4 LightSpaceMatrices[SpotLightCount];
-//ivec4 ShadowIDs[SpotLightCount];
 
 #endif 

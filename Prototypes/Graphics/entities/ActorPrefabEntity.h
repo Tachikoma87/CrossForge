@@ -31,28 +31,18 @@ namespace crossforge {
 	public:
 		inline static std::string identification = "ActorPrefabEntity";
 
-		enum ActorPrefabEntityComponents {
-			VERTEX_BUFFER_COMPONENT = 0x01,
-			INDEX_BUFFER_COMPONENT = 0x02,
-			RENDER_GROUPS_COMPONENT = 0x04,
-			PBR_MATERIALS_COMPONENT = 0x08,
-			VERTEX_ARRAY_COMPONENT = 0x10,
-			COMPONENT_ACTOR_PREFAB_PROPERTIES = 0x20,
-			COMPONENTS_ALL = 0xFF,
-		};
-
-		ActorPrefabEntity(uint8_t componentsBitmask = 0);
+		ActorPrefabEntity();
 		~ActorPrefabEntity();
 
-		void initialize(uint8_t componentsBitmask);
+		void initialize();
 		void clear();
 
-		VertexBufferComponentPtr getVertexBufferComponent();
-		IndexBufferComponentPtr getIndexBufferComponent();
-		RenderGroupsComponentPtr getRenderGroupsComponent();
-		PbrMaterialsComponentPtr getPBRMaterialsComponent();
-		VertexArrayComponentPtr getVertexArrayComponent();
-		ActorPrefabPropertiesComponentPtr getActorPrefabPropertiesComponent();
+		VertexBufferComponentPtr getVertexBufferComponent(bool createIfNotExists = false);
+		IndexBufferComponentPtr getIndexBufferComponent(bool createIfNotExists = false);
+		RenderGroupsComponentPtr getRenderGroupsComponent(bool createIfNotExists = false);
+		PbrMaterialsComponentPtr getPBRMaterialsComponent(bool createIfNotExists = false);
+		VertexArrayComponentPtr getVertexArrayComponent(bool createIfNotExists = false);
+		ActorPrefabPropertiesComponentPtr getActorPrefabPropertiesComponent(bool createIfNotExists = false);
 
 
 	protected:
@@ -60,7 +50,8 @@ namespace crossforge {
 
 	};
 
-	typedef std::shared_ptr<ActorPrefabEntity> ActorPrefabEntityPtr;
+	using ActorPrefabEntityPtr = std::shared_ptr<ActorPrefabEntity>;
+	using ActorPrefabEntityCPtr = std::shared_ptr<const ActorPrefabEntity>;
 }
 
 #endif

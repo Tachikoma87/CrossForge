@@ -41,7 +41,8 @@ namespace crossforge {
 		uint32_t m_bufferSize;
 	};
 
-	typedef std::shared_ptr<UBOTransformationDataComponent> UBOTransformationDataComponentPtr;
+	using UBOTransformationDataComponentPtr = std::shared_ptr<UBOTransformationDataComponent>;
+	using UBOTransformationDataComponentCPtr = std::shared_ptr<const UBOTransformationDataComponent>;
 }
 
 #endif

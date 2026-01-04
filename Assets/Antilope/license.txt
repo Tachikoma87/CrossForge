@@ -1,0 +1,11 @@
+Model Information:
+* title:	Blue Antelope (NHMW-ZOO-MAMM-ST715)
+* source:	https://sketchfab.com/3d-models/blue-antelope-nhmw-zoo-mamm-st715-0d5170d9339e4d14bc1f0b2abf06111a
+* author:	Natural History Museum Vienna (https://sketchfab.com/NHMWien)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Blue Antelope (NHMW-ZOO-MAMM-ST715)" (https://sketchfab.com/3d-models/blue-antelope-nhmw-zoo-mamm-st715-0d5170d9339e4d14bc1f0b2abf06111a) by Natural History Museum Vienna (https://sketchfab.com/NHMWien) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)

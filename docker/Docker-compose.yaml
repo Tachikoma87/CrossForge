@@ -1,0 +1,49 @@
+services:
+  # Database
+  Database:
+    image: timescale/timescaledb:latest-pg16
+    container_name: cf-database
+    command: postgres -p ${DB_PORT}
+    ports: 
+      - ${DB_PORT}:${DB_PORT}
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: ${DB_USER_NAME}
+      POSTGRES_PASSWORD: ${DB_USER_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-p", "${DB_PORT}"]
+      interval: 10s
+      timeout: 15s
+      retries: 8
+      start_period: 10s
+    volumes:
+      - cf-database-volume:/var/lib/postgresql/data
+
+  # Keycloak
+  Keycloak:
+    image: quay.io/keycloak/keycloak:26.0.6
+    command: start-dev
+    container_name: cf-keycloak
+    ports:
+      - 8443:8443
+      - 8442:8442
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://cf-database:5600/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+
+      KC_HTTP_PORT: 8442
+
+      KC_LOG_LEVEL: info
+      KC_HEALTH_ENABLED: true
+    depends_on:
+      - Database
+
+  # ActiveMQ
+
+volumes:
+  cf-database-volume:

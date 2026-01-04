@@ -2,8 +2,8 @@
 
 namespace crossforge {
 
-	TextureEntity::TextureEntity(uint8_t componentsMask): EntityBase(TextureEntity::identification) {
-		initialize(componentsMask);
+	TextureEntity::TextureEntity(): EntityBase(TextureEntity::identification) {
+		initialize();
 	}
 	TextureEntity::TextureEntity(const std::string childIdentification): EntityBase(TextureEntity::identification) {
 		m_inheritance.push_back(childIdentification);
@@ -13,16 +13,15 @@ namespace crossforge {
 		clear();
 	}
 
-	void TextureEntity::initialize(uint8_t componentsMask) {
+	void TextureEntity::initialize() {
 		clear();
-		if (componentsMask & COMPONENT_TEXUTRE2D) addComponent(std::make_shared<Texture2DComponent>());
 	}
 	void TextureEntity::clear() {
 		m_componentMap.clear();
 	}
 
-	Texture2DComponentPtr TextureEntity::getTexture2DComponent() {
-		return getComponent<Texture2DComponent>();
+	Texture2DComponentPtr TextureEntity::getTexture2DComponent(bool createIfNotExists) {
+		return getComponent<Texture2DComponent>(createIfNotExists);
 	}
 
 }

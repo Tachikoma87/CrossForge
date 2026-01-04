@@ -28,12 +28,20 @@ namespace crossforge {
 		IndexBufferComponent();
 		~IndexBufferComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const IndexBufferComponent> pRef = nullptr);
 		void clear();
 
 		uint32_t& glBufferHandle();
 		uint64_t& indexCount();
 		uint64_t& bufferSize();
+
+		const uint32_t getGlBufferHandle()const;
+		const uint64_t getIndexCount()const;
+		const uint64_t getBufferSize()const;
+
+		void setGlBufferHandle(const uint32_t handle);
+		void setIndexCount(const uint64_t indexCount);
+		void setBufferSize(const uint64_t bufferSize);
 
 	protected:
 		IndexBufferComponent(const std::string childIdentification);
@@ -43,7 +51,8 @@ namespace crossforge {
 		uint64_t m_bufferSize;
 	};
 
-	typedef std::shared_ptr<IndexBufferComponent> IndexBufferComponentPtr;
+	using IndexBufferComponentPtr = std::shared_ptr<IndexBufferComponent>;
+	using IdnexBufferComponentCPtr = std::shared_ptr<const IndexBufferComponent>;
 }
 
 #endif

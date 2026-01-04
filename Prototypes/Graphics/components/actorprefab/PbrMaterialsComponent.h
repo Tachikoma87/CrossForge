@@ -53,16 +53,31 @@ namespace crossforge {
 
 		void initialize(std::shared_ptr<PbrMaterial> pRef = nullptr);
 		void clear();
+		bool updateUbo();
 		
 		float& ambientOcclusion();
 		float& metallic();
 		float& roughness();
 		Eigen::Vector4f& color(ColorType type);
-
 		TextureEntityPtr& texture(TextureType type);
+		UBOPbrMaterialComponentPtr uboPbrMaterial();
 
-		UBOPBRMaterialComponentPtr uboPbrMaterial();
-		bool updateUbo();
+
+		const float getAmbientOcclusion()const;
+		const float getMetallic()const;
+		const float getRoughness()const;
+		const Eigen::Vector4f getColor(const ColorType type)const;
+		TextureEntityCPtr getTexture(const TextureType type)const;
+		UBOPbrMaterialComponentCPtr getUboPbrMaterial()const;
+
+
+		void setAmbientOcclusion(const float ambientOcclusion);
+		void setMetallic(const float metallic);
+		void setRoughness(const float roughness);
+		void setColor(const Eigen::Vector4f color, const ColorType type);
+		void setTexture(const TextureEntityPtr pTexture, const TextureType type);
+		void setUboPbrMaterialComponent(const UBOPbrMaterialComponentPtr pUbo);
+		
 
 	protected:
 		float m_ambientOcclusion;
@@ -70,9 +85,10 @@ namespace crossforge {
 		float m_roughness;
 		std::vector<Eigen::Vector4f> m_colors;
 		std::vector<TextureEntityPtr> m_textures;
-		UBOPBRMaterialComponentPtr m_pUbo;
+		UBOPbrMaterialComponentPtr m_pUbo;
 	};
-	typedef std::shared_ptr<PbrMaterial> PbrMaterialPtr;
+	using PbrMaterialPtr = std::shared_ptr<PbrMaterial>;
+	using PbrMaterialCPtr = std::shared_ptr<const PbrMaterial>;
 
 
 	class PbrMaterialsComponent : public ComponentBase {
@@ -85,19 +101,22 @@ namespace crossforge {
 		void initialize();
 		void clear() override;
 
+		void addPbrMaterial(PbrMaterialPtr pMaterial);
 
 		std::vector<PbrMaterialPtr>& pbrMaterials();
-		void addPbrMaterial(PbrMaterialPtr pMaterial);
-		PbrMaterialPtr getMaterial(uint32_t index);
-		uint32_t getMaterialCount()const;
+		PbrMaterialPtr& pbrMaterial(const uint32_t index);
+		void setPbrMaterials(const std::vector<PbrMaterialPtr> pbrMaterials);
+
+		PbrMaterialCPtr getMaterial(const uint32_t index)const;
+		const uint32_t getMaterialCount()const;
 
 	protected:
 		PbrMaterialsComponent(const std::string childIdentification);
 
 		std::vector<PbrMaterialPtr> m_pbrMaterials;
-
 	};
-	typedef std::shared_ptr<PbrMaterialsComponent> PbrMaterialsComponentPtr;
+	using PbrMaterialsComponentPtr = std::shared_ptr<PbrMaterialsComponent>;
+	using PbrMaterialComponentCPtr = std::shared_ptr<const PbrMaterialsComponent>;
 }
 
 #endif 

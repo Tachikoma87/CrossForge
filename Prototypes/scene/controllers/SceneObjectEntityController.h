@@ -46,7 +46,8 @@ namespace crossforge {
 		SceneObjectEntityController(const std::string childIdentification);
 		~SceneObjectEntityController();
 	};
-	typedef std::shared_ptr<SceneObjectEntityController> SceneObjectEntityControllerPtr;
+	using SceneObjectEntityControllerPtr = std::shared_ptr<SceneObjectEntityController>;
+	using SceneObjectEntityControllerCPtr = std::shared_ptr<const SceneObjectEntityController>;
 }
 
 #endif 

@@ -29,14 +29,16 @@ namespace crossforge {
 		ChildObjectsComponent();
 		~ChildObjectsComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const ChildObjectsComponent> pRef = nullptr);
 		void clear() override;
-
-		std::vector<SceneObjectEntityPtr> &childSceneObjects();
 
 		bool addChild(SceneObjectEntityPtr pSceneObject);
 		bool removeChild(SceneObjectEntityPtr pSceneObject);
-		bool hasChild(SceneObjectEntityPtr pSceneObject);
+		bool hasChild(SceneObjectEntityCPtr pSceneObject);
+
+		std::vector<SceneObjectEntityPtr>& childSceneObjects();
+		const std::vector<SceneObjectEntityCPtr> getChildSceneObjects()const;
+		void setChildSceneObjects(const std::vector<SceneObjectEntityPtr> objects);
 
 	protected:
 		ChildObjectsComponent(const std::string childIdentification);
@@ -44,7 +46,8 @@ namespace crossforge {
 		std::vector<SceneObjectEntityPtr> m_childSceneObjects;
 	};
 
-	typedef std::shared_ptr<ChildObjectsComponent> ChildObjectsComponentPtr;
+	using ChildObjectsComponentPtr = std::shared_ptr<ChildObjectsComponent>;
+	using ChildObjectsComponentCPtr = std::shared_ptr<const ChildObjectsComponent>;
 }
 
 #endif

@@ -25,21 +25,20 @@ namespace crossforge {
 	public:
 		static inline std::string identification = "LightEntity";
 
-		enum LightEntityComponents {
-			COMPONENTS_ALL = 0xFF,
-		};
-
-		LightEntity(uint8_t componentsBitmask);
+		
+		LightEntity();
 		~LightEntity();
 
-		void initialize(uint8_t componentsBitmask);
+		void initialize();
 		void clear();
 
 	protected:
 		LightEntity(const std::string childIdentification);
 
 	};
-	typedef std::shared_ptr<LightEntity> LightEntityPtr;
+
+	using LightEntityPtr = std::shared_ptr<LightEntity>;
+	using LightEntityCPtr = std::shared_ptr<const LightEntity>;
 }
 
 #endif 

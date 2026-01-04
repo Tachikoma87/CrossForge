@@ -31,16 +31,17 @@ namespace crossforge {
 		SceneObjectEntity();
 		~SceneObjectEntity();
 
-		Transformation3DComponentPtr getTransformation3DComponent();
-		Movement3DComponentPtr getMovement3DComponent();
-		std::shared_ptr<class ChildObjectsComponent> getChildObjectsComponent();
+		Transformation3DComponentPtr getTransformation3DComponent(const bool createIfNotExists = true);
+		Movement3DComponentPtr getMovement3DComponent(const bool createIfNotExists = true);
+		std::shared_ptr<class ChildObjectsComponent> getChildObjectsComponent(const bool createIfNotExists = true);
 
 	protected:
 		SceneObjectEntity(const std::string childIdentification);
 
 	};
 
-	typedef std::shared_ptr<SceneObjectEntity> SceneObjectEntityPtr;
+	using SceneObjectEntityPtr = std::shared_ptr<SceneObjectEntity>;
+	using SceneObjectEntityCPtr = std::shared_ptr<const SceneObjectEntity>;
 }
 
 

@@ -28,6 +28,8 @@ namespace crossforge {
 		UBOCameraDataComponent();
 		~UBOCameraDataComponent();
 
+		void initialize();
+
 		void setCameraMatrix(const Eigen::Matrix4f cameraMatrix);
 		void setProjectionMatrix(const Eigen::Matrix4f projectionMatrix);
 		void setCameraPosition(const Eigen::Vector3f position);
@@ -35,13 +37,12 @@ namespace crossforge {
 	protected:
 		UBOCameraDataComponent(const std::string childIdentification);
 
-		void initialize();
-
 		uint32_t m_cameraMatrixOffset;
 		uint32_t m_projectionMatrixOffset;
 		uint32_t m_cameraPositionOffset;
 	};
-	typedef std::shared_ptr<UBOCameraDataComponent> UBOCameraDataComponentPtr;
+	using UBOCameraDataComponentPtr = std::shared_ptr<UBOCameraDataComponent>;
+	using UBOCameraDataComponentCPtr = std::shared_ptr<const UBOCameraDataComponent>;
 }
 
 #endif 

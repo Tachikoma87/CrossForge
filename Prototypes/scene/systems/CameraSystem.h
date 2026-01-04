@@ -46,7 +46,8 @@ namespace crossforge {
 		InputDeviceEntityPtr m_pInputDevice;
 	};
 
-	typedef std::shared_ptr<CameraSystem> CameraSystemPtr;
+	using CameraSystemPtr = std::shared_ptr<CameraSystem>;
+	using CameraSystemCPtr = std::shared_ptr<const CameraSystem>;
 }
 
 #endif 

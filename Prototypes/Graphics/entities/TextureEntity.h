@@ -26,26 +26,21 @@ namespace crossforge {
 	public:
 		static inline std::string identification = "TextureEntity";
 
-		enum TextureEntityCompnents {
-			COMPONENT_TEXUTRE2D = 0x01,
-			COMPONENTS_ALL = 0xFF
-		};
-
-		TextureEntity(uint8_t componentsMask = 0);
+		TextureEntity();
 		~TextureEntity();
 
-		void initialize(uint8_t componentsMask);
+		void initialize();
 		void clear();
 
-		Texture2DComponentPtr getTexture2DComponent();
-
+		Texture2DComponentPtr getTexture2DComponent(bool createIfNotExists = false);
 
 	protected:
 		TextureEntity(const std::string childIdentification);
 
 	};
 
-	typedef std::shared_ptr<TextureEntity> TextureEntityPtr;
+	using TextureEntityPtr = std::shared_ptr<TextureEntity>;
+	using TextureEntityCPtr = std::shared_ptr<const TextureEntity>;
 }
 
 #endif

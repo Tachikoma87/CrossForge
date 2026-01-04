@@ -29,17 +29,20 @@ namespace crossforge {
 		TargetObjectComponent();
 		~TargetObjectComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const TargetObjectComponent> pRef = nullptr);
 		void clear() override;
 
 		SceneObjectEntityPtr& targetSceneObject();
+		const SceneObjectEntityCPtr getTargetSceneObject()const;
+		void setTargetSceneObject(const SceneObjectEntityPtr pObj);
 
 	protected:
 		TargetObjectComponent(const std::string childIdentification);
 
 		SceneObjectEntityPtr m_pTargetEntity;
 	};
-	typedef std::shared_ptr<TargetObjectComponent> TargetObjectComponentPtr;
+	using TargetObjectComponentPtr = std::shared_ptr<TargetObjectComponent>;
+	using TargetObjectComponentCPtr = std::shared_ptr<const TargetObjectComponent>;
 }
 
 #endif 

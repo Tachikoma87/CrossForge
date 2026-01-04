@@ -50,3 +50,5 @@ Documentation/Doc/
 Documentation/Doxywarnings.txt
 
 CMakeSettings.json
+
+*.env

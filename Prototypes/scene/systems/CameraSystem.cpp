@@ -86,10 +86,10 @@ namespace crossforge {
 		for (auto pEntity : m_entities) {
 			auto pCamera = std::static_pointer_cast<CameraEntity>(pEntity);
 
-			auto pCameraPropertiesComp = pCamera->getCameraPropertiesComponent();
-			auto pTransform3DComp = pCamera->getTransformation3DComponent();
-			auto pSphericalTransformationComp = pCamera->getComponent<SphericalTransformationComponent>();
-			auto pTargetObjectComp = pCamera->getTargetObjectComponentPtr();
+			auto pCameraPropertiesComp = pCamera->getCameraPropertiesComponent(true);
+			auto pTransform3DComp = pCamera->getTransformation3DComponent(true);
+			auto pSphericalTransformationComp = pCamera->getComponent<SphericalTransformationComponent>(true);
+			auto pTargetObjectComp = pCamera->getTargetObjectComponent(true);
 
 			switch (pCameraPropertiesComp->cameraType()) {
 			case CameraPropertiesComponent::ORBITAL: {

@@ -28,12 +28,23 @@ namespace crossforge {
 		Texture2DComponent();
 		~Texture2DComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const Texture2DComponent> pRef = nullptr);
 		void clear();
 
+		/** Accessor **/
 		uint32_t& glTextureHandle();
 		uint32_t& width();
 		uint32_t& height();
+
+		/** Getter **/
+		const uint32_t getGlTextureHandle()const;
+		const uint32_t getWidht()const;
+		const uint32_t getHeight()const;
+
+		/** Setter **/
+		void setGlTextureHandle(const uint32_t handle);
+		void setWidth(const uint32_t width);
+		void setHeight(const uint32_t height);
 
 	protected:
 		Texture2DComponent(const std::string childIdentification);
@@ -43,7 +54,8 @@ namespace crossforge {
 		uint32_t m_height;
 	};
 
-	typedef std::shared_ptr<Texture2DComponent> Texture2DComponentPtr;
+	using Texture2DComponentPtr = std::shared_ptr<Texture2DComponent>;
+	using Texture2DComponentCPtr = std::shared_ptr<const Texture2DComponent>;
 }
 
 #endif 

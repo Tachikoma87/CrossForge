@@ -11,8 +11,8 @@ namespace crossforge {
 
 	ShaderPropertiesComponentPtr RenderingController::m_pShaderProperties = std::make_shared<ShaderPropertiesComponent>();;
 
-	RenderingController::RenderingController(): ControllerBase(RenderingController::identification) {
-
+	RenderingController::RenderingController(const std::string childIdentification): ControllerBase(RenderingController::identification) {
+		m_inheritance.push_back(childIdentification);
 	}
 
 	RenderingController::~RenderingController() {
@@ -60,9 +60,9 @@ namespace crossforge {
 
 		uint16_t featureMask = 0;
 		// light related features
-		m_pShaderProperties->directionalLightsSize() = pLightsConfig->directionalLightsUBOSize();
-		m_pShaderProperties->pointLightsSize() = pLightsConfig->pointLightsUBOSize();
-		m_pShaderProperties->spotLightsSize() = pLightsConfig->spotLightsUBSSize();
+		m_pShaderProperties->directionalLightsSize() = pLightsConfig->directionalLightsSize();
+		m_pShaderProperties->pointLightsSize() = pLightsConfig->pointLightsSize();
+		m_pShaderProperties->spotLightsSize() = pLightsConfig->spotLightsSize();
 		m_pShaderProperties->activeDirectionalLightsCount() = pLightsConfig->activeDirectionalLights();
 		m_pShaderProperties->activePointLightsCount() = pLightsConfig->activePointLights();
 		m_pShaderProperties->activeSpotLightsCount() = pLightsConfig->activeSpotLights();
@@ -92,7 +92,7 @@ namespace crossforge {
 		for (auto renderGroup : renderGroupsList) {
 
 			// set material
-			auto pPbrMaterial = (nullptr != pPbrMaterialsComp) ? pPbrMaterialsComp->getMaterial(materialIndexList[materialIndex++]) : nullptr;
+			auto pPbrMaterial = (nullptr != pPbrMaterialsComp) ? pPbrMaterialsComp->pbrMaterial(materialIndexList[materialIndex++]) : nullptr;
 			// @ToDo: implement default material
 			//if(nullptr == pPbrMaterial) // 
 			

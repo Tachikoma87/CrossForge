@@ -15,7 +15,7 @@ namespace crossforge {
 	}
 
 	void ActorPrefabPropertiesComponent::initialize(std::shared_ptr<ActorPrefabPropertiesComponent> pRef) {
-		clear();
+		if(this != pRef.get()) clear();
 		if(nullptr != pRef){
 			m_propertyNormalMapping = pRef->propertyNormalMapping();
 			m_propertySkeletalAnimation = pRef->propertySkeltalAnimation();
@@ -36,5 +36,25 @@ namespace crossforge {
 	}
 	bool& ActorPrefabPropertiesComponent::propertyMorphTargetAnimation() {
 		return m_propertyMorphTargetAnimation;
+	}
+
+	const bool ActorPrefabPropertiesComponent::getPropertyNormalMapping()const {
+		return m_propertyNormalMapping;
+	}
+	const bool ActorPrefabPropertiesComponent::getPropertySkeletalAnimation()const {
+		return m_propertySkeletalAnimation;
+	}
+	const bool ActorPrefabPropertiesComponent::getPropertyMorphTargetAnimation()const {
+		return m_propertyMorphTargetAnimation;
+	}
+
+	void ActorPrefabPropertiesComponent::setPropertyNormalMapping(const bool setting) {
+		m_propertyNormalMapping = setting;
+	}
+	void ActorPrefabPropertiesComponent::setPropertySkeletalAnimation(const bool setting) {
+		m_propertySkeletalAnimation = setting;
+	}
+	void ActorPrefabPropertiesComponent::setPropertyMorphTargetAnimation(const bool setting) {
+		m_propertyMorphTargetAnimation = setting;
 	}
 }

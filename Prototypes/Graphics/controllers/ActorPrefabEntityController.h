@@ -30,10 +30,8 @@ namespace crossforge {
 
 		static bool buildStaticActor(ActorPrefabEntityPtr pActorEntity, TriangleMeshEntityPtr pTriangleMeshEntity);
 		
-
 		~ActorPrefabEntityController();
 	protected:
-		ActorPrefabEntityController();
 		ActorPrefabEntityController(const std::string childIdentification);
 
 		static bool buildVertexBuffer(ActorPrefabEntityPtr pActorEntity, TriangleMeshEntityPtr pMeshEntity);
@@ -41,10 +39,10 @@ namespace crossforge {
 		static bool buildRenderGroups(ActorPrefabEntityPtr pActorEntity, TriangleMeshEntityPtr pTriangleMeshEntity);
 		static bool setVertexAttributePointer(ActorPrefabEntityPtr pActorEntity);
 		static bool buildPbrMaterials(ActorPrefabEntityPtr pActorEntity, TriangleMeshEntityPtr pTriangleMeshEntity);
-
 	};
 
-	typedef std::shared_ptr<ActorPrefabEntityController> ActorEntityControllerPtr;
+	using ActorEntityControllerPtr = std::shared_ptr<ActorPrefabEntityController>;
+	using ActorEntityControllerCPtr = std::shared_ptr<const ActorPrefabEntityController>;
 
 }
 

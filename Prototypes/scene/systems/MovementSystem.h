@@ -38,7 +38,8 @@ namespace crossforge {
 
 	};
 
-	typedef std::shared_ptr<MovementSystem> MovementSystemPtr;
+	using MovementSystemPtr = std::shared_ptr<MovementSystem>;
+	using MovementSystemCPtr = std::shared_ptr<const MovementSystem>;
 }
 
 

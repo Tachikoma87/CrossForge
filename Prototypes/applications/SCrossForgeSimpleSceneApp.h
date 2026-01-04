@@ -23,24 +23,14 @@
 #include <crossforge/graphics/entities/CanvasEntity.h>
 #include <crossforge/input/entities/InputDeviceEntity.h>
 #include <crossforge/assetio/SAssetIOProvider.h>
+#include <crossforge/assetio/entities/VideoEntity.h>
 
 #include "../Graphics/entities/ActorPrefabEntity.h"
-#include "../Graphics/entities/ShaderEntity.h"
 #include "../scene/entities/CameraEntity.h"
 #include "../scene/entities/ActorInstanceEntity.h"
-
-#include "../Graphics/entities/TextureEntity.h"
-
 #include "../Graphics/entities/LightsEntity.h"
-#include "../Graphics/components/uniformbuffer/UBOPBRMaterialComponent.h"
-
-#include "../Graphics/provider/SShaderProvider.h"
-#include "../Graphics/provider/STextureProvider.h"
-
 #include "../scene/systems/MovementSystem.h"
 #include "../scene/entities/SceneEntity.h"
-
-#include "../assetio/entities/VideoEntity.h"
 #include "../scene/systems/CameraSystem.h"
 
 namespace crossforge {
@@ -91,7 +81,9 @@ namespace crossforge {
 
 		SceneEntityPtr m_pSceneEntity;
 
+		#ifdef CROSSFORGE_OPTION_FFMPEG
 		VideoEntityPtr m_pVideoRecorder;
+		#endif
 
 		CameraSystemPtr m_pCameraSystem;
 	};

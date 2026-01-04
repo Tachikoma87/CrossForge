@@ -25,23 +25,18 @@ namespace crossforge {
 	public:
 		static inline std::string identification = "SceneEntity";
 
-		enum SceneEntityComponents: uint8_t {
-			
-			COMPONENTS_ALL = 0xFF,
-		};
-
-		SceneEntity(uint8_t componentsMask = 0);
+		SceneEntity();
 		~SceneEntity();
 
-		void initialize(uint8_t componentsMask);
+		void initialize();
 		void clear();
-
 
 	protected:
 		SceneEntity(const std::string childIdentification);
 	};
 
-	typedef std::shared_ptr<SceneEntity> SceneEntityPtr;
+	using SceneEntityPtr = std::shared_ptr<SceneEntity>;
+	using SceneEntityCPtr = std::shared_ptr<const SceneEntity>;
 }
 
 #endif 

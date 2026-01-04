@@ -11,9 +11,6 @@
 
 namespace crossforge {
 
-	ActorPrefabEntityController::ActorPrefabEntityController() : ControllerBase(ActorPrefabEntityController::identification) {
-
-	}
 	ActorPrefabEntityController::~ActorPrefabEntityController() {
 
 	}
@@ -224,7 +221,7 @@ namespace crossforge {
 			renderGroups.push_back(Eigen::Vector2i(currentIndex, endIndex));
 			currentIndex = endIndex;
 
-			renderGroupsMaterial.push_back(pMeshDefinitions->getMeshDefinition(i)->getMaterialindex());
+			renderGroupsMaterial.push_back(pMeshDefinitions->getMeshDefinition(i)->getMaterialIndex());
 		}
 
 		if (!pActorEntity->hasComponent(RenderGroupsComponent::identification)) pActorEntity->addComponent(std::make_shared<RenderGroupsComponent>());
@@ -339,8 +336,8 @@ namespace crossforge {
 		auto pPbrMaterialsComp = pActorEntity->getPBRMaterialsComponent();
 		pPbrMaterialsComp->clear();
 
-		for (uint32_t i = 0; i < pMaterialsComp->getMaterialCount(); ++i) {
-			auto pMat = pMaterialsComp->getMaterial(i);
+		for (uint32_t i = 0; i < pMaterialsComp->getMeshMaterialCount(); ++i) {
+			auto pMat = pMaterialsComp->getMeshMaterial(i);
 			auto pPbrMat = std::make_shared<PbrMaterial>();
 			pPbrMaterialsComp->addPbrMaterial(pPbrMat);
 

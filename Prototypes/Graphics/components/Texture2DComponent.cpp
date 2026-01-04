@@ -20,8 +20,13 @@ namespace crossforge {
 		}
 	}
 
-	void Texture2DComponent::initialize() {
-		clear();
+	void Texture2DComponent::initialize(const std::shared_ptr<const Texture2DComponent> pRef) {
+		if(this != pRef.get()) clear();
+		if (nullptr != pRef) {
+			m_glTextureHandle = pRef->m_glTextureHandle;
+			m_width = pRef->m_width;
+			m_height = pRef->m_height;
+		}
 	}
 	void Texture2DComponent::clear() {
 		if (glIsTexture(m_glTextureHandle)) {
@@ -41,5 +46,26 @@ namespace crossforge {
 	}
 	uint32_t& Texture2DComponent::height() {
 		return m_height;
+	}
+
+	const uint32_t Texture2DComponent::getGlTextureHandle()const {
+		return m_glTextureHandle;
+	}
+	const uint32_t Texture2DComponent::getWidht()const {
+		return m_width;
+	}
+	const uint32_t Texture2DComponent::getHeight()const {
+		return m_height;
+	}
+
+	/** Setter **/
+	void Texture2DComponent::setGlTextureHandle(const uint32_t handle) {
+		m_glTextureHandle = handle;
+	}
+	void Texture2DComponent::setWidth(const uint32_t width) {
+		m_width = width;
+	}
+	void Texture2DComponent::setHeight(const uint32_t height) {
+		m_height = height;
 	}
 }

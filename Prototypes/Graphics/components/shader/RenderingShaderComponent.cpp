@@ -70,8 +70,13 @@ namespace crossforge {
 		clear();
 	}
 
-	void RenderingShaderComponent::initialize() {
-		clear();
+	void RenderingShaderComponent::initialize(const std::shared_ptr<const RenderingShaderComponent> pRef) {
+		if (this != pRef.get()) clear();
+		if (nullptr != pRef) {
+			m_shaderProgram = pRef->getShaderProgram();
+			for (int8_t i = 0; i < BASE_UBO_COUNT; ++i) m_baseUBOBindingPoints[i] = pRef->getBaseUboBindingPoint(BaseUBO(i));
+			for (int8_t i = 0; i < BASE_TEX_COUNT; ++i) m_baseTextureLocations[i] = pRef->getBaseTextureLocation(BaseTexture(i));
+		}
 	}
 	void RenderingShaderComponent::clear() {
 		GeneralUtility::memset(m_baseUBOBindingPoints, GL_INVALID_INDEX, BASE_UBO_COUNT);
@@ -94,5 +99,30 @@ namespace crossforge {
 	uint32_t& RenderingShaderComponent::baseTextureLocation(BaseTexture baseTex) {
 		if (0 > baseTex || baseTex >= BASE_TEX_COUNT) throw IndexOutOfBoundsExcept("baseTex");
 		return m_baseTextureLocations[baseTex];
+	}
+
+
+	const uint32_t RenderingShaderComponent::getShaderProgram()const {
+		return m_shaderProgram;
+	}
+	const uint32_t RenderingShaderComponent::getBaseUboBindingPoint(BaseUBO baseUbo)const {
+		if (BASE_UBO_UNKNOWN >= baseUbo || baseUbo >= BASE_UBO_COUNT) throw IndexOutOfBoundsExcept("baseUbo");
+		return m_baseUBOBindingPoints[baseUbo];
+	}
+	const uint32_t RenderingShaderComponent::getBaseTextureLocation(BaseTexture baseTex)const {
+		if (BASE_TEX_UNKNOWN >= baseTex || baseTex >= BASE_TEX_COUNT) throw IndexOutOfBoundsExcept("baseTex");
+		return m_baseTextureLocations[baseTex];
+	}
+
+	void RenderingShaderComponent::setShaderProgram(const uint32_t program) {
+		m_shaderProgram = program;
+	}
+	void RenderingShaderComponent::setBaseUboBindingPoint(const uint32_t bindingPoint, BaseUBO baseUbo) {
+		if (BASE_UBO_UNKNOWN >= baseUbo || baseUbo >= BASE_UBO_COUNT) throw IndexOutOfBoundsExcept("baseUbo");
+		m_baseUBOBindingPoints[baseUbo] = bindingPoint;
+	}
+	void RenderingShaderComponent::setBaseTextureLocation(const uint32_t location, BaseTexture baseTexture) {
+		if (BASE_TEX_UNKNOWN >= baseTexture || baseTexture >= BASE_TEX_COUNT) throw IndexOutOfBoundsExcept("baseTexture");
+		m_baseTextureLocations[baseTexture] = location;
 	}
 }

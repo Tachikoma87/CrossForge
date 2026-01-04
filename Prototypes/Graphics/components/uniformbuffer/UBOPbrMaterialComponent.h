@@ -46,7 +46,8 @@ namespace crossforge {
 
 	};
 
-	typedef std::shared_ptr<UBOPbrMaterialComponent> UBOPBRMaterialComponentPtr;
+	using UBOPbrMaterialComponentPtr = std::shared_ptr<UBOPbrMaterialComponent>;
+	using UBOPbrMaterialComponentCPtr = std::shared_ptr<const UBOPbrMaterialComponent>;
 }
 
 #endif 

@@ -51,7 +51,8 @@ namespace crossforge {
 		std::vector<uint32_t> m_shadowIndexOffsets;
 	};
 
-	typedef std::shared_ptr<UBOPointLightsComponent> UBOPointLightsComponentPtr;
+	using UBOPointLightsComponentPtr = std::shared_ptr<UBOPointLightsComponent>;
+	using UBOPointLightsComponentCPtr = std::shared_ptr<const UBOPointLightsComponent>;
 }
 
 

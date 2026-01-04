@@ -44,16 +44,16 @@ namespace crossforge {
 		static bool bindTexture(ShaderEntityPtr pShader, TextureEntityPtr pTexture, RenderingShaderComponent::BaseTexture textureType);
 		
 		~ShaderEntityController();
-
 	protected:
-		ShaderEntityController();
 		ShaderEntityController(const std::string childIdentification);
 
 		static std::string retrieveInfoLog(uint32_t ObjectID, bool Shader);
 		static bool compileShader(uint32_t shaderId, const std::vector<std::string>& shaderSources, std::string& errorLog);
 
 	};
-	typedef std::shared_ptr<ShaderEntityController> ShaderEntityControllerPtr;
+
+	using ShaderEntityControllerPtr = std::shared_ptr<ShaderEntityController>;
+	using ShaderEntityControllerCPtr = std::shared_ptr<const ShaderEntityController>;
 }
 
 #endif 

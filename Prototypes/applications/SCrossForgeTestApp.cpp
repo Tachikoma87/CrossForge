@@ -45,7 +45,6 @@ namespace crossforge {
 
 	void SCrossForgeTestApp::initialize() {
 		
-
 		// create window system
 		WindowSystemPtr pWindowSystem = std::make_shared<WindowSystem>();
 		m_pSystemManager->addSystem(pWindowSystem);
@@ -183,10 +182,10 @@ namespace crossforge {
 
 	void SCrossForgeTestApp::testShaderGeneration() {
 
-		ShaderEntityPtr pShader = std::make_shared<ShaderEntity>(ShaderEntity::COMPONENTS_ALL);
+		ShaderEntityPtr pShader = std::make_shared<ShaderEntity>();
 		pShader->addComponent(std::make_shared<ShaderPropertiesComponent>());
-		auto pShaderSource = pShader->getShaderSourceComponent();
-		auto pShaderProperties = pShader->getComponent<ShaderPropertiesComponent>();
+		auto pShaderSource = pShader->getShaderSourceComponent(true);
+		auto pShaderProperties = pShader->getComponent<ShaderPropertiesComponent>(true);
 
 		FileEntityPtr pFileEntity = std::make_shared<FileEntity>();
 		AssetIOProvider::instance()->loadFile(pFileEntity, "./Assets/Shader/ForwardPassPBS.vert", false);
@@ -372,7 +371,7 @@ namespace crossforge {
 		TriangleMeshEntityPtr pDuckMesh = std::make_shared<TriangleMeshEntity>();
 		AssetIOProvider::instance()->loadMesh(pDuckMesh, "./Assets/ExampleScenes/Duck/Duck.gltf");
 
-		ActorPrefabEntityPtr pDuckPrefabActor = std::make_shared<ActorPrefabEntity>(ActorPrefabEntity::COMPONENTS_ALL);
+		ActorPrefabEntityPtr pDuckPrefabActor = std::make_shared<ActorPrefabEntity>();
 
 		ActorPrefabEntityController::buildStaticActor(pDuckPrefabActor, pDuckMesh);
 

@@ -25,7 +25,6 @@ namespace crossforge {
 	public:
 		static inline std::string identification = "VertexBufferComponent";
 
-
 		enum VertexAttribute: uint16_t {
 			ATTRIBUTE_POSITION	= 0x0001,
 			ATTRIBUTE_NORMAL	= 0x0002,
@@ -39,18 +38,35 @@ namespace crossforge {
 		VertexBufferComponent();
 		~VertexBufferComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const VertexBufferComponent> pRef = nullptr);
 		void clear() override;
 
-		bool hasAttribute(VertexAttribute attrib)const;
+		const bool hasAttribute(VertexAttribute attrib)const;
+		void addAttribute(VertexAttribute attrib);
+		void removeAttribute(VertexAttribute attrib);
+
 		uint16_t& attributeMask();
 		uint32_t& glBufferHandle();
 		uint32_t& attributeOffset(VertexAttribute attrib);
 		uint32_t& vertexSize();
 		uint32_t& vertexCount();
 
+		const uint16_t getAttributeMask()const;
+		const uint32_t getGlBufferHandle()const;
+		const uint32_t getAttributeOffset(const VertexAttribute attrib)const;
+		const uint32_t getVertexSize()const;
+		const uint32_t getVertexCount()const;
+
+		void setAttributeMask(const uint16_t attributeMask);
+		void setGlBufferHandle(const uint32_t handle);
+		void setAttributeOffset(const uint32_t offset, VertexAttribute attrib);
+		void setVertexSize(const uint32_t vertexSize);
+		void setVertexCount(const uint32_t vertexCount);
+
 	protected:
 		VertexBufferComponent(const std::string childIdentification);
+
+		const int8_t getIndexFromAttribute(VertexAttribute attrib)const;
 
 		uint32_t m_glBufferHandle;
 		uint16_t m_attributeMask;
@@ -59,7 +75,8 @@ namespace crossforge {
 		uint32_t m_vertexCount;
 	};
 
-	typedef std::shared_ptr<VertexBufferComponent> VertexBufferComponentPtr;
+	using VertexBufferComponentPtr = std::shared_ptr<VertexBufferComponent>;
+	using VertexBufferComponentCPtr = std::shared_ptr<const VertexBufferComponent>;
 }
 
 #endif 

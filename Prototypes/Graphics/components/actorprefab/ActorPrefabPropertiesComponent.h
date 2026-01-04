@@ -35,6 +35,14 @@ namespace crossforge {
 		bool& propertySkeltalAnimation();
 		bool& propertyMorphTargetAnimation();
 
+		const bool getPropertyNormalMapping()const;
+		const bool getPropertySkeletalAnimation()const;
+		const bool getPropertyMorphTargetAnimation()const;
+
+		void setPropertyNormalMapping(const bool setting);
+		void setPropertySkeletalAnimation(const bool setting);
+		void setPropertyMorphTargetAnimation(const bool setting);
+
 	protected:
 		ActorPrefabPropertiesComponent(const std::string childIdentification);
 
@@ -43,7 +51,8 @@ namespace crossforge {
 		bool m_propertyMorphTargetAnimation;
 	};
 
-	typedef std::shared_ptr<ActorPrefabPropertiesComponent> ActorPrefabPropertiesComponentPtr;
+	using ActorPrefabPropertiesComponentPtr = std::shared_ptr<ActorPrefabPropertiesComponent>;
+	using ActorPrefabPropertiesComponentCPtr = std::shared_ptr<const ActorPrefabPropertiesComponent>;
 }
 
 #endif 

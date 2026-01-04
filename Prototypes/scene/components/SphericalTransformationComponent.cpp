@@ -13,14 +13,31 @@ namespace crossforge {
 
 	}
 
-	void SphericalTransformationComponent::initialize() {
-		clear();
+	void SphericalTransformationComponent::initialize(const std::shared_ptr<const SphericalTransformationComponent> pRef) {
+		if(this != pRef.get()) clear();
+		if (nullptr != pRef) {
+			m_origin = pRef->m_origin;
+			m_rho = pRef->m_rho;
+			m_theta = pRef->m_theta;
+			m_phi = pRef->m_phi;
+		}
 	}
 	void SphericalTransformationComponent::clear() {
 		m_origin = Eigen::Vector3f::Zero();
 		m_rho = 0.0f;
 		m_theta = 0.0f;
 		m_phi = 0.0f;
+	}
+
+	const Eigen::Vector3f SphericalTransformationComponent::getPosition() const {
+		Eigen::Vector3f result = m_origin;
+
+		const float theta = std::clamp(m_theta, 0.05f, float(EIGEN_PI - 0.05f));
+
+		result.x() += m_rho * std::sin(theta) * std::cos(m_phi);
+		result.y() += m_rho * std::cos(theta);
+		result.z() += m_rho * std::sin(theta) * std::sin(m_phi);
+		return result;
 	}
 
 	Eigen::Vector3f& SphericalTransformationComponent::origin() {
@@ -36,14 +53,32 @@ namespace crossforge {
 		return m_phi;
 	}
 
-	Eigen::Vector3f SphericalTransformationComponent::getPosition() {
-		Eigen::Vector3f result = m_origin;
-
-		m_theta = std::clamp(m_theta, 0.05f, float(EIGEN_PI-0.05f));
-
-		result.x() += m_rho * std::sin(m_theta) * std::cos(m_phi);
-		result.y() += m_rho * std::cos(m_theta);
-		result.z() += m_rho * std::sin(m_theta) * std::sin(m_phi);
-		return result;
+	/* Getters */
+	const Eigen::Vector3f SphericalTransformationComponent::getOrigin()const {
+		return m_origin;
 	}
+	const float SphericalTransformationComponent::getRho()const {
+		return m_rho;
+	}
+	const float SphericalTransformationComponent::getTheta()const {
+		return m_theta;
+	}
+	const float SphericalTransformationComponent::getPhi()const {
+		return m_phi;
+	}
+
+	/* Setters */
+	void SphericalTransformationComponent::setOrigin(const Eigen::Vector3f origin) {
+		m_origin = origin;
+	}
+	void SphericalTransformationComponent::setRho(const float rho) {
+		m_rho = rho;
+	}
+	void SphericalTransformationComponent::setTheta(const float theta) {
+		m_theta = theta;
+	}
+	void SphericalTransformationComponent::setPhi(const float phi) {
+		m_phi = phi;
+	}
+
 }

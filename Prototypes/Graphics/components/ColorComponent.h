@@ -28,10 +28,12 @@ namespace crossforge {
 		ColorComponent();
 		~ColorComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const ColorComponent> pRef = nullptr);
 		void clear()override;
 
 		Eigen::Vector4f& color();
+		const Eigen::Vector4f getColor()const;
+		void setColor(const Eigen::Vector4f color);
 
 	protected:
 		ColorComponent(const std::string childIdentification);
@@ -39,7 +41,8 @@ namespace crossforge {
 		Eigen::Vector4f m_color;
 	};
 
-	typedef std::shared_ptr<ColorComponent> ColorComponentPtr;
+	using ColorComponentPtr = std::shared_ptr<ColorComponent>;
+	using ColorComponentCPtr = std::shared_ptr<const ColorComponent>;
 }
 
 #endif 

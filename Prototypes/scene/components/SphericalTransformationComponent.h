@@ -28,15 +28,29 @@ namespace crossforge {
 		SphericalTransformationComponent();
 		~SphericalTransformationComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const SphericalTransformationComponent> pRef = nullptr);
 		void clear() override;
 
+		const Eigen::Vector3f getPosition()const;
+
+		/* accessor */
 		Eigen::Vector3f& origin();
 		float& rho();
 		float& theta();
 		float& phi();
 
-		Eigen::Vector3f getPosition();
+		/* Getters */
+		const Eigen::Vector3f getOrigin()const;
+		const float getRho()const;
+		const float getTheta()const;
+		const float getPhi()const;
+
+		/* Setters */
+		void setOrigin(const Eigen::Vector3f origin);
+		void setRho(const float rho);
+		void setTheta(const float theta);
+		void setPhi(const float phi);
+		
 
 	protected:
 		SphericalTransformationComponent(const std::string childIdentification);
@@ -45,10 +59,10 @@ namespace crossforge {
 		float m_rho;	// radius or distance from origin
 		float m_theta;	// azimuthal angle
 		float m_phi;	// polar angle
-
 	};
 
-	typedef std::shared_ptr<SphericalTransformationComponent> SphericalTransformationComponentPtr;
+	using SphericalTransformationComponentPtr = std::shared_ptr<SphericalTransformationComponent>;
+	using SphericalTransformationComponentCPtr = std::shared_ptr<const SphericalTransformationComponent>;
 }
 
 

@@ -40,7 +40,8 @@ namespace crossforge {
 
 	};
 
-	typedef std::shared_ptr<CameraEntityController> CameraEntityControllerPtr;
+	using CameraEntityControllerPtr = std::shared_ptr<CameraEntityController>;
+	using CameraEntityControllerCPtr = std::shared_ptr<const CameraEntityController>;
 }
 
 

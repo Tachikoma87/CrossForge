@@ -35,12 +35,23 @@ namespace crossforge {
 		CameraPropertiesComponent();
 		~CameraPropertiesComponent();
 
-		void initialize();
+		void initialize(const std::shared_ptr<const CameraPropertiesComponent> pRef = nullptr);
 		void clear()override;
 
+		/** Accessor **/
 		Eigen::Matrix4f& projectionMatrix();
 		Eigen::Matrix4f& viewMatrix();
 		CameraType& cameraType();
+
+		/** Getter **/
+		const Eigen::Matrix4f getProjectionMatrix()const;
+		const Eigen::Matrix4f getViewMatrix()const;
+		const CameraType getCameraType()const;
+
+		/** Setter **/
+		void setProjectionMatrix(const Eigen::Matrix4f projectionMatrix);
+		void setViewMatrix(const Eigen::Matrix4f viewMatrix);
+		void setCameraType(const CameraType type);
 
 	protected:
 		CameraPropertiesComponent(const std::string childIdentification);
@@ -49,7 +60,9 @@ namespace crossforge {
 		Eigen::Matrix4f m_viewMatrix;
 		CameraType m_cameraType;
 	};
-	typedef std::shared_ptr<CameraPropertiesComponent> CameraPropertiesComponentPtr;
+
+	using CameraPropertiesComponentPtr = std::shared_ptr<CameraPropertiesComponent>;
+	using CameraPropertiesComponentCPtr = std::shared_ptr<const CameraPropertiesComponent>;
 }
 
 #endif 

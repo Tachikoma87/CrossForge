@@ -31,7 +31,7 @@ namespace crossforge {
 		bool initialize(const uint32_t lightCount);
 		void clear() override;
 
-		uint32_t getLightCount()const;
+		const uint32_t getLightCount()const;
 
 		void setDirection(const Eigen::Vector3f direction, uint32_t lightIndex);
 		void setColor(const Eigen::Vector4f color, uint32_t lightIndex);
@@ -50,7 +50,8 @@ namespace crossforge {
 
 	};
 	
-	typedef std::shared_ptr<UBODirectionalLightsComponent> UBODirectionalLightsComponentPtr;
+	using UBODirectionalLightsComponentPtr = std::shared_ptr<UBODirectionalLightsComponent>;
+	using UBODirectionalLightsComponentCPtr = std::shared_ptr<const UBODirectionalLightsComponent>;
 }
 
 
