@@ -19,9 +19,9 @@
 #define __CROSSFORGE_SCROSSFORGERESTTESTAPP_H__
 
 #include <crossforge/core/ApplicationBase.h>
-#include "../database/entities/DatabaseConnectionEntity.h"
-#include "../database/controllers/DatabaseConnectionEntityController.h"
-#include "../database/providers/SDatabaseConnectionProvider.h"
+#include <crossforge/database/entities/DatabaseConnectionEntity.h>
+#include <crossforge/database/controller/DatabaseConnectionEntityController.h>
+#include <crossforge/database/provider/SDatabaseConnectionProvider.h>
 
 namespace crossforge {
 	class SCrossForgeRestTestApp : public ApplicationBase {

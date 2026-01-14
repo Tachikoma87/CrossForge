@@ -231,17 +231,11 @@ add_executable(CForgeSandbox
  "Prototypes/controller/TestController.h" 
  "Prototypes/controller/TestController.cpp"
 
- "Prototypes/database/components/PostgresConnectionComponent.cpp"
- "Prototypes/database/components/DatabaseConnectionSettingsComponent.cpp"
- "Prototypes/database/components/DatabaseConnectionSettingsComponent.h"
- "Prototypes/database/controllers/DatabaseConnectionEntityController.cpp"
- "Prototypes/database/entities/DatabaseConnectionEntity.cpp"
- "Prototypes/database/providers/SDatabaseConnectionProvider.cpp"
 
  "Prototypes/database/daos/DatabaseVersionDao.h"
  "Prototypes/database/daos/DatabaseVersionDao.cpp"
- "Prototypes/database/components/PostgresQueriesComponent.h"
- "Prototypes/database/components/PostgresQueriesComponent.cpp"
+ 
+ 
  "Prototypes/database/pocos/DatabaseVersionPoco.h"
  "Prototypes/database/pocos/DatabaseVersionPoco.cpp"
  "Prototypes/database/pocos/PocoBase.hpp"

@@ -3,7 +3,7 @@
 #include <drogon/drogon.h>
 
 #include "../database/daos/DatabaseVersionDao.h"
-#include "../database/providers/SDatabaseConnectionProvider.h"
+#include <crossforge/database/provider/SDatabaseConnectionProvider.h>
 
 using namespace drogon;
 
