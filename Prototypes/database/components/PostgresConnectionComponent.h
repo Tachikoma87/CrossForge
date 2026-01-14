@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): DatabaseConnectionComponent.h and DatabaseConnectionComponent.cpp                       *
+* File(s): PostgresConnectionComponent.h and PostgresConnectionComponent.cpp                       *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -20,6 +20,7 @@
 
 #include <crossforge/ecs/ComponentBase.h>
 #include <pqxx/pqxx>
+
 
 namespace crossforge {
 	class PostgresConnectionComponent : public ComponentBase {
@@ -49,7 +50,6 @@ namespace crossforge {
 
 	using PostgresConnectionComponentPtr = std::shared_ptr<PostgresConnectionComponent>;
 	using PostgresConnectionComponentCPtr = std::shared_ptr<const PostgresConnectionComponent>;
-
 }
 
 #endif 

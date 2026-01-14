@@ -33,12 +33,6 @@ namespace crossforge {
 
 
 	void SCrossForgeRestTestApp::initialize() {
-		/*drogon::app().setLogPath("./")
-			.setLogLevel(trantor::Logger::kWarn)
-			.addListener("0.0.0.0", 80)
-			.setThreadNum(4)
-			.run();*/
-
 		// create entity
 		m_pDbConnection = std::make_shared<DatabaseConnectionEntity>();
 		auto pDbSettingsComp = m_pDbConnection->getDatabaseConnectionSettingsComponent(true);
@@ -63,6 +57,7 @@ namespace crossforge {
 			}
 			uint64_t runtime = GeneralUtility::getTimestamp() - start;
 			LogInfo("Runtime for database dao test was " + std::to_string(runtime / 1000.0f) + " seconds.");
+
 		}
 		else {
 			DatabaseConnectionEntityController::openPostgresConnection(m_pDbConnection);
@@ -101,6 +96,12 @@ namespace crossforge {
 				LogInfo(msg);
 			}
 		}
+
+		drogon::app().setLogPath("./")
+			.setLogLevel(trantor::Logger::kWarn)
+			.addListener("0.0.0.0", 15700)
+			.setThreadNum(4)
+			.run();
 	}
 
 	void SCrossForgeRestTestApp::databaseMultiThreadTestFunc(int64_t index) {
@@ -158,21 +159,53 @@ namespace crossforge {
 
 		DatabaseVersionDao databaseVersionDao(pDbConnection);
 
-		/*DatabaseVersionPocoPtr pPoco = std::make_shared<DatabaseVersionPoco>();
-		pPoco->major() = 50;
-		pPoco->minor() = 51;
-		pPoco->patch() = 52;
-		databaseVersionDao.create(pPoco);*/
+		int64_t majorMax = 5;
+		int64_t minorMax = 5;
+		int64_t patchMax = 5;
 
-		auto set = databaseVersionDao.readAll();
+		if (true) {
+			std::vector<DatabaseVersionPocoPtr> pocoList;
+			for (int64_t major = 0; major < majorMax; major++) {
+				for (int64_t minor = 0; minor < minorMax; minor++) {
+					for (int64_t patch = 0; patch < patchMax; patch++) {
+						DatabaseVersionPocoPtr pPoco = std::make_shared<DatabaseVersionPoco>();
+						pPoco->major() = major;
+						pPoco->minor() = minor;
+						pPoco->patch() = patch;
+						pocoList.push_back(pPoco);
+					}
+				}
+			}
 
-		LogInfo("Retrieved rows: " + std::to_string(set.size()));
+			if (!databaseVersionDao.create(pocoList)) LogError("Failed to create database version with poco list");
+			else LogInfo("Successfully created " + std::to_string(pocoList.size()) + " database version entries with batched statement.");
+		}
+		else {
+			auto pQueriesComp = pDbConnection->getPostgresQueriesComponent(true);
+			std::string now = MiscUtility::getTimeISO(GeneralUtility::getTimestamp());
+			for (int64_t major = 0; major < majorMax; major++) {
+				for (int64_t minor = 0; minor < minorMax; minor++) {
+					for (int64_t patch = 0; patch < patchMax; patch++) {
+						PostgresQueryPtr pQuery = std::make_shared<PostgresQuery>();
+						pQuery->query() = "INSERT INTO version (major, minor, patch, timestamp_created) VALUES ($1, $2, $3, $4);";
+						pQuery->params().append(major);
+						pQuery->params().append(minor);
+						pQuery->params().append(patch);
+						pQuery->params().append(now);
+						pQueriesComp->postgresQueries().push_back(pQuery);
+					}
+				}
+			}
+
+			if (!DatabaseConnectionEntityController::executePostgresQueries(pDbConnection)) LogError("Failed to execute queries.");
+			else LogInfo("Successfully executed batched queries.");
+		}
 
 
-
-		/*int64_t rows = databaseVersionDao.rowCount();
-		LogInfo("DatabaseVersion table has " + std::to_string(rows) + " entries.");*/
-
+		//auto set = databaseVersionDao.readAll();
+			//LogInfo("Retrieved rows: " + std::to_string(set.size()));
+			/*int64_t rows = databaseVersionDao.rowCount();
+			LogInfo("DatabaseVersion table has " + std::to_string(rows) + " entries.");*/
 
 		return true;
 	}

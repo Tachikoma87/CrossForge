@@ -41,7 +41,7 @@ namespace crossforge {
 		virtual std::vector<std::shared_ptr<T>> readAll(int64_t limit = -1) const = 0;
 
 		virtual bool update(const std::shared_ptr<T> &pPoco) const = 0;
-		virtual bool update(const std::vector<std::shared_ptr<T>> &pPocos) const = 0;
+		virtual bool update(const std::vector<std::shared_ptr<T>> &pocos) const = 0;
 
 		virtual bool erase(const int64_t id) const = 0;
 		virtual bool erase(const std::vector<int64_t> &ids) const = 0;
@@ -56,6 +56,8 @@ namespace crossforge {
 			m_pDbConnection = pDbConnection;
 			m_tableName = tableName;
 		};
+
+		virtual const std::vector<std::shared_ptr<T>> parseResultSet(const pqxx::result resultSet)const = 0;
 		
 		DatabaseConnectionEntityPtr m_pDbConnection;
 		std::string m_tableName;

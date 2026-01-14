@@ -34,7 +34,7 @@ namespace crossforge {
 		std::vector<DatabaseVersionPocoPtr> readAll(int64_t limit = -1) const override;
 
 		bool update(const DatabaseVersionPocoPtr &pPoco) const override;
-		bool update(const std::vector<DatabaseVersionPocoPtr> &pPocos) const override;
+		bool update(const std::vector<DatabaseVersionPocoPtr> &pocos) const override;
 
 		bool erase(const int64_t id) const override;
 		bool erase(const std::vector<int64_t> &ids) const override;
@@ -43,7 +43,7 @@ namespace crossforge {
 
 	protected:
 		
-		const std::vector<DatabaseVersionPocoPtr> parseResultSet(const pqxx::result resultSet) const;
+		const std::vector<DatabaseVersionPocoPtr> parseResultSet(const pqxx::result resultSet) const override;
 	};
 
 	using DatabaseVersionDaoPtr = std::shared_ptr<DatabaseVersionDao>;

@@ -20,9 +20,9 @@ using namespace crossforge;
 
 int main(int argc, char* argv[]) {
 
-	//CrossForgeSimpleSceneAppPtr pApp = CrossForgeSimpleSceneApp::instance();
+	CrossForgeSimpleSceneAppPtr pApp = CrossForgeSimpleSceneApp::instance();
 	//CrossForgeTestAppPtr pApp = CrossForgeTestApp::instance();
-	CrossForgeRestTestAppPtr pApp = SCrossForgeRestTestApp::instance();
+	//CrossForgeRestTestAppPtr pApp = SCrossForgeRestTestApp::instance();
 	try {
 		pApp->initialize();
 		pApp->start();

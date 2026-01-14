@@ -2,6 +2,9 @@
 
 #include <drogon/drogon.h>
 
+#include "../database/daos/DatabaseVersionDao.h"
+#include "../database/providers/SDatabaseConnectionProvider.h"
+
 using namespace drogon;
 
 namespace crossforge {
@@ -37,5 +40,27 @@ namespace crossforge {
 
 	TestController::TestController() {
 		m_requestCounter = 0;
+	}
+
+	void TestController::readAllDatabaseVersionEntries(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback)const {
+		uint64_t start = GeneralUtility::getTimestamp();
+
+		auto pConnection = DatabaseConnectionProvider::instance()->getDatabaseConnection("crossforgetest_peon");
+
+		DatabaseVersionDaoPtr dbVersionDao = std::make_shared<DatabaseVersionDao>(pConnection);
+
+		auto resultList = dbVersionDao->readAll(1000);
+
+		Json::Value result = Json::arrayValue;
+
+		for (auto pVersionPoco : resultList) result.append(pVersionPoco->toJson());
+
+		auto response = HttpResponse::newHttpJsonResponse(result);
+		response->addHeader("Access-Control-Allow-Origin", req.get()->headers().find("origin")->second);
+		response->addHeader("Access-Control-Allow-Methods", "GET");
+		callback(response);
+
+		uint64_t responseTime = GeneralUtility::getTimestamp() - start;
+		LogInfo("Response time for read all database version entries: " + std::to_string(responseTime) + " milliseconds.");
 	}
 }

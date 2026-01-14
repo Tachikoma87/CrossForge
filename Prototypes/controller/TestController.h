@@ -25,12 +25,16 @@ namespace crossforge {
 	public:
 		METHOD_LIST_BEGIN
 		METHOD_ADD(TestController::getInfo, "/{id}", drogon::Get);
+		ADD_METHOD_TO(TestController::getInfo, "/{id}", drogon::Get);
 		METHOD_ADD(TestController::quitApp, "/quit", drogon::Get);
+		ADD_METHOD_TO(TestController::readAllDatabaseVersionEntries, "/read/databaseVersion/all", drogon::Get);
 		METHOD_LIST_END
 
 		void getInfo(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)> &&callback, int id) const;
 		
 		void quitApp(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)> &&callback)const;
+
+		void readAllDatabaseVersionEntries(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback)const;
 
 		TestController();
 	protected:
