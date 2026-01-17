@@ -49,7 +49,7 @@ namespace CForge {
 			M.changeUVTiling(Vector3f(20.0f, 20.0f, 1.0f));
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
-			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::PLASTIC_WHITE);
+			CForgeUtility::createDefaultMaterial(M.getMaterial(0), CForgeUtility::PLASTIC_WHITE);
 			M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/Textures/Tiles107/Tiles107_1K_Color.webp";
 			M.getMaterial(0)->TexNormal = "Assets/ExampleScenes/Textures/Tiles107/Tiles107_1K_NormalGL.webp";
 			BoundingVolume BV;
@@ -159,7 +159,7 @@ namespace CForge {
 				for (uint32_t z = 0; z < 10; ++z) {
 					uint32_t Index = (x * 10) + z;
 					if (m_Objects.size() > Index) {
-						CForgeUtility::defaultMaterial(m_Objects[Index]->material(0), Mat);
+						CForgeUtility::createDefaultMaterial(m_Objects[Index]->material(0), Mat);
 						m_Objects[Index]->material(0)->roughness(x / 10.0f);
 						m_Objects[Index]->material(0)->metallic(z / 10.0f);
 					}
@@ -167,7 +167,7 @@ namespace CForge {
 			}//for[x]
 
 			// last object separately
-			if(m_Objects.size() > 0) CForgeUtility::defaultMaterial(m_Objects[m_Objects.size() - 1]->material(0), Mat);
+			if(m_Objects.size() > 0) CForgeUtility::createDefaultMaterial(m_Objects[m_Objects.size() - 1]->material(0), Mat);
 
 		}//changeMaterial
 
@@ -200,7 +200,7 @@ namespace CForge {
 
 			setMeshShader(&M, 0.4f, 0.04f);
 			M.computePerVertexNormals();
-			CForgeUtility::defaultMaterial(M.getMaterial(0), Mat);
+			CForgeUtility::createDefaultMaterial(M.getMaterial(0), Mat);
 
 			// create 10 x 10 objects with variation of roughness along the x axis and metallic along the z axis
 			for (uint32_t x = 0; x < 10; ++x) {

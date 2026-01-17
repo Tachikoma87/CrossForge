@@ -142,16 +142,16 @@ add_executable(CForgeSandbox
 	 "Prototypes/Graphics/components/shader/RenderingShaderComponent.h"
 	 "Prototypes/Graphics/components/shader/RenderingShaderComponent.cpp"
 	 "Prototypes/Graphics/components/shader/ShaderSourceComponent.cpp"
-	 "Prototypes/Graphics/components/actorprefab/VertexBufferComponent.h"
-	 "Prototypes/Graphics/components/actorprefab/IndexBufferComponent.h"
-	 "Prototypes/Graphics/components/actorprefab/VertexBufferComponent.cpp"
-	 "Prototypes/Graphics/components/actorprefab/IndexBufferComponent.cpp"
-	 "Prototypes/Graphics/components/actorprefab/RenderGroupsComponent.h"
-	 "Prototypes/Graphics/components/actorprefab/RenderGroupsComponent.cpp"
+	 
+	 
+	 
+	 
+	 
+	 
 	 "Prototypes/Graphics/components/actorprefab/PbrMaterialsComponent.h"
 	 "Prototypes/Graphics/components/actorprefab/PbrMaterialsComponent.cpp" 
-	 "Prototypes/Graphics/components/actorprefab/VertexArrayComponent.h" 
-	 "Prototypes/Graphics/components/actorprefab/VertexArrayComponent.cpp" 
+	  
+	  
 	 "Prototypes/scene/entities/SceneObjectEntity.h" 
 	 "Prototypes/scene/entities/SceneObjectEntity.cpp" 
 	 "Prototypes/scene/entities/ActorInstanceEntity.h" 
@@ -164,18 +164,18 @@ add_executable(CForgeSandbox
 	 "Prototypes/Graphics/components/uniformbuffer/UBOCameraDataComponent.cpp" 
 	 "Prototypes/Graphics/components/uniformbuffer/UBOTransformationDataComponent.h" 
 	 "Prototypes/Graphics/components/uniformbuffer/UBOTransformationDataComponent.cpp" 
-	 "Prototypes/Graphics/components/uniformbuffer/UniformBufferComponent.h" 
-	 "Prototypes/Graphics/components/uniformbuffer/UniformBufferComponent.cpp"    
+	  
+	     
 	 "Prototypes/Graphics/components/ColorComponent.h" 
 	 "Prototypes/Graphics/components/ColorComponent.cpp" 
 	 "Prototypes/applications/SCrossForgeSimpleSceneApp.h" 
 	 "Prototypes/applications/SCrossForgeSimpleSceneApp.cpp" 
 	 "Prototypes/scene/components/CameraPropertiesComponent.h" 
 	 "Prototypes/scene/components/CameraPropertiesComponent.cpp" 
-	 "Prototypes/Graphics/entities/TextureEntity.h" 
-	 "Prototypes/Graphics/entities/TextureEntity.cpp" 
-	 "Prototypes/Graphics/components/Texture2DComponent.h" 
-	 "Prototypes/Graphics/components/Texture2DComponent.cpp" 
+	  
+	  
+	  
+	  
 	 "Prototypes/Graphics/controllers/TextureEntityController.h" 
 	 "Prototypes/Graphics/controllers/TextureEntityController.cpp"
 	  
@@ -212,8 +212,8 @@ add_executable(CForgeSandbox
  "Prototypes/Graphics/components/shader/ShaderPropertiesComponent.cpp"
  "Prototypes/scene/entities/SceneEntity.h"
  "Prototypes/scene/entities/SceneEntity.cpp"
- "Prototypes/Graphics/components/actorprefab/ActorPrefabPropertiesComponent.h"
- "Prototypes/Graphics/components/actorprefab/ActorPrefabPropertiesComponent.cpp"
+ 
+ 
  "Prototypes/miscellaneous/MiscUtility.cpp" 
 
   
@@ -228,14 +228,10 @@ add_executable(CForgeSandbox
  
  "Prototypes/applications/SCrossForgeRestTestApp.h"
  "Prototypes/applications/SCrossForgeRestTestApp.cpp" 
- "Prototypes/controller/TestController.h" 
- "Prototypes/controller/TestController.cpp"
 
-
+ "Prototypes/database/router/TestRouter.cpp"
  "Prototypes/database/daos/DatabaseVersionDao.h"
  "Prototypes/database/daos/DatabaseVersionDao.cpp"
- 
- 
  "Prototypes/database/pocos/DatabaseVersionPoco.h"
  "Prototypes/database/pocos/DatabaseVersionPoco.cpp"
  "Prototypes/database/pocos/PocoBase.hpp"

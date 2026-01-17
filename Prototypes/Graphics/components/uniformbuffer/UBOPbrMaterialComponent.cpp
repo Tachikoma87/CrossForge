@@ -3,13 +3,13 @@
 namespace crossforge {
 
 
-	UBOPbrMaterialComponent::UBOPbrMaterialComponent(): UniformBufferComponent(UBOPbrMaterialComponent::identification) {
+	UBOPbrMaterialComponent::UBOPbrMaterialComponent(): UboBaseComponent(UBOPbrMaterialComponent::identification) {
 		clear();
 	}
 	UBOPbrMaterialComponent::~UBOPbrMaterialComponent() {
 		clear();
 	}
-	UBOPbrMaterialComponent::UBOPbrMaterialComponent(const std::string childIdentification): UniformBufferComponent(UBOPbrMaterialComponent::identification) {
+	UBOPbrMaterialComponent::UBOPbrMaterialComponent(const std::string childIdentification): UboBaseComponent(UBOPbrMaterialComponent::identification) {
 		m_inheritance.push_back(childIdentification);
 		clear();
 	}
@@ -22,7 +22,7 @@ namespace crossforge {
 
 		try {
 			const uint32_t bufferSize = sizeof(float) * 8;
-			if(!UniformBufferComponent::initialize(bufferSize)) LogError("Initializing uniform buffer with size of " + std::to_string(bufferSize) + " failed.");
+			if(!UboBaseComponent::initialize(bufferSize)) LogError("Initializing uniform buffer with size of " + std::to_string(bufferSize) + " failed.");
 		}
 		catch (CrossForgeException& e) {
 			Logger::logException(e);
@@ -33,7 +33,7 @@ namespace crossforge {
 
 	}
 	void UBOPbrMaterialComponent::clear() {
-		UniformBufferComponent::clear();
+		UboBaseComponent::clear();
 		m_colorOffset = 0;
 		m_metallicOffset = 0;
 		m_roughnessOffset = 0;

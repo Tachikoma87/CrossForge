@@ -244,7 +244,7 @@ namespace crossforge {
 
 	
 
-	void GraphicsUtility::defaultMaterial(PbrMaterialPtr pMaterial, DefaultMaterial mat) {
+	void GraphicsUtility::createDefaultMaterial(PbrMaterialPtr pMaterial, DefaultMaterial mat) {
 		if (nullptr == pMaterial) throw NullpointerExcept("pMaterial");
 		if (mat <= MATERIAL_UNKNOWN || mat >= DEFAULT_MATERIAL_COUNT) throw IndexOutOfBoundsExcept("mat");
 

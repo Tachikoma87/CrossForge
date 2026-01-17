@@ -19,12 +19,14 @@
 #define __CROSSFORGE_ACTORPREFABENTITY_H__
 
 #include <crossforge/ecs/EntityBase.h>
-#include "../components/actorprefab/VertexBufferComponent.h"
-#include "../components/actorprefab/IndexBufferComponent.h"
-#include "../components/actorprefab/RenderGroupsComponent.h"
+
 #include "../components/actorprefab/PBRMaterialsComponent.h"
-#include "../components/actorprefab/VertexArrayComponent.h"
-#include "../components/actorprefab/ActorPrefabPropertiesComponent.h"
+
+#include <crossforge/graphics/components/actorprefab/VertexBufferComponent.h>
+#include <crossforge/graphics/components/actorprefab/IndexBufferComponent.h>
+#include <crossforge/graphics/components/actorprefab/RenderGroupsComponent.h>
+#include <crossforge/graphics/components/actorprefab/VertexArrayComponent.h>
+#include <crossforge/graphics/components/actorprefab/ActorPrefabPropertiesComponent.h>
 
 namespace crossforge {
 	class ActorPrefabEntity : public EntityBase {

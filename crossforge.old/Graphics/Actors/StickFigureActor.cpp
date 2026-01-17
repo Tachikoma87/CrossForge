@@ -34,7 +34,7 @@ namespace CForge {
 		for (uint32_t i = 0; i < M.materialCount(); ++i) {
 			auto* pMat = M.getMaterial(i);
 			buildMaterial(pMat);
-			CForgeUtility::defaultMaterial(pMat, CForgeUtility::METAL_COPPER);
+			CForgeUtility::createDefaultMaterial(pMat, CForgeUtility::METAL_COPPER);
 		}
 		M.computePerVertexNormals();
 		M.computeAxisAlignedBoundingBox();
@@ -45,7 +45,7 @@ namespace CForge {
 		for (uint32_t i = 0; i < M.materialCount(); ++i) {
 			auto* pMat = M.getMaterial(i);
 			buildMaterial(pMat);
-			CForgeUtility::defaultMaterial(pMat, CForgeUtility::METAL_STAINLESS_STEEL);
+			CForgeUtility::createDefaultMaterial(pMat, CForgeUtility::METAL_STAINLESS_STEEL);
 		}
 		
 		M.computeAxisAlignedBoundingBox();

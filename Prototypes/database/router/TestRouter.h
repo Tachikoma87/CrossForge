@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): VertexArrayComponent.h and VertexArrayComponent.cpp                      *
+* File(s): TestRouter.h and TestRouter.cpp                       *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,35 +15,31 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_VERTEXARRAYCOMPONENT_H__
-#define __CROSSFORGE_VERTEXARRAYCOMPONENT_H__
+#ifndef __CROSSFORGE_TESTROUTER_H__
+#define __CROSSFORGE_TESTROUTER_H__
 
-#include <crossforge/ecs/ComponentBase.h>
+#include <drogon/HttpController.h>
 
 namespace crossforge {
-	class VertexArrayComponent : public ComponentBase {
+	class TestRouter: public drogon::HttpController<TestRouter> {
 	public:
-		static inline std::string identification = "VertexArrayComponent";
+		METHOD_LIST_BEGIN
+		METHOD_ADD(TestRouter::getInfo, "/{id}", drogon::Get);
+		ADD_METHOD_TO(TestRouter::getInfo, "/{id}", drogon::Get);
+		METHOD_ADD(TestRouter::quitApp, "/quit", drogon::Get);
+		ADD_METHOD_TO(TestRouter::readAllDatabaseVersionEntries, "/read/databaseVersion/all", drogon::Get);
+		METHOD_LIST_END
 
-		VertexArrayComponent();
-		~VertexArrayComponent();
+		void getInfo(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)> &&callback, int id) const;
+		
+		void quitApp(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)> &&callback)const;
 
-		void initialize(const std::shared_ptr<const VertexArrayComponent> pRef = nullptr);
-		void clear()override;
+		void readAllDatabaseVersionEntries(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback)const;
 
-		uint32_t& glVertexArrayHandle();
-		const uint32_t getGlVertexArrayHandle()const;
-		void setGlVertexArrayHandle(const uint32_t handle);
-
+		TestRouter();
 	protected:
-		VertexArrayComponent(const std::string childIdentification);
-
-		uint32_t m_glVertexArrayHandle;
+		int64_t m_requestCounter;
 	};
-
-	using VertexArrayComponentPtr = std::shared_ptr<VertexArrayComponent>;
-	using VertexarrayComponentCPtr = std::shared_ptr<const VertexArrayComponent>;
 }
-
 
 #endif 

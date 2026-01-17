@@ -19,8 +19,8 @@
 #define __CROSSFORGE_TEXTUREENTITYCONTROLLER_H__
 
 #include <crossforge/ecs/ControllerBase.h>
-#include "../entities/TextureEntity.h"
 #include <crossforge/assetio/entities/Image2DEntity.h>
+#include <crossforge/graphics/entities/TextureEntity.h>
 
 namespace crossforge {
 	class TextureEntityController : public ControllerBase {

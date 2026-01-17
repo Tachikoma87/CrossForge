@@ -18,10 +18,8 @@
 #ifndef __CROSSFORGE_PBRRMATERIALSCOMPONENT_H__
 #define __CROSSFORGE_PBRRMATERIALSCOMPONENT_H__
 
-#include <crossforge/ecs/ComponentBase.h>
-#include "../../entities/TextureEntity.h"
-#include "../../entities/ShaderEntity.h"
 #include "../uniformbuffer/UBOPBRMaterialComponent.h"
+#include <crossforge/graphics/entities/TextureEntity.h>
 
 namespace crossforge {
 

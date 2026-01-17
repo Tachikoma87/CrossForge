@@ -1058,7 +1058,7 @@ namespace CForge {
 			// adapt material if necessary
 			for (auto i : pDM->AlbedoReplacements) M.getMaterial(i.first)->TexAlbedo = i.second;
 			for (auto i : pDM->NormalReplacements) M.getMaterial(i.first)->TexNormal = i.second;
-			for (auto i : pDM->MaterialReplacements) CForgeUtility::defaultMaterial(M.getMaterial(i.first), i.second);
+			for (auto i : pDM->MaterialReplacements) CForgeUtility::createDefaultMaterial(M.getMaterial(i.first), i.second);
 
 			M.computePerVertexNormals();
 			BoundingVolume BV;

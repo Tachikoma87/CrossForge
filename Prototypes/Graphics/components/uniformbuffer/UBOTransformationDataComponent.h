@@ -18,10 +18,10 @@
 #ifndef __CROSSFORGE_UBOTRANSFORMATIONDATACOMPONENT_H__
 #define __CROSSFORGE_UBOTRANSFORMATIONDATACOMPONENT_H__
 
-#include "UniformBufferComponent.h"
+#include <crossforge/graphics/components/ubos/UboBaseComponent.h>
 
 namespace crossforge {
-	class UBOTransformationDataComponent : public UniformBufferComponent {
+	class UBOTransformationDataComponent : public UboBaseComponent {
 	public:
 		static inline std::string identification = "UBOTransformationDataComponent";
 

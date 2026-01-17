@@ -3,20 +3,20 @@
 
 namespace crossforge {
 
-	UBOTransformationDataComponent::UBOTransformationDataComponent(): UniformBufferComponent(UBOTransformationDataComponent::identification) {
+	UBOTransformationDataComponent::UBOTransformationDataComponent(): UboBaseComponent(UBOTransformationDataComponent::identification) {
 		initialize();
 	}
 	UBOTransformationDataComponent::~UBOTransformationDataComponent() {
 		
 	}
-	UBOTransformationDataComponent::UBOTransformationDataComponent(const std::string childIdentification): UniformBufferComponent(UBOTransformationDataComponent::identification) {
+	UBOTransformationDataComponent::UBOTransformationDataComponent(const std::string childIdentification): UboBaseComponent(UBOTransformationDataComponent::identification) {
 		m_inheritance.push_back(childIdentification);
 	}
 
 	void UBOTransformationDataComponent::initialize() {
 		m_modelMatrixOffset = 0;
 		m_normalMatrixOffset = m_modelMatrixOffset + sizeof(float) * 16;
-		UniformBufferComponent::initialize((16 + 12) * sizeof(float) );
+		UboBaseComponent::initialize((16 + 12) * sizeof(float) );
 
 		setModelMatrix(Eigen::Matrix4f::Identity());
 		setNormalMatrix(Eigen::Matrix4f::Identity());

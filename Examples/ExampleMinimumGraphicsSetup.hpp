@@ -54,7 +54,7 @@ namespace CForge {
 			initGroundPlane(&m_RootSGN, 100.0f, 20.0f);
 
 			SAssetIO::load("Assets/ExampleScenes/Duck/Duck.gltf", &M);
-			for (uint32_t i = 0; i < M.materialCount(); ++i) CForgeUtility::defaultMaterial(M.getMaterial(i), CForgeUtility::PLASTIC_YELLOW);
+			for (uint32_t i = 0; i < M.materialCount(); ++i) CForgeUtility::createDefaultMaterial(M.getMaterial(i), CForgeUtility::PLASTIC_YELLOW);
 			M.computePerVertexNormals();
 			m_Duck.init(&M);
 			M.clear();

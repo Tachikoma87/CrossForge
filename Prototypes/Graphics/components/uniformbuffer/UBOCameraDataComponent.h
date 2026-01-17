@@ -18,10 +18,11 @@
 #ifndef __CROSSFORGE_UBOCAMERADATACOMPONENT_H__
 #define __CROSSFORGE_UBOCAMERADATACOMPONENT_H__
 
-#include "UniformBufferComponent.h"
+
+#include <crossforge/graphics/components/ubos/UboBaseComponent.h>
 
 namespace crossforge {
-	class UBOCameraDataComponent : public UniformBufferComponent {
+	class UBOCameraDataComponent : public UboBaseComponent {
 	public:
 		static inline std::string identification = "UBOCameraDataComponent";
 

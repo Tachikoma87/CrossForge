@@ -18,10 +18,10 @@
 #ifndef __CROSSFORGE_UBOPOINTLIGHTSCOMPONENT_H__
 #define __CROSSFORGE_UBOPOINTLIGHTSCOMPONENT_H__
 
-#include "UniformBufferComponent.h"
+#include <crossforge/graphics/components/ubos/UboBaseComponent.h>
 
 namespace crossforge {
-	class UBOPointLightsComponent : public UniformBufferComponent {
+	class UBOPointLightsComponent : public UboBaseComponent {
 	public:
 		static inline std::string identification = "UBOPointLightsComponent";
 

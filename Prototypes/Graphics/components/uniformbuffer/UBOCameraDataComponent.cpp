@@ -2,10 +2,10 @@
 
 namespace crossforge {
 
-	UBOCameraDataComponent::UBOCameraDataComponent(): UniformBufferComponent(UBOCameraDataComponent::identification) {
+	UBOCameraDataComponent::UBOCameraDataComponent(): UboBaseComponent(UBOCameraDataComponent::identification) {
 		initialize();
 	}
-	UBOCameraDataComponent::UBOCameraDataComponent(const std::string childIdentification): UniformBufferComponent(UBOCameraDataComponent::identification) {
+	UBOCameraDataComponent::UBOCameraDataComponent(const std::string childIdentification): UboBaseComponent(UBOCameraDataComponent::identification) {
 		m_inheritance.push_back(childIdentification);
 		initialize();
 	}
@@ -17,7 +17,7 @@ namespace crossforge {
 		m_cameraMatrixOffset = 0;
 		m_projectionMatrixOffset = sizeof(float) * 16;
 		m_cameraPositionOffset = 2 * sizeof(float) * 16;
-		UniformBufferComponent::initialize( (16 + 16 + 4) * sizeof(float));
+		UboBaseComponent::initialize( (16 + 16 + 4) * sizeof(float));
 
 		setCameraMatrix(Eigen::Matrix4f::Identity());
 		setProjectionMatrix(Eigen::Matrix4f::Identity());

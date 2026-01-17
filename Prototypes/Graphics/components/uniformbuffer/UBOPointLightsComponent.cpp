@@ -2,13 +2,13 @@
 
 namespace crossforge {
 
-	UBOPointLightsComponent::UBOPointLightsComponent(): UniformBufferComponent(UBOPointLightsComponent::identification) {
+	UBOPointLightsComponent::UBOPointLightsComponent(): UboBaseComponent(UBOPointLightsComponent::identification) {
 		clear();
 	}
 	UBOPointLightsComponent::~UBOPointLightsComponent() {
 		clear();
 	}
-	UBOPointLightsComponent::UBOPointLightsComponent(const std::string childIdentification): UniformBufferComponent(UBOPointLightsComponent::identification) {
+	UBOPointLightsComponent::UBOPointLightsComponent(const std::string childIdentification): UboBaseComponent(UBOPointLightsComponent::identification) {
 		m_inheritance.push_back(childIdentification);
 		clear();
 	}
@@ -52,7 +52,7 @@ namespace crossforge {
 		}
 
 		try {
-			if (!UniformBufferComponent::initialize(bufferSize)) LogError("Failed to initiaize uniform buffer with size of " + std::to_string(bufferSize) + " bytes.");
+			if (!UboBaseComponent::initialize(bufferSize)) LogError("Failed to initiaize uniform buffer with size of " + std::to_string(bufferSize) + " bytes.");
 			else {
 				result = true;
 				m_lightCount = lightCount;
@@ -67,7 +67,7 @@ namespace crossforge {
 		return result;
 	}
 	void UBOPointLightsComponent::clear() {
-		UniformBufferComponent::clear();
+		UboBaseComponent::clear();
 		m_lightCount = 0;
 		m_positionOffsets.clear();
 		m_colorOffsets.clear();

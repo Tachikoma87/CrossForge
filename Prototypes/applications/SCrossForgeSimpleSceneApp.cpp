@@ -153,7 +153,7 @@ namespace crossforge {
 		auto pMaterialComp = m_pGroundPlanePrefab->getPBRMaterialsComponent();
 		for (uint32_t i = 0; i < pMaterialComp->getMaterialCount(); ++i) {
 			auto pMat = pMaterialComp->pbrMaterial(i);
-			GraphicsUtility::defaultMaterial(pMat, GraphicsUtility::METAL_COPPER);
+			GraphicsUtility::createDefaultMaterial(pMat, GraphicsUtility::METAL_COPPER);
 			pMat->texture(PbrMaterial::TEXTURE_TYPE_ALBEDO) = TextureProvider::instance()->getTexture(TextureProvider::BASIC_TEXTURE_8X8_WHITE);
 			pMat->updateUbo();
 		}

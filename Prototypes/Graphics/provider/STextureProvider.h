@@ -20,7 +20,7 @@
 
 #include <crossforge/core/CoreDefinitions.h>
 #include <crossforge/assetio/entities/Image2DEntity.h>
-#include "../entities/TextureEntity.h"
+#include <crossforge/graphics/entities/TextureEntity.h>
 
 namespace crossforge {
 	class STextureProvider {

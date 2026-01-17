@@ -229,7 +229,7 @@ namespace crossforge {
 
 	}
 
-	bool ShaderEntityController::bindBaseUbo(ShaderEntityPtr pShaderEntity, UniformBufferComponentPtr pUniformBuffer, RenderingShaderComponent::BaseUBO baseUbo) {
+	bool ShaderEntityController::bindBaseUbo(ShaderEntityPtr pShaderEntity, UboBaseComponentPtr pUniformBuffer, RenderingShaderComponent::BaseUBO baseUbo) {
 		if (nullptr == pShaderEntity) throw NullpointerExcept("pShaderEntity");
 		if (nullptr == pUniformBuffer) throw NullpointerExcept("pUBOCameraDataComp");
 

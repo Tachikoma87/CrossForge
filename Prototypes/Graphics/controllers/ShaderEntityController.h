@@ -23,7 +23,7 @@
 
 #include "../components/uniformbuffer/UBOCameraDataComponent.h"
 #include "../components/uniformbuffer/UBOTransformationDataComponent.h"
-#include "../entities/TextureEntity.h"
+#include <crossforge/graphics/entities/TextureEntity.h>
 
 namespace crossforge {
 	class ShaderEntityController : public ControllerBase {
@@ -37,7 +37,7 @@ namespace crossforge {
 		static bool buildRenderingShader(ShaderEntityPtr pShaderEntity);
 		static bool bindRenderingShader(ShaderEntityPtr pShaderEntity);
 
-		static bool bindBaseUbo(ShaderEntityPtr pShaderEntity, UniformBufferComponentPtr pUniformBuffer, RenderingShaderComponent::BaseUBO baseUbo);
+		static bool bindBaseUbo(ShaderEntityPtr pShaderEntity, UboBaseComponentPtr pUniformBuffer, RenderingShaderComponent::BaseUBO baseUbo);
 		static bool bindCameraDataUBO(ShaderEntityPtr pShaderEntity, UBOCameraDataComponentPtr pUBOCameraDataComp);
 		static bool bindTransformationDataUBO(ShaderEntityPtr pShaderEntity, UBOTransformationDataComponentPtr pUBOTransformData);
 

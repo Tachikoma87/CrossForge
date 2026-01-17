@@ -71,7 +71,7 @@ namespace CForge {
 			initSkybox();
 
 			SAssetIO::load("Assets/ExampleScenes/Sponza/Sponza.gltf", &M);
-			for (uint32_t i = 0; i < M.materialCount(); ++i) CForgeUtility::defaultMaterial(M.getMaterial(i), CForgeUtility::PLASTIC_WHITE);
+			for (uint32_t i = 0; i < M.materialCount(); ++i) CForgeUtility::createDefaultMaterial(M.getMaterial(i), CForgeUtility::PLASTIC_WHITE);
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
 			m_Sponza.init(&M);
@@ -85,7 +85,7 @@ namespace CForge {
 
 			// create Sun actor
 			PrimitiveShapeFactory::uvSphere(&M, Vector3f(5.0f, 5.0f, 5.0f), 20, 20);
-			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::METAL_GOLD);
+			CForgeUtility::createDefaultMaterial(M.getMaterial(0), CForgeUtility::METAL_GOLD);
 			M.computePerVertexNormals();
 			m_SunActor.init(&M);
 			M.clear();
@@ -102,7 +102,7 @@ namespace CForge {
 
 			// initialize point light actor
 			PrimitiveShapeFactory::doubleCone(&M, Vector4f(0.75f, 0.35f, 0.75f, 0.35f), 10);
-			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::METAL_STEEL);
+			CForgeUtility::createDefaultMaterial(M.getMaterial(0), CForgeUtility::METAL_STEEL);
 			M.computePerVertexNormals();
 			m_PointLightActor.init(&M);
 			

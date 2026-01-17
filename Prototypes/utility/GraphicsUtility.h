@@ -148,7 +148,7 @@ namespace crossforge {
 		* \param[out] pMat Material to create.
 		* \param[in] M Default material identifier.
 		*/
-		static void defaultMaterial(PbrMaterialPtr pMaterial, DefaultMaterial mat);
+		static void createDefaultMaterial(PbrMaterialPtr pMaterial, DefaultMaterial mat);
 
 		/**
 		* \brief Check whether an OpenGL error has occurred.

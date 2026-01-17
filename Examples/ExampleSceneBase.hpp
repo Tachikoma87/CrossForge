@@ -365,7 +365,7 @@ namespace CForge {
 			M.changeUVTiling(Vector3f(UVTiling, UVTiling, 1.0f));
 			M.computePerVertexNormals();
 			M.computePerVertexTangents();
-			CForgeUtility::defaultMaterial(M.getMaterial(0), CForgeUtility::PLASTIC_WHITE);
+			CForgeUtility::createDefaultMaterial(M.getMaterial(0), CForgeUtility::PLASTIC_WHITE);
 			M.getMaterial(0)->TexAlbedo = "Assets/ExampleScenes/Textures/Tiles107/Tiles107_1K_Color.webp";
 			M.getMaterial(0)->TexNormal = "Assets/ExampleScenes/Textures/Tiles107/Tiles107_1K_NormalGL.webp";
 			BoundingVolume BV;

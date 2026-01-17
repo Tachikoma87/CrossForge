@@ -1,14 +1,12 @@
-#include "TestController.h"
+#include "TestRouter.h"
 
-#include <drogon/drogon.h>
-
-#include "../database/daos/DatabaseVersionDao.h"
+#include "../daos/DatabaseVersionDao.h"
 #include <crossforge/database/provider/SDatabaseConnectionProvider.h>
 
 using namespace drogon;
 
 namespace crossforge {
-	void TestController::getInfo(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr &)>&& callback, int id) const {
+	void TestRouter::getInfo(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr &)>&& callback, int id) const {
 		Json::Value result;
 
 
@@ -27,7 +25,7 @@ namespace crossforge {
 		callback(response);
 	}
 
-	void TestController::quitApp(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)> &&callback) const {
+	void TestRouter::quitApp(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)> &&callback) const {
 
 		Json::Value result;
 
@@ -38,11 +36,11 @@ namespace crossforge {
 		drogon::app().quit();
 	}
 
-	TestController::TestController() {
+	TestRouter::TestRouter() {
 		m_requestCounter = 0;
 	}
 
-	void TestController::readAllDatabaseVersionEntries(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback)const {
+	void TestRouter::readAllDatabaseVersionEntries(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback)const {
 		uint64_t start = GeneralUtility::getTimestamp();
 
 		auto pConnection = DatabaseConnectionProvider::instance()->getDatabaseConnection("crossforgetest_peon");

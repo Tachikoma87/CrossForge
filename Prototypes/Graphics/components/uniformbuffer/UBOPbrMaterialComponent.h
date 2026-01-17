@@ -18,10 +18,10 @@
 #ifndef __CROSSFORGE_UBOPBRMATERIALCOMPONENT_H__
 #define __CROSSFORGE_UBOPBRMATERIALCOMPONENT_H__
 
-#include "UniformBufferComponent.h"
+#include <crossforge/graphics/components/ubos/UboBaseComponent.h>
 
 namespace crossforge {
-	class UBOPbrMaterialComponent : public UniformBufferComponent {
+	class UBOPbrMaterialComponent : public UboBaseComponent {
 	public:
 		static inline std::string identification = "UBOPBRMaterialComponent";
 
