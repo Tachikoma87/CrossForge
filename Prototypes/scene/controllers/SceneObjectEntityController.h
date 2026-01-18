@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_SCENEOBJECTENTITYCONTROLLER_H__
 #define __CROSSFORGE_SCENEOBJECTENTITYCONTROLLER_H__
 
-#include <crossforge/ecs/ControllerBase.h>
+#include <crossforge/eccs/ControllerBase.h>
 #include "../entities/SceneObjectEntity.h"
 #include "../components/Transformation3DComponent.h"
 

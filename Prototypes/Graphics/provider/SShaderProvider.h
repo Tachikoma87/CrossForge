@@ -18,8 +18,6 @@
 #ifndef __CROSSFORGE_SSHADERPROVIDER_H__
 #define __CROSSFORGE_SSHADERPROVIDER_H__
 
-#include <crossforge/core/CoreDefinitions.h>
-#include <crossforge/assetio/entities/FileEntity.h>
 #include "../entities/ShaderEntity.h"
 #include "../components/shader/ShaderPropertiesComponent.h"
 

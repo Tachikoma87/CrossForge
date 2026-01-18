@@ -18,8 +18,6 @@
 #ifndef __CROSSFORGE_STEXTUREPROVIDER_H__
 #define __CROSSFORGE_STEXTUREPROVIDER_H__
 
-#include <crossforge/core/CoreDefinitions.h>
-#include <crossforge/assetio/entities/Image2DEntity.h>
 #include <crossforge/graphics/entities/TextureEntity.h>
 
 namespace crossforge {

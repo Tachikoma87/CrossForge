@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_CHILDOBJECTSCOMPONENT_H__
 #define __CROSSFORGE_CHILDOBJECTSCOMPONENT_H__
 
-#include <crossforge/ecs/ComponentBase.h>
+#include <crossforge/eccs/ComponentBase.h>
 #include "../entities/SceneObjectEntity.h"
 
 namespace crossforge {

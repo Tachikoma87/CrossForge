@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_SCENEOBJECTENTITY_H__
 #define __CROSSFORGE_SCENEOBJECTENTITY_H__
 
-#include <crossforge/ecs/EntityBase.h>
+#include <crossforge/eccs/EntityBase.h>
 #include "../components/Transformation3DComponent.h"
 #include "../components/Movement3DComponent.h"
 

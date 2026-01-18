@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_LIGHTENTITYCONTROLLER_H__
 #define __CROSSFORGE_LIGHTENTITYCONTROLLER_H__
 
-#include <crossforge/ecs/ControllerBase.h>
+#include <crossforge/eccs/ControllerBase.h>
 
 namespace crossforge {
 	class LightEntityController : public ControllerBase {

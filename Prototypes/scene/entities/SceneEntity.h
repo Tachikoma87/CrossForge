@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_SCENEENTITY_H__
 #define __CROSSFORGE_SCENEENTITY_H__
 
-#include <crossforge/ecs/EntityBase.h>
+#include <crossforge/eccs/EntityBase.h>
 
 namespace crossforge {
 	class SceneEntity : public EntityBase {

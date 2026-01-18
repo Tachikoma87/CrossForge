@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_MOVEMENT3DCOMPONENT_H__
 #define __CROSSFORGE_MOVEMENT3DCOMPONENT_H__
 
-#include <crossforge/ecs/ComponentBase.h>
+#include <crossforge/eccs/ComponentBase.h>
 
 namespace crossforge {
 	class Movement3DComponent : public ComponentBase {

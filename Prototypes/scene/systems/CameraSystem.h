@@ -18,11 +18,11 @@
 #ifndef __CROSSFORGE_CAMERASYSTEM_H__
 #define __CROSSFORGE_CAMERASYSTEM_H__
 
-#include <crossforge/ecs/SystemBase.h>
+#include <crossforge/eccs/SystemBase.h>
 #include <crossforge/input/entities/InputDeviceEntity.h>
 #include <crossforge/input/systems/KeyboardInputSystem.h>
 #include <crossforge/input/systems/MouseInputSystem.h>
-#include <crossforge/ecs/SSystemManager.h>
+#include <crossforge/eccs/SSystemManager.h>
 #include <crossforge/graphics/entities/WindowEntity.h>
 
 namespace crossforge {

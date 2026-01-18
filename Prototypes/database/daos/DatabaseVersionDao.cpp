@@ -1,5 +1,6 @@
 #include "DatabaseVersionDao.h"
 #include "../../miscellaneous/MiscUtility.hpp"
+#include <crossforge/database/controller/DatabaseConnectionEntityController.h>
 
 namespace crossforge {
 

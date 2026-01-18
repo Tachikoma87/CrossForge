@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_MISCUTILITY_HPP__
 #define __CROSSFORGE_MISCUTILITY_HPP__
 
-#include <crossforge/core/CoreDefinitions.h>
+#include <crossforge/GlobalDefinitions.h>
 #include <iomanip>
 
 namespace crossforge {

@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_POCOBASE_H__
 #define __CROSSFORGE_POCOBASE_H__
 
-#include <crossforge/core/CoreDefinitions.h>
+#include <crossforge/GlobalDefinitions.h>
 #include <json/json.h>
 
 namespace crossforge {

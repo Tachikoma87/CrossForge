@@ -18,9 +18,7 @@
 #ifndef __CROSSFORGE_DAOBASE_HPP__
 #define __CROSSFORGE_DAOBASE_HPP__
 
-#include <crossforge/core/CoreDefinitions.h>
 #include <crossforge/database/entities/DatabaseConnectionEntity.h>
-#include <crossforge/database/controller/DatabaseConnectionEntityController.h>
 
 namespace crossforge {
 	template<typename T>

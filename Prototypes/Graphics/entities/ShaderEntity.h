@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_SHADERENTITY_H__
 #define __CROSSFORGE_SHADERENTITY_H__
 
-#include <crossforge/ecs/EntityBase.h>
+#include <crossforge/eccs/EntityBase.h>
 #include "../components/shader/ShaderSourceComponent.h"
 #include "../components/shader/RenderingShaderComponent.h"
 #include "../components/shader/ShaderPropertiesComponent.h"

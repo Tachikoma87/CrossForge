@@ -19,7 +19,7 @@
 #define __CROSSFORGE_SCROSSFORGETESTAPP_H__
 
 #include <crossforge/graphics/systems/WindowSystem.h>
-#include <crossforge/core/ApplicationBase.h>
+#include <crossforge/application/ApplicationBase.h>
 #include <crossforge/graphics/entities/WindowEntity.h>
 #include <crossforge/input/systems/KeyboardInputSystem.h>
 #include <crossforge/input/systems/MouseInputSystem.h>

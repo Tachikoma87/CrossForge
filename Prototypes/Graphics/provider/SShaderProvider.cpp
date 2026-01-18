@@ -2,7 +2,7 @@
 
 #include <crossforge/assetio/SAssetIOProvider.h>
 #include "../controllers/ShaderEntityController.h"
-#include <crossforge/ecs/SEntityManager.h>
+#include <crossforge/eccs/SEntityManager.h>
 
 namespace crossforge {
 

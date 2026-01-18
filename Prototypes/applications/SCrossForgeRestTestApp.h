@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_SCROSSFORGERESTTESTAPP_H__
 #define __CROSSFORGE_SCROSSFORGERESTTESTAPP_H__
 
-#include <crossforge/core/ApplicationBase.h>
+#include <crossforge/application/ApplicationBase.h>
 #include <crossforge/database/entities/DatabaseConnectionEntity.h>
 #include <crossforge/database/controller/DatabaseConnectionEntityController.h>
 #include <crossforge/database/provider/SDatabaseConnectionProvider.h>

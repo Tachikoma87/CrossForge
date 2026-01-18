@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_CAMERAENTITYCONTROLLER_H__
 #define __CROSSFORGE_CAMERAENTITYCONTROLLER_H__
 
-#include <crossforge/ecs/ControllerBase.h>
+#include <crossforge/eccs/ControllerBase.h>
 #include "../entities/CameraEntity.h"
 #include <crossforge/graphics/entities/CanvasEntity.h>
 

@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_TEXTUREENTITYCONTROLLER_H__
 #define __CROSSFORGE_TEXTUREENTITYCONTROLLER_H__
 
-#include <crossforge/ecs/ControllerBase.h>
+#include <crossforge/eccs/ControllerBase.h>
 #include <crossforge/assetio/entities/Image2DEntity.h>
 #include <crossforge/graphics/entities/TextureEntity.h>
 

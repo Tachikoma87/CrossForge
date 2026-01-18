@@ -19,7 +19,7 @@
 #define __CROSSFORGE_TARGETOBJECTCOMPONENT_H__
 
 #include "../entities/SceneObjectEntity.h"
-#include <crossforge/ecs/ComponentBase.h>
+#include <crossforge/eccs/ComponentBase.h>
 
 namespace crossforge {
 	class TargetObjectComponent : public ComponentBase {

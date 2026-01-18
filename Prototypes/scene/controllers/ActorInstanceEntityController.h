@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_ACTORINSTANCEENTITYCONTROLLER_H__
 #define __CROSSFORGE_ACTORINSTANCEENTITYCONTROLLER_H__
 
-#include <crossforge/ecs/ControllerBase.h>
+#include <crossforge/eccs/ControllerBase.h>
 #include "../entities/ActorInstanceEntity.h"
 
 namespace crossforge {

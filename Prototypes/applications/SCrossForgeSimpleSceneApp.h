@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_SCROSSFORGESIMPLESCENEAPP_H__
 #define __CROSSFORGE_SCROSSFORGESIMPLESCENEAPP_H__
 
-#include <crossforge/core/ApplicationBase.h>
+#include <crossforge/application/ApplicationBase.h>
 #include <crossforge/graphics/entities/WindowEntity.h>
 #include <crossforge/graphics/entities/CanvasEntity.h>
 #include <crossforge/input/entities/InputDeviceEntity.h>

@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_SHADERSOURCECOMPONENT_H__
 #define __CROSSFORGE_SHADERSOURCECOMPONENT_H__
 
-#include <crossforge/ecs/ComponentBase.h>
+#include <crossforge/eccs/ComponentBase.h>
 
 namespace crossforge {
 	class ShaderSourceComponent : public ComponentBase {

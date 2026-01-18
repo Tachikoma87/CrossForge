@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_ACTORPREFABENTITY_H__
 #define __CROSSFORGE_ACTORPREFABENTITY_H__
 
-#include <crossforge/ecs/EntityBase.h>
+#include <crossforge/eccs/EntityBase.h>
 
 #include "../components/actorprefab/PBRMaterialsComponent.h"
 

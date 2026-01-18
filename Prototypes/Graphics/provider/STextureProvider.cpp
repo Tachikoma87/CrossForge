@@ -4,7 +4,7 @@
 #include "../controllers/TextureEntityController.h"
 #include <crossforge/utility/FileUtility.h>
 #include <crossforge/assetio/SAssetIOProvider.h>
-#include <crossforge/ecs/SEntityManager.h>
+#include <crossforge/eccs/SEntityManager.h>
 
 
 namespace crossforge {

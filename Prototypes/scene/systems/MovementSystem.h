@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_MOVEMENTSYSTEM_H__
 #define __CROSSFORGE_MOVEMENTSYSTEM_H__
 
-#include <crossforge/ecs/SystemBase.h>
+#include <crossforge/eccs/SystemBase.h>
 
 namespace crossforge {
 	class MovementSystem : public SystemBase {

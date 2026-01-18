@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_TRANSFORMATION3DCOMPONENT_H__
 #define __CROSSFORGE_TRANSFORMATION3DCOMPONENT_H__
 
-#include <crossforge/ecs/ComponentBase.h>
+#include <crossforge/eccs/ComponentBase.h>
 
 namespace crossforge {
 	class Transformation3DComponent : public ComponentBase {

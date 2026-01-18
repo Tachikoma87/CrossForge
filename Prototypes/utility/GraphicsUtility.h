@@ -18,7 +18,6 @@
 #ifndef __CROSSFORGE_GRAPHICSUTILITY_H__
 #define __CROSSFORGE_GRAPHICSUTILITY_H__
 
-#include <crossforge/core/CoreDefinitions.h>
 #include <crossforge/assetio/entities/Image2DEntity.h>
 #include "../Graphics/components/actorprefab/PbrMaterialsComponent.h"
 

@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_LIGHTSENTITY_H__
 #define __CROSSFORGE_LIGHTSENTITY_H__
 
-#include <crossforge/ecs/EntityBase.h>
+#include <crossforge/eccs/EntityBase.h>
 #include "../components/uniformbuffer/UBODirectionalLightsComponent.h"
 #include "../components/uniformbuffer/UBOPointLightsComponent.h"
 #include "../components/uniformbuffer/UBOSpotLightsComponent.h"

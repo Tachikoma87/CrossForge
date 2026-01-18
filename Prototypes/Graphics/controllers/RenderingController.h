@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_RENDERINGCONTROLLER_H__
 #define __CROSSFORGE_RENDERINGCONTROLLER_H__
 
-#include <crossforge/ecs/ControllerBase.h>
+#include <crossforge/eccs/ControllerBase.h>
 #include <crossforge/graphics/entities/CanvasEntity.h>
 #include "../../scene/entities/ActorInstanceEntity.h"
 #include "../../scene/entities/CameraEntity.h"

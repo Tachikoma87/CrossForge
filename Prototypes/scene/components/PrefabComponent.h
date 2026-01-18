@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_PREFABCOMPONENT_H__
 #define __CRSOFFROGE_PREFABCOMPONENT_H__
 
-#include <crossforge/ecs/ComponentBase.h>
+#include <crossforge/eccs/ComponentBase.h>
 #include "../../Graphics/entities/ActorPrefabEntity.h"
 
 namespace crossforge {
