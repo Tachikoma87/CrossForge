@@ -1,5 +1,4 @@
 #include "DatabaseVersionDao.h"
-#include "../../miscellaneous/MiscUtility.hpp"
 #include <crossforge/database/controller/DatabaseConnectionEntityController.h>
 
 namespace crossforge {
@@ -22,7 +21,7 @@ namespace crossforge {
 				pItem->major() = r["major"].as<int32_t>();
 				pItem->minor() = r["minor"].as<int32_t>();
 				pItem->patch() = r["patch"].as<int32_t>();
-				pItem->timestampCreated() = MiscUtility::getTimestampFromIsoTime(r["timestamp_created"].as<std::string>());
+				pItem->timestampCreated() = GeneralUtility::getTimestampFromIsoTime(r["timestamp_created"].as<std::string>());
 				//pItem->timestampCreated() = r["timestamp_created_raw"].as<int64_t>();
 				result.push_back(pItem);
 			}
@@ -43,7 +42,7 @@ namespace crossforge {
 		pQuery->params().append(pPoco->major());
 		pQuery->params().append(pPoco->minor());
 		pQuery->params().append(pPoco->patch());
-		pQuery->params().append(MiscUtility::getTimeISO(GeneralUtility::getTimestamp()) );
+		pQuery->params().append(GeneralUtility::getIsoTime(GeneralUtility::getTimestamp()) );
 
 		if (!DatabaseConnectionEntityController::executePostgresQuery(m_pDbConnection, pQuery)) {
 			LogError("Failed to execute Postgres query: " + pQuery->query() + " " + pQuery->errorMessage());
@@ -62,7 +61,7 @@ namespace crossforge {
 		bool result = false;
 
 		uint64_t paramCounter = 0;
-		std::string now = MiscUtility::getTimeISO(GeneralUtility::getTimestamp());
+		std::string now = GeneralUtility::getIsoTime(GeneralUtility::getTimestamp());
 
 		auto pQueriesComp = m_pDbConnection->getPostgresQueriesComponent(true);
 		std::string insertStatement = "INSERT INTO " + m_tableName + "(major, minor, patch, timestamp_created) VALUES ";

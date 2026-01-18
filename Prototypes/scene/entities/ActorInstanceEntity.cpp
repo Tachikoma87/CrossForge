@@ -21,8 +21,8 @@ namespace crossforge {
 		m_componentMap.clear();
 	}
 
-	UBOTransformationDataComponentPtr ActorInstanceEntity::getUboTransformationDataComponent(const bool createIfNotExists) {
-		return getComponent<UBOTransformationDataComponent>(createIfNotExists);
+	UboTransformationDataComponentPtr ActorInstanceEntity::getUboTransformationDataComponent(const bool createIfNotExists) {
+		return getComponent<UboTransformationDataComponent>(createIfNotExists);
 	}
 
 }

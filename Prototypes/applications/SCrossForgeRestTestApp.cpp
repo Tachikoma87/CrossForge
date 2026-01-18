@@ -3,7 +3,6 @@
 #include <thread>
 
 #include <drogon/drogon.h>
-#include "../miscellaneous/MiscUtility.hpp"
 #include <crossforge/math/CrossForgeMath.h>
 #include "../database/daos/DatabaseVersionDao.h"
 
@@ -182,7 +181,7 @@ namespace crossforge {
 		}
 		else {
 			auto pQueriesComp = pDbConnection->getPostgresQueriesComponent(true);
-			std::string now = MiscUtility::getTimeISO(GeneralUtility::getTimestamp());
+			std::string now = GeneralUtility::getIsoTime(GeneralUtility::getTimestamp());
 			for (int64_t major = 0; major < majorMax; major++) {
 				for (int64_t minor = 0; minor < minorMax; minor++) {
 					for (int64_t patch = 0; patch < patchMax; patch++) {
@@ -219,7 +218,7 @@ namespace crossforge {
 		pQuery->params().append(major);
 		pQuery->params().append(minor);
 		pQuery->params().append(patch);
-		pQuery->params().append(MiscUtility::getTimeISO(GeneralUtility::getTimestamp()));
+		pQuery->params().append(GeneralUtility::getIsoTime(GeneralUtility::getTimestamp()));
 
 		/*if (!DatabaseConnectionEntityController::executePostgresQuery(pDbConnection, pQuery)) LogError("Failed to execute query.");
 		else result = true;*/

@@ -2,26 +2,25 @@
 #include "SCrossForgeSimpleSceneApp.h"
 
 #include <crossforge/assetio/controller/TriangleMeshController.h>
-#include <crossforge/graphics/controller/WindowController.h>
+#include <crossforge/graphics/controllers/WindowEntityController.h>
 #include <crossforge/graphics/systems/WindowSystem.h>
 #include <crossforge/input/systems/KeyboardInputSystem.h>
 #include <crossforge/input/systems/MouseInputSystem.h>
-#include <crossforge/assetio/controller/VideoController.h>
 #include <crossforge/input/controller/InputDeviceController.h>
-
+#include <crossforge/utility/GraphicsUtility.h>
+#include <crossforge/graphics/providers/STextureProvider.h>
 #include <crossforge/math/CrossForgeMath.h>
-
-#include "../Graphics/controllers/RenderingController.h"
+#include "../scene/controllers/RenderingController.h"
 #include "../scene/controllers/CameraEntityController.h"
-#include "../Graphics/controllers/ActorPrefabEntityController.h"
 #include "../scene/components/ChildObjectsComponent.h"
 #include "../scene/controllers/SceneObjectEntityController.h"
 #include "../scene/components/PrefabComponent.h"
-#include "../miscellaneous/MiscUtility.hpp"
-#include "../utility/GraphicsUtility.h"
 #include "../scene/components/SphericalTransformationComponent.h"
-#include "../miscellaneous/controllers/MiscellaneousController.h"
-#include "../Graphics/provider/STextureProvider.h"
+
+#include <crossforge/graphics/controllers/ActorPrefabEntityController.h>
+
+
+
 
 
 namespace crossforge {
@@ -64,7 +63,7 @@ namespace crossforge {
 		pWindowProperties->width() = 1280;
 		m_pMainWin->addComponent(pWindowProperties);
 
-		if (!WindowController::initOpenGLWindow(m_pMainWin)) {
+		if (!WindowEntityController::initOpenGLWindow(m_pMainWin)) {
 			LogError("Initializing OpenGL window failed!");
 			return;
 		}
@@ -79,6 +78,7 @@ namespace crossforge {
 		CanvasSettingsComponentPtr pCanvasSettings = std::make_shared<CanvasSettingsComponent>();
 		pCanvasSettings->viewportPosition() = Eigen::Vector2i(0, 0);
 		pCanvasSettings->viewportSize() = Eigen::Vector2i(1280, 720);
+		pCanvasSettings->clearColor() = Eigen::Vector4f(0.1f, 0.1f, 0.1f, 1.0f);
 		m_pMainCanvas->addComponent(pCanvasSettings);
 
 		// initialize input
@@ -187,7 +187,7 @@ namespace crossforge {
 		m_pDuckActorInstance->getComponent<PrefabComponent>()->actorPrefab()= m_pDuckActorPrefab;
 		//m_pDuckActorInstance->getMovement3DComponent()->rotationDelta() = Eigen::AngleAxisf(CrossForgeMath::degToRad(-5.0f), Eigen::Vector3f::UnitZ());
 		m_pDuckActorInstance->getTransformation3DComponent(true)->localScale() = Eigen::Vector3f(0.01f, 0.01f, 0.01f);
-		m_pDuckActorInstance->addComponent(std::make_shared<UBOTransformationDataComponent>());
+		m_pDuckActorInstance->addComponent(std::make_shared<UboTransformationDataComponent>());
 		m_pEntityManager->registerEntity(m_pDuckActorInstance);
 
 		m_pDuckActorInstance2 = std::make_shared<ActorInstanceEntity>();
@@ -196,7 +196,7 @@ namespace crossforge {
 		m_pDuckActorInstance2->getTransformation3DComponent(true)->localPosition() = Eigen::Vector3f(-5.0f, -2.0f, -5.0f);
 		m_pDuckActorInstance2->getMovement3DComponent()->rotationDelta() = Eigen::AngleAxisf(CrossForgeMath::degToRad(2.5f), Eigen::Vector3f::UnitY());
 		m_pDuckActorInstance2->getTransformation3DComponent(true)->localScale() = Eigen::Vector3f(0.0025f, 0.0025f, 0.0025f);
-		m_pDuckActorInstance2->addComponent(std::make_shared<UBOTransformationDataComponent>());
+		m_pDuckActorInstance2->addComponent(std::make_shared<UboTransformationDataComponent>());
 		m_pEntityManager->registerEntity(m_pDuckActorInstance2);
 
 		
@@ -205,7 +205,7 @@ namespace crossforge {
 		m_pHelmetActorInstance->getComponent<PrefabComponent>()->actorPrefab() = m_pHelmetActorPrefab;
 		m_pHelmetActorInstance->getTransformation3DComponent(true)->localPosition() = Eigen::Vector3f(2.0f, 4.0f, 1.0f);
 		m_pHelmetActorInstance->getMovement3DComponent(true)->positionDelta() = Eigen::Vector3f(0.0f, 0.05f, 0.0f);
-		m_pHelmetActorInstance->addComponent(std::make_shared<UBOTransformationDataComponent>());
+		m_pHelmetActorInstance->addComponent(std::make_shared<UboTransformationDataComponent>());
 		m_pEntityManager->registerEntity(m_pHelmetActorInstance);
 
 
@@ -215,7 +215,7 @@ namespace crossforge {
 		m_pGroundPlaneInstance->getTransformation3DComponent(true)->localPosition() = Eigen::Vector3f(0.0f, 5.0f, 5.0f);
 		m_pGroundPlaneInstance->getTransformation3DComponent(true)->localScale() = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
 		m_pGroundPlaneInstance->getMovement3DComponent(true)->rotationDelta() = Eigen::AngleAxisf(CrossForgeMath::degToRad(0.5f), Eigen::Vector3f::UnitX());
-		m_pGroundPlaneInstance->addComponent(std::make_shared<UBOTransformationDataComponent>());
+		m_pGroundPlaneInstance->addComponent(std::make_shared<UboTransformationDataComponent>());
 		m_pEntityManager->registerEntity(m_pGroundPlaneInstance);
 
 		m_pCameraEntity->getTargetObjectComponent(true)->targetSceneObject() = m_pHelmetActorInstance;
@@ -224,7 +224,7 @@ namespace crossforge {
 		m_pSceneLights = std::make_shared<LightsEntity>();
 		auto pLightsConfig = m_pSceneLights->getLightsConfigComponent(true);
 
-		auto pDirLights = m_pSceneLights->getUBODirectionalLightsComponent(true);
+		auto pDirLights = m_pSceneLights->getUboDirectionalLightsComponent(true);
 		pDirLights->initialize(5);
 		for (uint8_t i = 0; i < 5; ++i) {
 			pDirLights->setColor(Eigen::Vector4f(1.0f, 1.0f, 1.0f, 15.0f), i);
@@ -309,7 +309,7 @@ namespace crossforge {
 		pKeyboardSystem->update();
 
 		// clear window buffer and activate canvas
-		WindowController::clearBuffer(m_pMainWin);
+		WindowEntityController::clearBuffer(m_pMainWin);
 		RenderingController::activateCanvas(m_pMainCanvas, true);
 
 		auto pWindowMsgComp = m_pMainWin->getMessageComponent(true);
@@ -514,7 +514,7 @@ namespace crossforge {
 			auto pWindowPropsComp = m_pMainWin->getWindowPropertiesComponent();
 			pWindowPropsComp->vSyncInterval() += 1;
 			if (pWindowPropsComp->vSyncInterval() > 5) pWindowPropsComp->vSyncInterval() = 0;
-			WindowController::updateVerticalSynchronization(m_pMainWin);
+			WindowEntityController::updateVerticalSynchronization(m_pMainWin);
 
 
 			pKeyboard->keyState(KeyboardStateComponent::KEY_V) = KeyboardStateComponent::KEY_STATE_OFF;
@@ -581,7 +581,7 @@ namespace crossforge {
 
 			float fps = m_frameCount / (float)((GeneralUtility::getTimestamp() - m_timestampLastFpsPrint) / 1000.0f);
 			m_pMainWin->getWindowPropertiesComponent()->title() = "CrossForge Simple Test App [" + std::to_string(int32_t(std::round(fps))) + " fps | " + std::to_string(std::round(highPrecionsTiming/fps)/1000)  + " ms/frame]";
-			WindowController::updateWindowTitle(m_pMainWin);
+			WindowEntityController::updateWindowTitle(m_pMainWin);
 			m_frameCount = 0;
 			highPrecionsTiming = 0.0;
 

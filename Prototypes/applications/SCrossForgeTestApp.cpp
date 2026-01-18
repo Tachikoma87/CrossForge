@@ -3,31 +3,18 @@
 #include <Windows.h>
 #endif
 
-
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <crossforge/utility/GeneralUtility.hpp>
 #include "SCrossForgeTestApp.h"
-#include "../Graphics/controllers/RenderingController.h"
+#include "../scene/controllers/RenderingController.h"
 #include <crossforge/graphics/entities/CanvasEntity.h>
-#include <crossforge/graphics/controller/WindowController.h>
-
-
+#include <crossforge/graphics/controllers/WindowEntityController.h>
 #include <crossforge/assetio/SAssetIOProvider.h>
 #include <crossforge/math/CrossForgeMath.h>
-
-#include "../Graphics/controllers/ShaderEntityController.h"
-#include "../Graphics/components/shader/ShaderSourceComponent.h"
-
-#include "../Graphics/entities/ActorPrefabEntity.h"
-#include "../Graphics/controllers/ActorPrefabEntityController.h"
-
-#include "../Graphics/components/ColorComponent.h"
-
-#include "../Graphics/controllers/ShaderEntityController.h"
-
-#include "../Graphics/components/shader/ShaderPropertiesComponent.h"
-#include "../Graphics/provider/SShaderProvider.h"
+#include <crossforge/graphics/controllers/ActorPrefabEntityController.h>
+#include <crossforge/graphics/entities/ActorPrefabEntity.h>
+#include <crossforge/graphics/controllers/ShaderEntityController.h>
+#include <crossforge/graphics/providers/SShaderProvider.h>
 
 namespace crossforge {
 	std::shared_ptr<SCrossForgeTestApp> SCrossForgeTestApp::m_pInstance = nullptr;
@@ -58,7 +45,7 @@ namespace crossforge {
 		pWinProps->position() = Eigen::Vector2i(200, 200);
 		m_pMainWin->addComponent(pWinProps);
 		
-		if (WindowController::initOpenGLWindow(m_pMainWin)) {
+		if (WindowEntityController::initOpenGLWindow(m_pMainWin)) {
 			LogInfo("Successfully created main window with OpenGL functionality!");
 			pWindowSystem->registerEntity(m_pMainWin);
 			gladLoadGL();
@@ -76,12 +63,11 @@ namespace crossforge {
 		// bottom left
 		CanvasEntityPtr pScene = std::make_shared<CanvasEntity>();
 		CanvasSettingsComponentPtr pSceneSettings = std::make_shared<CanvasSettingsComponent>();
-		ColorComponentPtr pColor = std::make_shared<ColorComponent>();
+
 		pSceneSettings->viewportPosition() = Eigen::Vector2i(0, 0);
 		pSceneSettings->viewportSize() = Eigen::Vector2i(1280 / 2, 720 / 2);
-		pColor->color() = Eigen::Vector4f(0.5f, 0.5f, 0.0f, 1.0f);
+		pSceneSettings->clearColor() = Eigen::Vector4f(0.5f, 0.5f, 0.0f, 1.0f);
 		pScene->addComponent(pSceneSettings);
-		pScene->addComponent(pColor);
 		m_pEntityManager->registerEntity(pScene);
 		m_canvases.push_back(pScene);
 
@@ -89,36 +75,32 @@ namespace crossforge {
 		// top left
 		pScene = std::make_shared<CanvasEntity>();
 		pSceneSettings = std::make_shared<CanvasSettingsComponent>();
-		pColor = std::make_shared<ColorComponent>();
+
 		pSceneSettings->viewportPosition() = Eigen::Vector2i(0, 720 / 2);
 		pSceneSettings->viewportSize() = Eigen::Vector2i(1280 / 2, 720 / 2);
-		pColor->color() = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
+		pSceneSettings->clearColor() = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
 		pScene->addComponent(pSceneSettings);
-		pScene->addComponent(pColor);
 		m_pEntityManager->registerEntity(pScene);
 		m_canvases.push_back(pScene);
 
 		// top right
 		pScene = std::make_shared<CanvasEntity>();
 		pSceneSettings = std::make_shared<CanvasSettingsComponent>();
-		pColor = std::make_shared<ColorComponent>();
+
 		pSceneSettings->viewportPosition() = Eigen::Vector2i(1280/2, 720/2);
 		pSceneSettings->viewportSize() = Eigen::Vector2i(1280 / 2, 720 / 2);
-		pColor->color() = Eigen::Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
+		pSceneSettings->clearColor() = Eigen::Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
 		pScene->addComponent(pSceneSettings);
-		pScene->addComponent(pColor);
 		m_pEntityManager->registerEntity(pScene);
 		m_canvases.push_back(pScene);
 
 		// bottom right
 		pScene = std::make_shared<CanvasEntity>();
 		pSceneSettings = std::make_shared<CanvasSettingsComponent>();
-		pColor = std::make_shared<ColorComponent>();
 		pSceneSettings->viewportPosition() = Eigen::Vector2i(1280/2, 0);
 		pSceneSettings->viewportSize() = Eigen::Vector2i(1280 / 2, 720 / 2);
 		//pColor->color() = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
 		pScene->addComponent(pSceneSettings);
-		pScene->addComponent(pColor);
 		m_pEntityManager->registerEntity(pScene);
 		m_canvases.push_back(pScene);
 
@@ -343,8 +325,8 @@ namespace crossforge {
 	void SCrossForgeTestApp::testShader() {
 
 		ShaderEntityPtr pShader = std::make_shared<ShaderEntity>();
-		pShader->addComponent(std::make_shared<ShaderSourceComponent>());
-		auto pShaderSource = pShader->getComponent<ShaderSourceComponent>();
+		pShader->addComponent(std::make_shared<ShaderSourcesComponent>());
+		auto pShaderSource = pShader->getComponent<ShaderSourcesComponent>();
 
 		FileEntityPtr pShaderFile = std::make_shared<FileEntity>();
 		if (AssetIOProvider::instance()->loadFile(pShaderFile, "./Assets/Shader/BasicGeometryPass.vert", false)) {
@@ -381,7 +363,7 @@ namespace crossforge {
 
 		auto pWinSys = m_pSystemManager->getSystem<WindowSystem>();
 		pWinSys->update();
-		WindowController::clearBuffer(m_pMainWin);
+		WindowEntityController::clearBuffer(m_pMainWin);
 
 		for (auto pCanvas : m_canvases) RenderingController::activateCanvas(pCanvas);
 		pWinSys->swapBuffers();

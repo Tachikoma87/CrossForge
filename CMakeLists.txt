@@ -18,7 +18,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # create required directories if non existent 
 file(MAKE_DIRECTORY "MyAssets")
 file(MAKE_DIRECTORY "Prototypes")
-file(MAKE_DIRECTORY "Prototypes/Shader")
+file(MAKE_DIRECTORY "Prototypes/shader")
 
 #################################################################
 ########### Project - CrossForge Sandbox ########################
@@ -113,20 +113,28 @@ add_executable(CForgeSandbox
 	################################
 	#### New CrossForge ############
 	################################
-
-
 	"CrossForgeSandbox.cpp" 
 	"Prototypes/applications/SCrossForgeTestApp.cpp"
-	"Prototypes/Graphics/controllers/RenderingController.cpp"
-   
-     "Prototypes/Graphics/Entities/ShaderEntity.h"
-	 "Prototypes/Graphics/entities/ShaderEntity.cpp"
-	 "Prototypes/Graphics/controllers/ShaderEntityController.h"
-	 "Prototypes/Graphics/controllers/ShaderEntityController.cpp"
-	 "Prototypes/Graphics/entities/ActorPrefabEntity.h"
-	 "Prototypes/Graphics/entities/ActorPrefabEntity.cpp"
-	 "Prototypes/Graphics/controllers/ActorPrefabEntityController.h"
-	 "Prototypes/Graphics/controllers/ActorPrefabEntityController.cpp"
+	"Prototypes/database/router/TestRouter.cpp"
+	"Prototypes/database/daos/DatabaseVersionDao.h"
+	"Prototypes/database/daos/DatabaseVersionDao.cpp"
+	"Prototypes/database/pocos/DatabaseVersionPoco.h"
+	"Prototypes/database/pocos/DatabaseVersionPoco.cpp"
+
+	"crossforge.old/MiscUtility.cpp" 
+	 
+	 
+	"Prototypes/applications/SCrossForgeRestTestApp.cpp" 
+    "Prototypes/applications/SCrossForgeSimpleSceneApp.h" 
+	 "Prototypes/applications/SCrossForgeSimpleSceneApp.cpp" 
+
+
+	"Prototypes/scene/controllers/RenderingController.cpp"
+  
+	 
+
+	 
+	 
 	 
 	 
 	 "Prototypes/scene/controllers/LightEntityController.h"
@@ -136,22 +144,6 @@ add_executable(CForgeSandbox
 	 "Prototypes/scene/entities/LightEntity.cpp"
 	 "Prototypes/scene/controllers/CameraEntityController.h"
 	 "Prototypes/scene/controllers/CameraEntityController.cpp"
-	 "Prototypes/utility/GraphicsUtility.h"
-	 "Prototypes/utility/GraphicsUtility.cpp"
-	 "Prototypes/Graphics/components/shader/ShaderSourceComponent.h"
-	 "Prototypes/Graphics/components/shader/RenderingShaderComponent.h"
-	 "Prototypes/Graphics/components/shader/RenderingShaderComponent.cpp"
-	 "Prototypes/Graphics/components/shader/ShaderSourceComponent.cpp"
-	 
-	 
-	 
-	 
-	 
-	 
-	 "Prototypes/Graphics/components/actorprefab/PbrMaterialsComponent.h"
-	 "Prototypes/Graphics/components/actorprefab/PbrMaterialsComponent.cpp" 
-	  
-	  
 	 "Prototypes/scene/entities/SceneObjectEntity.h" 
 	 "Prototypes/scene/entities/SceneObjectEntity.cpp" 
 	 "Prototypes/scene/entities/ActorInstanceEntity.h" 
@@ -159,83 +151,28 @@ add_executable(CForgeSandbox
 	 "Prototypes/scene/components/Transformation3DComponent.h" 
 	 "Prototypes/scene/components/Transformation3DComponent.cpp" 
 	 "Prototypes/scene/components/Movement3DComponent.h" 
-	 "Prototypes/scene/components/Movement3DComponent.cpp" 
-	 "Prototypes/Graphics/components/uniformbuffer/UBOCameraDataComponent.h" 
-	 "Prototypes/Graphics/components/uniformbuffer/UBOCameraDataComponent.cpp" 
-	 "Prototypes/Graphics/components/uniformbuffer/UBOTransformationDataComponent.h" 
-	 "Prototypes/Graphics/components/uniformbuffer/UBOTransformationDataComponent.cpp" 
-	  
-	     
-	 "Prototypes/Graphics/components/ColorComponent.h" 
-	 "Prototypes/Graphics/components/ColorComponent.cpp" 
-	 "Prototypes/applications/SCrossForgeSimpleSceneApp.h" 
-	 "Prototypes/applications/SCrossForgeSimpleSceneApp.cpp" 
+	 "Prototypes/scene/components/Movement3DComponent.cpp"  
+
 	 "Prototypes/scene/components/CameraPropertiesComponent.h" 
 	 "Prototypes/scene/components/CameraPropertiesComponent.cpp" 
-	  
-	  
-	  
-	  
-	 "Prototypes/Graphics/controllers/TextureEntityController.h" 
-	 "Prototypes/Graphics/controllers/TextureEntityController.cpp"
-	  
-	  
-
-	 "Prototypes/Graphics/components/LightsConfigComponent.cpp"
- "Prototypes/Graphics/components/uniformbuffer/UBODirectionalLightsComponent.h"
- "Prototypes/Graphics/components/uniformbuffer/UBODirectionalLightsComponent.cpp"
- "Prototypes/Graphics/components/uniformbuffer/UBOPbrMaterialComponent.h"
- "Prototypes/Graphics/components/uniformbuffer/UBOPbrMaterialComponent.cpp"
- "Prototypes/Graphics/entities/LightsEntity.h"
- "Prototypes/Graphics/entities/LightsEntity.cpp"
- 
- 
- "Prototypes/Graphics/components/uniformbuffer/UBOPointLightsComponent.h"
- "Prototypes/Graphics/components/uniformbuffer/UBOSpotLightsComponent.h"
- "Prototypes/Graphics/components/uniformbuffer/UBOSpotLightsComponent.cpp"
- "Prototypes/Graphics/components/uniformbuffer/UBOPointLightsComponent.cpp"
- "Prototypes/scene/components/ChildObjectsComponent.h"
- "Prototypes/scene/components/ChildObjectsComponent.cpp"
- "Prototypes/Graphics/provider/STextureProvider.h"
- "Prototypes/Graphics/provider/STextureProvider.cpp"
- "Prototypes/Graphics/provider/SShaderProvider.h"
- "Prototypes/Graphics/provider/SShaderProvider.cpp"
- "Prototypes/scene/controllers/SceneObjectEntityController.h"
- "Prototypes/scene/controllers/SceneObjectEntityController.cpp"
- "Prototypes/scene/components/PrefabComponent.h"
- "Prototypes/scene/components/PrefabComponent.cpp"
- "Prototypes/scene/controllers/ActorInstanceEntityController.h"
- "Prototypes/scene/controllers/ActorInstanceEntityController.cpp"
- "Prototypes/scene/systems/MovementSystem.h"
- "Prototypes/scene/systems/MovementSystem.cpp"
- "Prototypes/Graphics/components/shader/ShaderPropertiesComponent.h"
- "Prototypes/Graphics/components/shader/ShaderPropertiesComponent.cpp"
- "Prototypes/scene/entities/SceneEntity.h"
- "Prototypes/scene/entities/SceneEntity.cpp"
- 
- 
- "Prototypes/miscellaneous/MiscUtility.cpp" 
-
-  
- "Prototypes/scene/components/SphericalTransformationComponent.h" 
- "Prototypes/scene/components/SphericalTransformationComponent.cpp" 
- "Prototypes/scene/systems/CameraSystem.h" 
- "Prototypes/scene/systems/CameraSystem.cpp" 
- "Prototypes/scene/components/TargetObjectComponent.h" 
- "Prototypes/scene/components/TargetObjectComponent.cpp"   
- "Prototypes/miscellaneous/controllers/MiscellaneousController.h" 
- "Prototypes/miscellaneous/controllers/MiscellaneousController.cpp" 
- 
- "Prototypes/applications/SCrossForgeRestTestApp.h"
- "Prototypes/applications/SCrossForgeRestTestApp.cpp" 
-
- "Prototypes/database/router/TestRouter.cpp"
- "Prototypes/database/daos/DatabaseVersionDao.h"
- "Prototypes/database/daos/DatabaseVersionDao.cpp"
- "Prototypes/database/pocos/DatabaseVersionPoco.h"
- "Prototypes/database/pocos/DatabaseVersionPoco.cpp"
- "Prototypes/database/pocos/PocoBase.hpp"
- "Prototypes/database/daos/DaoBase.hpp"
+	 "Prototypes/scene/components/ChildObjectsComponent.h"
+	 "Prototypes/scene/components/ChildObjectsComponent.cpp"
+	 "Prototypes/scene/controllers/SceneObjectEntityController.h"
+	 "Prototypes/scene/controllers/SceneObjectEntityController.cpp"
+	 "Prototypes/scene/components/PrefabComponent.h"
+	 "Prototypes/scene/components/PrefabComponent.cpp"
+	 "Prototypes/scene/controllers/ActorInstanceEntityController.h"
+	 "Prototypes/scene/controllers/ActorInstanceEntityController.cpp"
+	 "Prototypes/scene/systems/MovementSystem.h"
+	 "Prototypes/scene/systems/MovementSystem.cpp"
+	 "Prototypes/scene/entities/SceneEntity.h"
+	 "Prototypes/scene/entities/SceneEntity.cpp"
+	 "Prototypes/scene/components/SphericalTransformationComponent.h" 
+	 "Prototypes/scene/components/SphericalTransformationComponent.cpp" 
+	 "Prototypes/scene/systems/CameraSystem.h" 
+	 "Prototypes/scene/systems/CameraSystem.cpp" 
+	 "Prototypes/scene/components/TargetObjectComponent.h" 
+	 "Prototypes/scene/components/TargetObjectComponent.cpp"   
   )
 
 	

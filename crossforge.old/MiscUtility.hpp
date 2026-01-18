@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): RenderingSystem.h and RenderingSystem.cpp                        *
+* File(s): MiscUtility.hpp                        *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,34 +15,47 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_RENDERINGCONTROLLER_H__
-#define __CROSSFORGE_RENDERINGCONTROLLER_H__
+#ifndef __CROSSFORGE_MISCUTILITY_HPP__
+#define __CROSSFORGE_MISCUTILITY_HPP__
 
-#include <crossforge/eccs/ControllerBase.h>
-#include <crossforge/graphics/entities/CanvasEntity.h>
-#include "../../scene/entities/ActorInstanceEntity.h"
-#include "../../scene/entities/CameraEntity.h"
-#include "../entities/ActorPrefabEntity.h"
-#include "../entities/LightsEntity.h"
-#include "../provider/SShaderProvider.h"
+#include <crossforge/GlobalDefinitions.h>
+
 
 namespace crossforge {
-	class RenderingController : public ControllerBase {
+	class MiscUtility {
 	public:
-		inline static std::string identification = "RenderingController";
+		
 
-		static void activateCanvas(CanvasEntityPtr pCanvas, bool clearBackground = false);
-		static void drawActor(ShaderProvider::RenderPass renderPass, ActorInstanceEntityPtr pActorInstance, ActorPrefabEntityPtr pActorPrefab, CameraEntityPtr pCamera, LightsEntityPtr pLights);
 
-		~RenderingController();
+		/**
+		* \brief Defines for available default fonts.
+		*/
+		enum DefaultFontType : int8_t {
+			FONTTYPE_UNKNOWN = -1,	///< Default value.
+			FONTTYPE_SANSERIF = 0,	///< Font without serifs.
+			FONTTYPE_SERIF,			///< Font with serif.
+			FONTTYPE_MONO,			///< Mono font.
+			FONTTYPE_HANDWRITING,	///< Handwriting font.
+
+			FONTTYPE_COUNT			///< Number of default fonts.
+		};//DefaultFont
+		/**
+		* \brief Creates a default font with the specified traits.
+		*
+		* \param[in] FontType Type of the font.
+		* \param[in] FontSize Size of the font.
+		* \param[in] Bold Whether font should appear in bold style.
+		* \param[in] Italic Whether font should appear in italic style.
+		* \param[in] CharSet The character set to use. If empty the default character set will be used. \see Font::FontStyle
+		* \return Font handle.
+		* @ToDo: Do later
+		*/
+		//static Font* defaultFont(DefaultFontType FontType, uint32_t FontSize, bool Bold = false, bool Italic = false, std::u32string CharSet = U"");
+
 	protected:
-		RenderingController(const std::string childIdentification);
-		static ShaderPropertiesComponentPtr m_pShaderProperties;
+		MiscUtility(){}
+		~MiscUtility(){}
 	};
-
-	using RenderingControllerPtr = std::shared_ptr<RenderingController>;
-	using RenderingControllerCPtr = std::shared_ptr<const RenderingController>;
-
 }
 
 #endif 

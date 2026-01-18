@@ -19,8 +19,8 @@ namespace crossforge {
 		m_componentMap.clear();
 	}
 
-	UBOCameraDataComponentPtr CameraEntity::getUboCameraDataComponent(const bool createIfNotExists) {
-		return getComponent<UBOCameraDataComponent>(createIfNotExists);
+	UboCameraDataComponentPtr CameraEntity::getUboCameraDataComponent(const bool createIfNotExists) {
+		return getComponent<UboCameraDataComponent>(createIfNotExists);
 	}
 	CameraPropertiesComponentPtr CameraEntity::getCameraPropertiesComponent(const bool createIfNotExists) {
 		return getComponent<CameraPropertiesComponent>(createIfNotExists);

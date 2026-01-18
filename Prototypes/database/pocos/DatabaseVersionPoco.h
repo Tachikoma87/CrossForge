@@ -18,7 +18,7 @@
 #ifndef __CROSSFORGE_DATABASEVERSIONPOCO_H__
 #define __CROSSFORGE_DATABASEVERSIONPCOO_H__
 
-#include "PocoBase.hpp"
+#include <crossforge/database/PocoBase.hpp>
 
 namespace crossforge {
 	class DatabaseVersionPoco : public PocoBase<DatabaseVersionPoco> {

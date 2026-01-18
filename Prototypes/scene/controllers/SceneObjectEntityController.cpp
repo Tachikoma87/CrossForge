@@ -2,8 +2,9 @@
 
 #include "../components/ChildObjectsComponent.h"
 #include "../components/PrefabComponent.h"
-#include "../../Graphics/components/uniformbuffer/UBOTransformationDataComponent.h"
 #include <crossforge/math/CrossForgeMath.h>
+
+#include <crossforge/graphics/components/ubos/UboTransformationDataComponent.h>
 
 using namespace Eigen;
 namespace crossforge {
@@ -64,10 +65,10 @@ namespace crossforge {
 		if (nullptr == pObj) throw NullpointerExcept("pActor");
 
 		auto pTransformation3DComp = pObj->getTransformation3DComponent();
-		auto pUboTransformation = pObj->getComponent<UBOTransformationDataComponent>();
+		auto pUboTransformation = pObj->getComponent<UboTransformationDataComponent>();
 
 		if (nullptr == pTransformation3DComp) throw MissingComponentException(Transformation3DComponent::identification);
-		if (nullptr == pUboTransformation) throw MissingComponentException(UBOTransformationDataComponent::identification);
+		if (nullptr == pUboTransformation) throw MissingComponentException(UboTransformationDataComponent::identification);
 
 		const Eigen::Matrix4f rotMatrix = CrossForgeMath::buildRotationMatrix(pTransformation3DComp->globalRotation());
 		const Eigen::Matrix4f posMatrix = CrossForgeMath::buildTranslationMatrix(pTransformation3DComp->globalPosition());

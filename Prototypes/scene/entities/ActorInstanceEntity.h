@@ -20,7 +20,7 @@
 
 #include "SceneObjectEntity.h"
 #include "../components/Transformation3DComponent.h"
-#include "../../Graphics/components/uniformbuffer/UBOTransformationDataComponent.h"
+#include <crossforge/graphics/components/ubos/UboTransformationDataComponent.h>
 
 namespace crossforge {
 	class ActorInstanceEntity : public SceneObjectEntity {
@@ -33,7 +33,7 @@ namespace crossforge {
 		void initialize();
 		void clear();
 
-		UBOTransformationDataComponentPtr getUboTransformationDataComponent(const bool createIfNotExists = false);
+		UboTransformationDataComponentPtr getUboTransformationDataComponent(const bool createIfNotExists = false);
 
 	protected:
 		ActorInstanceEntity(const std::string childIdentification);

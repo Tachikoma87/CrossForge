@@ -2,10 +2,8 @@
 #include <glad/glad.h>
 #include "RenderingController.h"
 
-#include "../components/ColorComponent.h"
-#include "../controllers/ShaderEntityController.h"
-#include "../provider/SShaderProvider.h"
-#include "../provider/STextureProvider.h"
+#include <crossforge/graphics/controllers/ShaderEntityController.h>
+#include <crossforge/graphics/providers/SShaderProvider.h>
 
 namespace crossforge {
 
@@ -31,8 +29,7 @@ namespace crossforge {
 				pCanvasSettings->viewportSize().x(), pCanvasSettings->viewportSize().y());
 			glEnable(GL_SCISSOR_TEST);
 
-			Eigen::Vector4f color = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
-			if (pCanvas->hasComponent(ColorComponent::identification)) color = pCanvas->getComponent<ColorComponent>()->color();
+			Eigen::Vector4f color = pCanvasSettings->getClearColor(); 
 
 			glClearColor(color.x(), color.y(), color.z(), color.w());
 			glClear(GL_COLOR_BUFFER_BIT);
@@ -100,7 +97,7 @@ namespace crossforge {
 			ShaderEntityController::bindTransformationDataUBO(pShader, pActorInstance->getUboTransformationDataComponent());
 			ShaderEntityController::bindCameraDataUBO(pShader, pCamera->getUboCameraDataComponent());
 			if(pShader->getRenderingShaderComponent()->baseUboBindingPoint(RenderingShaderComponent::BASE_UBO_DIRECTIONALLIGHTSDATA) != GL_INVALID_INDEX)
-				ShaderEntityController::bindBaseUbo(pShader, pLights->getUBODirectionalLightsComponent(), RenderingShaderComponent::BASE_UBO_DIRECTIONALLIGHTSDATA);
+				ShaderEntityController::bindBaseUbo(pShader, pLights->getUboDirectionalLightsComponent(), RenderingShaderComponent::BASE_UBO_DIRECTIONALLIGHTSDATA);
 
 			ShaderEntityController::bindBaseUbo(pShader, pPbrMaterial->uboPbrMaterial(), RenderingShaderComponent::BASE_UBO_MATERIALDATA_PBR);
 			TextureEntityPtr pAlbedoTex = pPbrMaterial->texture(PbrMaterial::TEXTURE_TYPE_ALBEDO);

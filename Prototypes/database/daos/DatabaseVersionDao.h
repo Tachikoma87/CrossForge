@@ -18,8 +18,8 @@
 #ifndef __CROSSFORGE_DATABASEVERSIONDAO_H__
 #define __CROSSFORGE_DATABASEVERSIONDAO_H__
 
-#include "DaoBase.hpp"
 #include "../pocos/DatabaseVersionPoco.h"
+#include <crossforge/database/DaoBase.hpp>
 
 namespace crossforge {
 	class DatabaseVersionDao: public DaoBase<DatabaseVersionPoco> {

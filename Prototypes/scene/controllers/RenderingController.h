@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): UBOPBRMaterialComponent.h and UBOPBRMaterialComponent.cpp                       *
+* File(s): RenderingSystem.h and RenderingSystem.cpp                        *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,39 +15,34 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_UBOPBRMATERIALCOMPONENT_H__
-#define __CROSSFORGE_UBOPBRMATERIALCOMPONENT_H__
+#ifndef __CROSSFORGE_RENDERINGCONTROLLER_H__
+#define __CROSSFORGE_RENDERINGCONTROLLER_H__
 
-#include <crossforge/graphics/components/ubos/UboBaseComponent.h>
+#include <crossforge/eccs/ControllerBase.h>
+#include <crossforge/graphics/entities/CanvasEntity.h>
+#include "../../scene/entities/ActorInstanceEntity.h"
+#include "../../scene/entities/CameraEntity.h"
+#include <crossforge/graphics/entities/ActorPrefabEntity.h>
+#include <crossforge/graphics/providers/SShaderProvider.h>
+#include <crossforge/graphics/entities/LightsEntity.h>
 
 namespace crossforge {
-	class UBOPbrMaterialComponent : public UboBaseComponent {
+	class RenderingController : public ControllerBase {
 	public:
-		static inline std::string identification = "UBOPBRMaterialComponent";
+		inline static std::string identification = "RenderingController";
 
-		UBOPbrMaterialComponent();
-		~UBOPbrMaterialComponent();
+		static void activateCanvas(CanvasEntityPtr pCanvas, bool clearBackground = false);
+		static void drawActor(ShaderProvider::RenderPass renderPass, ActorInstanceEntityPtr pActorInstance, ActorPrefabEntityPtr pActorPrefab, CameraEntityPtr pCamera, LightsEntityPtr pLights);
 
-		void initialize();
-		void clear();
-
-		void setColor(const Eigen::Vector4f color);
-		void setMetallic(const float metallic);
-		void setRougness(const float roughness);
-		void setAmbientOcclusion(const float ambientOcclusion);
-
+		~RenderingController();
 	protected:
-		UBOPbrMaterialComponent(const std::string childIdentification);
-
-		uint32_t m_colorOffset;
-		uint32_t m_metallicOffset;
-		uint32_t m_roughnessOffset;
-		uint32_t m_ambientOcclusionOffset;
-
+		RenderingController(const std::string childIdentification);
+		static ShaderPropertiesComponentPtr m_pShaderProperties;
 	};
 
-	using UBOPbrMaterialComponentPtr = std::shared_ptr<UBOPbrMaterialComponent>;
-	using UBOPbrMaterialComponentCPtr = std::shared_ptr<const UBOPbrMaterialComponent>;
+	using RenderingControllerPtr = std::shared_ptr<RenderingController>;
+	using RenderingControllerCPtr = std::shared_ptr<const RenderingController>;
+
 }
 
 #endif 

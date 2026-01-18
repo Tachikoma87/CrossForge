@@ -24,11 +24,12 @@
 #include <crossforge/input/entities/InputDeviceEntity.h>
 #include <crossforge/assetio/SAssetIOProvider.h>
 #include <crossforge/assetio/entities/VideoEntity.h>
+#include <crossforge/graphics/entities/ActorPrefabEntity.h>
+#include <crossforge/graphics/entities/LightsEntity.h>
 
-#include "../Graphics/entities/ActorPrefabEntity.h"
+
 #include "../scene/entities/CameraEntity.h"
 #include "../scene/entities/ActorInstanceEntity.h"
-#include "../Graphics/entities/LightsEntity.h"
 #include "../scene/systems/MovementSystem.h"
 #include "../scene/entities/SceneEntity.h"
 #include "../scene/systems/CameraSystem.h"

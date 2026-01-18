@@ -19,10 +19,11 @@
 #define __CROSSFORGE_CAMERAENTITY_H__
 
 #include "SceneObjectEntity.h"
-#include "../../Graphics/components/uniformbuffer/UBOCameraDataComponent.h"
 #include "../components/Transformation3DComponent.h"
 #include "../components/CameraPropertiesComponent.h"
 #include "../components/TargetObjectComponent.h"
+
+#include <crossforge/graphics/components/ubos/UboCameraDataComponent.h>
 
 namespace crossforge {
 	class CameraEntity : public SceneObjectEntity {
@@ -37,7 +38,7 @@ namespace crossforge {
 		void initialize();
 		void clear();
 
-		UBOCameraDataComponentPtr getUboCameraDataComponent(const bool createIfNotExists = false);
+		UboCameraDataComponentPtr getUboCameraDataComponent(const bool createIfNotExists = false);
 		CameraPropertiesComponentPtr getCameraPropertiesComponent(const bool createIfNotExists = false);
 		TargetObjectComponentPtr getTargetObjectComponent(const bool createIfNotExists = false);
 
