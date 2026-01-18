@@ -12,13 +12,13 @@
 #include <crossforge/math/CrossForgeMath.h>
 #include "../scene/controllers/RenderingController.h"
 #include "../scene/controllers/CameraEntityController.h"
-#include "../scene/components/ChildObjectsComponent.h"
-#include "../scene/controllers/SceneObjectEntityController.h"
-#include "../scene/components/PrefabComponent.h"
-#include "../scene/components/SphericalTransformationComponent.h"
+#include "../scene/controllers/SceneNodeEntityController.h"
 
 #include <crossforge/graphics/controllers/ActorPrefabEntityController.h>
+#include <crossforge/scene/components/ActorPrefabComponent.h>
+#include <crossforge/scene/components/SphericalTransformationComponent.h>
 
+#include <crossforge/scene/components/SceneNodesComponent.h>
 
 
 
@@ -183,16 +183,16 @@ namespace crossforge {
 
 		// initialize duck actor instance
 		m_pDuckActorInstance = std::make_shared<ActorInstanceEntity>();
-		m_pDuckActorInstance->addComponent(std::make_shared<PrefabComponent>());
-		m_pDuckActorInstance->getComponent<PrefabComponent>()->actorPrefab()= m_pDuckActorPrefab;
+		m_pDuckActorInstance->addComponent(std::make_shared<ActorPrefabComponent>());
+		m_pDuckActorInstance->getComponent<ActorPrefabComponent>()->actorPrefab()= m_pDuckActorPrefab;
 		//m_pDuckActorInstance->getMovement3DComponent()->rotationDelta() = Eigen::AngleAxisf(CrossForgeMath::degToRad(-5.0f), Eigen::Vector3f::UnitZ());
 		m_pDuckActorInstance->getTransformation3DComponent(true)->localScale() = Eigen::Vector3f(0.01f, 0.01f, 0.01f);
 		m_pDuckActorInstance->addComponent(std::make_shared<UboTransformationDataComponent>());
 		m_pEntityManager->registerEntity(m_pDuckActorInstance);
 
 		m_pDuckActorInstance2 = std::make_shared<ActorInstanceEntity>();
-		m_pDuckActorInstance2->addComponent(std::make_shared<PrefabComponent>());
-		m_pDuckActorInstance2->getComponent<PrefabComponent>()->actorPrefab() = m_pDuckActorPrefab;
+		m_pDuckActorInstance2->addComponent(std::make_shared<ActorPrefabComponent>());
+		m_pDuckActorInstance2->getComponent<ActorPrefabComponent>()->actorPrefab() = m_pDuckActorPrefab;
 		m_pDuckActorInstance2->getTransformation3DComponent(true)->localPosition() = Eigen::Vector3f(-5.0f, -2.0f, -5.0f);
 		m_pDuckActorInstance2->getMovement3DComponent()->rotationDelta() = Eigen::AngleAxisf(CrossForgeMath::degToRad(2.5f), Eigen::Vector3f::UnitY());
 		m_pDuckActorInstance2->getTransformation3DComponent(true)->localScale() = Eigen::Vector3f(0.0025f, 0.0025f, 0.0025f);
@@ -201,8 +201,8 @@ namespace crossforge {
 
 		
 		m_pHelmetActorInstance = std::make_shared<ActorInstanceEntity>();
-		m_pHelmetActorInstance->addComponent(std::make_shared<PrefabComponent>());
-		m_pHelmetActorInstance->getComponent<PrefabComponent>()->actorPrefab() = m_pHelmetActorPrefab;
+		m_pHelmetActorInstance->addComponent(std::make_shared<ActorPrefabComponent>());
+		m_pHelmetActorInstance->getComponent<ActorPrefabComponent>()->actorPrefab() = m_pHelmetActorPrefab;
 		m_pHelmetActorInstance->getTransformation3DComponent(true)->localPosition() = Eigen::Vector3f(2.0f, 4.0f, 1.0f);
 		m_pHelmetActorInstance->getMovement3DComponent(true)->positionDelta() = Eigen::Vector3f(0.0f, 0.05f, 0.0f);
 		m_pHelmetActorInstance->addComponent(std::make_shared<UboTransformationDataComponent>());
@@ -210,15 +210,15 @@ namespace crossforge {
 
 
 		m_pGroundPlaneInstance = std::make_shared<ActorInstanceEntity>();
-		m_pGroundPlaneInstance->addComponent(std::make_shared<PrefabComponent>());
-		m_pGroundPlaneInstance->getComponent<PrefabComponent>()->actorPrefab() = m_pGroundPlanePrefab;
+		m_pGroundPlaneInstance->addComponent(std::make_shared<ActorPrefabComponent>());
+		m_pGroundPlaneInstance->getComponent<ActorPrefabComponent>()->actorPrefab() = m_pGroundPlanePrefab;
 		m_pGroundPlaneInstance->getTransformation3DComponent(true)->localPosition() = Eigen::Vector3f(0.0f, 5.0f, 5.0f);
 		m_pGroundPlaneInstance->getTransformation3DComponent(true)->localScale() = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
 		m_pGroundPlaneInstance->getMovement3DComponent(true)->rotationDelta() = Eigen::AngleAxisf(CrossForgeMath::degToRad(0.5f), Eigen::Vector3f::UnitX());
 		m_pGroundPlaneInstance->addComponent(std::make_shared<UboTransformationDataComponent>());
 		m_pEntityManager->registerEntity(m_pGroundPlaneInstance);
 
-		m_pCameraEntity->getTargetObjectComponent(true)->targetSceneObject() = m_pHelmetActorInstance;
+		m_pCameraEntity->getTargetObjectComponent(true)->targetSceneNode() = m_pHelmetActorInstance;
 
 		// initialize scene lights
 		m_pSceneLights = std::make_shared<LightsEntity>();
@@ -247,11 +247,11 @@ namespace crossforge {
 		pDirLights->setDirection(dir.normalized(), 2);
 
 
-		m_pRootNode = std::make_shared<SceneObjectEntity>();
+		m_pRootNode = std::make_shared<SceneNodeEntity>();
 		m_pEntityManager->registerEntity(m_pRootNode);
 		m_pRootNode->addComponent(std::make_shared<Transformation3DComponent>());
 		m_pRootNode->addComponent(std::make_shared<Movement3DComponent>());
-		m_pRootNode->addComponent(std::make_shared<ChildObjectsComponent>());
+		m_pRootNode->addComponent(std::make_shared<SceneNodesComponent>());
 		//m_pRootNode->getComponent<Movement3DComponent>()->rotationDelta() = Eigen::AngleAxisf(CrossForgeMath::degToRad(1.0f), Eigen::Vector3f::UnitY());
 
 		m_pMovementSystem = std::make_shared<MovementSystem>();
@@ -262,22 +262,20 @@ namespace crossforge {
 		m_pMovementSystem->registerEntity(m_pRootNode);
 
 		auto pTransformComp = m_pRootNode->getTransformation3DComponent();
-		auto pChildObjectsComp = m_pRootNode->getChildObjectsComponent();
+		auto pChildObjectsComp = m_pRootNode->getSceneNodesComponent();
 
 		//pTransformComp->localRotation() = Eigen::AngleAxisf(CrossForgeMath::degToRad(90.0f), Eigen::Vector3f::UnitY());
-		pChildObjectsComp->addChild(m_pDuckActorInstance);
-		pChildObjectsComp->addChild(m_pDuckActorInstance2);
-		pChildObjectsComp->addChild(m_pHelmetActorInstance);
+		pChildObjectsComp->addNode(m_pDuckActorInstance);
+		pChildObjectsComp->addNode(m_pDuckActorInstance2);
+		pChildObjectsComp->addNode(m_pHelmetActorInstance);
 
-		pChildObjectsComp->addChild(m_pGroundPlaneInstance);
+		pChildObjectsComp->addNode(m_pGroundPlaneInstance);
 
 		//m_pEntityManager->registerEntity(m_pCameraEntity);
 		//if (!m_pGroundPlaneInstance->hasComponent(ChildObjectsComponent::identification)) m_pGroundPlaneInstance->addComponent(std::make_shared<ChildObjectsComponent>());
 		//m_pGroundPlaneInstance->getChildObjectsComponent()->addChild(m_pCameraEntity);
 
-		for (auto pObj : m_pActorInstances) pChildObjectsComp->addChild(pObj);
-	
-		m_pSceneEntity = std::make_shared<SceneEntity>();
+		for (auto pObj : m_pActorInstances) pChildObjectsComp->addNode(pObj);
 
 		m_frameCount = 0;
 		m_timestampLastFpsPrint = 0;
@@ -332,7 +330,7 @@ namespace crossforge {
 		m_pCameraSystem->update();
 
 		//SceneObjectEntityController::buildGlobalTransformation(m_pCameraEntity);
-		SceneObjectEntityController::buildGlobalTransformation(m_pRootNode);
+		SceneNodeEntityController::buildGlobalTransformation(m_pRootNode);
 
 		/*auto sphericalTransform = m_pCameraEntity->getComponent<SphericalTransformationComponent>();	
 		SceneObjectEntityController::lookAt(m_pCameraEntity, sphericalTransform->getPosition(), sphericalTransform->origin());
@@ -340,15 +338,15 @@ namespace crossforge {
 
 		
 		// gather renderable models and draw them
-		std::vector<SceneObjectEntityPtr> renderables;
-		SceneObjectEntityController::gatherRenderableObjects(m_pRootNode, renderables);
+		std::vector<SceneNodeEntityPtr> renderables;
+		SceneNodeEntityController::gatherRenderableObjects(m_pRootNode, renderables);
 
 		for (auto pObj : renderables) {
 			if (pObj->isInstanceOf(ActorInstanceEntity::identification)) {
 				try {
-					SceneObjectEntityController::updateTransformationUbo(pObj);
+					SceneNodeEntityController::updateTransformationUbo(pObj);
 					ActorInstanceEntityPtr pActor = std::static_pointer_cast<ActorInstanceEntity>(pObj);
-					RenderingController::drawActor(ShaderProvider::RENDER_PASS_FORWARD, pActor, pObj->getComponent<PrefabComponent>()->actorPrefab(), m_pCameraEntity, m_pSceneLights);
+					RenderingController::drawActor(ShaderProvider::RENDER_PASS_FORWARD, pActor, pObj->getComponent<ActorPrefabComponent>()->actorPrefab(), m_pCameraEntity, m_pSceneLights);
 				}
 				catch (const CrossForgeException& e) {
 					Logger::logException(e);

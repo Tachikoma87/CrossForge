@@ -18,14 +18,13 @@
 #ifndef __CROSSFORGE_LIGHTENTITY_H__
 #define __CROSSFORGE_LIGHTENTITY_H__
 
-#include "SceneObjectEntity.h"
+#include <crossforge/scene/entities/SceneNodeEntity.h>
 
 namespace crossforge {
-	class LightEntity : public SceneObjectEntity {
+	class LightEntity : public SceneNodeEntity {
 	public:
 		static inline std::string identification = "LightEntity";
 
-		
 		LightEntity();
 		~LightEntity();
 

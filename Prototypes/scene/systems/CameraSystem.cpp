@@ -1,10 +1,9 @@
 #include "CameraSystem.h"
 #include "../entities/CameraEntity.h"
-#include "../components/SphericalTransformationComponent.h"
-#include "../controllers/SceneObjectEntityController.h"
+#include "../controllers/SceneNodeEntityController.h"
 #include "../controllers/CameraEntityController.h"
 
-
+#include <crossforge/scene/components/SphericalTransformationComponent.h>
 
 namespace crossforge {
 
@@ -97,22 +96,22 @@ namespace crossforge {
 				pSphericalTransformationComp->phi() += rotYaw / 300.0f;
 				pSphericalTransformationComp->theta() -= rotPitch / 300.0f;
 
-				if (nullptr != pTargetObjectComp && pTargetObjectComp->targetSceneObject() != nullptr && pTargetObjectComp->targetSceneObject()->hasComponent(Transformation3DComponent::identification)) {
-					pSphericalTransformationComp->origin() = pTargetObjectComp->targetSceneObject()->getTransformation3DComponent()->globalPosition();
+				if (nullptr != pTargetObjectComp && pTargetObjectComp->targetSceneNode() != nullptr && pTargetObjectComp->targetSceneNode()->hasComponent(Transformation3DComponent::identification)) {
+					pSphericalTransformationComp->origin() = pTargetObjectComp->targetSceneNode()->getTransformation3DComponent()->globalPosition();
 				}
 
-				SceneObjectEntityController::lookAt(pCamera, pSphericalTransformationComp->getPosition(), pSphericalTransformationComp->origin());
+				SceneNodeEntityController::lookAt(pCamera, pSphericalTransformationComp->getPosition(), pSphericalTransformationComp->origin());
 			}break;
 			default: {
 				// first person camera
-				SceneObjectEntityController::moveForward(pCamera, moveDir*0.25f);
-				SceneObjectEntityController::moveRight(pCamera, moveRight * 0.25f);
-				SceneObjectEntityController::rotate(pCamera, -rotYaw / 300.0f, Eigen::Vector3f::UnitY());
-				SceneObjectEntityController::pitch(pCamera, -rotPitch / 300.0f);
+				SceneNodeEntityController::moveForward(pCamera, moveDir*0.25f);
+				SceneNodeEntityController::moveRight(pCamera, moveRight * 0.25f);
+				SceneNodeEntityController::rotate(pCamera, -rotYaw / 300.0f, Eigen::Vector3f::UnitY());
+				SceneNodeEntityController::pitch(pCamera, -rotPitch / 300.0f);
 			}break;
 			}
 
-			SceneObjectEntityController::buildGlobalTransformation(pCamera);
+			SceneNodeEntityController::buildGlobalTransformation(pCamera);
 			CameraEntityController::computeCameraMatrixFromTransformation(pCamera);
 			
 		}

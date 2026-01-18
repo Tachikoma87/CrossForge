@@ -18,12 +18,11 @@
 #ifndef __CROSSFORGE_ACTORINSTANCEENTITY_H__
 #define __CROSSFORGE_ACTORINSTANCEENTITY_H__
 
-#include "SceneObjectEntity.h"
-#include "../components/Transformation3DComponent.h"
+#include <crossforge/scene/entities/SceneNodeEntity.h>
 #include <crossforge/graphics/components/ubos/UboTransformationDataComponent.h>
 
 namespace crossforge {
-	class ActorInstanceEntity : public SceneObjectEntity {
+	class ActorInstanceEntity : public SceneNodeEntity {
 	public:
 		static inline std::string identification = "ActorInstanceEntity";
 

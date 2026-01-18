@@ -1,28 +1,29 @@
-#include "SceneObjectEntityController.h"
+#include "SceneNodeEntityController.h"
 
-#include "../components/ChildObjectsComponent.h"
-#include "../components/PrefabComponent.h"
 #include <crossforge/math/CrossForgeMath.h>
 
 #include <crossforge/graphics/components/ubos/UboTransformationDataComponent.h>
+#include <crossforge/scene/components/ActorPrefabComponent.h>
+
+#include <crossforge/scene/components/SceneNodesComponent.h>
 
 using namespace Eigen;
 namespace crossforge {
 
-	SceneObjectEntityController::SceneObjectEntityController(const std::string childIdentification): ControllerBase(SceneObjectEntityController::identification) {
+	SceneNodeEntityController::SceneNodeEntityController(const std::string childIdentification): ControllerBase(SceneNodeEntityController::identification) {
 		m_inheritance.push_back(childIdentification);
 	}
-	SceneObjectEntityController::~SceneObjectEntityController() {
+	SceneNodeEntityController::~SceneNodeEntityController() {
 
 	}
 
 
-	void SceneObjectEntityController::buildGlobalTransformation(SceneObjectEntityPtr pSceneObject, Transformation3DComponentPtr pParentTransform, uint32_t depthLevel) {
-		if (nullptr == pSceneObject) return;
+	void SceneNodeEntityController::buildGlobalTransformation(SceneNodeEntityPtr pSceneNode, Transformation3DComponentPtr pParentTransform, uint32_t depthLevel) {
+		if (nullptr == pSceneNode) return;
 		if (depthLevel > 1000) throw CrossForgeExcept("Recursion depth level exceeded 1000. Seems like you produced a circular scene graph. Please fix that!");
 
-		auto pObjTransformComp = pSceneObject->getComponent<Transformation3DComponent>();
-		auto pChildObjectsComp = pSceneObject->getComponent<ChildObjectsComponent>();
+		auto pObjTransformComp = pSceneNode->getComponent<Transformation3DComponent>();
+		auto pChildObjectsComp = pSceneNode->getComponent<SceneNodesComponent>();
 
 		// apply transformation
 		if (nullptr == pParentTransform) {
@@ -39,7 +40,7 @@ namespace crossforge {
 
 		// recursion
 		if (nullptr != pChildObjectsComp) {
-			for (auto pEntity : pChildObjectsComp->childSceneObjects()) {
+			for (auto pEntity : pChildObjectsComp->sceneNodes()) {
 				try {
 					buildGlobalTransformation(pEntity, pObjTransformComp, depthLevel + 1);
 				}
@@ -50,22 +51,22 @@ namespace crossforge {
 		}
 	}
 
-	void SceneObjectEntityController::gatherRenderableObjects(SceneObjectEntityPtr pSceneObject, std::vector<SceneObjectEntityPtr>& visibleObjects) {
-		if (nullptr == pSceneObject) return;
+	void SceneNodeEntityController::gatherRenderableObjects(SceneNodeEntityPtr pSceneNode, std::vector<SceneNodeEntityPtr>& visibleObjects) {
+		if (nullptr == pSceneNode) return;
 
-		if (pSceneObject->hasComponent(PrefabComponent::identification)) visibleObjects.push_back(pSceneObject);
-		auto pChildren = pSceneObject->getChildObjectsComponent();
+		if (pSceneNode->hasComponent(ActorPrefabComponent::identification)) visibleObjects.push_back(pSceneNode);
+		auto pChildren = pSceneNode->getSceneNodesComponent();
 		if (nullptr != pChildren) {
-			for (auto pChild : pChildren->childSceneObjects()) gatherRenderableObjects(pChild, visibleObjects);
+			for (auto pChild : pChildren->sceneNodes()) gatherRenderableObjects(pChild, visibleObjects);
 		}
 	}
 
 
-	void SceneObjectEntityController::updateTransformationUbo(SceneObjectEntityPtr pObj) {
-		if (nullptr == pObj) throw NullpointerExcept("pActor");
+	void SceneNodeEntityController::updateTransformationUbo(SceneNodeEntityPtr pSceneNode) {
+		if (nullptr == pSceneNode) throw NullpointerExcept("pActor");
 
-		auto pTransformation3DComp = pObj->getTransformation3DComponent();
-		auto pUboTransformation = pObj->getComponent<UboTransformationDataComponent>();
+		auto pTransformation3DComp = pSceneNode->getTransformation3DComponent();
+		auto pUboTransformation = pSceneNode->getComponent<UboTransformationDataComponent>();
 
 		if (nullptr == pTransformation3DComp) throw MissingComponentException(Transformation3DComponent::identification);
 		if (nullptr == pUboTransformation) throw MissingComponentException(UboTransformationDataComponent::identification);
@@ -80,49 +81,49 @@ namespace crossforge {
 	}
 
 
-	void SceneObjectEntityController::rotate(SceneObjectEntityPtr pSceneObjectEntity, const Eigen::Quaternionf rotation) {
-		if (nullptr == pSceneObjectEntity) throw NullpointerExcept("pCameraEntity");
-		auto pTransform = pSceneObjectEntity->getTransformation3DComponent();
+	void SceneNodeEntityController::rotate(SceneNodeEntityPtr pSceneNode, const Eigen::Quaternionf rotation) {
+		if (nullptr == pSceneNode) throw NullpointerExcept("pSceneNode");
+		auto pTransform = pSceneNode->getTransformation3DComponent();
 		if (nullptr == pTransform) throw MissingComponentException(Transformation3DComponent::identification);
 		pTransform->localRotation() = rotation * pTransform->localRotation();
 	}
 
-	void SceneObjectEntityController::rotate(SceneObjectEntityPtr pSceneObject, const float theta, const Eigen::Vector3f axis) {
-		if (nullptr == pSceneObject) throw NullpointerExcept("pSceneObject");
-		auto pTransformComp = pSceneObject->getTransformation3DComponent();
+	void SceneNodeEntityController::rotate(SceneNodeEntityPtr pSceneNode, const float theta, const Eigen::Vector3f axis) {
+		if (nullptr == pSceneNode) throw NullpointerExcept("pSceneNode");
+		auto pTransformComp = pSceneNode->getTransformation3DComponent();
 		if (nullptr == pTransformComp) throw MissingComponentException(Transformation3DComponent::identification);
 		Quaternionf rot;
 		rot = AngleAxisf(theta, axis);
 		pTransformComp->localRotation() = rot * pTransformComp->localRotation();
 	}
 
-	void SceneObjectEntityController::moveForward(SceneObjectEntityPtr pSceneObjectEntity, const float delta) {
-		if (nullptr == pSceneObjectEntity) throw NullpointerExcept("pSceneObjectEntity");
-		auto pTransformComp = pSceneObjectEntity->getTransformation3DComponent();
+	void SceneNodeEntityController::moveForward(SceneNodeEntityPtr pSceneNode, const float delta) {
+		if (nullptr == pSceneNode) throw NullpointerExcept("pSceneNode");
+		auto pTransformComp = pSceneNode->getTransformation3DComponent();
 		if (nullptr == pTransformComp) throw MissingComponentException(Transformation3DComponent::identification);
 
 		const Vector3f dir = -(pTransformComp->localRotation() * Eigen::Vector3f::UnitZ()).normalized();
 		pTransformComp->localPosition() += delta * dir;
 	}
-	void SceneObjectEntityController::moveRight(SceneObjectEntityPtr pSceneObjectEntity, const float delta) {
-		if (nullptr == pSceneObjectEntity) throw NullpointerExcept("pSceneObjectEntity");
-		auto pTransformComp = pSceneObjectEntity->getTransformation3DComponent();
+	void SceneNodeEntityController::moveRight(SceneNodeEntityPtr pSceneNode, const float delta) {
+		if (nullptr == pSceneNode) throw NullpointerExcept("pSceneNode");
+		auto pTransformComp = pSceneNode->getTransformation3DComponent();
 		if (nullptr == pTransformComp) throw MissingComponentException(Transformation3DComponent::identification);
 
 		const Vector3f right = (pTransformComp->localRotation() * Eigen::Vector3f::UnitX()).normalized();
 		pTransformComp->localPosition() += delta * right;
 	}
-	void SceneObjectEntityController::moveUp(SceneObjectEntityPtr pSceneObjectEntity, const float delta) {
-		if (nullptr == pSceneObjectEntity) throw NullpointerExcept("pSceneObjectEntity");
-		auto pTransformComp = pSceneObjectEntity->getTransformation3DComponent();
+	void SceneNodeEntityController::moveUp(SceneNodeEntityPtr pSceneNode, const float delta) {
+		if (nullptr == pSceneNode) throw NullpointerExcept("pSceneNode");
+		auto pTransformComp = pSceneNode->getTransformation3DComponent();
 		if (nullptr == pTransformComp) throw MissingComponentException(Transformation3DComponent::identification);
 
 		const Vector3f up = (pTransformComp->localRotation() * Eigen::Vector3f::UnitY()).normalized();
 		pTransformComp->localPosition() += delta * up;
 	}
-	void SceneObjectEntityController::yaw(SceneObjectEntityPtr pSceneObjectEntity, const float theta) {
-		if (nullptr == pSceneObjectEntity) throw NullpointerExcept("pSceneObjectEntity");
-		auto pTransformComp = pSceneObjectEntity->getTransformation3DComponent();
+	void SceneNodeEntityController::yaw(SceneNodeEntityPtr pSceneNode, const float theta) {
+		if (nullptr == pSceneNode) throw NullpointerExcept("pSceneNode");
+		auto pTransformComp = pSceneNode->getTransformation3DComponent();
 		if (nullptr == pTransformComp) throw MissingComponentException(Transformation3DComponent::identification);
 
 		const Vector3f up = (pTransformComp->localRotation() * Eigen::Vector3f::UnitY()).normalized();
@@ -130,9 +131,9 @@ namespace crossforge {
 		rot = AngleAxisf(theta, up);
 		pTransformComp->localRotation() = rot * pTransformComp->localRotation();
 	}
-	void SceneObjectEntityController::roll(SceneObjectEntityPtr pSceneObjectEntity, const float theta) {
-		if (nullptr == pSceneObjectEntity) throw NullpointerExcept("pSceneObjectEntity");
-		auto pTransformComp = pSceneObjectEntity->getTransformation3DComponent();
+	void SceneNodeEntityController::roll(SceneNodeEntityPtr pSceneNode, const float theta) {
+		if (nullptr == pSceneNode) throw NullpointerExcept("pSceneNode");
+		auto pTransformComp = pSceneNode->getTransformation3DComponent();
 		if (nullptr == pTransformComp) throw MissingComponentException(Transformation3DComponent::identification);
 
 		const Vector3f dir = -(pTransformComp->localRotation() * Eigen::Vector3f::UnitZ()).normalized();
@@ -140,9 +141,9 @@ namespace crossforge {
 		rot = AngleAxisf(theta, dir);
 		pTransformComp->localRotation() = rot * pTransformComp->localRotation();
 	}
-	void SceneObjectEntityController::pitch(SceneObjectEntityPtr pSceneObjectEntity, const float theta) {
-		if (nullptr == pSceneObjectEntity) throw NullpointerExcept("pSceneObjectEntity");
-		auto pTransformComp = pSceneObjectEntity->getTransformation3DComponent();
+	void SceneNodeEntityController::pitch(SceneNodeEntityPtr pSceneNode, const float theta) {
+		if (nullptr == pSceneNode) throw NullpointerExcept("pSceneNode");
+		auto pTransformComp = pSceneNode->getTransformation3DComponent();
 		if (nullptr == pTransformComp) throw MissingComponentException(Transformation3DComponent::identification);
 
 		const Vector3f right = (pTransformComp->localRotation() * Eigen::Vector3f::UnitX()).normalized();
@@ -151,9 +152,9 @@ namespace crossforge {
 		pTransformComp->localRotation() = rot * pTransformComp->localRotation();
 	}
 
-	void SceneObjectEntityController::lookAt(SceneObjectEntityPtr pSceneObject, Eigen::Vector3f origin, Eigen::Vector3f target, Eigen::Vector3f up) {
-		if (nullptr == pSceneObject) throw NullpointerExcept("pCameraEntity");
-		auto pTransform = pSceneObject->getTransformation3DComponent();
+	void SceneNodeEntityController::lookAt(SceneNodeEntityPtr pSceneNode, Eigen::Vector3f origin, Eigen::Vector3f target, Eigen::Vector3f up) {
+		if (nullptr == pSceneNode) throw NullpointerExcept("pSceneNode");
+		auto pTransform = pSceneNode->getTransformation3DComponent();
 		if (nullptr == pTransform) throw MissingComponentException(Transformation3DComponent::identification);
 
 		Vector3f z = (target - origin).normalized();

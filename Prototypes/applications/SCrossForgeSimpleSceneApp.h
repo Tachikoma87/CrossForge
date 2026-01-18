@@ -31,7 +31,6 @@
 #include "../scene/entities/CameraEntity.h"
 #include "../scene/entities/ActorInstanceEntity.h"
 #include "../scene/systems/MovementSystem.h"
-#include "../scene/entities/SceneEntity.h"
 #include "../scene/systems/CameraSystem.h"
 
 namespace crossforge {
@@ -76,11 +75,9 @@ namespace crossforge {
 
 		AssetIOProviderPtr m_pAssetIO;
 
-		SceneObjectEntityPtr m_pRootNode;
+		SceneNodeEntityPtr m_pRootNode;
 
 		MovementSystemPtr m_pMovementSystem;
-
-		SceneEntityPtr m_pSceneEntity;
 
 		#ifdef CROSSFORGE_OPTION_FFMPEG
 		VideoEntityPtr m_pVideoRecorder;

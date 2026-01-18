@@ -2,10 +2,10 @@
 
 namespace crossforge {
 
-	LightEntity::LightEntity(): SceneObjectEntity(LightEntity::identification) {
+	LightEntity::LightEntity(): SceneNodeEntity(LightEntity::identification) {
 		initialize();
 	}
-	LightEntity::LightEntity(const std::string childIdentification): SceneObjectEntity(LightEntity::identification) {
+	LightEntity::LightEntity(const std::string childIdentification): SceneNodeEntity(LightEntity::identification) {
 		m_inheritance.push_back(childIdentification);
 	}
 	LightEntity::~LightEntity() {

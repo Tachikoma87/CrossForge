@@ -131,12 +131,7 @@ add_executable(CForgeSandbox
 
 	"Prototypes/scene/controllers/RenderingController.cpp"
   
-	 
 
-	 
-	 
-	 
-	 
 	 "Prototypes/scene/controllers/LightEntityController.h"
 	 "Prototypes/scene/controllers/LightEntityController.cpp"
 	 "Prototypes/scene/entities/CameraEntity.h"
@@ -144,35 +139,31 @@ add_executable(CForgeSandbox
 	 "Prototypes/scene/entities/LightEntity.cpp"
 	 "Prototypes/scene/controllers/CameraEntityController.h"
 	 "Prototypes/scene/controllers/CameraEntityController.cpp"
-	 "Prototypes/scene/entities/SceneObjectEntity.h" 
-	 "Prototypes/scene/entities/SceneObjectEntity.cpp" 
+	  
+	  
 	 "Prototypes/scene/entities/ActorInstanceEntity.h" 
 	 "Prototypes/scene/entities/ActorInstanceEntity.cpp" 
-	 "Prototypes/scene/components/Transformation3DComponent.h" 
-	 "Prototypes/scene/components/Transformation3DComponent.cpp" 
-	 "Prototypes/scene/components/Movement3DComponent.h" 
-	 "Prototypes/scene/components/Movement3DComponent.cpp"  
-
-	 "Prototypes/scene/components/CameraPropertiesComponent.h" 
-	 "Prototypes/scene/components/CameraPropertiesComponent.cpp" 
-	 "Prototypes/scene/components/ChildObjectsComponent.h"
-	 "Prototypes/scene/components/ChildObjectsComponent.cpp"
-	 "Prototypes/scene/controllers/SceneObjectEntityController.h"
-	 "Prototypes/scene/controllers/SceneObjectEntityController.cpp"
-	 "Prototypes/scene/components/PrefabComponent.h"
-	 "Prototypes/scene/components/PrefabComponent.cpp"
+	  
+ 
+	  
+	 
+	 
+	 "Prototypes/scene/controllers/SceneNodeEntityController.h"
+	 "Prototypes/scene/controllers/SceneNodeEntityController.cpp"
+	 
+	 
 	 "Prototypes/scene/controllers/ActorInstanceEntityController.h"
 	 "Prototypes/scene/controllers/ActorInstanceEntityController.cpp"
 	 "Prototypes/scene/systems/MovementSystem.h"
 	 "Prototypes/scene/systems/MovementSystem.cpp"
-	 "Prototypes/scene/entities/SceneEntity.h"
-	 "Prototypes/scene/entities/SceneEntity.cpp"
-	 "Prototypes/scene/components/SphericalTransformationComponent.h" 
-	 "Prototypes/scene/components/SphericalTransformationComponent.cpp" 
+	 
+	 
+	  
+	  
 	 "Prototypes/scene/systems/CameraSystem.h" 
 	 "Prototypes/scene/systems/CameraSystem.cpp" 
-	 "Prototypes/scene/components/TargetObjectComponent.h" 
-	 "Prototypes/scene/components/TargetObjectComponent.cpp"   
+	 "Prototypes/scene/components/TargetSceneNodeComponent.h" 
+	 "Prototypes/scene/components/TargetSceneNodeComponent.cpp"   
   )
 
 	

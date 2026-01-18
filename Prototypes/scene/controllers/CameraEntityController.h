@@ -28,10 +28,7 @@ namespace crossforge {
 		static inline std::string identification = "CameraEntityController";
 
 		static void computePerspectiveProjectionMatrix(CameraEntityPtr pCameraEntity, CanvasEntityPtr pCanvasEntity, float fieldOfView = 45.0f, float near = 0.1f, float far = 1000.0f);
-		static void computeCameraMatrixFromTransformation(CameraEntityPtr pCameraEntity);
-		
-
-		
+		static void computeCameraMatrixFromTransformation(CameraEntityPtr pCameraEntity);	
 
 		~CameraEntityController();
 	protected:

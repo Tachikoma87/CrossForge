@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): ChildObjectsComponent.h and ChildObjectsComponent.cpp    *
+* File(s): TargetObjectComponent.h and TargetObjectComponent.cpp                *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,39 +15,35 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_CHILDOBJECTSCOMPONENT_H__
-#define __CROSSFORGE_CHILDOBJECTSCOMPONENT_H__
+#ifndef __CROSSFORGE_TARGETOBJECTCOMPONENT_H__
+#define __CROSSFORGE_TARGETOBJECTCOMPONENT_H__
+
 
 #include <crossforge/eccs/ComponentBase.h>
-#include "../entities/SceneObjectEntity.h"
+#include <crossforge/scene/entities/SceneNodeEntity.h>
 
 namespace crossforge {
-	class ChildObjectsComponent: public ComponentBase {
+	class TargetSceneNodeComponent : public ComponentBase {
 	public:
-		static inline std::string identification = "ChildObjectsComponent";
+		static inline std::string identification = "TargetObjectComponent";
 
-		ChildObjectsComponent();
-		~ChildObjectsComponent();
+		TargetSceneNodeComponent();
+		~TargetSceneNodeComponent();
 
-		void initialize(const std::shared_ptr<const ChildObjectsComponent> pRef = nullptr);
+		void initialize(const std::shared_ptr<const TargetSceneNodeComponent> pRef = nullptr);
 		void clear() override;
 
-		bool addChild(SceneObjectEntityPtr pSceneObject);
-		bool removeChild(SceneObjectEntityPtr pSceneObject);
-		bool hasChild(SceneObjectEntityCPtr pSceneObject);
-
-		std::vector<SceneObjectEntityPtr>& childSceneObjects();
-		const std::vector<SceneObjectEntityCPtr> getChildSceneObjects()const;
-		void setChildSceneObjects(const std::vector<SceneObjectEntityPtr> objects);
+		SceneNodeEntityPtr& targetSceneNode();
+		const SceneNodeEntityCPtr getTargetSceneNode()const;
+		void setTargetSceneNode(const SceneNodeEntityPtr pNode);
 
 	protected:
-		ChildObjectsComponent(const std::string childIdentification);
+		TargetSceneNodeComponent(const std::string childIdentification);
 
-		std::vector<SceneObjectEntityPtr> m_childSceneObjects;
+		SceneNodeEntityPtr m_pTargetEntity;
 	};
-
-	using ChildObjectsComponentPtr = std::shared_ptr<ChildObjectsComponent>;
-	using ChildObjectsComponentCPtr = std::shared_ptr<const ChildObjectsComponent>;
+	using TargetSceneNodeComponentPtr = std::shared_ptr<TargetSceneNodeComponent>;
+	using TargetSceneNodeComponentCPtr = std::shared_ptr<const TargetSceneNodeComponent>;
 }
 
-#endif
+#endif 

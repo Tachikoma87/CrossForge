@@ -18,19 +18,15 @@
 #ifndef __CROSSFORGE_CAMERAENTITY_H__
 #define __CROSSFORGE_CAMERAENTITY_H__
 
-#include "SceneObjectEntity.h"
-#include "../components/Transformation3DComponent.h"
-#include "../components/CameraPropertiesComponent.h"
-#include "../components/TargetObjectComponent.h"
-
+#include <crossforge/scene/entities/SceneNodeEntity.h>
+#include "../components/TargetSceneNodeComponent.h"
 #include <crossforge/graphics/components/ubos/UboCameraDataComponent.h>
+#include <crossforge/scene/components/CameraPropertiesComponent.h>
 
 namespace crossforge {
-	class CameraEntity : public SceneObjectEntity {
+	class CameraEntity : public SceneNodeEntity {
 	public:
 		static inline std::string identification = "CameraEntity";
-
-		
 
 		CameraEntity();
 		~CameraEntity();
@@ -40,8 +36,7 @@ namespace crossforge {
 
 		UboCameraDataComponentPtr getUboCameraDataComponent(const bool createIfNotExists = false);
 		CameraPropertiesComponentPtr getCameraPropertiesComponent(const bool createIfNotExists = false);
-		TargetObjectComponentPtr getTargetObjectComponent(const bool createIfNotExists = false);
-
+		TargetSceneNodeComponentPtr getTargetObjectComponent(const bool createIfNotExists = false);
 
 	protected:
 		CameraEntity(const std::string childIdentification);

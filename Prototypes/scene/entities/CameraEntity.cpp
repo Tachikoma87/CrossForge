@@ -2,10 +2,10 @@
 
 namespace crossforge {
 
-	CameraEntity::CameraEntity() : SceneObjectEntity(CameraEntity::identification) {
+	CameraEntity::CameraEntity() : SceneNodeEntity(CameraEntity::identification) {
 		initialize();
 	}
-	CameraEntity::CameraEntity(const std::string childIdentification): SceneObjectEntity(CameraEntity::identification) {
+	CameraEntity::CameraEntity(const std::string childIdentification): SceneNodeEntity(CameraEntity::identification) {
 		m_inheritance.push_back(childIdentification);
 	}
 	CameraEntity::~CameraEntity() {
@@ -25,7 +25,7 @@ namespace crossforge {
 	CameraPropertiesComponentPtr CameraEntity::getCameraPropertiesComponent(const bool createIfNotExists) {
 		return getComponent<CameraPropertiesComponent>(createIfNotExists);
 	}
-	TargetObjectComponentPtr CameraEntity::getTargetObjectComponent(const bool createIfNotExists) {
-		return getComponent<TargetObjectComponent>(createIfNotExists);
+	TargetSceneNodeComponentPtr CameraEntity::getTargetObjectComponent(const bool createIfNotExists) {
+		return getComponent<TargetSceneNodeComponent>(createIfNotExists);
 	}
 }

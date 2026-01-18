@@ -1,7 +1,6 @@
 #include "MovementSystem.h"
-#include "../components/Movement3DComponent.h"
-#include "../components/Transformation3DComponent.h"
-
+#include <crossforge/scene/components/Movement3DComponent.h>
+#include <crossforge/scene/components/Transformation3DComponent.h>
 namespace crossforge {
 
 	MovementSystem::MovementSystem(): SystemBase(MovementSystem::identification) {

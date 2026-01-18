@@ -2,10 +2,10 @@
 
 namespace crossforge {
 
-	ActorInstanceEntity::ActorInstanceEntity(): SceneObjectEntity(ActorInstanceEntity::identification) {
+	ActorInstanceEntity::ActorInstanceEntity(): SceneNodeEntity(ActorInstanceEntity::identification) {
 		initialize();
 	}
-	ActorInstanceEntity::ActorInstanceEntity(const std::string childIdentification): SceneObjectEntity(ActorInstanceEntity::identification) {
+	ActorInstanceEntity::ActorInstanceEntity(const std::string childIdentification): SceneNodeEntity(ActorInstanceEntity::identification) {
 		m_inheritance.push_back(childIdentification);
 		initialize();
 	}
