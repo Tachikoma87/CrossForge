@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): TargetObjectComponent.h and TargetObjectComponent.cpp                *
+* File(s): ExampleBase.h and ExampleBase.cpp                       *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,35 +15,33 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_TARGETOBJECTCOMPONENT_H__
-#define __CROSSFORGE_TARGETOBJECTCOMPONENT_H__
+#ifndef __CROSSFORGE_EXAMPLEBASE_H__
+#define __CROSSFORGE_EXAMPLEBASE_H__
 
+#include <crossforge/application/ApplicationBase.h>
+#include <crossforge/graphics/entities/WindowEntity.h>
+#include <crossforge/graphics/systems/WindowSystem.h>
 
-#include <crossforge/eccs/ComponentBase.h>
-#include <crossforge/scene/entities/SceneNodeEntity.h>
 
 namespace crossforge {
-	class TargetSceneNodeComponent : public ComponentBase {
+	class ExampleBase : public ApplicationBase {
 	public:
-		static inline std::string identification = "TargetObjectComponent";
 
-		TargetSceneNodeComponent();
-		~TargetSceneNodeComponent();
+		virtual void initialize();
+		virtual void update();
 
-		void initialize(const std::shared_ptr<const TargetSceneNodeComponent> pRef = nullptr);
-		void clear() override;
 
-		SceneNodeEntityPtr& targetSceneNode();
-		const SceneNodeEntityCPtr getTargetSceneNode()const;
-		void setTargetSceneNode(const SceneNodeEntityPtr pNode);
-
+		virtual ~ExampleBase();
 	protected:
-		TargetSceneNodeComponent(const std::string childIdentification);
+		ExampleBase(const std::string exampleName);
 
-		SceneNodeEntityPtr m_pTargetEntity;
+		std::string m_exampleName;
+
+		
 	};
-	using TargetSceneNodeComponentPtr = std::shared_ptr<TargetSceneNodeComponent>;
-	using TargetSceneNodeComponentCPtr = std::shared_ptr<const TargetSceneNodeComponent>;
+
+	using ExampleBasePtr = std::shared_ptr<ExampleBase>;
+	using ExampleBaseCPtr = std::shared_ptr<const ExampleBase>;
 }
 
 #endif 

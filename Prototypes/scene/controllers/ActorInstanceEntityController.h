@@ -19,7 +19,7 @@
 #define __CROSSFORGE_ACTORINSTANCEENTITYCONTROLLER_H__
 
 #include <crossforge/eccs/ControllerBase.h>
-#include "../entities/ActorInstanceEntity.h"
+#include <crossforge/scene/entities/ActorInstanceEntity.h>
 
 namespace crossforge {
 	class ActorInstanceEntityController : public ControllerBase {

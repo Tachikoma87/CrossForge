@@ -2,6 +2,8 @@
 #include "SCrossForgeRestTestApp.h"
 #include <thread>
 
+#ifndef __EMSCRIPTEN__
+
 #include <drogon/drogon.h>
 #include <crossforge/math/CrossForgeMath.h>
 #include "../database/daos/DatabaseVersionDao.h"
@@ -263,4 +265,5 @@ namespace crossforge {
 
 }
 
+#endif
 	

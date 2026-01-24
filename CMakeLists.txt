@@ -29,19 +29,12 @@ option(CROSSFORGE_OPTION_FFMPEG "Features related to videos" OFF)
 
 include(FetchContent)
 
-if(UNIX)
-FetchContent_Declare(
-	libcrossforge
-	SOURCE_DIR "/mnt/c/Projects/libcrossforge"
-)
-else()
-FetchContent_Declare(
-	libcrossforge
-	SOURCE_DIR "C:/Projects/libcrossforge"
-)
-endif()
-FetchContent_MakeAvailable(libcrossforge)
 
+FetchContent_Declare(
+	libcrossforge
+	SOURCE_DIR "${CMAKE_SOURCE_DIR}/libcrossforge"
+)
+FetchContent_MakeAvailable(libcrossforge)
 
 FetchContent_Declare(
 	stb 
@@ -50,40 +43,64 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(stb)
 include_directories(${stb_SOURCE_DIR})
 
-#FetchContent_Declare(
-#	oatpp
-#	GIT_REPOSITORY https://github.com/Tachikoma87/oatpp.git
-#	GIT_TAG 1.3.1
-#)
-#FetchContent_MakeAvailable(oatpp)
-#include_directories(${oatpp_SOURCE_DIR}/src)
-#link_directories(${oatpp_BINARY_DIR}/src)
-
 
 if(EMSCRIPTEN)
-	### Eigen3
+	### Eigen
 	FetchContent_Declare(
-		tinyxml2 
-		GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
-		GIT_TAG 9.0.0
+		eigen 
+		GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
 	)
-	FetchContent_MakeAvailable(tinyxml2)
+	FetchContent_MakeAvailable(eigen)
+	include_directories(${eigen_SOURCE_DIR}/)
+
+	## WebP Library
+	FetchContent_Declare(
+		webp 
+		GIT_REPOSITORY https://github.com/webmproject/libwebp.git
+		GIT_TAG v1.6.0
+	)
+	FetchContent_MakeAvailable(webp)
+	FetchContent_GetProperties(webp)
+	include_directories(${webp_SOURCE_DIR}/src/)
+	link_directories(${webp_BINARY_DIR})
+
+	## Assimp
+	FetchContent_Declare(
+		assimp 
+		URL https://github.com/assimp/assimp/archive/refs/tags/v6.0.3.zip
+	)
+	FetchContent_MakeAvailable(assimp)
+	include_directories(${assimp_SOURCE_DIR}/include/)
+	include_directories(${assimp_BINARY_DIR}/include/)
+	link_directories(${assimp_BINARY_DIR}/lib/)
+
+	## libigl
+	FetchContent_Declare(
+		libigl 
+		URL https://github.com/libigl/libigl/archive/refs/tags/v2.6.0.zip
+	)
+	FetchContent_MakeAvailable(libigl)
+	include_directories(${libigl_SOURCE_DIR}/include/)
+
+	## freetype
+	FetchContent_Declare(
+		freetype 
+		GIT_REPOSITORY https://github.com/freetype/freetype.git
+		#GIT_TAG v2.0.3
+	)
+	FetchContent_MakeAvailable(freetype)
+	include_directories(${freetype_SOURCE_DIR}/include/)
 
 	# tinygltf
 	FetchContent_Declare(
 		tinygltf 
-		URL https://github.com/syoyo/tinygltf/archive/refs/tags/v2.8.2.zip
+		URL https://github.com/syoyo/tinygltf/archive/refs/tags/v2.9.7.zip
 	)
 	FetchContent_MakeAvailable(tinygltf)
 	include_directories(${tinygltf_SOURCE_DIR}/)
 
-	FetchContent_Declare(
-		imgui
-		URL https://github.com/ocornut/imgui/archive/refs/tags/v1.89.4.zip
-	)
-	FetchContent_MakeAvailable(imgui)
-	include_directories(${imgui_SOURCE_DIR}/)
-	include_directories(${imgui_SOURCE_DIR}/backends)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Optimization_Flag} -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Optimization_Flag} -std=c++20 -fwasm-exceptions -Wno-deprecated -Wno-unused-command-line-argument -Wno-tautological-pointer-compare -sUSE_ZLIB=1 -sUSE_GLFW=3 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
 
 
 	set(CMAKE_EXECUTABLE_SUFFIX .html)
@@ -103,76 +120,48 @@ else()
 
 endif()
 
+
+
 add_executable(CForgeSandbox 
-	# Subprojects
-	# B02 Demonstrator
-#	Subprojects/B02Demonstrator/AdaptiveSkeletalActor.cpp
-	# Dual IMU
-#	Subprojects/DualIMU/IMUCameraController.cpp
 
 	################################
 	#### New CrossForge ############
 	################################
 	"CrossForgeSandbox.cpp" 
 	"Prototypes/applications/SCrossForgeTestApp.cpp"
-	"Prototypes/database/router/TestRouter.cpp"
-	"Prototypes/database/daos/DatabaseVersionDao.h"
-	"Prototypes/database/daos/DatabaseVersionDao.cpp"
-	"Prototypes/database/pocos/DatabaseVersionPoco.h"
-	"Prototypes/database/pocos/DatabaseVersionPoco.cpp"
 
-	"crossforge.old/MiscUtility.cpp" 
-	 
-	 
-	"Prototypes/applications/SCrossForgeRestTestApp.cpp" 
+#	"Prototypes/database/router/TestRouter.cpp"
+#	"Prototypes/database/daos/DatabaseVersionDao.h"
+#	"Prototypes/database/daos/DatabaseVersionDao.cpp"
+#	"Prototypes/database/pocos/DatabaseVersionPoco.h"
+#	"Prototypes/database/pocos/DatabaseVersionPoco.cpp"
+
+  
+#	"Prototypes/applications/SCrossForgeRestTestApp.cpp" 
     "Prototypes/applications/SCrossForgeSimpleSceneApp.h" 
 	 "Prototypes/applications/SCrossForgeSimpleSceneApp.cpp" 
 
-
-	"Prototypes/scene/controllers/RenderingController.cpp"
-  
-
 	 "Prototypes/scene/controllers/LightEntityController.h"
 	 "Prototypes/scene/controllers/LightEntityController.cpp"
-	 "Prototypes/scene/entities/CameraEntity.h"
-	 "Prototypes/scene/entities/CameraEntity.cpp"
+	 
+	 
 	 "Prototypes/scene/entities/LightEntity.cpp"
-	 "Prototypes/scene/controllers/CameraEntityController.h"
-	 "Prototypes/scene/controllers/CameraEntityController.cpp"
-	  
-	  
-	 "Prototypes/scene/entities/ActorInstanceEntity.h" 
-	 "Prototypes/scene/entities/ActorInstanceEntity.cpp" 
-	  
- 
-	  
-	 
-	 
-	 "Prototypes/scene/controllers/SceneNodeEntityController.h"
-	 "Prototypes/scene/controllers/SceneNodeEntityController.cpp"
-	 
-	 
+
 	 "Prototypes/scene/controllers/ActorInstanceEntityController.h"
 	 "Prototypes/scene/controllers/ActorInstanceEntityController.cpp"
-	 "Prototypes/scene/systems/MovementSystem.h"
-	 "Prototypes/scene/systems/MovementSystem.cpp"
-	 
-	 
-	  
-	  
-	 "Prototypes/scene/systems/CameraSystem.h" 
-	 "Prototypes/scene/systems/CameraSystem.cpp" 
-	 "Prototypes/scene/components/TargetSceneNodeComponent.h" 
-	 "Prototypes/scene/components/TargetSceneNodeComponent.cpp"   
-  )
+   
+   "Prototypes/examples/ExampleBase.h" 
+   "Prototypes/examples/ExampleBase.cpp" 
+   "Prototypes/examples/BasicWindowSetup.h" 
+   "Prototypes/examples/BasicWindowSetup.cpp"
+)
 
 	
 if(EMSCRIPTEN)
 	target_link_Libraries(CForgeSandbox
-		tinyxml2
 		crossforge
 	)
-	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} ${Optimization_Flag} -sEXIT_RUNTIME=1 -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -fwasm-exceptions -sUSE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets --preload-file Shader --preload-file MyAssets")
+	set_target_properties(CForgeSandbox PROPERTIES LINK_FLAGS "${LINK_FLAGS} ${Optimization_Flag} -sEXIT_RUNTIME=1 -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -fwasm-exceptions -sUSE_GLFW=3 -sUSE_ZLIB=1 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 --preload-file Assets")
 
 elseif(WIN32)
 	target_link_libraries(CForgeSandbox 

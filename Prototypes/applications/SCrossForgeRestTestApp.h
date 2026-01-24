@@ -17,6 +17,7 @@
 \****************************************************************************/
 #ifndef __CROSSFORGE_SCROSSFORGERESTTESTAPP_H__
 #define __CROSSFORGE_SCROSSFORGERESTTESTAPP_H__
+#ifndef __EMSCRIPTEN__
 
 #include <crossforge/application/ApplicationBase.h>
 #include <crossforge/database/entities/DatabaseConnectionEntity.h>
@@ -56,8 +57,9 @@ namespace crossforge {
 
 	};
 
+	using CrossForgeRestTestApp = SCrossForgeRestTestApp;
 	using CrossForgeRestTestAppPtr = std::shared_ptr<SCrossForgeRestTestApp>;
 	using CrossForgeRestTestAppCPtr = std::shared_ptr<const SCrossForgeRestTestApp>;
 }
-
+#endif
 #endif 

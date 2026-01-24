@@ -27,11 +27,13 @@
 #include <crossforge/graphics/entities/ActorPrefabEntity.h>
 #include <crossforge/graphics/entities/LightsEntity.h>
 
+#include <crossforge/scene/entities/ActorInstanceEntity.h>
 
-#include "../scene/entities/CameraEntity.h"
-#include "../scene/entities/ActorInstanceEntity.h"
-#include "../scene/systems/MovementSystem.h"
-#include "../scene/systems/CameraSystem.h"
+#include <crossforge/scene/entities/CameraEntity.h>
+
+#include <crossforge/scene/systems/MovementSystem.h>
+#include <crossforge/scene/systems/CameraSystem.h>
+
 
 namespace crossforge {
 	class SCrossForgeSimpleSceneApp : public ApplicationBase {

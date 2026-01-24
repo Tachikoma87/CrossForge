@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                           *
-* File(s): RenderingSystem.h and RenderingSystem.cpp                        *
+* File(s): BasicWindowSetup.h and BasicWindowSetup.cpp                       *
 *                                                                           *
 * Content:                            *
 *                                                                           *
@@ -15,34 +15,49 @@
 * supplied documentation.                                                   *
 *                                                                           *
 \****************************************************************************/
-#ifndef __CROSSFORGE_RENDERINGCONTROLLER_H__
-#define __CROSSFORGE_RENDERINGCONTROLLER_H__
+#ifndef __CROSSFORGE_BASICWINDOWSETUP_H__
+#define __CROSSFORGE_BASICWINDOWSETUP_H__
 
-#include <crossforge/eccs/ControllerBase.h>
+#include "ExampleBase.h"
+
+#include <crossforge/input/systems/KeyboardInputSystem.h>
+#include <crossforge/input/systems/MouseInputSystem.h>
 #include <crossforge/graphics/entities/CanvasEntity.h>
-#include "../../scene/entities/ActorInstanceEntity.h"
-#include "../../scene/entities/CameraEntity.h"
-#include <crossforge/graphics/entities/ActorPrefabEntity.h>
-#include <crossforge/graphics/providers/SShaderProvider.h>
-#include <crossforge/graphics/entities/LightsEntity.h>
+
 
 namespace crossforge {
-	class RenderingController : public ControllerBase {
+	/**
+	* This tutorial example covers creating a OpenGL-capable Window, handling input through mouse and keyboard, computing fps and frame processing times, as well as setting background color.
+	*/
+	class BasicWindowSetup : public ExampleBase {
 	public:
-		inline static std::string identification = "RenderingController";
 
-		static void activateCanvas(CanvasEntityPtr pCanvas, bool clearBackground = false);
-		static void drawActor(ShaderProvider::RenderPass renderPass, ActorInstanceEntityPtr pActorInstance, ActorPrefabEntityPtr pActorPrefab, CameraEntityPtr pCamera, LightsEntityPtr pLights);
+		BasicWindowSetup();
+		~BasicWindowSetup();
 
-		~RenderingController();
+		void initialize() override;
+		void update() override;
+
 	protected:
-		RenderingController(const std::string childIdentification);
-		static ShaderPropertiesComponentPtr m_pShaderProperties;
+		
+		WindowEntityPtr m_pMainWindow;
+		CanvasEntityPtr m_pMainCanvas;
+
+		WindowSystemPtr m_pWindowSystem;
+
+		InputDeviceEntityPtr m_pInputDevice;
+
+		uint64_t m_lastFpsPrint;
+		uint64_t m_frameProcessingCounter;
+		uint32_t m_frameCounter;
+
+		std::vector<Eigen::Vector4f> m_bgColors;
+
+
 	};
 
-	using RenderingControllerPtr = std::shared_ptr<RenderingController>;
-	using RenderingControllerCPtr = std::shared_ptr<const RenderingController>;
-
+	using BasicWindowSetupPtr = std::shared_ptr<BasicWindowSetup>;
+	using BasicWindowSetupCPtr = std::shared_ptr<const BasicWindowSetup>;
 }
 
 #endif 

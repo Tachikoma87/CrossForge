@@ -3,10 +3,11 @@
 #include <Windows.h>
 #endif
 
-#include <glad/glad.h>
+#include <crossforge/graphics/OpenGLHeader.h>
 #include <crossforge/utility/GeneralUtility.hpp>
 #include "SCrossForgeTestApp.h"
-#include "../scene/controllers/RenderingController.h"
+
+#include <crossforge/scene/controllers/RenderingController.h>
 #include <crossforge/graphics/entities/CanvasEntity.h>
 #include <crossforge/graphics/controllers/WindowEntityController.h>
 #include <crossforge/assetio/SAssetIOProvider.h>
@@ -48,7 +49,9 @@ namespace crossforge {
 		if (WindowEntityController::initOpenGLWindow(m_pMainWin)) {
 			LogInfo("Successfully created main window with OpenGL functionality!");
 			pWindowSystem->registerEntity(m_pMainWin);
+#ifndef __EMSCRIPTEN__
 			gladLoadGL();
+#endif
 		}
 		else {
 			LogError("Something went wrong creating the main OpenGl window!");

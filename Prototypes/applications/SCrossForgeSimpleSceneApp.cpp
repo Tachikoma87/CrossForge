@@ -1,6 +1,4 @@
 #include <crossforge/graphics/OpenGLHeader.h>
-#include "SCrossForgeSimpleSceneApp.h"
-
 #include <crossforge/assetio/controller/TriangleMeshController.h>
 #include <crossforge/graphics/controllers/WindowEntityController.h>
 #include <crossforge/graphics/systems/WindowSystem.h>
@@ -10,16 +8,15 @@
 #include <crossforge/utility/GraphicsUtility.h>
 #include <crossforge/graphics/providers/STextureProvider.h>
 #include <crossforge/math/CrossForgeMath.h>
-#include "../scene/controllers/RenderingController.h"
-#include "../scene/controllers/CameraEntityController.h"
-#include "../scene/controllers/SceneNodeEntityController.h"
-
+#include <crossforge/scene/controllers/CameraEntityController.h>
+#include <crossforge/scene/controllers/ScenenNodeEntityController.h>
 #include <crossforge/graphics/controllers/ActorPrefabEntityController.h>
 #include <crossforge/scene/components/ActorPrefabComponent.h>
 #include <crossforge/scene/components/SphericalTransformationComponent.h>
-
 #include <crossforge/scene/components/SceneNodesComponent.h>
+#include <crossforge/scene/controllers/RenderingController.h>
 
+#include "SCrossForgeSimpleSceneApp.h"
 
 
 
@@ -70,7 +67,9 @@ namespace crossforge {
 		else {
 			LogInfo("Successfully initialized main window!");
 			pWindowSystem->registerEntity(m_pMainWin);
+#ifndef __EMSCRIPTEN__
 			gladLoadGL();
+#endif
 		}
 
 		// initialize
@@ -150,7 +149,7 @@ namespace crossforge {
 		ActorPrefabEntityController::buildStaticActor(m_pGroundPlanePrefab, pPlaneTriangleMesh);
 		//m_pGroundPlanePrefab->getPBRMaterialsComponent()->getMaterial(0)->texture(PbrMaterial::TEXTURE_TYPE_ALBEDO) = TextureProvider::instance()->getTexture(0);
 
-		auto pMaterialComp = m_pGroundPlanePrefab->getPBRMaterialsComponent();
+		auto pMaterialComp = m_pGroundPlanePrefab->getPbrMaterialsComponent();
 		for (uint32_t i = 0; i < pMaterialComp->getMaterialCount(); ++i) {
 			auto pMat = pMaterialComp->pbrMaterial(i);
 			GraphicsUtility::createDefaultMaterial(pMat, GraphicsUtility::METAL_COPPER);
@@ -218,7 +217,7 @@ namespace crossforge {
 		m_pGroundPlaneInstance->addComponent(std::make_shared<UboTransformationDataComponent>());
 		m_pEntityManager->registerEntity(m_pGroundPlaneInstance);
 
-		m_pCameraEntity->getTargetObjectComponent(true)->targetSceneNode() = m_pHelmetActorInstance;
+		m_pCameraEntity->getTargetSceneNodeComponent(true)->targetSceneNode() = m_pHelmetActorInstance;
 
 		// initialize scene lights
 		m_pSceneLights = std::make_shared<LightsEntity>();
@@ -411,7 +410,7 @@ namespace crossforge {
 			LogDebug(output);*/
 
 			auto pCameraPropComp = m_pCameraEntity->getCameraPropertiesComponent();
-			if (!pCameraPropComp->cameraType() == CameraPropertiesComponent::FIRST_PERSON) pCameraPropComp->cameraType() = CameraPropertiesComponent::FIRST_PERSON;
+			if (!(pCameraPropComp->cameraType() == CameraPropertiesComponent::FIRST_PERSON)) pCameraPropComp->cameraType() = CameraPropertiesComponent::FIRST_PERSON;
 			else pCameraPropComp->cameraType() = CameraPropertiesComponent::ORBITAL;
 
 
@@ -419,6 +418,7 @@ namespace crossforge {
 		}
 		if (pKeyboard->isKeyReleased(KeyboardStateComponent::KEY_2)) {
 			InputDeviceEntityPtr pInputDevice = std::make_shared<InputDeviceEntity>();
+#ifndef __EMSCRIPTEN__
 			auto pUserDialogComp = std::make_shared<UserDialogComponent>();
 			pUserDialogComp->dialogType() = UserDialogComponent::DIALOG_TYPE_INPUT_PASSWORD;
 			pUserDialogComp->title() = "My first Input-Böx";
@@ -428,12 +428,13 @@ namespace crossforge {
 			InputDeviceController::conductUserDialog(pInputDevice);
 			auto pUserInput = pInputDevice->getComponent<UserInputComponent>();
 			LogDebug("User input was: " + pUserInput->string());
+#endif
 
 			pKeyboard->keyState(KeyboardStateComponent::KEY_2) = KeyboardStateComponent::KEY_STATE_OFF;
 		}
 
 		if (pKeyboard->isKeyReleased(KeyboardStateComponent::KEY_3)) {
-
+#ifndef __EMSCRIPTEN__
 			static InputDeviceEntityPtr pInputDevice = std::make_shared<InputDeviceEntity>();
 			if (!pInputDevice->hasComponent(UserDialogComponent::identification)) {
 				auto pUserDialogComp = std::make_shared<UserDialogComponent>();
@@ -458,7 +459,7 @@ namespace crossforge {
 			outputMsg = "User selected color: " + std::to_string(color.x()) + " | " + std::to_string(color.y()) + " | " + std::to_string(color.z());
 
 			LogDebug(outputMsg);
-
+#endif
 			pKeyboard->keyState(KeyboardStateComponent::KEY_3) = KeyboardStateComponent::KEY_STATE_OFF;
 		}
 
@@ -475,7 +476,7 @@ namespace crossforge {
 		m_pGroundPlaneInstance->getTransformation3DComponent()->localPosition() += Eigen::Vector3f(0.0f, 0.0f, -0.1f);
 
 		if (pKeyboard->isKeyPressed(KeyboardStateComponent::KEY_9)) {
-			auto pMaterialsComp = m_pDuckActorPrefab->getPBRMaterialsComponent();
+			auto pMaterialsComp = m_pDuckActorPrefab->getPbrMaterialsComponent();
 			for (auto pMat : pMaterialsComp->pbrMaterials()) {
 				if (pMat->metallic() <= 1.0f) pMat->metallic() += 0.01f;
 				else pMat->metallic() = 1.0f;
@@ -483,7 +484,7 @@ namespace crossforge {
 			}
 		}
 		if (pKeyboard->isKeyPressed(KeyboardStateComponent::KEY_8)) {
-			auto pMaterialsComp = m_pDuckActorPrefab->getPBRMaterialsComponent();
+			auto pMaterialsComp = m_pDuckActorPrefab->getPbrMaterialsComponent();
 			for (auto pMat : pMaterialsComp->pbrMaterials()) {
 				if (pMat->metallic() >= 0.0f) pMat->metallic() -= 0.01f;
 				else pMat->metallic() = 0.0f;
@@ -491,7 +492,7 @@ namespace crossforge {
 			}
 		}
 		if (pKeyboard->isKeyPressed(KeyboardStateComponent::KEY_7)) {
-			auto pMaterialsComp = m_pDuckActorPrefab->getPBRMaterialsComponent();
+			auto pMaterialsComp = m_pDuckActorPrefab->getPbrMaterialsComponent();
 			for (auto pMat : pMaterialsComp->pbrMaterials()) {
 				if (pMat->roughness() <= 1.0f) pMat->roughness() += 0.01f;
 				else pMat->roughness() = 1.0f;
@@ -499,7 +500,7 @@ namespace crossforge {
 			}
 		}
 		if (pKeyboard->isKeyPressed(KeyboardStateComponent::KEY_6)) {
-			auto pMaterialsComp = m_pDuckActorPrefab->getPBRMaterialsComponent();
+			auto pMaterialsComp = m_pDuckActorPrefab->getPbrMaterialsComponent();
 			for (auto pMat : pMaterialsComp->pbrMaterials()) {
 				if (pMat->roughness() >= 0.0f) pMat->roughness() -= 0.01f;
 				else pMat->roughness() = 0.0f;
@@ -600,7 +601,7 @@ namespace crossforge {
 		Image2DEntityPtr pImageEntity = std::make_shared<Image2DEntity>();
 		Image2DEntityPtr pDepthImage = std::make_shared<Image2DEntity>();
 
-		uint32_t helmetTex = m_pHelmetActorPrefab->getPBRMaterialsComponent()->pbrMaterial(0)->texture(PbrMaterial::TEXTURE_TYPE_ALBEDO)->getTexture2DComponent()->glTextureHandle();
+		uint32_t helmetTex = m_pHelmetActorPrefab->getPbrMaterialsComponent()->pbrMaterial(0)->texture(PbrMaterial::TEXTURE_TYPE_ALBEDO)->getTexture2DComponent()->glTextureHandle();
 		//GraphicsUtility::retrieveColorTexture(helmetTex, pImageEntity, 0);
 		//AssetIOProvider::instance()->storeImage2D(pImageEntity, "./assets/helemetTex.webp");
 

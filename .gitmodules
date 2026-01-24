@@ -1,0 +1,3 @@
+[submodule "libcrossforge"]
+	path = libcrossforge
+	url = https://gitlab.com/crossforge/libcrossforge.git
